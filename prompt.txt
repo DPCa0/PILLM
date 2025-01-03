@@ -1,2 +1,0 @@
-Here are the source functions from Webkit/Source/JavaScriptCore/parser/Lexer.cpp; write source code functional testing of JS engine to trigger these functions. These tests are intended to test with JavaScriptCore's command-line interpreter (JSC). Avoid calls not defined by the JSC shell environment, such as console.log. Note to avoid reference errors. Answer JavaScript code only and nothing else, do not write explanations.
-<source_code>
