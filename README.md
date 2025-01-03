@@ -45,4 +45,3 @@ For the IR instrumentation build, please refer the [fuzzilli’s](https://github
 
 You can see the following outputs if it successfully runs.
 
-[录屏2025-01-03 20.28.01.mov](PILLM%201701fb7725dc8080abcbfd527a2948e2/%25E5%25BD%2595%25E5%25B1%258F2025-01-03_20.28.01.mov)
