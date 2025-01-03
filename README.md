@@ -1,24 +1,48 @@
-# PILLM  
-Program Interoperable Large Language Model Software Testing Scheme.  
+# PILLM
 
-We will show how to use our instrument script, in the experimental environment we are using webkit versions webkitgtk-2.39.3 and webkitgtk-2.41.6+. We build jsc shell for fuzzing on Ubuntu 20.04 LTS.
+Program Interoperable Large Language Model Software Testing Scheme.
 
-## Step 1: Download the Webkit Source Code
-Refer to the following link to build the webkit source code:
-https://github.com/WebKit/WebKit
+We now publish our source code! We have verified that our scheme works on webkitgtk-2.41.6.
 
-## Step 2: Build the JSC Shell
-Refer to the following link to build the jsc shell:
-https://docs.webkit.org/Build%20%26%20Debug/BuildOptions.html
+We will show how to build and run our project, our experiments were conducted on Ubuntu 20.04 LTS with Clang 16.0.6 and Python 3.10.15.
 
+## Usage
 
-## Step 3: Run the Instrument Script
+### 1. **Download the Webkit Source Code**
 
-```bash
-python3 instrument.py
+Refer to the following link to build the webkit source code: [https://github.com/WebKit/WebKit](https://github.com/WebKit/WebKit)
+
+### 2. **Run the Instrument Script**
+
+```jsx
+python instrument.py --source /path/to/WebKit/Source/JavaScriptCore/
 ```
 
-## Step 4: Run the JSC Shell
-```bash
-sh run_jsc.sh
+### 3. **Run the build-jsc Script under Webkit Root Path**
+
+```jsx
+python build-jsc
 ```
+
+### 4. **Export the OpenAI API Key**
+
+```jsx
+export OPENAI_API_KEY="your-api-key"
+```
+
+### 5. **Run**
+
+```jsx
+python generate.py   
+--version gpt-4o [or other model]   
+--pillm-path /path/to/static_instrumented/jsc   
+--coverage-path /path/to/IR_instrumented/jsc   
+--log /path/to/log   
+--source /path/to/webkit/Source/JavaScriptCore
+```
+
+For the IR instrumentation build, please refer the [fuzzilli’s](https://github.com/googleprojectzero/fuzzilli/tree/main/Targets/JavaScriptCore) patch or other tools.
+
+You can see the following outputs if it successfully runs.
+
+[录屏2025-01-03 20.28.01.mov](PILLM%201701fb7725dc8080abcbfd527a2948e2/%25E5%25BD%2595%25E5%25B1%258F2025-01-03_20.28.01.mov)
