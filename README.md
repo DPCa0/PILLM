@@ -45,3 +45,4 @@ For the IR instrumentation build, please refer the [fuzzilli’s](https://github
 
 You can see the following outputs if it successfully runs.
 
+[Running Example](example.gif)
