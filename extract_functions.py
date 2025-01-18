@@ -4,10 +4,118 @@ import random
 import argparse
 import shutil
 
+def parse_pillm_dump_file(pillm_dump_path):
+    file_func_counts = {}
+    dir_func_counts = {}
+
+    if not os.path.exists(pillm_dump_path):
+        return file_func_counts, dir_func_counts
+
+    with open(pillm_dump_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    pattern = re.compile(r'(\S+\.cpp)::([^(]+)\(start line: (\d+), end line: (\d+)\)')
+
+    for line in lines:
+        match = pattern.search(line)
+        if not match:
+            continue
+        cpp_filename = match.group(1).strip()
+        func_name = match.group(2).strip()
+
+        if cpp_filename not in file_func_counts:
+            file_func_counts[cpp_filename] = {}
+        if func_name not in file_func_counts[cpp_filename]:
+            file_func_counts[cpp_filename][func_name] = 0
+        file_func_counts[cpp_filename][func_name] += 1
+
+    return file_func_counts, dir_func_counts
+
+
+def build_dir_func_counts(source_dir, file_func_counts):
+
+    dir_func_counts = {}
+
+    cpp_file_map = {}
+    for root, dirs, files in os.walk(source_dir):
+        for f in files:
+            if f.endswith('.cpp'):
+                if f not in cpp_file_map:
+                    cpp_file_map[f] = []
+                cpp_file_map[f].append(os.path.join(root, f))
+
+    for bare_filename, func_dict in file_func_counts.items():
+        if bare_filename not in cpp_file_map:
+            continue
+        full_path = cpp_file_map[bare_filename][0]
+        folder_path = os.path.dirname(full_path)
+
+        if folder_path not in dir_func_counts:
+            dir_func_counts[folder_path] = {}
+
+        for func_name, freq in func_dict.items():
+            key = (bare_filename, func_name)
+            if key not in dir_func_counts[folder_path]:
+                dir_func_counts[folder_path][key] = 0
+            dir_func_counts[folder_path][key] += freq
+
+    return dir_func_counts
+
+def compute_semantic_correlation(snippet_text, file_path,
+                                 file_func_counts, dir_func_counts,
+                                 alpha=2.0, beta=1.0):
+
+    if not os.path.exists(file_path):
+        return 0.0
+
+    snippet_folder = os.path.dirname(file_path)
+    snippet_basename = os.path.basename(file_path)
+
+    if snippet_basename not in file_func_counts:
+        return 0.0
+
+    file_freqs = file_func_counts[snippet_basename]
+    total_funcs_in_file = len(file_freqs)
+
+    if total_funcs_in_file == 0:
+        return 0.0
+
+    newly_triggered_in_file = sum(1 for f, freq in file_freqs.items() if freq == 1)
+
+    if snippet_folder not in dir_func_counts:
+        return 0.0
+
+    dir_freqs = dir_func_counts[snippet_folder]
+    total_funcs_in_dir = len(dir_freqs)
+
+    other_funcs_in_dir = total_funcs_in_dir - total_funcs_in_file
+    if other_funcs_in_dir < 1:
+        return alpha * (newly_triggered_in_file / total_funcs_in_file)
+
+    newly_triggered_in_dir = sum(
+        1 for (bfn, fname), freq in dir_freqs.items() if freq == 1
+    )
+
+    newly_in_file_set = set(
+        (snippet_basename, func_name)
+        for func_name, freq in file_freqs.items()
+        if freq == 1
+    )
+
+    newly_triggered_other_in_dir = 0
+    for (bfn, fname), freq in dir_freqs.items():
+        if freq == 1:
+            if (bfn, fname) not in newly_in_file_set:
+                newly_triggered_other_in_dir += 1
+
+    corr = alpha * (newly_triggered_in_file / total_funcs_in_file) \
+         + beta * (newly_triggered_other_in_dir / other_funcs_in_dir)
+    return corr
+
 def extract_function_from_file(file_path, max_lines=100):
+
     with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
         code = f.read()
-
     pattern = re.compile(
         r'(?:^|\n)([^\n]*?)\s+([^\s]+?)\s*\(([^\)]*?)\)\s*(const)?\s*\{', re.MULTILINE)
     matches = pattern.finditer(code)
@@ -32,6 +140,7 @@ def extract_function_from_file(file_path, max_lines=100):
         return None
 
 def get_all_cpp_files(source_dir):
+
     cpp_files = []
     for root, dirs, files in os.walk(source_dir):
         for file in files:
@@ -40,6 +149,7 @@ def get_all_cpp_files(source_dir):
     return cpp_files
 
 def extract_random_function(source_dir, used_files_set, max_function_length=100):
+
     cpp_files = get_all_cpp_files(source_dir)
     available_files = [f for f in cpp_files if f not in used_files_set]
     if not available_files:
@@ -101,7 +211,8 @@ def compare_files_line_by_line(lines_record, lines_pillm):
             return None
     return None
 
-def extract_code_snippet(source_dir, used_files_set):
+def do_extract_code_snippet_once(source_dir, used_files_set):
+
     snippet = None
     file_path = None
 
@@ -177,18 +288,67 @@ def extract_code_snippet(source_dir, used_files_set):
 
     return snippet, file_path
 
+def extract_code_snippet(
+    source_dir,
+    used_files_set,
+    semantic_threshold=0.0,
+    max_attempts=10,
+    alpha=2.0,
+    beta=1.0
+):
+
+    pillm_dump_path = 'pillm_dump.txt'
+
+    file_func_counts, _ = parse_pillm_dump_file(pillm_dump_path)
+    dir_func_counts = build_dir_func_counts(source_dir, file_func_counts)
+
+    for attempt in range(max_attempts):
+        snippet, snippet_path = do_extract_code_snippet_once(source_dir, used_files_set)
+        if not snippet:
+            continue
+
+        corr = compute_semantic_correlation(
+            snippet, snippet_path, file_func_counts, dir_func_counts, alpha, beta
+        )
+
+        if corr >= semantic_threshold:
+            return snippet, snippet_path
+        else:
+            print(f"[Info] Attempt #{attempt+1}: correlation={corr:.2f} < threshold={semantic_threshold:.2f}. Trying again...")
+
+    return None, None
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='Extract code snippet from JSC source code based on pillm_dump.txt or at random.')
-    parser.add_argument('--source', type=str, required=True, help='Path to the JSC source code directory')
+        description='Extract code snippet from JSC source code.'
+    )
+    parser.add_argument('--source', type=str, required=True,
+                        help='Path to the JSC source code directory')
+    parser.add_argument('--threshold', type=float, default=0.0,
+                        help='Minimum semantic correlation threshold')
+    parser.add_argument('--alpha', type=float, default=2.0,
+                        help='Alpha weight for same-file correlation')
+    parser.add_argument('--beta', type=float, default=1.0,
+                        help='Beta weight for same-directory correlation')
     args = parser.parse_args()
 
     source_dir = args.source
+    correlation_threshold = args.threshold
+
     used_files_set = set()
 
-    snippet, file_path = extract_code_snippet(source_dir, used_files_set)
+    snippet, file_path = extract_code_snippet(
+        source_dir=source_dir,
+        used_files_set=used_files_set,
+        semantic_threshold=correlation_threshold,
+        max_attempts=10,
+        alpha=args.alpha,
+        beta=args.beta
+    )
     if snippet:
-        print(f"Extracted snippet from: {file_path}\n")
+        print(f"\n[Result] Extracted snippet from: {file_path}")
+        print("========================================")
         print(snippet)
+        print("========================================\n")
     else:
         print("No suitable snippet found.")
