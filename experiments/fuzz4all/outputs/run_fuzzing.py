@@ -14,7 +14,7 @@ COVERAGE_MAP_SIZE = 1 << 20  # 1 MB, matching Fuzzilli's default coverage map si
 SHM_SIZE = COVERAGE_MAP_SIZE  # Shared memory size for the coverage map
 
 COVERAGE_BITMAP_FILENAME = 'coverage_bitmap.dat'
-COVERAGE_LOG_FILENAME = 'fuzz4all_coverage_log1.csv'  # Updated filename as per your request
+COVERAGE_LOG_FILENAME = 'fuzz4all_coverage_log.csv'  # Updated filename as per your request
 
 # Global variables
 global_coverage = bytearray(COVERAGE_MAP_SIZE)

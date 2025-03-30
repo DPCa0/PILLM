@@ -2,8 +2,8 @@ import os
 import re
 
 # Define input and output directories
-input_dir = "/ndata/cdp/fuzz4all/outputs/gpt4o_fuzzing_outputs"
-output_dir = "/ndata/cdp/fuzz4all/outputs/processed_js_files"
+input_dir = "/path/to/fuzz4all/outputs"
+output_dir = "/path/to/fuzz4all/outputs/processed"
 
 # Create output directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
