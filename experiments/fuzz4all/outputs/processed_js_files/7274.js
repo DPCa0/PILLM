@@ -1,0 +1,66 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const TaskID = Symbol('taskId');
+
+ 
+class TaskManager {
+  constructor() {
+    this.tasks = [];
+  }
+
+   
+  async addTask(taskName) {
+    const task = {
+      [TaskID]: Symbol(taskName),
+      name: taskName,
+      status: 'pending'
+    };
+    this.tasks.push(task);
+    print(`Added task: ${task.name}`);
+
+     
+    await delay(1000);
+
+    task.status = 'completed';
+    print(`Completed task: ${task.name}`);
+  }
+
+   
+  *getTasks() {
+    for (const task of this.tasks) {
+      yield `Task: ${task.name}, Status: ${task.status}`;
+    }
+  }
+}
+
+ 
+const taskManagerHandler = {
+  get(target, prop) {
+    if (prop === 'addTask') {
+      return async function(...args) {
+        print('Adding a task...');
+        await target[prop](...args);
+        print('Task added.');
+      };
+    }
+    return Reflect.get(target, prop);
+  }
+};
+
+(async () => {
+  const manager = new TaskManager();
+  const proxyManager = new Proxy(manager, taskManagerHandler);
+
+   
+  await proxyManager.addTask('Learn JavaScript');
+  await proxyManager.addTask('Build a project');
+
+   
+  for (const taskInfo of proxyManager.getTasks()) {
+    print(taskInfo);
+  }
+})();

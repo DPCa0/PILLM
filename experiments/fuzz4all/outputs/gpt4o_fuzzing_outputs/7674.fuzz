@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [1, 2, 3, 4, 5] });
+    }, 1000);
+  });
+};
+
+ 
+function* dataGenerator(dataArray) {
+  for (let item of dataArray) {
+    yield item;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const { data } = await fetchData();
+    
+     
+    const handler = {
+      get: (target, property) => {
+        if (property in target) {
+          return target[property];
+        } else {
+          throw new Error(`Property ${property} doesn't exist.`);
+        }
+      },
+    };
+    
+    const proxyData = new Proxy(data, handler);
+
+    const generator = dataGenerator(proxyData);
+
+    console.log('Fetched Data:');
+    for (const item of generator) {
+      console.log(item);
+    }
+
+    // Attempt to access an invalid property to trigger Proxy error
+    console.log(proxyData[5]);
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

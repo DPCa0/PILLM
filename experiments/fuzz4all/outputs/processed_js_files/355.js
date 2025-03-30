@@ -1,0 +1,62 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  map(callback) {
+    return Matrix.from(this.data.map((row, i) => row.map((val, j) => callback(val, i, j))));
+  }
+
+  add(other) {
+    if (!(other instanceof Matrix)) {
+      throw new Error('Parameter must be of type Matrix');
+    }
+    if (this.data.length !== other.data.length || this.data[0].length !== other.data[0].length) {
+      throw new Error('Matrices must have the same dimensions');
+    }
+    return this.map((val, i, j) => val + other.data[i][j]);
+  }
+
+  multiply(other) {
+    if (!(other instanceof Matrix)) {
+      throw new Error('Parameter must be of type Matrix');
+    }
+    if (this.data[0].length !== other.data.length) {
+      throw new Error('Matrices must be compatible for multiplication');
+    }
+    const result = new Matrix(this.data.length, other.data[0].length);
+    result.data = result.data.map((row, i) => row.map((_, j) =>
+      this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)));
+    return result;
+  }
+  
+  static random(rows, cols, range = [0, 1]) {
+    return new Matrix(rows, cols).map(() => Math.random() * (range[1] - range[0]) + range[0]);
+  }
+
+  log() {
+    console.table(this.data);
+    return this;
+  }
+}
+
+(async () => {
+  const a = Matrix.random(2, 3, [0, 10]).log();
+  const b = Matrix.random(3, 2, [0, 10]).log();
+  
+  print('Result of a multiplied by b:');
+  const c = a.multiply(b).log();
+
+  const d = Matrix.random(2, 2, [0, 10]).log();
+  print('Result of a added to itself:');
+  d.add(d).log();
+
+  try {
+    a.add(b).log();
+  } catch (error) {

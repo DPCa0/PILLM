@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const complexDataStructure = new Map([
+  ['key1', { a: 1, b: 2 }],
+  ['key2', ['array1', 'array2', { c: 3 }]],
+]);
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Getting ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+const proxiedDataStructure = new Proxy(complexDataStructure, handler);
+
+ 
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+const [first, second, third] = numberGenerator();
+console.log(first, second, third);  
+
+ 
+async function fetchData() {
+  const fetchPromise = new Promise((resolve) => {
+    setTimeout(() => resolve('Data fetched!'), 1000);
+  });
+
+  const data = await fetchPromise;
+  console.log(data);
+
+   
+  function closureExample() {
+    let count = 0;
+    return function () {
+      count += 1;
+      return count;
+    };
+  }
+
+  const increment = closureExample();
+  console.log(increment(), increment());
+}
+
+fetchData();
+
+ 
+console.log(proxiedDataStructure.get('key1'));  
+proxiedDataStructure.set('key3', 'newData');
+console.log(proxiedDataStructure.get('key3'));  
+```

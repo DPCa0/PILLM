@@ -1,0 +1,51 @@
+ 
+import { createServer } from 'http';
+import { randomUUID } from 'crypto';
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+ 
+const logHandler = {
+  get(target, property) {
+    print(`Getting property '${property}'`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting property '${property}' to '${value}'`);
+    target[property] = value;
+    return true;
+  },
+};
+
+const dataProxy = new Proxy({ message: 'Hello, World!' }, logHandler);
+
+ 
+(async () => {
+  try {
+     
+    const apiURL = 'https://api.sampleapis.com/futurama/characters';
+    const data = await fetchData(apiURL);
+    print('Fetched data:', data.slice(0, 2));  
+
+     
+    print(dataProxy.message);
+    dataProxy.message = 'New Message';
+
+     
+    const server = createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(`Unique ID: ${randomUUID()}\n`);
+    });
+
+    server.listen(3000, () => {
+      print('Server running at http://localhost:3000/');
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

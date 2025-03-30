@@ -1,0 +1,49 @@
+class MathOperation {
+    constructor(num) {
+        this.num = num;
+    }
+    
+    *factorial() {
+        let n = this.num, result = 1;
+        for (let i = 1; i <= n; i++) {
+            result *= i;
+            yield result;  
+        }
+    }
+    
+    async isPrime() {
+        const checkPrime = (num) => {
+            if (num <= 1) return false;
+            for (let i = 2; i <= Math.sqrt(num); i++) {
+                if (num % i === 0) return false;
+            }
+            return true;
+        };
+        return new Promise((resolve) => setTimeout(() => resolve(checkPrime(this.num)), 1000));
+    }
+}
+
+const useAdvancedFeatures = async (num) => {
+    const operation = new MathOperation(num);
+
+    print(`Calculating factorial for: ${num}`);
+    const factorialGenerator = operation.factorial();
+    for (const value of factorialGenerator) {
+        print(`Intermediate factorial value: ${value}`);
+    }
+
+    print('Checking if the number is prime...');
+    const primeStatus = await operation.isPrime();
+    print(`Is the number prime? ${primeStatus}`);
+};
+
+ 
+const handler = {
+    apply: (target, thisArg, args) => {
+        print(`Calling function with arguments: ${args}`);
+        return Reflect.apply(target, thisArg, args);
+    }
+};
+
+const proxiedFunction = new Proxy(useAdvancedFeatures, handler);
+proxiedFunction(5);

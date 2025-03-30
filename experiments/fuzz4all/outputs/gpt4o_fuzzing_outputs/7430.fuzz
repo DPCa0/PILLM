@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+    }
+
+    enqueue(task) {
+        this.queue.push(task);
+        this.processQueue();
+    }
+
+    async processQueue() {
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+        while (this.queue.length) {
+            const task = this.queue.shift();
+            await task();
+        }
+        this.isProcessing = false;
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function advancedTask(id) {
+    console.log(`Task ${id} started`);
+    await delay(1000);
+    console.log(`Task ${id} finished`);
+}
+
+(async function() {
+    const taskQueue = new AsyncQueue();
+
+    for (let i = 1; i <= 5; i++) {
+        taskQueue.enqueue(() => advancedTask(i));
+    }
+})();
+
+const doubleNumbers = new Proxy({}, {
+    get(target, prop) {
+        if (!isNaN(prop)) {
+            return Number(prop) * 2;
+        }
+    }
+});
+
+console.log(doubleNumbers[4]);  
+console.log(doubleNumbers[10]);  
+```

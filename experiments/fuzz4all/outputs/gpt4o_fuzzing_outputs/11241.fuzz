@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, defaultValue = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+    }
+
+    static fromArray(array) {
+        const matrix = new Matrix(array.length, array[0].length);
+        matrix.data = array;
+        return matrix;
+    }
+
+    static identity(size) {
+        return Matrix.fromArray(
+            Array.from({ length: size }, (_, i) =>
+                Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
+            )
+        );
+    }
+
+    map(func) {
+        return Matrix.fromArray(this.data.map((row, i) => row.map((val, j) => func(val, i, j))));
+    }
+
+    multiply(other) {
+        if (this.cols !== other.rows) throw new Error('Incompatible matrices');
+        return new Matrix(this.rows, other.cols).map((_, i, j) =>
+            this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+        );
+    }
+
+    static randomize(rows, cols) {
+        return new Matrix(rows, cols).map(() => Math.floor(Math.random() * 10));
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+async function matrixOps() {
+    const m1 = Matrix.randomize(3, 3);
+    const m2 = Matrix.randomize(3, 3);
+    console.log("Matrix 1:");
+    m1.print();
+    console.log("Matrix 2:");
+    m2.print();
+
+    try {
+        const product = m1.multiply(m2);
+        console.log("Product of Matrix 1 and Matrix 2:");
+        product.print();
+    } catch (e) {
+        console.error(e);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Identity Matrix:");
+    const identity = Matrix.identity(3);
+    identity.print();
+}
+
+matrixOps();
+```

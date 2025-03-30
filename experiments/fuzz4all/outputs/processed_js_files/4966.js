@@ -1,0 +1,45 @@
+ 
+
+class API {
+    static fetchData(url) {
+         
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (url === 'https://api.example.com/data') {
+                    resolve({ id: 1, name: 'John Doe', age: 30 });
+                } else {
+                    reject('Invalid URL');
+                }
+            }, 1000);
+        });
+    }
+}
+
+class User {
+    constructor({ id, name, age }) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    getUserInfo() {
+        return `${this.name}, Age: ${this.age}`;
+    }
+}
+
+(async () => {
+    try {
+        const url = 'https://api.example.com/data';
+        const data = await API.fetchData(url);
+        
+         
+        const { name, ...otherInfo } = data;
+
+         
+        const user = new User({ name, ...otherInfo });
+
+        print(user.getUserInfo());
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

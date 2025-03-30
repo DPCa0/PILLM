@@ -1,0 +1,66 @@
+ 
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+class AsyncRange {
+    constructor(start, end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    async *[Symbol.asyncIterator]() {
+        for (let i = this.start; i <= this.end; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield i;
+        }
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        return property in target ? target[property] : `Property ${property} not found`;
+    }
+};
+
+const proxiedObject = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+class AsyncEmitter extends EventEmitter {
+    emitAsync(event, ...args) {
+        return new Promise((resolve) => {
+            this.emit(event, ...args, resolve);
+        });
+    }
+}
+
+ 
+(async () => {
+     
+    try {
+        const data = await readFile('example.txt', 'utf8');
+        print('File content:', data);
+    } catch (error) {
+        console.error('Error reading file:', error);
+    }
+
+     
+    const asyncRange = new AsyncRange(1, 5);
+    for await (const num of asyncRange) {
+        print(`Async Range Number: ${num}`);
+    }
+
+     
+    print('Proxied Object Access:', proxiedObject.a);  
+    print('Proxied Object Access (non-existent):', proxiedObject.c);  
+
+     
+    const asyncEmitter = new AsyncEmitter();
+    asyncEmitter.on('event', (message, done) => {
+        print('Received event:', message);
+        done();
+    });
+
+    await asyncEmitter.emitAsync('event', 'Hello Async World!');
+})();

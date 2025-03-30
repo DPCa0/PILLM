@@ -1,0 +1,54 @@
+ 
+
+ 
+(async () => {
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+  
+   
+  const data = { message: 'Hello, world!' };
+  const handler = {
+    set(obj, prop, value) {
+      print(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+       
+      if (prop === 'message') {
+        axios.post('https://example.com/api/log', { message: value })
+          .then(response => console.log('Logged:', response.data))
+          .catch(error => console.error('Logging failed:', error));
+      }
+      return true;
+    }
+  };
+  
+  const reactiveData = new Proxy(data, handler);
+
+   
+  function* generateSequence() {
+    yield 'Hello';
+    yield 'World';
+    yield 'from';
+    yield 'JavaScript';
+  }
+
+  const iterator = generateSequence();
+  let result = iterator.next();
+  while (!result.done) {
+    print(result.value);
+    result = iterator.next();
+  }
+
+   
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+      print('Fetched Data:', response.data);
+    } catch (error) {
+      console.error('Fetch failed:', error);
+    }
+  };
+
+  await fetchData();
+
+   
+  reactiveData.message = 'Advanced JavaScript is fun!';
+})();

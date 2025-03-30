@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property in target) {
+      console.log(`Getting property '${property}'`);
+      return Reflect.get(target, property, receiver);
+    } else {
+      throw new Error(`Property '${property}' does not exist.`);
+    }
+  },
+  set(target, property, value, receiver) {
+    console.log(`Setting property '${property}' to '${value}'`);
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+
+const target = { name: 'John Doe', age: 30 };
+const proxy = new Proxy(target, handler);
+
+ 
+try {
+  console.log(proxy.name);   
+  proxy.age = 31;            
+  console.log(proxy.height);  
+} catch (e) {
+  console.error(e.message);
+}
+
+ 
+async function* asyncGenerator() {
+  yield Promise.resolve('First value');
+  yield Promise.resolve('Second value');
+  yield Promise.resolve('Third value');
+}
+
+ 
+(async () => {
+  for await (const value of asyncGenerator()) {
+    console.log(value);  
+  }
+})();
+
+ 
+const person = {
+  greet() {
+    console.log('Hello!');
+  }
+};
+
+Reflect.apply(person.greet, person, []);  
+
+ 
+const data = { a: 1, b: 2, c: 3, d: 4 };
+const { a, b, ...rest } = data;
+console.log(a, b, rest);  
+
+ 
+class MyClass {
+  #privateField = 42;
+  
+  getPrivateField() {
+    return this.#privateField;
+  }
+}
+
+const instance = new MyClass();
+console.log(instance.getPrivateField());  
+
+ 
+const promises = [
+  Promise.resolve(1),
+  Promise.reject('Error occurred'),
+  Promise.resolve(3)
+];
+
+Promise.allSettled(promises).then(results => 
+  results.forEach(result

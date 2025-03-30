@@ -1,0 +1,29 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* createAsyncGenerator(limit) {
+  for (let i = 1; i <= limit; i++) {
+    await delay(100);
+    yield i * i;
+  }
+}
+
+async function main() {
+  const results = new Proxy({}, {
+    set: (target, prop, value) => {
+      print(`Setting ${prop} to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+  });
+
+  const asyncGenerator = createAsyncGenerator(5);
+
+  for await (const num of asyncGenerator) {
+    results[`squareOf${Math.sqrt(num)}`] = num;
+  }
+
+  print('Final Results:', results);
+}
+
+main();

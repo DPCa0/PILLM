@@ -1,0 +1,34 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const uniqueValues = [...new Set(data.map(item => item.value))];
+    
+    const filtered = uniqueValues.filter(val => val > 10);
+    const doubled = filtered.map(val => val * 2);
+
+    const result = doubled.reduce((acc, val) => acc + val, 0);
+
+    print(`The final processed result is: ${result}`);
+  } catch (error) {
+    console.error(`Failed to process data: ${error}`);
+  }
+};
+
+const debounce = (fn, delay) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const url = 'https://api.example.com/data';
+const debouncedProcess = debounce(() => processData(url), 500);
+
+document.getElementById('fetch-button').addEventListener('click', debouncedProcess);

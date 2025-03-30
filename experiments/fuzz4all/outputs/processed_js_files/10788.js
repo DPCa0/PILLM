@@ -1,0 +1,56 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class TaskQueue {
+    constructor(concurrency) {
+      this.queue = [];
+      this.running = 0;
+      this.concurrency = concurrency;
+    }
+  
+    runTask(task) {
+      this.running++;
+      task().finally(() => {
+        this.running--;
+        this.next();
+      });
+    }
+  
+    enqueueTask(task) {
+      this.queue.push(task);
+      process.nextTick(this.next.bind(this));
+    }
+  
+    next() {
+      while (this.running < this.concurrency && this.queue.length) {
+        this.runTask(this.queue.shift());
+      }
+    }
+  }
+  
+  const fetchData = async url => {
+    await delay(1000);  
+    const response = await fetch(url);
+    return response.json();
+  };
+  
+  const logResult = result => print(result);
+  
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+    'https://jsonplaceholder.typicode.com/posts/4',
+    'https://jsonplaceholder.typicode.com/posts/5'
+  ];
+  
+  const concurrency = 2;
+  const queue = new TaskQueue(concurrency);
+  
+  urls.forEach(url => {
+    queue.enqueueTask(async () => {
+      const data = await fetchData(url);
+      logResult(data);
+    });
+  });
+})();

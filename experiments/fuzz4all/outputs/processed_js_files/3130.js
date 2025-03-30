@@ -1,0 +1,30 @@
+ 
+function* fibonacciGenerator() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function fetchFibonacciNumbers(count) {
+    const fibGen = fibonacciGenerator();
+    const results = [];
+    
+    for (let i = 0; i < count; i++) {
+         
+        const num = await new Promise((resolve) => 
+            setTimeout(() => resolve(fibGen.next().value), 100)
+        );
+        results.push(num);
+    }
+    
+    return results;
+}
+
+ 
+(async () => {
+    const numbers = await fetchFibonacciNumbers(10);
+    print('First 10 Fibonacci numbers:', numbers);
+})();

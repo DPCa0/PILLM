@@ -1,0 +1,55 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+ 
+const logAccess = Symbol('logAccess');
+const handler = {
+  get(target, prop, receiver) {
+    if (prop !== logAccess) {
+      target[logAccess].push(`Property ${String(prop)} was accessed`);
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    target[logAccess].push(`Property ${String(prop)} was set to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const createLoggingObject = (obj) => {
+  const loggingObj = new Proxy({ ...obj, [logAccess]: [] }, handler);
+  loggingObj.getLogs = () => loggingObj[logAccess];
+  return loggingObj;
+};
+
+ 
+const exampleObject = createLoggingObject({ a: 1, b: 2 });
+
+ 
+function customTag(strings, ...expressions) {
+  return expressions.map(expr => `<<${expr}>>`).join('') + ` : [${strings.join(', ')}]`;
+}
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const generator = fetchData(urls);
+  const results = [];
+
+  for await (const data of generator) {
+    results.push(data);
+  }
+
+  const exampleAccess = exampleObject.a;
+  exampleObject.b = 3;
+  print(customTag`Results: ${results}, Logs: ${exampleObject.getLogs()}`);
+  
+  const promises = urls.map(url => fetch(url).then(res => res.json()));
+  const allResults = await Promise.allSettled(promises);
+  print('All Settled:', allResults);
+})();

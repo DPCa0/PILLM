@@ -1,0 +1,61 @@
+ 
+(async () => {
+  const { log } = await import('console');
+
+   
+  const createMultiplier = (factor = 2) => {
+    return (number) => number * factor;
+  };
+
+   
+  const processNumbers = (multiplier, ...numbers) => {
+    return numbers.map(num => multiplier(num));
+  };
+
+   
+  function* numberGenerator(limit) {
+    for (let i = 1; i <= limit; i++) {
+      yield i;
+    }
+  }
+
+   
+  const target = {};
+  const validator = {
+    set(obj, prop, value) {
+      if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+        throw new TypeError('Age must be a positive number');
+      }
+      obj[prop] = value;
+      return true;
+    }
+  };
+  const person = new Proxy(target, validator);
+
+   
+  const numbersArray = [...numberGenerator(5)];
+  const [first, ...rest] = numbersArray;
+
+   
+  const fetchData = async (url) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Fetched data from ${url}`);
+      }, 1000);
+    });
+  };
+
+   
+  log('Advanced JavaScript Features:');
+  const multiplier = createMultiplier(3);
+  log('Processed Numbers:', processNumbers(multiplier, ...numbersArray));
+  person.age = 25;
+  log('Person Age:', person.age);
+  log('First Number:', first, 'Rest:', rest.join(', '));
+  
+  try {
+    log(await fetchData('https://api.example.com/data'));
+  } catch (error) {
+    log('Error fetching data:', error);
+  }
+})();

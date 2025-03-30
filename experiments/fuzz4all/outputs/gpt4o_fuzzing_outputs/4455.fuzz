@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor(limit) {
+    this.limit = limit;
+    this.cache = new Proxy({}, {
+      get: (obj, prop) => prop in obj ? obj[prop] : undefined
+    });
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      [prev, curr] = [curr, prev + curr];
+      if (!this.cache[i]) {
+        this.cache[i] = curr;
+      }
+      yield curr;
+    }
+  }
+
+  async getAsyncFibonacci(index) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        if (this.cache[index]) {
+          resolve(this.cache[index]);
+        } else {
+          resolve([...this][index]);
+        }
+      }, 1000);
+    });
+  }
+
+  static isFibonacci(num) {
+    const isPerfectSquare = x => Math.sqrt(x) % 1 === 0;
+    return isPerfectSquare(5 * num * num + 4) || isPerfectSquare(5 * num * num - 4);
+  }
+}
+
+(async () => {
+  const fibSequence = new FibonacciSequence(10);
+  
+  for (const num of fibSequence) {
+    console.log(num);
+  }
+  
+  const fibNum = await fibSequence.getAsyncFibonacci(5);
+  console.log(`Async Fibonacci at index 5: ${fibNum}`);
+  
+  console.log(`Is 21 a Fibonacci number? ${FibonacciSequence.isFibonacci(21)}`);
+})();
+```

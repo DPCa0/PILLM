@@ -1,0 +1,47 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    calculate(n) {
+        if (!this.memo.has(n)) {
+            this.memo.set(n, this.calculate(n - 1) + this.calculate(n - 2));
+        }
+        return this.memo.get(n);
+    }
+
+    *[Symbol.iterator]() {
+        let i = 0;
+        while (true) {
+            yield this.calculate(i++);
+        }
+    }
+}
+
+(async () => {
+    const fibonacci = new Fibonacci();
+    const results = [];
+    const iterator = fibonacci[Symbol.iterator]();
+
+     
+    await Promise.all([...Array(10).keys()].map(async () => {
+        const value = iterator.next().value;
+         
+        const res = await new Promise(resolve => setTimeout(() => resolve(value), 100));
+        results.push(res);
+    }));
+
+    print('First 10 Fibonacci numbers:', results);
+
+     
+    const handler = {
+        set(target, prop, value) {
+            print(`Setting ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+
+    const proxyResults = new Proxy(results, handler);
+    proxyResults[10] = fibonacci.calculate(10);
+})();

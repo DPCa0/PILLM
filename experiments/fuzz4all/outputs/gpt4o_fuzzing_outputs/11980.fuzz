@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const userHandler = {
+  get(target, property, receiver) {
+    if (property in target) {
+      return Reflect.get(target, property, receiver);
+    } else {
+      return `Property ${property} not found`;
+    }
+  },
+  set(target, property, value) {
+    if (typeof value === 'string') {
+      return Reflect.set(target, property, value);
+    } else {
+      throw new TypeError('Property value must be a string');
+    }
+  }
+};
+
+const user = new Proxy({}, userHandler);
+
+ 
+function* activityLogger() {
+  yield 'Login';
+  yield 'View Page';
+  yield 'Logout';
+}
+
+const logger = activityLogger();
+
+ 
+async function performUserActivity() {
+  user.name = 'Alice';  
+  console.log(`User: ${user.name}`);
+  
+  try {
+    user.age = 30;  
+  } catch (error) {
+    console.error(error.message);
+  }
+  
+  for await (const activity of logger) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(`Activity: ${activity}`);
+  }
+}
+
+ 
+const userMap = new Map();
+userMap.set(1, { name: 'Alice' });
+userMap.set(2, { name: 'Bob' });
+
+ 
+const [{ name: userName1 }, { name: userName2 }] = [...userMap.values()];
+console.log(`UserMap - User 1: ${userName1}, User 2: ${userName2}`);
+
+ 
+(async function() {
+  await performUserActivity();
+})();
+```

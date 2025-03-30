@@ -1,0 +1,39 @@
+ 
+
+const apiSimulator = () => {
+  return new Proxy({}, {
+    get(target, property) {
+      return async function(...args) {
+        print(`Fetching data for: ${property} with arguments:`, args);
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return `Data for ${property} received with args: ${args.join(', ')}`;
+      };
+    }
+  });
+};
+
+const simulateAPIFetch = apiSimulator();
+
+async function* dataFetcher(api, queries) {
+  for (let query of queries) {
+    const data = await api[query.endpoint](...query.params);
+    yield data;
+  }
+}
+
+async function execute() {
+  const queries = [
+    { endpoint: 'getUser', params: ['userId123'] },
+    { endpoint: 'getPosts', params: ['userId123', 'recent'] },
+    { endpoint: 'getComments', params: ['postId456'] }
+  ];
+
+  const generator = dataFetcher(simulateAPIFetch, queries);
+  
+  for await (let data of generator) {
+    print(data);
+  }
+}
+
+execute();

@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { name: 'Jane Doe', age: 28 }, items: ['apple', 'banana', 'carrot'] });
+    }, 1000);
+  });
+};
+
+const manipulateData = async () => {
+  const { user: { name, age }, items } = await fetchData();
+
+  const itemList = [...items, 'date', 'elderberry'];
+
+  const userProxy = new Proxy({ name, age }, {
+    get(target, property) {
+      if (property in target) {
+        return `Property ${property} is ${target[property]}`;
+      }
+      return 'Property does not exist';
+    }
+  });
+
+  console.log(userProxy.name);  
+  console.log(userProxy.age);   
+  console.log(itemList);        
+};
+
+manipulateData();
+```

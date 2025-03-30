@@ -1,0 +1,30 @@
+ 
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+};
+
+const processData = async () => {
+    try {
+        const [userData, postData] = await Promise.all([
+            fetchData('https://jsonplaceholder.typicode.com/users'),
+            fetchData('https://jsonplaceholder.typicode.com/posts'),
+        ]);
+
+        const combinedData = userData.map(user => {
+            const userPosts = postData.filter(post => post.userId === user.id);
+            return {...user, posts: userPosts};
+        });
+
+        combinedData.forEach(({name, email, posts}) => {
+            print(`User: ${name}, Email: ${email}`);
+            posts.forEach(({title}) => {
+                print(`  Post: ${title}`);
+            });
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+processData();

@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        while (a <= this.limit) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    fibonacciMemo(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        let result = this.fibonacciMemo(n - 1) + this.fibonacciMemo(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+async function getData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+    } catch (error) {
+        console.error("Fetch error: ", error);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const fib = new Fibonacci(100);
+console.log([...fib]);
+
+const fibMemo = new Fibonacci(0);
+console.log(fibMemo.fibonacciMemo(10));
+
+(async () => {
+    const data = await getData('https://api.github.com');
+    console.log(data);
+})();
+
+window.addEventListener('resize', debounce(() => {
+    console.log('Resized to: ', window.innerWidth, 'x', window.innerHeight);
+}, 300));
+```

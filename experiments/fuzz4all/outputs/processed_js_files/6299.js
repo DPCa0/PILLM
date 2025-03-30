@@ -1,0 +1,47 @@
+class Matrix {
+  constructor(rows, cols, fillFunction = () => Math.random()) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, fillFunction)
+    );
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, arr[0].length);
+    matrix.data = arr.map((row) => row.slice());
+    return matrix;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(other) {
+    if (this.data[0].length !== other.data.length) {
+      throw new Error("Columns of A must match rows of B");
+    }
+    let result = new Matrix(this.data.length, other.data[0].length, () => 0);
+    return result.map((_, i, j) =>
+      this.data[i].reduce((sum, elem, k) => sum + elem * other.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const a = new Matrix(2, 3);
+const b = new Matrix(3, 2);
+
+print("Matrix A:");
+print(a.toString());
+
+print("\nMatrix B:");
+print(b.toString());
+
+const c = a.multiply(b);
+print("\nResult of A * B:");
+print(c.toString());

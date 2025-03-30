@@ -1,0 +1,53 @@
+ 
+(async () => {
+  const { readFile } = await import('fs/promises');
+  
+   
+  const myIterable = {
+    items: ['JavaScript', 'is', 'fun'],
+    [Symbol.iterator]() {
+      let index = 0;
+      const handler = {
+        get: (target, prop) => {
+          if (prop === 'next') {
+            return () => ({
+              value: target.items[index++],
+              done: index > target.items.length,
+            });
+          }
+          return target[prop];
+        }
+      };
+      return new Proxy(this, handler);
+    }
+  };
+
+   
+  async function displayFileContents() {
+    try {
+      const data = await readFile('./sample.txt', 'utf-8');
+      print('File Contents:', data);
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
+  }
+
+   
+  function tag(strings, ...values) {
+    return strings.raw[0] + values.map((v, i) => `${v}${strings.raw[i + 1]}`).join('');
+  }
+
+  const lang = 'JavaScript';
+  const use = 'exciting';
+  print(tag`Learning ${lang} is ${use}!`);
+
+   
+  for (const word of myIterable) {
+    print(word);
+  }
+
+   
+  displayFileContents();
+})();
+
+Note: Ensure you have a `sample.txt` file in the same directory as your script for the file reading part to work.

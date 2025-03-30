@@ -1,0 +1,38 @@
+ 
+const fetchData = async (url, retries = 3) => {
+   
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    
+     
+    let data = await response.json();
+    
+     
+    let uniqueItems = new Set(data.map(item => JSON.stringify(item)));
+    
+     
+    let resultArray = [...uniqueItems].map(item => JSON.parse(item));
+    
+     
+    resultArray.forEach(({ id, name }) => {
+      print(`Item ID: ${id}, Name: ${name}`);
+    });
+
+  } catch (error) {
+     
+    if (retries > 0) {
+      console.error(`Attempt failed, retrying... (${3 - retries} attempts left)`);
+      await fetchData(url, retries - 1);
+    } else {
+      console.error(`Final error: ${error.message}`);
+    }
+  }
+};
+
+ 
+(async () => {
+  const apiUrl = 'https://api.example.com/data';
+  await fetchData(apiUrl);
+})();

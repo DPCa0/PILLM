@@ -1,0 +1,51 @@
+ 
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    return await response.json();
+};
+
+async function* dataStream(urls) {
+    for (const url of urls) {
+        yield await fetchData(url);
+    }
+}
+
+const urlHandler = {
+    get(target, prop) {
+        if (prop === Symbol.iterator) {
+            return function* () {
+                let index = 0;
+                while (index < target.length) {
+                    yield target[index++];
+                }
+            };
+        }
+        return target[prop];
+    },
+    set(target, prop, value) {
+        if (typeof value === 'string' && value.startsWith('http')) {
+            target[prop] = value;
+            return true;
+        }
+        throw new Error('Only valid URLs are accepted');
+    }
+};
+
+const urls = new Proxy(['https://jsonplaceholder.typicode.com/posts/1'], urlHandler);
+
+(async () => {
+    for await (const data of dataStream(urls)) {
+        print('Fetched Data:', data);
+    }
+})();
+
+ 
+const UNIQUE_KEY = Symbol('uniqueKey');
+
+const obj = {
+    [UNIQUE_KEY]: 'This is a unique value',
+    regularKey: 'This is a regular value'
+};
+
+print(obj[UNIQUE_KEY]);  
+print(obj.regularKey);  

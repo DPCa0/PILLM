@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncSequence {
+  constructor(...asyncFunctions) {
+    this.asyncFunctions = asyncFunctions;
+  }
+
+  async execute(initialValue) {
+    return this.asyncFunctions.reduce(
+      (prevPromise, currentFunction) =>
+        prevPromise.then(currentFunction),
+      Promise.resolve(initialValue)
+    );
+  }
+}
+
+function delay(milliseconds, value) {
+  return new Promise((resolve) => setTimeout(() => resolve(value), milliseconds));
+}
+
+const complexAsyncTask = new AsyncSequence(
+  async (data) => {
+    console.log('Step 1:', data);
+    return delay(1000, data * 2);
+  },
+  async (data) => {
+    console.log('Step 2:', data);
+    const newData = await delay(1000, data + 5);
+    return newData;
+  },
+  async (data) => {
+    console.log('Step 3:', data);
+    return delay(1000, data - 3);
+  }
+);
+
+(async function runComplexTask() {
+  try {
+    const result = await complexAsyncTask.execute(10);
+    console.log('Final Result:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

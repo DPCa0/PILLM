@@ -1,0 +1,45 @@
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+  };
+
+   
+  const handler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : `Property '${prop}' not found`),
+  };
+
+  const data = { name: 'Advanced JS', version: 2023 };
+  const proxyData = new Proxy(data, handler);
+
+   
+  const mapExample = new Map();
+  const setExample = new Set(['JavaScript', 'Python', 'C++']);
+
+  mapExample.set('language', 'JavaScript').set('year', 2023);
+
+  setExample.add('Rust');
+  if (setExample.has('Python')) setExample.delete('Python');
+
+   
+  const tagFunction = (strings, ...values) => {
+    return strings.reduce((acc, str, i) => acc + str + (values[i] ? `<strong>${values[i]}</strong>` : ''), '');
+  };
+  const templateLiteralOutput = tagFunction`Welcome to the ${proxyData.name} program in ${proxyData.version}`;
+
+   
+  try {
+    const { language } = mapExample;
+    const fetchedData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+    const combinedSet = new Set([...setExample, ...['TypeScript', 'Go']]);
+
+    print(templateLiteralOutput);
+    print(`Using language: ${language}`);
+    print('Fetched data:', { ...fetchedData });
+    print('Languages Set:', [...combinedSet]);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

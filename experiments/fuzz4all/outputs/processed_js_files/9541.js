@@ -1,0 +1,50 @@
+ 
+
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.2 ? resolve(`Data from ${url}`) : reject('Network Error');
+        }, 1000);
+    });
+};
+
+ 
+async function* fetchUrls(urls) {
+    for (let url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield data;
+        } catch (error) {
+            yield error;
+        }
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Getting property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: function(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const proxiedObject = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+(async function() {
+    const urls = ['http://api1.com', 'http://api2.com', 'http://api3.com'];
+    const iterator = fetchUrls(urls);
+
+    proxiedObject.a = 10;  
+
+    for await (let data of iterator) {
+        print(`Received: ${data}`);
+    }
+
+    print(proxiedObject.a);  
+})();

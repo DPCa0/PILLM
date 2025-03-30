@@ -1,0 +1,75 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  static from(array) {
+    return new Matrix(array.map(row => [...row]));
+  }
+  
+  static identity(size) {
+    return new Matrix(Array.from({ length: size }, (_, i) =>
+      Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
+    ));
+  }
+  
+  get rows() {
+    return this.data.length;
+  }
+  
+  get cols() {
+    return this.data[0].length;
+  }
+  
+  *[Symbol.iterator]() {
+    for (const row of this.data) {
+      yield* row;
+    }
+  }
+
+  add(matrix) {
+    if (this.rows !== matrix.rows || this.cols !== matrix.cols) {
+      throw new Error('Matrices must have the same dimensions for addition.');
+    }
+    return new Matrix(this.data.map((row, i) =>
+      row.map((value, j) => value + matrix.data[i][j])
+    ));
+  }
+
+  multiply(matrix) {
+    if (this.cols !== matrix.rows) {
+      throw new Error('Invalid matrix dimensions for multiplication.');
+    }
+    return new Matrix(this.data.map((row, i) =>
+      Array.from({ length: matrix.cols }, (_, j) =>
+        row.reduce((sum, value, k) => sum + value * matrix.data[k][j], 0)
+      )
+    ));
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+(async () => {
+  const matrixA = Matrix.from([[1, 2], [3, 4]]);
+  const matrixB = Matrix.identity(2);
+
+  print('Matrix A:');
+  print(matrixA.toString());
+
+  print('Identity Matrix:');
+  print(matrixB.toString());
+
+  const sum = matrixA.add(matrixB);
+  print('A + Identity:');
+  print(sum.toString());
+
+  const product = await new Promise(resolve =>
+    setTimeout(() => resolve(matrixA.multiply(matrixB)), 1000)
+  );
+
+  print('A * Identity:');
+  print(product.toString());
+})();

@@ -1,0 +1,48 @@
+class Person {
+  #name;
+  #age;
+
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+
+  getName() {
+    return this.#name;
+  }
+
+  getAge() {
+    return this.#age;
+  }
+
+  static async fetchPeople() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          new Person("Alice", 30),
+          new Person("Bob", 25),
+        ]);
+      }, 1000);
+    });
+  }
+}
+
+(async () => {
+  try {
+    const people = await Person.fetchPeople();
+    const names = people.map((p) => p.getName());
+    const averageAge = people.reduce((acc, p) => acc + p.getAge(), 0) / people.length;
+
+    print(`People: ${names.join(', ')}`);
+    print(`Average Age: ${averageAge}`);
+
+    const ageTable = new Map(people.map(p => [p.getName(), p.getAge()]));
+    print('Age Table:', ageTable);
+
+    const {name, age} = people.find(p => p.getName() === 'Alice');
+    print(`Found: ${name}, Age: ${age}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

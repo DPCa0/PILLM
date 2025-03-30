@@ -1,0 +1,48 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(Math.floor(Math.random() * 100)), 1000);
+    });
+};
+
+ 
+async function getData(times) {
+    let data = [];
+    for (let i = 0; i < times; i++) {
+        const result = await fetchData();
+        data.push(result);
+    }
+    return data;
+}
+
+ 
+const dataProxy = (data) => {
+    return new Proxy(data, {
+        get(target, prop) {
+            print(`Accessing ${prop} property`);
+            return target[prop];
+        },
+    });
+};
+
+ 
+function* dataGenerator(dataArray) {
+    for (const data of dataArray) {
+        yield data;
+    }
+}
+
+ 
+(async () => {
+    const times = 5;
+    const rawData = await getData(times);
+    const proxiedData = dataProxy(rawData);
+    print('Fetched Data:', proxiedData);
+
+    const generator = dataGenerator(proxiedData);
+    for (const value of generator) {
+        print('Generated Value:', value);
+    }
+})();

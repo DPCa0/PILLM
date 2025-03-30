@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(arr) {
+  for (let item of arr) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    yield item * 2;
+  }
+}
+
+(async function main() {
+  const array = [1, 2, 3, 4, 5];
+  const def = new Deferred();
+
+  setTimeout(() => {
+    console.log("Resolving deferred promise after 500ms");
+    def.resolve("Deferred promise resolved!");
+  }, 500);
+
+  for await (const num of asyncGenerator(array)) {
+    console.log(`Processed number: ${num}`);
+  }
+
+  const result = await def.promise;
+  console.log(result);
+
+  const map = new Map();
+  const weakMap = new WeakMap();
+  const obj = {};
+
+  map.set('key1', 'value1');
+  weakMap.set(obj, 'value2');
+
+  console.log(`Map value for 'key1': ${map.get('key1')}`);
+  console.log(`WeakMap value for object: ${weakMap.get(obj)}`);
+
+  const proxy = new Proxy(array, {
+    get(target, prop) {
+      if (prop === 'length') {
+        console.log('Accessed length property');
+        return target[prop];
+      }
+      return Reflect.get(target, prop);
+    }
+  });
+
+  console.log(`Proxy length: ${proxy.length}`);
+
+  const asyncIterator = array[Symbol.asyncIterator] = asyncGenerator.bind(null, array);
+  
+  for await (const val of asyncIterator()) {
+    console.log(`Async iterator value: ${val}`);
+  }
+})();
+```

@@ -1,0 +1,28 @@
+ 
+async function* advancedFunction({ delay = 1000, times = 5 }) {
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  for (let i = 0; i < times; i++) {
+     
+    await sleep(delay);
+    yield `Step ${i + 1}: ${new Date().toISOString()}`;
+  }
+}
+
+ 
+(async () => {
+  const { default: lodash } = await import('https://cdn.skypack.dev/lodash');
+  
+   
+  const config = { delay: 500, times: 3 };
+  const options = { ...config, callback: lodash?.noop || (() => {}) };
+
+  for await (const result of advancedFunction(options)) {
+    print(result);
+    options.callback(result);
+  }
+
+   
+  const finalMessage = `All steps completed at: ${new Date().toISOString()}` ?? "Process completed!";
+  print(finalMessage);
+})();

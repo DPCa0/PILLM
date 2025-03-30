@@ -1,0 +1,32 @@
+ 
+const sum = (...numbers) => numbers.reduce((acc, num) => acc + num, 0);
+
+ 
+const fetchDataAndComputeSum = async () => {
+    try {
+         
+        const simulateFetch = () => new Promise(resolve => setTimeout(() => resolve({ values: [5, 10, 15] }), 1000));
+        const { values } = await simulateFetch();
+        
+         
+        print(`Fetched values: ${values.join(', ')}`);
+
+         
+        const total = sum(...values);
+
+        print(`Total sum: ${total}`);
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+};
+
+ 
+const monitor = new Proxy(fetchDataAndComputeSum, {
+    apply: (target, thisArg, argumentsList) => {
+        print("Function is being called...");
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+});
+
+ 
+monitor();

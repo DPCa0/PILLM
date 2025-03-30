@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve({ id: 1, name: 'John Doe', job: 'Developer', location: 'Earth' });
+  }, 1000);
+});
+
+const processUserData = async () => {
+  try {
+    const userData = await fetchData();
+    const { id, name, job, location } = userData;
+    
+    const printUserData = ({ id, name, job, location }) =>
+      console.log(`User Data: 
+        ID: ${id}
+        Name: ${name}
+        Job: ${job}
+        Location: ${location}
+      `);
+
+    printUserData({ id, name, job, location });
+
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+};
+
+processUserData();
+```

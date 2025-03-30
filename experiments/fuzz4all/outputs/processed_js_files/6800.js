@@ -1,0 +1,33 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const dynamicObject = {
+  _value: 10,
+  async calculate(prop) {
+    await delay(1000);
+    return `${prop} calculated as ${this._value * Math.random()}`;
+  }
+};
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (typeof target[prop] !== 'undefined') {
+      return Reflect.get(target, prop, receiver);
+    }
+    return async () => await target.calculate(prop);
+  }
+};
+
+ 
+const proxy = new Proxy(dynamicObject, handler);
+
+ 
+(async () => {
+  print(await proxy.randomProperty1());  
+  print(await proxy.randomProperty2());  
+  print(await proxy.calculate('directAccess'));  
+})();

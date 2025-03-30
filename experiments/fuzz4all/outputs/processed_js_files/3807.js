@@ -1,0 +1,34 @@
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+     
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+     
+    yield `Data from ${url}`;
+  }
+}
+
+ 
+function processData(operation) {
+  return async function* (dataGenerator) {
+    for await (const data of dataGenerator) {
+      yield operation(data);
+    }
+  };
+}
+
+ 
+const toUpperCase = data => data.toUpperCase();
+
+ 
+(async function main() {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+  
+   
+  const dataPipeline = processData(toUpperCase)(fetchDataGenerator(urls));
+
+   
+  for await (const processedData of dataPipeline) {
+    print(processedData);
+  }
+})();

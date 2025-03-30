@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Hello, world!');
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+       
+      console.log(`Getting property "${property}"`);
+      return Reflect.get(target, property);
+    } else {
+      throw new Error(`Property "${property}" does not exist.`);
+    }
+  },
+};
+
+ 
+const target = {
+  message: 'This is a proxied message!',
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+  try {
+     
+    const message = await fetchData();
+    console.log(message);
+
+     
+    console.log(proxy.message);
+
+     
+    console.log(proxy.nonExistentProperty);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

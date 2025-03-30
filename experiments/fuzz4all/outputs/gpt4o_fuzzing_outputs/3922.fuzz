@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor(max) {
+        this.max = max;
+        this.memo = new Proxy({}, {
+            get: (obj, prop) => prop in obj ? obj[prop] : obj[prop] = this.calculate(prop)
+        });
+    }
+
+    *[Symbol.iterator]() {
+        let i = 1;
+        while (i <= this.max) {
+            yield this.memo[i++];
+        }
+    }
+
+    calculate(n) {
+        if (n <= 1) return n;
+        return this.memo[n - 1] + this.memo[n - 2];
+    }
+}
+
+const asyncFibonacci = async (max) => {
+    const fib = new Fibonacci(max);
+    for await (const num of fib) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log(num);
+    }
+};
+
+(async () => {
+    await asyncFibonacci(10);
+})();
+```

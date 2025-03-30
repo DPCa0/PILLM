@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield new Promise((resolve) => setTimeout(() => resolve(`Data from ${url}`), 1000));
+    }
+}
+
+ 
+const handler = {
+    get: function(obj, prop) {
+        return prop in obj ? obj[prop] : `Property "${prop}" not found`;
+    }
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+const processedUrls = new Set();
+
+ 
+async function processData(urls) {
+    for await (const dataPromise of fetchData(urls)) {
+        const data = await dataPromise;
+        const url = data.match(/from (\S+)/)[1];
+        if (!processedUrls.has(url)) {
+            processedUrls.add(url);
+            dataProxy[url] = data;
+            console.log(data);
+        } else {
+            console.warn(`Duplicate data from: ${url}`);
+        }
+    }
+}
+
+ 
+processData(['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/1'])
+    .then(() => console.log('Processing complete.', dataProxy))
+    .catch(error => console.error('Error processing data:', error));
+```

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ user: "John Doe", age: 30, admin: true });
+        }, 1000);
+    });
+};
+
+ 
+const processData = async () => {
+    try {
+        const data = await fetchData();
+
+         
+        const handler = {
+            get: (target, prop) => {
+                console.log(`Accessing property: ${prop}`);
+                return prop in target ? target[prop] : 'Property does not exist';
+            }
+        };
+
+        const proxyData = new Proxy(data, handler);
+
+        console.log(proxyData.user);   
+        console.log(proxyData.age);
+        console.log(proxyData.nonExistentProp);   
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+};
+
+ 
+(async () => {
+    await processData();
+})();
+```

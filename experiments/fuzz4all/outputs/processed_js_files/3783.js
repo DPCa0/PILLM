@@ -1,0 +1,53 @@
+ 
+
+ 
+function mockApiCall(data) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.2 ? resolve(`Processed: ${data}`) : reject('API Error');
+    }, 500);
+  });
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const apiProxyHandler = {
+  get: function(target, prop, receiver) {
+    print(`Fetching data for ID: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+async function processData(dataGenerator) {
+  const dataStore = new Proxy({}, apiProxyHandler);
+  const ids = idGenerator();
+  
+  for (let data of dataGenerator) {
+    try {
+      const id = ids.next().value;
+      dataStore[id] = await mockApiCall(data);
+      print(dataStore[id]);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+function* dataInputGenerator() {
+  yield 'Input 1';
+  yield 'Input 2';
+  yield 'Input 3';
+}
+
+ 
+const inputGen = dataInputGenerator();
+processData(inputGen);

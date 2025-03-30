@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+'use strict';
+
+ 
+const target = {
+    message1: "Hello",
+    message2: "World"
+};
+
+const handler = {
+    get: (obj, prop) => {
+        return prop in obj ?
+            obj[prop] :
+            `Property ${prop} does not exist`;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+const { message1, ...rest } = proxy;
+
+ 
+async function fetchData() {
+    const dataPromise = new Promise((resolve) => {
+        setTimeout(() => resolve(`${message1}, ${rest.message2}!`), 1000);
+    });
+    const data = await dataPromise;
+    return data;
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const gen = idGenerator();
+
+ 
+(async () => {
+    try {
+        const data = await fetchData();
+        console.log(data);  
+        console.log(`Generated ID: ${gen.next().value}`);  
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

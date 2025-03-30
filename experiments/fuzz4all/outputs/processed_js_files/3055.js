@@ -1,0 +1,48 @@
+ 
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+const complexOperation = async () => {
+  try {
+     
+    const promiseExample = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.5 ? resolve('Promise Resolved') : reject('Promise Rejected');
+      }, 1000);
+    });
+
+     
+    const result = await promiseExample;
+    print(`Async/Await & Promise: ${result}`);
+
+     
+    const user = { name: 'Alice', age: 25 };
+    const preferences = { theme: 'dark', notifications: true };
+    const userProfile = { ...user, ...preferences };
+
+    print('User Profile using spread syntax:', userProfile);
+
+     
+    const deepNestedObject = { settings: { profile: { visibility: null } } };
+    print(`Profile visibility: ${deepNestedObject.settings?.profile?.visibility ?? 'Not Available'}`);
+
+     
+    readline.question('Enter a number: ', (input) => {
+      const number = Number(input);
+      
+       
+      number &&= number * 2;
+      print(`Doubled number using logical assignment: ${number}`);
+
+      readline.close();
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+complexOperation();

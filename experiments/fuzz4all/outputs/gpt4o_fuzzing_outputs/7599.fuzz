@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === 'https://api.example.com/data') {
+            resolve({
+                status: 200,
+                data: { id: 1, name: 'Sample Data', attributes: { height: 200, width: 100 } }
+            });
+        } else {
+            reject(new Error('Not Found'));
+        }
+    }, 1000);
+});
+
+ 
+async function getData(url) {
+    try {
+         
+        const { status, data } = await fetchData(url);
+
+         
+        const { id = 0, name = 'Unknown', attributes: { height = 0, width = 0 } = {} } = data;
+
+         
+        console.log(`Status: ${status}, ID: ${id}, Name: ${name}, Height: ${height}, Width: ${width}`);
+    } catch (error) {
+         
+        console.log(`Error: ${error?.message ?? 'Unknown error'}`);
+    }
+}
+
+ 
+getData('https://api.example.com/data');
+```

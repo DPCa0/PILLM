@@ -1,0 +1,38 @@
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+function processData({ items = [] }) {
+   
+  return items.map(({ name, value, ...rest }) => ({
+    itemName: name,
+    itemValue: value,
+    additionalInfo: { ...rest },
+  }));
+}
+
+(async function() {
+  const apiUrl = 'https://api.example.com/data';
+  const dataFetcher = new DataFetcher(apiUrl);
+  const data = await dataFetcher.fetchData();
+
+  if (data) {
+    const processedData = processData(data);
+    print('Processed Data:', processedData);
+  }
+})();

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function asyncOperation() {
+  console.log("Starting async operation...");
+  await delay(1000);
+  console.log("Async operation complete!");
+}
+
+ 
+function* numberGenerator(limit) {
+  for (let i = 1; i <= limit; i++) {
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property ${String(prop)}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property ${String(prop)} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const targetObject = { name: "ProxyTarget", value: 42 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async function main() {
+   
+  await asyncOperation();
+
+   
+  console.log("Generated numbers:");
+  const gen = numberGenerator(3);
+  for (let num of gen) {
+    console.log(num);
+  }
+
+   
+  console.log("Proxy interactions:");
+  console.log(proxy.name);
+  proxy.value = 100;
+  console.log(proxy.value);
+})();
+```

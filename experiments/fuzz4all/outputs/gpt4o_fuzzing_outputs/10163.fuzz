@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (id, delay) => new Promise((resolve) => {
+    setTimeout(() => resolve(`Operation ${id} completed after ${delay}ms`), delay);
+});
+
+ 
+const performOperations = async () => {
+    const operations = [
+        asyncOperation(1, 1000),
+        asyncOperation(2, 2000),
+        asyncOperation(3, 1500),
+        asyncOperation(4, 500)
+    ];
+
+    console.log("Starting all operations...");
+
+     
+    const results = await Promise.allSettled(operations);
+    results.forEach(result => {
+        if (result.status === 'fulfilled') {
+            console.log(`Success: ${result.value}`);
+        } else {
+            console.log(`Failure: ${result.reason}`);
+        }
+    });
+
+    console.log("All operations completed.");
+};
+
+ 
+(async () => {
+    try {
+        await performOperations();
+    } catch (error) {
+        console.error(`Error occurred: ${error.message}`);
+    }
+})();
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+const handler = {
+    get: (target, prop) => {
+        console.log(`Property '${prop}' accessed with value: ${target[prop]}`);
+        return target[prop];
+    }
+};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(proxy.a);
+console.log(proxy.b);
+
+ 
+function* fibonacciGenerator() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+ 
+const fibGen = fibonacciGenerator();
+console.log(`First Fibonacci: ${fibGen.next().value}`);
+console.log(`Second Fibonacci: ${fibGen.next().value}`);
+console.log(`Third Fibonacci: ${fibGen.next().value}`);
+
+ 
+async function* fetchUrls(urls) {
+    for (const url of urls) {
+        const response = await fetch(url

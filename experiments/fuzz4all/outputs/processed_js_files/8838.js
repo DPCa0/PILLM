@@ -1,0 +1,53 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return await response.json();
+}
+
+async function main() {
+  const fibonacci = new Fibonacci();
+  const fibNum = fibonacci.calculate(10);
+
+  print(`Fibonacci number at position 10 is: ${fibNum}`);
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+main();
+
+ 
+const targetObject = { name: 'Alice', age: 25 };
+const handler = {
+  get(target, property) {
+    print(`Getting ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+proxy.name;  
+proxy.age = 26;  

@@ -1,0 +1,50 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener(...args));
+    }
+}
+
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+const emitter = new EventEmitter();
+
+emitter.on('dataReceived', data => {
+    print(`Data received [ID: ${gen.next().value}]:`, data);
+});
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    const data = await fetchData(url);
+    if (data) {
+        emitter.emit('dataReceived', data);
+    }
+})();

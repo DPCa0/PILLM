@@ -1,0 +1,50 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        const safeObserver = new Proxy(observer, {
+            get: (target, prop) => (prop in target ? target[prop] : () => {})
+        });
+        return this._subscribe(safeObserver);
+    }
+
+    static from(iterable) {
+        return new Observable(observer => {
+            for (let item of iterable) {
+                observer.next(item);
+            }
+            observer.complete();
+            return {
+                unsubscribe() {
+                    print("Unsubscribed");
+                }
+            };
+        });
+    }
+
+    map(transform) {
+        return new Observable(observer => this.subscribe({
+            next: x => observer.next(transform(x)),
+            error: err => observer.error(err),
+            complete: () => observer.complete()
+        }));
+    }
+}
+
+function* numberGenerator() {
+    yield* [1, 2, 3, 4, 5];
+}
+
+const numbers = Observable.from(numberGenerator());
+
+const subscription = numbers
+    .map(x => x * x)
+    .subscribe({
+        next: x => console.log(`Squared number: ${x}`),
+        complete: () => console.log('All done!')
+    });
+
+ 
+subscription.unsubscribe();

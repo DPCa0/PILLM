@@ -1,0 +1,73 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    const matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => fn(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.data[0].length !== other.data.length)
+        throw new Error("Columns of A must match rows of B.");
+
+      return new Matrix(this.data.length, other.data[0].length)
+        .map((_, i, j) =>
+          this.data[i].reduce(
+            (sum, element, k) => sum + element * other.data[k][j],
+            0
+          )
+        );
+    } else {
+      return this.map((val) => val * other);
+    }
+  }
+
+  print() {
+    console.table(this.data);
+  }
+
+  static async delay(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  }
+
+  async animateCalculation(other) {
+    print("Starting matrix multiplication animation...");
+    const result = new Matrix(this.data.length, other.data[0].length);
+
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < other.data[0].length; j++) {
+        result.data[i][j] = this.data[i].reduce(
+          (sum, element, k) => sum + element * other.data[k][j],
+          0
+        );
+        result.print();
+        await Matrix.delay(500);  
+      }
+    }
+
+    print("Animation completed!");
+    return result;
+  }
+}
+
+const A = new Matrix(2, 3).map((_, i, j) => i + j);
+const B = new Matrix(3, 2).map((_, i, j) => i * j + 1);
+
+A.print();
+B.print();
+
+ 
+(async () => {
+  const C = await A.animateCalculation(B);
+  print("Resultant Matrix:");

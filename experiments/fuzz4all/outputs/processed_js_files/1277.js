@@ -1,0 +1,47 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+const pipeline = (...fns) => value => fns.reduce((v, fn) => fn(v), value);
+
+const asyncDelay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fetchDataSimulator(urls) {
+    for (const url of urls) {
+        await asyncDelay(500);
+        yield `Data from ${url}`;
+    }
+}
+
+const logger = value => {
+    print(`[${new Date().toISOString()}] ${value}`);
+    return value;
+};
+
+const dataEnhancer = data => `${data} [enhanced]`;
+
+const observable = new Observable();
+const unsubscribeLogger = observable.subscribe(logger);
+
+const processPipeline = pipeline(
+    logger,
+    dataEnhancer,
+    logger
+);
+
+(async () => {
+    for await (const data of fetchDataSimulator(['url1', 'url2', 'url3'])) {
+        observable.notify(data);
+        processPipeline(data);
+    }
+    unsubscribeLogger();
+})();

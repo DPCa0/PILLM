@@ -1,0 +1,40 @@
+ 
+
+const fetchUserData = async (userId) => {
+   
+  const users = {
+    1: { name: 'Alice', age: 28 },
+    2: { name: 'Bob', age: 34 },
+    3: { name: 'Charlie', age: 22 }
+  };
+   
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return users[userId] || null;
+};
+
+const processUserData = async () => {
+  try {
+     
+    const userIds = [1, 2, 3];
+    const userPromises = userIds.map(id => fetchUserData(id));
+    const users = await Promise.all(userPromises);
+
+     
+    const uniqueAges = [...new Set(users.map(user => user.age))];
+    
+     
+    print(`Unique Ages: ${uniqueAges.join(', ')}`);
+
+     
+    users.forEach(user => {
+      print(`User: ${user?.name ?? 'Unknown'}, Age: ${user?.age ?? 'N/A'}`);
+    });
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+};
+
+ 
+(async () => {
+  await processUserData();
+})();

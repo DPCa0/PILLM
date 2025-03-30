@@ -1,0 +1,39 @@
+class CustomArray extends Array {
+   
+  map(callback) {
+    return super.map((...args) => {
+      print(`Mapping value: ${args[0]}`);
+      return callback(...args);
+    });
+  }
+}
+
+const asyncFetch = url =>
+  new Promise((resolve, reject) =>
+    setTimeout(() => {
+      print(`Fetching from: ${url}`);
+      resolve(`Data from ${url}`);
+    }, 1000)
+  );
+
+const fetchUrlsConcurrently = async urls => {
+  const results = await Promise.all(urls.map(async url => asyncFetch(url)));
+  print('Fetched data:', results);
+  return results;
+};
+
+const main = async () => {
+  const customArray = new CustomArray(1, 2, 3);
+  const squared = customArray.map(num => num ** 2);
+  print('Squared:', squared);
+
+  const urls = [
+    'https://api.example.com/1',
+    'https://api.example.com/2',
+    'https://api.example.com/3'
+  ];
+
+  await fetchUrlsConcurrently(urls);
+};
+
+main().catch(error => console.error('Error:', error));

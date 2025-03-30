@@ -1,0 +1,63 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const filteredListeners = this.events.get(event)
+      .filter(listener => listener !== listenerToRemove);
+    this.events.set(event, filteredListeners);
+  }
+}
+
+ 
+const eventBus = new EventEmitter();
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    eventBus.emit('dataReceived', data);
+  } catch (error) {
+    eventBus.emit('error', error);
+  }
+}
+
+eventBus.once('dataReceived', data => {
+  print('Data received:', data);
+  const transformedData = data.map(({ id, name }) => ({ userId: id, userName: name }));
+  eventBus.emit('dataProcessed', transformedData);
+});
+
+eventBus.on('dataProcessed', data => {
+  print('Transformed data:', data);
+});
+
+eventBus.on('error', error => {
+  console.error('Error:', error);
+});
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/users');

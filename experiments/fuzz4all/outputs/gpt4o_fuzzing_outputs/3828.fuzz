@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class DataPipeline {
+  #data;
+
+  constructor(...sources) {
+    this.#data = sources.flat();
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (const item of this.#data) {
+      yield await this.#processItem(item);
+    }
+  }
+
+  async #processItem(item) {
+     
+    return new Promise((resolve) => 
+      setTimeout(() => resolve(item * 2), Math.random() * 1000)
+    );
+  }
+
+  async collectResults() {
+    const results = [];
+    for await (const processedItem of this) {
+      results.push(processedItem);
+    }
+    return results;
+  }
+
+  static async combineAndProcess(...pipelines) {
+    const combinedData = (await Promise.all(
+      pipelines.map(pipeline => pipeline.collectResults())
+    )).flat();
+    return combinedData.reduce((acc, val) => acc + val, 0);
+  }
+}
+
+ 
+(async () => {
+  const pipeline1 = new DataPipeline([1, 2, 3]);
+  const pipeline2 = new DataPipeline([4, 5, 6]);
+
+  const result = await DataPipeline.combineAndProcess(pipeline1, pipeline2);
+  console.log(`Combined Result: ${result}`);
+})();
+```

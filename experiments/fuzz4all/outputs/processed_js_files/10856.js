@@ -1,0 +1,62 @@
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncProcess = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Async process complete');
+        }, 1000);
+    });
+};
+
+const proxyHandler = {
+    get: (target, property) => {
+        print(`Property '${property}' accessed`);
+        if (property in target) {
+            return target[property];
+        } else {
+            return `Property '${property}' not found`;
+        }
+    },
+    set: (target, property, value) => {
+        print(`Setting value for '${property}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const obj = {
+    name: 'Advanced Object',
+    version: 1.0
+};
+
+const proxiedObj = new Proxy(obj, proxyHandler);
+
+const emitter = new EventEmitter();
+emitter.on('start', async () => {
+    print('Start event triggered');
+    const result = await asyncProcess();
+    print(result);
+    print(proxiedObj.name);
+});
+
+emitter.emit('start');
+proxiedObj.description = "This is a proxied object.";
+print(proxiedObj.description);
+print(proxiedObj.nonExistent);

@@ -1,0 +1,42 @@
+ 
+const processData = async (data) => {
+   
+  const fetchData = async () => {
+     
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(['apple', 'banana', 'cherry']), 1000)
+    );
+  };
+
+  try {
+     
+    const fruits = await fetchData();
+
+     
+    const [firstFruit, ...otherFruits] = fruits;
+
+     
+    const uniqueFruits = [...new Set([...otherFruits, ...data])];
+
+     
+    uniqueFruits.forEach((fruit, index) =>
+      console.log(`Fruit ${index + 1}: ${fruit}`)
+    );
+
+     
+    const fruitInfo = { firstFruit, count: uniqueFruits.length };
+
+     
+    for (const [key, value] of Object.entries(fruitInfo)) {
+      print(`${key}: ${value}`);
+    }
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+const data1 = Promise.resolve(['banana', 'orange']);
+const data2 = Promise.resolve(['kiwi', 'apple']);
+
+Promise.all([data1, data2]).then(([d1, d2]) => processData([...d1, ...d2]));

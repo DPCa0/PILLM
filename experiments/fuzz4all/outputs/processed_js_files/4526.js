@@ -1,0 +1,48 @@
+ 
+const fetchData = async (url) => {
+   
+  const simulateFetch = () => 
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.2) {
+          resolve({ data: 'Sample Data', status: 200 });
+        } else {
+          reject(new Error('Failed to fetch data'));
+        }
+      }, 1000);
+    });
+
+  try {
+    const response = await simulateFetch();
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const processData = async () => {
+  try {
+     
+    const results = await Promise.all([
+      fetchData('https://api.example.com/data1'),
+      fetchData('https://api.example.com/data2'),
+      fetchData('https://api.example.com/data3')
+    ]);
+
+     
+    const formattedData = results.map(({ data, status }) => ({
+      content: data,
+      responseStatus: status
+    }));
+
+    print('Processed Data:', formattedData);
+
+     
+    const combinedData = [...formattedData];
+    print('Combined Data:', combinedData);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+processData();

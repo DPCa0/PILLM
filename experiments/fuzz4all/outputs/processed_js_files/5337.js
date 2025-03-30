@@ -1,0 +1,34 @@
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async fetchData() {
+        const response = await fetch(this.url);
+        const data = await response.json();
+        return data;
+    }
+}
+
+class Processor {
+    static process(data) {
+        return data.map(item => ({
+            ...item,
+            processedTimestamp: new Date().toISOString()
+        }));
+    }
+}
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const fetcher = new DataFetcher(url);
+    
+    try {
+        const rawData = await fetcher.fetchData();
+        const processedData = Processor.process(rawData);
+        
+        print('Processed Data:', processedData);
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+})();

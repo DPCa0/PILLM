@@ -1,0 +1,61 @@
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+
+  getName() {
+    return `This is a ${this.name}`;
+  }
+}
+
+class Circle extends Shape {
+  constructor(radius) {
+    super('circle');
+    this.radius = radius;
+  }
+
+  calculateArea() {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+class Square extends Shape {
+  constructor(side) {
+    super('square');
+    this.side = side;
+  }
+
+  calculateArea() {
+    return this.side ** 2;
+  }
+}
+
+ 
+async function calculateAreasAsync(shapes) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const areas = shapes.map((shape) => shape.calculateArea());
+      resolve(areas);
+    }, 1000);
+  });
+}
+
+async function main() {
+   
+  const shapes = new Map();
+  shapes.set('circle1', new Circle(10));
+  shapes.set('square1', new Square(5));
+
+   
+  for (const [key, shape] of shapes.entries()) {
+    print(`${key}: ${shape.getName()}`);
+  }
+
+   
+  const [circleArea, squareArea] = await calculateAreasAsync(Array.from(shapes.values()));
+  
+  print(`Circle Area: ${circleArea}`);
+  print(`Square Area: ${squareArea}`);
+}
+
+main().catch(console.error);

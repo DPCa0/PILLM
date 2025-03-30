@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array.map(row => [...row]);
+    return matrix;
+  }
+
+  map(fn) {
+    return Matrix.fromArray(this.data.map(row => row.map(fn)));
+  }
+
+  multiply(matrix) {
+    if (this.data[0].length !== matrix.data.length) {
+      throw new Error('Columns of A must match rows of B.');
+    }
+    return new Matrix(this.data.length, matrix.data[0].length)
+      .map((_, row, col) => {
+        return this.data[row].reduce((sum, elm, i) => {
+          return sum + elm * matrix.data[i][col];
+        }, 0);
+      });
+  }
+
+  [Symbol.iterator]() {
+    let i = 0, j = 0;
+    const rows = this.data.length;
+    const cols = this.data[0].length;
+    return {
+      next: () => {
+        if (i < rows && j < cols) {
+          const value = this.data[i][j];
+          j++;
+          if (j >= cols) {
+            i++;
+            j = 0;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+ 
+const A = new Matrix(2, 3, 1);
+const B = new Matrix(3, 2, 2);
+
+ 
+const C = A.multiply(B);
+console.log('Resultant Matrix:');
+for (let val of C) {
+  console.log(val);
+}
+```

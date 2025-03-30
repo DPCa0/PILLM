@@ -1,0 +1,62 @@
+ 
+class Person {
+  #name;
+  
+  constructor(name) {
+    this.#name = name;
+  }
+
+  getName() {
+    return this.#name;
+  }
+
+  greet() {
+    return `Hello, ${this.#name}!`;
+  }
+}
+
+ 
+async function* numberGenerator() {
+  let num = 1;
+  while (num <= 3) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    yield num++;
+  }
+}
+
+ 
+async function getGreeting(name) {
+   
+  await Promise.allSettled([
+    new Promise(resolve => setTimeout(resolve, 500)),
+    new Promise(resolve => setTimeout(resolve, 1000))
+  ]);
+
+  const person = new Person(name);
+  return person.greet();
+}
+
+ 
+(async () => {
+  try {
+    print(await getGreeting('Alice'));
+
+    const numbers = [];
+    for await (const num of numberGenerator()) {
+      numbers.push(num);
+    }
+    print('Generated Numbers:', numbers);
+    
+    const promise1 = Promise.resolve('Resolved');
+    const promise2 = Promise.reject('Rejected');
+    
+     
+    console.log({
+      status1: (await promise1.catch(() => null))?.status ?? 'Pending',
+      status2: (await promise2.catch(() => null))?.status ?? 'Pending'
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

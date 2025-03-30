@@ -1,0 +1,50 @@
+ 
+const fetchDataAndProcess = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const data = await response.json();
+
+         
+        const handler = {
+            get: (target, prop) => {
+                return prop in target ? target[prop] : `No such property as '${prop}'`;
+            },
+            set: (target, prop, value) => {
+                if (typeof value === 'number') {
+                    target[prop] = value;
+                    print(`Property '${prop}' set to ${value}`);
+                    return true;
+                } else {
+                    console.error(`Property '${prop}' must be a number`);
+                    return false;
+                }
+            }
+        };
+
+        const dataProxy = new Proxy(data, handler);
+
+         
+        print(dataProxy.nonExistentProperty);  
+        dataProxy.someNumber = 42;  
+        dataProxy.someString = "Hello";  
+
+         
+        const uniqueSymbol = Symbol('unique');
+        dataProxy[uniqueSymbol] = "This is unique!";
+
+         
+        const augmentedData = { ...dataProxy, additionalInfo: 'Added via spread' };
+
+        print('Augmented Data:', augmentedData);
+
+         
+        return augmentedData;
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+};
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/todos/1');

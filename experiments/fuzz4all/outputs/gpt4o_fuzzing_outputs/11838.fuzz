@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("Data retrieved!");
+    }, 1000);
+  });
+}
+
+ 
+function* dataGenerator() {
+  yield 'Step 1';
+  yield* fetchDataAsync();
+  yield 'Step 3';
+}
+
+ 
+async function* fetchDataAsync() {
+  const data = await fetchData();
+  yield data;
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      return `Property ${String(property)} not found`;
+    }
+  }
+};
+
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+const targetObject = {
+  [uniqueKey]: 'I am unique!',
+  regularKey: 'I am regular!'
+};
+
+ 
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async function () {
+  const generator = dataGenerator();
+  for await (const value of generator) {
+    console.log(value);
+  }
+})();
+
+ 
+console.log(proxy[uniqueKey]);
+console.log(proxy.regularKey);
+console.log(proxy.nonExistentKey);
+```

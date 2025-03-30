@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *processData() {
+    for (const item of this.data) {
+      yield new Promise(resolve => {
+        setTimeout(() => {
+          resolve(`Processed: ${item}`);
+        }, 1000);
+      });
+    }
+  }
+}
+
+async function complexFlow() {
+  const processor = new AsyncProcessor(['apple', 'banana', 'cherry']);
+  
+  const results = [];
+  for await (const result of processor.processData()) {
+    results.push(result);
+  }
+
+  const finalResult = results
+    .map(item => item.toUpperCase())
+    .reduce((acc, curr) => `${acc}\n${curr}`);
+
+  console.log(finalResult);
+}
+
+complexFlow();
+```

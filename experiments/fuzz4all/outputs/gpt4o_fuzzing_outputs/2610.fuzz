@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function processData(filePath) {
+  try {
+     
+    const { default: chalk } = await import('chalk');
+    
+     
+    const data = await fs.readFile(filePath, 'utf8');
+
+     
+    const words = data.match(/\b\w+\b/g);
+    const wordSet = new Set(words);
+    const wordMap = new Map();
+
+    wordSet.forEach(word => {
+      const count = words.filter(w => w === word).length;
+      wordMap.set(word, count);
+    });
+
+     
+    const topWords = [...wordMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+     
+    const formatWord = chalk.bold.bgBlue;
+    const formatCount = chalk.redBright;
+
+    console.log(chalk.green('Top 5 words:'));
+    topWords.forEach(([word, count]) => {
+      console.log(formatWord`${word}:` + formatCount` ${count}`);
+    });
+
+  } catch (error) {
+    console.error('Error processing file:', error);
+  }
+}
+
+ 
+(async () => {
+  await processData('./textfile.txt');
+})();
+```

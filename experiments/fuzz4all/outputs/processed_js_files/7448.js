@@ -1,0 +1,52 @@
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function* numberGenerator() {
+  let number = 0;
+  while (true) {
+    await delay(1000);
+    yield number++;
+  }
+}
+
+async function main() {
+  const logNumbers = async () => {
+    for await (const number of numberGenerator()) {
+      print(`Number: ${number}`);
+      if (number > 5) break;   
+    }
+  };
+
+  const promiseHandler = async (promise) => {
+    try {
+      const result = await promise;
+      print('Resolved with:', result);
+    } catch (error) {
+      console.error('Rejected with:', error);
+    }
+  };
+
+  const demoPromise = (number) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => number % 2 === 0 ? resolve(number) : reject(new Error('Odd number')), 500);
+    });
+  };
+
+  const handleComplexPromises = async () => {
+    const promises = [1, 2, 3, 4, 5].map(demoPromise);
+    await Promise.allSettled(promises).then(results =>
+      results.forEach((result, idx) => {
+        if (result.status === 'fulfilled') {
+          print(`Promise ${idx} succeeded with value: ${result.value}`);
+        } else {
+          console.error(`Promise ${idx} failed with reason: ${result.reason}`);
+        }
+      })
+    );
+  };
+
+  await logNumbers();
+  await promiseHandler(demoPromise(4));
+  await handleComplexPromises();
+}
+
+main();

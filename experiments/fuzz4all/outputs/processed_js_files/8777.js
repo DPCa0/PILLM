@@ -1,0 +1,51 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncFetch = async (url) => {
+    return fetch(url)
+        .then(response => response.json())
+        .catch(error => { throw new Error("Failed to fetch: " + error.message); });
+};
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function complexAsyncFlow() {
+    const emitter = new EventEmitter();
+
+    emitter.on('dataFetched', data => {
+        print('Data fetched:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('Error occurred:', error.message);
+    });
+
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+    try {
+        const data = await asyncFetch(url);
+        emitter.emit('dataFetched', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+
+    await delay(2000);
+
+    print('Continuing after a delay...');
+})();

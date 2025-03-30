@@ -1,0 +1,43 @@
+class NetworkNode {
+  constructor(name) {
+    this.name = name;
+    this.connections = new Set();
+  }
+
+  connect(node) {
+    this.connections.add(node);
+    node.connections.add(this);
+  }
+}
+
+function* depthFirstSearch(node, visited = new Set()) {
+  if (!visited.has(node)) {
+    yield node;
+    visited.add(node);
+    for (let neighbor of node.connections) {
+      yield* depthFirstSearch(neighbor, visited);
+    }
+  }
+}
+
+function simulateNetwork() {
+  const nodeA = new NetworkNode('A');
+  const nodeB = new NetworkNode('B');
+  const nodeC = new NetworkNode('C');
+  const nodeD = new NetworkNode('D');
+
+  nodeA.connect(nodeB);
+  nodeA.connect(nodeC);
+  nodeB.connect(nodeD);
+
+  const sequence = Array.from(depthFirstSearch(nodeA)).map(node => node.name);
+  print(`Traversal Order: ${sequence.join(' -> ')}`);
+}
+
+const deferredExecution = (fn) => new Promise(resolve => setTimeout(() => resolve(fn()), 1000));
+
+(async () => {
+  print('Starting network simulation...');
+  await deferredExecution(simulateNetwork);
+  print('Simulation complete.');
+})();

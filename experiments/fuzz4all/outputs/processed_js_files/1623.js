@@ -1,0 +1,31 @@
+class AsyncProcessor {
+  static async *processData(data) {
+    for (const item of data) {
+      yield await Promise.resolve(item * 2);  
+    }
+  }
+}
+
+function debounce(fn, delay) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const transformData = (data, fn) => data.map(fn);
+
+const data = [1, 2, 3, 4, 5];
+const processTransformedData = debounce(async () => {
+  const transformed = transformData(data, (x) => x + 1);
+  const processedData = [];
+
+  for await (const value of AsyncProcessor.processData(transformed)) {
+    processedData.push(value);
+  }
+
+  print(processedData);
+}, 1000);
+
+processTransformedData();

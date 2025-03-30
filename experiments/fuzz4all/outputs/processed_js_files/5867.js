@@ -1,0 +1,66 @@
+ 
+(async () => {
+    try {
+        const { sqrt, pow } = await import('mathjs');
+
+         
+        async function fetchData(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        }
+
+         
+        const multiplier = factor => num => num * factor;
+
+         
+        function createSummator() {
+            let sum = 0;
+            return num => {
+                sum += num;
+                return sum;
+            };
+        }
+
+        const sum = createSummator();
+        const timesTwo = multiplier(2);
+        print(`2^3 = ${pow(2, 3)}`);
+        print(`Square root of 16 is ${sqrt(16)}`);
+        print(`4 times 2 is ${timesTwo(4)}`);
+        print(`Sum sequence: ${sum(5)}, ${sum(10)}, ${sum(20)}`);
+
+         
+        const processData = async () => {
+            const apiURL = 'https://jsonplaceholder.typicode.com/posts/1';
+            try {
+                const data = await fetchData(apiURL);
+                print('Fetched Data:', data);
+
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve(`Post ID is: ${data.id}`);
+                    }, 1000);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+         
+        processData().then(async (message) => {
+            const [a, b, c, ...rest] = [1, 2, 3, 4, 5, 6];
+            print('Destructured:', a, b, c, 'Rest:', rest);
+            print(message);
+
+             
+            function* fibonacciSequence(n) {
+                let [prev, current] = [0, 1];
+                while (n--) {
+                    [prev, current] = [current, prev + current];
+                    yield current;
+                }
+            }
+
+            print('Fibonacci Sequence:');
+            for (let num of fibonacciSequence(6)) {

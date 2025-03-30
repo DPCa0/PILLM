@@ -1,0 +1,58 @@
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    Math.random() > 0.1 ? resolve({ data: [1, 2, 3, 4, 5] }) : reject('Fetch failed');
+  }, 1000);
+});
+
+ 
+async function* asyncGenerator() {
+  try {
+    const response = await fetchData();
+    for (const item of response.data) {
+      yield item * 2;   
+    }
+  } catch (error) {
+    yield `Error: ${error}`;
+  }
+}
+
+ 
+const processData = async () => {
+  const results = [];
+  for await (const value of asyncGenerator()) {
+    results.push(value);
+  }
+  return results;
+};
+
+ 
+const handler = {
+  get(target, prop) {
+    return prop in target ? target[prop] : 'Property does not exist';
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number') {
+      target[prop] = value;
+    } else {
+      console.warn(`Trying to set non-numeric value: ${value}`);
+    }
+  }
+};
+
+const createManagedObject = (initialObj) => new Proxy(initialObj, handler);
+
+ 
+(async () => {
+  const results = await processData();
+  print('Processed Data:', results);
+  
+  const myObj = createManagedObject({ x: 10, y: 20 });
+  print('Original:', myObj.x, myObj.y);
+  
+  myObj.z = 30;
+  myObj.x = 'string';   
+  print('After modification:', myObj.x, myObj.y, myObj.z);
+
+  print('Accessing non-existing property:', myObj.a);
+})();

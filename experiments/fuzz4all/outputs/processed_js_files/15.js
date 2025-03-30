@@ -1,0 +1,54 @@
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+  
+  *run() {
+    for (let i = 0; i < this.duration; i++) {
+      yield `Task ${this.name}: ${i + 1}/${this.duration}`;
+    }
+  }
+}
+
+const runTasks = async () => {
+  const tasks = [
+    new Task('A', 3),
+    new Task('B', 2),
+    new Task('C', 4)
+  ];
+
+  const results = await Promise.allSettled(tasks.map(task =>
+    (async () => {
+      const messages = [];
+      for (let step of task.run()) {
+        messages.push(step);
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      return messages;
+    })()
+  ));
+
+  results.forEach(({status, value}, idx) => {
+    print(`Task ${tasks[idx].name} ${status}:`);
+    value.forEach(message => print(message));
+  });
+};
+
+(async () => {
+  const textDecoder = new TextDecoder('utf-8');
+  const encoder = new TextEncoder();
+  const encodedText = encoder.encode("Starting tasks...\n");
+  const readableStream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encodedText);
+      controller.close();
+    }
+  });
+
+  const reader = readableStream.getReader();
+  const { value } = await reader.read();
+  print(textDecoder.decode(value));
+
+  await runTasks();
+})();

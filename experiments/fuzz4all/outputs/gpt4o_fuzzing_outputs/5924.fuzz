@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const fs = await import('fs/promises');
+
+   
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        console.log(`Property '${prop}' accessed.`);
+        return target[prop];
+      } else {
+        throw new Error(`Property '${prop}' does not exist.`);
+      }
+    },
+    set(target, prop, value) {
+      console.log(`Setting property '${prop}' to '${value}'.`);
+      target[prop] = value;
+      return true;
+    },
+  };
+
+  const obj = new Proxy({}, handler);
+
+   
+  obj.message = 'Hello, world!';
+  console.log(obj.message);
+
+   
+  const fileOperations = async () => {
+    try {
+      await Promise.all([
+        fs.writeFile('message.txt', obj.message),
+        fs.readFile('message.txt', 'utf8').then((data) => {
+          console.log('File contents:', data);
+        }),
+      ]);
+    } catch (error) {
+      console.error('Error with file operations:', error);
+    }
+  };
+
+  await fileOperations();
+
+   
+  function* generateSequence() {
+    yield* [1, 2, 3, 4, 5];
+  }
+
+   
+  for (let value of generateSequence()) {
+    console.log(value);
+  }
+
+   
+  const weakMap = new WeakMap();
+  const key = {};
+  weakMap.set(key, 'Some value');
+  console.log('WeakMap value:', weakMap.get(key));
+
+   
+  key = null;
+})();
+```

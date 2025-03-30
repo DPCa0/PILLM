@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');
+
+(async () => {
+  const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+  
+  const processData = async () => {
+    try {
+      const response = await fetch(apiURL);
+      const data = await response.json();
+
+      const posts = data.map(({ title, body }) => ({ title, body }));
+      
+      const titlesSet = new Set(posts.map(post => post.title));
+      const uniqueTitlesArray = Array.from(titlesSet);
+
+      const capitalizeTitle = title => {
+        return title.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      };
+
+      const sortedTitles = uniqueTitlesArray.sort((a, b) => a.localeCompare(b));
+      const capitalizedTitles = sortedTitles.map(capitalizeTitle);
+
+      console.log('Unique & Capitalized Titles:');
+      console.log(capitalizedTitles.join('\n'));
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  await processData();
+})();
+```
+
+This program fetches posts from a public API, extracts titles and bodies, eliminates duplicate titles, sorts them, capitalizes them, and then logs them to the console. It uses `async/await`, `map()`, `Set`, and other modern JavaScript features.

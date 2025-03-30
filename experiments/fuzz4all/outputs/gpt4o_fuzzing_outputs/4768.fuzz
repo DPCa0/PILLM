@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataSim() {
+    const dataChunks = [
+        { id: 1, value: 'Chunk 1' },
+        { id: 2, value: 'Chunk 2' },
+        { id: 3, value: 'Chunk 3' }
+    ];
+    
+    for (const chunk of dataChunks) {
+         
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+        yield chunk;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property '${prop}'`);
+        return Reflect.get(target, prop);
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const dataProxy = new Proxy({ cachedData: [] }, handler);
+
+ 
+(async () => {
+    for await (const data of fetchDataSim()) {
+        console.log(`Received data: ${JSON.stringify(data)}`);
+        dataProxy.cachedData.push(data);
+        
+         
+        const uniqueIds = new Set(dataProxy.cachedData.map(item => item.id));
+        console.log(`Unique IDs so far: ${Array.from(uniqueIds).join(', ')}`);
+    }
+    
+     
+    console.log(`Final data: ${dataProxy.cachedData?.length ?? 'No data'} items processed.`);
+})();
+```

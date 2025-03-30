@@ -1,0 +1,69 @@
+ 
+const ID = Symbol('id');
+
+ 
+class User {
+  #name;
+  #balance;
+
+  constructor(name, balance) {
+    this.#name = name;
+    this.#balance = balance;
+    this[ID] = Math.random().toString(36).substr(2, 9);
+  }
+
+   
+  get name() {
+    return this.#name;
+  }
+
+   
+  #calculateInterest(rate) {
+    return this.#balance * rate;
+  }
+
+   
+  getInterest(rate = 0.05) {
+    return this.#calculateInterest(rate);
+  }
+
+   
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+ 
+const user = new User('Alice', 1000);
+
+ 
+(async () => {
+  const { getInterest, ...rest } = user;
+  print('Interest:', getInterest());
+
+  const { default: _ } = await import('lodash');
+  const userClone = _.cloneDeep(rest);
+  print('User Clone:', userClone);
+})();
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Accessed property: ${prop}`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    print(`Set property: ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const proxiedUser = new Proxy(user, handler);
+print('Proxied User Name:', proxiedUser.name);
+proxiedUser.balance = 1500;

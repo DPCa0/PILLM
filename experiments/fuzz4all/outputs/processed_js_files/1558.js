@@ -1,0 +1,48 @@
+ 
+
+ 
+async function fetchData(url) {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { name: 'John Doe', age: 30, location: 'Earth' };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+class UserProfile {
+  constructor({ name, age, location }) {
+    this.name = name;
+    this.age = age;
+    this.location = location;
+  }
+
+   
+  printDetails() {
+    print(`Name: ${this.name}, Age: ${this.age}, Location: ${this.location}`);
+  }
+}
+
+ 
+async function main() {
+  try {
+    const url = 'https://api.example.com/user';
+    const data = await fetchData(url);
+    
+     
+    const { name, age, location } = data;
+
+     
+    const user = new UserProfile({ name, age, location });
+
+     
+    user.printDetails();
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+}
+
+ 
+main();

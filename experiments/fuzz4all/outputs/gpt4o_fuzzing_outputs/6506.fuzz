@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchDataAndProcess() {
+  try {
+     
+    await delay(1000);
+    const data = [1, 2, 3, 4, 5];
+
+     
+    function* dataPipeline(data) {
+      yield* data.map(x => x * 2);  
+      yield* data.map(x => x + 1);  
+    }
+
+     
+    const [first, second, ...rest] = [...dataPipeline(data)];
+
+     
+    const sum = (...args) => args.reduce((a, b) => a + b, 0);
+
+     
+    function highlight(strings, ...values) {
+      return strings.reduce(
+        (prev, curr, i) => `${prev}${curr}<strong>${values[i] || ''}</strong>`,
+        ''
+      );
+    }
+
+    console.log(
+      highlight`Results: First - ${first}, Second - ${second}, Sum - ${sum(...rest)}`
+    );
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+fetchDataAndProcess();
+```

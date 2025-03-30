@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const transformedData = data.map(({ id, name, ...rest }) => ({
+      id,
+      name: name.toUpperCase(),
+      details: { ...rest },
+      timestamp: new Date().toISOString()
+    }));
+
+    const filteredData = transformedData.filter(item => item.details.active);
+
+    console.log(
+      filteredData.reduce((acc, { name }) => `${acc}${name}, `, 'Active items: ')
+    );
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+const exampleApiUrl = 'https://jsonplaceholder.typicode.com/users';
+processData(exampleApiUrl);
+```

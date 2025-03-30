@@ -1,0 +1,32 @@
+class AsyncCounter {
+  constructor(limit) {
+    this.limit = limit;
+    this.currentCount = 0;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (this.currentCount < this.limit) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      yield ++this.currentCount;
+    }
+  }
+
+  static async start(limit) {
+    const counter = new AsyncCounter(limit);
+    for await (const count of counter) {
+      print(`Count: ${count}`);
+    }
+    print('Counting completed.');
+  }
+}
+
+(async () => {
+  try {
+    await Promise.all([
+      AsyncCounter.start(3),
+      AsyncCounter.start(5),
+    ]);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

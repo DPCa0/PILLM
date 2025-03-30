@@ -1,0 +1,34 @@
+const crypto = require('crypto');
+
+class SecretNote {
+  #content;
+  constructor(content) {
+    this.#content = content;
+    this.id = crypto.randomUUID();
+  }
+
+  encrypt(key) {
+    const cipher = crypto.createCipher('aes-256-cbc', key);
+    let encrypted = cipher.update(this.#content, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+  }
+
+  static decrypt(encryptedContent, key) {
+    const decipher = crypto.createDecipher('aes-256-cbc', key);
+    let decrypted = decipher.update(encryptedContent, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  }
+}
+
+(async () => {
+  const key = crypto.randomBytes(32).toString('hex');
+  const note = new SecretNote("Advanced JavaScript in action!");
+  
+  const encrypted = note.encrypt(key);
+  print(`Encrypted: ${encrypted}`);
+  
+  const decrypted = SecretNote.decrypt(encrypted, key);
+  print(`Decrypted: ${decrypted}`);
+})();

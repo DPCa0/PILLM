@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (userId) => {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const logUserData = ({ name, email, address: { city } }) => {
+    console.log(`Name: ${capitalize(name)}, Email: ${email.toLowerCase()}, City: ${capitalize(city)}`);
+};
+
+const processData = (data) => {
+    return {
+        ...data,
+        address: {
+            ...data.address,
+            city: data.address.city.toUpperCase()
+        }
+    };
+};
+
+(async () => {
+    try {
+        const userId = 1;
+        let userData = await fetchUserData(userId);
+        userData = processData(userData);
+        logUserData(userData);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+})();
+```

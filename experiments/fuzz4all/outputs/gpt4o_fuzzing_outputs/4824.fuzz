@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  speak() {
+    console.log(`${this.name} makes a noise.`);
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name);
+    this.breed = breed;
+  }
+  
+  speak() {
+    super.speak();
+    console.log(`${this.name} barks.`);
+  }
+}
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+const symbolKey = Symbol('unique');
+const obj = {
+  [symbolKey]: 'symbol value',
+  regularKey: 'regular value'
+};
+
+const dog = new Dog('Rex', 'Golden Retriever');
+dog.speak();   
+
+console.log(obj[symbolKey]);   
+
+fetchData('https://jsonplaceholder.typicode.com/todos/1');   
+```

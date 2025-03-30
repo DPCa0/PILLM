@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+class WeatherApp {
+  constructor(city) {
+    this.city = city;
+    this.apiKey = 'your_api_key_here';  
+  }
+
+  async fetchWeatherData() {
+    const response = await fetch(
+      `https: 
+    );
+    const data = await response.json();
+    return data;
+  }
+
+  displayWeather() {
+    this.fetchWeatherData()
+      .then(({ weather: [{ description }], main: { temp } }) => {
+        const temperature = (temp - 273.15).toFixed(2);  
+        console.log(`Weather in ${this.city}: ${description}, ${temperature}°C`);
+      })
+      .catch((error) => console.error('Error fetching weather data:', error));
+  }
+}
+
+ 
+const startApp = async () => {
+  const { prompt } = await import('prompt-sync');
+  const city = prompt()?.('Enter your city: ') || 'London';  
+
+  const app = new WeatherApp(city);
+  app.displayWeather();
+};
+
+startApp();
+```
+
+Note: Replace `'your_api_key_here'` with a valid API key from OpenWeatherMap, and make sure you have the `prompt-sync` module installed if you use this feature for user input.

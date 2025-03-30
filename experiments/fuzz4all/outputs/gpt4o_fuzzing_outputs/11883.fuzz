@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataStore {
+  constructor() {
+    this.data = new Map();
+  }
+
+  setData(key, value) {
+    this.data.set(key, value);
+  }
+
+  getData(key) {
+    return this.data.get(key);
+  }
+}
+
+function fetchData(store) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { user: 'Alice', age: 25, city: 'Wonderland' };
+      store.setData('userInfo', data);
+      resolve(data);
+    }, 1000);
+  });
+}
+
+async function main() {
+  const store = new DataStore();
+  const handler = {
+    get(target, prop) {
+      console.log(`Accessing property: ${prop}`);
+      return target.getData(prop);
+    },
+  };
+
+  const proxyStore = new Proxy(store, handler);
+
+  try {
+    console.log('Fetching data...');
+    const data = await fetchData(proxyStore);
+    const { user, age, city } = data;
+    console.log(`User: ${user}, Age: ${age}, City: ${city}`);
+
+    console.log('Accessing through proxy...');
+    const userInfo = proxyStore.userInfo;
+    console.log(userInfo);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();
+```

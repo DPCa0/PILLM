@@ -1,0 +1,49 @@
+class AsyncQueue {
+  #queue = [];
+  #pendingPromise = false;
+
+  async enqueue(task) {
+    return new Promise((resolve, reject) => {
+      this.#queue.push({ task, resolve, reject });
+      if (!this.#pendingPromise) {
+        this.#processQueue();
+      }
+    });
+  }
+
+  async #processQueue() {
+    this.#pendingPromise = true;
+    while (this.#queue.length) {
+      const { task, resolve, reject } = this.#queue.shift();
+      try {
+        const result = await task();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    }
+    this.#pendingPromise = false;
+  }
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const complexTask = (id, time) => async () => {
+  print(`Starting task ${id}`);
+  await delay(time);
+  print(`Completed task ${id}`);
+  return `Result of task ${id}`;
+};
+
+(async () => {
+  const queue = new AsyncQueue();
+
+  const results = await Promise.all([
+    queue.enqueue(complexTask(1, 1000)),
+    queue.enqueue(complexTask(2, 500)),
+    queue.enqueue(complexTask(3, 1200)),
+    queue.enqueue(complexTask(4, 700))
+  ]);
+
+  print(results);
+})();

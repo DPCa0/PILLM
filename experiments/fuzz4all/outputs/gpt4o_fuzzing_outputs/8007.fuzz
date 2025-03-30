@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+     
+    let data = await response.json();
+
+     
+    let { userId, id, title, body } = data;
+    
+     
+    console.log(`User ID: ${userId}`);
+    console.log(`Post ID: ${id}`);
+    console.log(`Title: ${title}`);
+    console.log(`Body: ${body}`);
+    
+     
+    console.log(highlight`Fetched post: ${title} with ID: ${id}`);
+  } catch (error) {
+     
+    console.error(`Failed to fetch data: ${error.message}`);
+  }
+}
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    return `${result}${str}<strong>${values[i] || ''}</strong>`;
+  }, '');
+}
+
+ 
+(async () => {
+   
+  const handler = {
+    apply: (target, thisArg, args) => {
+      console.log(`Calling fetchData with arguments: ${JSON.stringify(args)}`);
+      return Reflect.apply(target, thisArg, args);
+    }
+  };
+
+  const proxiedFetchData = new Proxy(fetchData, handler);
+
+   
+  await proxiedFetchData('https://jsonplaceholder.typicode.com/posts/1');
+})();
+```

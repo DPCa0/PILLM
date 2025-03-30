@@ -1,0 +1,60 @@
+const fetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+};
+
+const processData = (data) => {
+    if (!data || !Array.isArray(data)) return [];
+    return data.filter(item => item.active).map(item => ({
+        id: item.id,
+        name: item.name.toUpperCase(),
+        value: item.value * 2
+    }));
+};
+
+const getUsers = async () => {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+    return processData(data);
+};
+
+const displayUsers = async () => {
+    try {
+        const users = await getUsers();
+        users.forEach(user => {
+            print(`ID: ${user.id}, Name: ${user.name}, Value: ${user.value}`);
+        });
+    } catch (error) {
+        console.error('Display error:', error);
+    }
+};
+
+class Observer {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+const userObserver = new Observer();
+
+userObserver.subscribe((data) => print('Observer 1:', data));
+userObserver.subscribe((data) => print('Observer 2:', data.toUpperCase()));
+
+displayUsers().then(() => {
+    userObserver.notify('Users fetched and displayed');
+});

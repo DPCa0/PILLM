@@ -1,0 +1,64 @@
+ 
+const EventEmitter = require('events');
+
+ 
+class ComplexEventEmitter extends EventEmitter {
+  constructor() {
+    super();
+    this.queue = [];
+  }
+
+  async emitEventWithDelay(event, delay, data) {
+     
+    await new Promise(resolve => setTimeout(resolve, delay));
+    this.emit(event, data);
+  }
+
+  enqueueEvent(event, data) {
+    this.queue.push({ event, data });
+  }
+
+  processQueue() {
+    if (this.queue.length > 0) {
+      const { event, data } = this.queue.shift();
+      this.emit(event, data);
+       
+      setImmediate(() => this.processQueue());
+    }
+  }
+}
+
+ 
+const UNIQUE_EVENT = Symbol('uniqueEvent');
+
+ 
+const emitter = new ComplexEventEmitter();
+
+ 
+const handlers = new Map();
+
+handlers.set(UNIQUE_EVENT, (data) => {
+  print(`Handled UNIQUE_EVENT with data:`, data);
+});
+
+handlers.set('delayedEvent', (data) => {
+  print(`Handled delayedEvent with data:`, data);
+});
+
+handlers.set('queuedEvent', (data) => {
+  print(`Handled queuedEvent with data:`, data);
+});
+
+ 
+for (let [event, handler] of handlers) {
+  emitter.on(event, handler);
+}
+
+ 
+(async () => {
+  await emitter.emitEventWithDelay('delayedEvent', 2000, { delay: '2 seconds' });
+  emitter.enqueueEvent('queuedEvent', { message: 'First in Queue' });
+  emitter.enqueueEvent('queuedEvent', { message: 'Second in Queue' });
+  emitter.emit(UNIQUE_EVENT, { info: 'This is a unique event' });
+  emitter.processQueue();
+})();

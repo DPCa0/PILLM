@@ -1,0 +1,60 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const safeFetchData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('fetch', debounce(async (url) => {
+  await safeFetchData(url);
+}, 1000));
+
+(async () => {
+  print('Start fetching...');
+  emitter.emit('fetch', 'https://jsonplaceholder.typicode.com/todos/1');
+  await sleep(500);
+  emitter.emit('fetch', 'https://jsonplaceholder.typicode.com/todos/2');
+  await sleep(1500);
+  emitter.emit('fetch', 'https://jsonplaceholder.typicode.com/todos/3');
+})();

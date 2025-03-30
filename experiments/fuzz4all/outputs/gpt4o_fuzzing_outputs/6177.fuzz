@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000));
+
+ 
+function* processData(data) {
+  for (let item of data) {
+    yield item * 2;
+  }
+}
+
+ 
+async function getProcessedData() {
+  const data = await fetchData();
+  const processedData = [];
+  const generator = processData(data);
+
+  for (let value of generator) {
+    processedData.push(value);
+  }
+  return processedData;
+}
+
+ 
+const dataHandler = {
+  get: (target, prop) => {
+    console.log(`Accessing property "${prop}"`);
+    return target[prop];
+  }
+};
+
+(async () => {
+  const rawData = await getProcessedData();
+  const proxiedData = new Proxy(rawData, dataHandler);
+
+   
+  console.log(proxiedData[0]);   
+  console.log(proxiedData[1]);   
+  console.log(proxiedData.length);  
+})();
+```

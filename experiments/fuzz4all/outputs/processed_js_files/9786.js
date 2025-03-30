@@ -1,0 +1,54 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+function debounce(fn, delay) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+const delayLog = debounce((msg) => print(msg), 500);
+
+const observer = new Observer();
+
+observer.subscribe(delayLog);
+observer.subscribe((msg) => print(`Received: ${msg}`));
+
+function* fibonacciSequence() {
+  let a = 0, b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const fib = fibonacciSequence();
+
+for (let i = 0; i < 5; i++) {
+  const value = fib.next().value;
+  observer.notify(`Fibonacci number: ${value}`);
+}
+
+const asyncProcess = async () => {
+  const value = await new Promise((resolve) => setTimeout(() => resolve('Async result!'), 1000));
+  observer.notify(value);
+};
+
+asyncProcess();

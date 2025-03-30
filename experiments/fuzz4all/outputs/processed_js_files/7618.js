@@ -1,0 +1,38 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  const data = await response.json();
+  return data;
+};
+
+const processData = (data) => {
+  return data.map(({ id, title, completed }) => ({
+    id,
+    title: title.toUpperCase(),
+    completed: completed ? 'YES' : 'NO'
+  }));
+};
+
+const displayData = (processedData) => {
+  const container = document.getElementById('todo-container');
+  container.innerHTML = '';
+  processedData.forEach(item => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'todo-item';
+    itemElement.innerHTML = `<strong>${item.title}</strong> - Completed: ${item.completed}`;
+    container.appendChild(itemElement);
+  });
+};
+
+(async () => {
+  const API_URL = 'https://jsonplaceholder.typicode.com/todos?_limit=5';
+  try {
+    const data = await fetchData(API_URL);
+    const processedData = processData(data);
+    displayData(processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+
+This JavaScript program uses async/await for handling asynchronous operations, fetch API for network requests, and DOM manipulation for displaying data. It fetches data from a placeholder API, processes it by capitalizing titles and converting completed status to a more readable format, and then dynamically displays it on a webpage.

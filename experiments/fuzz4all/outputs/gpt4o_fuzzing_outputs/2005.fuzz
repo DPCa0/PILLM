@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ url, data: { name: 'John Doe', age: 30 } });
+        }, 1000);
+    });
+}
+
+ 
+async function processData() {
+    const urls = ['https://api.example.com/user1', 'https://api.example.com/user2'];
+    const dataPromises = urls.map(async (url) => {
+        const { data } = await fetchData(url);
+        const { name, age } = data;
+        return { name, age };
+    });
+
+     
+    const results = await Promise.all(dataPromises);
+
+     
+    const nameSet = new Set();
+    const nameMap = new Map(results.map(({ name, age }) => {
+        nameSet.add(name);
+        return [name, age];
+    }));
+
+     
+    console.log([...nameSet]);
+    console.log([...nameMap.entries()]);
+}
+
+ 
+processData();
+```

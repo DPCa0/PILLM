@@ -1,0 +1,70 @@
+(async function() {
+     
+    const fetchData = async ({ url, method = 'GET', headers = {} } = {}) => {
+        const response = await fetch(url, { method, headers });
+        return response.json();
+    };
+
+     
+    const uniqueKey = Symbol('unique');
+
+     
+    function* idGenerator() {
+        let id = 0;
+        while (true) {
+            yield id++;
+        }
+    }
+
+    const idGen = idGenerator();
+
+     
+    const config = new Proxy({}, {
+        set(target, property, value) {
+            print(`Setting config ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        },
+        get(target, property) {
+            if (property in target) {
+                return target[property];
+            } else {
+                console.warn(`Property ${property} not found`);
+                return null;
+            }
+        }
+    });
+
+     
+    config.apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+    print(config.apiUrl);
+
+     
+    try {
+        const data = await fetchData({ url: config.apiUrl });
+        print(data.slice(0, 3));  
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+
+     
+    function safeHTML(strings, ...values) {
+        return strings.reduce((acc, str, index) => {
+            const val = values[index - 1];
+            return acc + String(val).replace(/</g, "&lt;").replace(/>/g, "&gt;") + str;
+        });
+    }
+
+    const userInput = '<script>alert("Attack!")</script>';
+    print(safeHTML`User input: ${userInput}`);
+
+     
+    const settings = new Map();
+    settings.set(uniqueKey, { theme: 'dark', language: 'en' });
+
+     
+    print('Settings:', settings.get(uniqueKey));
+
+     
+    print('ID:', idGen.next().value);
+    console.log('ID:', idGen

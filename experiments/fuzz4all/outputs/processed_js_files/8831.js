@@ -1,0 +1,65 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (let listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+async function* paginate(url, pageSize) {
+  let page = 1;
+  while (true) {
+    const response = await fetchJson(`${url}?page=${page}&pageSize=${pageSize}`);
+    if (response.data.length === 0) break;
+    yield response.data;
+    page++;
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', (data) => {
+    print('Received data:', data);
+  });
+
+  const apiUrl = 'https://api.example.com/items';
+  for await (let dataChunk of paginate(apiUrl, 10)) {
+    eventEmitter.emit('data', dataChunk);
+  }
+
+  eventEmitter.on('error', (error) => {
+    console.error('Error occurred:', error);
+  });
+
+  try {
+    await fetchJson('https://api.nonexistentendpoint.com/fail');
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+})();

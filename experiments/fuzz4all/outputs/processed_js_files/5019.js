@@ -1,0 +1,35 @@
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const data = await response.json();
+    
+     
+    const uniqueUserIds = new Set(data.map(post => post.userId));
+    
+     
+    const postsByUserId = new Map();
+    data.forEach(post => {
+      if (!postsByUserId.has(post.userId)) {
+        postsByUserId.set(post.userId, []);
+      }
+      postsByUserId.get(post.userId).push(post);
+    });
+
+     
+    uniqueUserIds.forEach(userId => {
+      const [firstPost, ...otherPosts] = postsByUserId.get(userId);
+      print(`User ${userId} first post:`, firstPost.title);
+      print(`Other posts count: ${otherPosts.length}`);
+    });
+
+     
+    const samplePost = data[0];
+    const title = samplePost?.title ?? 'No title';
+    print(`Sample Post Title: ${title}`);
+
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

@@ -1,0 +1,50 @@
+ 
+(async function() {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+  };
+
+   
+  function* dataGenerator(urls) {
+    for (const url of urls) {
+      yield fetchData(url);
+    }
+  }
+
+   
+  const dataHandler = {
+    get: (target, prop) => {
+      print(`Accessing property "${prop}"`);
+      return target[prop];
+    },
+    set: (target, prop, value) => {
+      print(`Setting property "${prop}" to "${value}"`);
+      target[prop] = value;
+      return true;
+    }
+  };
+
+   
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+   
+  const generator = dataGenerator(urls);
+  for await (const dataPromise of generator) {
+    const data = await dataPromise;
+    const { id, title } = data;  
+
+     
+    const proxyData = new Proxy({ id, title }, dataHandler);
+
+     
+    print(proxyData.id);  
+    print(proxyData.title);  
+    
+    proxyData.title = "Updated Title";  
+  }
+})();

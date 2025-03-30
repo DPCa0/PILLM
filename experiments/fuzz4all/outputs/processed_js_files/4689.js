@@ -1,0 +1,34 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+};
+
+const processData = (data) => {
+    return data
+        .filter(item => item.active)
+        .map(item => ({ ...item, fullName: `${item.firstName} ${item.lastName}` }))
+        .reduce((acc, item) => {
+            acc[item.department] = acc[item.department] || [];
+            acc[item.department].push(item);
+            return acc;
+        }, {});
+};
+
+const displayData = (structuredData) => {
+    Object.entries(structuredData).forEach(([department, members]) => {
+        print(`Department: ${department}`);
+        members.forEach(member => print(` - ${member.fullName}`));
+    });
+};
+
+(async () => {
+    const url = 'https://api.example.com/employees';
+    const rawData = await fetchData(url);
+    const structuredData = processData(rawData);
+    displayData(structuredData);
+})();

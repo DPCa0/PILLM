@@ -1,0 +1,54 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  async emitAsync(event, ...args) {
+    if (this.events.has(event)) {
+      const promises = this.events.get(event).map(listener => Promise.resolve().then(() => listener(...args)));
+      await Promise.all(promises);
+    }
+  }
+}
+
+class DecoratorExample {
+  constructor() {
+    this.value = 42;
+  }
+
+  @logExecution
+  compute(x) {
+    return this.value * x;
+  }
+}
+
+function logExecution(target, name, descriptor) {
+  const original = descriptor.value;
+  descriptor.value = function(...args) {
+    print(`Executing ${name} with arguments ${args}`);
+    const result = original.apply(this, args);
+    print(`Result: ${result}`);
+    return result;
+  };
+  return descriptor;
+}
+
+const emitter = new AsyncEventEmitter();
+emitter.on('data', data => print(`Received data: ${data}`));
+emitter.emitAsync('data', 'Hello, world!');
+
+const example = new DecoratorExample();
+print(example.compute(2));

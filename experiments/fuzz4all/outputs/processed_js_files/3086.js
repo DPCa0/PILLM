@@ -1,0 +1,59 @@
+ 
+const { EventEmitter } = require('events');
+
+ 
+class ComplexEmitter extends EventEmitter {
+  constructor() {
+    super();
+    this.queue = new Set();
+  }
+
+  async processTask(task) {
+    try {
+      const result = await task();
+      this.emit('success', result);
+    } catch (error) {
+      this.emit('error', error);
+    }
+  }
+
+  addTask(task) {
+    this.queue.add(task);
+    this.emit('taskAdded', task);
+  }
+
+  async runTasks() {
+    while (this.queue.size > 0) {
+      const tasks = Array.from(this.queue);
+      this.queue.clear();
+      await Promise.all(tasks.map(task => this.processTask(task)));
+    }
+    this.emit('complete');
+  }
+}
+
+ 
+const emitterHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'addTask' || prop === 'processTask') {
+      print(`Intercepted call to: ${prop}`);
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const emitter = new Proxy(new ComplexEmitter(), emitterHandler);
+
+ 
+emitter.on('success', result => print(`Task completed successfully with result: ${result}`));
+emitter.on('error', error => console.error(`Task failed with error: ${error.message}`));
+emitter.on('taskAdded', task => print(`Task added: ${task.name}`));
+emitter.on('complete', () => print('All tasks processed!'));
+
+ 
+emitter.addTask(async () => 'Task 1 completed');
+emitter.addTask(async () => { throw new Error('Task 2 failed'); });
+emitter.addTask(async () => 'Task 3 completed');
+
+ 
+emitter.runTasks();

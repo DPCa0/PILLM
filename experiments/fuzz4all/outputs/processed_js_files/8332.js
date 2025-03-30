@@ -1,0 +1,46 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url)
+      .then(response => response.json())
+      .then(data => ({url, data}));
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      return `Property ${prop} does not exist`;
+    }
+  }
+};
+
+ 
+const target = {
+  name: "DataFetcher",
+  description: "Fetches and processes data from URLs"
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+(async () => {
+  for await (const {url, data} of fetchData(urls)) {
+    print(`Fetched data from ${url}:`, data);
+  }
+
+   
+  print(proxy.name);  
+  print(proxy.nonExistentProperty);  
+})();

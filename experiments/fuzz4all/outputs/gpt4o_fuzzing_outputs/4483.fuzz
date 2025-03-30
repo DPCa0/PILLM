@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci(n, curr = 0, next = 1) {
+  if (n === 0) return;
+  yield curr;
+  yield* fibonacci(n - 1, next, curr + next);
+}
+
+ 
+async function logWithDelay(generator, delay) {
+  for (let value of generator) {
+    await new Promise(resolve => setTimeout(resolve, delay));
+    console.log(value);
+  }
+}
+
+ 
+const handler = {
+  get: function(obj, prop) {
+    return prop in obj ? obj[prop] : `Property '${prop}' not found`;
+  }
+};
+
+const target = { hello: 'world', num: 42 };
+const proxy = new Proxy(target, handler);
+
+ 
+const complexKey1 = { name: 'Alice' };
+const complexKey2 = { name: 'Bob' };
+const map = new Map([
+  [complexKey1, 100],
+  [complexKey2, 200]
+]);
+
+ 
+async function importAndExecute() {
+  if (Math.random() > 0.5) {
+    const { randomFunction } = await import('./randomModule.js');
+    randomFunction();
+  } else {
+    console.log('Did not import module');
+  }
+}
+
+ 
+console.log('Proxy object access:', proxy.hello);  
+console.log('Proxy missing property:', proxy.missing);  
+
+console.log('Map value for complexKey1:', map.get(complexKey1));  
+
+const fibonacciSequence = fibonacci(10);
+logWithDelay(fibonacciSequence, 500);
+
+importAndExecute();
+```

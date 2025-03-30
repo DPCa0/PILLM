@@ -1,0 +1,55 @@
+(async () => {
+   
+  const fetchData = url =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        url ? resolve(`Data from ${url}`) : reject('No URL provided');
+      }, 1000);
+    });
+
+  const processData = async url => {
+    try {
+      const data = await fetchData(url);
+      print(`Processing: ${data}`);
+    } catch (error) {
+      console.error(`Error: ${error}`);
+    }
+  };
+
+   
+  const uniqueKey = Symbol('uniqueKey');
+  const dataMap = new Map();
+  dataMap.set(uniqueKey, new Set(['item1', 'item2', 'item3']));
+
+   
+  const handler = {
+    get: (target, prop, receiver) => {
+      if (prop === 'secret') return 'Access Denied';
+      return Reflect.get(...arguments);
+    },
+    set: (target, prop, value) => {
+      print(`Setting ${prop} to ${value}`);
+      return Reflect.set(...arguments);
+    }
+  };
+
+  const targetObject = { a: 10, b: 20 };
+  const proxy = new Proxy(targetObject, handler);
+
+  print(proxy.a);  
+  print(proxy.secret);  
+  proxy.b = 30;
+
+   
+  const tag = (strings, ...values) => {
+    return strings.reduce((result, str, i) => {
+      return `${result}${str.toUpperCase()}${values[i] ? values[i] : ''}`;
+    }, '');
+  };
+
+  const name = 'JavaScript';
+  print(tag`Hello, ${name}! Welcome to advanced features.`);
+
+   
+  await processData('https://example.com');
+})();

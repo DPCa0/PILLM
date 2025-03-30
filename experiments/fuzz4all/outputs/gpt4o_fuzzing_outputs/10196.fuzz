@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+};
+
+const processData = (data) => {
+    return data.map(item => ({
+        id: item.id,
+        value: item.value,
+        doubleValue: item.value * 2,
+        timestamp: new Date().toISOString()
+    }));
+};
+
+const complexComputation = async (url) => {
+    try {
+        const data = await fetchData(url);
+        const processedData = processData(data);
+
+        const results = processedData.reduce((acc, curr) => {
+            acc[curr.id] = curr.doubleValue;
+            return acc;
+        }, {});
+
+        console.log('Processed Results:', results);
+
+        const totalValue = Object.values(results).reduce((sum, value) => sum + value, 0);
+
+        console.log(`Total value of processed data: ${totalValue}`);
+        
+        return totalValue;
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+const mockAPI = 'https://jsonplaceholder.typicode.com/posts';
+complexComputation(mockAPI);
+```

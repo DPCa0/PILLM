@@ -1,0 +1,41 @@
+class Animal {
+  constructor(name, sound) {
+    this.name = name;
+    this.sound = sound;
+  }
+  speak() {
+    print(`${this.name} says ${this.sound}`);
+  }
+}
+
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const factorial = memoize((n) => (n <= 1 ? 1 : n * factorial(n - 1)));
+
+const dog = new Animal('Dog', 'Woof');
+dog.speak();
+
+const fib = fibonacci();
+print([...Array(10)].map(() => fib.next().value));
+
+print(factorial(5));  
+print(factorial(6));  

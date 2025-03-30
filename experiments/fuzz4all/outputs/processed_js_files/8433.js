@@ -1,0 +1,70 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static from(array) {
+        let m = new Matrix(array.length, array[0].length);
+        m.data = array;
+        return m;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) throw new Error('Incompatible matrices');
+
+        let result = new Matrix(a.data.length, b.data[0].length);
+
+        result.map((_, i, j) => {
+            return a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0);
+        });
+
+        return result;
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+ 
+async function fetchData(url) {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    return response.json();
+}
+
+ 
+const matrixHandler = {
+    get: function(obj, prop) {
+        if (prop === 'determinant') {
+            if (obj.data.length !== 2 || obj.data[0].length !== 2) {
+                throw new Error('Determinant is only implemented for 2x2 matrices.');
+            }
+            return obj.data[0][0] * obj.data[1][1] - obj.data[0][1] * obj.data[1][0];
+        }
+        return obj[prop];
+    }
+};
+
+ 
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    try {
+        const data = await fetchData(url);
+        print('Fetched data:', data);
+
+        let a = Matrix.from([[1, 2], [3, 4]]);
+        let b = Matrix.from([[2, 0], [1, 2]]);
+        
+        const proxyA = new Proxy(a, matrixHandler);
+        print('Determinant of matrix A:', proxyA.determinant);
+
+        let result = Matrix.multiply(a, b);
+        print('Result of multiplication:');
+        result.print();
+    } catch (

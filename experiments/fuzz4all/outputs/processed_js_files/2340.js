@@ -1,0 +1,48 @@
+ 
+function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (limit--) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+const fibArray = [...fibonacci(10)];
+
+ 
+const squaredFibSet = new Set(fibArray.map(num => num ** 2));
+
+ 
+const sortedSquares = [...squaredFibSet].sort((a, b) => b - a);
+
+ 
+const [first, second, third] = sortedSquares;
+
+ 
+function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => `${result}${str}<strong>${values[i] || ''}</strong>`, '');
+}
+
+print(highlight`Top three squared Fibonacci numbers: ${first}, ${second}, and ${third}`);
+
+ 
+async function fetchData() {
+    const data = await Promise.resolve({ userId: 1, title: 'Advanced JavaScript' });
+    print(`Fetched Data: ${JSON.stringify(data)}`);
+}
+
+fetchData();
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Accessing property '${prop}'`);
+        return target[prop];
+    }
+};
+
+const proxyObj = new Proxy({ a: 10, b: 20 }, handler);
+
+print(proxyObj.a);  
+print(proxyObj.b);  

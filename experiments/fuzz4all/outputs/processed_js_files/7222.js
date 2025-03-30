@@ -1,0 +1,46 @@
+ 
+async function complexExample() {
+   
+  const uniqueKey = Symbol('unique');
+
+   
+  const data = {
+    [uniqueKey]: 'secret',
+    async fetchData() {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve('data loaded'), 1000);
+      });
+    }
+  };
+
+   
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop === uniqueKey) {
+        throw new Error('Access denied');
+      }
+      print(`Accessing property: ${String(prop)}`);
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  const proxyData = new Proxy(data, handler);
+
+   
+  function* generator() {
+    yield 'Generator Start';
+    yield proxyData.fetchData();  
+    yield 'Generator End';
+  }
+
+   
+  for await (const value of generator()) {
+    if (value instanceof Promise) {
+      print(await value);  
+    } else {
+      print(value);  
+    }
+  }
+}
+
+complexExample().catch((e) => console.error(e.message));

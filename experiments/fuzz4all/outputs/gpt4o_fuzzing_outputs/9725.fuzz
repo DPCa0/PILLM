@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');
+
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const posts = await response.json();
+
+     
+    const processedPosts = posts
+      .filter(({ id }) => id % 2 === 0)  
+      .map(({ userId, title, body }) => ({
+        userId,
+        title: title.toUpperCase(),  
+        summary: body.split(' ').slice(0, 5).join(' ') + '...',  
+      }));
+
+     
+    const postsByUser = processedPosts.reduce((acc, post) => {
+      const { userId } = post;
+      if (!acc.has(userId)) {
+        acc.set(userId, []);
+      }
+      acc.get(userId).push(post);
+      return acc;
+    }, new Map());
+
+     
+    postsByUser.forEach((posts, userId) => {
+      console.log(`User ID: ${userId}`);
+      posts.forEach(({ title, summary }) => {
+        console.log(`Title: ${title}\nSummary: ${summary}\n`);
+      });
+    });
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  }
+})();
+```

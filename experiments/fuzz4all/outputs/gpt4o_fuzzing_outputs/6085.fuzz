@@ -1,0 +1,25 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ data }) => data.filter(item => item.active)
+                                       .map(({ id, value }) => ({ id, value: value * 2 }));
+
+const displayData = data => data.forEach(({ id, value }) => console.log(`ID: ${id}, Value: ${value}`));
+
+const handleErrors = fn => (...params) => fn(...params).catch(err => console.error('Error:', err.message));
+
+const url = 'https://api.example.com/data';
+
+handleErrors(async () => {
+  const rawData = await fetchData(url);
+  const processedData = processData(rawData);
+  displayData(processedData);
+})();
+```

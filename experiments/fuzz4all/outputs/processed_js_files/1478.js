@@ -1,0 +1,46 @@
+class ApiSimulator {
+    constructor(endpoints) {
+        this.endpoints = endpoints;
+    }
+
+    async request(endpoint, { method = 'GET', body = null } = {}) {
+        if (!this.endpoints[endpoint] || !this.endpoints[endpoint][method]) {
+            throw new Error(`Endpoint ${endpoint} with method ${method} not found`);
+        }
+        print(`Requesting ${method} ${endpoint}`);
+        return await this.endpoints[endpoint][method](body);
+    }
+}
+
+const api = new ApiSimulator({
+    '/data': {
+        GET: async () => {
+            await new Promise(r => setTimeout(r, 1000));  
+            return { data: [1, 2, 3, 4, 5] };
+        },
+        POST: async (body) => {
+            await new Promise(r => setTimeout(r, 1000));  
+            return { success: true, body };
+        }
+    }
+});
+
+const processData = async () => {
+    try {
+        const dataResponse = await api.request('/data');
+        const processedData = dataResponse.data.map(num => num * 2);
+        
+        print('Processed Data:', processedData);
+
+        const postResponse = await api.request('/data', {
+            method: 'POST',
+            body: { processedData }
+        });
+
+        print('POST response:', postResponse);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+processData();

@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  static validateData(data) {
+    return Array.isArray(data) && data.every(item => typeof item === 'number');
+  }
+
+   
+  get sum() {
+    return this.data.reduce((acc, num) => acc + num, 0);
+  }
+
+   
+  async processData() {
+    try {
+      const result = await this._simulateAsyncOperation();
+      return result;
+    } catch (error) {
+      console.error("Processing error:", error);
+    }
+  }
+
+   
+  async #simulateAsyncOperation() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const isValid = DataProcessor.validateData(this.data);
+        if (isValid) {
+          resolve(`Processed data sum: ${this.sum}`);
+        } else {
+          reject("Invalid data");
+        }
+      }, 1000);
+    });
+  }
+}
+
+ 
+const input = [1, 2, 3, 4, 5];
+const [first, ...rest] = input;
+const message = `First element: ${first}, Rest: ${rest.join(", ")}`;
+
+console.log(message);
+
+ 
+const dataProcessor = new DataProcessor(input);
+dataProcessor.processData().then(result => console.log(result));
+
+ 
+(async () => {
+  const promises = [1, 2, 3].map(async (num) => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(num * 2), 500);
+    });
+  });
+
+  const doubled = await Promise.all(promises);
+  console.log("Doubled numbers:", doubled);
+})();
+```

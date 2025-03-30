@@ -1,0 +1,70 @@
+class AsyncQueue {
+  constructor() {
+    this.tasks = [];
+    this.running = false;
+  }
+
+  async runTasks() {
+    if (this.running) return;
+    this.running = true;
+    while (this.tasks.length) {
+      const task = this.tasks.shift();
+      await task();
+    }
+    this.running = false;
+  }
+
+  addTask(task) {
+    this.tasks.push(task);
+    this.runTasks();
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const queue = new AsyncQueue();
+
+function fetchUserData(userId) {
+  return async () => {
+    print(`Fetching data for user: ${userId}`);
+    await delay(1000);  
+    print(`Data for user ${userId} received.`);
+  };
+}
+
+[1, 2, 3, 4, 5].forEach(userId => {
+  queue.addTask(fetchUserData(userId));
+});
+
+ 
+const user = { name: 'Alice', age: 25 };
+const proxyUser = new Proxy(user, {
+  get(target, property) {
+    print(`Getting ${property} of user`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting ${property} of user to ${value}`);
+    target[property] = value;
+    return true;
+  }
+});
+
+print(proxyUser.name);
+proxyUser.age = 26;
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+print(`Generated ID: ${gen.next().value}`);
+print(`Generated ID: ${gen.next().value}`);
+print(`Generated ID: ${gen.next().value}`);

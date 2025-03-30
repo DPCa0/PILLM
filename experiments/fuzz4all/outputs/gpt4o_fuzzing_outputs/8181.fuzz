@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+ 
+const myModule = (() => {
+   
+  const state = new Map();
+  
+   
+  class ComplexFeature {
+    #privateValue;
+    
+    constructor(initialValue) {
+      this.#privateValue = initialValue;
+      state.set(this, initialValue);
+    }
+    
+     
+    calculate(factor) {
+      return this.#compute(factor);
+    }
+    
+     
+    #compute(factor) {
+      return this.#privateValue * factor;
+    }
+
+    static #instanceCount = 0;
+
+    static incrementInstanceCount() {
+      this.#instanceCount += 1;
+    }
+
+    static get instanceCount() {
+      return this.#instanceCount;
+    }
+  }
+
+  return {
+    createInstance: (value) => {
+      ComplexFeature.incrementInstanceCount();
+      return new ComplexFeature(value);
+    },
+    getInstanceCount: () => ComplexFeature.instanceCount
+  };
+})();
+
+ 
+const { createInstance, getInstanceCount } = myModule;
+
+const asyncOperation = async (value, factor) => {
+  const instance = createInstance(value);
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(instance.calculate(factor));
+    }, 1000);
+  });
+  return result;
+};
+
+ 
+Promise.all([
+  asyncOperation(5, 10),
+  asyncOperation(2, 3),
+  asyncOperation(7, 8)
+]).then(results => {
+  console.log('Calculated Results:', results);
+  console.log('Instance Count:', getInstanceCount());
+});
+```

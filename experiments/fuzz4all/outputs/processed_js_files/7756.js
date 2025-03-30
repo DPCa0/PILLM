@@ -1,0 +1,54 @@
+ 
+import { writeFileSync } from 'fs';
+
+ 
+const sum = (...numbers) => numbers.reduce((total, num) => total + num, 0);
+
+ 
+const handler = {
+  get: (target, prop) => {
+    return prop in target ? target[prop] : `Property ${prop} does not exist`;
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'number' && value > 0) {
+      target[prop] = value;
+    } else {
+      print('Value must be a positive number');
+    }
+    return true;
+  },
+};
+
+const data = { a: 1, b: 2 };
+const proxy = new Proxy(data, handler);
+
+ 
+class Calculator {
+  static async performCalculation(a, b) {
+    const add = await Promise.resolve(a + b);
+    const multiply = await Promise.resolve(a * b);
+    return { add, multiply };
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  const sum = values.reduce((acc, val) => acc + val, 0);
+  return `${strings[0]}${sum}${strings[1]}`;
+}
+
+ 
+const performOperations = async () => {
+  const { add, multiply } = await Calculator.performCalculation(proxy.a, proxy.b);
+  const totalSum = sum(proxy.a, proxy.b, add, multiply);
+  
+  proxy.c = 3;  
+  proxy.d = -1;  
+  
+  const message = tag`The sum of all operations is: ${totalSum}`;
+  
+  writeFileSync('results.txt', message, 'utf8');
+  print('Results written to file.');
+};
+
+performOperations();

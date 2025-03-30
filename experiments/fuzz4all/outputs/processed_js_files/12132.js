@@ -1,0 +1,71 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve('Data retrieved successfully!') : reject('Failed to fetch data.');
+    }, 1000);
+  });
+}
+
+ 
+async function getData() {
+  try {
+    const message = await fetchData();
+    print(message);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const generator = idGenerator();
+
+ 
+const dataHandler = {
+  get: (target, prop) => {
+    if (prop === 'id') {
+      return generator.next().value;
+    }
+    return Reflect.get(target, prop);
+  },
+  set: (target, prop, value) => {
+    if (prop === 'name' && typeof value !== 'string') {
+      throw new Error('Name must be a string');
+    }
+    target[prop] = value;
+    return true;
+  },
+};
+
+ 
+const dataObject = {
+  id: 0,
+  name: '',
+};
+
+ 
+const proxiedData = new Proxy(dataObject, dataHandler);
+
+ 
+proxiedData.name = 'Advanced JS';  
+print(`Name: ${proxiedData.name}, ID: ${proxiedData.id}`);
+
+ 
+try {
+  proxiedData.name = 123;
+} catch (error) {
+  console.error(error.message);
+}
+
+ 
+getData();

@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+class AdvancedCalculator {
+    #history = [];
+
+    constructor() {
+        this.operations = {
+            add: (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide: (a, b) => a / b
+        };
+    }
+
+    performOperation(operation, ...args) {
+        if (!this.operations[operation]) throw new Error('Invalid operation');
+        
+        const result = this.operations[operation](...args);
+        this.#history.push({ operation, args, result });
+        return result;
+    }
+
+    get history() {
+        return this.#history.map(entry => ({
+            operation: entry.operation,
+            arguments: entry.args,
+            result: entry.result
+        }));
+    }
+
+    clearHistory() {
+        this.#history.length = 0;
+    }
+
+    static generateSequence(start = 0, end = 10) {
+        return [...Array(end - start + 1).keys()].map(i => i + start);
+    }
+
+    static *fibonacci(n) {
+        let [a, b] = [0, 1];
+        while (n-- > 0) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    async computeAsync(fn, ...args) {
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+        await delay(1000);
+        return fn(...args);
+    }
+}
+
+ 
+(async () => {
+    const calculator = new AdvancedCalculator();
+    console.log(calculator.performOperation('add', 5, 3));  
+    console.log(calculator.history);
+
+    const sequence = AdvancedCalculator.generateSequence(5, 10);
+    console.log(sequence);  
+
+    const fibGen = AdvancedCalculator.fibonacci(6);
+    console.log([...fibGen]);  
+
+    const asyncResult = await calculator.computeAsync(calculator.operations.multiply, 7, 6);
+    console.log(asyncResult);  
+
+    calculator.clearHistory();
+    console.log(calculator.history);  
+})();
+```

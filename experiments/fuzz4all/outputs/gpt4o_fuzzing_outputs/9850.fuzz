@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: function(target, prop) {
+    console.log(`Property '${prop}' was accessed.`);
+    return target[prop];
+  }
+};
+
+const targetObject = {
+  a: 1,
+  b: 2,
+  c: 3
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function fetchData() {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Data fetched!'), 1000);
+  });
+}
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+async function complexFunction() {
+  console.log("Start complex function");
+
+   
+  const value = proxy.a;
+  console.log(`Accessed proxy value: ${value}`);
+
+   
+  const data = await fetchData();
+  console.log(data);
+
+   
+  const generator = idGenerator();
+  console.log("Generated IDs: ");
+  console.log(generator.next().value);
+  console.log(generator.next().value);
+  console.log(generator.next().value);
+}
+
+ 
+complexFunction();
+```

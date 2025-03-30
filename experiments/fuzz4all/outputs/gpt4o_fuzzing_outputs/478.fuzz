@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: 'John Doe', age: 30, location: 'New York' });
+    }, 1000);
+  });
+}
+
+ 
+async function* dataGenerator() {
+  const data = await fetchData();
+  yield data.user;
+  yield data.age;
+  yield data.location;
+}
+
+ 
+const generatorProxy = new Proxy(dataGenerator(), {
+  get(target, prop, receiver) {
+    if (prop === 'next') {
+      console.log('Next value requested');
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+ 
+(async () => {
+  console.log('Fetching data...');
+  for await (const value of generatorProxy) {
+    console.log('Received:', value);
+  }
+  console.log('All data fetched');
+})();
+```

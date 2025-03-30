@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class NetworkNode {
+  constructor(name) {
+    this.name = name;
+    this.connections = new Set();
+  }
+
+  connect(node) {
+    if (node instanceof NetworkNode && node !== this) {
+      this.connections.add(node);
+      node.connections.add(this);
+    }
+  }
+
+  disconnect(node) {
+    this.connections.delete(node);
+    node.connections.delete(this);
+  }
+
+  *traverseNetwork(visited = new Set()) {
+    if (visited.has(this)) return;
+    visited.add(this);
+    yield this.name;
+    for (const neighbor of this.connections) {
+      yield* neighbor.traverseNetwork(visited);
+    }
+  }
+}
+
+ 
+const nodeHandler = {
+  construct(target, args) {
+    const node = new target(...args);
+    if (nodeHandler.previousNode) {
+      node.connect(nodeHandler.previousNode);
+    }
+    nodeHandler.previousNode = node;
+    return node;
+  },
+  previousNode: null
+};
+
+const NetworkNodeProxy = new Proxy(NetworkNode, nodeHandler);
+
+ 
+const nodeA = new NetworkNodeProxy('A');
+const nodeB = new NetworkNodeProxy('B');
+const nodeC = new NetworkNodeProxy('C');
+const nodeD = new NetworkNodeProxy('D');
+nodeD.connect(nodeA);  
+
+ 
+const networkNames = [...nodeA.traverseNetwork()];
+console.log(networkNames);  
+```

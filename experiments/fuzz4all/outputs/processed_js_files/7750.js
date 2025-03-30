@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const processData = (data) => {
+  const { id, title, completed } = data.find(task => task.completed === false) || {};
+  return {
+    message: completed ? 'All tasks are complete!' : `Incomplete task: ${title}`,
+    id
+  };
+};
+
+const renderMessage = ({ message, id }) => {
+  const container = document.createElement('div');
+  container.style.padding = '20px';
+  container.style.margin = '10px';
+  container.style.border = '1px solid #333';
+  container.style.borderRadius = '5px';
+  container.style.backgroundColor = '#f9f9f9';
+  container.innerHTML = `<strong>ID:</strong> ${id || 'N/A'}<br><strong>Message:</strong> ${message}`;
+  document.body.appendChild(container);
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos');
+    const processedData = processData(data);
+    renderMessage(processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

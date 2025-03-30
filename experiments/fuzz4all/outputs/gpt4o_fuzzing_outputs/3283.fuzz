@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+  #firstName;
+  #lastName;
+
+  constructor(firstName, lastName) {
+    this.#firstName = firstName;
+    this.#lastName = lastName;
+  }
+
+  get fullName() {
+    return `${this.#firstName} ${this.#lastName}`;
+  }
+
+  set fullName(name) {
+    [this.#firstName, this.#lastName] = name.split(' ');
+  }
+
+   
+  static createAnonymous() {
+    return new Person("John", "Doe");
+  }
+
+   
+  #greet() {
+    console.log(`Hello, ${this.fullName}!`);
+  }
+
+  introduce() {
+    this.#greet();
+  }
+}
+
+ 
+const personHandler = {
+  get(target, prop) {
+    console.log(`Property '${prop}' was accessed`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Property '${prop}' was set to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const dynamicProperties = new Map();
+
+ 
+const dynamicProxy = new Proxy(dynamicProperties, {
+  get(target, prop) {
+    if (target.has(prop)) {
+      return target.get(prop);
+    }
+    console.log(`Property '${prop}' not found`);
+    return undefined;
+  },
+  set(target, prop, value) {
+    target.set(prop, value);
+    return true;
+  }
+});
+
+ 
+const anonymous = Person.createAnonymous();
+const proxiedPerson = new Proxy(anonymous, personHandler);
+
+ 
+dynamicProxy.hobby = 'Photography';
+dynamicProxy.skill = 'Coding';
+
+ 
+console.log(proxiedPerson.fullName);  
+proxiedPerson.introduce();  
+
+ 
+console.log(`Hobby: ${dynamicProxy.hobby}`);  
+console.log(`Skill: ${dynamicProxy.skill}`);  
+```

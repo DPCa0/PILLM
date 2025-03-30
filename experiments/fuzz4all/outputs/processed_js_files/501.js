@@ -1,0 +1,29 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  return data.reduce((acc, { id, value }) => ({
+    ...acc,
+    [id]: (acc[id] || 0) + value,
+  }), {});
+};
+
+const delayedExecution = (fn, delay) => new Promise(resolve => setTimeout(() => resolve(fn()), delay));
+
+(async () => {
+  try {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const results = await Promise.all(urls.map(url => fetchData(url)));
+    const combinedData = results.flat();
+    const processedData = processData(combinedData);
+
+    await delayedExecution(() => {
+      print('Processed Data:', processedData);
+    }, 3000);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

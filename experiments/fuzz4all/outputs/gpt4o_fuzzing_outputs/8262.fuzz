@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+   
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+     
+    const {
+      userId,
+      id,
+      title,
+      body,
+      additionalInfo: { createdAt = new Date().toISOString() } = {},
+    } = data;
+
+     
+    console.log(`Post ID: ${id} | User ID: ${userId}`);
+    console.log(`Title: ${title}`);
+    console.log(`Body: ${body}`);
+    console.log(`Created At: ${createdAt}`);
+
+     
+    const postInfo = new Map();
+    postInfo.set('userId', userId);
+    postInfo.set('id', id);
+    postInfo.set('title', title);
+    postInfo.set('body', body);
+
+     
+    const newPost = { ...Object.fromEntries(postInfo), updatedAt: new Date().toISOString() };
+    console.log('New Post with additional info:', newPost);
+
+     
+    const relatedPosts = await Promise.all(
+      [1, 2, 3].map(async (num) => {
+        const res = await fetch(`${url}/${num}`);
+        return await res.json();
+      })
+    );
+    console.log('Related Posts:', relatedPosts);
+
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+```

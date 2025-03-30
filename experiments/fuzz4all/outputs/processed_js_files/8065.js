@@ -1,0 +1,60 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(callback) {
+    this.subscribers.add(callback);
+  }
+
+  unsubscribe(callback) {
+    this.subscribers.delete(callback);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+class DataProcessor {
+  constructor() {
+    this.data = [];
+    this.observable = new Observable();
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      const result = await response.json();
+      this.updateData(result);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  }
+
+  updateData(newData) {
+    this.data = newData;
+    this.observable.notify(this.data);
+  }
+
+  processData() {
+    return this.data.map(item => ({
+      ...item,
+      processed: true,
+    }));
+  }
+}
+
+ 
+const dataProcessor = new DataProcessor();
+
+dataProcessor.observable.subscribe(data => {
+  print("Data updated:", dataProcessor.processData());
+});
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+dataProcessor.fetchData(url);
+
+setTimeout(() => {
+  dataProcessor.observable.unsubscribe(console.log);
+}, 5000);

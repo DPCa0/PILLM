@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, defaultValue = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+    }
+    
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, arr[0].length);
+        m.data = arr.map(r => [...r]);
+        return m;
+    }
+
+    [Symbol.iterator]() {
+        let row = 0, col = 0;
+        return {
+            next: () => {
+                if (row >= this.data.length) return { done: true };
+                let value = this.data[row][col];
+                col++;
+                if (col >= this.data[row].length) {
+                    col = 0;
+                    row++;
+                }
+                return { value, done: false };
+            }
+        };
+    }
+
+    multiply(matrix) {
+        if (this.data[0].length !== matrix.data.length) throw new Error('Invalid matrix dimensions.');
+        return Matrix.fromArray(this.data.map((row, i) =>
+            matrix.data[0].map((_, j) =>
+                row.reduce((sum, elm, k) => sum + elm * matrix.data[k][j], 0)
+            )
+        ));
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+}
+
+(async () => {
+    try {
+        const matrix1 = new Matrix(2, 3, 1);
+        const matrix2 = Matrix.fromArray([[1, 2], [3, 4], [5, 6]]);
+        const resultMatrix = matrix1.multiply(matrix2);
+
+        console.log('Resultant Matrix:');
+        console.log(resultMatrix.toString());
+
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        console.log('Fetched Data:', data);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

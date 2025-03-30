@@ -1,0 +1,57 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+async function processUrls(urls) {
+  const results = [];
+  try {
+    for await (const data of fetchData(urls)) {
+      results.push(data);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+  return results;
+}
+
+ 
+const target = {
+  id: 1,
+  name: 'Advanced JavaScript',
+};
+
+const handler = {
+  get: (obj, prop) => {
+    print(`Accessing property "${prop}"`);
+    return Reflect.get(obj, prop);
+  },
+  set: (obj, prop, value) => {
+    if (prop === 'id') {
+      throw new Error('ID is read-only');
+    }
+    print(`Setting property "${prop}" to "${value}"`);
+    return Reflect.set(obj, prop, value);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+  const data = await processUrls(urls);
+  print('Fetched Data:', data);
+
+   
+  print(proxy.name);  
+  proxy.name = 'New Name';  
+  print(proxy.name);
+   
+})();

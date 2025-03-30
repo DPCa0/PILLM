@@ -1,0 +1,47 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+const asyncIterator = {
+  [Symbol.asyncIterator]: function() {
+    let i = 0;
+    return {
+      next: () => {
+        if (i < 5) {
+          return new Promise(resolve => {
+            setTimeout(() => resolve({ value: i++, done: false }), 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+};
+
+const fetchData = url => fetch(url).then(response => response.json());
+
+async function complexAsyncFunction() {
+  const deferred = new Deferred();
+
+  (async () => {
+    for await (let num of asyncIterator) {
+      print(`Iterating number: ${num}`);
+    }
+    try {
+      const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+      print('Fetched Data:', data);
+      deferred.resolve('Async operations completed successfully');
+    } catch (error) {
+      deferred.reject('Failed to fetch data');
+    }
+  })();
+
+  return deferred.promise;
+}
+
+complexAsyncFunction().then(console.log).catch(console.error);

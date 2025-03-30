@@ -1,0 +1,50 @@
+ 
+
+ 
+const mockApiCall = (url, delay) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {
+                resolve({ data: `Response from ${url}`, status: 200 });
+            } else {
+                reject(new Error(`Failed to fetch from ${url}`));
+            }
+        }, delay);
+    });
+};
+
+ 
+const fetchData = async (url) => {
+    try {
+        const { data, status } = await mockApiCall(url, 1000);
+        return { data, status };
+    } catch (error) {
+        console.error(error.message);
+        return { data: null, status: 500 };
+    }
+};
+
+ 
+function* generateUrls(count) {
+    let baseUrl = 'https://api.example.com/resource/';
+    for (let i = 1; i <= count; i++) {
+        yield `${baseUrl}${i}`;
+    }
+}
+
+ 
+const execute = async () => {
+    const urls = [...generateUrls(5)];
+    const results = await Promise.all(urls.map(url => fetchData(url)));
+
+     
+    const [{ data: data1 }, , { data: data3 }] = results;
+    print('First Result:', data1);
+    print('Third Result:', data3);
+
+     
+    const successfulCalls = results.reduce((count, { status }) => status === 200 ? count + 1 : count, 0);
+    print(`Number of successful calls: ${successfulCalls}`);
+};
+
+execute();

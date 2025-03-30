@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (let listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+const emitter = new EventEmitter();
+
+const asyncFunction = async () => {
+    const fetchData = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Data fetched');
+        }, 1000);
+    });
+
+    const data = await fetchData;
+    emitter.emit('dataReceived', data);
+};
+
+const main = async () => {
+    emitter.on('dataReceived', (data) => console.log(`Listener 1: ${data}`));
+    emitter.on('dataReceived', (data) => console.log(`Listener 2: ${data.toUpperCase()}`));
+    
+    await asyncFunction();
+    
+    const generatorFunction = function* () {
+        yield 'Start';
+        yield 'Middle';
+        return 'End';
+    };
+
+    const generator = generatorFunction();
+    for (let value of generator) {
+        console.log(value);
+    }
+
+    const result = [1, 2, 3, 4].reduce((acc, num) => acc + num);
+    console.log(`Reduced result: ${result}`);
+};
+
+main();
+```

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n < 2) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+const fib = new Fibonacci();
+const [,, ...sequence] = [...fib[Symbol.iterator]()].map(n => fib.calculate(n)).filter(n => n <= 100);
+
+console.log('Fibonacci Sequence up to 100:', sequence);
+
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+(async function() {
+  const response = await fetch('https://api.github.com/users/octocat');
+  const userData = await response.json();
+  console.log('GitHub User:', userData);
+})();
+```

@@ -1,0 +1,46 @@
+(async () => {
+   
+  const fetchData = url => 
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        url ? resolve(`Data from ${url}`) : reject('URL not provided');
+      }, 1000);
+    });
+
+   
+  const dataHandler = {
+    get: (obj, prop) => prop in obj ? obj[prop] : 'Property not found',
+    set: (obj, prop, value) => {
+      print(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  };
+
+  const dataStore = new Proxy({}, dataHandler);
+
+  try {
+     
+    const { default: lodash } = await import('https://cdn.skypack.dev/lodash');
+
+    const url = 'https://api.example.com/data';
+    dataStore.message = await fetchData(url);
+
+    const transformedData = lodash.upperCase(dataStore.message);
+    print(`Transformed Data: ${transformedData}`);
+  } catch (error) {
+    console.error(`Error occurred: ${error}`);
+  }
+
+   
+  function* idGenerator() {
+    let id = 1;
+    while (true) {
+      yield id++;
+    }
+  }
+
+  const generateId = idGenerator();
+  print(`Generated ID: ${generateId.next().value}`);
+  print(`Generated ID: ${generateId.next().value}`);
+})();

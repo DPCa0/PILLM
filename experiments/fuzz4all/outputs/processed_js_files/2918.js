@@ -1,0 +1,31 @@
+class FibonacciSequence {
+  constructor(max) {
+    this.max = max;
+    this[Symbol.iterator] = function* () {
+      let [a, b] = [0, 1];
+      while (a <= this.max) {
+        yield a;
+        [a, b] = [b, a + b];
+      }
+    };
+  }
+}
+
+const fibonacciPromise = (limit) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    const fib = new FibonacciSequence(limit);
+    resolve([...fib]);
+  }, 1000);
+});
+
+async function displayFibonacci(limit) {
+  try {
+    print(`Generating Fibonacci sequence up to ${limit}:`);
+    const sequence = await fibonacciPromise(limit);
+    print(sequence.join(', '));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+displayFibonacci(50);

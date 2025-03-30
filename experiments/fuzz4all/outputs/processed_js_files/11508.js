@@ -1,0 +1,61 @@
+ 
+const _privateData = Symbol('privateData');
+
+class Complex {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+     
+    this[_privateData] = { secret: 'complexSecret' };
+  }
+
+   
+  static fromPolar(r, theta) {
+    return new Complex(r * Math.cos(theta), r * Math.sin(theta));
+  }
+
+   
+  toString() {
+    const tag = (strings, real, imaginary) => 
+      `${strings[0]}${real}${strings[1]}${imaginary}${strings[2]}`;
+    return tag`${this.real} + ${this.imaginary}i`;
+  }
+
+   
+  async *process() {
+    for (let i = 0; i < 3; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      yield `Step ${i + 1}: Processed (${this.real}, ${this.imaginary})`;
+    }
+  }
+
+   
+  static validateComplex(obj) {
+    return new Proxy(obj, {
+      set(target, prop, value) {
+        if (typeof value !== 'number') {
+          throw new TypeError('Real and imaginary parts must be numbers');
+        }
+        target[prop] = value;
+        return true;
+      }
+    });
+  }
+}
+
+ 
+(async () => {
+  let c = Complex.fromPolar(5, Math.PI / 4);
+  c = Complex.validateComplex(c);
+  print(c.toString());
+
+  try {
+    c.real = 'invalid';  
+  } catch (e) {
+    console.error(e.message);
+  }
+
+  for await (const step of c.process()) {
+    print(step);
+  }
+})();

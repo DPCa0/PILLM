@@ -1,0 +1,52 @@
+Certainly! Here's a JavaScript program that uses advanced features like async/await, Promises, destructuring, spread/rest operators, and a Proxy to handle dynamic method invocation:
+
+// Utility function that returns a promise resolving after a delay
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Async function using async/await and Promise
+async function fetchData(url) {
+  print(`Fetching data from ${url}...`);
+  await delay(1000); // Simulate network delay
+  return { data: { name: "Advanced JavaScript", id: 1 } };
+}
+
+// Using destructuring and rest/spread operators
+const processData = ({ data, ...rest }) => {
+  const { name, id } = data;
+  print(`Processing Data: ${name} (ID: ${id})`);
+  print('Extra data:', rest);
+};
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    return async (...args) => {
+      print(`Dynamic method call: ${prop} with args: ${args}`);
+      return `Result of ${prop}`;
+    };
+  }
+};
+
+ 
+const apiProxy = new Proxy({}, handler);
+
+ 
+(async function main() {
+  const apiUrl = "https://api.example.com/data";
+  
+   
+  const result = await fetchData(apiUrl);
+  processData(result);
+
+   
+  const dynamicResult = await apiProxy.someDynamicMethod("arg1", 42);
+  print(dynamicResult);
+
+  const anotherDynamicResult = await apiProxy.anotherMethod();
+  print(anotherDynamicResult);
+})();
+
+This code demonstrates several advanced JavaScript features in a cohesive example, combining asynchronous programming, object manipulation, and dynamic method handling.

@@ -1,0 +1,40 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* dataStream() {
+    for (let i = 1; i <= 5; i++) {
+        await delay(1000);
+        yield i;
+    }
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', data => print(`Received data: ${data}`));
+    eventEmitter.on('complete', () => print('Data stream complete.'));
+
+    for await (const data of dataStream()) {
+        eventEmitter.emit('data', data);
+    }
+
+    eventEmitter.emit('complete');
+})();

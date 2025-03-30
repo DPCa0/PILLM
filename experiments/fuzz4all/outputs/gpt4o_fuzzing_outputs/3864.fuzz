@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+const crypto = require('crypto');
+
+ 
+(async () => {
+    try {
+         
+        const key = crypto.randomBytes(32);
+        const iv = crypto.randomBytes(16);
+
+         
+        const message = 'Hello, world! Welcome to advanced JavaScript.';
+
+         
+        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        let encrypted = cipher.update(message, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+         
+        console.log('Encrypted:', encrypted);
+
+         
+        await fs.writeFile('secret.txt', `Encrypted: ${encrypted}\nKey: ${key.toString('hex')}\nIV: ${iv.toString('hex')}`);
+
+         
+        const [encryptedData, keyData, ivData] = (await fs.readFile('secret.txt', 'utf8')).split('\n').map(line => line.split(': ')[1]);
+
+         
+        const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(keyData, 'hex'), Buffer.from(ivData, 'hex'));
+        let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+
+         
+        console.log(safeLog`Decrypted: ${decrypted}`);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+
+ 
+function safeLog(strings, ...values) {
+    return strings.reduce((acc, str, i) => acc + str + (values[i] ? censor(values[i]) : ''), '');
+}
+
+ 
+function censor(value) {
+    return value.length > 5 ? value.slice(0, 2) + '...' + value.slice(-2) : value;
+}
+```

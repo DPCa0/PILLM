@@ -1,0 +1,31 @@
+ 
+class WeatherService {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  }
+
+  getWeather(city) {
+    return new Promise((resolve, reject) => {
+      const url = `${this.baseUrl}?q=${city}&appid=${this.apiKey}`;
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => resolve(data))
+        .catch(error => reject(error));
+    });
+  }
+}
+
+(async () => {
+  const weatherService = new WeatherService('YOUR_API_KEY');
+  try {
+    const city = 'New York';
+    const weatherData = await weatherService.getWeather(city);
+    print(`The weather in ${city} is ${weatherData.weather[0].description}.`);
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+  }
+})();

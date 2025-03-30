@@ -1,0 +1,30 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: "Alice", age: 25 },
+        { id: 2, name: "Bob", age: 30 },
+        { id: 3, name: "Charlie", age: 35 },
+      ]);
+    }, 1000);
+  });
+
+ 
+async function processData() {
+  const data = await fetchData();
+
+   
+  const dataMap = new Map(data.map((user) => [user.id, user]));
+
+   
+  const namesAndAges = data.map(({ name, age }) => ({ name, age }));
+
+  print("Data Map:", dataMap);
+  print("Names and Ages:", namesAndAges);
+}
+
+ 
+processData();

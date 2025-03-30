@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.default.js');
+
+   
+  const target = {
+    name: 'Advanced JS',
+    language: 'JavaScript',
+  };
+
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Property '${prop}' has been accessed.`);
+      return obj[prop];
+    },
+  };
+
+  const proxy = new Proxy(target, handler);
+
+   
+  console.log(proxy.name);  
+
+   
+  const numbers = [1, 2, 3];
+  const numbersPlus = [...numbers, 4, 5];
+
+  console.log(`Numbers with spread: ${numbersPlus}`);
+
+   
+  const obj = { details: { age: 30 } };
+  const age = obj.details?.age ?? 'Not specified';
+  console.log(`Age is: ${age}`);
+
+   
+  function* generatorExample() {
+    yield 'First output';
+    yield 'Second output';
+    yield* anotherGenerator();
+  }
+
+  function* anotherGenerator() {
+    yield 'Yielded from another generator';
+  }
+
+  const gen = generatorExample();
+
+  console.log(gen.next().value);
+  console.log(gen.next().value);
+  console.log(gen.next().value);
+
+   
+  const chunkedArray = _.chunk(['a', 'b', 'c', 'd'], 2);
+  console.log('Chunked array:', chunkedArray);
+})();
+```

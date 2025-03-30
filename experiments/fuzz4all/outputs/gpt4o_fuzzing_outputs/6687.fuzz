@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this.generateSequence(limit);
+  }
+
+  *[Symbol.iterator]() {
+    for (const num of this.sequence) {
+      yield num;
+    }
+  }
+
+  generateSequence(limit) {
+    const sequence = [0, 1];
+    while (sequence.length < limit) {
+      sequence.push(sequence[sequence.length - 1] + sequence[sequence.length - 2]);
+    }
+    return sequence;
+  }
+
+  async sumSequence() {
+    return this.sequence.reduce((acc, val) => acc + val, 0);
+  }
+}
+
+(async () => {
+  const limit = 10;
+  const fibonacci = new FibonacciSequence(limit);
+
+  console.log(`Fibonacci sequence up to ${limit} terms:`);
+  for (const number of fibonacci) {
+    console.log(number);
+  }
+
+  const sum = await fibonacci.sumSequence();
+  console.log(`Sum of sequence: ${sum}`);
+})();
+```

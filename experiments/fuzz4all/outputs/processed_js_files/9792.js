@@ -1,0 +1,63 @@
+ 
+const ComplexModule = (function() {
+   
+  let privateVar = 'Secret';
+  const privateFunc = () => `Accessing: ${privateVar}`;
+
+   
+  return {
+    fetchWithRetry: async function(url, retries = 3) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          let response = await fetch(url);
+          if (!response.ok) throw new Error('Fetch error');
+          return await response.json();
+        } catch (error) {
+          if (i < retries - 1) print('Retrying fetch...');
+          else throw error;
+        }
+      }
+    },
+
+    closureCounter: (function() {
+      let count = 0;
+      return function() {
+        return ++count;
+      };
+    })(),
+
+    asyncGenerator: async function*() {
+      const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+      let i = 0;
+      while (i < 3) {
+        await delay(1000);  
+        yield `Yielding value ${++i} after delay`;
+      }
+    },
+
+    getPrivate: () => privateFunc()
+  };
+})();
+
+ 
+(async function() {
+  try {
+    print(ComplexModule.getPrivate());
+
+     
+     
+     
+
+     
+    print('Counter:', ComplexModule.closureCounter());
+    print('Counter:', ComplexModule.closureCounter());
+
+     
+    const asyncGen = ComplexModule.asyncGenerator();
+    for await (const val of asyncGen) {
+      print(val);
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

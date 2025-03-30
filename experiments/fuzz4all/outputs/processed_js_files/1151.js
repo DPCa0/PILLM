@@ -1,0 +1,57 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(rows, cols, fn) {
+    return new Matrix(Array.from({ length: rows }, (_, r) =>
+      Array.from({ length: cols }, (_, c) => fn(r, c))
+    ));
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, r) =>
+      row.map((value, c) => fn(value, r, c))
+    ));
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Incompatible matrices for multiplication');
+    }
+    return new Matrix(a.data.map((row, r) =>
+      b.data[0].map((_, c) =>
+        row.reduce((sum, x, i) => sum + x * b.data[i][c], 0)
+      )
+    ));
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    return {
+      next: () => {
+        if (index < this.data.length) {
+          return { value: this.data[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const identityMatrix = Matrix.from(3, 3, (r, c) => (r === c ? 1 : 0));
+
+const randomMatrix = Matrix.from(3, 3, () => Math.floor(Math.random() * 10));
+
+print('Random Matrix:');
+print(randomMatrix.toString());
+
+const resultMatrix = Matrix.multiply(identityMatrix, randomMatrix);
+
+print('\nResult Matrix (Identity * Random):');
+print(resultMatrix.toString());

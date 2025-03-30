@@ -1,0 +1,44 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *[Symbol.iterator]() {
+    let index = 0;
+    while (true) {
+      yield this.fib(index++);
+    }
+  }
+
+  fib(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const value = this.fib(n - 1) + this.fib(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+async function delayedLog(sequence, delay = 1000) {
+  for await (const num of sequence) {
+    print(`Fibonacci(${num.index}) = ${num.value}`);
+    await new Promise(resolve => setTimeout(resolve, delay));
+  }
+}
+
+(async () => {
+  const fibonacciSequence = new Fibonacci();
+  const sequenceGenerator = fibonacciSequence[Symbol.iterator]();
+
+  const sequenceWithIndex = async function* (generator, limit) {
+    let index = 0;
+    for (const value of generator) {
+      if (index >= limit) return;
+      yield { index, value };
+      index++;
+    }
+  };
+
+  await delayedLog(sequenceWithIndex(sequenceGenerator, 10));
+})();

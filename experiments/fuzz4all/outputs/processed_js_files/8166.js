@@ -1,0 +1,68 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({ real, imaginary }) {
+        return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+    }
+
+    multiply({ real, imaginary }) {
+        return new ComplexNumber(
+            this.real * real - this.imaginary * imaginary,
+            this.real * imaginary + this.imaginary * real
+        );
+    }
+
+    static fromPolar(magnitude, angle) {
+        return new ComplexNumber(
+            magnitude * Math.cos(angle),
+            magnitude * Math.sin(angle)
+        );
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+const complexArray = [
+    new ComplexNumber(1, 2),
+    new ComplexNumber(3, 4),
+    ComplexNumber.fromPolar(5, Math.PI / 3),
+];
+
+const transformedArray = complexArray.map(complex =>
+    complex.multiply(new ComplexNumber(2, 3))
+);
+
+transformedArray.forEach(complex => print(complex.toString()));
+
+const pipeline = {
+    steps: [],
+    use(fn) {
+        this.steps.push(fn);
+        return this;
+    },
+    execute(input) {
+        return this.steps.reduce((acc, fn) => fn(acc), input);
+    }
+};
+
+const transformationPipeline = pipeline
+    .use(arr => arr.map(c => c.add(new ComplexNumber(1, -1))))
+    .use(arr => arr.filter(c => c.real > 0));
+
+const finalArray = transformationPipeline.execute(transformedArray);
+finalArray.forEach(complex => print('Filtered:', complex.toString()));
+
+(async function fetchComplexData() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+        const data = await response.json();
+        print('Fetched data:', data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();

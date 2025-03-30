@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array.map(row => [...row]);
+    return matrix;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error('Columns of A must match rows of B.');
+    return new Matrix(a.rows, b.cols).map((_, i, j) =>
+      a.data[i].reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+    );
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) yield* this.data[i];
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const a = Matrix.from([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const b = Matrix.from([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const c = Matrix.multiply(a, b);
+console.log(c.toString());
+
+const flattened = [...c];
+console.log(flattened);
+```

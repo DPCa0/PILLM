@@ -1,0 +1,72 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataGenerator(urls) {
+    for (const url of urls) {
+        await delay(1000);  
+        const data = await fetch(url).then(response => response.json());
+        yield data;
+    }
+}
+
+(async () => {
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3'
+    ];
+    
+    for await (const data of fetchDataGenerator(urls)) {
+        print('Received data:', data);
+    }
+})();
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Property '${prop}' accessed`);
+        return Reflect.get(...arguments);
+    },
+    set: (target, prop, value) => {
+        print(`Property '${prop}' set to '${value}'`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const reactiveObject = new Proxy({ name: 'Advanced JS', version: '1.0' }, handler);
+
+ 
+print(reactiveObject.name);
+reactiveObject.name = 'Proxied JS';
+
+ 
+const uniqueValues = new Set([1, 2, 3, 2, 1]);  
+const map = new Map();
+
+uniqueValues.forEach(value => {
+    map.set(value, `Value is ${value * 2}`);
+});
+
+print('Map contents:', Array.from(map.entries()));
+
+ 
+class MyClass {
+    static id = Symbol('id');
+    
+    constructor(name) {
+        this[MyClass.id] = Math.random();
+        this.name = name;
+    }
+    
+    static compareInstances(instance1, instance2) {
+        return instance1[MyClass.id] === instance2[MyClass.id];
+    }
+}
+
+const instanceA = new MyClass('Instance A');
+const instanceB = new MyClass('Instance B');
+print('Are instances equal?', MyClass.compareInstances(instanceA, instanceB));
+
+ 
+function tag(strings, ...values)

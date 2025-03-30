@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class Weather {
+  constructor(location) {
+    this.location = location;
+  }
+
+  async getWeather() {
+    try {
+      const data = await fetchData(`https: 
+      this.displayWeather(data);
+    } catch (error) {
+      console.error('Fetching weather data failed:', error);
+    }
+  }
+
+  displayWeather(data) {
+    const { temp_c, condition: { text } } = data.current;
+    console.log(`The current temperature in ${this.location} is ${temp_c}°C with ${text}.`);
+  }
+}
+
+const delayedExecutor = (ms, fn) => new Promise(resolve => setTimeout(() => resolve(fn()), ms));
+
+(async () => {
+  const weather = new Weather('New York');
+  await delayedExecutor(1000, () => weather.getWeather());
+})();
+```
+
+Note: Replace `YOUR_API_KEY` with a valid API key from weatherapi.com to test the code.

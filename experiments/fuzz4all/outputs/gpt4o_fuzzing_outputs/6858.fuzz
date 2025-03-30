@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+const fetchWithRetry = (url, retries = 3) => {
+  const attempt = (n) => 
+    fetchJson(url).catch(err => n > 1 ? attempt(n - 1) : Promise.reject(err));
+  return attempt(retries);
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', (data) => {
+    console.log('Data received:', data);
+  });
+
+  eventEmitter.on('error', (error) => {
+    console.error('Error encountered:', error);
+  });
+
+  try {
+    const data = await fetchWithRetry('https://jsonplaceholder.typicode.com/posts/1');
+    eventEmitter.emit('data', data);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+})();
+```

@@ -1,0 +1,47 @@
+ 
+
+ 
+const App = (() => {
+   
+  const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+  
+  class HttpClient {
+    async get(url) {
+      const response = await fetch(url);
+      return response.json();
+    }
+  }
+  
+  const fetchPosts = async () => {
+    try {
+      const client = new HttpClient();
+      const posts = await client.get(apiUrl);
+      renderPosts(posts);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
+  
+  const renderPosts = (posts) => {
+    const postsContainer = document.getElementById('posts');
+    const postsHTML = posts.map(({ id, title, body }) => `
+      <div class="post">
+        <h2>${id}. ${title}</h2>
+        <p>${body}</p>
+      </div>
+    `).join('');
+    postsContainer.innerHTML = postsHTML;
+  };
+
+   
+  return {
+    init: () => {
+      document.addEventListener('DOMContentLoaded', fetchPosts);
+    }
+  };
+})();
+
+ 
+App.init();
+
+This JavaScript program demonstrates the use of modern JavaScript features like async/await for handling asynchronous operations, classes for structuring code, destructuring for extracting object properties, template literals for HTML generation, and the module pattern to encapsulate functionality. Note that this script assumes there is a `<div id="posts"></div>` in the HTML document where posts will be rendered.

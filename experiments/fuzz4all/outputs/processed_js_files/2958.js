@@ -1,0 +1,64 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) resolve({ data: `Fetched data from ${url}` });
+            else reject('Error: No URL provided');
+        }, 1000);
+    });
+};
+
+ 
+async function* dataLoader(urls) {
+    for (const url of urls) {
+        try {
+            const response = await fetchData(url);
+            yield response.data;
+        } catch (error) {
+            yield error;
+        }
+    }
+}
+
+ 
+const createLoggerProxy = (target) => {
+    return new Proxy(target, {
+        get: (obj, prop) => {
+            print(`Accessing property "${prop}"`);
+            return obj[prop];
+        }
+    });
+};
+
+ 
+const privateData = new WeakMap();
+
+class ResourceManager {
+    constructor(name) {
+        this.name = name;
+        privateData.set(this, { resources: [] });
+    }
+
+    addResource(resource) {
+        privateData.get(this).resources.push(resource);
+    }
+
+    listResources() {
+        return createLoggerProxy(privateData.get(this).resources);
+    }
+}
+
+ 
+(async () => {
+    const urls = ['https://api.example.com/resource1', 'https://api.example.com/resource2', null];
+    const manager = new ResourceManager('MainManager');
+
+    for await (const data of dataLoader(urls)) {
+        print(data);
+        manager.addResource(data);
+    }
+
+    const loggedResources = manager.listResources();
+    print('Resources:', loggedResources[0]);
+    print('Resources:', loggedResources[1]);
+})();

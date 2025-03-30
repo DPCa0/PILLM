@@ -1,0 +1,42 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+function timeout(ms, value) {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+}
+
+async function main() {
+    const events = new Deferred();
+    const fibGen = fibonacci(10);
+    const fibResults = [];
+
+    (async () => {
+        for await (let num of fibGen) {
+            print('Generated:', num);
+            fibResults.push(num);
+            if (fibResults.length === 10) {
+                events.resolve(fibResults);
+            }
+        }
+    })();
+
+    print('Waiting for Fibonacci sequence...');
+    const result = await Promise.race([events.promise, timeout(5000, 'Timeout occurred')]);
+    print('Result:', result);
+}
+
+main().catch(console.error);

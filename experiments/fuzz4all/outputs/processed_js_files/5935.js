@@ -1,0 +1,37 @@
+ 
+async function fetchAndProcessData() {
+     
+    const fetchData = () =>
+        new Promise((resolve) => 
+            setTimeout(() => resolve({ x: 10, y: 20, z: 30 }), 1000)
+        );
+
+     
+    const data = await fetchData();
+    
+     
+    const { x, y, z } = data;
+    
+     
+    const numbers = new Set([x, y, z, z, x]);
+    
+     
+    const results = new Map();
+    numbers.forEach(num => {
+        results.set(num, num ** 2);
+    });
+
+     
+    print(results.get(x)?.toString() ?? "No value");
+    
+     
+    const processedData = Array.from(results, ([key, value]) => `${key}: ${value}`);
+    
+    return processedData;
+}
+
+ 
+(async () => {
+    const output = await fetchAndProcessData();
+    print("Processed Data:", output);
+})();

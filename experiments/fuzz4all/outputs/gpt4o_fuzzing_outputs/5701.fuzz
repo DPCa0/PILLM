@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error: ', error);
+    throw error;
+  }
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  filterData(callback) {
+    this.data = this.data.filter(callback);
+    return this;
+  }
+
+  mapData(callback) {
+    this.data = this.data.map(callback);
+    return this;
+  }
+
+  reduceData(callback, initialValue) {
+    return this.data.reduce(callback, initialValue);
+  }
+}
+
+const processData = async (url) => {
+  try {
+    const rawData = await fetchData(url);
+    const processedData = new DataProcessor(rawData)
+      .filterData(item => item.active)
+      .mapData(item => ({ ...item, timestamp: new Date() }))
+      .reduceData((acc, item) => ({ ...acc, [item.id]: item }), {});
+    console.log('Processed Data: ', processedData);
+  } catch (error) {
+    console.error('Processing error: ', error);
+  }
+};
+
+processData('https://api.example.com/data');
+```

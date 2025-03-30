@@ -1,0 +1,39 @@
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+async function processUsers() {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await fetchData(url);
+
+    if (users) {
+         
+        const processedUsers = users.map(({ id, name, email, address: { city } }) => ({
+            userId: id,
+            userName: name,
+            userEmail: email,
+            userCity: city
+        }));
+
+         
+        const filteredUsers = processedUsers.filter(user => user.userCity === 'Gwenborough');
+        
+         
+        const emailSummary = filteredUsers.reduce((acc, { userEmail }) => `${acc} ${userEmail};`, 'Emails:');
+
+        print('Processed Users:', processedUsers);
+        print('Filtered Users:', filteredUsers);
+        print(emailSummary);
+    }
+}
+
+processUsers();

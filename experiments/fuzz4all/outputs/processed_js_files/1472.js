@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { value: 42 } });
+    }, 1000);
+  });
+};
+
+ 
+const transformData = (fn) => async () => {
+  const response = await fetchData();
+  const { data } = response;
+  return fn(data.value);
+};
+
+ 
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  for (;;) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+const processAndLogData = async () => {
+  const transform = transformData((x) => x * 2);
+  const fib = fibonacci();
+  
+  try {
+    const result = await transform();
+    print(`Transformed Data: ${result}`);
+    
+    print("First 5 Fibonacci numbers:");
+    for (let i = 0; i < 5; i++) {
+      print(fib.next().value);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+processAndLogData();

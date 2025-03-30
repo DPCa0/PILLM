@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const data = await response.json();
+
+     
+    const { userId, id, title, completed } = data;
+
+     
+    const formatResponse = (strings, userId, id, title, completed) => {
+      return `User ID: ${userId}, Task ID: ${id}, Title: "${title}", Completed: ${completed}`;
+    };
+    console.log(formatResponse`${userId}${id}${title}${completed}`);
+
+     
+    const asyncOperation = (data) => new Promise((resolve) => {
+      setTimeout(() => resolve(`Processed Data: ${JSON.stringify(data)}`), 1000);
+    });
+
+     
+    const processedData = await asyncOperation(data);
+    console.log(processedData);
+
+  } catch (error) {
+     
+    console.error({ message: error.message, stack: error.stack });
+  }
+};
+
+ 
+const handler = {
+  apply: function (target, thisArg, argumentsList) {
+    console.log(`Called fetchData with args: ${JSON.stringify(argumentsList)}`);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+const fetchDataProxy = new Proxy(fetchData, handler);
+
+ 
+fetchDataProxy('https://jsonplaceholder.typicode.com/todos/1');
+```

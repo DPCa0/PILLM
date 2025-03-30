@@ -1,0 +1,50 @@
+class AsyncIterator {
+    constructor(data) {
+        this.data = data;
+    }
+
+    [Symbol.asyncIterator]() {
+        let index = 0;
+        const data = this.data;
+        return {
+            async next() {
+                if (index < data.length) {
+                    await new Promise(r => setTimeout(r, 1000));  
+                    return { value: data[index++], done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
+const fetchData = async () => {
+    const asyncIterable = new AsyncIterator(['Hello', 'from', 'Async', 'Iterator']);
+    
+    for await (const word of asyncIterable) {
+        print(word);
+    }
+};
+
+const double = n => n * 2;
+
+const pipeline = (...funcs) => input => funcs.reduce((acc, func) => func(acc), input);
+
+const transformNumbers = pipeline(
+    arr => arr.map(double),
+    arr => arr.filter(n => n > 5)
+);
+
+print(transformNumbers([1, 2, 3, 4, 5, 6, 7]));  
+
+fetchData();
+
+const promiseChain = (promises) =>
+    promises.reduce((acc, currentPromise) => acc.then(currentPromise), Promise.resolve());
+
+promiseChain([
+    () => Promise.resolve(console.log('First')),
+    () => new Promise(resolve => setTimeout(() => resolve(console.log('Second')), 500)),
+    () => Promise.resolve(console.log('Third'))
+]);

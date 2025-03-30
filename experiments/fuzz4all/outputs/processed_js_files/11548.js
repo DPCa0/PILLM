@@ -1,0 +1,63 @@
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function* fetchDataGenerator() {
+    const data = ["apple", "banana", "cherry"];
+    for (const item of data) {
+        await delay(500);  
+        yield item;
+    }
+}
+
+ 
+const loggingHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Accessing property "${prop}": ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.warn(`Property "${prop}" not found on target object.`);
+            return undefined;
+        }
+    }
+};
+
+ 
+const dataStore = new Proxy({ fruit: 'orange', count: 42 }, loggingHandler);
+
+ 
+async function processData() {
+    const generator = fetchDataGenerator();
+    for await (const value of generator) {
+        print(`Processing: ${value}`);
+    }
+}
+
+ 
+(async () => {
+    print(`Initial fruit: ${dataStore.fruit}`);
+    dataStore.newFruit = 'mango';  
+    print(`New fruit: ${dataStore.newFruit}`);  
+
+    await processData();  
+
+     
+    const results = await Promise.allSettled([
+        Promise.resolve('Task 1 completed'),
+        Promise.reject('Task 2 failed'),
+        Promise.resolve('Task 3 completed'),
+    ]);
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            print(`Promise ${index + 1}: ${result.value}`);
+        } else {
+            print(`Promise ${index + 1}: ${result.reason}`);
+        }
+    });
+})();

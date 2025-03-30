@@ -1,0 +1,68 @@
+ 
+(async () => {
+   
+  const createUniqueID = Symbol('createUniqueID');
+  const instances = new Map();
+
+   
+  class ComplexObject {
+    static #counter = 0;
+    #id;
+    #name;
+    
+    constructor(name) {
+      this.#name = name;
+      this.#id = ComplexObject.#generateID();
+    }
+
+     
+    static #generateID() {
+      return `${this.#counter++}_${Date.now()}`;
+    }
+
+     
+    displayInfo() {
+      print(`Object ID: ${this.#id}, Name: ${this.#name}`);
+    }
+
+     
+    [createUniqueID]() {
+      return Symbol(`ID_${this.#name}`);
+    }
+
+     
+    static uniqueNames() {
+      return [...new Set(instances.values())];
+    }
+  }
+
+   
+  async function* objectGenerator(names) {
+    for (let name of names) {
+      const object = new ComplexObject(name);
+      instances.set(object[createUniqueID](), name);
+      yield new Promise(resolve => setTimeout(() => resolve(object), 1000));
+    }
+  }
+
+   
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      }
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  };
+
+   
+  const objectNames = ['Alpha', 'Beta', 'Gamma', 'Delta'];
+  const proxyInstances = new Proxy({}, handler);
+
+  for await (const obj of objectGenerator(objectNames)) {
+    obj.displayInfo();
+    proxyInstances[obj[createUniqueID]()] = obj;
+  }
+
+  print('Unique Names:', ComplexObject.uniqueNames());
+})();

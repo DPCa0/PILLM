@@ -1,0 +1,44 @@
+class ComplexDataHandler {
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+  static processData(data) {
+    return data.map((item) => ({
+      ...item,
+      computedValue: item.value * Math.random(),
+    })).filter(item => item.computedValue > 10);
+  }
+}
+
+const handleDataAsync = async (url) => {
+  try {
+    const rawData = await ComplexDataHandler.fetchData(url);
+    const processedData = ComplexDataHandler.processData(rawData);
+    print(processedData);
+  } catch (error) {
+    console.error('Error handling data:', error);
+  }
+};
+
+ 
+const fakeApi = {
+  data: [
+    { id: 1, value: 10 },
+    { id: 2, value: 20 },
+    { id: 3, value: 30 },
+  ],
+};
+
+const fakeFetch = (url) => Promise.resolve({
+  ok: true,
+  json: () => Promise.resolve(fakeApi.data),
+});
+
+globalThis.fetch = fakeFetch;
+
+handleDataAsync('https://api.example.com/data');

@@ -1,0 +1,55 @@
+ 
+class ComplexFeature {
+  #privateField;
+
+  constructor(value) {
+    this.#privateField = value;
+  }
+
+   
+  static fromArray(arr) {
+    const [first, ...rest] = arr;
+    return new ComplexFeature(rest.reduce((acc, num) => acc + num, first));
+  }
+
+   
+  get value() {
+    return this.#privateField;
+  }
+
+   
+  async calculateAsync(multiplier) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.#privateField * multiplier);
+      }, 1000);
+    });
+  }
+
+   
+  *counter(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield i;
+    }
+  }
+}
+
+ 
+(async () => {
+  const values = [10, 20, 30, 40];
+  const complexInstance = ComplexFeature.fromArray(values);
+
+   
+  const { value: initialValue } = complexInstance;
+  print('Initial Value:', initialValue);
+
+   
+  const newValues = [...values, 50, 60];
+  const calculatedValue = await complexInstance.calculateAsync(newValues.length);
+  print('Calculated Value:', calculatedValue);
+
+   
+  for (const number of complexInstance.counter(1, 5)) {
+    print('Counter:', number);
+  }
+})();

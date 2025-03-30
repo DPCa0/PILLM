@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncNumberGenerator(max) {
+    let num = 1;
+    while (num <= max) {
+        await delay(500);  
+        yield num++;
+    }
+}
+
+ 
+const generatorHandler = {
+    get(target, prop, receiver) {
+        if (prop === 'next') {
+            return async function() {
+                console.log("Next value requested");
+                const result = await Reflect.apply(target[prop], target, []);
+                console.log(`Generated: ${result.value}`);
+                return result;
+            }
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+    const proxiedGenerator = new Proxy(asyncNumberGenerator(5), generatorHandler);
+    for await (const num of proxiedGenerator) {
+        console.log(`Received number: ${num}`);
+    }
+})();
+```

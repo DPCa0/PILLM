@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(array) {
+    const m = new Matrix(array.length, array[0].length);
+    m.data = array.map(row => [...row]);
+    return m;
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    return {
+      next: () => {
+        if (row < this.data.length && col < this.data[row].length) {
+          const value = { value: this.data[row][col], done: false };
+          col++;
+          if (col >= this.data[row].length) {
+            col = 0;
+            row++;
+          }
+          return value;
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  map(fn) {
+    return Matrix.from(
+      this.data.map((row, rIdx) => row.map((val, cIdx) => fn(val, rIdx, cIdx)))
+    );
+  }
+
+  async transformAsync(fn) {
+    const tasks = this.data.flatMap((row, rIdx) =>
+      row.map(async (val, cIdx) => await fn(val, rIdx, cIdx))
+    );
+    const results = await Promise.all(tasks);
+    return Matrix.from(
+      Array.from({ length: this.data.length }, (_, rIdx) =>
+        results.slice(rIdx * this.data[0].length, (rIdx + 1) * this.data[0].length)
+      )
+    );
+  }
+}
+
+ 
+(async () => {
+  const matrix = Matrix.from([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ]);
+
+  console.log('Original Matrix:');
+  for (const value of matrix) {
+    console.log(value);
+  }
+
+  const incremented = matrix.map(value => value + 1);
+
+  console.log('Incremented Matrix:');
+  for (const value of incremented) {
+    console.log(value);
+  }
+
+  const transformed = await matrix.transformAsync(async value => {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    return value * 2;
+  });
+
+  console.log('Transformed Matrix (async):');
+  for (const value of transformed) {
+    console.log(value);

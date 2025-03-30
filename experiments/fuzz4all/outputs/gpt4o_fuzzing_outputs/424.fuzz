@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(name) {
+    this.name = name;
+    this.completed = false;
+  }
+
+  complete() {
+    this.completed = true;
+  }
+}
+
+class TaskManager {
+  #tasks = new Set();  
+
+  addTask(name) {
+    this.#tasks.add(new Task(name));
+  }
+
+  get pendingTasks() {
+    return [...this.#tasks].filter(task => !task.completed);
+  }
+
+  static logTasks(tasks) {
+    tasks.forEach(task => console.log(`${task.name}: ${task.completed ? 'Completed' : 'Pending'}`));
+  }
+}
+
+async function simulateTaskCompletion(taskManager) {
+  for (const task of taskManager.pendingTasks) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    task.complete();
+    console.log(`Completed: ${task.name}`);
+  }
+}
+
+const taskManager = new TaskManager();
+
+taskManager.addTask('Learn JavaScript');
+taskManager.addTask('Practice ES6');
+taskManager.addTask('Understand async/await');
+
+console.log('Initial Tasks:');
+TaskManager.logTasks(taskManager.pendingTasks);
+
+simulateTaskCompletion(taskManager)
+  .then(() => {
+    console.log('\nAll Tasks After Completion:');
+    TaskManager.logTasks(taskManager.pendingTasks);
+  })
+  .catch(error => console.error(error));
+```

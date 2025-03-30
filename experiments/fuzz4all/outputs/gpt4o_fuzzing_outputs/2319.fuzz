@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+  #name;
+  
+  constructor(name) {
+    this.#name = name;
+  }
+
+  greet() {
+    return `Hello, ${this.#name}!`;
+  }
+}
+
+ 
+const personProxyHandler = {
+  get: (target, property) => {
+    const origMethod = target[property];
+    if (typeof origMethod === 'function') {
+      return function(...args) {
+        console.log(`Calling method: ${property}`);
+        return origMethod.apply(this, args);
+      };
+    }
+    return origMethod;
+  }
+};
+
+ 
+const person = new Person('Alice');
+const proxiedPerson = new Proxy(person, personProxyHandler);
+
+ 
+(async () => {
+  try {
+    const module = await import('./someModule.js');  
+    const result = await new Promise((resolve, reject) => {
+      setTimeout(() => resolve('Promise resolved after delay'), 2000);
+    });
+
+    console.log(proxiedPerson.greet());  
+    console.log(result);
+    module.someFunction();  
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+Ensure there is a `someModule.js` file in the same directory with a `someFunction` to see the full effect.

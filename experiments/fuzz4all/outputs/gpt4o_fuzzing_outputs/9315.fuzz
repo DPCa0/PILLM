@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+export const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  return response.json();
+};
+
+export const processData = (data, ...keys) => {
+   
+  return data.map(item => {
+    const { ...desired } = keys.reduce((result, key) => ({ ...result, [key]: item[key] }), {});
+    return desired;
+  });
+};
+
+ 
+import { fetchData, processData } from './utilities.js';
+
+const displayData = async () => {
+  try {
+     
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await fetchData(url);
+    
+     
+    const userNamesAndEmails = processData(users, 'name', 'email');
+
+     
+    console.log(`Processed User Data: ${JSON.stringify(userNamesAndEmails, null, 2)}`);
+  } catch (error) {
+    console.error(`Error fetching data: ${error.message}`);
+  }
+};
+
+displayData();
+```
+
+**Note**: This code expects that you run it in an environment where you have a web server setup (for ES6 module support and `fetch` API) or adjust the `import` and file structure as needed.

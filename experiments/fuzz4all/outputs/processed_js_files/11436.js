@@ -1,0 +1,54 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      const data = { success: true, data: { message: "Data fetched from " + url } };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+async function getData(url) {
+  try {
+    const response = await fetchData(url);
+    if (response.success) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Getting property: ${property}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, property, value, receiver) {
+    print(`Setting property: ${property} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const dataStore = {
+  name: "DataStore",
+  version: "1.0"
+};
+
+const proxyDataStore = new Proxy(dataStore, handler);
+
+ 
+proxyDataStore.name;  
+proxyDataStore.version = "1.1";  
+
+ 
+(async function() {
+  const url = "https://example.com/api";
+  const data = await getData(url);
+  print("Received data:", data);
+})();

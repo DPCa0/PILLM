@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    on(event, listener) {
+        (this.events[event] || (this.events[event] = [])).push(listener);
+        return this;
+    }
+    emit(event, ...args) {
+        (this.events[event] || []).slice().forEach(lsn => lsn(...args));
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchWithTimeout = (url, ms) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ms);
+    return fetch(url, { signal: controller.signal })
+        .finally(() => clearTimeout(timeout));
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataReceived', async data => {
+    console.log('Data received:', data);
+    await delay(1000);
+    console.log('Processing data...');
+});
+
+eventEmitter.on('error', error => {
+    console.error('Error occurred:', error);
+});
+
+(async () => {
+    try {
+        const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 5000);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        eventEmitter.emit('dataReceived', data);
+    } catch (error) {
+        eventEmitter.emit('error', error.message);
+    }
+})();
+```

@@ -1,0 +1,67 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: "Initial Data" });
+    }, 1000);
+  });
+}
+
+ 
+function* dataProcessor() {
+  const initialData = yield fetchData();
+  print('Fetched:', initialData.data);
+
+  const modifiedData = { ...initialData, moreData: "Additional Data" };
+  yield modifiedData;
+
+  const finalData = yield Promise.resolve({
+    ...modifiedData,
+    finalData: "Final Processed Data",
+  });
+
+  print('Final Processed Data:', finalData);
+}
+
+ 
+const dataHandler = {
+  set(target, key, value) {
+    if (key === 'protected') {
+      throw new Error('Cannot modify protected data');
+    }
+    target[key] = value;
+    return true;
+  }
+};
+
+ 
+async function runGenerator(generator) {
+  const iterator = generator();
+
+   
+  const proxyData = new Proxy({}, dataHandler);
+
+   
+  for await (let result of iterator) {
+    Object.assign(proxyData, result);  
+  }
+
+  return proxyData;
+}
+
+ 
+(async function main() {
+  try {
+    const result = await runGenerator(dataProcessor);
+    print('Processed Data:', result);
+
+     
+     
+     
+
+  } catch (err) {
+    console.error('Error:', err.message);
+  }
+})();

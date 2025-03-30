@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+  let i = 1;
+  while (i <= 5) {
+    yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+  }
+}
+
+ 
+function withTimeout(promise, ms) {
+  let timeout;
+  const proxy = new Proxy(promise, {
+    get(target, prop) {
+      return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+      return Reflect.set(target, prop, value);
+    }
+  });
+
+  return Promise.race([
+    proxy,
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => reject(new Error("Operation timed out")), ms);
+    })
+  ]).finally(() => clearTimeout(timeout));
+}
+
+ 
+async function runGenerator(gen) {
+  for (let promise of gen) {
+    try {
+      const number = await withTimeout(promise, 5000);
+      console.log(`Received: ${number}`);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+}
+
+ 
+runGenerator(numberGenerator());
+```

@@ -1,0 +1,51 @@
+ 
+
+ 
+function* numberGenerator() {
+    let number = 1;
+    while (true) {
+        yield number++;
+    }
+}
+
+ 
+const mathUtil = {
+    add: (a, b) => a + b,
+    multiply: (a, b) => a * b,
+};
+
+ 
+async function processNumbers() {
+    const gen = numberGenerator();
+    const numbers = [gen.next().value, gen.next().value, gen.next().value];
+
+     
+    const [num1, num2, num3] = numbers;
+    
+     
+    const sum = await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(mathUtil.add(num1, num2));
+        }, 1000);
+    });
+
+     
+    const product = await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(mathUtil.multiply(sum, num3));
+        }, 1000);
+    });
+
+    return { sum, product };
+}
+
+ 
+(async () => {
+    try {
+        const { sum, product } = await processNumbers();
+        print(`Sum of first two numbers: ${sum}`);
+        print(`Product of sum and third number: ${product}`);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

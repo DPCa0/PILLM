@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class AsyncNumberGenerator {
+  constructor() {
+    this.number = 0;
+  }
+  
+  async *numberStream(limit) {
+    while (this.number < limit) {
+      await this.delay(500);  
+      yield ++this.number;
+    }
+  }
+  
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+const calculateSum = async (limit) => {
+  const generator = new AsyncNumberGenerator();
+  let sum = 0;
+  
+  for await (const num of generator.numberStream(limit)) {
+    sum += num;
+    console.log(`Generated: ${num}, Current Sum: ${sum}`);
+  }
+  
+  return sum;
+};
+
+ 
+(async () => {
+  try {
+    const userLimit = parseInt(prompt("Enter a number limit: ")) ?? 10;
+    const limit = userLimit > 0 ? userLimit : 10;
+    
+    const resultModule = await import('./resultModule.js');
+    const sum = await calculateSum(limit);
+    
+    console.log(`Final Sum: ${sum}`);
+    resultModule?.default?.(sum);  
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();
+```
+
+Note: This code snippet includes advanced JavaScript features such as async generators, optional chaining, nullish coalescing, and dynamic import. The code also presumes the existence of an external module named `resultModule.js` that has a default export function.

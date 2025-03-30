@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchRandomNumber = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(Math.floor(Math.random() * 100));
+    }, 500);
+  });
+};
+
+ 
+const processRandomNumbers = async (count) => {
+   
+  const promises = Array.from({ length: count }, fetchRandomNumber);
+
+   
+  const numbers = await Promise.all(promises);
+
+   
+  const formattedNumbers = numbers.map((number, index) => {
+     
+    const [value, idx] = [number, index];
+    return { index: idx, value, isEven: value % 2 === 0 };
+  });
+
+   
+  console.table(formattedNumbers);
+};
+
+ 
+processRandomNumbers(5);
+```

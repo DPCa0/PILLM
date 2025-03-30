@@ -1,0 +1,41 @@
+ 
+
+const fetchData = async (url) => {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ status: 200, data: { name: "John Doe", age: 30 } });
+      } else {
+        reject({ status: 404, error: "Not Found" });
+      }
+    }, 1000);
+  });
+};
+
+const handler = {
+  get: (target, property) => {
+    print(`Accessed property: ${property}`);
+    return property in target ? target[property] : `Property ${property} does not exist`;
+  },
+};
+
+(async () => {
+  try {
+    const response = await fetchData("https://api.example.com/data");
+    if (response.status === 200) {
+      const { name, age } = response.data;
+
+       
+      const user = new Proxy({ name, age }, handler);
+
+      print(`User: ${user.name}, Age: ${user.age}`);
+    }
+  } catch (error) {
+    console.error(`Error: ${error.error}`);
+  }
+
+   
+  const dummy = new Proxy({}, handler);
+  print(dummy.nonExistentProperty);
+})();

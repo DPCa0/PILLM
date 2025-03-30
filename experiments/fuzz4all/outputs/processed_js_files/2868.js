@@ -1,0 +1,41 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      let response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+const handler = {
+  get: (target, prop) => {
+    return prop in target ? target[prop] : 'Property does not exist';
+  },
+  set: (target, prop, value) => {
+    print(`Setting value ${value} to ${prop}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+async function main() {
+  const dataFetcher = new DataFetcher('https://jsonplaceholder.typicode.com/posts/1');
+  const dataProxy = new Proxy(await dataFetcher.fetchData(), handler);
+
+  print(dataProxy.title);  
+  print(dataProxy.nonExistentProp);  
+  
+  dataProxy.title = 'Updated Title';  
+}
+
+main();

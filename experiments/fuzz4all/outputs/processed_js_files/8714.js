@@ -1,0 +1,54 @@
+ 
+async function fetchDataAndProcess(urls) {
+    try {
+         
+        const fetchPromises = urls.map(url => fetch(url));
+
+         
+        const responses = await Promise.all(fetchPromises);
+
+         
+        const successfulResponses = responses.filter(response => response.ok);
+
+         
+        const dataPromises = successfulResponses.map(response => response.json());
+        const data = await Promise.all(dataPromises);
+
+         
+        const aggregatedData = data.reduce((acc, item) => {
+            const key = item.category;
+            if (!acc[key]) {
+                acc[key] = [];
+            }
+            acc[key].push(item);
+            return acc;
+        }, {});
+
+         
+        print('Aggregated Data:', aggregatedData);
+
+         
+        function* categoryIterator(categories) {
+            for (const category of Object.keys(categories)) {
+                yield { category, items: categories[category] };
+            }
+        }
+
+         
+        for (const { category, items } of categoryIterator(aggregatedData)) {
+            print(`Category: ${category}, Items:`, items);
+        }
+
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+}
+
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+ 
+fetchDataAndProcess(urls);

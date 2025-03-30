@@ -1,0 +1,58 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) => {
+    return Promise.race([
+        fetch(url),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+    ]);
+};
+
+async function fetchData(url) {
+    try {
+        const response = await fetchWithTimeout(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    } catch (error) {
+        throw new Error(`Fetch error: ${error.message}`);
+    }
+}
+
+(async function main() {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('dataReceived', data => {
+        print('Data received:', data);
+    });
+
+    eventEmitter.on('error', error => {
+        console.error('Error:', error);
+    });
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        eventEmitter.emit('dataReceived', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+})();

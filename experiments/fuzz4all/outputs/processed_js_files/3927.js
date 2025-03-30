@@ -1,0 +1,72 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+class App {
+  #state = {};
+
+  constructor(initialState) {
+    this.#state = new Proxy(initialState, {
+      set: (target, prop, value) => {
+        target[prop] = value;
+        this.stateChangeObserver.notify(this.#state);
+        return true;
+      }
+    });
+    this.stateChangeObserver = new Observable();
+  }
+
+  updateState(newState) {
+    for (const key in newState) {
+      if (newState.hasOwnProperty(key)) {
+        this.#state[key] = newState[key];
+      }
+    }
+  }
+
+  onStateChange(fn) {
+    this.stateChangeObserver.subscribe(fn);
+  }
+
+  getState() {
+    return { ...this.#state };
+  }
+}
+
+const app = new App({ count: 0 });
+
+app.onStateChange(state => {
+  print('State changed:', state);
+});
+
+app.updateState({ count: app.getState().count + 1 });
+app.updateState({ user: 'Alice' });
+
+(async function simulateAsyncActions() {
+  const data = await new Promise(resolve => setTimeout(() => resolve('Async Data'), 1000));
+  app.updateState({ asyncData: data });
+})();
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+print(`Generated IDs: ${gen.next().value}, ${gen.next().value}`);

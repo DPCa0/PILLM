@@ -1,0 +1,37 @@
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+    this.index = 0;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (this.index < this.data.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield this.data[this.index++];
+    }
+  }
+}
+
+const processData = async () => {
+  const data = [1, 2, 3, 4, 5];
+  const iterator = new AsyncIterator(data);
+  let result = data.map(num => num * 2);  
+
+   
+  result = await Promise.all(
+    result.map(async (num, i) => {
+      const val = await new Promise(resolve => setTimeout(resolve, 50, num + i));
+      return val;
+    })
+  );
+
+  print('Processed Result:', result);
+
+   
+  print('Iterating with for-await-of:');
+  for await (const num of iterator) {
+    print(num);
+  }
+};
+
+processData().catch(console.error);

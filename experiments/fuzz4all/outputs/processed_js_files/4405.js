@@ -1,0 +1,38 @@
+ 
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+     
+    async processData() {
+        const results = await Promise.all(this.data.map(async ({ id, value }) => {
+            const result = await this.fetchData(id);
+            return { id, processedValue: result * value };
+        }));
+        return results;
+    }
+
+     
+    fetchData(id) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(id * 2);
+            }, 1000);
+        });
+    }
+}
+
+(async () => {
+    const data = [
+        { id: 1, value: 10 },
+        { id: 2, value: 20 },
+        { id: 3, value: 30 },
+    ];
+
+    const processor = new DataProcessor(data);
+    const results = await processor.processData();
+
+    print('Processed Results:', results);
+})();

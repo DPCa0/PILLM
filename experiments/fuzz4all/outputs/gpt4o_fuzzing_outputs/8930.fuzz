@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/users/1'];
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+async function handleData() {
+  const dataGen = fetchDataGenerator();
+  const dataHandler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        return `Property ${prop} not found`;
+      }
+    }
+  };
+
+  const results = [];
+  for (const promise of dataGen) {
+    const data = await promise;
+    const proxiedData = new Proxy(data, dataHandler);
+    results.push(proxiedData);
+  }
+  
+  return results;
+}
+
+ 
+(async function displayData() {
+  const results = await handleData();
+  results.forEach(result => {
+    console.log('Fetched Data:', result);
+    console.log('Accessing non-existing property:', result.nonExistentProp);
+  });
+})();
+```

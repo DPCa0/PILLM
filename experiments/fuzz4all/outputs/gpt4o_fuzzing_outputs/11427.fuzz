@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    return new Matrix(
+      a.data.length,
+      b.data[0].length,
+      a.data.map(row =>
+        b.data[0].map((_, i) =>
+          row.reduce((sum, elt, j) => sum + elt * b.data[j][i], 0)
+        )
+      )
+    );
+  }
+
+  static identity(n) {
+    return new Matrix(n, n, (i, j) => (i === j ? 1 : 0));
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  [Symbol.iterator]() {
+    return this.data[Symbol.iterator]();
+  }
+
+  get rows() {
+    return this.data.length;
+  }
+
+  get cols() {
+    return this.data[0].length;
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const A = new Matrix(2, 3, (i, j) => i + j + 1);
+const B = new Matrix(3, 2, (i, j) => i * j + 1);
+const C = Matrix.multiply(A, B);
+
+console.log('Matrix A:\n', A.toString());
+console.log('Matrix B:\n', B.toString());
+console.log('A * B:\n', C.toString());
+
+const I = Matrix.identity(3);
+console.log('Identity Matrix:\n', I.toString());
+
+C.map(val => val * 2);
+console.log('Doubled C:\n', C.toString());
+```

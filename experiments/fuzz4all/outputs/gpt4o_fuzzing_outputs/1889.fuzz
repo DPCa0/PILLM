@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+async function fetchAndTransformData(url) {
+  const fetchJson = async url => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  };
+
+  try {
+    const data = await fetchJson(url);
+    const { results } = data;
+
+     
+    const transformedData = results.map(({ name: { first, last }, email }) => ({
+      fullName: `${first} ${last}`,
+      email: email.toUpperCase(),
+    }));
+
+     
+    transformedData.forEach(({ fullName, email }) =>
+      console.log(`Name: ${fullName}, Email: ${email}`)
+    );
+  } catch (error) {
+    console.error(`Failed to fetch or transform data: ${error.message}`);
+  }
+}
+
+ 
+async function main() {
+  const apiUrl = 'https://randomuser.me/api/?results=5';
+
+  await Promise.all([fetchAndTransformData(apiUrl), fetchAndTransformData(apiUrl)]);
+
+  console.log('Data fetch and transformation complete.');
+}
+
+ 
+main();
+```

@@ -1,0 +1,35 @@
+ 
+async function* asyncNumberGenerator() {
+  for (let i = 1; i <= 5; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(i), 1000));
+  }
+}
+
+const handler = {
+  get: (target, prop) => {
+    return prop in target ? target[prop] : `Property ${prop} not found`;
+  },
+  set: (target, prop, value) => {
+    if (typeof value !== 'number' || value < 0) {
+      console.warn(`Invalid value for ${prop}`);
+      return false;
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+let numberObj = new Proxy({}, handler);
+
+(async () => {
+  for await (const numPromise of asyncNumberGenerator()) {
+    const num = await numPromise;
+    Reflect.set(numberObj, `num${num}`, num * 10);
+    print(`Set numberObj.num${num} to ${numberObj[`num${num}`]}`);
+  }
+
+   
+  print(`Trying to access non-existing property: ${numberObj.nonExistent}`);
+  Reflect.set(numberObj, 'invalidNum', -5);
+  print(`After trying to set invalid number: ${numberObj.invalidNum}`);
+})();

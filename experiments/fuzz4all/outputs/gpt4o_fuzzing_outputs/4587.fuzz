@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ success: true, data: { value: 42, info: "The Answer" } });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+};
+
+ 
+(async function() {
+    try {
+        const url = "https://api.example.com/data";
+        const response = await fetchData(url);
+
+         
+        const { success, data: { value, info } } = response;
+
+         
+        const handler = {
+            get: (target, prop, receiver) => {
+                console.log(`Getting ${prop}`);
+                return Reflect.get(target, prop, receiver);
+            },
+            set: (target, prop, value, receiver) => {
+                console.log(`Setting ${prop} to ${value}`);
+                return Reflect.set(target, prop, value, receiver);
+            }
+        };
+
+        const proxiedData = new Proxy({ value, info }, handler);
+
+         
+        console.log(proxiedData.value);  
+        proxiedData.value = 84;  
+        console.log(proxiedData.value);  
+
+         
+        console.log(`Fetched data: ${proxiedData.value}, Info: ${proxiedData.info}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();
+```

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+
+ 
+async function readConfigFile() {
+  try {
+     
+    const { configFile } = await import('./config.json', { assert: { type: 'json' } });
+    const configPath = path.resolve(__dirname, configFile);
+    const configData = await fs.readFile(configPath, 'utf-8');
+    
+     
+    const config = JSON.parse(configData);
+    console.log('Config:', config);
+
+     
+    const { apiEndpoint, apiKey } = config;
+
+     
+    const apiUrl = `${apiEndpoint}?key=${apiKey}`;
+    console.log('API URL:', apiUrl);
+    
+     
+    const localizedGreeting = i18n`Hello, world! Welcome to ${apiUrl}`;
+    console.log(localizedGreeting);
+
+     
+    const [file1, file2] = await Promise.all([
+      fs.readFile('data/file1.txt', 'utf-8'),
+      fs.readFile('data/file2.txt', 'utf-8'),
+    ]);
+    
+    console.log('File1:', file1);
+    console.log('File2:', file2);
+  } catch (error) {
+    console.error('Error reading config file:', error);
+  }
+}
+
+ 
+function i18n(strings, ...values) {
+  return strings.reduce((result, str, i) => result + str + (values[i] || ''), '');
+}
+
+readConfigFile();
+```

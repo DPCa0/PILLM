@@ -1,0 +1,86 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Getting property ${prop}`);
+            return target[prop];
+        } else {
+            throw new ReferenceError(`Property "${prop}" does not exist.`);
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const target = {
+    name: "Advanced JavaScript",
+    version: "ES6+"
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        let data = await response.json();
+        console.log("Fetched Data:", data);
+    } catch (error) {
+        console.error("Fetch Error:", error);
+    }
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const user = {
+    username: "coder123",
+    email: "coder@example.com",
+    preferences: {
+        theme: "dark",
+        notifications: true
+    }
+};
+
+const { username, ...rest } = user;
+console.log("Username:", username);
+console.log("Rest:", rest);
+
+ 
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+        yield "Hello";
+        yield "Async";
+        yield "Iteration";
+    }
+};
+
+ 
+(async () => {
+    proxy.name = "JavaScript Advanced Features";
+    console.log(proxy.name);
+     
+     
+    const gen = idGenerator();
+    console.log(gen.next().value);
+    console.log(gen.next().value);
+    console.log(gen.next().value);
+
+    for await (const value of asyncIterable) {
+        console.log(value);
+    }
+})();
+```

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+  const processData = ({ results }) => {
+    return results.map(({ name, location }) => {
+      const { title, first, last } = name;
+      const { city, country } = location;
+      return `${title} ${first} ${last} from ${city}, ${country}`;
+    });
+  };
+
+  const handleData = async (url) => {
+    try {
+      const data = await fetchData(url);
+      const processedData = processData(data);
+      console.log('Processed Data:', processedData);
+
+      const dataPromise = Promise.all(
+        processedData.map(async (info, index) => {
+          await new Promise(resolve => setTimeout(resolve, 1000 * index));
+          return `${index + 1}: ${info}`;
+        })
+      );
+
+      for await (const result of dataPromise) {
+        console.log(result);
+      }
+    } catch (error) {
+      console.error('Error handling data:', error);
+    }
+  };
+
+   
+  const apiUrl = 'https://randomuser.me/api/?results=5';
+  await handleData(apiUrl);
+})();
+```

@@ -1,0 +1,34 @@
+const fetchWeatherData = async (location) => {
+   
+  return new Promise((resolve) =>
+    setTimeout(
+      () =>
+        resolve({
+          location,
+          temperature: Math.random() * 40,
+          condition: 'Sunny',
+        }),
+      1000
+    )
+  );
+};
+
+const displayWeather = ({ location, temperature, condition }) => {
+  print(`Weather in ${location}: ${temperature.toFixed(2)}°C and ${condition}`);
+};
+
+(async () => {
+  const locations = ['New York', 'London', 'Tokyo'];
+
+  const weatherDataPromises = locations.map((loc) => fetchWeatherData(loc));
+
+  try {
+    const weatherDataArray = await Promise.all(weatherDataPromises);
+
+    weatherDataArray
+      .filter(({ temperature }) => temperature > 20)
+      .forEach(displayWeather);
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+  }
+})();

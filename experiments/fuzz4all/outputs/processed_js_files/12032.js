@@ -1,0 +1,69 @@
+ 
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+   
+  get info() {
+    return `${this.name} is ${this.age} years old.`;
+  }
+
+   
+  static compare(person1, person2) {
+    return person1.age - person2.age;
+  }
+}
+
+ 
+class Employee extends Person {
+  constructor(name, age, jobTitle) {
+    super(name, age);
+    this.jobTitle = jobTitle;
+  }
+
+   
+  get info() {
+    return `${super.info} They work as a ${this.jobTitle}.`;
+  }
+}
+
+ 
+const fetchEmployee = async (id) => {
+  const mockApi = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'Jane Doe', age: 30, jobTitle: 'Developer' });
+    }, 1000);
+  });
+  const data = await mockApi;
+  return new Employee(data.name, data.age, data.jobTitle);
+};
+
+ 
+const personHandler = {
+  set: (obj, prop, value) => {
+    if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new Error('Invalid age value');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+(async () => {
+  try {
+    const employee = await fetchEmployee(1);
+    print(employee.info);
+
+    const validatedEmployee = new Proxy(employee, personHandler);
+    validatedEmployee.age = 32;   
+    print(validatedEmployee.info);
+    
+     
+     
+
+  } catch (error) {
+    console.error(error);
+  }
+})();

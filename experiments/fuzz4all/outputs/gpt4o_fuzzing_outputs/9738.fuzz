@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+async function asyncFetch(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+}
+
+const proxyHandler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Getting value of ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        }
+        throw new Error(`Property ${prop} does not exist.`);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting value of ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const dataStore = new Proxy({}, proxyHandler);
+
+(async function() {
+    const events = new EventEmitter();
+
+    events.on('dataReceived', data => {
+        dataStore.data = data;
+        console.log('Data received and stored:', data);
+    });
+
+    try {
+        const data = await asyncFetch('https://jsonplaceholder.typicode.com/posts/1');
+        events.emit('dataReceived', data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();
+```

@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueId = Symbol('id');
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property === 'secret') {
+            return 'Access Denied';
+        }
+        return Reflect.get(target, property);
+    },
+    set: (target, property, value) => {
+        if (property === 'secret') {
+            throw new Error("Cannot set secret property");
+        }
+        Reflect.set(target, property, value);
+        return true;
+    }
+};
+
+ 
+const targetObject = {
+    [uniqueId]: 12345,
+    name: "Advanced JS",
+    data: [1, 2, 3]
+};
+
+ 
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function fetchData() {
+    try {
+         
+        const response = await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (Math.random() > 0.5) {
+                    resolve({ status: 200, data: "Fetched Data" });
+                } else {
+                    reject(new Error("Failed to fetch data"));
+                }
+            }, 1000);
+        });
+        console.log('Data:', response.data);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+ 
+console.log('Name:', proxyObject.name);  
+console.log('Secret:', proxyObject.secret);  
+
+ 
+try {
+    proxyObject.secret = "You can't set me";
+} catch (error) {
+    console.error(error.message);  
+}
+
+ 
+fetchData();
+```

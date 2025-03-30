@@ -1,0 +1,30 @@
+ 
+
+(async () => {
+   
+  const getData = async (url) => {
+     
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  };
+
+  const processData = ({ name, main: { temp }, weather: [firstWeather] }) => {
+     
+    const weatherDescription = firstWeather.description;
+    print(`Current weather in ${name}: ${temp}°C, ${weatherDescription}`);
+  };
+
+  const url = 'https://api.openweathermap.org/data/2.5/weather?q=London&units=metric&appid=YOUR_API_KEY';
+  
+  try {
+    const weatherData = await getData(url);  
+    processData(weatherData);  
+  } catch (error) {
+    console.error("Failed to fetch or process data:", error);
+  }
+})();
+Replace `YOUR_API_KEY` with your actual OpenWeatherMap API key to run the code.

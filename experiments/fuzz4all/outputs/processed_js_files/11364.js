@@ -1,0 +1,89 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(l => l !== listener));
+    }
+  }
+}
+
+class AsyncPool {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.activeCount = 0;
+  }
+
+  enqueue(task) {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          this.activeCount++;
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          this.activeCount--;
+          this.next();
+        }
+      });
+      this.next();
+    });
+  }
+
+  next() {
+    if (this.queue.length > 0 && this.activeCount < this.concurrency) {
+      const nextTask = this.queue.shift();
+      nextTask();
+    }
+  }
+}
+
+const main = async () => {
+  const emitter = new EventEmitter();
+  const pool = new AsyncPool(2);
+
+  emitter.on('data', async (value) => {
+    await pool.enqueue(() => new Promise((res) => {
+      setTimeout(() => {
+        print(`Processed: ${value}`);
+        res();
+      }, 1000);
+    }));
+  });
+
+  emitter.on('done', () => print('All tasks complete.'));
+
+  ['a', 'b', 'c', 'd'].forEach((item) => {
+    emitter.emit('data', item);
+  });
+
+  setTimeout(() => emitter.emit('done'), 5000);
+};
+
+main();

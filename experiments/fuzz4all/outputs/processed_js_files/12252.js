@@ -1,0 +1,71 @@
+ 
+const _private = Symbol('private');
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === _private) return undefined;
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    if (prop === _private) throw new Error('Cannot modify private properties');
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+ 
+class ComplexObject {
+  constructor(name) {
+    this[_private] = { secret: 'This is a secret' };
+    this.name = name;
+    return new Proxy(this, handler);
+  }
+
+  revealSecret() {
+    return this[_private].secret;
+  }
+
+  static async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+ 
+async function processMultipleRequests(urls) {
+  const requests = urls.map(url => ComplexObject.fetchData(url));
+  const results = await Promise.allSettled(requests);
+  results.forEach(({ status, value, reason }, index) => {
+    print(`Request ${index + 1}: ${status}`);
+    if (status === 'fulfilled') {
+      print('Data:', value);
+    } else {
+      console.error('Error:', reason);
+    }
+  });
+}
+
+ 
+const obj = new ComplexObject('MyObject');
+print('Name:', obj.name);
+print('Secret:', obj.revealSecret());
+print('Trying to set a private property...');
+try {
+  obj[_private] = { secret: 'New secret' };
+} catch (error) {
+  console.error('Caught error:', error.message);
+}
+
+ 
+const exampleUrls = [
+  'https://jsonplaceholder.typicode.com/todos/1',
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'invalid-url'
+];
+processMultipleRequests(exampleUrls);

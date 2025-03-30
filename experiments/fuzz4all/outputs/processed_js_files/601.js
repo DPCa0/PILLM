@@ -1,0 +1,45 @@
+ 
+
+class AsyncDataProcessor {
+  constructor(dataUrl) {
+    this.dataUrl = dataUrl;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.dataUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  }
+
+  processData(data) {
+     
+    return data.map(({ id, value }) => ({ id, squared: value * value }));
+  }
+}
+
+const runComplexAsyncProcess = async () => {
+  const dataProcessor = new AsyncDataProcessor('https://api.example.com/data');
+  const processedData = await dataProcessor.fetchData();
+
+   
+  print(`Processed Data: ${JSON.stringify([...processedData], null, 2)}`);
+
+   
+  function* dataGenerator(data) {
+    for (const item of data) {
+      yield `ID: ${item.id}, Squared Value: ${item.squared}`;
+    }
+  }
+
+  const generator = dataGenerator(processedData);
+  for (const output of generator) {
+    print(output);
+  }
+};
+
+runComplexAsyncProcess();

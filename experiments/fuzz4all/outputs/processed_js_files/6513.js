@@ -1,0 +1,41 @@
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(url) {
+    await delay(1000);  
+    if (Math.random() > 0.5) {
+        return { data: `Fetched data from ${url}` };
+    } else {
+        throw new Error('Fetch failed');
+    }
+}
+
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value) => {
+        print(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const dataProxy = new Proxy({ url: 'https://api.example.com' }, handler);
+
+async function main() {
+    try {
+        dataProxy.status = 'loading';
+        const response = await fetchData(dataProxy.url);
+        dataProxy.data = response.data;
+        dataProxy.status = 'success';
+    } catch (error) {
+        dataProxy.error = error.message;
+        dataProxy.status = 'error';
+    } finally {
+        print(`Final State: ${JSON.stringify(dataProxy)}`);
+    }
+}
+
+main();

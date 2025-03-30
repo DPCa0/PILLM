@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(url) {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                data: {
+                    users: [
+                        { name: 'Alice', age: 25 },
+                        { name: 'Bob', age: 30 },
+                        { name: 'Charlie', age: 35 }
+                    ]
+                }
+            });
+        }, 1000);
+    });
+}
+
+async function processUserData(url) {
+    try {
+        const { data: { users } } = await fetchData(url);  
+
+         
+        const processedUsers = users
+            .filter(({ age }) => age > 25)
+            .map(({ name, age }) => ({
+                name,
+                ageGroup: age < 30 ? 'Young Adult' : 'Adult'
+            }));
+
+         
+        processedUsers.forEach(({ name, ageGroup }) => {
+            console.log(`${name} is in the ${ageGroup} age group.`);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+processUserData('https://api.example.com/users');
+```

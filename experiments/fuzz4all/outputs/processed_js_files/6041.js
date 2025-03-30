@@ -1,0 +1,84 @@
+class LazyPromise {
+  constructor(executor) {
+    this.promise = new Promise(executor);
+    this.result = null;
+    this.error = null;
+    this.fulfilled = false;
+    
+    this.promise.then(value => {
+      this.result = value;
+      this.fulfilled = true;
+    }).catch(err => {
+      this.error = err;
+      this.fulfilled = true;
+    });
+  }
+
+  async get() {
+    if (this.fulfilled) {
+      if (this.error) throw this.error;
+      return this.result;
+    }
+    return await this.promise;
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const lazyData = new LazyPromise((resolve, reject) => {
+  setTimeout(() => fetchData('https://jsonplaceholder.typicode.com/todos/1')
+    .then(resolve)
+    .catch(reject), 2000);
+});
+
+ 
+print('Data loading started...');
+
+ 
+setTimeout(async () => {
+  try {
+    const data = await lazyData.get();
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}, 4000);
+
+ 
+const person = {
+  name: 'Alice',
+  age: 25,
+};
+
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      print(`Getting ${prop}`);
+      return Reflect.get(...arguments);
+    } else {
+      throw new ReferenceError(`Property "${prop}" does not exist.`);
+    }
+  },
+  set(target, prop, value) {
+    if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+      throw new TypeError('Age must be a positive number');
+    }
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const proxyPerson = new Proxy(person, handler);
+
+try {
+  print(proxyPerson.name);
+  proxyPerson.age = 30;
+  print(proxyPerson.age);
+  proxyPerson.gender = 'female';   
+} catch (error) {
+  console.error(error.message);
+}

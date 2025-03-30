@@ -1,0 +1,55 @@
+class Logger {
+  constructor() {
+    if (!Logger.instance) {
+      this.logs = [];
+      Logger.instance = this;
+    }
+    return Logger.instance;
+  }
+
+  log(message) {
+    const timestamp = new Date().toISOString();
+    this.logs.push({ message, timestamp });
+    print(`${timestamp}: ${message}`);
+  }
+
+  printLogCount() {
+    print(`${this.logs.length} Logs`);
+  }
+}
+
+const logger = new Logger();
+Object.freeze(logger);
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    logger.log(`Fetch error: ${error.message}`);
+  }
+}
+
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idGen = idGenerator();
+
+async function processData(url) {
+  const data = await fetchData(url);
+  if (data) {
+    for (let item of data) {
+      const id = idGen.next().value;
+      print(`Processing item ${id}: ${JSON.stringify(item)}`);
+    }
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/todos';
+processData(url).then(() => logger.printLogCount());

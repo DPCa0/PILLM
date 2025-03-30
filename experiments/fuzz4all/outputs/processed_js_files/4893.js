@@ -1,0 +1,43 @@
+class Logger {
+    #logs = [];  
+
+    log(message) {
+        this.#logs.push(message);
+        print(message);
+    }
+
+    get count() {
+        return this.#logs.length;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
+
+async function* dataGenerator(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+(async () => {
+    const logger = new Logger();
+    const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+
+    try {
+        for await (const dataPromise of dataGenerator(urls)) {
+            dataPromise
+                .then(data => logger.log(`Fetched data: ${JSON.stringify(data)}`))
+                .catch(error => logger.log(`Error: ${error.message}`));
+        }
+    } catch (error) {
+        console.error('An unexpected error occurred:', error);
+    }
+
+    logger.log(`Total log entries: ${logger.count}`);
+})();

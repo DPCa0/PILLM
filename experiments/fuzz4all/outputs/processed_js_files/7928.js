@@ -1,0 +1,48 @@
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+}
+
+const executeTasks = async (tasks) => {
+  const results = await Promise.all(
+    tasks.map(task => 
+      new Promise(resolve => {
+        setTimeout(() => {
+          print(`Finished: ${task.name}`);
+          resolve(task.name);
+        }, task.duration);
+      })
+    )
+  );
+  return results;
+};
+
+const taskRunner = async function* (taskList) {
+  for (const task of taskList) {
+    const start = Date.now();
+    yield `Starting: ${task.name}`;
+    await new Promise(resolve => setTimeout(resolve, task.duration));
+    const end = Date.now();
+    yield `Completed: ${task.name} in ${end - start}ms`;
+  }
+};
+
+(async () => {
+  const tasks = [
+    new Task('Task 1', 1000),
+    new Task('Task 2', 2000),
+    new Task('Task 3', 1500),
+  ];
+  
+  print("Running tasks concurrently:");
+  const concurrentResults = await executeTasks(tasks);
+  print("All tasks completed concurrently:", concurrentResults);
+  
+  print("\nRunning tasks sequentially:");
+  const generator = taskRunner(tasks);
+  for await (const message of generator) {
+    print(message);
+  }
+})();

@@ -1,0 +1,69 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function readJSONFile(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    const parsedData = JSON.parse(data);
+    return parsedData;
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+}
+
+ 
+const complexObject = {
+  prop1: 42,
+  prop2: 'Hello',
+};
+
+const handler = {
+  get(target, prop) {
+    if (prop === 'prop1') {
+      return target[prop] * 10;
+    }
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    if (prop === 'prop2') {
+      target[prop] = value.toUpperCase();
+    } else {
+      target[prop] = value;
+    }
+    return true;
+  },
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const squaredEvenNumbers = numbers
+  .filter(num => num % 2 === 0)
+  .map(num => num ** 2);
+
+print(`Squared even numbers: ${squaredEvenNumbers.join(', ')}`);
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+const advancedObject = {
+  [uniqueKey]: 'Secret Value',
+  method() {
+    print(`Accessing unique key: ${this[uniqueKey]}`);
+  },
+};
+
+ 
+(async () => {
+  const fileData = await readJSONFile('./data.json');
+  print('File Data:', fileData);
+
+  proxiedObject.prop1 = 100;
+  print('Proxied Object Prop1:', proxiedObject.prop1);
+
+  proxiedObject.prop2 = 'world';
+  print('Proxied Object Prop2:', proxiedObject.prop2);
+
+  advancedObject.method();
+})();

@@ -1,0 +1,48 @@
+class AsyncQueue {
+    constructor() {
+        this.tasks = [];
+        this.running = false;
+    }
+
+    addTask(task) {
+        this.tasks.push(task);
+        if (!this.running) {
+            this.runTasks();
+        }
+    }
+
+    async runTasks() {
+        this.running = true;
+        while (this.tasks.length > 0) {
+            const task = this.tasks.shift();
+            await task();
+        }
+        this.running = false;
+    }
+}
+
+const queue = new AsyncQueue();
+
+function fetchData(url) {
+    return fetch(url).then(response => response.json());
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function asyncTask(url) {
+    const data = await fetchData(url);
+    print('Fetched data:', data);
+
+    await delay(1000);
+    print('Task complete after delay');
+}
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2',
+    'https://jsonplaceholder.typicode.com/todos/3'
+];
+
+urls.forEach(url => queue.addTask(() => asyncTask(url)));

@@ -1,0 +1,34 @@
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+  const processData = async (data) => {
+    const filteredData = data.filter(item => item.active);
+    const transformedData = filteredData.map(({ id, name, details }) => ({
+      id,
+      name: name.toUpperCase(),
+      info: details?.info || 'N/A'
+    }));
+    return transformedData;
+  };
+
+  const logData = (data) => {
+    console.group('Processed Data');
+    data.forEach(item => {
+      print(`ID: ${item.id}`, `Name: ${item.name}`, `Info: ${item.info}`);
+    });
+    console.groupEnd();
+  };
+
+  try {
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchData(url);
+    const processedData = await processData(rawData);
+    logData(processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

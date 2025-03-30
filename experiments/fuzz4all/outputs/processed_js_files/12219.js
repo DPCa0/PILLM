@@ -1,0 +1,42 @@
+ 
+
+const fetchData = async (url) => {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { success: true, data: [1, 2, 3, 4, 5] };
+      resolve(data);
+    }, 1000);
+  });
+};
+
+function* numberGenerator(data) {
+  for (let number of data) {
+    yield number * 2;  
+  }
+}
+
+async function processData() {
+  try {
+    const url = "https://api.example.com/data";  
+    const response = await fetchData(url);
+
+    const {
+      success,
+      data: fetchedData
+    } = response;  
+
+    if (!success) {
+      throw new Error("Failed to fetch data");
+    }
+
+    const iterator = numberGenerator(fetchedData);
+    for (let number of iterator) {
+      print(`Processed number: ${number}`);
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+processData();

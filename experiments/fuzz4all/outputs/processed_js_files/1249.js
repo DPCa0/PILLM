@@ -1,0 +1,29 @@
+ 
+
+class AsyncMathOperations {
+  constructor(...numbers) {
+    this.numbers = numbers;
+  }
+
+  async squareNumbers() {
+    return await Promise.all(this.numbers.map(async (num) => {
+      const result = await new Promise(resolve => 
+        setTimeout(() => resolve(num * num), 100)
+      );
+      return result;
+    }));
+  }
+
+  async getSumOfSquares() {
+    const squares = await this.squareNumbers();
+    return squares.reduce((total, num) => total + num, 0);
+  }
+}
+
+(async () => {
+  const numbers = [1, 2, 3, 4, 5];
+  const mathOps = new AsyncMathOperations(...numbers);
+  
+  const sumOfSquares = await mathOps.getSumOfSquares();
+  print(`The sum of squares of ${numbers.join(', ')} is ${sumOfSquares}`);
+})();

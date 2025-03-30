@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const GREET_METHOD = Symbol("greet");
+
+ 
+const greetingHandler = {
+    get: (target, prop) => {
+        if (prop === GREET_METHOD) {
+            return async () => {
+                const hour = new Date().getHours();
+                let greeting;
+
+                 
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                if (hour < 12) {
+                    greeting = "Good Morning";
+                } else if (hour < 18) {
+                    greeting = "Good Afternoon";
+                } else {
+                    greeting = "Good Evening";
+                }
+
+                return `${greeting}, World!`;
+            };
+        }
+        return target[prop];
+    }
+};
+
+ 
+const target = {};
+
+ 
+const dynamicGreeter = new Proxy(target, greetingHandler);
+
+ 
+(async () => {
+    try {
+        const greetingMessage = await dynamicGreeter[GREET_METHOD]();
+        console.log(greetingMessage);
+    } catch (error) {
+        console.error("Error generating greeting:", error);
+    }
+})();
+```

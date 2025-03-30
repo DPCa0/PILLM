@@ -1,0 +1,44 @@
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* dataGenerator() {
+  yield 'Fetching data...';
+  yield delay(2000).then(() => 'Data: User Profile');
+  yield delay(1000).then(() => 'Data: User Settings');
+  return 'All data fetched!';
+}
+
+ 
+async function fetchData() {
+  const dataIter = dataGenerator();
+  for await (const data of dataIter) {
+    print(data);
+  }
+}
+
+ 
+const user = { name: 'Alice', age: 25 };
+
+const userProxy = new Proxy(user, {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Getting ${prop}: ${target[prop]}`);
+      return target[prop];
+    }
+    print(`Property ${prop} not found.`);
+    return undefined;
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+ 
+Reflect.set(userProxy, 'name', 'Bob');
+print(Reflect.get(userProxy, 'name'));
+
+fetchData();

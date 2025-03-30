@@ -1,0 +1,43 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+};
+
+const processData = ({ name, weather, main: { temp } }) => {
+  const tempCelsius = (temp - 273.15).toFixed(2);
+  print(`Weather in ${name}:`);
+  print(`- Condition: ${weather[0].description}`);
+  print(`- Temperature: ${tempCelsius} °C`);
+};
+
+const delayExecution = (fn, ms) => new Promise(resolve => setTimeout(() => resolve(fn()), ms));
+
+const runProgram = async () => {
+  const API_KEY = 'your_api_key';
+  const city = 'London';
+  const weatherData = await fetchData(`https: 
+  
+   
+  await delayExecution(() => processData(weatherData), 2000);
+  
+   
+  const proxyHandler = {
+    get(target, property) {
+      print(`Accessing property "${property}":`, target[property]);
+      return target[property];
+    }
+  };
+
+  const observedData = new Proxy(weatherData, proxyHandler);
+  print('Proxy Test:');
+  print('City:', observedData.name);
+};
+
+runProgram();
+
+**Note:** You need to replace `'your_api_key'` with your actual API key from OpenWeatherMap to fetch real data.

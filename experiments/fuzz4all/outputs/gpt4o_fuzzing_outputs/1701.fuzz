@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+   
+  [Symbol.for('add')](other) {
+    return new ComplexNumber(this.#real + other.#real, this.#imaginary + other.#imaginary);
+  }
+
+   
+  static handler = {
+    get: (target, prop, receiver) => {
+      if (prop in target) return target[prop];
+      if (prop.startsWith('add')) {
+        let imaginary = parseInt(prop.slice(3)) || 0;
+        return (real) => new ComplexNumber(target.#real + real, target.#imaginary + imaginary);
+      }
+      throw new ReferenceError(`Property '${prop}' not found.`);
+    }
+  };
+
+   
+  static create(real, imaginary) {
+    return new Proxy(new ComplexNumber(real, imaginary), ComplexNumber.handler);
+  }
+
+  toString() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+
+   
+  static *rootsOfUnity(n) {
+    for (let k = 0; k < n; k++) {
+      let theta = (2 * Math.PI * k) / n;
+      yield new ComplexNumber(Math.cos(theta), Math.sin(theta));
+    }
+  }
+}
+
+ 
+const roots = [...ComplexNumber.rootsOfUnity(4)].map(root => root.toString());
+console.log('Roots of Unity:', roots);
+
+ 
+const num = ComplexNumber.create(1, 1);
+console.log(num.toString());  
+const sum = num.add5(2);
+console.log(sum.toString());  
+```

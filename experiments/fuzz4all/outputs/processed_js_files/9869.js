@@ -1,0 +1,43 @@
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      if (url) {
+        resolve({
+          data: {
+            user: { id: 1, name: "Jane Doe", location: "New York" },
+            posts: [
+              { id: 101, title: "Introduction to JavaScript" },
+              { id: 102, title: "Advanced CSS Techniques" },
+            ],
+          },
+        });
+      } else {
+        reject("No URL provided");
+      }
+    }, 1000);
+  });
+};
+
+const processUserData = async (url) => {
+  try {
+    const response = await fetchData(url);
+    const {
+      data: {
+        user: { id, name, location },
+        posts,
+      },
+    } = response;
+
+    print(`User Details:\nID: ${id}\nName: ${name}\nLocation: ${location}`);
+
+    print("Posts:");
+    posts.forEach(({ id, title }) => print(`Post ID: ${id}, Title: ${title}`));
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+ 
+processUserData("https://api.example.com/userdata");

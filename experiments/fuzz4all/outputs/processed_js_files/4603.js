@@ -1,0 +1,47 @@
+ 
+
+ 
+function fetchData(apiUrl) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (apiUrl === 'https://api.example.com/data') {
+        resolve({ id: 1, name: 'Alice', age: 25 });
+      } else {
+        reject(new Error('API not found'));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function processData() {
+  try {
+     
+    const data = await fetchData('https://api.example.com/data');
+    
+     
+    const { name, age } = data;
+    
+     
+    const message = `Fetched user: ${name}, Age: ${age}`;
+    
+     
+    const userDetails = {
+      [`user_${data.id}`]: {
+        name,
+        age,
+        description() {
+          return `Name is ${this.name} and age is ${this.age}`;
+        }
+      }
+    };
+    
+    print(message);
+    print(userDetails[`user_${data.id}`].description());
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+}
+
+ 
+processData();

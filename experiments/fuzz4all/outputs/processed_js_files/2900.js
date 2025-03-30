@@ -1,0 +1,56 @@
+ 
+import fs from 'fs/promises';
+import crypto from 'crypto';
+
+ 
+async function generateAndSaveHash(data) {
+  try {
+     
+    await fs.writeFile('data.txt', data);
+    print('Data written to file.');
+
+     
+    const hash = crypto.createHash('sha256');
+    hash.update(data);
+    const hashValue = hash.digest('hex');
+    
+     
+    const { fileContent } = { fileContent: await fs.readFile('data.txt', 'utf8') };
+    print(`Read from file: ${fileContent}`);
+    print(`Hash Value: ${hashValue}`);
+    
+    return hashValue;
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  }
+};
+
+const targetObject = { message: 'Hello, world!', number: 42 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+print(proxyObject.message);   
+print(proxyObject.number);    
+
+ 
+(async () => {
+  const data = ['This', 'is', 'an', 'advanced', 'JavaScript', 'example.'];
+  const joinedData = data.join(' ');
+
+   
+  const wordLengths = data.map(word => word.length);
+  const totalCharacters = wordLengths.reduce((acc, length) => acc + length, 0);
+  
+  print(`Total characters in all words: ${totalCharacters}`);
+  
+   
+  await generateAndSaveHash(joinedData);
+})();

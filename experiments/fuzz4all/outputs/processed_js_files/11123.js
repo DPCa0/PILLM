@@ -1,0 +1,40 @@
+ 
+async function fetchDataAndProcess(url) {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+
+     
+    let { title, body } = data;
+
+     
+    function emphasize(strings, ...values) {
+      return strings.reduce((result, string, i) => result + string + (values[i] ? `**${values[i]}**` : ''), '');
+    }
+    print(emphasize`Title: ${title}\nBody: ${body}`);
+
+     
+    let results = await Promise.allSettled([
+      fetch(url + '/comments'),
+      fetch(url + '/likes'),
+      fetch(url + '/shares'),
+    ]);
+    results.forEach(result => print(result.status, result.value ? result.value.status : result.reason));
+
+     
+    let summary = [data]
+      .map(({ userId, id }) => ({ userId, id }))
+      .filter(item => item.userId === 1)
+      .reduce((acc, item) => acc + item.id, 0);
+
+    print(`Summary ID Sum: ${summary}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/posts/1');

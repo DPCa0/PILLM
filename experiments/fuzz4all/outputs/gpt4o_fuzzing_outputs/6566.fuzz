@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class LazyArray {
+  constructor(generator, length) {
+    this.generator = generator;
+    this.length = length;
+  }
+  
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.length; i++) {
+      yield this.generator(i);
+    }
+  }
+  
+  map(fn) {
+    return new LazyArray(i => fn(this.generator(i)), this.length);
+  }
+  
+  reduce(fn, initialValue) {
+    let accumulator = initialValue;
+    for (let value of this) {
+      accumulator = fn(accumulator, value);
+    }
+    return accumulator;
+  }
+}
+
+const lazyArray = new LazyArray(i => i * i, 10);
+
+const result = lazyArray
+  .map(x => x + 1)
+  .reduce((acc, x) => acc + x, 0);
+
+console.log(result);  
+```

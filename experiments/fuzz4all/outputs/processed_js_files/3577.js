@@ -1,0 +1,41 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static identity(size) {
+    return new Matrix(Array.from({ length: size }, (_, i) =>
+      Array.from({ length: size }, (__, j) => (i === j ? 1 : 0))
+    ));
+  }
+
+  multiply(matrixB) {
+    const result = this.data.map(row => 
+      matrixB.data[0].map((_, colIndex) => 
+        row.reduce((sum, elem, rowIndex) => sum + elem * matrixB.data[rowIndex][colIndex], 0)
+      )
+    );
+    return new Matrix(result);
+  }
+
+  print() {
+    this.data.forEach(row => print(row.map(num => num.toFixed(2)).join('\t')));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function animateIdentityMultiplication(size, steps) {
+  let currentMatrix = Matrix.identity(size);
+  for (let i = 0; i < steps; i++) {
+    console.clear();
+    print(`Step ${i + 1}`);
+    currentMatrix.print();
+    currentMatrix = currentMatrix.multiply(Matrix.identity(size));
+    await delay(500);
+  }
+}
+
+const size = 5;
+const steps = 10;
+animateIdentityMultiplication(size, steps);

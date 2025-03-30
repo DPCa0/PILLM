@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async *fetchData() {
+    const response = await fetch(this.url);
+    const data = await response.json();
+    for (const item of data) {
+      yield item;
+    }
+  }
+}
+
+class Observer {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(event, callback) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
+    }
+    this.subscribers.get(event).push(callback);
+  }
+
+  emit(event, data) {
+    if (this.subscribers.has(event)) {
+      for (const callback of this.subscribers.get(event)) {
+        callback(data);
+      }
+    }
+  }
+}
+
+(async () => {
+  const observer = new Observer();
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+
+  observer.subscribe('dataReceived', (data) => {
+    console.log(`Received data: ${JSON.stringify(data)}`);
+  });
+
+  const dataFetcher = new DataFetcher(url);
+  for await (const item of dataFetcher.fetchData()) {
+    observer.emit('dataReceived', item);
+  }
+})();
+```

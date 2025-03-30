@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+const { promises: fs } = require('fs');
+const { createCipheriv, randomBytes, createDecipheriv } = require('crypto');
+
+ 
+const encryptText = async (text, key) => {
+    const iv = randomBytes(16);  
+    const cipher = createCipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+    const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+ 
+const decryptText = (encryptedText, key) => {
+    const parts = encryptedText.split(':');
+    const iv = Buffer.from(parts.shift(), 'hex');
+    const encryptedTextBuffer = Buffer.from(parts.join(':'), 'hex');
+    const decipher = createDecipheriv('aes-256-cbc', Buffer.from(key, 'hex'), iv);
+    const decrypted = Buffer.concat([decipher.update(encryptedTextBuffer), decipher.final()]);
+    return decrypted.toString();
+};
+
+ 
+(async () => {
+    const secretKey = randomBytes(32).toString('hex');  
+    const dataToEncrypt = 'Advanced JavaScript Features';
+    
+     
+    const encryptedData = await encryptText(dataToEncrypt, secretKey);
+    console.log('Encrypted:', encryptedData);
+
+     
+    await fs.writeFile('encryptedData.txt', encryptedData);
+    const readEncryptedData = await fs.readFile('encryptedData.txt', 'utf8');
+    
+     
+    const decryptedData = decryptText(readEncryptedData, secretKey);
+    console.log('Decrypted:', decryptedData);
+})();
+```

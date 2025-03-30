@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncResource {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchResource() {
+    const response = await fetch(this.url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+const processData = async (data) => {
+  const processedData = data.map(item => ({
+    ...item,
+    processed: true,
+    timestamp: new Date().toISOString(),
+  }));
+
+   
+  return new Promise(resolve => setTimeout(() => resolve(processedData), 1000));
+};
+
+(async () => {
+  try {
+    const resource = new AsyncResource('https://jsonplaceholder.typicode.com/posts');
+    const data = await resource.fetchResource();
+    
+    const processedData = await processData(data);
+
+    const filterCriteria = ({ id }) => id % 2 === 0;
+    const filteredData = processedData.filter(filterCriteria);
+
+    const destructuredData = filteredData.map(({ id, title, timestamp }) => ({
+      id, title, timestamp
+    }));
+
+    console.log(destructuredData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

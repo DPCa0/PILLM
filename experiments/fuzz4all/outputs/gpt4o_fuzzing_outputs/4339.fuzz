@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+}
+
+function fromEvent(element, eventName) {
+    return new Observable(observer => {
+        const handler = event => observer.next(event);
+        element.addEventListener(eventName, handler);
+        return () => element.removeEventListener(eventName, handler);
+    });
+}
+
+function debounceTime(delay) {
+    return source => new Observable(observer => {
+        let timeout;
+        return source.subscribe({
+            next(value) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => observer.next(value), delay);
+            }
+        });
+    });
+}
+
+function map(fn) {
+    return source => new Observable(observer => {
+        return source.subscribe({
+            next(value) {
+                observer.next(fn(value));
+            }
+        });
+    });
+}
+
+function distinctUntilChanged() {
+    return source => new Observable(observer => {
+        let lastValue;
+        return source.subscribe({
+            next(value) {
+                if (value !== lastValue) {
+                    lastValue = value;
+                    observer.next(value);
+                }
+            }
+        });
+    });
+}
+
+const input = document.createElement('input');
+document.body.appendChild(input);
+
+const input$ = fromEvent(input, 'input')
+    .pipe(
+        map(event => event.target.value),
+        debounceTime(300),
+        distinctUntilChanged()
+    );
+
+input$.subscribe({
+    next(value) {
+        console.log('Input Value:', value);
+    }
+});
+```

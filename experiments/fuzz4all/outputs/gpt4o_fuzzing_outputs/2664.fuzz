@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchData() {
+  const dataPoints = ['A', 'B', 'C', 'D'];
+  for (const point of dataPoints) {
+    await delay(1000);  
+    yield point;
+  }
+}
+
+ 
+const transformData = data => {
+  return new Proxy(data, {
+    get(target, prop, receiver) {
+      console.log(`Accessing property: ${prop}`);
+      return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+      console.log(`Setting property: ${prop} to ${value}`);
+      return Reflect.set(...arguments);
+    }
+  });
+};
+
+ 
+(async function main() {
+  const transformedData = transformData({});
+  
+  console.log('Fetching data...');
+  for await (const value of fetchData()) {
+    transformedData[value] = value.charCodeAt(0);  
+    console.log(`Data fetched and stored: ${value} -> ${transformedData[value]}`);
+  }
+  
+  console.log('Transformed Data:', transformedData);
+})();
+```

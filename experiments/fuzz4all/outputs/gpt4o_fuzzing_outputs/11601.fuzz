@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+import * as fs from 'fs/promises';
+
+ 
+(async function advancedJavaScriptExample() {
+  try {
+     
+    const metadataMap = new WeakMap();
+    const object1 = {};
+    const object2 = {};
+    metadataMap.set(object1, { info: 'Object 1 metadata' });
+    metadataMap.set(object2, { info: 'Object 2 metadata' });
+
+     
+    const { value = 'defaultValue' } = { value: 'destructuredValue' };
+
+     
+    const fileNames = ['file1.txt', 'file2.txt'];
+    const fileReadPromises = fileNames.map(file => fs.readFile(file, 'utf8').catch(e => e));
+
+    const results = await Promise.allSettled(fileReadPromises);
+
+    results.forEach(({ status, value, reason }, index) => {
+      console.log(`File: ${fileNames[index]} - Status: ${status}`);
+      if (status === 'fulfilled') {
+        console.log(`Content: ${value}`);
+      } else {
+        console.error(`Error: ${reason}`);
+      }
+    });
+
+     
+    const handler = {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          return Reflect.get(target, prop, receiver);
+        } else {
+          return `Property ${prop} not found`;
+        }
+      },
+    };
+
+    const proxiedObject = new Proxy({ existingProp: 'I exist' }, handler);
+    console.log(proxiedObject.existingProp);  
+    console.log(proxiedObject.nonExistingProp);  
+
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+})();
+```

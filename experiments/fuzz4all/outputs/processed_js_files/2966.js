@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: {
+                    name: 'Jane Doe',
+                    age: 28,
+                    location: 'New York'
+                },
+                posts: [
+                    { id: 1, title: 'Post 1', content: 'Content 1' },
+                    { id: 2, title: 'Post 2', content: 'Content 2' }
+                ]
+            });
+        }, 1000);
+    });
+};
+
+ 
+async function processUserData() {
+    try {
+         
+        const data = await fetchData();
+        
+         
+        const { user, posts } = data;
+
+         
+        const updatedUser = { ...user, active: true };
+
+        print('User Data:', updatedUser);
+
+         
+        for (const { title } of posts) {
+            print(`Post Title: ${title}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+processUserData();

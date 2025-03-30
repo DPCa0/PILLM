@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const data = await response.json();
+
+         
+        const { results } = data;
+
+         
+        const processedData = results.map(({ id, name, ...rest }) => ({
+            id,
+            name: name.toUpperCase(),
+            ...rest
+        }));
+
+         
+        console.log(`Processed ${processedData.length} items:`);
+        console.log(processedData);
+    } catch (error) {
+        console.error(`Fetch error: ${error}`);
+    }
+}
+
+ 
+(async () => {
+    const url = 'https://api.example.com/data';
+    await fetchData(url);
+})();
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const generateId = idGenerator();
+
+ 
+console.log(`Generated IDs: ${generateId.next().value}, ${generateId.next().value}, ${generateId.next().value}`);
+```

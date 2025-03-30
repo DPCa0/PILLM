@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+(async function complexJavaScriptFeatures() {
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        console.log(`Getting ${prop}`);
+        return target[prop];
+      } else {
+        throw new Error(`Property ${prop} does not exist.`);
+      }
+    },
+  };
+
+  const target = { message: "Hello, Advanced JavaScript World!" };
+  const proxy = new Proxy(target, handler);
+
+   
+  try {
+    console.log(Reflect.get(proxy, 'message'));
+    console.log(Reflect.get(proxy, 'nonExistentProperty'));  
+  } catch (error) {
+    console.error(error);
+  }
+
+   
+  const asyncTask = (msg, delay) => 
+    new Promise(resolve => setTimeout(() => resolve(msg), delay));
+
+  try {
+    const result1 = await asyncTask("Task 1 Complete!", 1000);
+    console.log(result1);
+
+    const result2 = await asyncTask("Task 2 Complete!", 500);
+    console.log(result2);
+  } catch (err) {
+    console.error("Error in async tasks", err);
+  }
+
+   
+  function* generatorFunction() {
+    console.log('Generator start');
+    yield 1;
+    yield 2;
+    yield 3;
+    console.log('Generator end');
+  }
+
+  const generator = generatorFunction();
+  for (const value of generator) {
+    console.log(value);
+  }
+})();
+```

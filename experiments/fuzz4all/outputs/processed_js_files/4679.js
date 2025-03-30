@@ -1,0 +1,46 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *generate(n) {
+    for (let i = 0; i < n; i++) {
+      yield this.fib(i);
+    }
+  }
+
+  fib(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.fib(n - 1) + this.fib(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const fibonacci = new FibonacciSequence();
+
+(async () => {
+  const sequence = fibonacci.generate(10);
+  for await (const num of sequence) {
+    print(num);
+  }
+})();
+
+const asyncDouble = async (num) => {
+  return new Promise((resolve) => setTimeout(() => resolve(num * 2), 1000));
+};
+
+(async () => {
+  const doubleFib = async (sequence) => {
+    const results = [];
+    for await (const num of sequence) {
+      results.push(await asyncDouble(num));
+    }
+    return results;
+  };
+
+  const sequence = fibonacci.generate(10);
+  const doubledSequence = await doubleFib(sequence);
+  print(doubledSequence);
+})();

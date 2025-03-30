@@ -1,0 +1,28 @@
+print('Hello, world!');
+```javascript
+ 
+async function complexOperation() {
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const fetchData = async () => {
+    await delay(1000);  
+    return { data: { value: Math.random(), nested: { prop: 'Sample' } } };
+  };
+
+  try {
+    const { data: { value, nested: { prop } } } = await fetchData();
+    
+     
+    if (value > 0.5) {
+      const { upperCase } = await import('./textUtilities.js');  
+      console.log(upperCase(`Value: ${value}, Prop: ${prop}`));
+    } else {
+      console.log(`Value: ${value}, Prop: ${prop}`);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+complexOperation();
+```

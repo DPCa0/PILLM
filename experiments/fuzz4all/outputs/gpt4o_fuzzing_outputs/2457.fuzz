@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const complexAsyncOperation = async () => {
+  const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (url) {
+          resolve(`Data from ${url}`);
+        } else {
+          reject('Invalid URL');
+        }
+      }, Math.random() * 2000);
+    });
+  };
+
+  const processData = async (url) => {
+    try {
+      const data = await fetchData(url);
+      console.log(`Processing: ${data}`);
+      return `${data} - processed`;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+   
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', ''];
+  const results = await Promise.all(urls.map(processData));
+
+   
+  const [firstResult, secondResult, thirdResult] = results;
+  const finalData = [firstResult, secondResult, thirdResult].filter(Boolean).map(data => data.toUpperCase());
+  
+   
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      }
+      return `No data for ${prop}`;
+    }
+  };
+
+  const proxiedData = new Proxy(finalData, handler);
+  
+   
+  console.log('Final Processed Data:', proxiedData[0], proxiedData[1], proxiedData[2]);
+};
+
+complexAsyncOperation();
+```

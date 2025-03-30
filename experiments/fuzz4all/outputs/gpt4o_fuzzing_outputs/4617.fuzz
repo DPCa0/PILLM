@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice' },
+        posts: [{ id: 101, title: 'Post 1' }, { id: 102, title: 'Post 2' }]
+      });
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const { user, posts } = data;
+
+     
+    console.log(`User: ${user.name}`);
+    console.log('Posts:');
+    posts.map(({ id, title }) => {
+      console.log(`  - [${id}] ${title}`);
+    });
+  } catch (error) {
+     
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+processData();
+```

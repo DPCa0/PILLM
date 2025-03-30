@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { createCipheriv, randomBytes } from 'crypto';
+
+ 
+const encryptText = async (text) => {
+  const algorithm = 'aes-256-ctr';
+  const iv = randomBytes(16);
+  const key = randomBytes(32);
+
+  const cipher = createCipheriv(algorithm, key, iv);
+  const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+
+  return {
+    iv: iv.toString('hex'),
+    encryptedText: encrypted.toString('hex'),
+    key: key.toString('hex'),
+  };
+};
+
+ 
+const encryptFileContent = async (inputFilePath, outputFilePath) => {
+  try {
+    const data = await fs.readFile(inputFilePath, 'utf8');
+    const { iv, encryptedText, key } = await encryptText(data);
+
+    const encryptedData = JSON.stringify({ iv, encryptedText, key }, null, 2);
+    await fs.writeFile(outputFilePath, encryptedData);
+
+    console.log('File encrypted and saved successfully.');
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+(async () => {
+  await encryptFileContent('input.txt', 'encrypted-output.txt');
+})();
+```
+
+Note: Make sure to create an `input.txt` file with some content before running this script, and the output will be saved as `encrypted-output.txt`.

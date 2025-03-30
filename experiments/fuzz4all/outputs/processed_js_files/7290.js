@@ -1,0 +1,50 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data from ${url}`), 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    print(`Getting property ${property}`);
+    return property in target ? target[property] : `No property: ${property}`;
+  },
+  set: (target, property, value) => {
+    print(`Setting property ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const targetObject = { existing: 'I exist' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function timingDecorator(fn) {
+  return function (...args) {
+    console.time(fn.name);
+    const result = fn(...args);
+    console.timeEnd(fn.name);
+    return result;
+  };
+}
+
+ 
+(async () => {
+  print('Fetching data...');
+  const urls = ['url1', 'url2', 'url3'];
+  const [data1, data2, data3] = await Promise.all(urls.map(fetchData));
+  print(data1, data2, data3);
+
+   
+  print(proxyObject.existing);
+  print(proxyObject.nonExistent);
+  proxyObject.newProperty = 'Hello, Proxy!';
+  
+   
+  const multiplier = (factor) => (number) => number * factor;
+  const double = timingDecorator(multiplier(2));
+  print('Double of 5:', double(5));
+})();

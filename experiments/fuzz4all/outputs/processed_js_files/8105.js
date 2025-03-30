@@ -1,0 +1,54 @@
+class Singleton {
+  constructor() {
+    if (!Singleton.instance) {
+      Singleton.instance = this;
+    }
+    return Singleton.instance;
+  }
+}
+
+const singletonA = new Singleton();
+const singletonB = new Singleton();
+
+print(singletonA === singletonB);  
+
+ 
+const handler = {
+  get: (target, property) => {
+    print(`Property ${property} has been accessed.`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    print(`Property ${property} set to ${value}.`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const user = {
+  name: 'John',
+  age: 30
+};
+
+const proxyUser = new Proxy(user, handler);
+proxyUser.name;  
+proxyUser.age = 31;  
+
+ 
+const asyncFunction = async (number) => {
+  return new Promise((resolve) => setTimeout(() => resolve(number * 2), 1000));
+};
+
+(async () => {
+  const results = await Promise.all([1, 2, 3].map(asyncFunction));
+  print(results);  
+})();
+
+ 
+const highlight = (strings, ...values) => {
+  return strings.reduce((prev, curr, i) => `${prev}<em>${values[i - 1]}</em>${curr}`);
+};
+
+const language = 'JavaScript';
+const templateResult = highlight`I am learning ${language} with advanced ${'features'}.`;
+print(templateResult);  

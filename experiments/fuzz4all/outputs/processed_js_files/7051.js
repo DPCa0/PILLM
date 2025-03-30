@@ -1,0 +1,77 @@
+class Matrix {
+  constructor(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(0));
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, 1);
+    m.map((_, i) => arr[i]);
+    return m;
+  }
+
+  toArray() {
+    let arr = [];
+    this.map((val) => arr.push(val));
+    return arr;
+  }
+
+  static multiply(a, b) {
+    let result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+    return result;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+}
+
+const activationFunction = (x) => 1 / (1 + Math.exp(-x));
+
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+function trainPerceptron(inputs, targets, learningRate = 0.1, epochs = 10000) {
+  let weights = new Matrix(2, 1).map(() => Math.random() * 2 - 1);
+
+  for (let epoch = 0; epoch < epochs; epoch++) {
+    inputs.forEach((input, i) => {
+      let inputMatrix = Matrix.fromArray(input);
+      let target = targets[i];
+
+      let guess = Matrix.multiply(weights, inputMatrix);
+      let output = activationFunction(guess.data[0][0]);
+      let error = target - output;
+
+      weights.map(
+        (w, i) => w + learningRate * error * inputMatrix.data[i][0]
+      );
+    });
+  }
+
+  return weights;
+}
+
+const fibGen = fibonacciGenerator();
+print([...Array(10)].map(() => fibGen.next().value));
+
+const inputs = [
+  [0, 0],
+  [0, 1],
+  [1,

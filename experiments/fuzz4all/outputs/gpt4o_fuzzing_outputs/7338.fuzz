@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+let target = {
+  language: 'JavaScript',
+  getInfo: function() {
+    return `Learn ${this.language}`;
+  }
+};
+
+ 
+let handler = {
+  get(target, prop, receiver) {
+    if (prop === 'language') {
+      return `${Reflect.get(...arguments)} (ES6)`;
+    }
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+let proxy = new Proxy(target, handler);
+
+ 
+async function* fetchData() {
+  const simulatedFetch = () =>
+    new Promise(resolve => setTimeout(() => resolve('Fetched Data'), 1000));
+  
+  for (let i = 0; i < 3; i++) {
+    const data = await simulatedFetch();
+    yield data;
+  }
+}
+
+ 
+async function main() {
+  console.log(proxy.getInfo());  
+  proxy.language = 'TypeScript';  
+  console.log(proxy.language);  
+
+  for await (const data of fetchData()) {
+    console.log(data);  
+  }
+}
+
+main().catch(console.error);
+```

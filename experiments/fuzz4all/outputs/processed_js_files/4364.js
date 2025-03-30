@@ -1,0 +1,44 @@
+class ComplexCalculator {
+    constructor() {
+        this.cache = new Map();
+    }
+    
+    factorial(n) {
+        if (n < 0) return null;
+        if (n === 0 || n === 1) return 1;
+        if (this.cache.has(n)) return this.cache.get(n);
+        
+        let result = BigInt(n) * BigInt(this.factorial(n - 1));
+        this.cache.set(n, result);
+        return result;
+    }
+
+    *fibonacci(limit) {
+        let [prev, curr] = [0n, 1n];
+        for (let i = 0; i < limit; i++) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+    
+    async complexOperation(n, fibLimit) {
+        const [factResult, fibResult] = await Promise.all([
+            Promise.resolve(this.factorial(n)),
+            (async () => {
+                const fibSeq = [];
+                for (let num of this.fibonacci(fibLimit)) {
+                    fibSeq.push(num);
+                }
+                return fibSeq;
+            })()
+        ]);
+        return { factorial: factResult, fibonacci: fibResult };
+    }
+}
+
+(async () => {
+    const calculator = new ComplexCalculator();
+    const result = await calculator.complexOperation(10, 10);
+    print('Factorial:', result.factorial.toString());
+    print('Fibonacci Sequence:', result.fibonacci.map(num => num.toString()));
+})();

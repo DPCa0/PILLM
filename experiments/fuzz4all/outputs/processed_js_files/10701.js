@@ -1,0 +1,55 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        const matrix = new Matrix(arr.length, 1);
+        matrix.map((_, i) => arr[i]);
+        return matrix;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((value, j) => fn(value, i, j)));
+        return this;
+    }
+
+    static map(a, fn) {
+        const matrix = new Matrix(a.data.length, a.data[0].length);
+        matrix.data = a.data.map((row, i) => row.map((value, j) => fn(value, i, j)));
+        return matrix;
+    }
+
+    multiply(b) {
+        if (b instanceof Matrix) {
+            if (this.data[0].length !== b.data.length) throw 'Columns of A must match rows of B.';
+            return Matrix.map(this, (val, i, j) => 
+                this.data[i].reduce((acc, _, n) => acc + this.data[i][n] * b.data[n][j], 0)
+            );
+        } else {
+            return this.map(val => val * b);
+        }
+    }
+}
+
+function generateRandomMatrix(size) {
+    return new Matrix(size, size).map(() => Math.random() * 2 - 1);
+}
+
+async function asyncCalculation(matrixA, matrixB) {
+    return new Promise(resolve => setTimeout(() => {
+        resolve(matrixA.multiply(matrixB));
+    }, 1000));
+}
+
+(async () => {
+    const size = 3;
+    const matrixA = generateRandomMatrix(size);
+    const matrixB = generateRandomMatrix(size);
+
+    print('Matrix A:', matrixA.data);
+    print('Matrix B:', matrixB.data);
+
+    const result = await asyncCalculation(matrixA, matrixB);
+    print('Result:', result.data);
+})();

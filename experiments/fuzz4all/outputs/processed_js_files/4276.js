@@ -1,0 +1,47 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, new Set());
+        }
+        this.#events.get(event).add(listener);
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).delete(listener);
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.5 ? resolve("Success!") : reject(new Error("Failure!"));
+        }, 1000);
+    });
+};
+
+(async function main() {
+    const emitter = new EventEmitter();
+    
+    emitter.on('start', () => print('Operation started'));
+    emitter.on('success', message => print(`Operation succeeded: ${message}`));
+    emitter.on('failure', error => console.error(`Operation failed: ${error.message}`));
+    
+    emitter.emit('start');
+
+    try {
+        const message = await asyncOperation();
+        emitter.emit('success', message);
+    } catch (error) {
+        emitter.emit('failure', error);
+    }
+})();

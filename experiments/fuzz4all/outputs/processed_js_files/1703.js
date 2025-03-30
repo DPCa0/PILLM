@@ -1,0 +1,44 @@
+class Observable {
+    constructor() {
+        this.subscribers = [];
+    }
+    subscribe(fn) {
+        this.subscribers.push(fn);
+    }
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+const debounce = (fn, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const asyncOperation = () => new Promise((resolve) => {
+    setTimeout(() => resolve('Operation Complete'), 1000);
+});
+
+(async () => {
+    try {
+        const result = await asyncOperation();
+        print(result);
+
+        const observable = new Observable();
+
+        const subscriber = debounce((data) => {
+            print('Subscriber received:', data);
+        }, 500);
+
+        observable.subscribe(subscriber);
+
+        for (let i = 0; i < 5; i++) {
+            observable.notify(`Event ${i + 1}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

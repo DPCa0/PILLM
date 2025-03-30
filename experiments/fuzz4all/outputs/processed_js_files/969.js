@@ -1,0 +1,64 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+    off(event, listenerToRemove) {
+        if (this.events.has(event)) {
+            const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+            this.events.set(event, listeners);
+        }
+    }
+}
+
+class ComplexFeature {
+    #privateData = new WeakMap();
+    constructor(secret) {
+        this.#privateData.set(this, { secret });
+    }
+
+    get secret() {
+        return this.#privateData.get(this).secret;
+    }
+
+    async fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok.');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    static async *generateData() {
+        let i = 0;
+        while (true) {
+            yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+        }
+    }
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    const feature = new ComplexFeature('top-secret');
+
+    emitter.on('data', data => print('Received data:', data));
+
+    for await (const data of ComplexFeature.generateData()) {
+        emitter.emit('data', data);
+        if (data > 5) break;
+    }
+
+    const result = await feature.fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', result);
+    print('Secret data:', feature.secret);
+})();

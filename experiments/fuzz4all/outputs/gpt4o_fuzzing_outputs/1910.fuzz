@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class ComplexOperations {
+  #secretKey = Symbol('secret');
+
+  constructor(data) {
+    this.data = data;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    return {
+      next: () => ({
+        value: this.data[index++],
+        done: index > this.data.length
+      })
+    };
+  }
+
+  async *asyncProcessData() {
+    for (let item of this.data) {
+      yield new Promise((resolve) =>
+        setTimeout(() => resolve(this.#transformData(item)), 100)
+      );
+    }
+  }
+
+  #transformData(item) {
+    return [...item.toString()].reverse().join('');
+  }
+
+  static *staticGenerator(sequence) {
+    yield* sequence;
+  }
+
+  log() {
+    console.log(`Data: ${JSON.stringify(this.data)}`);
+  }
+}
+
+(async function main() {
+  const sequence = [1, 2, 3, 4, 5];
+  const complexOperations = new ComplexOperations(sequence);
+
+   
+  for (let value of complexOperations) {
+    console.log(`Iterated Value: ${value}`);
+  }
+
+   
+  for await (let processed of complexOperations.asyncProcessData()) {
+    console.log(`Processed Value: ${processed}`);
+  }
+
+   
+  for (let staticValue of ComplexOperations.staticGenerator(['a', 'b', 'c'])) {
+    console.log(`Static Generator Value: ${staticValue}`);
+  }
+
+   
+  complexOperations.log();
+})();
+```

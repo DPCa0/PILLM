@@ -1,0 +1,55 @@
+ 
+const users = new Map();
+
+ 
+const uniqueID = Symbol('id');
+
+ 
+class User {
+    #name;
+    #email;
+    #id;
+
+    constructor(name, email) {
+        this.#name = name;
+        this.#email = email;
+        this.#id = User.#generateID();
+    }
+
+    static #generateID() {
+        return Math.floor(Math.random() * 10000);
+    }
+
+    getInfo() {
+        return `Name: ${this.#name}, Email: ${this.#email}, ID: ${this.#id}`;
+    }
+}
+
+ 
+function createUser(...userInfo) {
+    const [name, email] = userInfo;
+    const user = new User(name, email);
+    users.set(user[uniqueID] || Symbol(), user);
+}
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Fetched User Data');
+        }, 1000);
+    });
+}
+
+async function initialize() {
+    print(await fetchData());
+    createUser('Alice', 'alice@example.com');
+    createUser('Bob', 'bob@example.com');
+
+    for (let [key, user] of users) {
+        print(user.getInfo());
+    }
+}
+
+ 
+initialize().then(() => print(`Initialization complete with ${users.size} users.`));

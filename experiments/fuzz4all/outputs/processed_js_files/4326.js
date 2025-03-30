@@ -1,0 +1,49 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(...args));
+  }
+}
+
+const createProxyHandler = () => ({
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing ${prop}: ${target[prop]}`);
+      return target[prop];
+    }
+    console.warn(`Property ${prop} does not exist`);
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  print('Fetched data:', data);
+
+  const emitter = new EventEmitter();
+  emitter.on('update', data => print('Data updated:', data));
+  emitter.emit('update', data);
+
+  const obj = { a: 1, b: 2 };
+  const proxy = new Proxy(obj, createProxyHandler());
+  print(proxy.a);
+  proxy.b = 3;
+  print(proxy.c);
+})();

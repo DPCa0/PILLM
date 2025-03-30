@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve({ id, data: `Data for ${id}` });
+            } else {
+                reject(`Error fetching data for ${id}`);
+            }
+        }, 1000 * Math.random());
+    });
+};
+
+ 
+async function fetchAllData(ids) {
+    const promises = ids.map(id => fetchData(id));
+    const results = await Promise.allSettled(promises);
+
+    return results.reduce((acc, result) => {
+        if (result.status === 'fulfilled') {
+            acc.success.push(result.value);
+        } else {
+            acc.errors.push(result.reason);
+        }
+        return acc;
+    }, { success: [], errors: [] });
+}
+
+ 
+async function useDynamicImport() {
+    const { random } = await import('./random.js');  
+    console.log('Random Number:', random());
+}
+
+ 
+(async () => {
+    const ids = [1, 2, 3, 4, 5];
+    const { success, errors } = await fetchAllData(ids);
+
+    console.log('Fetched Data:', success);
+    console.error('Errors:', errors);
+
+    await useDynamicImport();
+})();
+```
+
+**Notes:**
+- This script demonstrates asynchronous programming using `async/await`, error handling with `Promise.allSettled`, and dynamic module import.
+- You need to have a file named `random.js` that exports a `random` function for the dynamic import part to work.

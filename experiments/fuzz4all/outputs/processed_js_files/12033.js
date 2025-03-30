@@ -1,0 +1,53 @@
+ 
+(async () => {
+  const fs = await import('fs/promises');
+
+   
+  const logger = {
+    get(target, prop, receiver) {
+      print(`Accessed property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    },
+  };
+
+   
+  const _private = new WeakMap();
+
+  class ComplexObject {
+    constructor(data) {
+      _private.set(this, { data });
+    }
+
+    get data() {
+      return _private.get(this).data;
+    }
+
+    set data(value) {
+      _private.get(this).data = value;
+    }
+  }
+
+   
+  const complexInstance = new Proxy(new ComplexObject('Initial Data'), logger);
+
+   
+  async function manipulateData() {
+    try {
+       
+      await fs.writeFile('data.txt', complexInstance.data, 'utf8');
+      print('Data written to file.');
+
+       
+      complexInstance.data = 'Updated Data';
+
+       
+      const data = await fs.readFile('data.txt', 'utf8');
+      print(`Read from file: ${data}`);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+   
+  manipulateData();
+})();

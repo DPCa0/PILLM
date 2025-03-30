@@ -1,0 +1,33 @@
+ 
+
+function* generatorExample() {
+  yield 'Fetching data...';
+  const data = yield fetchData();
+  yield `Data fetched: ${JSON.stringify(data)}`;
+}
+
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ message: 'Hello, World!', timestamp: new Date() });
+    }, 1000);
+  });
+}
+
+async function runGenerator(gen) {
+  const iterator = gen();
+  let result = iterator.next();
+
+  while (!result.done) {
+    print(result.value);
+
+    if (result.value instanceof Promise) {
+      const value = await result.value;
+      result = iterator.next(value);
+    } else {
+      result = iterator.next();
+    }
+  }
+}
+
+runGenerator(generatorExample);

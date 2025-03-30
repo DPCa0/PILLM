@@ -1,0 +1,42 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function complexFeatureExample(filePath) {
+  try {
+     
+    const fileContent = await readFile(filePath, 'utf8');
+    
+     
+    const [firstLine, ...restOfLines] = fileContent.split('\n');
+
+     
+    const wordCount = new Map();
+    for (const line of restOfLines) {
+      const words = line.split(/\s+/);
+      for (const word of words) {
+        wordCount.set(word, (wordCount.get(word) || 0) + 1);
+      }
+    }
+
+     
+    const uniqueWords = new Set([...wordCount.keys()]);
+
+     
+    print(`First Line: ${firstLine}`);
+    print(`Total Unique Words: ${uniqueWords.size}`);
+    print('Word Frequencies:');
+    
+     
+    for (const [word, count] of wordCount.entries()) {
+      print(`${word}: ${count}`);
+    }
+    
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+complexFeatureExample('./example.txt');
+Make sure that you run this code in an environment that supports ECMAScript modules (e.g., Node.js with `--experimental-modules` or a modern browser), and ensure that an `example.txt` file is present in the same directory with appropriate content.

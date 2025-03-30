@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+   
+  const target = { message: "Hello, Proxy!" };
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Getting property: ${prop}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      console.log(`Setting property: ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  };
+  const proxy = new Proxy(target, handler);
+
+   
+  Reflect.set(proxy, 'message', 'Hello, Reflect and Proxy!');
+
+   
+  function tag(strings, ...values) {
+    return strings.raw[0] + values.map((value, i) => `${value}${strings.raw[i + 1]}`).join('');
+  }
+  const taggedMessage = tag`The message is: "${proxy.message}"`;
+
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  };
+
+   
+  const map = new Map();
+  map.set('taggedMessage', taggedMessage);
+  const set = new Set();
+  set.add('mapValue: ' + map.get('taggedMessage'));
+
+   
+  const combined = [...set, ...Array.from(map.values())];
+
+  console.log(combined);
+
+   
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+      for (const item of combined) {
+        yield await new Promise((resolve) => setTimeout(() => resolve(item), 1000));
+      }
+    }
+  };
+
+   
+  for await (const item of asyncIterable) {
+    console.log('Async Iterator:', item);
+  }
+
+   
+  const apiUrl = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(apiUrl);
+  console.log('Fetched Data:', data);
+})();
+```

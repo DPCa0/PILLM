@@ -1,0 +1,62 @@
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const targetObject = { message: "Hello" };
+const handler = {
+    set: function(obj, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+const proxyObject = new Proxy(targetObject, handler);
+proxyObject.message = "Hello, world!";
+
+ 
+function* generateSequence() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+const generator = generateSequence();
+for (let value of generator) {
+    print(value);
+}
+
+ 
+const map = new Map();
+map.set('name', 'John Doe');
+map.set('age', 30);
+
+const set = new Set([1, 2, 3, 4, 5]);
+
+ 
+const greeting = (name) => `Hello, ${name}!`;
+print(greeting("world"));
+
+ 
+const { message, ...rest } = { message: "Hi", id: 1, status: true };
+const array = [1, 2, 3];
+const newArray = [...array, 4, 5];
+
+print(rest);
+print(newArray);
+
+ 
+(async function main() {
+    const apiData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    if (apiData) print(apiData);
+})();

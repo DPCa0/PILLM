@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+(async function() {
+     
+    const API_URL = 'https://jsonplaceholder.typicode.com/users';
+
+    try {
+         
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const users = await response.json();
+
+         
+        const processedUsers = users
+            .filter(({ address: { city } }) => city.startsWith('S'))  
+            .map(({ name, email, address: { city } }) => ({
+                fullName: name,
+                email,
+                location: city
+            }));
+
+         
+        const handler = {
+            get(target, property) {
+                console.log(`Accessing property: ${property}`);
+                return target[property];
+            }
+        };
+        const proxiedUsers = new Proxy(processedUsers, handler);
+
+         
+        function* userIterator(users) {
+            for (const user of users) {
+                yield user;
+            }
+        }
+
+         
+        for (const user of userIterator(proxiedUsers)) {
+            console.log(`Name: ${user.fullName}, Email: ${user.email}, City: ${user.location}`);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+```

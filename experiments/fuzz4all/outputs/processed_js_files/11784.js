@@ -1,0 +1,41 @@
+const fetch = require('node-fetch');
+
+ 
+async function fetchData(url) {
+    try {
+         
+        const response = await fetch(url);
+         
+        const data = await response.json();
+        
+         
+        const handler = {
+            get(target, property) {
+                print(`Accessing property '${property}'`);
+                return target[property];
+            }
+        };
+
+        const proxyData = new Proxy(data, handler);
+
+         
+        const { title, body } = proxyData;
+        print(`Title: ${title}`);
+        print(`Body: ${body}`);
+        
+         
+        const words = new Set(body.split(' '));
+        const wordCountMap = new Map();
+        words.forEach(word => {
+            wordCountMap.set(word, (wordCountMap.get(word) || 0) + 1);
+        });
+
+        print('Word frequency map:', wordCountMap);
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');

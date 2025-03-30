@@ -1,0 +1,50 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* generateSequence(array) {
+    for (let item of array) {
+        await delay(1000);  
+        yield item;
+    }
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('data', async data => {
+    print('Data received:', data);
+    await delay(500);  
+    print('Processed:', data.toUpperCase());
+});
+
+emitter.on('end', () => {
+    print('No more data.');
+});
+
+(async () => {
+    const dataArray = ['apple', 'banana', 'cherry'];
+    const generator = generateSequence(dataArray);
+
+    for await (let data of generator) {
+        emitter.emit('data', data);
+    }
+
+    emitter.emit('end');
+})();

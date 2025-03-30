@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    const delay = Math.floor(Math.random() * 3000) + 500;
+    setTimeout(() => {
+        url ? resolve({ data: `Data from ${url}` }) : reject('Invalid URL');
+    }, delay);
+});
+
+ 
+const fetchMultipleData = async (urls) => {
+    try {
+        const promises = urls.map(url => fetchData(url));
+        const results = await Promise.all(promises);
+        return results.map(({ data }) => data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+const processData = async (urls) => {
+    const uniqueUrls = [...new Set(urls)];  
+    const results = await fetchMultipleData(uniqueUrls);
+    
+    const dataMap = new Map();
+    uniqueUrls.forEach((url, index) => {
+        dataMap.set(url, results[index]);
+    });
+
+    return dataMap;
+};
+
+ 
+(async () => {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data1'];
+    const dataMap = await processData(urls);
+    
+     
+    for (const [url, data] of dataMap.entries()) {
+        print(`Fetched from ${url}: ${data}`);
+    }
+})();

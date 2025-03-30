@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function fetchData() {
+     
+    const data = await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([1, 2, 3, 4, 5]);
+        }, 1000);
+    });
+    return data;
+}
+
+ 
+async function processData() {
+    const data = await fetchData();
+
+     
+    const transformedData = data
+        .map((x) => x * 2)  
+        .filter((x) => x > 5)  
+        .reduce((acc, curr) => acc + curr, 0);  
+
+    return transformedData;
+}
+
+ 
+(async () => {
+     
+    const fib = fibonacci();
+
+    console.log("First 5 Fibonacci numbers generated: ");
+    for (let i = 0; i < 5; i++) {
+        console.log(fib.next().value);
+    }
+
+    console.log("\nProcessing fetched data...");
+    const result = await processData();
+    console.log(`Result after processing: ${result}`);
+})();
+```

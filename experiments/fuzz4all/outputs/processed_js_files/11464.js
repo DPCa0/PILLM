@@ -1,0 +1,37 @@
+class EnhancedArray extends Array {
+  static get [Symbol.species]() {
+    return Array;
+  }
+
+  async mapAsync(callback) {
+    return Promise.all(this.map(callback));
+  }
+
+  chainMap(...callbacks) {
+    return callbacks.reduce((acc, callback) => acc.map(callback), this);
+  }
+}
+
+const fetchData = async (id) => {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(`Data for ${id}`), 1000)
+  );
+};
+
+const processData = (data) => `${data.toUpperCase()} PROCESSED`;
+
+(async () => {
+  try {
+    const eArray = new EnhancedArray(1, 2, 3, 4, 5);
+
+    const dataResults = await eArray.mapAsync(fetchData);
+
+    const processedResults = eArray
+      .from(dataResults)
+      .chainMap(processData, (str) => str.split(" "), (arr) => arr.reverse());
+
+    print(processedResults);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();

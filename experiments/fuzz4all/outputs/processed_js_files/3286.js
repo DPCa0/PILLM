@@ -1,0 +1,61 @@
+ 
+const fs = require('fs').promises;
+const { createCipheriv, randomBytes, createDecipheriv } = require('crypto');
+
+ 
+(async () => {
+    try {
+         
+        const user = { name: 'Alice', preferences: null };
+        const theme = user?.preferences?.theme ?? 'default';
+        print(`Using theme: ${theme}`);
+        
+         
+        const key = randomBytes(32);
+        const iv = randomBytes(16);
+
+         
+        const encrypt = (text) => new Promise((resolve, reject) => {
+            const cipher = createCipheriv('aes-256-cbc', key, iv);
+            let encrypted = '';
+            cipher.setEncoding('hex');
+            cipher.on('data', (chunk) => encrypted += chunk);
+            cipher.on('end', () => resolve(encrypted));
+            cipher.on('error', reject);
+            cipher.write(text);
+            cipher.end();
+        });
+
+         
+        const decrypt = (encrypted) => new Promise((resolve, reject) => {
+            const decipher = createDecipheriv('aes-256-cbc', key, iv);
+            let decrypted = '';
+            decipher.on('readable', () => {
+                let chunk;
+                while (null !== (chunk = decipher.read())) {
+                    decrypted += chunk.toString('utf8');
+                }
+            });
+            decipher.on('end', () => resolve(decrypted));
+            decipher.on('error', reject);
+            decipher.write(encrypted, 'hex');
+            decipher.end();
+        });
+
+        const message = "Complex JavaScript Features!";
+        
+         
+        const encrypted = await encrypt(message);
+        await fs.writeFile('encrypted.txt', encrypted);
+        print('Message encrypted and saved.');
+
+         
+        const encryptedFromFile = await fs.readFile('encrypted.txt', 'utf8');
+        const decrypted = await decrypt(encryptedFromFile);
+        print('Decrypted message:', decrypted);
+
+         
+        const handler = {
+            get: (target, prop, receiver) => {
+                print(`Property '${prop}' was accessed.`);
+                return Reflect.get(target, prop, receiver

@@ -1,0 +1,57 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            print(`Getting ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            throw new ReferenceError(`Property ${prop} does not exist.`);
+        }
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function* asyncGenerator(limit) {
+    let i = 0;
+    while (i < limit) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 100));
+    }
+}
+
+ 
+(async () => {
+     
+    try {
+        print(proxy.a);
+        proxy.b = 5;
+        print(proxy.c);
+    } catch (error) {
+        console.error(error.message);
+    }
+
+     
+    const deferred = new Deferred();
+    deferred.promise.then(console.log).catch(console.error);
+    deferred.resolve("Deferred Promise Resolved!");
+
+     
+    for await (let num of asyncGenerator(5)) {
+        print(num);
+    }
+})();

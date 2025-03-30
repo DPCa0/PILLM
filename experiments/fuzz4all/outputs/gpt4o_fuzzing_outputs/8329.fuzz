@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class ComplexFeatureUsage {
+  constructor() {
+    this.init();
+  }
+
+  async init() {
+    try {
+      const [data1, data2] = await Promise.all([this.fetchData(1), this.fetchData(2)]);
+      const processedData = this.processData([...data1, ...data2]);
+      this.#logResult(processedData);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async fetchData(id) {
+    const response = await fetch(`https: 
+    return response.json();
+  }
+
+  processData(data) {
+    return data
+      .map(item => ({ ...item, status: item.completed ? 'Complete' : 'Incomplete' }))
+      .filter(item => item.completed)
+      .reduce((acc, curr) => {
+        if (!acc[curr.userId]) acc[curr.userId] = [];
+        acc[curr.userId].push(curr.title);
+        return acc;
+      }, {});
+  }
+
+  #logResult(result) {
+    const uniqueTitles = new Set(Object.values(result).flat());
+    console.log('Unique Completed Titles:', [...uniqueTitles]);
+  }
+}
+
+new ComplexFeatureUsage();
+```

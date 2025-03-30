@@ -1,0 +1,50 @@
+Certainly! Here's a complex JavaScript program that utilizes advanced features like Promises, async/await, destructuring, and more:
+
+ 
+
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomError";
+  }
+}
+
+const fetchData = (url) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        resolve({ data: `Data from ${url}`, status: 200 });
+      } else {
+        reject(new CustomError("Failed to fetch data"));
+      }
+    }, 1000);
+  });
+
+const processResponse = async (url) => {
+  try {
+    const response = await fetchData(url);
+    const { data, status } = response;
+    print(`Status: ${status}, Response Data: ${data}`);
+    return data;
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`CustomError: ${error.message}`);
+    } else {
+      console.error(`Error: ${error.message}`);
+    }
+  }
+};
+
+(async () => {
+  const urls = ["https://api.example.com/data1", "https://api.example.com/data2"];
+  
+  try {
+    const results = await Promise.all(urls.map(processResponse));
+    const [result1, result2] = results;
+    print("Final Results:", result1, result2);
+  } catch (error) {
+    console.error(`Error in processing all promises: ${error.message}`);
+  }
+})();
+
+This program demonstrates using Promises with async/await, destructuring objects to extract data, handling errors with a custom error class, and utilizing `Promise.all` to process multiple asynchronous operations concurrently.

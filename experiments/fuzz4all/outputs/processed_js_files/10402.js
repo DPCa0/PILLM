@@ -1,0 +1,62 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(callback) {
+    this.subscribers.add(callback);
+  }
+  
+  unsubscribe(callback) {
+    this.subscribers.delete(callback);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+const obs = new Observable();
+
+ 
+const loggingHandler = {
+  apply(target, thisArg, argumentsList) {
+    print(`Called: ${target.name} with arguments:`, argumentsList);
+    return Reflect.apply(target, thisArg, argumentsList);
+  }
+};
+
+const loggedSubscribe = new Proxy(obs.subscribe, loggingHandler);
+const loggedNotify = new Proxy(obs.notify, loggingHandler);
+
+obs.subscribe = loggedSubscribe;
+obs.notify = loggedNotify;
+
+ 
+function* generateSequence(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+const observer = (data) => print(`Observer received: ${data}`);
+
+obs.subscribe(observer);
+
+const sequence = generateSequence(1, 5);
+for (const number of sequence) {
+  obs.notify(`Number: ${number}`);
+}
+
+ 
+async function asyncData() {
+  return new Promise(resolve => {
+    setTimeout(() => resolve("Async Data Loaded"), 1000);
+  });
+}
+
+async function main() {
+  print(await asyncData());
+}
+
+main();

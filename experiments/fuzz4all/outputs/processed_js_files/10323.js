@@ -1,0 +1,56 @@
+const { promisify } = require('util');
+const fs = require('fs');
+
+ 
+const readFileAsync = promisify(fs.readFile);
+
+ 
+async function readJson(filePath) {
+  try {
+    const data = await readFileAsync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+}
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+(async () => {
+  const jsonData = await readJson('./data.json');
+  print('Read JSON Data:', jsonData);
+
+  print('Counting with delays:');
+  for (const num of range(1, 5)) {
+    await delay(1000);
+    print(num);
+  }
+})();
+
+ 
+const targetObj = { message: "Hello, Proxy!" };
+const handler = {
+  get: (target, property) => {
+    print(`Property '${property}' accessed`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    print(`Property '${property}' set to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+print(proxyObj.message);
+proxyObj.message = "Hello, world!";
+print(proxyObj.message);

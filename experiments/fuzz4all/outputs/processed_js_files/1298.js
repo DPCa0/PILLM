@@ -1,0 +1,46 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield* row;
+    }
+  }
+
+  static fromEntries(entries) {
+    const rows = [...entries].reduce((acc, [r, c, v]) => {
+      if (!acc[r]) acc[r] = [];
+      acc[r][c] = v;
+      return acc;
+    }, []);
+    return new Matrix(rows.map(r => r.map(v => v || 0)));
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, rIdx) => row.map((val, cIdx) => fn(val, rIdx, cIdx))));
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const entries = [
+  [0, 0, 1], [0, 1, 2],
+  [1, 0, 3], [1, 1, 4],
+  [2, 0, 5], [2, 1, 6]
+];
+
+const matrix = Matrix.fromEntries(entries);
+
+const transposedMatrix = matrix.map((_, r, c) => matrix.data[c][r]);
+
+print('Original Matrix:\n' + matrix.toString());
+print('Transposed Matrix:\n' + transposedMatrix.toString());
+
+for (let val of matrix) {
+  print('Value:', val);
+}

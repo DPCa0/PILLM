@@ -1,0 +1,52 @@
+ 
+async function fetchDataAndProcess() {
+    try {
+         
+        let response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        if (!response.ok) throw new Error('Network response was not ok');
+
+         
+        let posts = await response.json();
+
+         
+        let processedData = posts
+            .map(({ id, title }) => ({ id, title: title.toUpperCase() }))
+            .filter(post => post.id % 2 === 0)  
+            .reduce((acc, { id, title }) => {
+                acc[id] = title;
+                return acc;
+            }, {});
+
+        print(processedData);
+
+         
+        let uniqueIds = new Set(posts.map(post => post.id));
+        
+         
+        for (let id of uniqueIds) {
+            print(`ID: ${id}, Squared: ${Math.pow(id, 2)}`);
+        }
+    } catch (error) {
+        console.error('There was a problem fetching or processing the data:', error);
+    }
+}
+
+ 
+let targetObj = { a: 1, b: 2 };
+let proxy = new Proxy(targetObj, {
+    get(target, prop, receiver) {
+        print(`Accessing property '${prop}':`, Reflect.get(target, prop, receiver));
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting property '${prop}' to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+});
+
+ 
+proxy.a = 42;
+print(proxy.a);
+
+ 
+fetchDataAndProcess();

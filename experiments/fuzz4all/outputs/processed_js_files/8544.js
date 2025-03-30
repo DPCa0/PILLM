@@ -1,0 +1,55 @@
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async *asyncGenerator(arr) {
+        for (const item of arr) {
+            yield new Promise(resolve => setTimeout(() => resolve(item * item), 100));
+        }
+    }
+
+    async process() {
+        const results = [];
+        for await (const squared of this.asyncGenerator(this.data)) {
+            results.push(squared);
+        }
+        return results;
+    }
+
+    static async logResults(processor) {
+        const results = await processor.process();
+        print('Processed Results:', results);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            throw new Error(`Property ${prop} not found`);
+        }
+    }
+};
+
+const rawData = [1, 2, 3, 4, 5];
+const safeData = new Proxy(rawData, handler);
+
+const processor = new AsyncProcessor(safeData);
+AsyncProcessor.logResults(processor);
+
+ 
+(async () => {
+    const promises = [import('module1'), import('module2'), import('module3')].map(p => p.catch(err => err));
+    const results = await Promise.allSettled(promises);
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            print(`Module${index + 1} loaded:`, result.value);
+        } else {
+            console.warn(`Module${index + 1} failed to load:`, result.reason);
+        }
+    });
+})();

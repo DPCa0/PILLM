@@ -1,0 +1,67 @@
+ 
+import fetch from 'node-fetch';
+import fs from 'fs/promises';
+
+ 
+(async function advancedJSFeatures() {
+    try {
+         
+        const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+        const data = await response.json();
+
+         
+        const { userId, id, title, completed } = data;
+
+         
+        const message = `
+            Todo Item:
+            User ID: ${userId}
+            ID: ${id}
+            Title: ${title}
+            Completed: ${completed ? 'Yes' : 'No'}
+        `;
+
+         
+        await fs.writeFile('todo.txt', message);
+
+        print('Todo data fetched and written to todo.txt');
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+
+ 
+const targetObj = { name: 'John', age: 30 };
+
+const handler = {
+    get(target, property) {
+        print(`Getting ${property}...`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting ${property} to ${value}...`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+proxyObj.name = 'Jane';
+print(proxyObj.age);
+
+ 
+const promises = [
+    fetch('https://jsonplaceholder.typicode.com/todos/2').then(res => res.json()),
+    fetch('https://jsonplaceholder.typicode.com/todos/3').then(res => res.json())
+];
+
+Promise.all(promises)
+    .then(results => {
+        results.forEach((todo, index) => {
+            print(`Todo ${index + 2}:`, todo);
+        });
+    })
+    .catch(err => console.error('Error in Promise.all:', err));

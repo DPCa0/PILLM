@@ -1,0 +1,44 @@
+(async () => {
+   
+
+   
+  const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'valid.url') resolve({data: [1, 2, 2, 3, 4, 4, 5]});
+      else reject('Invalid URL');
+    }, 1000);
+  });
+
+   
+  const mapIterable = async (iterable, fn) => {
+    const results = [];
+    for await (const item of iterable) {
+      results.push(fn(item));
+    }
+    return results;
+  };
+
+  try {
+     
+    const { data: rawData } = await fetchData('valid.url');
+
+     
+    const uniqueData = [...new Set(rawData)];
+
+     
+    async function* asyncGenerator(data) {
+      for (const item of data) {
+        yield Promise.resolve(item);
+      }
+    }
+
+     
+    const squaredData = await mapIterable(asyncGenerator(uniqueData), (x) => x * x);
+
+    print('Unique data:', uniqueData);
+    print('Squared data:', squaredData);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

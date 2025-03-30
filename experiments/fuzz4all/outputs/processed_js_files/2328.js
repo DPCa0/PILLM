@@ -1,0 +1,57 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+};
+
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const proxyHandler = {
+    get: (target, prop, receiver) => {
+        if (prop in target) {
+            print(`Getting property: ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        }
+        throw new Error(`Property ${prop} does not exist on target`);
+    },
+    set: (target, prop, value, receiver) => {
+        print(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const observedObject = new Proxy({ name: "JavaScript", type: "Programming Language" }, proxyHandler);
+
+(async () => {
+    try {
+        const eventEmitter = new EventEmitter();
+        eventEmitter.on('dataReceived', data => print('Data received:', data));
+        eventEmitter.on('error', err => console.error('Error occurred:', err));
+
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        eventEmitter.emit('dataReceived', data);
+
+        print(observedObject.name);
+        observedObject.version = "ES6";
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+})();

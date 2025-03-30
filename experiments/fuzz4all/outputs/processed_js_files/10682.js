@@ -1,0 +1,70 @@
+ 
+
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve('Operation Completed'), 1000);
+    });
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('operationStart', () => print('Operation Started...'));
+    eventEmitter.on('operationEnd', result => print('Operation Result:', result));
+
+    const resultHandler = async () => {
+        eventEmitter.emit('operationStart');
+        try {
+            const result = await asyncOperation();
+            eventEmitter.emit('operationEnd', result);
+        } catch (error) {
+            console.error('Operation Failed:', error);
+        }
+    };
+
+    await resultHandler();
+
+     
+    const handler = {
+        get: (target, prop) => {
+            if (prop in target) {
+                print(`Accessing ${prop} property`);
+                return target[prop];
+            }
+            console.error(`Property ${prop} doesn't exist`);
+        }
+    };
+
+    const operations = {
+        operationCount: 0,
+        increment() {
+            this.operationCount += 1;
+        }
+    };
+
+    const proxiedOperations = new Proxy(operations, handler);
+
+    // Proxy interactions
+    proxiedOperations.increment();
+    print('Operation Count:', proxiedOperations.operationCount);
+})();
+

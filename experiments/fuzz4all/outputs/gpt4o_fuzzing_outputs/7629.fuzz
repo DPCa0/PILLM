@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+import { createServer } from 'http';
+import { readFile } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const config = {
+      port: 3000,
+      filePath: './index.html'
+    };
+    const { port, filePath } = config;
+
+     
+    const requestListener = async (req, res) => {
+      if (req.method === 'GET') {
+        try {
+          const data = await readFile(filePath, 'utf8');
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(data);
+        } catch (error) {
+          res.writeHead(500, { 'Content-Type': 'text/plain' });
+          res.end('Internal Server Error');
+        }
+      } else {
+        res.writeHead(405, { 'Content-Type': 'text/plain' });
+        res.end('Method Not Allowed');
+      }
+    };
+
+     
+    const server = createServer(requestListener);
+
+     
+    server.listen(port).on('listening', () => {
+      console.log(`Server running at http: 
+    }).on('error', (err) => {
+      console.error(`Server error: ${err}`);
+    });
+
+  } catch (err) {
+    console.error(`Failed to initialize: ${err}`);
+  }
+})();
+```

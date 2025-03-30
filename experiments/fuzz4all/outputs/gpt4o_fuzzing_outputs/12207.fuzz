@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataChunks() {
+    const data = ["Chunk 1: Hello,", "Chunk 2: world!", "Chunk 3: From", "Chunk 4: Async", "Chunk 5: Generator"];
+    for (let chunk of data) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        yield chunk;
+    }
+}
+
+ 
+function styledLog(strings, ...values) {
+    console.log(`%c${strings.raw.join('')}`, "color: blue; font-weight: bold;", ...values);
+}
+
+ 
+function processChunks() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let message = '';
+            for await (const chunk of fetchDataChunks()) {
+                message += chunk + ' ';
+                styledLog`${chunk}`;
+            }
+            resolve(message);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+ 
+async function execute() {
+    try {
+        const results = await Promise.allSettled([processChunks()]);
+        results.forEach(result => {
+            if (result.status === 'fulfilled') {
+                console.log("Final Message:", result.value.trim());
+            } else {
+                console.error("Error:", result.reason);
+            }
+        });
+    } catch (err) {
+        console.error("Unexpected Error:", err);
+    }
+}
+
+execute();
+```

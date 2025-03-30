@@ -1,0 +1,58 @@
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+   
+  static #validateComplexNumber(complexNumber) {
+    if (!(complexNumber instanceof ComplexNumber)) {
+      throw new Error("Input is not a ComplexNumber instance.");
+    }
+  }
+
+   
+  #format() {
+    return `${this.#real} ${this.#imaginary >= 0 ? '+' : '-'} ${Math.abs(this.#imaginary)}i`;
+  }
+
+   
+  display = () => {
+    setTimeout(() => print(this.#format()), 1000);
+  };
+
+   
+  static add(c1, c2) {
+    ComplexNumber.#validateComplexNumber(c1);
+    ComplexNumber.#validateComplexNumber(c2);
+    const { #real: r1, #imaginary: i1 } = c1;
+    const { #real: r2, #imaginary: i2 } = c2;
+    return new ComplexNumber(r1 + r2, i1 + i2);
+  }
+}
+
+ 
+async function complexOperations() {
+  try {
+    const num1 = new ComplexNumber(3, 4);
+    const num2 = new ComplexNumber(1, -2);
+
+    num1.display();
+    num2.display();
+
+     
+    const result = await new Promise((resolve) => {
+      setTimeout(() => resolve(ComplexNumber.add(num1, num2)), 2000);
+    });
+
+    print(`Result: ${result.display()}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+complexOperations();

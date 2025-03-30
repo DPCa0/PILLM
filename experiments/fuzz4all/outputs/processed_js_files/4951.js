@@ -1,0 +1,56 @@
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+import fetch from 'node-fetch';
+
+ 
+async function getData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(`Failed to fetch data: ${error}`);
+        return null;
+    }
+}
+
+ 
+async function writeDataToFile(data, filename) {
+    try {
+        const filePath = path.resolve(process.cwd(), filename);
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+        print(`Data successfully written to ${filename}`);
+    } catch (error) {
+        console.error(`Error writing data to file: ${error}`);
+    }
+}
+
+ 
+function processData(data) {
+    return data.map(item => ({
+        id: item.id,
+        title: item.title.toUpperCase(),
+        completed: item.completed
+    }));
+}
+
+ 
+async function main() {
+    const url = 'https://jsonplaceholder.typicode.com/todos';
+    const rawData = await getData(url);
+
+    if (rawData) {
+        const processedData = processData(rawData);
+        await writeDataToFile(processedData, 'todos.json');
+    }
+}
+
+ 
+main().catch(error => {
+    console.error(`Unexpected error: ${error}`);
+});
+
+This JavaScript program leverages ES6 modules, async/await for asynchronous operations, and makes use of node-fetch to fetch data from a public API. It processes the data and writes it to a JSON file using `fs.promises`.

@@ -1,0 +1,35 @@
+class ComplexCalculator {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  fibonacci(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+  async complexOperation(numbers) {
+    const results = await Promise.all(numbers.map(num => this.fibonacci(num)));
+    const processedResults = new Set(results.map(num => num * 2));
+    return Array.from(processedResults).filter(num => num % 3 === 0);
+  }
+
+  static #privateLog(msg) {
+    print(`ComplexCalculator Log: ${msg}`);
+  }
+
+  static initiateComplexOperation(numbers) {
+    const instance = new ComplexCalculator();
+    this.#privateLog('Starting complex operation');
+    return instance.complexOperation(numbers);
+  }
+}
+
+(async () => {
+  const numbers = [5, 6, 7, 8, 5, 3];
+  const result = await ComplexCalculator.initiateComplexOperation(numbers);
+  print('Filtered Results:', result);
+})();

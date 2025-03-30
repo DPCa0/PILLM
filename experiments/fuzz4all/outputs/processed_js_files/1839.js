@@ -1,0 +1,45 @@
+ 
+
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async function() {
+  try {
+     
+    const data = await fs.readFile('input.txt', 'utf8');
+    
+     
+    const logger = {
+      get(target, property) {
+        print(`Accessed property: ${property}`);
+        return Reflect.get(target, property);
+      }
+    };
+
+     
+    const lines = data.split('\n').map(line => line.split('').reverse().join(''));
+
+     
+    const proxiedLines = new Proxy(lines, logger);
+
+     
+    async function* lineGenerator(lines) {
+      for (let line of lines) {
+        await new Promise(resolve => setTimeout(resolve, 500));  
+        yield line;
+      }
+    }
+
+     
+    const writable = fs.createWriteStream('output.txt');
+    for await (let line of lineGenerator(proxiedLines)) {
+      writable.write(line + '\n');
+    }
+    writable.end();
+
+    print('File transformation completed.');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+})();

@@ -1,0 +1,41 @@
+ 
+
+ 
+function* randomValueGenerator(arr) {
+  while (true) {
+    const index = Math.floor(Math.random() * arr.length);
+    yield arr[index];
+  }
+}
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  const fakeData = [
+    { id: 1, value: 'Apple' },
+    { id: 2, value: 'Banana' },
+    { id: 3, value: 'Cherry' },
+    { id: 4, value: 'Date' },
+  ];
+
+  const generator = randomValueGenerator(fakeData);
+
+  for (let i = 0; i < 5; i++) {
+    await delay(Math.random() * 1000 + 500);  
+    const { value } = generator.next().value;  
+    print(`Fetched value: ${value}`);
+  }
+}
+
+ 
+(async () => {
+  try {
+    print('Starting data fetch...');
+    await fetchData();
+    print('Data fetch completed.');
+  } catch (error) {
+    console.error(`Error fetching data: ${error.message}`);
+  }
+})();

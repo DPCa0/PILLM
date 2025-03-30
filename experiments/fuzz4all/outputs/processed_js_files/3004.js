@@ -1,0 +1,46 @@
+class PubSub {
+  constructor() {
+    this.events = new Map();
+  }
+
+  subscribe(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  unsubscribe(event, listener) {
+    if (!this.events.has(event)) return;
+    const index = this.events.get(event).indexOf(listener);
+    if (index > -1) this.events.get(event).splice(index, 1);
+  }
+
+  publish(event, data) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(data));
+  }
+}
+
+function asyncFetch(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve(`Data from ${url}`) : reject('Fetch failed');
+    }, 1000);
+  });
+}
+
+async function fetchDataAndNotify(url, pubSubInstance) {
+  try {
+    const data = await asyncFetch(url);
+    pubSubInstance.publish('dataFetched', data);
+  } catch (error) {
+    pubSubInstance.publish('fetchError', error);
+  }
+}
+
+const pubSub = new PubSub();
+pubSub.subscribe('dataFetched', data => print(`Success: ${data}`));
+pubSub.subscribe('fetchError', error => console.error(`Error: ${error}`));
+
+['http://api.example.com/1', 'http://api.example.com/2'].forEach(url => {
+  fetchDataAndNotify(url, pubSub);
+});

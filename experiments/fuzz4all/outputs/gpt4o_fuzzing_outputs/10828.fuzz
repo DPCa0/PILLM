@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: `Data from ${url}` });
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessing property: ${prop}`);
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} not found`);
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const targetObject = { name: 'Complex Object', version: '1.0' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+let config = {
+    api: {
+        endpoint: 'https://api.example.com',
+        timeout: 5000
+    }
+};
+
+const apiUrl = config.api?.endpoint ?? 'https://default.api.com';
+console.log(`API URL: ${apiUrl}`);
+
+ 
+function* generateValues() {
+    yield 'First value';
+    yield 'Second value';
+    yield 'Third value';
+}
+
+const generator = generateValues();
+for (const value of generator) {
+    console.log(value);
+}
+
+ 
+const userName = 'John Doe';
+console.log(`Hello, ${userName}! Welcome to advanced JavaScript.`);
+
+ 
+const user = { id: 1, name: 'Alice', email: 'alice@example.com' };
+const { id, ...rest } = user;
+console.log(`User ID: ${id}`);
+console.log('User Info:', rest);
+
+ 
+(async () => {
+    try {
+        const data = await fetchData(apiUrl);
+        console.log('Fetched Data:', data.data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+
+ 
+try {
+    console.log(proxyObject.name);   
+    proxyObject.version = '2.0';     
+    console.log(proxyObject.version);
+    console.log(proxy

@@ -1,0 +1,48 @@
+ 
+import _ from 'lodash';
+
+ 
+async function fetchData(url) {
+   
+  const response = await fetch(url);
+  return response.json();
+}
+
+ 
+async function processData(url) {
+  try {
+    const data = await fetchData(url);
+
+     
+    const result = _.chain(data)
+      .filter(item => item.isActive)
+      .map(item => ({
+        name: _.startCase(item.name),
+        score: item.score * 2
+      }))
+      .orderBy(['score'], ['desc'])
+      .value();
+
+     
+    const [topItem, ...others] = result;
+
+    print('Top Item:', topItem);
+    print('Other Items:', others);
+
+     
+    print(formatOutput`Processed ${result.length} items successfully!`);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+function formatOutput(strings, items) {
+  return `${strings[0]}${items}${strings[1]}`;
+}
+
+ 
+const apiURL = 'https://api.example.com/data';
+
+ 
+processData(apiURL);

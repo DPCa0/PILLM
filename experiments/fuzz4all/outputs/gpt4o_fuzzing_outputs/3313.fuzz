@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class AdvancedProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  async processData() {
+    try {
+      const processedData = await this._simulateAsyncProcessing(this.data);
+      const filteredData = processedData.filter(item => item.active);
+      return this._complexDataTransform(filteredData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+  
+  _simulateAsyncProcessing(data) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        data ? resolve(data.map(item => ({ ...item, active: Math.random() > 0.5 }))) : reject('No data provided');
+      }, 1000);
+    });
+  }
+  
+  _complexDataTransform(data) {
+    const transformed = new Set(data.map(item => ({
+      id: item.id,
+      value: item.value * 2,
+    })));
+    
+    return [...transformed].sort((a, b) => b.value - a.value);
+  }
+}
+
+const sampleData = Array.from({ length: 10 }, (_, i) => ({
+  id: i + 1,
+  value: Math.floor(Math.random() * 100),
+}));
+
+const processor = new AdvancedProcessor(sampleData);
+
+(async () => {
+  const result = await processor.processData();
+  console.table(result);
+})();
+```

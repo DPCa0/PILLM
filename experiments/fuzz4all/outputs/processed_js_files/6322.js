@@ -1,0 +1,46 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.resolve = null;
+  }
+
+  enqueue(promise) {
+    this.queue.push(promise);
+    this.process();
+  }
+
+  async process() {
+    if (this.resolve) return;
+    while (this.queue.length) {
+      const promise = this.queue.shift();
+      await promise;
+    }
+  }
+
+  async next() {
+    if (!this.queue.length) {
+      await new Promise(resolve => this.resolve = resolve);
+      this.resolve = null;
+    }
+    return this.queue.shift();
+  }
+}
+
+async function* generator() {
+  yield 'Item 1';
+  yield 'Item 2';
+  yield 'Item 3';
+}
+
+(async () => {
+  const queue = new AsyncQueue();
+  
+  for await (const item of generator()) {
+    queue.enqueue(new Promise(resolve => setTimeout(() => {
+      print(item);
+      resolve();
+    }, Math.random() * 1000)));
+  }
+
+  await queue.next();
+})();

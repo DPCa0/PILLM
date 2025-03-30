@@ -1,0 +1,45 @@
+ 
+(async () => {
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      const { results } = await response.json();
+      return results;
+    } catch (error) {
+      console.error(`Failed to fetch data: ${error}`);
+      return [];
+    }
+  };
+
+   
+  const processData = (data) => {
+    const uniqueItems = new Set(data.map(item => item.category));
+    const categoryMap = new Map();
+    
+    uniqueItems.forEach(category => {
+      categoryMap.set(
+        category, 
+        data.filter(item => item.category === category).map(({ id, value }) => ({ id, value }))
+      );
+    });
+    
+    return [...categoryMap];
+  };
+
+   
+  const logResults = (result) => {
+    for (const [category, items] of result) {
+      print(`Category: ${category}`);
+      console.table(items);
+    }
+  };
+
+   
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+
+   
+  const rawData = await fetchData(url);
+  const processedData = processData(rawData);
+  logResults(processedData);
+})();

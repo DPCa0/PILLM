@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, []);
+        }
+        this.#events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchWithTimeout = (url, options = {}, timeout = 5000) => {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), timeout)
+        )
+    ]);
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('data', data => console.log('Data received:', data));
+eventEmitter.on('error', error => console.error('Error:', error));
+
+(async function fetchData() {
+    try {
+        const response = await fetchWithTimeout('https://api.github.com/users/github');
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const data = await response.json();
+        eventEmitter.emit('data', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+})();
+```

@@ -1,0 +1,46 @@
+ 
+
+ 
+function apiCall(resource) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.2) {
+        resolve(`Data for ${resource}`);
+      } else {
+        reject(`Failed to fetch ${resource}`);
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* resourceGenerator() {
+  yield 'Resource 1';
+  yield 'Resource 2';
+  yield 'Resource 3';
+}
+
+ 
+async function fetchResources(gen) {
+  for (let resource of gen) {
+    try {
+      const data = await apiCall(resource);
+      print(`Fetched: ${data}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+const asyncHandler = {
+  apply(target, thisArg, argumentsList) {
+    print(`Calling async function with: ${argumentsList}`);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+const proxiedFetchResources = new Proxy(fetchResources, asyncHandler);
+
+ 
+proxiedFetchResources(resourceGenerator());

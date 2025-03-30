@@ -1,0 +1,52 @@
+ 
+
+class ReactiveValue {
+  #value;
+  #listeners = new Set();
+
+  constructor(initialValue) {
+    this.#value = initialValue;
+  }
+
+  get value() {
+    return this.#value;
+  }
+
+  set value(newValue) {
+    if (newValue !== this.#value) {
+      this.#value = newValue;
+      this.#notify();
+    }
+  }
+
+  #notify() {
+    this.#listeners.forEach((listener) => listener(this.#value));
+  }
+
+  subscribe(listener) {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+}
+
+const createEffect = (effect) => {
+  const runner = () => {
+    try {
+      effect();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  runner();
+};
+
+const state = new ReactiveValue(0);
+
+createEffect(() => {
+  print(`The current state is: ${state.value}`);
+});
+
+ 
+state.value = 1;
+state.value = 2;
+state.value = 3;

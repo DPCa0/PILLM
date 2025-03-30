@@ -1,0 +1,65 @@
+class TaskManager {
+    #tasks = new WeakMap();
+
+    constructor() {
+        this.id = 0;
+        this.#tasks.set(this, new Map());
+    }
+
+    addTask(description) {
+        const task = {
+            id: ++this.id,
+            description,
+            completed: false,
+            createdAt: new Date()
+        };
+        this.#tasks.get(this).set(task.id, task);
+        return task.id;
+    }
+
+    completeTask(id) {
+        const task = this.#tasks.get(this).get(id);
+        if (task) task.completed = true;
+    }
+
+    listTasks(filter = () => true) {
+        return Array.from(this.#tasks.get(this).values())
+            .filter(filter)
+            .map(({ id, description, completed }) => ({
+                id,
+                description,
+                status: completed ? 'Completed' : 'Pending'
+            }));
+    }
+
+    async executeTasks() {
+        const tasks = this.listTasks(task => !task.completed);
+        for (let task of tasks) {
+            await this.#performTask(task);
+            this.completeTask(task.id);
+        }
+    }
+
+    #performTask(task) {
+        return new Promise(resolve => {
+            print(`Executing task ${task.id}: ${task.description}`);
+            setTimeout(() => {
+                print(`Completed task ${task.id}`);
+                resolve();
+            }, Math.random() * 2000);
+        });
+    }
+}
+
+ 
+(async () => {
+    const manager = new TaskManager();
+    manager.addTask('Prepare meeting notes');
+    manager.addTask('Call the client');
+    manager.addTask('Review code');
+    manager.addTask('Deploy update');
+
+    print('All tasks:', manager.listTasks());
+    await manager.executeTasks();
+    print('Remaining tasks:', manager.listTasks(task => !task.completed));
+})();

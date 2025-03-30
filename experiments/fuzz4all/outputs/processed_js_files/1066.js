@@ -1,0 +1,38 @@
+ 
+class FetchData {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async getData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Fetch error: ${error.message}`);
+    }
+  }
+
+  static async processData(url) {
+    const fetchData = new FetchData(url);
+    const data = await fetchData.getData();
+
+    if (data) {
+      const { name, main: { temp, humidity } } = data;
+      print(`Weather for ${name}:`);
+      print(`Temperature: ${temp}°C`);
+      print(`Humidity: ${humidity}%`);
+    }
+  }
+}
+
+ 
+(async () => {
+  const apiKey = 'your_api_key';
+  const city = 'London';
+  const url = `https: 
+
+  await FetchData.processData(url);
+})();

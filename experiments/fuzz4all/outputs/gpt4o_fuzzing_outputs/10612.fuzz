@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static fromArray(array) {
+        return new Matrix(array.map(row => [...row]));
+    }
+
+    get rows() {
+        return this.data.length;
+    }
+
+    get cols() {
+        return this.data[0].length;
+    }
+
+    add(matrix) {
+        if (this.rows !== matrix.rows || this.cols !== matrix.cols) throw new Error('Matrices must have the same dimensions');
+        return new Matrix(this.data.map((row, i) => row.map((val, j) => val + matrix.data[i][j])));
+    }
+
+    multiply(matrix) {
+        if (this.cols !== matrix.rows) throw new Error('Number of columns in first matrix must be equal to number of rows in second matrix');
+        return new Matrix(
+            this.data.map((row, i) =>
+                matrix.data[0].map((_, j) => row.reduce((sum, elm, k) => sum + elm * matrix.data[k][j], 0))
+            )
+        );
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+(async function() {
+    const asyncOp = num => new Promise(resolve => setTimeout(() => resolve(num * num), 1000));
+
+     
+    const { from } = await import('rxjs');
+    const { map, filter } = await import('rxjs/operators');
+
+     
+    const matrix1 = Matrix.fromArray([
+        [1, 2],
+        [3, 4]
+    ]);
+
+    const matrix2 = Matrix.fromArray([
+        [5, 6],
+        [7, 8]
+    ]);
+
+    const sumMatrix = matrix1.add(matrix2);
+    const productMatrix = matrix1.multiply(matrix2);
+
+    console.log('Sum Matrix:');
+    sumMatrix.print();
+
+    console.log('Product Matrix:');
+    productMatrix.print();
+
+     
+    from([1, 2, 3, 4]).pipe(
+        filter(x => x % 2 === 0),
+        map(asyncOp),
+    ).subscribe({
+        next: async valPromise => {
+            const val = await valPromise;
+            console.log(`Processed value: ${val}`);
+        },
+        complete: () => console.log('Completed processing all values')
+    });
+
+})();
+```

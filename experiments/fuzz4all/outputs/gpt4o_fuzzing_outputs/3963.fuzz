@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+    static #cache = new Map();
+
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        if (DataFetcher.#cache.has(this.url)) {
+            console.log('Fetching from cache');
+            return Promise.resolve(DataFetcher.#cache.get(this.url));
+        }
+
+        try {
+            const response = await fetch(this.url);
+            const data = await response.json();
+            DataFetcher.#cache.set(this.url, data);
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+}
+
+const processData = async (url) => {
+    const dataFetcher = new DataFetcher(url);
+    const data = await dataFetcher.fetchData();
+    return data?.map(item => ({
+        ...item,
+        processed: true,
+        timestamp: new Date().toISOString()
+    }));
+};
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts',
+        'https://jsonplaceholder.typicode.com/comments'
+    ];
+    const results = await Promise.allSettled(urls.map(url => processData(url)));
+
+    results.forEach(({ status, value }, index) => {
+        if (status === 'fulfilled') {
+            console.log(`Data from URL ${index + 1}:`, value.slice(0, 2));
+        } else {
+            console.error(`Error fetching data from URL ${index + 1}`);
+        }
+    });
+})();
+```

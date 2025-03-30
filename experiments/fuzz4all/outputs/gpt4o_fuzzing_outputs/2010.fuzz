@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueId = Symbol("id");
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Fetching error:", error);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop === uniqueId) {
+      return "Accessing unique ID";
+    }
+    return prop in target ? target[prop] : "Property does not exist";
+  },
+  set: (target, prop, value) => {
+    if (typeof value === "string") {
+      target[prop] = value;
+    } else {
+      console.log("Only strings are allowed as values");
+    }
+    return true;
+  }
+};
+
+ 
+const targetObject = {
+  name: "Alice",
+  age: 30
+};
+
+ 
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+console.log(proxiedObject.name);  
+console.log(proxiedObject[uniqueId]);  
+proxiedObject.location = "Wonderland";  
+proxiedObject.age = 35;  
+console.log(proxiedObject.location);  
+
+ 
+(async function() {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  console.log("Fetched Data:", data);
+})();
+```

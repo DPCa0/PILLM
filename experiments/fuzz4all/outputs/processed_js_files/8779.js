@@ -1,0 +1,26 @@
+const fetch = require('node-fetch');
+
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const posts = await response.json();
+
+     
+    const processedPosts = posts
+      .filter(({ userId }) => userId === 1)  
+      .map(({ id, title }) => ({ id, title: title.toUpperCase() }))  
+      .reduce((acc, post) => {  
+        acc.totalPosts++;
+        acc.ids.push(post.id);
+        return acc;
+      }, { totalPosts: 0, ids: [] });
+
+     
+    const { totalPosts, ids } = processedPosts;
+    print(`User 1 has ${totalPosts} posts with IDs: ${ids.join(', ')}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

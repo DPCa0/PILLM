@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+    console.log(`Fetching data from ${url}`);
+    await delay(1000);  
+
+     
+    const data = [
+      { id: 1, name: 'Alice', skills: ['JavaScript', 'React'] },
+      { id: 2, name: 'Bob', skills: ['Python', 'Django'] },
+      { id: 3, name: 'Charlie', skills: ['Java', 'Spring'] },
+    ];
+
+     
+    const [firstPerson, ...others] = data;
+
+     
+    const skilledInJS = data.filter(person => person.skills.includes('JavaScript'))
+                            .map(({ name }) => name);
+
+    console.log(`First Person: ${firstPerson.name}`);
+    console.log(`Others: ${others.map(person => person.name).join(', ')}`);
+    console.log(`People skilled in JavaScript: ${skilledInJS.join(', ')}`);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const apiProxy = new Proxy(fetchData, {
+  apply: (target, thisArg, argumentsList) => {
+    console.log(`Called fetchData with args: ${argumentsList}`);
+    return target(...argumentsList);
+  }
+});
+
+apiProxy('https://api.example.com/data');
+```

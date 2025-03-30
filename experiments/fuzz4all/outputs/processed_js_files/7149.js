@@ -1,0 +1,65 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = ({ data }) => {
+    return data.map(item => ({
+        ...item,
+        processedValue: item.value * Math.random()
+    }));
+};
+
+const renderData = (processedData) => {
+    const fragment = document.createDocumentFragment();
+    processedData.forEach(({ id, processedValue }) => {
+        const element = document.createElement('div');
+        element.textContent = `ID: ${id} - Value: ${processedValue.toFixed(2)}`;
+        fragment.appendChild(element);
+    });
+    document.body.appendChild(fragment);
+};
+
+(async () => {
+    try {
+        const debounce = (func, wait) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func(...args), wait);
+            };
+        };
+
+        const throttledRender = ((func, limit) => {
+            let lastFunc;
+            let lastRan;
+            return function(...args) {
+                if (!lastRan) {
+                    func.apply(null, args);
+                    lastRan = Date.now();
+                } else {
+                    clearTimeout(lastFunc);
+                    lastFunc = setTimeout(function() {
+                        if ((Date.now() - lastRan) >= limit) {
+                            func.apply(null, args);
+                            lastRan = Date.now();
+                        }
+                    }, limit - (Date.now() - lastRan));
+                }
+            };
+        })(renderData, 2000);
+
+        const url = 'https://api.example.com/data';
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+
+        throttledRender(processedData);
+
+        window.addEventListener('resize', debounce(() => {
+            print('Resize event!');
+        }, 300));
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

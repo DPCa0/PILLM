@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+     
+    const results = await Promise.all(this.data.map(async (item) => {
+      try {
+        return await this.processItem(item);
+      } catch (error) {
+        return Promise.reject(`Error processing item ${item}: ${error}`);
+      }
+    }));
+    return results;
+  }
+
+  async processItem(item) {
+     
+    const uniqueValues = new Set(this.generateSequence(item));
+    const processed = [...uniqueValues].reduce((acc, val) => acc + val, 0);
+    
+     
+    return new Promise((resolve) => setTimeout(() => resolve(processed), 1000));
+  }
+
+  *generateSequence(item) {
+    for (let i = 0; i < item; i++) {
+      yield i * item;
+    }
+  }
+}
+
+ 
+(async () => {
+  const processor = new AsyncProcessor([3, 5, 7]);
+
+  try {
+    const results = await processor.processData();
+    console.log('Processing Results:', results);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

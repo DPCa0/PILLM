@@ -1,0 +1,40 @@
+ 
+const asyncOperation = (callback) => new Promise((resolve, reject) => {
+    try {
+        setTimeout(() => {
+            const result = callback();
+            resolve(result);
+        }, 1000);
+    } catch (error) {
+        reject(error);
+    }
+});
+
+ 
+async function* complexFunction(initialValue) {
+    let value = initialValue;
+
+     
+    yield value * 2;
+
+     
+    try {
+        value = await asyncOperation(() => value + 10);
+    } catch (error) {
+        console.error('Async operation failed:', error);
+        return;
+    }
+
+     
+    const [a, b, ...rest] = [value, value * 3, value * 4, value * 5];
+    yield a + b + rest.reduce((acc, num) => acc + num, 0);
+}
+
+ 
+(async () => {
+    const iterator = complexFunction(5);
+    
+    for await (const result of iterator) {
+        print('Result:', result);
+    }
+})();

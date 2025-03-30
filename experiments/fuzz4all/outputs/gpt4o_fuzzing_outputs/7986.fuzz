@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class FibonacciGenerator {
+    #memo = new Map([[0, 0], [1, 1]]);
+
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        while (true) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    fibonacci(n) {
+        if (this.#memo.has(n)) return this.#memo.get(n);
+        const result = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+        this.#memo.set(n, result);
+        return result;
+    }
+}
+
+const asyncOperation = async (n) => {
+    const generator = new FibonacciGenerator();
+    console.log(`Fibonacci sequence up to ${n}:`);
+    let count = 0;
+    for (const num of generator) {
+        console.log(num);
+        if (++count > n) break;
+        await new Promise(resolve => setTimeout(resolve, 100));  
+    }
+    console.log(`Fibonacci(${n}) = ${generator.fibonacci(n)}`);
+};
+
+(async () => {
+    const n = 10;
+    await asyncOperation(n);
+})();
+```

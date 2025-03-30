@@ -1,0 +1,29 @@
+class Animal {
+  #name;  
+  constructor(name) {
+    this.#name = name;
+  }
+  get name() {
+    return this.#name;
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* animalGenerator(animalList) {
+  for (const animal of animalList) {
+    await sleep(1000);  
+    yield new Animal(animal);
+  }
+}
+
+(async () => {
+  const animalList = ['Cat', 'Dog', 'Rabbit'];
+  const animals = animalGenerator(animalList);
+
+  for await (const animal of animals) {
+    print(`The animal is: ${animal.name}`);
+  }
+})();

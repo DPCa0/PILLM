@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncIterable = {
+    [Symbol.asyncIterator]: function() {
+        let i = 0;
+        return {
+            next: () => {
+                if (i < 3) {
+                    return new Promise((resolve) => {
+                        setTimeout(() => resolve({ value: i++, done: false }), 1000);
+                    });
+                }
+                return Promise.resolve({ done: true });
+            }
+        };
+    }
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'secret') return 'You found the secret!';
+        return Reflect.get(target, prop);
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'number' && value > 0) {
+            return Reflect.set(target, prop, value);
+        }
+        throw new Error('Value must be a positive number');
+    }
+};
+
+const targetObject = { validProp: 42 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+     
+    const { validProp, secret = 'No secret' } = { ...proxyObject, extra: 'ignored' };
+    console.log(validProp);  
+    console.log(secret);     
+
+     
+    try {
+        proxyObject.anotherProp = -1;
+    } catch (error) {
+        console.error(error.message);  
+    }
+
+     
+    for await (const num of asyncIterable) {
+        console.log(num);  
+    }
+})();
+```

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* range(start, end) {
+  for (let i = start; i < end; i++) {
+    yield i;
+  }
+}
+
+async function fetchData(id) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data for ID: ${id}`);
+    }, Math.random() * 1000);
+  });
+}
+
+async function processRange(start, end) {
+  const results = [];
+  const ids = range(start, end);
+  
+  for (const id of ids) {
+    const result = await fetchData(id);
+    console.log(result);
+    results.push(result);
+  }
+
+  return results;
+}
+
+(async () => {
+  try {
+    const processedData = await processRange(1, 6);
+    console.log('All data processed:', processedData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();
+```

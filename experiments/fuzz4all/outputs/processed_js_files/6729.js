@@ -1,0 +1,72 @@
+class Task {
+    constructor(name, duration) {
+        this.name = name;
+        this.duration = duration;
+    }
+    execute() {
+        return new Promise((resolve) => {
+            print(`Starting task: ${this.name}`);
+            setTimeout(() => {
+                print(`Completed task: ${this.name}`);
+                resolve(this.name);
+            }, this.duration);
+        });
+    }
+}
+
+async function executeTasks(tasks) {
+     
+    for await (const result of tasks) {
+        print(`Result: ${result}`);
+    }
+}
+
+function* taskGenerator(taskList) {
+    for (const task of taskList) {
+        yield task.execute();
+    }
+}
+
+function createPipeline(...functions) {
+    return (value) => functions.reduce((acc, fn) => fn(acc), value);
+}
+
+const logExecutionTime = (fn) => {
+    return async function(...args) {
+        console.time('Execution Time');
+        const result = await fn(...args);
+        console.timeEnd('Execution Time');
+        return result;
+    };
+};
+
+ 
+const _internalId = Symbol('internalId');
+
+class AdvancedTask extends Task {
+    constructor(name, duration) {
+        super(name, duration);
+        this[_internalId] = Math.random().toString(36).substr(2, 9);
+    }
+    get id() {
+        return this[_internalId];
+    }
+}
+
+ 
+const tasks = [
+    new AdvancedTask('Task 1', 1000),
+    new AdvancedTask('Task 2', 2000),
+    new AdvancedTask('Task 3', 1500),
+];
+
+ 
+const pipeline = createPipeline(
+    (tasks) => taskGenerator(tasks),
+    (gen) => executeTasks(gen)
+);
+
+ 
+logExecutionTime(pipeline)(tasks).then(() => {
+    print('All tasks completed.');
+});

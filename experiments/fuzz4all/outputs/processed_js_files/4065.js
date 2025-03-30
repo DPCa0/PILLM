@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = (value) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (value) {
+            resolve(`Fetched data: ${value}`);
+        } else {
+            reject('No data to fetch.');
+        }
+    }, 1000);
+});
+
+ 
+async function* asyncGenerator(dataArray) {
+    for (const data of dataArray) {
+        try {
+            const result = await fetchData(data);
+            yield result;
+        } catch (error) {
+            yield `Error: ${error}`;
+        }
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        print(`Accessing property "${property}" with value: ${target[property]}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Setting property "${property}" to value: ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const dataObject = new Proxy({ success: 'data1', fail: null, success2: 'data2' }, handler);
+
+ 
+(async () => {
+    const gen = asyncGenerator(Object.values(dataObject));
+    for await (const data of gen) {
+        print(data);
+    }
+})();

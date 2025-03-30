@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  return await response.json();
+}
+
+const handler = {
+  get: (target, property) => {
+    console.log(`Accessing property '${property}'`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting property '${property}' to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+function processData(...data) {
+  const [first, ...rest] = data;
+  console.log(`First item: ${JSON.stringify(first)}`);
+  console.log(`Rest items: ${JSON.stringify(rest)}`);
+  return [...rest, first];
+}
+
+(async () => {
+  const rawData = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  const proxyData = new Proxy(rawData, handler);
+
+  proxyData.newProp = 'testValue';   
+  console.log(proxyData.title);       
+
+  const reorderedData = processData(proxyData, { second: 'item2' }, { third: 'item3' });
+  console.log('Reordered Data:', reorderedData);
+})();
+```

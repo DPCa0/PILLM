@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncResource {
+  constructor() {
+    this.tasks = [];
+  }
+
+  async addTask(promiseFn) {
+    this.tasks.push(promiseFn);
+  }
+
+  async runAll() {
+    const results = await Promise.all(this.tasks.map(task => task()));
+    this.tasks = [];  
+    return results;
+  }
+}
+
+const dataFetcher = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  const resource = new AsyncResource();
+
+  for (let url of urls) {
+    resource.addTask(() => dataFetcher(url));
+  }
+
+  const results = await resource.runAll();
+
+  const processedResults = results
+    .filter(data => data.id % 2 !== 0)
+    .map(({ id, title }) => ({ id, title }));
+
+  console.log(processedResults);
+})();
+```

@@ -1,0 +1,39 @@
+class FibonacciSequence {
+    constructor(limit) {
+        this.limit = limit;
+        this.cache = new Map();
+    }
+
+    *generator() {
+        let [prev, curr] = [0, 1];
+        while (curr <= this.limit) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    memoized(n) {
+        if (this.cache.has(n)) return this.cache.get(n);
+        if (n < 2) return n;
+        const result = this.memoized(n - 1) + this.memoized(n - 2);
+        this.cache.set(n, result);
+        return result;
+    }
+
+    async calculateSum() {
+        let sum = 0;
+        for (const num of this.generator()) {
+            sum += num;
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        return sum;
+    }
+}
+
+(async () => {
+    const fib = new FibonacciSequence(50);
+    print(`Fibonacci sum up to 50: ${await fib.calculateSum()}`);
+
+    const fibNum = 10;
+    print(`10th Fibonacci number (Memoized): ${fib.memoized(fibNum)}`);
+})();

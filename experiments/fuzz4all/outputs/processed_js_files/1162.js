@@ -1,0 +1,34 @@
+ 
+ 
+const fetchUserData = async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const users = await response.json();
+
+     
+    const [{ id: userId1, name: userName1 }, { id: userId2, name: userName2 }] = users;
+
+     
+    print(`User 1: ID = ${userId1}, Name = ${userName1}`);
+    print(`User 2: ID = ${userId2}, Name = ${userName2}`);
+
+     
+    const userMap = new Map(users.map(({ id, email }) => [id, email]));
+
+     
+    const uniqueDomains = new Set(users.map(({ email }) => email.split('@')[1]));
+
+    print('User Email Map:', userMap);
+    print('Unique Email Domains:', uniqueDomains);
+
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+ 
+fetchUserData();

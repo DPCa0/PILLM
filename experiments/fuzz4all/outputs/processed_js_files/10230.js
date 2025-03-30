@@ -1,0 +1,41 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+function log(strings, ...values) {
+  const timestamp = new Date().toISOString();
+  print(`[${timestamp}] ${String.raw({ raw: strings }, ...values)}`);
+}
+
+ 
+async function readAndProcessFile(filePath) {
+  try {
+    log`Starting to read file: ${filePath}`;
+    
+     
+    const data = await fs.readFile(filePath, 'utf8');
+    log`File content read successfully`;
+
+     
+    const words = data.match(/\b\w+\b/g);
+    if (!words) {
+      log`No words found in the file`;
+      return;
+    }
+    const sortedWords = [...new Set(words)].sort((a, b) => a.localeCompare(b));
+    log`Words sorted successfully: ${sortedWords.join(', ')}`;
+
+     
+    const outputFilePath = filePath.replace('.txt', '_sorted.txt');
+    await fs.writeFile(outputFilePath, sortedWords.join('\n'), 'utf8');
+    log`Sorted words written to file: ${outputFilePath}`;
+
+  } catch (error) {
+    log`Error occurred: ${error.message}`;
+  }
+}
+
+ 
+(async () => {
+  await readAndProcessFile('./example.txt');
+})();

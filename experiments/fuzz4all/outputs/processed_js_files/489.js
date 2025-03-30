@@ -1,0 +1,53 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const data = await response.json();
+  return data;
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Property '${prop}' accessed`);
+    return target[prop];
+  }
+};
+
+const targetObj = { name: 'JavaScript', type: 'Programming Language' };
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+function* numberGenerator() {
+  let number = 0;
+  while (true) {
+    yield number++;
+  }
+}
+
+ 
+const numbers = [...numberGenerator()];
+print(numbers.slice(0, 10));   
+
+ 
+async function run() {
+  try {
+    const [data1, data2] = await Promise.all([
+      fetchData('https://jsonplaceholder.typicode.com/posts/1'),
+      fetchData('https://jsonplaceholder.typicode.com/posts/2')
+    ]);
+    print('Data 1:', data1);
+    print('Data 2:', data2);
+
+     
+    print(proxyObj.name);
+    print(proxyObj.type);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+run();

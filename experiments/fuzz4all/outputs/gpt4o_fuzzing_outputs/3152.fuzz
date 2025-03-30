@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+class AdvancedGizmo {
+  #secret;  
+  constructor(name) {
+    this.name = name;
+    this.#secret = Math.random();
+  }
+
+   
+  static async create(name) {
+    const instance = new AdvancedGizmo(name);
+    await instance.#initialize();
+    return instance;
+  }
+
+   
+  async compute(value) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Computed ${value * this.#secret}`);
+      }, 1000);
+    });
+  }
+
+   
+  async #initialize() {
+    const initData = await new Promise((resolve) =>
+      setTimeout(() => resolve(`Initialized ${this.name}`), 500)
+    );
+    console.log(initData);
+  }
+
+   
+  *getDetails() {
+    yield `Name: ${this.name}`;
+    yield `Secret: ${this.#secret}`;
+  }
+}
+
+ 
+(async () => {
+  const gizmo = await AdvancedGizmo.create('Gadget');
+  console.log(await gizmo.compute(42));
+  const details = gizmo.getDetails();
+  console.log(details.next().value);
+  console.log(details.next().value);
+})();
+```

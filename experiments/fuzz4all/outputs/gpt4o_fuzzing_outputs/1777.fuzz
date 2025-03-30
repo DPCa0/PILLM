@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class ComplexDataStructure {
+  constructor(data) {
+    this.data = new Map(Object.entries(data));
+  }
+
+  async *asyncIterator() {
+    for (const [key, value] of this.data) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield { key, value };
+    }
+  }
+
+  static #privateStaticMethod() {
+    return 'Accessed private static method!';
+  }
+
+  get #privateProperty() {
+    return 'Accessed private property!';
+  }
+
+  getPrivateInfo() {
+    return {
+      privateProperty: this.#privateProperty,
+      privateStaticMethod: ComplexDataStructure.#privateStaticMethod()
+    };
+  }
+}
+
+(async () => {
+  const data = {
+    apple: 1,
+    banana: 2,
+    cherry: 3
+  };
+
+  const complexObject = new ComplexDataStructure(data);
+
+  console.log('Private Information:', complexObject.getPrivateInfo());
+
+  console.log('Iterating asynchronously through the data structure:');
+  for await (const item of complexObject.asyncIterator()) {
+    console.log(`Key: ${item.key}, Value: ${item.value}`);
+  }
+
+  console.log('Creating a Proxy to log all accesses:');
+  const handler = {
+    get: (target, property) => {
+      console.log(`Accessing property "${property}"`);
+      return target[property];
+    }
+  };
+
+  const proxiedObject = new Proxy(complexObject, handler);
+  console.log(proxiedObject.getPrivateInfo());
+})();
+```

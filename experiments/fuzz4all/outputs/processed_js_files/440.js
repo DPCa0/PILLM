@@ -1,0 +1,35 @@
+class Fibonacci {
+  constructor(max) {
+    this.max = max;
+    this[Symbol.iterator] = function* () {
+      let a = 0, b = 1;
+      while (a <= this.max) {
+        yield a;
+        [a, b] = [b, a + b];
+      }
+    };
+  }
+}
+
+const fib = new Fibonacci(100);
+const mappedFib = [...fib].map(x => x ** 2);
+const evenFibs = mappedFib.filter(x => x % 2 === 0);
+
+const asyncCalculation = async () => {
+  const results = await Promise.all(evenFibs.map(x =>
+    new Promise(resolve => setTimeout(() => resolve(x), Math.random() * 1000))
+  ));
+
+  const sum = results.reduce((acc, val) => acc + val, 0);
+
+  return `Sum of even Fibonacci squares: ${sum}`;
+};
+
+(async () => {
+  try {
+    const result = await asyncCalculation();
+    print(result);
+  } catch (err) {
+    console.error('Error in async calculation:', err);
+  }
+})();

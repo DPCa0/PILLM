@@ -1,0 +1,67 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function asyncOperation() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = Math.random() > 0.5;
+      if (success) {
+        resolve('Operation Successful!');
+      } else {
+        reject(new Error('Operation Failed!'));
+      }
+    }, 1000);
+  });
+}
+
+(async function main() {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('success', message => {
+    print(`Success: ${message}`);
+  });
+
+  eventEmitter.on('error', error => {
+    console.error(`Error: ${error.message}`);
+  });
+
+  try {
+    const result = await asyncOperation();
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+
+  const map = new Map([['key1', 'value1'], ['key2', 'value2']]);
+  const array = Array.from(map, ([key, value]) => ({ [key]: value }));
+  print(array);
+
+  const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+      for (let i = 1; i <= 3; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        yield i;
+      }
+    }
+  };
+
+  for await (const num of asyncIterable) {
+    print(`Async number: ${num}`);
+  }
+})();

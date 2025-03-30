@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(res => res.json());
+  }
+}
+
+async function processUrls(urls) {
+  const results = [];
+  for await (const data of fetchData(urls)) {
+    results.push(data);
+  }
+  return results;
+}
+
+function withRetry(fn, retries = 3) {
+  return async function (...args) {
+    let attempt = 0;
+    while (attempt < retries) {
+      try {
+        return await fn(...args);
+      } catch (err) {
+        attempt++;
+        if (attempt === retries) throw err;
+      }
+    }
+  };
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+(async () => {
+  const deferred = new Deferred();
+  const retryableFetch = withRetry(processUrls);
+  
+  retryableFetch(urls).then(deferred.resolve).catch(deferred.reject);
+  
+  try {
+    const results = await deferred.promise;
+    console.log('Fetched data:', results);
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();
+```

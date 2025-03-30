@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchDataAndProcess = async (url) => {
+  try {
+     
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const { results } = data;
+    const [firstResult] = results;
+
+     
+    const processedResults = results.map(({ id, name, value }) => {
+      return {
+        id,
+        name: name.toUpperCase(),
+        adjustedValue: value * 2,
+      };
+    });
+
+     
+    console.log('Processed First Result:', processedResults?.[0]);
+
+     
+    const resultHandler = {
+      processedResults,
+      logResults() {
+        console.log(`Results count: ${this.processedResults.length}`);
+        this.processedResults.forEach((result) =>
+          console.log(`Result: ${result.name}, Adjusted Value: ${result.adjustedValue}`)
+        );
+      },
+    };
+
+     
+    resultHandler.logResults();
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+};
+
+ 
+fetchDataAndProcess('https://api.example.com/data');
+```

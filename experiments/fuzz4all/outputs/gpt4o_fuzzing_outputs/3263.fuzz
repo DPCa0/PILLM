@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class Shape {
+  #name;
+  constructor(name) {
+    this.#name = name;
+  }
+  get name() {
+    return this.#name;
+  }
+  set name(newName) {
+    this.#name = newName;
+  }
+  area() {
+    throw new Error("Method 'area' must be implemented.");
+  }
+}
+
+class Circle extends Shape {
+  constructor(radius) {
+    super("Circle");
+    this.radius = radius;
+  }
+  area() {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+class Rectangle extends Shape {
+  constructor(width, height) {
+    super("Rectangle");
+    this.width = width;
+    this.height = height;
+  }
+  area() {
+    return this.width * this.height;
+  }
+}
+
+function* shapeGenerator(shapes) {
+  for (const shape of shapes) {
+    yield shape;
+  }
+}
+
+(async () => {
+  const shapes = [
+    new Circle(10),
+    new Rectangle(5, 10),
+    new Circle(4),
+    new Rectangle(2, 7),
+  ];
+
+  for await (const shape of shapeGenerator(shapes)) {
+    console.log(`The area of the ${shape.name} is ${shape.area().toFixed(2)}`);
+  }
+})();
+```

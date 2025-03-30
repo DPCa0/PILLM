@@ -1,0 +1,62 @@
+ 
+
+ 
+function mockApiCall(data, delay) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve(`Processed: ${data}`);
+            } else {
+                reject('API Error');
+            }
+        }, delay);
+    });
+}
+
+ 
+async function fetchWithRetry(data, retries = 3) {
+    let lastError;
+    for (let i = 0; i < retries; i++) {
+        try {
+            const result = await mockApiCall(data, 500);
+            print(result);
+            return result;
+        } catch (error) {
+            lastError = error;
+            console.warn(`Attempt ${i + 1} failed: ${error}`);
+        }
+    }
+    throw new Error(`All attempts failed. Last error: ${lastError}`);
+}
+
+ 
+const dataHandler = {
+    get: (target, prop, receiver) => {
+        if (prop === 'getData') {
+            print(`Accessed method: ${prop}`);
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+class ComplexDataHandler {
+    async getData(data) {
+        try {
+            await fetchWithRetry(data);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+}
+
+ 
+const proxiedHandler = new Proxy(new ComplexDataHandler(), dataHandler);
+
+ 
+(async function main() {
+    const requests = ['data1', 'data2', 'data3'];
+    for (const data of requests) {
+        await proxiedHandler.getData(data);
+    }
+})();

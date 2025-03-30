@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Robot {
+  #name;
+  static #robotCount = 0;
+
+  constructor(name) {
+    this.#name = name;
+    Robot.#robotCount++;
+  }
+
+  static get robotCount() {
+    return Robot.#robotCount;
+  }
+
+  #generateId() {
+    return `${this.#name}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  async identify() {
+    const id = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.#generateId());
+      }, 1000);
+    });
+
+    console.log(`I am ${this.#name}, ID: ${id}`);
+  }
+}
+
+function* robotFactory(names) {
+  for (const name of names) {
+    yield new Robot(name);
+  }
+}
+
+const robotNames = ['Optimus', 'Megatron', 'Bumblebee', 'Starscream'];
+const robots = [];
+
+const factory = robotFactory(robotNames);
+
+for (const robot of factory) {
+  robots.push(robot);
+}
+
+robots.forEach((robot) => robot.identify());
+
+console.log(`Total Robots: ${Robot.robotCount}`);
+```

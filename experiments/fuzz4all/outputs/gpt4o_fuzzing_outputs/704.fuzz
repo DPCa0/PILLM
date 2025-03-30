@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ data }) => {
+   
+  return data.map(({ id, name }) => ({
+    id,
+    name: name.toUpperCase(),
+  }));
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const uniqueId = Symbol('id');
+
+class DataManager {
+  constructor() {
+    this[uniqueId] = Math.random().toString(36).substr(2, 9);
+  }
+
+  async init(url) {
+    try {
+      const rawData = await this.fetchAndProcessData(url);
+      console.log(`Data for manager ${this[uniqueId]}:`, rawData);
+    } catch (error) {
+      console.error('Error initializing data:', error);
+    }
+  }
+
+  fetchAndProcessData = memoize(async (url) => {
+     
+    const rawData = await fetchData(url);
+    return processData(rawData);
+  });
+}
+
+ 
+(async () => {
+  const manager1 = new DataManager();
+  const manager2 = new DataManager();
+
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  
+  await manager1.init(url);
+  await manager2.init(url);  
+})();
+```

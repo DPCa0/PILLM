@@ -1,0 +1,36 @@
+ 
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+const fetchData = async (num) => {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    return `Fetched number: ${num}`;
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Accessed property: ${prop}`);
+        return target[prop];
+    }
+};
+
+ 
+(async function() {
+    const fib = fibonacci();
+    const proxy = new Proxy(fib, handler);
+
+    for (let i = 0; i < 5; i++) {
+        const { value } = proxy.next();
+        const data = await fetchData(value);
+        print(data);
+    }
+})();

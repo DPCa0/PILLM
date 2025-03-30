@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processUserData = ({ name, age }) => {
+  return {
+    uppercaseName: name.toUpperCase(),
+    ageInFiveYears: age + 5,
+  };
+};
+
+(async () => {
+  try {
+    const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+
+    const processedUsers = users.map(user => {
+      const { uppercaseName, ageInFiveYears } = processUserData({ name: user.name, age: Math.floor(Math.random() * 50) });
+      return { uppercaseName, ageInFiveYears };
+    });
+
+    const displayUsers = (userList) => {
+      userList.forEach(({ uppercaseName, ageInFiveYears }) => {
+        console.log(`User: ${uppercaseName}, Age in 5 Years: ${ageInFiveYears}`);
+      });
+    };
+
+    displayUsers(processedUsers);
+  } catch (error) {
+    console.error('Error fetching or processing user data:', error);
+  }
+})();
+```

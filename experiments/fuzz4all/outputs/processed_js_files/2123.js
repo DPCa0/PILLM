@@ -1,0 +1,48 @@
+class AsyncLogger {
+    #logs = [];
+    constructor() {
+        this.init();
+    }
+
+    async init() {
+        for await (const msg of this.logGenerator()) {
+            print(msg);
+        }
+    }
+
+    async *logGenerator() {
+        while (true) {
+            if (this.#logs.length > 0) {
+                yield this.#logs.shift();
+            } else {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+    }
+
+    log(message) {
+        const timeStampedMessage = `[${new Date().toISOString()}] ${message}`;
+        this.#logs.push(timeStampedMessage);
+    }
+}
+
+const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+};
+
+const logger = new AsyncLogger();
+
+const logMessage = debounce((msg) => logger.log(msg), 500);
+
+document.addEventListener('mousemove', () => logMessage('Mouse moved!'));
+document.addEventListener('keydown', (event) => logMessage(`Key pressed: ${event.key}`));
+
+ 
+setTimeout(() => {
+    const event = new KeyboardEvent('keydown', { key: 'A' });
+    document.dispatchEvent(event);
+}, 1000);

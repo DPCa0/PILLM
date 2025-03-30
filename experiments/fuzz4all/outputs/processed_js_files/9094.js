@@ -1,0 +1,34 @@
+ 
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.apiUrl}/${endpoint}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+const processUserData = async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com';
+  const fetcher = new DataFetcher(apiUrl);
+
+  try {
+    const [user, posts] = await Promise.all([
+      fetcher.fetchData('users/1'),
+      fetcher.fetchData('posts?userId=1')
+    ]);
+
+    const { name, email } = user;
+    const postTitles = posts.map(post => post.title);
+
+    print(`User: ${name} (${email})`);
+    print('Posts:', postTitles.join(', '));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+processUserData();

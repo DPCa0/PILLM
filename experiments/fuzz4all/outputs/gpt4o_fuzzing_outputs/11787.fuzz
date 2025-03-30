@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const success = Math.random() > 0.3;  
+            success ? resolve({ data: "Fetched Data" }) : reject("Fetch Error");
+        }, 1000);
+    });
+}
+
+ 
+async function getData() {
+    try {
+        const response = await fetchData();
+        console.log(`Data Received: ${response.data}`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+const targetObject = { message: "Hello" };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+proxyObject.message = "Hello, World!";
+console.log(proxyObject.message);
+
+ 
+getData();
+
+ 
+const methodCaller = (obj, methodName, args) => {
+    if (typeof obj[methodName] === 'function') {
+        return Reflect.apply(obj[methodName], obj, args);
+    } else {
+        throw new TypeError(`${methodName} is not a function`);
+    }
+};
+
+ 
+const calculator = {
+    add(a, b) {
+        return a + b;
+    }
+};
+
+try {
+    const result = methodCaller(calculator, 'add', [5, 10]);
+    console.log(`Dynamic Method Result: ${result}`);
+} catch (error) {
+    console.error(error);
+}
+```

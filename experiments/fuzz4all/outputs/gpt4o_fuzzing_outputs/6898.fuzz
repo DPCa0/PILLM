@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataSequence() {
+  const data = ['Apple', 'Banana', 'Cherry', 'Date', 'Fig'];
+  for (const item of data) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    yield item;
+  }
+}
+
+ 
+const target = {
+  fruits: [],
+  message: 'Data loading complete!'
+};
+
+const handler = {
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+(async function() {
+  console.log('Fetching data...');
+  for await (const fruit of fetchDataSequence()) {
+    proxy.fruits = [...proxy.fruits, fruit];
+    console.log(`Current fruits: ${proxy.fruits.join(', ')}`);
+  }
+  
+  const { message } = proxy;
+  console.log(`Message: ${message}`);
+})();
+```

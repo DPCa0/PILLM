@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        '/user': { id: 1, name: 'John Doe', age: 30 },
+        '/posts': [
+          { id: 1, title: 'Post 1', body: 'Content of post 1' },
+          { id: 2, title: 'Post 2', body: 'Content of post 2' }
+        ]
+      };
+      data[url] ? resolve(data[url]) : reject('404 Not Found');
+    }, 1000);
+  });
+};
+
+ 
+const getUserAndPosts = async () => {
+  try {
+     
+    const [user, posts] = await Promise.all([fetchData('/user'), fetchData('/posts')]);
+
+     
+    const { name, age } = user;
+    const userInfo = `User: ${name}, Age: ${age}`;
+    print(userInfo);
+
+     
+    const postsInfo = posts.map(({ id, title, body }) => {
+      return `Post ${id}: ${title}\n${body}`;
+    }).join('\n\n');
+
+    print(`\nPosts:\n${postsInfo}`);
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+};
+
+ 
+getUserAndPosts();

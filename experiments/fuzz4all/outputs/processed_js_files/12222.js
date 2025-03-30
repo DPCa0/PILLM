@@ -1,0 +1,36 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(subscriber => subscriber(data));
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator(arr) {
+  for (const item of arr) {
+    await delay(500);
+    yield item * item;
+  }
+}
+
+const observable = new Observable();
+observable.subscribe(data => print('Observer 1:', data));
+observable.subscribe(data => print('Observer 2:', data));
+
+(async () => {
+  for await (const value of asyncGenerator([1, 2, 3, 4, 5])) {
+    observable.notify(value);
+  }
+})();

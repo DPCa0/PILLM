@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const loggerProxy = (obj) => new Proxy(obj, {
+    get(target, prop, receiver) {
+        console.log(`Accessing property '${prop}'`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+});
+
+const user = loggerProxy({
+    name: 'Alice',
+    age: 30
+});
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+async function fetchUserData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: 'Bob',
+                age: 25
+            });
+        }, 1000);
+    });
+}
+
+ 
+async function displayUserData() {
+    console.log('Fetching user data...');
+    const data = await fetchUserData();
+    console.log('User data fetched:', data);
+}
+
+ 
+async function main() {
+    user.name;   
+    user.age = 31;   
+
+    const gen = idGenerator();
+    console.log('Generated ID:', gen.next().value);
+    console.log('Generated ID:', gen.next().value);
+
+    await displayUserData();
+}
+
+main();
+```

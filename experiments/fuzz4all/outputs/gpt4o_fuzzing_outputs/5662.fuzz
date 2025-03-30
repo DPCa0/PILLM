@@ -1,0 +1,53 @@
+print('Hello, world!');
+Certainly! Below is a complex JavaScript program that demonstrates the use of advanced features such as asynchronous functions, Promises, arrow functions, the spread operator, and ES6 classes.
+
+```javascript
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetching error:', error);
+      throw error;
+    }
+  }
+}
+
+class DataProcessor {
+  static process(data) {
+    return data.map(({ id, name, age }) => ({
+      id,
+      name,
+      age: age + 1,
+    }));
+  }
+
+  static filter(data, predicate) {
+    return data.filter(predicate);
+  }
+}
+
+const fetchDataAndProcess = async (url) => {
+  const fetcher = new DataFetcher(url);
+  try {
+    const data = await fetcher.fetchData();
+    const processedData = DataProcessor.process(data);
+    const filteredData = DataProcessor.filter(processedData, ({ age }) => age > 30);
+    console.log('Filtered Data:', filteredData);
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+};
+
+const url = 'https://api.example.com/data';
+fetchDataAndProcess(url);
+```
+
+This program defines two classes: `DataFetcher` for fetching data from a given URL and `DataProcessor` for processing and filtering the fetched data. The `fetchDataAndProcess` function demonstrates asynchronous operations, error handling, and data manipulation.

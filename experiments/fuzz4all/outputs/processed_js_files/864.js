@@ -1,0 +1,50 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    
+    const results = data
+      .filter((post) => post.userId === 1)
+      .map(({ id, title }) => ({ id, title }))
+      .reduce((acc, curr) => {
+        acc[curr.id] = curr.title;
+        return acc;
+      }, {});
+
+    print(results);
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events[event]) return;
+    this.events[event].forEach(listener => listener(...args));
+  }
+}
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataProcessed', (results) => {
+  print('Data processed event triggered:', results);
+});
+
+(async () => {
+  await processData();
+  eventEmitter.emit('dataProcessed', { status: 'success' });
+})();

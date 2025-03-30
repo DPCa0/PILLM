@@ -1,0 +1,46 @@
+ 
+(async () => {
+  const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es/lodash.min.js');
+
+   
+  const user = new Proxy({ name: 'Alice', age: 25 }, {
+    set(target, property, value) {
+      print(`Property '${property}' changed from ${target[property]} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+  });
+
+   
+  user.age = 26;
+
+   
+  function safeHtml(strings, ...values) {
+    return strings.reduce((result, string, i) => result + string + _.escape(values[i] || ''), '');
+  }
+
+  const userInput = '<script>alert("Hack!")</script>';
+  const message = safeHtml`User input was: ${userInput}`;
+  print(message);   
+
+   
+  function* numberGenerator() {
+    let num = 0;
+    while (true) {
+      yield num++;
+    }
+  }
+
+  const numbers = numberGenerator();
+  print(numbers.next().value);  
+  print(numbers.next().value);  
+
+   
+  const fetchData = async () => {
+    return new Promise(resolve => setTimeout(() => resolve('Fetched Data'), 2000));
+  };
+
+  (async function() {
+    print(await fetchData());
+  })();
+})();

@@ -1,0 +1,52 @@
+ 
+ 
+
+class ApiClient {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.url}${endpoint}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+const processData = async () => {
+  const client = new ApiClient('https://jsonplaceholder.typicode.com');
+  const data = await client.fetchData('/users');
+  
+  const results = data.map(({ id, name, email }) => {
+    const domains = new Set();
+    const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+
+    if (validateEmail(email)) {
+      const domain = email.split('@')[1];
+      domains.add(domain);
+    }
+
+    return {
+      userId: id,
+      userName: name,
+      userEmail: email,
+      emailDomain: Array.from(domains).join(', ')
+    };
+  });
+
+  const summary = results.reduce((acc, { emailDomain }) => {
+    acc[emailDomain] = (acc[emailDomain] || 0) + 1;
+    return acc;
+  }, {});
+
+  console.log(`User Summary:\n${Object.entries(summary).map(([domain, count]) => 
+    `Domain: ${domain}, Count: ${count}`).join('\n')}`);
+};
+
+processData();

@@ -1,0 +1,36 @@
+ 
+
+const data = {
+  values: [1, 2, 3, 4, 5],
+};
+
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'values') {
+      return new Proxy(target[prop], {
+        get(arrTarget, index) {
+          const value = Reflect.get(arrTarget, index);
+          return value !== undefined ? value * 2 : value;
+        }
+      });
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxyData = new Proxy(data, handler);
+
+async function* asyncGenerator(arr) {
+  for (let value of arr) {
+    yield new Promise(resolve => setTimeout(() => resolve(value), 1000));
+  }
+}
+
+async function processAsyncData() {
+  const iterator = asyncGenerator(proxyData.values);
+  for await (const doubledValue of iterator) {
+    print('Doubled value:', doubledValue);
+  }
+}
+
+processAsyncData();

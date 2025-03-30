@@ -1,0 +1,40 @@
+ 
+const fetchData = (delay, data) => new Promise((resolve) => setTimeout(() => resolve(data), delay));
+
+ 
+async function* dataGenerator() {
+    const data1 = await fetchData(1000, 'Data 1');
+    yield data1;
+    const data2 = await fetchData(1500, 'Data 2');
+    yield data2;
+    const data3 = await fetchData(1200, 'Data 3');
+    yield data3;
+}
+
+ 
+const logAccessHandler = {
+    get(target, prop) {
+        print(`Accessed property ${prop}`);
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+(async () => {
+    const asyncGen = dataGenerator();
+    
+     
+    const proxiedData = new Proxy({}, logAccessHandler);
+
+     
+    for await (const data of asyncGen) {
+        proxiedData[data] = data;
+    }
+
+     
+    const { 'Data 1': d1, ...rest } = { ...proxiedData };
+    print('Extracted Data:', d1, rest);
+
+     
+    print('Check missing data:', proxiedData['Data 4']?.length ?? 'Data 4 is missing');
+})();

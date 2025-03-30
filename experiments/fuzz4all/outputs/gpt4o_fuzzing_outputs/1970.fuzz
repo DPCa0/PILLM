@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class CustomError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CustomError';
+    }
+}
+
+const fetchData = async (url) => {
+    if (!url) throw new CustomError("URL is required");
+    const response = await fetch(url);
+    if (!response.ok) throw new CustomError("Failed to fetch data");
+    return await response.json();
+};
+
+const transformData = (data) => {
+    return data.map(({ id, name, price }) => ({ 
+        id, 
+        name: name.toUpperCase(), 
+        price: parseFloat(price).toFixed(2) 
+    }));
+};
+
+(async () => {
+    try {
+        const proxyHandler = {
+            get: (target, prop) => {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    throw new CustomError(`Property ${prop} does not exist`);
+                }
+            }
+        };
+        
+        const dataEndpoint = "https://api.example.com/data";
+        const rawData = await fetchData(dataEndpoint);
+        const products = transformData(rawData);
+        
+        const proxiedProducts = new Proxy(products, proxyHandler);
+        
+        console.log("Product List:");
+        proxiedProducts.forEach(product => {
+            console.log(`ID: ${product.id}, Name: ${product.name}, Price: $${product.price}`);
+        });
+
+         
+        console.log(proxiedProducts.nonExistentProperty);
+    } catch (error) {
+        if (error instanceof CustomError) {
+            console.error(`Custom error occurred: ${error.message}`);
+        } else {
+            console.error(`An error occurred: ${error.message}`);
+        }
+    }
+})();
+```

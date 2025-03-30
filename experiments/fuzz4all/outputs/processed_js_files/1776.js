@@ -1,0 +1,66 @@
+ 
+
+ 
+const SECRET_KEY = Symbol('secret');
+
+ 
+class SecureContainer {
+  constructor(data) {
+    this[SECRET_KEY] = data;
+  }
+
+   
+  get data() {
+    return this[SECRET_KEY];
+  }
+
+   
+  set data(newData) {
+    this[SECRET_KEY] = newData;
+  }
+}
+
+ 
+async function delayOperation(message) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Operation Complete: ${message}`);
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'revealSecret') {
+      return target.data;
+    }
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    if (prop === 'alterSecret') {
+      target.data = value;
+      return true;
+    }
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+const myContainer = new Proxy(new SecureContainer('Top Secret Data'), handler);
+
+ 
+(async () => {
+  print('Starting Operation...');
+
+   
+  const result = await delayOperation('Processing Secure Data');
+  print(result);
+
+   
+  print('Revealing Secret:', myContainer.revealSecret);
+  
+   
+  myContainer.alterSecret = 'New Secret Data';
+  print('Secret Altered:', myContainer.revealSecret);
+})();

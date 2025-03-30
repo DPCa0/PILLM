@@ -1,0 +1,53 @@
+ 
+class Observable {
+  constructor(target = {}) {
+    this.listeners = new Map();
+    return this._createProxy(target);
+  }
+
+  _createProxy(target) {
+    return new Proxy(target, {
+      set: (obj, prop, value) => {
+        obj[prop] = value;
+        this._notify(prop, value);
+        return true;
+      },
+      get: (obj, prop) => {
+        return obj[prop];
+      }
+    });
+  }
+
+  subscribe(prop, callback) {
+    if (!this.listeners.has(prop)) {
+      this.listeners.set(prop, []);
+    }
+    this.listeners.get(prop).push(callback);
+  }
+
+  _notify(prop, value) {
+    if (this.listeners.has(prop)) {
+      this.listeners.get(prop).forEach(callback => callback(value));
+    }
+  }
+}
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+(async () => {
+   
+  const state = new Observable({ data: null });
+
+   
+  state.subscribe('data', (newValue) => {
+    print(`Data has been updated to: ${newValue}`);
+  });
+
+  print('Fetching data...');
+  await delay(2000);  
+  state.data = 'Hello, world!';  
+})();

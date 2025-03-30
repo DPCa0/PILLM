@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncOperation = (value, delay) => 
+    new Promise(resolve => setTimeout(() => resolve(value), delay));
+
+ 
+function* numberGenerator() {
+    let i = 0;
+    while (i < 3) {
+        yield asyncOperation(i++, 1000);
+    }
+}
+
+ 
+async function processNumbers() {
+    const numbers = numberGenerator();
+    for await (const num of numbers) {
+        console.log(`Processed number: ${num}`);
+    }
+}
+
+ 
+const targetObj = {
+    message: "Hello",
+    count: 0
+};
+
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Property '${prop}' accessed`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        console.log(`Property '${prop}' set to '${value}'`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+async function main() {
+     
+    console.log(proxyObj.message);
+    proxyObj.count = 42;
+    
+     
+    await processNumbers();
+}
+
+main();
+```

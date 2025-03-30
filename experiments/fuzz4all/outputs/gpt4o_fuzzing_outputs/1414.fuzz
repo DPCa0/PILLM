@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = { name: 'John Doe', age: 30, occupation: 'Software Developer' };
+        resolve(data);
+    }, 1000);
+});
+
+async function getUserData() {
+    try {
+        const user = await fetchData();
+        
+         
+        const { name, age, occupation } = user;
+        
+         
+        console.log(`User Info:\nName: ${name}\nAge: ${age}\nOccupation: ${occupation}`);
+        
+         
+        const skills = new Set(['JavaScript', 'React', 'Node.js']);
+        skills.add('GraphQL');
+        console.log('Skills:', [...skills].join(', '));
+
+         
+        const userMap = new Map();
+        userMap.set('id', 1);
+        userMap.set('location', 'New York');
+        console.log('User Map:', JSON.stringify(Array.from(userMap.entries())));
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+getUserData();
+
+ 
+const ROLE = Symbol('role');
+const employee = {
+    [ROLE]: 'Developer',
+    name: 'Alice',
+    displayRole() {
+        console.log(`Role: ${this[ROLE]}`);
+    }
+};
+employee.displayRole();
+
+ 
+class Person {
+    constructor(name) {
+        this.name = name;
+    }
+
+    greet() {
+        console.log(`Hello, my name is ${this.name}`);
+    }
+}
+
+class Developer extends Person {
+    constructor(name, language) {
+        super(name);
+        this.language = language;
+    }
+
+    code() {
+        console.log(`${this.name} is coding in ${this.language}`);
+    }
+}
+
+const dev = new Developer('Bob', 'JavaScript');
+dev.greet();
+dev.code();
+```

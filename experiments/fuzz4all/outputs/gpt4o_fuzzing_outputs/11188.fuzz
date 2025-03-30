@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline');
+
+ 
+async function* streamInput() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        terminal: false
+    });
+
+    for await (const line of rl) {
+        yield line;
+    }
+}
+
+ 
+(async function main() {
+    console.log('Welcome to the complex JavaScript program!');
+
+    const inputIterator = streamInput();
+
+     
+    const userData = new Proxy({}, {
+        set(target, prop, value) {
+            console.log(`Setting property ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        },
+        get(target, prop) {
+            console.log(`Getting property ${prop}`);
+            return target[prop] || "Property not set";
+        }
+    });
+
+    userData.name = "John Doe";
+    console.log(userData.name);
+
+    console.log("Please enter a series of numbers. Type 'done' to finish.");
+
+    let numbers = [];
+    
+    for await (const input of inputIterator) {
+        if (input.trim().toLowerCase() === 'done') break;
+        const number = parseFloat(input);
+        if (!isNaN(number)) numbers.push(number);
+    }
+
+     
+    const [first, second, ...rest] = numbers;
+    const sum = numbers.reduce((a, b) => a + b, 0);
+    const average = numbers.length ? sum / numbers.length : 0;
+    console.log(`First Number: ${first}, Second Number: ${second}, Sum: ${sum}, Average: ${average}`);
+
+     
+    const uniqueNumbers = [...new Set(numbers)];
+    console.log(`Unique numbers: ${uniqueNumbers.join(', ')}`);
+
+     
+    const closureExample = (() => {
+        let counter = 0;
+        return () => ++counter;
+    })();
+
+    console.log(`Counter: ${closureExample()}`);
+    console.log(`Counter: ${closureExample()}`);
+
+    console.log("Thanks for using this complex JavaScript program!");
+})();
+```

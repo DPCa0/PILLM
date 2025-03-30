@@ -1,0 +1,68 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    once(event, listener) {
+        const wrapper = (...args) => {
+            listener(...args);
+            this.off(event, wrapper);
+        };
+        this.on(event, wrapper);
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            const newListeners = this.events.get(event).filter(l => l !== listener);
+            this.events.set(event, newListeners);
+        }
+    }
+}
+
+const asyncHandler = async (eventEmitter, eventName) => {
+    return new Promise((resolve) => {
+        eventEmitter.once(eventName, (data) => resolve(data));
+    });
+};
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const randomFunction = async (emitter) => {
+    const interval = setInterval(() => {
+        const randomNum = Math.floor(Math.random() * 100);
+        emitter.emit('random', randomNum);
+        if (randomNum > 90) {
+            clearInterval(interval);
+            emitter.emit('completed', 'Random number > 90 generated, stopping...');
+        }
+    }, 500);
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('random', (num) => {
+        print(`Random number: ${num}`);
+    });
+
+    randomFunction(emitter);
+
+    const result = await asyncHandler(emitter, 'completed');
+    print(result);
+
+    await delay(500);
+    print('Program finished.');
+})();

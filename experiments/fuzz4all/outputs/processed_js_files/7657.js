@@ -1,0 +1,71 @@
+ 
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ id: 1, name: 'Advanced JavaScript', attributes: { complexity: 'high', usefulness: 'great' } });
+            } else {
+                reject(new Error('Invalid URL'));
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function processData(url) {
+    try {
+        const response = await fetchData(url);
+        const { id, name, attributes: { complexity, usefulness } } = response;  
+        const details = { id, name, complexity, usefulness };
+        return details;
+    } catch (error) {
+        return { error: error.message };
+    }
+}
+
+ 
+const DataModule = (() => {
+    const dataStore = new Map();
+
+    return {
+        addData(id, data) {
+            dataStore.set(id, data);
+        },
+        getData(id) {
+            return dataStore.get(id);
+        }
+    };
+})();
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Getting property ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property ${prop} with value ${JSON.stringify(value)}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxiedDataModule = new Proxy(DataModule, handler);
+
+ 
+(async () => {
+    const url = 'https://api.example.com/data';
+    const result = await processData(url);
+
+    if (!result.error) {
+        proxiedDataModule.addData(result.id, result);
+
+        const storedData = proxiedDataModule.getData(result.id);
+        print('Stored Data:', { ...storedData });  
+    } else {
+        console.error('Error:', result.error);
+    }
+})();

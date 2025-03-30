@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve({ user: 'Jane Doe', balance: 250 });
+  }, 1000);
+});
+
+ 
+async function getUserData() {
+  try {
+    let { user, balance } = await fetchData();
+    
+     
+    const transactionLog = [
+      { id: 1, type: 'credit', amount: 100 },
+      { id: 2, type: 'debit', amount: 50 }
+    ];
+    const newTransaction = { id: 3, type: 'credit', amount: 200 };
+    transactionLog.push({ ...newTransaction });
+    
+    balance += newTransaction.amount;
+
+     
+    const handler = {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          console.warn(`Property ${prop} doesn't exist`);
+        }
+      }
+    };
+
+    const proxyLog = new Proxy(transactionLog, handler);
+
+    return { user, balance, proxyLog };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+// Using a Symbol to create a unique log identifier
+const logSymbol = Symbol('transactionLog');
+
+ 
+(async () => {
+  const result = await getUserData();
+  console.log(`User: ${result.user}`);
+  console.log(`Balance: ${result.balance}`);
+  console.log(`Transaction Log [${String(logSymbol)}]:`, result.proxyLog);
+})();
+```

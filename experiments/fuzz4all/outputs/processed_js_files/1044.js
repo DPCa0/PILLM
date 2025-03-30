@@ -1,0 +1,51 @@
+ 
+const fetchData = async (url) => {
+   
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  if (url === "https://api.example.com/data") {
+    return { data: [1, 2, 3, 4, 5] };
+  } else {
+    throw new Error("404 Not Found");
+  }
+};
+
+ 
+const createProxy = (obj) => {
+  return new Proxy(obj, {
+    get(target, property) {
+      print(`Accessing property: ${property}`);
+      return target[property];
+    }
+  });
+};
+
+ 
+function* generateSequence() {
+  yield* [10, 20, 30, 40];
+}
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData("https://api.example.com/data");
+    print("Fetched data:", data);
+
+     
+    const proxyData = createProxy(data);
+    print("Data through proxy:", proxyData.data);
+
+     
+    const uniqueValues = new Set(proxyData.data);
+    print("Unique values:", [...uniqueValues]);
+
+     
+    const sequence = generateSequence();
+    for (let value of sequence) {
+      print("Generated value:", value);
+    }
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

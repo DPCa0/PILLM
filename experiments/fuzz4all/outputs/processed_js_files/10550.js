@@ -1,0 +1,40 @@
+ 
+import fs from 'fs/promises';
+import { pipeline } from 'stream/promises';
+import fetch from 'node-fetch';
+
+ 
+async function advancedFeaturesDemo() {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+
+     
+    const [firstPost, ...otherPosts] = data;
+    print('First Post:', firstPost);
+
+     
+    const postString = JSON.stringify(otherPosts, null, 2);
+    const fileName = `posts_${Date.now()}.json`;
+
+     
+    await fs.writeFile(fileName, postString);
+    print(`File written: ${fileName}`);
+
+     
+    await pipeline(
+      fs.createReadStream(fileName),
+      fs.createWriteStream(`copy_of_${fileName}`)
+    );
+    print(`File copy created: copy_of_${fileName}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+advancedFeaturesDemo();

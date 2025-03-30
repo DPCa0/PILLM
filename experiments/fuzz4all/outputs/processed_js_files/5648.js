@@ -1,0 +1,51 @@
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+async function processJsonFile(filePath) {
+    try {
+         
+        const { data } = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
+
+         
+        const uniqueData = new Set(data);
+        const dataMap = new Map();
+
+        uniqueData.forEach(item => {
+             
+            const key = `Item-${item.id}`;
+            dataMap.set(key, item);
+        });
+
+         
+        for (const [key, value] of dataMap.entries()) {
+            print(`${key}: ${JSON.stringify(value)}`);
+        }
+
+    } catch (error) {
+        console.error(`Error processing file: ${error.message}`);
+    }
+}
+
+ 
+(async () => {
+     
+    const sampleData = { data: [...Array(5)].map((_, i) => ({ id: i, name: `Name${i}` })) };
+
+     
+    const cache = new WeakSet();
+    cache.add(sampleData);
+
+     
+    if (!cache.has(sampleData)) {
+        const { processJsonFile } = await import('./dynamicModule.js');
+        processJsonFile();
+    } else {
+         
+        const filePath = './sampleData.json';
+        await fsPromises.writeFile(filePath, JSON.stringify(sampleData, null, 2));
+
+         
+        processJsonFile(filePath);
+    }
+})();

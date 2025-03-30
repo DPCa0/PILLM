@@ -1,0 +1,40 @@
+ 
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function fetchFibonacci(n) {
+    const gen = fibonacci();
+    const fibNumbers = [];
+    for (let i = 0; i < n; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        fibNumbers.push(gen.next().value);
+    }
+    return fibNumbers;
+}
+
+ 
+const fibHandler = {
+    get: (target, prop) => {
+        if (prop === 'sum') {
+            return target.reduce((sum, num) => sum + num, 0);
+        }
+        return target[prop];
+    }
+};
+
+ 
+(async () => {
+    const numbers = await fetchFibonacci(10);
+    const fibProxy = new Proxy(numbers, fibHandler);
+    
+    print('Fibonacci Sequence:', fibProxy);
+    print('Sum of Fibonacci Sequence:', fibProxy.sum);
+})();

@@ -1,0 +1,64 @@
+ 
+function htmlEscape(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+        let value = values[i - 1];
+        if (Array.isArray(value)) {
+            value = value.join(', ');
+        }
+        value = String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        return result + value + str;
+    });
+}
+
+// Use a Proxy to monitor and log object interactions
+const userData = new Proxy(
+    { username: 'JohnDoe', email: 'john@example.com', roles: ['user'] },
+    {
+        get(target, property) {
+            print(`Property '${property}' has been accessed.`);
+            return target[property];
+        },
+        set(target, property, value) {
+            print(`Property '${property}' has been set to '${value}'.`);
+            target[property] = value;
+            return true;
+        },
+    }
+);
+
+// Use the proxy object
+print(userData.username); // Access
+userData.roles.push('admin'); // Modify
+
+// Employ async/await with Promises
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+// Generate a random ID using Crypto API
+const generateId = () => [...crypto.getRandomValues(new Uint8Array(8))]
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+
+print(`Generated ID: ${generateId()}`);
+
+// Example using the templating function and async fetch
+async function displayUserInfo() {
+    let userData = await fetchData('https: 
+    if (userData) {
+        print(htmlEscape`<p>User: ${userData.name}</p><p>Email: ${userData.email}</p>`);
+    }
+}
+
+displayUserInfo();

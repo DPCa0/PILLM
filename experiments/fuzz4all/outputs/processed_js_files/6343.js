@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) {
+                resolve({ data: `Data from ${url}` });
+            } else {
+                reject('URL is required');
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function displayData(url) {
+    try {
+        const { data } = await fetchData(url);
+        print(`Fetched: ${data}`);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+ 
+displayData('https://api.example.com/data');
+
+ 
+const urls = ['https://api.site1.com', 'https://api.site2.com', 'https://api.site3.com'];
+Promise.all(urls.map(url => fetchData(url)))
+    .then(results => {
+        results.forEach(({ data }, index) => {
+            print(`Result ${index + 1}: ${data}`);
+        });
+    })
+    .catch(error => {
+        console.error(`Failed to fetch data from all URLs: ${error}`);
+    });
+
+ 
+const user = { name: 'Alice', age: 30, location: 'Wonderland' };
+const { name, age, location } = user;
+print(`${name}, age ${age}, lives in ${location}.`);

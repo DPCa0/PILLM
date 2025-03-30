@@ -1,0 +1,43 @@
+ 
+
+function* generator() {
+  let index = 0;
+  while (true) {
+    yield index++;
+  }
+}
+
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return `Property '${prop}' doesn't exist`;
+    }
+  }
+};
+
+const complexObject = new Proxy({
+  async fetchData(url) {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    let data = await response.json();
+    return data;
+  }
+}, handler);
+
+async function processData(generator) {
+  const index = generator.next().value;
+  print(`Fetching data for index ${index}`);
+  try {
+    const data = await complexObject.fetchData('https: 
+    print('Data:', data);
+  } catch (error) {
+    print('Error:', error.message);
+  }
+}
+
+const gen = generator();
+processData(gen);
+processData(gen);
+processData(gen);

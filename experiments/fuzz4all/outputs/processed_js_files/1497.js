@@ -1,0 +1,50 @@
+class AdvancedArray extends Array {
+  constructor(...args) {
+    super(...args);
+  }
+
+  async mapAsync(callback) {
+    return Promise.all(this.map(callback));
+  }
+}
+
+const data = new AdvancedArray(1, 2, 3, 4, 5);
+
+async function complexAsyncOperation(x) {
+  await new Promise(resolve => setTimeout(resolve, 100));  
+  return x * 2;
+}
+
+async function processData() {
+  const mappedData = await data.mapAsync(async (num) => {
+    const result = await complexAsyncOperation(num);
+    return { original: num, processed: result };
+  });
+
+  const aggregate = mappedData.reduce((acc, val) => acc + val.processed, 0);
+
+  print('Mapped Data:', mappedData);
+  print('Aggregate:', aggregate);
+}
+
+processData();
+
+function* fibonacci(n) {
+  let a = 0, b = 1;
+  while (n-- > 0) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const fibSeries = [...fibonacci(10)];
+print('Fibonacci Series:', fibSeries);
+
+(async () => {
+  const promise1 = Promise.resolve(3);
+  const promise2 = 42;
+  const promise3 = new Promise((resolve) => setTimeout(resolve, 100, 'foo'));
+
+  const allResolved = await Promise.allSettled([promise1, promise2, promise3]);
+  print('All Promises Settled:', allResolved);
+})();

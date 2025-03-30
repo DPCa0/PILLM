@@ -1,0 +1,84 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+  static #instances = 0;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+    ComplexNumber.#instances++;
+  }
+
+  static get instances() {
+    return ComplexNumber.#instances;
+  }
+
+   
+  get real() {
+    return this.#real;
+  }
+
+  set real(value) {
+    if (typeof value !== 'number') throw new Error('Real part must be a number');
+    this.#real = value;
+  }
+
+  get imaginary() {
+    return this.#imaginary;
+  }
+
+  set imaginary(value) {
+    if (typeof value !== 'number') throw new Error('Imaginary part must be a number');
+    this.#imaginary = value;
+  }
+
+   
+  *[Symbol.iterator]() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+
+   
+  static async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+   
+  toString() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+}
+
+ 
+const handler = {
+  set(target, prop, value) {
+    if (prop === 'real' || prop === 'imaginary') {
+      if (typeof value !== 'number') throw new TypeError('Value must be a number');
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const complex = new Proxy(new ComplexNumber(3, 4), handler);
+console.log(complex.toString());  
+console.log([...complex]);  
+
+ 
+ComplexNumber.fetchData('https://jsonplaceholder.typicode.com/todos/1').then(data =>
+  console.log('Fetched data:', data)
+);
+
+console.log('Current instances:', ComplexNumber.instances);  
+```

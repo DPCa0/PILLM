@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+import { createServer } from 'http';
+import { readFile } from 'fs/promises';
+
+ 
+async function processData(data) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(data.split('').reverse().join(''));
+    }, 1000);
+  });
+}
+
+ 
+const main = async () => {
+  try {
+     
+    const content = await readFile('data.txt', 'utf8');
+    
+     
+    const processedData = await processData(content);
+    
+     
+    const server = createServer(async (req, res) => {
+      if (req.url === '/') {
+         
+        const responseText = `Hello, processed data is: ${processedData ?? 'No data processed'}`;
+        
+         
+        const headers = new Set(['Content-Type', 'text/plain']);
+        headers.forEach((value, key) => res.setHeader(key, value));
+
+         
+        res.writeHead(200);
+        res.end(responseText);
+      } else {
+        res.writeHead(404);
+        res.end('Not Found');
+      }
+    });
+
+     
+    server.listen(3000, () => console.log('Server running at http://localhost:3000')?.address);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+main();
+```
+
+This JavaScript program uses various advanced features, including top-level await with an IIFE for initializing the async process, promises for file reading, async/await for data processing, modern syntax for server creation, template literals, the Set object for unique header setting, and optional chaining for safely accessing object properties.

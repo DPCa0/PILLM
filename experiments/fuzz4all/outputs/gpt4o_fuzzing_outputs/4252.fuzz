@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processUsers = async () => {
+  try {
+    const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+
+    const userMap = users.reduce((acc, user) => {
+      const { id, name, email } = user;
+      acc[id] = { name, email };
+      return acc;
+    }, {});
+
+    console.log('Processed User Map:', userMap);
+
+    const printUserDetails = async ({ id }) => {
+      const posts = await fetchData(`https: 
+      console.log(`User ${id} has ${posts.length} posts.`);
+    };
+
+    await Promise.all(
+      Object.keys(userMap).map(async (id) => {
+        await printUserDetails({ id });
+      })
+    );
+
+  } catch (error) {
+    console.error('Error processing users:', error);
+  }
+};
+
+processUsers();
+```

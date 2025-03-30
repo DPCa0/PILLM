@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (ms) => {
+    return new Promise(resolve => setTimeout(() => {
+        resolve({
+            name: "Advanced JavaScript",
+            level: "Complex",
+            features: ["async/await", "Promises", "Arrow Functions", "Spread Operator", "Destructuring"]
+        });
+    }, ms));
+};
+
+ 
+const getCourseInfo = async () => {
+    try {
+        const data = await fetchData(1000);
+        
+         
+        const { name, level, features } = data;
+
+        console.log(`Course: ${name}`);
+        console.log(`Level: ${level}`);
+
+         
+        const allFeatures = [...features, "Template Literals", "Modules"];
+
+        console.log("Features:");
+        
+         
+        displayFeatures(...allFeatures);
+
+    } catch (error) {
+        console.error("Error fetching course info:", error);
+    }
+};
+
+ 
+const displayFeatures = (...features) => {
+    features.forEach((feature, index) => {
+        console.log(`${index + 1}. ${feature}`);
+    });
+};
+
+ 
+getCourseInfo();
+```

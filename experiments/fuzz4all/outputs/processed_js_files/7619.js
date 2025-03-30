@@ -1,0 +1,29 @@
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator(data) {
+  for (let item of data) {
+    await delay(500);
+    yield item;
+  }
+}
+
+const fibonacci = (function* () {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+})();
+
+(async function() {
+  const asyncData = asyncGenerator([10, 20, 30, 40, 50]);
+  const fibNumbers = Array.from({ length: 5 }, () => fibonacci.next().value);
+  
+  print("Fibonacci Sequence:", fibNumbers);
+  
+  for await (let num of asyncData) {
+    const doubled = fibNumbers.map(x => x * num);
+    print(`Doubled Fibonacci numbers by ${num}:`, doubled);
+  }
+})();
+

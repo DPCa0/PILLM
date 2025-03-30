@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { readFileSync, writeFileSync } = await import('fs');
+  const { homedir, userInfo } = await import('os');
+
+   
+  const validator = {
+    set: (obj, prop, value) => {
+      if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+        throw new TypeError('Age must be a positive number');
+      }
+      obj[prop] = value;
+      return true;
+    }
+  };
+
+   
+  const person = new Proxy({}, validator);
+  person.name = 'John Doe';
+  person.age = 30;
+
+   
+  function* userInfoGenerator(userObj) {
+    for (const [key, value] of Object.entries(userObj)) {
+      yield `${key}: ${value}`;
+    }
+  }
+
+   
+  const { username } = userInfo();
+  const info = [...userInfoGenerator({ username, ...person })].join('\n');
+
+   
+  const filePath = `${homedir()}/user_info.txt`;
+  writeFileSync(filePath, info);
+
+   
+  const readFile = (path) => new Promise((resolve, reject) => {
+    try {
+      resolve(readFileSync(path, 'utf-8'));
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+  try {
+    const fileContent = await readFile(filePath);
+    console.log('User Info:', fileContent);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+})();
+```

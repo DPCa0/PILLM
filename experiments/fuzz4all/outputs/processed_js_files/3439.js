@@ -1,0 +1,50 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {
+                resolve(`Data from ${url}`);
+            } else {
+                reject('Network Error');
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* asyncGenerator(urls) {
+    for (let url of urls) {
+        try {
+            let data = yield fetchData(url);
+            print(`Received: ${data}`);
+        } catch (error) {
+            console.error(`Error fetching data from ${url}: ${error}`);
+        }
+    }
+}
+
+ 
+async function runAsyncGenerator(genFunc, urls) {
+    const genObject = genFunc(urls);
+    
+    while (true) {
+        const next = genObject.next();
+
+        if (next.done) break;
+
+        try {
+            const data = await next.value;
+            genObject.next(data);
+        } catch (err) {
+            genObject.throw(err);
+        }
+    }
+}
+
+ 
+const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+
+ 
+runAsyncGenerator(asyncGenerator, urls);

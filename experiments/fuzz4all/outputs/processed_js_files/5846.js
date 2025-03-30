@@ -1,0 +1,51 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(subscriber) {
+        this.subscribers.add(subscriber);
+    }
+
+    unsubscribe(subscriber) {
+        this.subscribers.delete(subscriber);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+(async function main() {
+    const dataObservable = new Observable();
+    const debouncedLog = debounce(console.log, 300);
+
+    const subscriber = data => debouncedLog(`Received data: ${JSON.stringify(data)}`);
+    dataObservable.subscribe(subscriber);
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        dataObservable.notify(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+
+    setTimeout(() => {
+        dataObservable.unsubscribe(subscriber);
+        print('Unsubscribed from data notifications');
+    }, 1000);
+})();

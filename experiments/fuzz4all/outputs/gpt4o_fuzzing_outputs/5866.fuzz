@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const dataHandler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Getting ${property}`);
+      return Reflect.get(target, property);
+    } else {
+      console.log(`Property ${property} not found`);
+    }
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    Reflect.set(target, property, value);
+    return true;
+  }
+};
+
+const proxiedData = new Proxy({}, dataHandler);
+
+async function fetchData() {
+  console.log("Fetching data...");
+  await delay(2000);
+  proxiedData.name = "JavaScript";
+  proxiedData.type = "Programming Language";
+  
+  console.log(`Data received: ${proxiedData.name}, ${proxiedData.type}`);
+  return proxiedData;
+}
+
+(async () => {
+  try {
+    const result = await fetchData();
+    console.log(`Result: ${result.name}, ${result.type}`);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();
+```

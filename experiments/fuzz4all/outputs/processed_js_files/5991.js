@@ -1,0 +1,33 @@
+class DataProcessor {
+  #data;
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  *filterData(predicate) {
+    for (const item of this.#data) {
+      if (predicate(item)) yield item;
+    }
+  }
+  
+  async processData(operation) {
+    const results = [];
+    for await (const item of this.filterData(i => i % 2 === 0)) {
+      results.push(operation(item));
+    }
+    return results;
+  }
+
+  static async processAndLog(data, operation) {
+    const processor = new DataProcessor(data);
+    const results = await processor.processData(operation);
+    print(`Processed Results: ${results}`);
+  }
+}
+
+(async () => {
+  const complexOperation = n => n * n;
+  const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  await DataProcessor.processAndLog(data, complexOperation);
+})();

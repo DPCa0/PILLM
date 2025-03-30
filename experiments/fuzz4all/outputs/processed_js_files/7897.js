@@ -1,0 +1,45 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* dataGenerator() {
+  for (let i = 0; i < 5; i++) {
+    await delay(500);  
+    yield `Data-${i}`;
+  }
+}
+
+ 
+async function processData() {
+  let processedData = [];
+  for await (let data of dataGenerator()) {
+    print(`Processing: ${data}`);
+    processedData.push(data.toUpperCase());
+  }
+  return processedData;
+}
+
+ 
+async function complexProcessing() {
+  try {
+    let results = await processData();
+    
+     
+    let summary = results
+      .map(item => ({ original: item.toLowerCase(), transformed: item }))
+      .reduce((acc, curr) => {
+        acc.total++;
+        acc.items.push(curr);
+        return acc;
+      }, { total: 0, items: [] });
+
+    print('Summary:', summary);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+complexProcessing();

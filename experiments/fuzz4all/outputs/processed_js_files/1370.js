@@ -1,0 +1,29 @@
+ 
+
+class DataFetcher {
+    static async fetchData(urls) {
+         
+        const fetch = (url) => new Promise((resolve) =>
+            setTimeout(() => resolve({ url, data: `Data from ${url}` }), 1000)
+        );
+
+         
+        const results = await Promise.all(urls.map(url => fetch(url)));
+
+         
+        return results.map(({ url, data }) => ({ url, data }));
+    }
+}
+
+ 
+(async () => {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+    
+    try {
+        const data = await DataFetcher.fetchData(urls);
+         
+        data.forEach(({ url, data }) => print(`Fetched from ${url}: ${data}`));
+    } catch (error) {
+        console.error(`Error fetching data: ${error.message}`);
+    }
+})();

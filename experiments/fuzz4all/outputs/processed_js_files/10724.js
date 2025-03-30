@@ -1,0 +1,42 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+  
+    calculate(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+function* fibonacciSequence(limit) {
+    const fib = new Fibonacci();
+    let n = 0;
+    while (n < limit) {
+        yield fib.calculate(n);
+        n++;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return response.json();
+}
+
+(async () => {
+    print("Fibonacci sequence up to 10:");
+    for (const num of fibonacciSequence(10)) {
+        print(num);
+    }
+  
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        print("Fetched data:", data);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+})();

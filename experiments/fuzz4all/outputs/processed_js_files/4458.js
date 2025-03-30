@@ -1,0 +1,26 @@
+const createMatrix = (size) => 
+  Array.from({ length: size }, (_, i) =>
+    Array.from({ length: size }, (_, j) => (i + j) % 2 ? 'X' : 'O')
+  );
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const animateMatrix = async (size, iterations, interval) => {
+  let matrix = createMatrix(size);
+
+  for (let count = 0; count < iterations; count++) {
+    console.clear();
+    console.table(matrix);
+    
+    matrix = matrix.map(row => row.map(val => (val === 'X' ? 'O' : 'X')));
+    await delay(interval);
+  }
+};
+
+(async () => {
+  const size = 5;         
+  const iterations = 10;  
+  const interval = 500;   
+
+  await animateMatrix(size, iterations, interval);
+})();

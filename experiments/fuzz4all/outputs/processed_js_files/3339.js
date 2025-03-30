@@ -1,0 +1,61 @@
+ 
+async function fetchUserData() {
+  const response = await fetch('https://randomuser.me/api/');
+  const data = await response.json();
+  return data.results[0];
+}
+
+ 
+function* arrayIterator(arr) {
+  for (let item of arr) {
+    yield item;
+  }
+}
+
+ 
+class UserProcessor {
+  constructor(users) {
+    this._users = users;
+    this._process = this.#privateProcess();
+  }
+
+   
+  #privateProcess() {
+    const weakMap = new WeakMap();
+    for (let user of this._users) {
+      weakMap.set(user, { processed: true, timestamp: new Date() });
+    }
+    return (user) => weakMap.get(user);
+  }
+
+   
+  processUsers() {
+    for (let user of this._users) {
+      print(`Processing ${user.name.first} ${user.name.last}:`, this._process(user));
+    }
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const users = [];
+    for (let i = 0; i < 3; i++) {
+      users.push(await fetchUserData());
+    }
+
+     
+    const userIterator = arrayIterator(users);
+    print('Iterating over users:');
+    for (let user of userIterator) {
+      print(`${user.name.first} ${user.name.last}`);
+    }
+
+     
+    const processor = new UserProcessor(users);
+    processor.processUsers();
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

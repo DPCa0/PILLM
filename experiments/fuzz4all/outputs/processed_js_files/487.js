@@ -1,0 +1,46 @@
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  async processData() {
+    try {
+      const results = await Promise.all(this.data.map(async (item) => {
+        const { id, value } = item;  
+        const processedValue = await this.asyncTask(value);
+        return { id, processedValue };
+      }));
+      return this.aggregateResults(...results);  
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+   
+  asyncTask(value) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(value * 2), 1000);  
+    });
+  }
+
+   
+  aggregateResults(...results) {  
+    return results.reduce((acc, { processedValue }) => acc + processedValue, 0);
+  }
+}
+
+ 
+(async () => {
+  const sampleData = [
+    { id: 1, value: 10 },
+    { id: 2, value: 20 },
+    { id: 3, value: 30 }
+  ];
+
+  const processor = new DataProcessor(sampleData);
+  const total = await processor.processData();
+  print('Total processed value:', total);
+})();

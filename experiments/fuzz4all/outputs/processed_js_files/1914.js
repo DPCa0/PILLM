@@ -1,0 +1,40 @@
+class DataFetcher {
+  async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+class Processor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *[Symbol.iterator]() {
+    for (const item of this.data) {
+      yield item.toUpperCase();
+    }
+  }
+
+  async process(delay) {
+    for (const item of this) {
+      print(item);
+      await new Promise(res => setTimeout(res, delay));
+    }
+  }
+}
+
+(async () => {
+  try {
+    const fetcher = new DataFetcher();
+    const data = await fetcher.fetchData('https://api.mocki.io/v1/ce5f60e2');  
+
+    const processor = new Processor(data);
+    await processor.process(1000);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();
+
+This code demonstrates using async/await for asynchronous data fetching, classes for object-oriented programming, iterators to yield data, and Promises for introducing a delay between processing elements.

@@ -1,0 +1,45 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async function complexFeatures() {
+  try {
+     
+    const [data1, data2] = await Promise.all([
+      fs.readFile('./file1.txt', 'utf8'),
+      fs.readFile('./file2.txt', 'utf8')
+    ]);
+
+     
+    const transformedData = [data1, data2].map(data => data.toUpperCase());
+
+     
+    const uniqueData = [...new Set(transformedData)];
+
+     
+    const [first, ...rest] = uniqueData;
+
+     
+    const handler = {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          print(`Accessing property: ${prop}`);
+          return Reflect.get(target, prop, receiver);
+        } else {
+          return `Property ${prop} not found!`;
+        }
+      }
+    };
+
+     
+    const proxyObj = new Proxy({ first, rest }, handler);
+
+     
+    print(proxyObj.first);
+    print(proxyObj.rest);
+    print(proxyObj.nonExistentProperty);  
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

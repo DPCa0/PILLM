@@ -1,0 +1,50 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(size, fn) {
+    return new Matrix(
+      Array.from({ length: size }, (_, i) =>
+        Array.from({ length: size }, (_, j) => fn(i, j))
+      )
+    );
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => fn(val, i, j))));
+  }
+
+  reduce(fn, initialValue) {
+    return this.data.reduce(
+      (acc, row, i) =>
+        row.reduce((acc, val, j) => fn(acc, val, i, j), acc),
+      initialValue
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+(async () => {
+  const size = 4;
+  const matrix = Matrix.from(size, (i, j) => i * size + j + 1);
+
+  print("Original Matrix:");
+  print(matrix.toString());
+
+  const squaredMatrix = matrix.map(x => x ** 2);
+  print("\nSquared Matrix:");
+  print(squaredMatrix.toString());
+
+  const sumOfAllElements = matrix.reduce((sum, x) => sum + x, 0);
+  print("\nSum of all elements:", sumOfAllElements);
+
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  print("\nSimulating async task...");
+
+  await delay(1000);
+  print("Task complete.");
+})();

@@ -1,0 +1,35 @@
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+(async () => {
+     
+    const fs = await import('fs/promises');
+
+     
+    const fibSet = new Set();
+    const fibGen = fibonacci();
+    while (fibSet.size < 10) {  
+        fibSet.add(fibGen.next().value);
+    }
+
+     
+    const fibArray = [...fibSet].sort((a, b) => a - b);
+    
+     
+    const data = JSON.stringify({ fibonacciNumbers: fibArray }, null, 2);
+
+     
+    try {
+        await fs.writeFile('fibonacci.json', data);
+        print('Fibonacci numbers saved to fibonacci.json');
+    } catch (error) {
+        console.error('Error writing file:', error);
+    }
+})();

@@ -1,0 +1,42 @@
+ 
+async function* fetchData(apiUrls) {
+    for (const url of apiUrls) {
+        const response = await fetch(url);
+        if (response.ok) {
+            yield response.json();
+        } else {
+            yield Promise.reject(`Failed to fetch from ${url}`);
+        }
+    }
+}
+
+const handler = {
+    get: function (target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(...arguments);
+        } else {
+            console.warn(`Property ${prop} does not exist on target`);
+            return () => 'N/A';
+        }
+    }
+};
+
+const dynamicObject = new Proxy({
+    greet: () => 'Hello, world!',
+    farewell: () => 'Goodbye!'
+}, handler);
+
+(async function main() {
+    const apiUrls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+
+    for await (const data of fetchData(apiUrls)) {
+        print('Fetched data:', data);
+    }
+
+    print(dynamicObject.greet());
+    print(dynamicObject.farewell());
+    print(dynamicObject.nonExistentMethod());  
+})();

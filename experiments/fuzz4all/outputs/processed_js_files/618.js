@@ -1,0 +1,52 @@
+ 
+const delayWithRandomTime = (min, max) => new Promise((resolve) => {
+    const randomTime = Math.floor(Math.random() * (max - min + 1)) + min;
+    setTimeout(resolve, randomTime);
+});
+
+ 
+async function complexSequence() {
+     
+    const { user: { name = 'Guest', settings: { theme = 'light' } = {} } = {} } = {
+        user: {
+            name: 'Alice',
+            settings: { theme: 'dark' }
+        }
+    };
+
+     
+    const tag = (strings, ...values) => strings.reduce((result, str, i) => result + str + (values[i] || ''), '');
+    const message = tag`Welcome, ${name}. You are using ${theme} theme.`;
+    print(message);
+
+     
+    await delayWithRandomTime(1000, 3000);
+
+     
+    const data = { counter: 0 };
+    const handler = {
+        set(target, prop, value) {
+            print(`Setting ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+    const proxyData = new Proxy(data, handler);
+    
+     
+    for (let i = 0; i < 5; i++) {
+        await delayWithRandomTime(500, 1000);
+        proxyData.counter += i;
+    }
+    
+    print(`Final counter value: ${proxyData.counter}`);
+}
+
+ 
+(async () => {
+    try {
+        await complexSequence();
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

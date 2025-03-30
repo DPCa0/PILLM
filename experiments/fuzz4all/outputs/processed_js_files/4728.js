@@ -1,0 +1,38 @@
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+  }
+
+  addTask(description, delay) {
+    const task = async () => {
+      await new Promise(res => setTimeout(res, delay));
+      print(description);
+    };
+    this.tasks.push(task);
+  }
+
+  runAll() {
+    return Promise.all(this.tasks.map(task => task()));
+  }
+}
+
+ 
+(async () => {
+  const scheduler = new Scheduler();
+
+  scheduler.addTask('Task 1: Initializing...', 1000);
+  scheduler.addTask('Task 2: Processing...', 2000);
+  scheduler.addTask('Task 3: Finalizing...', 1500);
+
+  print('Starting Tasks...');
+
+   
+  const timeFormatter = ([start], time) => `${start}${(time / 1000).toFixed(2)} seconds`;
+  
+  console.time('Total Time');
+  await scheduler.runAll();
+  console.timeEnd('Total Time');
+
+  const endTime = performance.now();
+  print(timeFormatter`Total Execution Time: ${endTime}`);
+})();

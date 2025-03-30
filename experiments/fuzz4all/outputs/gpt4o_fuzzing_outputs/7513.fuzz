@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiEndpoint);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetching data failed:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  static process({ results, ...metadata }) {
+    return {
+      summary: metadata,
+      processedResults: results.map((item) => ({
+        ...item,
+        processed: true
+      }))
+    };
+  }
+}
+
+const apiHandler = new Proxy(DataFetcher, {
+  construct(target, args) {
+    console.log(`Creating instance for API: ${args[0]}`);
+    return new target(...args);
+  }
+});
+
+(async () => {
+  const apiUrl = 'https://randomuser.me/api/?results=5';
+  const fetcher = new apiHandler(apiUrl);
+  const rawData = await fetcher.fetchData();
+  
+  const processedData = DataProcessor.process(rawData);
+  
+  const { summary, processedResults } = processedData;
+  console.log('Metadata:', summary);
+  console.log('Results:', processedResults);
+})();
+```

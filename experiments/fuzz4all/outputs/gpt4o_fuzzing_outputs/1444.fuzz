@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+  constructor(initialValue = 0) {
+    this.value = Promise.resolve(initialValue);
+  }
+
+  add(amount) {
+    this.value = this.value.then(val => val + amount);
+    return this;
+  }
+
+  subtract(amount) {
+    this.value = this.value.then(val => val - amount);
+    return this;
+  }
+
+  multiply(amount) {
+    this.value = this.value.then(val => val * amount);
+    return this;
+  }
+
+  divide(amount) {
+    this.value = this.value.then(val => {
+      if (amount === 0) {
+        throw new Error("Cannot divide by zero");
+      }
+      return val / amount;
+    });
+    return this;
+  }
+
+  async getResult() {
+    return await this.value;
+  }
+}
+
+const pipeline = (data, ...fns) => fns.reduce((promise, fn) => promise.then(fn), Promise.resolve(data));
+
+const transformations = [
+  val => val + 10,
+  val => val * 2,
+  val => new Promise(res => setTimeout(() => res(val - 5), 1000)),
+  val => val / 3,
+];
+
+pipeline(10, ...transformations).then(result => console.log("Pipeline result:", result));
+
+const asyncCalc = new AsyncCalculator(5);
+asyncCalc
+  .add(10)
+  .multiply(2)
+  .subtract(4)
+  .divide(2)
+  .getResult()
+  .then(result => console.log("Async Calculator result:", result))
+  .catch(error => console.error(error));
+```

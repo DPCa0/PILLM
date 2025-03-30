@@ -1,0 +1,39 @@
+Certainly! Here's a complex JavaScript program using advanced features like async/await, Promises, destructuring, and ES6 modules:
+
+// utils.js
+export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+// main.js
+import { delay, fetchData } from './utils.js';
+
+async function processUserData(userId) {
+  try {
+    print(`Fetching data for user: ${userId}`);
+    await delay(1000); // Simulating network delay
+    const userData = await fetchData(`https://jsonplaceholder.typicode.com/users/${userId}`);
+    
+    const { name, email, address: { city }, company: { name: companyName } } = userData;
+    
+    print(`User: ${name}`);
+    print(`Email: ${email}`);
+    print(`City: ${city}`);
+    print(`Company: ${companyName}`);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+(async () => {
+  const userIds = [1, 2, 3];
+  for (const userId of userIds) {
+    await processUserData(userId);
+  }
+})();
+
+This code is split into two modules. `utils.js` handles utility functions like `delay` and `fetchData`, and `main.js` imports these functions and processes user data with structured logging. The use of Promises, async/await, and destructuring helps manage asynchronous operations and makes the code cleaner and easier to read.

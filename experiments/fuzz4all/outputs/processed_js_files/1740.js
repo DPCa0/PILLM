@@ -1,0 +1,58 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    for (const listener of this.events.get(event)) {
+      listener(...args);
+    }
+  }
+}
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    print('Fetched Data:', data);
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+}
+
+async function runComplexProcess(urls) {
+  const emitter = new EventEmitter();
+
+  emitter.on('dataProcessed', (data) => {
+    print('Data Processed:', data);
+  });
+
+  const dataPromises = urls.map(url => fetchData(url));
+
+  for await (const data of dataPromises) {
+    if (data) {
+       
+      const processedData = data.map(item => ({
+        ...item,
+        processed: true,
+        timestamp: Date.now()
+      }));
+      emitter.emit('dataProcessed', processedData);
+    }
+  }
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+runComplexProcess(urls);

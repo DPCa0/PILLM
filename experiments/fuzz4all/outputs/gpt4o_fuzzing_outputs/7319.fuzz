@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+function* generateNumbers(limit) {
+  for (let i = 1; i <= limit; i++) {
+    yield new Promise((resolve) => setTimeout(() => resolve(i), 100));
+  }
+}
+
+async function processNumbers(generator) {
+  for await (let numPromise of generator) {
+    const num = await numPromise;
+    console.log(`Processed number: ${num}`);
+  }
+}
+
+(async function execute() {
+  console.log("Starting number processing...");
+  await processNumbers(generateNumbers(5));
+  console.log("Finished processing numbers!");
+
+  const numbers = [1, 2, 3, 4, 5];
+
+  const squareNumbers = numbers.map(num => new Promise(resolve => 
+    setTimeout(() => resolve(num * num), 100)));
+
+  Promise.all(squareNumbers)
+    .then(results => {
+      console.log("Squared numbers:", results);
+      return results.reduce((acc, val) => acc + val, 0);
+    })
+    .then(sum => console.log("Sum of squares:", sum))
+    .catch(console.error);
+})();
+```

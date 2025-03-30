@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Data fetched!');
+        }, 1000);
+    });
+}
+
+ 
+async function asyncOperation() {
+    console.log('Fetching data...');
+    const data = await fetchData();
+    console.log(data);
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const handler = {
+    get: function(target, property) {
+        console.log(`Property '${property}' was accessed.`);
+        return property in target ? target[property] : `Property '${property}' not found`;
+    }
+};
+
+const user = new Proxy({ name: 'Alice', age: 25 }, handler);
+
+ 
+asyncOperation();
+
+ 
+const gen = idGenerator();
+console.log(`Generated ID: ${gen.next().value}`);
+console.log(`Generated ID: ${gen.next().value}`);
+
+ 
+console.log(user.name);
+console.log(user.address);
+```

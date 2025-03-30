@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (limit-- > 0) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+const reactiveHandler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Getting property '${prop}' with value: ${target[prop]}`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.log(`Property '${prop}' does not exist`);
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property '${prop}' with value: ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+async function main() {
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        console.log('Fetched Data:', data);
+
+        const reactiveObject = new Proxy({ someProperty: 10 }, reactiveHandler);
+
+        const fibSequence = fibonacci(10);
+        console.log('Fibonacci Sequence:');
+        for (let num of fibSequence) {
+            console.log(num);
+        }
+
+        reactiveObject.someProperty = 42;
+        console.log(reactiveObject.someProperty);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+main();
+```

@@ -1,0 +1,74 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+ 
+const cacheFunction = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      print('Returning cached result for:', key);
+      return cache.get(key);
+    }
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const validationHandler = {
+  set(target, prop, value) {
+    if (prop === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    target[prop] = value;
+    return true;
+  },
+};
+
+const userData = new Proxy({}, validationHandler);
+
+ 
+const compose = (...functions) => (arg) =>
+  functions.reduceRight((acc, fn) => fn(acc), arg);
+
+ 
+(async () => {
+  const getCachedData = cacheFunction(fetchData);
+
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await getCachedData(url);
+    
+     
+    userData.age = 25;
+    print('User data with valid age:', userData);
+    
+     
+    try {
+      userData.age = 'twenty-five';
+    } catch (error) {
+      console.error(error.message);
+    }
+
+     
+    const transformData = compose(
+      (users) => users.map((user) => user.name.toUpperCase()),
+      (users) => users.filter((user) => user.id % 2 === 0)
+    );
+
+    print('Transformed user names:', transformData(users));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (delay) => new Promise((resolve) => setTimeout(() => resolve(`Completed in ${delay}ms`), delay));
+
+ 
+const runAsyncTasks = async () => {
+  const delays = [300, 200, 100];
+  console.log('Starting async tasks...');
+
+   
+  const results = await Promise.all(delays.map(async (delay) => {
+    try {
+       
+      const { dynamicFunction } = await import('./dynamicModule.js');
+      const result = await asyncOperation(delay);
+      return dynamicFunction(result);
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  }));
+
+  console.log('All tasks finished:', results);
+};
+
+ 
+ 
+
+runAsyncTasks();
+
+ 
+const handler = {
+  get: (target, prop) => prop in target ? target[prop] : 'Property does not exist',
+  set: (target, prop, value) => {
+    console.log(`Setting value ${value} to ${prop}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const targetObject = { existingProp: 42 };
+const proxiedObject = new Proxy(targetObject, handler);
+
+console.log(proxiedObject.existingProp);  
+console.log(proxiedObject.nonExistingProp);  
+proxiedObject.newProp = 100;  
+console.log(proxiedObject.newProp);  
+
+ 
+function* generatorFunction() {
+  yield 'First yield';
+  yield* ['Second yield from iterable', 'Third yield'];
+  yield 'Fourth yield';
+}
+
+const generator = generatorFunction();
+for (const value of generator) {
+  console.log(value);
+}
+```

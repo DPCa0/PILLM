@@ -1,0 +1,29 @@
+ 
+const getData = async () => {
+  const fetchData = (resource) => 
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if(resource === 'valid') {
+          resolve({ id: 1, name: 'Data Item', details: { category: 'Science', status: 'Active' } });
+        } else {
+          reject(new Error('Invalid resource'));
+        }
+      }, 1000);
+    });
+
+  try {
+    const resource = 'valid';  
+    const { id, name, details: { category, status } } = await fetchData(resource);
+
+     
+    const messageGenerator = () => {
+      return `Resource ID: ${id}, Name: ${name}, Category: ${category}, Status: ${status}`;
+    };
+
+    print(messageGenerator());
+  } catch (error) {
+    console.error(`Error fetching data: ${error.message}`);
+  }
+};
+
+getData();

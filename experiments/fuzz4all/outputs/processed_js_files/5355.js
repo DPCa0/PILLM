@@ -1,0 +1,54 @@
+ 
+const { EventEmitter } = require('events');
+
+ 
+class ComplexFeatureDemo extends EventEmitter {
+    data = [];  
+
+     
+    addData(item) {
+        const proxy = new Proxy(item, {
+            set(target, property, value) {
+                if (property === 'value' && typeof value !== 'number') {
+                    throw new Error('Value must be a number');
+                }
+                target[property] = value;
+                return true;
+            }
+        });
+        proxy.value = item.value;  
+        this.data.push(proxy);
+        this.emit('dataAdded', proxy);
+    }
+
+     
+    async *processData() {
+        for (let item of this.data) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield `Processed: ${item.value * 2}`;
+        }
+    }
+}
+
+const demo = new ComplexFeatureDemo();
+
+ 
+demo.on('dataAdded', (item) => {
+    print(`Data added: ${item.value}`);
+});
+
+ 
+try {
+    demo.addData({ value: 10 });
+    demo.addData({ value: 'not a number' });  
+} catch (error) {
+    console.error(error.message);
+}
+
+ 
+(async () => {
+    for await (let processedItem of demo.processData()) {
+        print(processedItem);
+    }
+})();
+

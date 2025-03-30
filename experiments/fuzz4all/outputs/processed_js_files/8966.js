@@ -1,0 +1,61 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+class ReactiveVar {
+    constructor(value) {
+        this.value = value;
+        this.emitter = new EventEmitter();
+    }
+
+    set(value) {
+        if (this.value !== value) {
+            this.value = value;
+            this.emitter.emit('change', value);
+        }
+    }
+
+    get() {
+        return this.value;
+    }
+
+    onChange(listener) {
+        this.emitter.on('change', listener);
+    }
+}
+
+const observe = (dependencies, computeFunc) => {
+    const computedValue = new ReactiveVar();
+    const update = () => computedValue.set(computeFunc());
+    dependencies.forEach(dep => dep.onChange(update));
+    update();
+    return computedValue;
+};
+
+ 
+const a = new ReactiveVar(1);
+const b = new ReactiveVar(2);
+
+const sum = observe([a, b], () => a.get() + b.get());
+
+sum.onChange(value => {
+    print(`Sum changed: ${value}`);
+});
+
+a.set(3);  
+b.set(5);  

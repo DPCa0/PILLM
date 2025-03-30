@@ -1,0 +1,64 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: { name: 'Jane Doe', age: 30, location: 'Unknown' }
+      });
+    }, 1000);
+  });
+}
+
+ 
+async function processUserData() {
+  try {
+    const { data: { name, ...rest } } = await fetchData('https://api.example.com/user');
+    const processedData = { ...rest, name: name.toUpperCase(), processedAt: new Date().toISOString() };
+    return processedData;
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+}
+
+ 
+function* eventStream(events) {
+  for (let event of events) {
+    yield `Event: ${event}`;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    return property in target ? target[property] : 'Property does not exist';
+  },
+  set(target, property, value) {
+    if (property === 'age' && value < 0) {
+      throw new Error('Age cannot be negative');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  const user = new Proxy(await processUserData(), handler);
+  user.age = 31;  
+
+  const events = ['login', 'viewProfile', 'logout'];
+  const eventGenerator = eventStream(events);
+
+  print(user);  
+  for (let event of eventGenerator) {
+    print(event);
+  }
+
+  try {
+    user.age = -5;  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

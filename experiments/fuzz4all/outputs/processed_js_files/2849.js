@@ -1,0 +1,39 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncCounter(max) {
+    for (let i = 1; i <= max; i++) {
+        await delay(1000);  
+        yield i;
+    }
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    
+    emitter.on('tick', num => {
+        print(`Tick: ${num}`);
+        if (num === 5) print('Reached 5 ticks, stopping...');
+    });
+
+    for await (let count of asyncCounter(10)) {
+        emitter.emit('tick', count);
+        if (count === 5) break;  
+    }
+})();

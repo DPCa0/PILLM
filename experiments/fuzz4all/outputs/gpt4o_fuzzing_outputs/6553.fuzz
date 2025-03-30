@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+class Fibonacci {
+  #cache = new Map();
+
+   
+  *generate(n = Infinity) {
+    let [a, b] = [0, 1];
+    while (n-- > 0) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+   
+  memoize(n) {
+    if (this.#cache.has(n)) return this.#cache.get(n);
+
+    let value;
+    if (n < 2) {
+      value = n;
+    } else {
+      value = this.memoize(n - 1) + this.memoize(n - 2);
+    }
+    this.#cache.set(n, value);
+    return value;
+  }
+
+   
+  static async fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+}
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const results = await Promise.all(urls.map(url => Fibonacci.fetchData(url)));
+  console.log(results);
+})();
+
+ 
+const fib = new Fibonacci();
+
+ 
+for (let value of fib.generate(10)) {
+  console.log(value);
+}
+
+ 
+console.log(fib.memoize(10));
+```

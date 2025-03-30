@@ -1,0 +1,39 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+    
+    calculate(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+function* generateSequence(limit) {
+    const fib = new Fibonacci();
+    let i = 0;
+    while (i < limit) {
+        yield fib.calculate(i);
+        i++;
+    }
+}
+
+async function printFibonacciSeries(limit) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    for (const value of generateSequence(limit)) {
+        await delay(500);
+        print(value);
+    }
+}
+
+(async () => {
+    try {
+        const limit = 10;
+        print(`Generating Fibonacci series up to ${limit}:`);
+        await printFibonacciSeries(limit);
+    } catch (error) {
+        console.error(`An error occurred: ${error.message}`);
+    }
+})();

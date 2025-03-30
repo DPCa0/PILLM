@@ -1,0 +1,45 @@
+class TaskScheduler {
+  #tasks = new Map();
+
+  addTask(name, delay) {
+    if (this.#tasks.has(name)) throw new Error(`Task ${name} already exists.`);
+    const task = async () => {
+      await new Promise(resolve => setTimeout(resolve, delay));
+      print(`Task ${name} executed after ${delay}ms`);
+    };
+    this.#tasks.set(name, task);
+    return this;
+  }
+
+  removeTask(name) {
+    if (!this.#tasks.has(name)) throw new Error(`Task ${name} does not exist.`);
+    this.#tasks.delete(name);
+    return this;
+  }
+
+  executeAll() {
+    return Promise.allSettled([...this.#tasks.values()].map(task => task()))
+      .then(results => {
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            print(`Task ${[...this.#tasks.keys()][index]} completed successfully.`);
+          } else {
+            console.error(`Task ${[...this.#tasks.keys()][index]} failed:`, result.reason);
+          }
+        });
+      });
+  }
+}
+
+(async () => {
+  const scheduler = new TaskScheduler();
+  try {
+    scheduler.addTask('Task1', 1000).addTask('Task2', 2000).addTask('Task3', 500);
+    await scheduler.executeAll();
+    scheduler.removeTask('Task2');
+    scheduler.addTask('Task4', 3000);
+    await scheduler.executeAll();
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

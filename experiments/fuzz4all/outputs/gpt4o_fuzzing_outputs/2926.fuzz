@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { data: 'Sample data from ' + url };
+      Math.random() > 0.2 ? resolve(data) : reject('Error fetching data');
+    }, 1000);
+  });
+};
+
+ 
+function* dataFetcher(urls) {
+  for (const url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    return prop in obj ? obj[prop] : `Property ${prop} not found`;
+  },
+};
+
+const target = { language: 'JavaScript', level: 'Advanced' };
+const proxy = new Proxy(target, handler);
+
+ 
+const processData = async (urls) => {
+  const generator = dataFetcher(urls);
+
+  for (let promise of generator) {
+    try {
+      const data = await promise;
+      console.log(`Received: ${data.data}`);
+    } catch (error) {
+      console.error(`Error: ${error}`);
+    }
+  }
+
+   
+  console.log(`Language: ${proxy.language}`);
+  console.log(`Level: ${proxy.level}`);
+  console.log(`Framework: ${proxy.framework}`);
+};
+
+ 
+const urls = [
+  'https://api.example.com/resource1',
+  'https://api.example.com/resource2',
+  'https://api.example.com/resource3',
+];
+
+ 
+processData(urls);
+```

@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const data = { data: [1, 2, 3, 4, 5], url };
+      resolve(data);
+    }, 1000);
+  });
+};
+
+ 
+async function getDataAndProcess(url) {
+  const { data } = await fetchData(url);  
+
+   
+  function* processInBatches(arr, batchSize) {
+    for (let i = 0; i < arr.length; i += batchSize) {
+      yield arr.slice(i, i + batchSize);
+    }
+  }
+
+   
+  const batchProcessor = processInBatches(data, 2);
+  for (const batch of batchProcessor) {
+    print(`Processing batch: ${batch}`);
+  }
+}
+
+ 
+(async () => {
+  try {
+    await getDataAndProcess('https://api.example.com/data');
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

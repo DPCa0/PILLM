@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+const processData = (data) => {
+     
+    const { name = 'Unknown', age = 0, hobbies = [] } = data;
+    
+     
+    const uniqueHobbies = new Set(hobbies);
+    
+    return { name, age, hobbies: [...uniqueHobbies] };
+};
+
+const logData = ({ name, age, hobbies }) => {
+    console.log(`Name: ${name}, Age: ${age}, Hobbies: ${hobbies.join(', ')}`);
+};
+
+ 
+const logHandler = {
+    apply(target, thisArg, argumentsList) {
+        console.log(`Logging data: ${argumentsList}`);
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+};
+
+const safeLog = new Proxy(logData, logHandler);
+
+(async () => {
+    const url = 'https://api.example.com/user';
+    const data = await fetchData(url);
+    if (data) {
+        const processedData = processData(data);
+        safeLog(processedData);
+    }
+})();
+```

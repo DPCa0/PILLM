@@ -1,0 +1,40 @@
+const crypto = require('crypto');
+const util = require('util');
+const fs = require('fs').promises;
+
+ 
+const timeout = util.promisify(setTimeout);
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile(__filename, 'utf8');
+    
+     
+    print('File contents preview:\n', data.slice(0, 100), '...\n');
+
+     
+    const secretMessage = 'Advanced JavaScript is powerful!';
+    const algorithm = 'aes-256-ctr';
+    const secretKey = crypto.randomBytes(32);
+    const iv = crypto.randomBytes(16);
+
+    const cipher = crypto.createCipheriv(algorithm, secretKey, iv);
+    const encrypted = Buffer.concat([cipher.update(secretMessage), cipher.final()]);
+
+    print('Encrypted message:', encrypted.toString('hex'));
+
+     
+    await timeout(2000);
+
+     
+    const decipher = crypto.createDecipheriv(algorithm, secretKey, iv);
+    const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+
+    print('Decrypted message:', decrypted.toString());
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

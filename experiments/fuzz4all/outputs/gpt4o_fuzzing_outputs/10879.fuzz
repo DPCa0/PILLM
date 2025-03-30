@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) => setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000));
+
+ 
+async function processData() {
+  try {
+    console.log("Fetching data...");
+    const data = await fetchData();  
+    console.log("Data fetched:", data);
+
+     
+    const [first, ...rest] = data;
+    console.log("First element:", first);
+    console.log("Rest of the data:", rest);
+
+     
+    const newData = [...rest, 6, 7, 8];
+    console.log("New data array:", newData);
+
+     
+    function calculateSum(...numbers) {
+      return numbers.reduce((acc, num) => acc + num, 0);
+    }
+
+    const sum = calculateSum(...newData);
+    console.log("Sum of new data array:", sum);
+  } catch (error) {
+    console.error("Error processing data:", error);
+  }
+}
+
+processData();
+```

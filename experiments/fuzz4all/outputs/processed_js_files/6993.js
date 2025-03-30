@@ -1,0 +1,58 @@
+class Matrix {
+  #data;
+  constructor(rows, cols, filler = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(filler));
+  }
+  
+  static identity(size) {
+    let matrix = new Matrix(size, size);
+    matrix.#data.forEach((row, i) => row[i] = 1);
+    return matrix;
+  }
+  
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row >= this.rows) return { done: true };
+        const value = this.#data[row][col];
+        col = (col + 1) % this.cols;
+        if (col === 0) row++;
+        return { value, done: false };
+      }
+    };
+  }
+  
+  map(callback) {
+    return this.#data.map((row, rIdx) => row.map((val, cIdx) => callback(val, rIdx, cIdx)));
+  }
+  
+  transpose() {
+    let result = new Matrix(this.cols, this.rows);
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        result.#data[j][i] = this.#data[i][j];
+      }
+    }
+    return result;
+  }
+
+  toString() {
+    return this.#data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+const matrix = new Matrix(3, 3);
+print("Original Matrix:\n", matrix.toString());
+matrix.map((_, r, c) => r + c);
+print("Mapped Matrix:\n", matrix.toString());
+const identity = Matrix.identity(3);
+print("Identity Matrix:\n", identity.toString());
+print("Iterating over matrix:");
+for (const value of matrix) {
+  print(value);
+}
+print("Transposed Matrix:\n", matrix.transpose().toString());

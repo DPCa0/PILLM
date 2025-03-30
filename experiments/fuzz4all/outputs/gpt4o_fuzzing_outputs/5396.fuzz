@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    return await response.json();
+};
+
+const processData = (data) => {
+    const calculateAverage = (numbers) => numbers.reduce((a, b) => a + b) / numbers.length;
+    const filterData = (item) => item.value > 10;
+
+    return data
+        .filter(filterData)
+        .map(item => ({ ...item, average: calculateAverage(item.values) }))
+        .reduce((acc, item) => {
+            acc[item.category] = acc[item.category] || [];
+            acc[item.category].push(item);
+            return acc;
+        }, {});
+};
+
+const logData = (processedData) => {
+    Object.entries(processedData).forEach(([category, items]) => {
+        console.log(`Category: ${category}`);
+        items.forEach(item => {
+            console.log(`  ID: ${item.id}, Average: ${item.average}`);
+        });
+    });
+};
+
+(async () => {
+    try {
+        const dataUrl = 'https://api.example.com/data';
+        const rawData = await fetchData(dataUrl);
+        const processedData = processData(rawData);
+        logData(processedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

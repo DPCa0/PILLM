@@ -1,0 +1,59 @@
+ 
+const { EventEmitter } = require('events');
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+class SecretStore {
+  constructor() {
+    const data = new Map();
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : 'Property not found'),
+      set: (target, prop, value) => {
+        if (typeof value !== 'string') {
+          throw new TypeError('Value must be a string');
+        }
+        target[prop] = value;
+        return true;
+      }
+    };
+    this[Symbol.for('data')] = new Proxy(data, handler);
+  }
+
+  setItem(key, value) {
+    this[Symbol.for('data')].set(key, value);
+  }
+
+  getItem(key) {
+    return this[Symbol.for('data')].get(key);
+  }
+}
+
+ 
+const fetchData = async () => {
+  await delay(1000);  
+  return { data: 'Simulated API Response' };
+};
+
+ 
+const main = async () => {
+  const emitter = new EventEmitter();
+  const store = new SecretStore();
+
+  emitter.on('dataReceived', (data) => {
+    print('Data received:', data);
+    store.setItem('apiData', data.data);
+    print('Stored data:', store.getItem('apiData'));
+  });
+
+  try {
+    const data = await fetchData();
+    emitter.emit('dataReceived', data);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+  }
+};
+
+ 
+main();

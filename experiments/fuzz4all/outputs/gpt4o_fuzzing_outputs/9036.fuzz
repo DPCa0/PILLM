@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processData = (data) => {
+  const processed = data.map(({ id, name, email }) => ({
+    id,
+    fullName: name.toUpperCase(),
+    email: email.toLowerCase(),
+  }));
+  return processed;
+};
+
+const getProcessedData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const result = processData(data);
+    console.log('Processed Data:', result);
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+const init = () => {
+  const debouncedFetch = debounce(() => getProcessedData('https://jsonplaceholder.typicode.com/users'), 300);
+  document.getElementById('fetchButton').addEventListener('click', debouncedFetch);
+};
+
+document.addEventListener('DOMContentLoaded', init);
+```

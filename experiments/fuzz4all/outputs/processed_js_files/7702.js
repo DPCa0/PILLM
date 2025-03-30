@@ -1,0 +1,44 @@
+ 
+
+ 
+async function fetchUserData(userId) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ userId, name: `User${userId}`, email: `user${userId}@example.com` });
+        }, 1000);
+    });
+}
+
+ 
+async function fetchUserPreferences(userId) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ userId, theme: "dark", notifications: true });
+        }, 500);
+    });
+}
+
+ 
+async function getUserProfile(userId) {
+     
+    const [userData, userPreferences] = await Promise.all([
+        fetchUserData(userId),
+        fetchUserPreferences(userId)
+    ]);
+
+     
+    const userProfile = { ...userData, ...userPreferences };
+    return userProfile;
+}
+
+ 
+(async function main() {
+    const userIds = [1, 2, 3];
+    const userProfilesPromises = userIds.map(id => getUserProfile(id));
+
+     
+    const userProfiles = await Promise.all(userProfilesPromises);
+    userProfiles.forEach(({ name, email, theme, notifications }) => {
+        print(`Name: ${name}, Email: ${email}, Theme: ${theme}, Notifications: ${notifications}`);
+    });
+})();

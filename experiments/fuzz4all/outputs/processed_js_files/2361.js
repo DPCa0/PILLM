@@ -1,0 +1,30 @@
+ 
+const fetchDataAndProcess = async (url) => {
+  try {
+     
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const processedData = data
+      .filter(item => item.active)   
+      .map(item => ({ ...item, updatedAt: new Date(item.updatedAt) }))   
+      .reduce((acc, item) => {
+        acc[item.category] = acc[item.category] || [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});   
+
+    print(processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const url = 'https://api.example.com/data';
+
+ 
+(async () => {
+  await fetchDataAndProcess(url);
+})();

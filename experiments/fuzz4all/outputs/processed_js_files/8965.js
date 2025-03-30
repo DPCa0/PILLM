@@ -1,0 +1,39 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map();
+    this.memo.set(0, 0);
+    this.memo.set(1, 1);
+  }
+
+  *generate(limit) {
+    let count = 0;
+    while (count < limit) {
+      yield this.fib(count);
+      count++;
+    }
+  }
+
+  fib(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const result = this.fib(n - 1) + this.fib(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function printSequence(sequence, ms) {
+  for await (const num of sequence) {
+    print(num);
+    await delay(ms);
+  }
+}
+
+(async () => {
+  const fibSeq = new FibonacciSequence();
+  const generator = fibSeq.generate(10);
+  printSequence(generator, 500);
+})();

@@ -1,0 +1,45 @@
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry']);
+        }, 1000);
+    });
+}
+
+async function processFruits() {
+    try {
+         
+        const fruits = await fetchData();
+
+         
+        const fruitObjects = new Map(fruits.map((fruit, index) => [index, { name: fruit, id: index }]));
+        
+         
+        const uniqueFruits = new Set(fruitObjects.values());
+
+         
+        const handler = {
+            get: (target, prop) => {
+                if (prop === 'findByName') {
+                    return (name) => [...target].find(fruit => fruit.name === name);
+                }
+                return target[prop];
+            }
+        };
+
+        const proxyFruits = new Proxy(uniqueFruits, handler);
+
+         
+        print('Available Fruits:', [...proxyFruits]);
+        const foundFruit = proxyFruits.findByName('banana');
+        print('Found Fruit:', foundFruit);
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+processFruits();

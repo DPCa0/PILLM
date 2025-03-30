@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const user = { id: 1, name: "Alice", role: "admin", preferences: { theme: "dark" } };
+  const { id, name, ...otherDetails } = user;
+
+   
+  const handler = {
+    get: (target, property) => {
+      return property in target ? target[property] : `Property '${property}' not found`;
+    }
+  };
+  const proxyUser = new Proxy(user, handler);
+
+   
+  const fetchData = async (id) => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ data: `Fetched data for user id: ${id}` }), 1000);
+    });
+  };
+
+   
+  const escapeHTML = (strings, ...values) => {
+    return strings.reduce((result, str, i) => `${result}${str}${values[i] ? values[i] : ""}`, "");
+  };
+  const output = escapeHTML`<h1>Welcome, ${name}!</h1>`;
+
+   
+  const roles = new Set(["admin", "editor", "viewer"]);
+  const permissions = new Map([["admin", ["read", "write", "delete"]], ["editor", ["read", "write"]], ["viewer", ["read"]]]);
+
+   
+  const uniqueID = Symbol("id");
+  const specialUser = {
+    [uniqueID]: "special-1",
+    name: "Special User"
+  };
+
+  console.log(output);
+  console.log(`User Proxy Test: Name - ${proxyUser.name}, Age - ${proxyUser.age}`);
+  console.log(`User Roles: ${Array.from(roles).join(", ")}`);
+  console.log(`Admin Permissions: ${permissions.get("admin").join(", ")}`);
+  console.log(`Special User ID: ${specialUser[uniqueID]}`);
+
+  const data = await fetchData(id);
+  console.log(data);
+})();
+```

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretKeeper {
+  #secrets = new WeakMap();
+  
+  constructor() {
+    this.#secrets.set(this, []);
+  }
+
+  #logSecrets() {
+    console.log(`Secrets: ${this.#secrets.get(this).join(', ')}`);
+  }
+
+  addSecret(secret) {
+    this.#secrets.get(this).push(secret);
+    this.#logSecrets();
+  }
+
+  get secretCount() {
+    return this.#secrets.get(this).length;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (typeof target[prop] === 'function') {
+      return function(...args) {
+        console.log(`Method ${prop} was called with arguments: ${args.join(', ')}`);
+        return target[prop].apply(this, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const keeper = new Proxy(new SecretKeeper(), handler);
+
+ 
+async function* revealSecretsAsync(keeper) {
+  for (let i = 0; i < keeper.secretCount; i++) {
+     
+    await new Promise(resolve => setTimeout(resolve, 500));
+    yield `Revealing secret ${i + 1}`;
+  }
+}
+
+ 
+keeper.addSecret("The treasure is buried under the old oak tree");
+keeper.addSecret("The password is swordfish");
+
+ 
+(async function() {
+  for await (let revelation of revealSecretsAsync(keeper)) {
+    console.log(revelation);
+  }
+})();
+```

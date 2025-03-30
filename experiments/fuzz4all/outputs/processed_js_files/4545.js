@@ -1,0 +1,40 @@
+ 
+async function* fetchUserData(userIds) {
+    for (const id of userIds) {
+        const data = await fetch(`https: 
+            .then(response => response.json());
+        yield data;
+    }
+}
+
+ 
+const userHandler = {
+    get: (target, property) => {
+        print(`Accessing property "${property}"`);
+        return target[property];
+    }
+};
+
+ 
+const USER_ID = Symbol('userId');
+
+ 
+async function processUsers(userIds) {
+    const userGen = fetchUserData(userIds);
+    const users = [];
+    
+    for await (const user of userGen) {
+        user[USER_ID] = user.id;  
+        const proxiedUser = new Proxy(user, userHandler);
+        users.push(proxiedUser);
+    }
+
+     
+    const [{ name: firstUserName }, ...otherUsers] = users;
+    print(`First user: ${firstUserName}`);
+    print(`Other users: ${otherUsers.map(u => u.name).join(', ')}`);
+}
+
+ 
+const userIds = [1, 2, 3];
+processUsers(userIds).catch(console.error);

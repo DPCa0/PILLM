@@ -1,0 +1,41 @@
+ 
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'message') {
+      return Reflect.get(target, prop, receiver) + ' This is proxied!';
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    if (prop === 'message' && typeof value === 'string') {
+      print('Message is being updated.');
+      return Reflect.set(target, prop, value);
+    }
+    return false;
+  }
+};
+
+const targetObject = { message: 'Hello, world!' };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function complexOperation() {
+  try {
+    const updatedMessage = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        proxy.message = 'Hello, universe!';
+        resolve(proxy.message);
+      }, 2000);
+    });
+    
+    print(updatedMessage);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+print(proxy.message);   
+complexOperation();

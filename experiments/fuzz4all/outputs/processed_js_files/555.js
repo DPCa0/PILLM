@@ -1,0 +1,36 @@
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *fetchData() {
+    for (const item of this.data) {
+      yield new Promise(resolve => setTimeout(() => resolve(item * 2), 100));
+    }
+  }
+
+  static async runPipeline(data) {
+    const processor = new DataProcessor(data);
+
+    const results = [];
+    for await (const item of processor.fetchData()) {
+      const transformed = DataProcessor.#transformData(item);
+      results.push(transformed);
+    }
+    
+    return results;
+  }
+
+  static #transformData(value) {
+    return value > 10 ? value : value + 10;
+  }
+}
+
+(async () => {
+  const data = [1, 5, 8, 12];
+  const processedData = await DataProcessor.runPipeline(data);
+
+  const uniqueResults = new Set(processedData);
+  const sortedResults = [...uniqueResults].sort((a, b) => a - b);
+  print(sortedResults);
+})();

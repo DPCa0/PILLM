@@ -1,0 +1,55 @@
+ 
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function* primeGenerator(limit) {
+  let num = 2;
+  while (num <= limit) {
+    if (isPrime(num)) {
+      await delay(100);  
+      yield num;
+    }
+    num++;
+  }
+}
+
+ 
+function isPrime(n) {
+  if (n < 2) return false;
+  for (let i = 2; i <= Math.sqrt(n); i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+ 
+const primeMap = new Proxy(new Map(), {
+  get(target, prop, receiver) {
+    print(`Accessing key: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    print(`Setting key: ${prop} with value: ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+});
+
+(async () => {
+   
+  const primes = primeGenerator(10);
+  
+   
+  for await (let prime of primes) {
+    primeMap.set(`prime-${prime}`, prime);
+  }
+
+   
+  print(primeMap.get('prime-2'));
+  print(primeMap.get('prime-3'));
+  print(primeMap.get('prime-5'));
+  print(primeMap.get('prime-7'));
+})();

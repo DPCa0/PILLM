@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.map((_, i, j) => arr[i][j]);
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => fn(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(b) {
+    if (b instanceof Matrix) {
+      if (this.data[0].length !== b.data.length) {
+        throw new Error('Columns of A must match rows of B.');
+      }
+      return new Matrix(this.data.length, b.data[0].length).map((_, i, j) =>
+        this.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+      );
+    } else {
+       
+      return this.map(val => val * b);
+    }
+  }
+
+  static random(rows, cols) {
+    return new Matrix(rows, cols).map(() => Math.random() * 2 - 1);
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+async function fetchData(url) {
+  let response = await fetch(url);
+  let data = await response.json();
+  return data;
+}
+
+(async () => {
+  try {
+    let matrixA = Matrix.random(3, 3);
+    let matrixB = Matrix.random(3, 3);
+
+    console.log('Matrix A:');
+    matrixA.print();
+
+    console.log('Matrix B:');
+    matrixB.print();
+
+    let matrixC = matrixA.multiply(matrixB);
+    console.log('Matrix A multiplied by Matrix B:');
+    matrixC.print();
+
+    let data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

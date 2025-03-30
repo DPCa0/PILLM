@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const computeSum = async (numbers) => {
+  return numbers.reduce((acc, num) => acc + num, 0);
+};
+
+const main = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos';
+  const data = await fetchData(url);
+
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataFetched', async (data) => {
+    console.log(`Data length: ${data.length}`);
+    const numbers = data.map(item => item.id);
+    const sum = await computeSum(numbers);
+    console.log(`Sum of IDs: ${sum}`);
+  });
+
+  eventEmitter.emit('dataFetched', data);
+};
+
+main().catch(error => console.error('Error:', error));
+```

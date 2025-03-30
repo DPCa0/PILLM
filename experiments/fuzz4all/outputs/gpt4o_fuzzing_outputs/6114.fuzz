@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            listeners.forEach(listener => listener(...args));
+        }
+    }
+}
+
+class TaskQueue {
+    constructor() {
+        this.queue = [];
+        this.running = false;
+    }
+    
+    addTask(promiseGenerator) {
+        this.queue.push(promiseGenerator);
+        this.run();
+    }
+    
+    async run() {
+        if (this.running || this.queue.length === 0) {
+            return;
+        }
+        
+        this.running = true;
+        const task = this.queue.shift();
+        await task();
+        this.running = false;
+        
+        if (this.queue.length > 0) {
+            this.run();
+        }
+    }
+}
+
+ 
+function* numberGenerator(max) {
+    let count = 0;
+    while (count < max) {
+        yield new Promise(resolve => setTimeout(() => resolve(count++), 100));
+    }
+}
+
+ 
+async function asyncNumberPrinter(generator) {
+    for (let promise of generator) {
+        const number = await promise;
+        console.log(number);
+    }
+}
+
+ 
+const eventEmitter = new EventEmitter();
+eventEmitter.on('taskAdded', () => console.log('New task added to the queue'));
+
+const taskQueue = new TaskQueue();
+taskQueue.addTask(() => asyncNumberPrinter(numberGenerator(5)));
+eventEmitter.emit('taskAdded');
+
+taskQueue.addTask(() => asyncNumberPrinter(numberGenerator(3)));
+eventEmitter.emit('taskAdded');
+```

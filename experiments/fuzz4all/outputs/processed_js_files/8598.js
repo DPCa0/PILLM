@@ -1,0 +1,52 @@
+class AsyncIterator {
+    constructor(data) {
+        this.data = data;
+    }
+
+    [Symbol.asyncIterator]() {
+        let index = 0;
+        const data = this.data;
+        return {
+            async next() {
+                if (index < data.length) {
+                    const value = data[index++];
+                     
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return { value, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+}
+
+const complexObject = {
+    *generatorFunc(start = 0, end = 10) {
+        for (let i = start; i <= end; i++) {
+            yield i;
+        }
+    },
+    
+    async processValues() {
+        const iterator = new AsyncIterator([10, 20, 30, 40, 50]);
+        for await (const value of iterator) {
+            const square = this.#privateSquare(value);
+            print(`Processing value: ${value}, square: ${square}`);
+        }
+    },
+    
+    #privateSquare(n) {
+        return n * n;
+    }
+};
+
+(async () => {
+    const gen = complexObject.generatorFunc(5, 15);
+    print("Generated sequence:");
+    for (const num of gen) {
+        print(num);
+    }
+
+    print("\nAsync processing:");
+    await complexObject.processValues();
+})();

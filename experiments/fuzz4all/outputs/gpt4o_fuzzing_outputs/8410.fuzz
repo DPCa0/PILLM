@@ -1,0 +1,30 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* createCounter() {
+  let count = 0;
+  while (true) {
+    yield ++count;
+  }
+}
+
+async function simulateAsyncOperation(value) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(value * 2), 1000);
+  });
+}
+
+async function main() {
+  const counter = createCounter();
+  for (let i = 0; i < 5; i++) {
+    let count = counter.next().value;
+    console.log(`Counter value: ${count}`);
+    
+    let doubledValue = await simulateAsyncOperation(count);
+    console.log(`Doubled value: ${doubledValue}`);
+  }
+}
+
+main().catch(console.error);
+```

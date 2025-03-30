@@ -1,0 +1,49 @@
+ 
+function log(strings, ...values) {
+  const result = strings.reduce((prev, curr, i) => `${prev}${curr}${values[i] || ''}`, '');
+  print(`LOG: ${result}`);
+}
+
+ 
+const targetObject = {
+  name: 'World',
+  greet() {
+    log`Hello, ${this.name}!`;
+  }
+};
+
+const handler = {
+  get(target, prop) {
+    log`Accessing property '${prop}'`;
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    log`Setting property '${prop}' to '${value}'`;
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+async function* asyncGenerator() {
+  yield 'Hello';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'from';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Async';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Generator!';
+}
+
+(async () => {
+   
+  for await (let word of asyncGenerator()) {
+    log`${word}`;
+  }
+})();
+
+ 
+proxiedObject.greet();
+proxiedObject.name = 'Universe';
+proxiedObject.greet();

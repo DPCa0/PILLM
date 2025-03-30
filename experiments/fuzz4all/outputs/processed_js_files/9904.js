@@ -1,0 +1,49 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function (...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+const asyncGenerator = async function* () {
+  let value = 0;
+  while (value < 5) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield value++;
+  }
+};
+
+(async () => {
+  const observable = new Observable();
+
+  const logDebounced = debounce((val) => print('Debounced value:', val), 500);
+  observable.subscribe(logDebounced);
+
+  const generator = asyncGenerator();
+  for await (let num of generator) {
+    observable.notify(num);
+  }
+})();

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = async (data) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(`Processed: ${data}`);
+    }, 1000);
+  });
+};
+
+(async () => {
+  const ee = new EventEmitter();
+
+  ee.on('process', async (data) => {
+    const result = await asyncOperation(data);
+    console.log(result);
+  });
+
+  ee.on('error', (err) => {
+    console.error('Error:', err);
+  });
+
+  try {
+    ee.emit('process', 'Hello, World!');
+    ee.emit('process', 'Advanced JavaScript Features');
+  } catch (error) {
+    ee.emit('error', error);
+  }
+})();
+```

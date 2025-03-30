@@ -1,0 +1,66 @@
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: "Sample Data" });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* actionGenerator() {
+  yield "Start fetching data...";
+  try {
+    const data = yield fetchData("https://api.example.com/data");
+    yield `Data fetched: ${data.data}`;
+  } catch (error) {
+    yield `Error: ${error.message}`;
+  }
+  yield "Action completed.";
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      return `Property "${property}" does not exist.`;
+    }
+  },
+};
+
+const dataHandler = new Proxy({ name: "John Doe", age: 30 }, handler);
+
+ 
+async function runActions() {
+  const generator = actionGenerator();
+  let result = generator.next();
+
+  while (!result.done) {
+    if (result.value instanceof Promise) {
+      try {
+        const data = await result.value;
+        result = generator.next(data);
+      } catch (error) {
+        result = generator.throw(error);
+      }
+    } else {
+      print(result.value);
+      result = generator.next();
+    }
+  }
+}
+
+ 
+runActions();
+
+ 
+print(`Name: ${dataHandler.name}`);  
+print(`Occupation: ${dataHandler.occupation}`);  

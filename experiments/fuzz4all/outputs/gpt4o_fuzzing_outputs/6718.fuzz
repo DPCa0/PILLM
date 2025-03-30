@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Person {
+  #name;
+  #age;
+  
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+
+  getName() {
+    return this.#name;
+  }
+
+  getAge() {
+    return this.#age;
+  }
+
+  async #fetchData(url) {
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+  async getRandomFact() {
+    const data = await this.#fetchData('https://randomuser.me/api/');
+    return data.results[0].email;
+  }
+
+  *ageGenerator() {
+    let count = this.#age;
+    while (true) {
+      yield count++;
+    }
+  }
+
+  static #processNames(...names) {
+    return names.map(name => name.toUpperCase());
+  }
+
+  static getProcessedNames(...names) {
+    return Person.#processNames(...names);
+  }
+}
+
+(async () => {
+  const john = new Person('John Doe', 25);
+
+  console.log(john.getName());  
+  console.log(john.getAge());   
+  console.log(await john.getRandomFact());   
+
+  const ageGen = john.ageGenerator();
+  console.log(ageGen.next().value);  
+  console.log(ageGen.next().value);  
+
+  const processedNames = Person.getProcessedNames('alice', 'bob', 'charlie');
+  console.log(processedNames);  
+})();
+```

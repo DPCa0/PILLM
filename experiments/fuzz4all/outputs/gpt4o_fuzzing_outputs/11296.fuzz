@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class AsyncDataProcessor {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async fetchData() {
+        const response = await fetch(this.url);
+        return response.json();
+    }
+    
+    async process() {
+        try {
+            const data = await this.fetchData();
+            const results = data.map(item => {
+                const { id, value } = item;
+                return { id, doubledValue: this.doubleValue(value) };
+            });
+            console.log(this.formatResults(results));
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    }
+
+    doubleValue(value) {
+        return value * 2;
+    }
+
+    formatResults(results) {
+        return results.reduce((acc, { id, doubledValue }) => {
+            return `${acc}ID: ${id}, Doubled Value: ${doubledValue}\n`;
+        }, 'Processed Results:\n');
+    }
+}
+
+ 
+const mockApiUrl = 'https://jsonplaceholder.typicode.com/posts';
+const processor = new AsyncDataProcessor(mockApiUrl);
+processor.process();
+```

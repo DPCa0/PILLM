@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+    return this;
+  }
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+}
+
+(async function complexFeaturesDemo() {
+  const emitter = new EventEmitter();
+  
+   
+  const target = { greeting: 'Hello', name: 'world' };
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Property ${prop} accessed`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      console.log(`Property ${prop} set to ${value}`);
+      obj[prop] = value;
+      emitter.emit('propertyChanged', prop, value);
+      return true;
+    }
+  };
+  const proxy = new Proxy(target, handler);
+  
+  emitter.on('propertyChanged', (prop, value) => {
+    console.log(`Event: Property ${prop} changed to ${value}`);
+  });
+
+  console.log(`${proxy.greeting}, ${proxy.name}!`);
+  
+  await delay(1000);
+  
+  proxy.name = 'JavaScript';
+  
+  console.log(`${proxy.greeting}, ${proxy.name}!`);
+})();
+```

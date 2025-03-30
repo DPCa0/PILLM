@@ -1,0 +1,46 @@
+ 
+ 
+
+(async () => {
+     
+    const { fetchData } = await import('./dataService.js');
+
+     
+    const getData = async () => {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        return response.json();
+    };
+
+     
+    const processPosts = async () => {
+        try {
+            const dataPromise = getData();
+            const additionalDataPromise = fetchData();
+
+             
+            const [posts, additionalData] = await Promise.all([dataPromise, additionalDataPromise]);
+
+             
+            const [firstPost, ...restPosts] = posts;
+            print('First post:', firstPost);
+
+            const enrichedPosts = restPosts.map(post => {
+                return {
+                    ...post,
+                    enriched: true,
+                    ...additionalData.find(ad => ad.id === post.id)
+                };
+            });
+
+            print('Enriched Posts:', enrichedPosts);
+
+        } catch (error) {
+            console.error('Error processing posts:', error);
+        }
+    };
+
+     
+    processPosts();
+})();
+
+Note: This code assumes the presence of a `dataService.js` file that exports a `fetchData` function. The fetch URL and data structure are just examples.

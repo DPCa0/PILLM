@@ -1,0 +1,63 @@
+class AsyncTaskQueue {
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  async enqueue(task) {
+    this.queue.push(task);
+    if (!this.isProcessing) {
+      this.isProcessing = true;
+      while (this.queue.length > 0) {
+        const currentTask = this.queue.shift();
+        await currentTask();
+      }
+      this.isProcessing = false;
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const taskQueue = new AsyncTaskQueue();
+
+const createTask = (id, time) => async () => {
+  print(`Task ${id} started`);
+  await delay(time);
+  print(`Task ${id} completed`);
+};
+
+taskQueue.enqueue(createTask(1, 1000));
+taskQueue.enqueue(createTask(2, 500));
+taskQueue.enqueue(createTask(3, 1500));
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'enqueue') {
+      return function (task) {
+        print('Task is being added to the queue');
+        return Reflect.get(...arguments).apply(target, [task]);
+      };
+    }
+    return Reflect.get(...arguments);
+  },
+};
+
+const proxiedQueue = new Proxy(taskQueue, handler);
+proxiedQueue.enqueue(createTask(4, 1200));
+proxiedQueue.enqueue(createTask(5, 800));
+
+ 
+async function* asyncGenerator() {
+  for (let i = 1; i <= 5; i++) {
+    yield await delay(300).then(() => `Yielded value: ${i}`);
+  }
+}
+
+(async function() {
+  const generator = asyncGenerator();
+  for await (const value of generator) {
+    print(value);
+  }
+})();

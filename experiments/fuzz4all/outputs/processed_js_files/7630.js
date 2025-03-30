@@ -1,0 +1,58 @@
+ 
+async function fetchUserData(userId) {
+    const url = `https: 
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const user = await response.json();
+        const { name, email, address: { city } } = user;  
+
+        print(`Name: ${name}, Email: ${email}, City: ${city}`);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+class Counter {
+    static #instances = 0;
+
+    constructor() {
+        this.#incrementCount();
+    }
+
+    #incrementCount() {
+        Counter.#instances++;
+    }
+
+    static getInstances() {
+        return Counter.#instances;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const data = new Proxy({name: 'Proxy Object'}, handler);
+data.name = 'Updated Name';
+print(data.name);
+
+ 
+(async () => {
+    await fetchUserData(1);
+
+    const counter1 = new Counter();
+    const counter2 = new Counter();
+    print('Counter instances:', Counter.getInstances());
+})();

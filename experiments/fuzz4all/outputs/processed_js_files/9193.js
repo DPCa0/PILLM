@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = (endpoint) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${endpoint}` });
+    }, Math.random() * 1000);
+  });
+};
+
+ 
+const getData = async (endpoints) => {
+  const results = [];
+  for (const endpoint of endpoints) {
+    const { data } = await fetchData(endpoint);
+    results.push(data);
+  }
+  return results;
+};
+
+ 
+function* processResults(results) {
+  for (const result of results) {
+    yield `Processed: ${result.toUpperCase()}`;
+  }
+}
+
+ 
+(async () => {
+  const endpoints = ['/api/foo', '/api/bar', '/api/baz'];
+  const rawData = await getData(endpoints);
+  const results = processResults(rawData);
+
+  for (const result of results) {
+    print(result);
+  }
+})();

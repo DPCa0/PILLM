@@ -1,0 +1,52 @@
+class NetworkRequest {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      print('Data fetched:', data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+const withLogging = (target, name, descriptor) => {
+  const original = descriptor.value;
+  descriptor.value = async function (...args) {
+    print(`Calling ${name} with`, args);
+    const result = await original.apply(this, args);
+    print(`${name} returned`, result);
+    return result;
+  };
+  return descriptor;
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  @withLogging
+  async processData() {
+    const results = await Promise.all(
+      this.data.map(async (item) => {
+        return new Promise((resolve) => setTimeout(() => resolve(item * 2), 500));
+      })
+    );
+    return results;
+  }
+}
+
+(async () => {
+  const request = new NetworkRequest('https://jsonplaceholder.typicode.com/todos/1');
+  await request.fetchData();
+
+  const processor = new DataProcessor([1, 2, 3, 4, 5]);
+  const processedData = await processor.processData();
+  print('Processed Data:', processedData);
+})();

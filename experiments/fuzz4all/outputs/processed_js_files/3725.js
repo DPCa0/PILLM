@@ -1,0 +1,37 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *process() {
+    for (let item of this.data) {
+      yield this.asyncOperation(item);
+    }
+  }
+
+  async asyncOperation(item) {
+     
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(item * 2);
+      }, Math.random() * 1000);
+    });
+  }
+}
+
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new AsyncProcessor(data);
+
+  for await (let result of processor.process()) {
+    print(`Processed Result: ${result}`);
+  }
+
+   
+  const transformedData = data
+    .map(x => x ** 2)
+    .filter(x => x % 2 === 0)
+    .reduce((acc, x) => acc + x, 0);
+
+  print(`Transformed Data Sum: ${transformedData}`);
+})();

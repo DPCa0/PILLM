@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+const processFruits = async () => {
+  try {
+    const fruits = await fetchData();
+    console.log('Fetched Fruits:', ...fruits);  
+
+    const uniqueFruits = new Set(fruits);
+    uniqueFruits.add('date');
+    console.log('Unique Fruits:', [...uniqueFruits]);  
+
+    const fruitDetails = [...uniqueFruits].map((fruit, index) => {
+      return { id: index + 1, name: fruit };
+    });
+
+    const [firstFruit, ...restFruits] = fruitDetails;  
+    console.log('First Fruit:', firstFruit);
+    console.log('Rest of the Fruits:', restFruits);
+
+     
+    const fruitMap = new Map(fruitDetails.map(({ id, name }) => [id, name]));
+    console.log('Fruit Map:', fruitMap);
+
+  } catch (error) {
+    console.error('Error processing fruits:', error);
+  }
+};
+
+processFruits();
+```

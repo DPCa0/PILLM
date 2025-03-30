@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+    constructor() {
+        this.dataStore = new Map();
+    }
+
+    async fetchData() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([
+                    { id: 1, value: 10 },
+                    { id: 2, value: 20 },
+                    { id: 3, value: 30 }
+                ]);
+            }, 1000);
+        });
+    }
+
+    async processData() {
+        const data = await this.fetchData();
+        data.forEach(item => {
+            this.dataStore.set(item.id, item.value);
+        });
+    }
+
+    getHandler() {
+        return {
+            get: (target, property) => {
+                if (property === 'size') {
+                    return target.size;
+                } else if (target.has(parseInt(property))) {
+                    return target.get(parseInt(property));
+                } else {
+                    console.warn(`No data found for id: ${property}`);
+                    return null;
+                }
+            }
+        };
+    }
+
+    createProxy() {
+        return new Proxy(this.dataStore, this.getHandler());
+    }
+}
+
+(async () => {
+    const processor = new DataProcessor();
+    await processor.processData();
+    const dataProxy = processor.createProxy();
+
+    console.log('Data size:', dataProxy.size);
+    console.log('Value with ID 2:', dataProxy[2]);
+    console.log('Trying to access non-existent ID 99:', dataProxy[99]);
+})();
+```

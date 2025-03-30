@@ -1,0 +1,50 @@
+ 
+
+ 
+function asyncOperation(item) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(item * 2), 100);
+    });
+}
+
+ 
+const setHandler = {
+    get(target, prop, receiver) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Set method called: ${prop}, with arguments: ${args}`);
+                return target[prop].apply(target, args);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+let numbers = new Set([1, 2, 3, 4, 5]);
+let proxySet = new Proxy(numbers, setHandler);
+
+ 
+async function processNumbers(set) {
+    let results = new Map();
+
+    for (let number of set) {
+        let result = await asyncOperation(number);
+        results.set(number, result);
+    }
+
+    return results;
+}
+
+ 
+(async function main() {
+    print("Original Set:", [...proxySet]);
+
+     
+    proxySet.add(6);
+    proxySet.delete(3);
+
+     
+    let results = await processNumbers(proxySet);
+    print("Processed Results:", Array.from(results.entries()));
+})();

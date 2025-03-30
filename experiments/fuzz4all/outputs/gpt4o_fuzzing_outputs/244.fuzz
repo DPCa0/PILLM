@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+class MagicNumber {
+  #secret;  
+
+  constructor(value) {
+    this.#secret = value;
+  }
+
+  get secret() {
+     
+    return this.#secret;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'getRandom') {
+      return () => Math.random() * target.magicNumber.secret;
+    }
+    return Reflect.get(target, prop);
+  }
+};
+
+const magicNumber = new MagicNumber(42);
+const magicObject = new Proxy({ magicNumber }, handler);
+
+function* numberGenerator(start = 0) {
+  let count = start;
+  while (true) {
+    yield count++;
+  }
+}
+
+const generator = numberGenerator(1);
+const { create, freeze } = Object;
+
+const complexObject = freeze(
+  create(
+    {
+      randomFactor() {
+        return magicObject.getRandom();
+      }
+    },
+    {
+      count: {
+        get() {
+          return generator.next().value;
+        }
+      }
+    }
+  )
+);
+
+console.log(`Random Factor: ${complexObject.randomFactor()}`);
+console.log(`Current Count: ${complexObject.count}`);
+console.log(`Next Count: ${complexObject.count}`);
+```

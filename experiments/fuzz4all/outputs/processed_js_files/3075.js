@@ -1,0 +1,67 @@
+ 
+class SecretManager {
+  #secret;
+  
+  constructor(secret) {
+    this.#secret = secret;
+  }
+  
+  #revealSecret() {
+    return `The secret is: ${this.#secret}`;
+  }
+  
+  getSecret(proxyHandler) {
+    return new Proxy(this, proxyHandler).#revealSecret();
+  }
+}
+
+ 
+async function fetchData(urls) {
+  const fetchPromises = urls.map(url => fetch(url).then(res => res.json()).catch(err => err));
+  const results = await Promise.allSettled(fetchPromises);
+  results.forEach(result => {
+    if (result.status === 'fulfilled') {
+      print('Fetched:', result.value);
+    } else {
+      console.error('Fetch error:', result.reason);
+    }
+  });
+}
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, str, i) => (
+    `${result}${str}<strong>${values[i] || ''}</strong>`
+  ), '');
+}
+
+const noun = 'world';
+print(highlight`Hello, ${noun}!`);
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === '#revealSecret') {
+      return function() {
+        if (Math.random() > 0.5) {
+          return Reflect.get(target, prop, receiver).call(target);
+        } else {
+          return 'Access denied!';
+        }
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const manager = new SecretManager('Super Secret');
+print(manager.getSecret(handler));
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://invalidurl.typicode.com/'
+];
+
+fetchData(urls);

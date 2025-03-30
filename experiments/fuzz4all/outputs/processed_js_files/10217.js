@@ -1,0 +1,42 @@
+ 
+
+class ComplexOperation {
+  constructor(values) {
+    this.values = values;
+  }
+
+  async performOperations() {
+    try {
+      const results = await Promise.all(this.values.map(this.complexFunction));
+      const [min, max] = this.extractMinMax(results);
+      this.logResults(min, max, ...results);
+    } catch (error) {
+      console.error("Operation failed:", error);
+    }
+  }
+
+  complexFunction(value) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (typeof value !== 'number') {
+          return reject(new Error('Invalid input, expected a number'));
+        }
+        const computedValue = value ** 2 + Math.random();
+        resolve(computedValue);
+      }, 1000 * Math.random());
+    });
+  }
+
+  extractMinMax(results) {
+    return [Math.min(...results), Math.max(...results)];
+  }
+
+  logResults(min, max, ...results) {
+    print(`Processed Values: ${results.join(', ')}`);
+    print(`Minimum Value: ${min}, Maximum Value: ${max}`);
+  }
+}
+
+const values = [1, 2, 3, 4, 5];
+const operation = new ComplexOperation(values);
+operation.performOperations();

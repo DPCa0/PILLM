@@ -1,0 +1,32 @@
+ 
+
+ 
+export async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error: ${response.status}`);
+  return response.json();
+}
+
+ 
+(async () => {
+  try {
+     
+    const urls = [
+      'https://api.github.com/users/github',
+      'https://api.github.com/users/microsoft'
+    ];
+
+     
+    const data = await Promise.all(urls.map(url => fetchData(url)));
+    
+     
+    const [{ login: user1, public_repos: repos1 }, { login: user2, public_repos: repos2 }] = data;
+
+     
+    const userSummary = (...users) => users.map(user => `User ${user.login} has ${user.public_repos} public repos.`).join('\n');
+    
+    print(userSummary(...data));
+  } catch (error) {
+    console.error(`Failed to fetch data: ${error.message}`);
+  }
+})();

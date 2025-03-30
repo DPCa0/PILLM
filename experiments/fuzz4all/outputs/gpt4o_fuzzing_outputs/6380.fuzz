@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return response.json();
+  };
+
+   
+  const compose =
+    (...fns) =>
+    (x) =>
+      fns.reduceRight((v, f) => f(v), x);
+
+   
+  const filterByProperty = (key, value) => (array) =>
+    array.filter((item) => item[key] === value);
+
+   
+  const mapToProperty = (key) => (array) =>
+    array.map((item) => item[key]);
+
+   
+  const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+
+  try {
+     
+    const processUsers = compose(
+      mapToProperty('email'),
+      filterByProperty('company.name', 'Romaguera-Crona')
+    );
+
+    const users = await fetchData(apiUrl);
+    const processedEmails = processUsers(users);
+
+     
+    console.log('Filtered Emails:', processedEmails);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

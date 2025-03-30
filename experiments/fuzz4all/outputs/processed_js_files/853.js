@@ -1,0 +1,27 @@
+ 
+import fetch from 'node-fetch';
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  const API_URL = 'https://jsonplaceholder.typicode.com/users';
+  const data = await fetchData(API_URL);
+  
+  if (data) {
+     
+    data.forEach(({ id, name, email }) => {
+      print(`User ID: ${id}\nName: ${name}\nEmail: ${email}\n`);
+    });
+  }
+})();

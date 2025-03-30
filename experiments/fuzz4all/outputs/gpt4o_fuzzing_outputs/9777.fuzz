@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+
+    speak() {
+        console.log(`${this.name} makes a noise.`);
+    }
+}
+
+class Dog extends Animal {
+    speak() {
+        console.log(`${this.name} barks.`);
+    }
+}
+
+function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+(async () => {
+    const dog = new Dog("Rex");
+    dog.speak();
+
+    console.log('Fibonacci sequence:');
+    for (const num of fibonacci(5)) {
+        console.log(num);
+    }
+
+    const isEven = num => new Promise((resolve) => {
+        setTimeout(() => resolve(num % 2 === 0), 1000);
+    });
+
+    const numbers = [1, 2, 3, 4, 5];
+    const results = await Promise.all(numbers.map(async (num) => {
+        const even = await isEven(num);
+        return `${num} is ${even ? 'even' : 'odd'}`;
+    }));
+
+    console.log('Number checks:');
+    results.forEach(result => console.log(result));
+})();
+```

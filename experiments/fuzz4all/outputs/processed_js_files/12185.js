@@ -1,0 +1,40 @@
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        (this.events[event] || (this.events[event] = [])).push(listener);
+    }
+
+    emit(event, ...args) {
+        (this.events[event] || []).forEach(listener => listener(...args));
+    }
+}
+
+const asyncFunction = async (name) => {
+    return new Promise(resolve => setTimeout(() => resolve(`Hello, ${name}!`), 1000));
+}
+
+async function* asyncGenerator(names) {
+    for (const name of names) {
+        yield await asyncFunction(name);
+    }
+}
+
+const app = async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('greet', (greeting) => {
+        print(greeting);
+    });
+
+    const names = ['Alice', 'Bob', 'Charlie'];
+    const gen = asyncGenerator(names);
+
+    for await (const greeting of gen) {
+        eventEmitter.emit('greet', greeting);
+    }
+};
+
+app().catch(err => console.error(err));

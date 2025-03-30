@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const apiCall = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.map(({ id, value }) => ({ id, value: value * 2 }));
+};
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const main = async () => {
+  const url = 'https://api.example.com/data';
+  
+   
+  const [data, delayedMessage] = await Promise.all([
+    apiCall(url),
+    delay(2000).then(() => 'Processed after delay')
+  ]);
+
+  if (data) {
+    const processedData = processData(data);
+
+     
+    const UNIQUE_KEY = Symbol('uniqueKey');
+    const result = { [UNIQUE_KEY]: processedData };
+
+    console.log('Processed Data:', result[UNIQUE_KEY]);
+  }
+
+  console.log(delayedMessage);
+};
+
+main();
+```

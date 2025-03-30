@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.listeners.get(event);
+        if (!listeners || listeners.length === 0) return;
+        
+         
+        return Promise.all(listeners.map(listener => listener(...args)));
+    }
+}
+
+function delayedResult(value, delay) {
+    return new Promise(resolve => setTimeout(() => resolve(value), delay));
+}
+
+async function fetchData(id) {
+    console.log(`Fetching data for ID: ${id}`);
+    const data = await delayedResult({ id, value: Math.random() * 100 }, 1000);
+    console.log(`Data for ID ${id} fetched:`, data);
+    return data;
+}
+
+(async () => {
+    const emitter = new AsyncEventEmitter();
+
+    emitter.on('dataFetched', async (id) => {
+        const data = await fetchData(id);
+        return data;
+    });
+
+    emitter.on('dataFetched', async (id) => {
+        console.log(`Processing data for ID ${id}...`);
+        const processedData = await delayedResult(`Processed data for ID: ${id}`, 500);
+        console.log(processedData);
+        return processedData;
+    });
+
+    console.log('Emitting dataFetched event...');
+    const results = await emitter.emit('dataFetched', 1);
+    console.log('All processing done:', results);
+})();
+```

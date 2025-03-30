@@ -1,0 +1,67 @@
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch data from ${url}`);
+  return response.json();
+};
+
+class EventEmitter {
+   
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+  }
+
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const complexFunction = async () => {
+   
+  async function* generateData() {
+    for (let i = 1; i <= 3; i++) {
+      await sleep(1000);  
+      yield `Data chunk ${i}`;
+    }
+  }
+
+   
+  const dataGenerator = generateData();
+  const results = await Promise.allSettled([
+    fetchData('https://jsonplaceholder.typicode.com/todos/1'),
+    fetchData('https://jsonplaceholder.typicode.com/todos/2'),
+    (async () => {
+      let result = '';
+      for await (const data of dataGenerator) {
+        result += data + ' ';
+      }
+      return result;
+    })()
+  ]);
+
+  return results;
+};
+
+ 
+const emitter = new EventEmitter();
+
+emitter.on('dataReceived', data => print('Received:', data));
+emitter.on('error', error => console.error('Error:', error));
+
+complexFunction()
+  .then(results => {
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        emitter.emit('dataReceived', `Result ${index + 1}: ${JSON.stringify(result.value)}`);
+      } else {
+        emitter.emit('error', `Error in task ${index + 1}: ${result.reason}`);
+      }
+    });
+  })
+  .catch(err => emitter.emit('error', err));

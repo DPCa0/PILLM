@@ -1,0 +1,88 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexCalculator {
+   
+  #result = 0;
+
+  constructor(initialValue = 0) {
+    this.#result = initialValue;
+  }
+
+   
+  static fromArray(numbersArray) {
+    const instance = new ComplexCalculator();
+    numbersArray.forEach(num => instance.add(num));
+    return instance;
+  }
+
+   
+  *fibonacci(n) {
+    let [a, b] = [0, 1];
+    while (n-- > 0) {
+      [a, b] = [b, a + b];
+      yield a;
+    }
+  }
+
+   
+  add(value) {
+    this.#result += value;
+    return this;
+  }
+
+  subtract(value) {
+    this.#result -= value;
+    return this;
+  }
+
+  multiply(value) {
+    this.#result *= value;
+    return this;
+  }
+
+  divide(value) {
+    if (value !== 0) {
+      this.#result /= value;
+    } else {
+      throw new Error('Division by zero');
+    }
+    return this;
+  }
+
+   
+  getResult() {
+    return this.#result;
+  }
+
+   
+  async computeAsync(callback) {
+    const result = await new Promise((resolve) => {
+      setTimeout(() => resolve(this.#result), 1000);
+    });
+    if (callback && typeof callback === 'function') {
+      callback(result);
+    }
+    return result;
+  }
+}
+
+ 
+const calculator = new ComplexCalculator(10);
+calculator.add(5).subtract(3).multiply(4).divide(2);
+
+console.log(`Current Result: ${calculator.getResult()}`);  
+
+ 
+const calcFromArray = ComplexCalculator.fromArray([1, 2, 3, 4]);
+console.log(`Result from Array: ${calcFromArray.getResult()}`);  
+
+ 
+const fibGen = calculator.fibonacci(5);
+console.log([...fibGen]);  
+
+ 
+calculator.computeAsync(result => {
+  console.log(`Async Result: ${result}`);  
+});
+```

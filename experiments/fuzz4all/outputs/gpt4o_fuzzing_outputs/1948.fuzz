@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { EventEmitter } from 'events';
+
+ 
+async function* asyncRange(start, end) {
+  for (let i = start; i <= end; i++) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  set(target, property, value) {
+    if (typeof value === 'number' && value >= 0) {
+      console.log(`Setting ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    } else {
+      console.error(`Invalid value: ${value}`);
+      return false;
+    }
+  }
+};
+const stats = new Proxy({}, handler);
+
+ 
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('numberProcessed', (number) => {
+  console.log(`Number processed: ${number}`);
+});
+
+ 
+async function main() {
+   
+  const logFile = 'output.log';
+  await fs.writeFile(logFile, '');
+
+  for await (const num of asyncRange(1, 5)) {
+    stats.currentNumber = num;
+    eventEmitter.emit('numberProcessed', num);
+    await fs.appendFile(logFile, `Processed number: ${num}\n`);
+  }
+  
+  console.log('Processing complete. Check output.log for details.');
+}
+
+ 
+main().catch(console.error);
+```

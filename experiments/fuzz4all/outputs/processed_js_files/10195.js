@@ -1,0 +1,41 @@
+class Vector {
+    #components;
+    constructor(...components) {
+        this.#components = components;
+    }
+
+     
+    add({#components: comps}) {
+        if (comps.length !== this.#components.length) throw new Error('Dimension mismatch');
+        return new Vector(...this.#components.map((val, i) => val + comps[i]));
+    }
+
+     
+    get magnitude() {
+        return Math.sqrt(this.#components.reduce((sum, val) => sum + val ** 2, 0));
+    }
+
+     
+    static ['fromArray'](arr) {
+        return new Vector(...arr);
+    }
+
+     
+    *[Symbol.iterator]() {
+        yield* this.#components;
+    }
+}
+
+(async () => {
+    const v1 = new Vector(1, 2, 3);
+    const v2 = Vector.fromArray([4, 5, 6]);
+
+    const v3 = v1.add(v2);
+    print(`Magnitude of v3: ${v3.magnitude}`);
+
+    print('v3 components:', [...v3]);
+
+     
+    const result = await Promise.resolve('Finished async operation');
+    print(result);
+})();

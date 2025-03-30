@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function randomTimeout() {
+  return new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 1000);
+    setTimeout(() => resolve(`Resolved after ${time} ms`), time);
+  });
+}
+
+ 
+async function handleTimeouts() {
+  for (let i = 0; i < 3; i++) {
+    const message = await randomTimeout();
+    console.log(message);
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const obj = {
+  name: 'Advanced JavaScript',
+  version: 'ES6+'
+};
+
+ 
+const proxiedObj = new Proxy(obj, handler);
+
+ 
+Reflect.set(proxiedObj, 'version', 'ES2023');
+console.log(Reflect.get(proxiedObj, 'name'));  
+
+ 
+handleTimeouts();
+```

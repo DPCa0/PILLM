@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.data = arr.map(row => [...row]);
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) =>
+      row.map((value, j) => fn(value, i, j))
+    );
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    let result = new Matrix(a.data.length, b.data[0].length);
+    return result.map((_, i, j) =>
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const m1 = Matrix.fromArray([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const m2 = Matrix.fromArray([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const result = Matrix.multiply(m1, m2);
+console.log(result.toString());
+```

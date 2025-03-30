@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+function i18n(strings, ...values) {
+    const translations = {
+        en: strings.reduce((acc, str, idx) => acc + str + (values[idx] || ''), ''),
+        es: strings.reduce((acc, str, idx) => acc + str + (values[idx] || ''), '')
+               .replace('Hello', 'Hola').replace('world', 'mundo'),
+    };
+    return translations[language] || translations.en;
+}
+
+ 
+const fetchData = async () => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({ data: 'Complex Data', id: 42 });
+        }, 1000);
+    });
+};
+
+ 
+async function processData() {
+    const { data, id } = await fetchData();
+    console.log(i18n`Processing ${data} with ID: ${id}`);
+}
+
+ 
+(async function main() {
+     
+    const user = { preferences: { language: 'es' } };
+    language = user.preferences?.language ?? 'en';  
+
+     
+    const dataMap = new Map();
+    dataMap.set('item1', { value: 'A', priority: 3 });
+    dataMap.set('item2', { value: 'B', priority: 1 });
+
+     
+    const prioritizedItems = [...dataMap.entries()].sort((a, b) => a[1].priority - b[1].priority);
+    prioritizedItems.forEach(([key, { value }]) => console.log(i18n`Item: ${key}, Value: ${value}`));
+
+    await processData();
+})();
+```

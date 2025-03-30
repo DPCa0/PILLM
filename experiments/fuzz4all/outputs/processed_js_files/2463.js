@@ -1,0 +1,51 @@
+ 
+
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function fetchData(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error reading file from disk: ${error}`);
+  }
+}
+
+ 
+async function processData(filePath) {
+  const { title, author, year } = await fetchData(filePath);
+  print(`Book: "${title}" by ${author} (Published: ${year})`);
+}
+
+ 
+function chainPromises(value) {
+  return Promise.resolve(value)
+    .then(val => val * 2)
+    .then(val => val + 3)
+    .then(val => `Result is ${val}`);
+}
+
+ 
+(async function main() {
+   
+  const filePath = './book.json';
+  
+   
+  await processData(filePath);
+  
+   
+  const result = await chainPromises(5);
+  print(result);
+})();
+
+To use this code, ensure you have a `book.json` file with the following content in the same directory:
+
+{
+  "title": "JavaScript: The Good Parts",
+  "author": "Douglas Crockford",
+  "year": 2008
+}
+
+Additionally, make sure to run this with Node.js using an experimental module flag or adjust your setup to support ES6 imports.

@@ -1,0 +1,57 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        const safeObserver = new Proxy(observer, {
+            get(target, prop) {
+                return prop in target ? target[prop] : () => {};
+            },
+        });
+
+        return this._subscribe(safeObserver);
+    }
+
+    map(transform) {
+        return new Observable((observer) => {
+            return this.subscribe({
+                next: (x) => observer.next(transform(x)),
+                error: (err) => observer.error(err),
+                complete: () => observer.complete(),
+            });
+        });
+    }
+
+    filter(predicate) {
+        return new Observable((observer) => {
+            return this.subscribe({
+                next: (x) => predicate(x) && observer.next(x),
+                error: (err) => observer.error(err),
+                complete: () => observer.complete(),
+            });
+        });
+    }
+
+    static fromArray(arr) {
+        return new Observable((observer) => {
+            for (let i = 0; i < arr.length; i++) {
+                observer.next(arr[i]);
+            }
+            observer.complete();
+            return () => print('Unsubscribed');
+        });
+    }
+}
+
+const numberStream = Observable.fromArray([1, 2, 3, 4, 5, 6]);
+
+const transformedStream = numberStream
+    .map(x => x * x)
+    .filter(x => x > 10);
+
+transformedStream.subscribe({
+    next: x => console.log(`Next: ${x}`),
+    error: err => console.error(`Error: ${err}`),
+    complete: () => console.log('Completed'),
+});

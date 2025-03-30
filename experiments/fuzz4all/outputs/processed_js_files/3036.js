@@ -1,0 +1,33 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async *dataGenerator(data) {
+    for (let item of data) {
+      yield new Promise((resolve) =>
+        setTimeout(() => resolve(`Processed: ${item}`), 1000)
+      );
+    }
+  }
+
+  async processData(callback) {
+    const results = [];
+    for await (let processedItem of AsyncProcessor.dataGenerator(this.data)) {
+      results.push(processedItem);
+    }
+    return callback(results);
+  }
+}
+
+const data = ['item1', 'item2', 'item3'];
+const processor = new AsyncProcessor(data);
+
+(async () => {
+  await processor.processData((results) => {
+    const formattedResults = results.map((result) =>
+      result.replace('Processed:', 'Result:')
+    );
+    print(formattedResults.join('\n'));
+  });
+})();

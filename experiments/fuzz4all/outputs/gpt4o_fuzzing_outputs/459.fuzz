@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function printWithDelay(msgs) {
+    for (let msg of msgs) {
+        console.log(msg);
+        await delay(1000);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Getting property ${prop}`);
+            return Reflect.get(target, prop);
+        } else {
+            return `Property ${prop} not found`;
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const targetObj = {
+    a: 10,
+    b: 20,
+    sum() {
+        return this.a + this.b;
+    }
+};
+
+ 
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+console.log(proxyObj.a);          
+proxyObj.b = 30;                  
+console.log(proxyObj.sum());      
+
+ 
+printWithDelay(["Hello", "This", "is", "a", "proxy", "example"]);
+```

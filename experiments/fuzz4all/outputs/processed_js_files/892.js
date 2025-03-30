@@ -1,0 +1,41 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this.#generateSequence();
+  }
+
+  *[Symbol.iterator]() {
+    for (const num of this.sequence) {
+      yield num;
+    }
+  }
+
+  #generateSequence() {
+    const seq = [];
+    let [a, b] = [0, 1];
+    while (seq.length < this.limit) {
+      [a, b] = [b, a + b];
+      seq.push(a);
+    }
+    return seq;
+  }
+}
+
+const asyncFetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+(async () => {
+  const fib = new Fibonacci(10);
+  print('Fibonacci Sequence:', [...fib]);
+
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  await asyncFetchData(url);
+})();

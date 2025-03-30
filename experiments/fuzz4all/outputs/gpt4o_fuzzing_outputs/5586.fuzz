@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretBox {
+  #secret;
+  
+  constructor(secret) {
+    this.#secret = secret;
+  }
+  
+   
+  #getSecret() {
+    return this.#secret;
+  }
+  
+   
+  revealSecret() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+         
+        const handler = {
+          get: (target, prop, receiver) => {
+            if (prop === 'secret') {
+              return Reflect.get(target, '#getSecret', receiver).call(this);
+            }
+            return Reflect.get(target, prop, receiver);
+          }
+        };
+        
+        const proxy = new Proxy(this, handler);
+        resolve(proxy.secret);
+      }, 1000);
+    });
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const secretsArray = [
+      new SecretBox("The cake is a lie"),
+      new SecretBox("The sky is blue"),
+      new SecretBox("JavaScript is fun")
+    ];
+    
+    const [firstSecretBox, ...otherSecretBoxes] = secretsArray;
+
+     
+    const secrets = await Promise.all([
+      firstSecretBox.revealSecret(),
+      ...otherSecretBoxes.map(box => box.revealSecret())
+    ]);
+
+     
+    console.log(`Secrets revealed: ${secrets.join(", ")}`);
+  } catch (error) {
+    console.error("Failed to reveal secrets:", error);
+  }
+})();
+```

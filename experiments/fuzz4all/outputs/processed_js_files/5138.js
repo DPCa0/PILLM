@@ -1,0 +1,51 @@
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchDataAndProcess = async () => {
+     
+    const privateDataKey = Symbol('private');
+    const privateStore = new WeakMap();
+
+     
+    class DataProcessor {
+        constructor(data) {
+             
+            privateStore.set(this, { [privateDataKey]: data });
+        }
+
+         
+        #privateMethod() {
+            return privateStore.get(this)[privateDataKey].map(x => x * 2);
+        }
+
+         
+        process() {
+            return this.#privateMethod().reduce((a, b) => a + b, 0);
+        }
+    }
+
+     
+    try {
+        print('Fetching data...');
+        await delay(1000);  
+
+         
+        const data = [1, 2, 3, 4, 5];
+        print('Data fetched:', data);
+
+         
+        const processor = new DataProcessor(data);
+        const result = processor.process();
+        
+         
+        print(`Processed data result: ${result}`);
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+};
+
+ 
+(async () => {
+    await fetchDataAndProcess();
+})();

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (response.ok) {
+      yield await response.json();
+    } else {
+      throw new Error(`Error fetching data from ${url}: ${response.statusText}`);
+    }
+  }
+}
+
+async function processFetchedData(urls) {
+  const dataProcessor = fetchData(urls);
+  try {
+    for await (const data of dataProcessor) {
+       
+      const processed = data.map(({ id, name, value }) => ({
+        id,
+        displayName: `${name.toUpperCase()}: ${value * 10}`,
+      }));
+
+       
+      console.log(processed);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3',
+];
+
+processFetchedData(urls);
+```

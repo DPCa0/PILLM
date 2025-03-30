@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Proxy({}, {
+            get: (target, name) => name in target ? target[name] : (target[name] = this.calc(name))
+        });
+    }
+
+    calc(n) {
+        if (n <= 1) return n;
+        return this.memo[n - 1] + this.memo[n - 2];
+    }
+
+    *[Symbol.iterator]() {
+        let i = 0;
+        while (i <= this.limit) {
+            yield this.memo[i++];
+        }
+    }
+}
+
+(async function main() {
+    const fibSequence = new FibonacciSequence(10);
+
+    for (const num of fibSequence) {
+        await new Promise(resolve => setTimeout(resolve, 200));  
+        console.log(num);
+    }
+})();
+```

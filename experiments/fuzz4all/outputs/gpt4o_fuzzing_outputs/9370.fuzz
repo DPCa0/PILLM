@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ReactiveStore {
+    constructor(initialState = {}) {
+        this.subscribers = new Map();
+        this.state = this.createReactiveState(initialState);
+    }
+
+    createReactiveState(initialState) {
+        const handler = {
+            set: (target, property, value) => {
+                target[property] = value;
+                if (this.subscribers.has(property)) {
+                    this.subscribers.get(property).forEach(callback => callback(value));
+                }
+                return true;
+            }
+        };
+        return new Proxy(initialState, handler);
+    }
+
+    subscribe(property, callback) {
+        if (!this.subscribers.has(property)) {
+            this.subscribers.set(property, []);
+        }
+        this.subscribers.get(property).push(callback);
+    }
+
+    updateState(updates) {
+        for (const key in updates) {
+            if (this.state.hasOwnProperty(key)) {
+                this.state[key] = updates[key];
+            }
+        }
+    }
+
+    getState() {
+        return new Promise((resolve) => setTimeout(() => resolve({...this.state}), 100));
+    }
+}
+
+ 
+(async () => {
+    const store = new ReactiveStore({ count: 0, message: 'Initial message' });
+
+    store.subscribe('count', (newValue) => console.log(`Count updated to: ${newValue}`));
+    store.subscribe('message', (newValue) => console.log(`Message updated to: ${newValue}`));
+
+    store.updateState({ count: 1 });
+    store.updateState({ message: 'Hello, Reactive World!' });
+
+    const currentState = await store.getState();
+    console.log('Current State:', currentState);
+})();
+```

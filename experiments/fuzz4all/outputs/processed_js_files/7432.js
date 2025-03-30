@@ -1,0 +1,41 @@
+ 
+class AsyncRange {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  [Symbol.asyncIterator]() {
+    let current = this.start;
+    return {
+      next: () => Promise.resolve(current <= this.end ? 
+        { value: current++, done: false } : 
+        { done: true })
+    };
+  }
+}
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    }
+    if (!isNaN(prop)) {
+      return `Property '${prop}' is not a valid method.`;
+    }
+    return target[prop] || `Hello, you tried to access ${String(prop)}`;
+  }
+};
+
+const data = new AsyncRange(1, 5);
+const proxiedData = new Proxy(data, handler);
+
+(async () => {
+  for await (const num of proxiedData) {
+    print(num);
+  }
+
+   
+  print(proxiedData.nonExistentProp);   
+  print(proxiedData[10]);   
+})();

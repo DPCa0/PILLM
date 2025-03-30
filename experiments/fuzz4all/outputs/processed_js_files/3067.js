@@ -1,0 +1,39 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+  
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      const data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+
+  processData(data) {
+    const { results, ...metadata } = data;
+    const enhancedResults = results.map(item => ({
+      ...item,
+      dateRetrieved: new Date().toISOString(),
+    }));
+    return { enhancedResults, metadata };
+  }
+}
+
+(async () => {
+  const apiEndpoint = 'https://api.example.com/data';
+  const fetcher = new DataFetcher(apiEndpoint);
+  
+  try {
+    const { enhancedResults, metadata } = await fetcher.fetchData();
+    print('Metadata:', metadata);
+    print('Results:', ...enhancedResults);
+  } catch (e) {
+    console.error("Error in async function:", e);
+  }
+})();

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class AsyncResource {
+    constructor(data) {
+        this.data = data;
+    }
+
+    fetchData() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(this.data), 1000);
+        });
+    }
+}
+
+const compute = (data) => data.reduce((acc, val) => acc + val, 0);
+
+const asyncHandler = async (generator) => {
+    const gen = generator();
+
+    const handle = async (result) => {
+        if (result.done) return result.value;
+        const value = await result.value;
+        return handle(gen.next(value));
+    };
+
+    return handle(gen.next());
+};
+
+function* processData() {
+    const resource = new AsyncResource([1, 2, 3, 4, 5]);
+    const data = yield resource.fetchData();
+    const computedValue = compute(data);
+    yield new Promise((resolve) => setTimeout(resolve, 500));
+    return computedValue;
+}
+
+asyncHandler(processData).then((result) => {
+    console.log(`Computed Value: ${result}`);
+});
+```

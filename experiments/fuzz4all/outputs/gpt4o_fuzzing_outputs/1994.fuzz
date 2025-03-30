@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
+
+ 
+const user = {
+  name: 'Alice',
+  age: 25
+};
+
+const userProxy = new Proxy(user, {
+  set(target, property, value) {
+    if (property === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    target[property] = value;
+    return true;
+  }
+});
+
+ 
+function* fibonacci() {
+  let a = 0, b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 4, 5, 1, 2]);
+
+ 
+async function processNumbers(numbers) {
+  const processed = numbers.map(num => num * 2);
+  return await Promise.resolve(processed);
+}
+
+ 
+(async () => {
+   
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+
+   
+  try {
+    userProxy.age = 30;
+    console.log('Updated User Age:', userProxy.age);
+  } catch (error) {
+    console.error('Proxy Error:', error);
+  }
+
+   
+  const fibGen = fibonacci();
+  console.log('First five Fibonacci numbers:', [...Array(5)].map(() => fibGen.next().value));
+
+   
+  console.log('Unique Numbers:', Array.from(uniqueNumbers));
+
+   
+  const numbers = [1, 2, 3, 4];
+  const processedNumbers = await processNumbers(numbers);
+  console.log('Processed Numbers:', processed

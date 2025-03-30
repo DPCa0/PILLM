@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class ComplexOperation {
+  #privateField = 'This is private';
+
+  constructor(data) {
+    this.data = data;
+    this.result = null;
+  }
+
+  *processData() {
+    for (const item of this.data) {
+      yield await this.#asyncOperation(item);
+    }
+  }
+
+  async #asyncOperation(item) {
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(item * item), Math.random() * 1000)
+    );
+  }
+
+  async execute() {
+    this.result = [];
+    for await (const processed of this.processData()) {
+      this.result.push(processed);
+      console.log(`Processed: ${processed}`);
+    }
+    return this.result;
+  }
+
+  getPrivate() {
+    return this.#privateField;
+  }
+
+  static printClassInfo() {
+    console.log('ComplexOperation performs async square operations on data');
+  }
+}
+
+(async () => {
+  ComplexOperation.printClassInfo();
+
+  const data = [1, 2, 3, 4, 5];
+  const operation = new ComplexOperation(data);
+
+  const result = await operation.execute();
+  console.log('Final Result:', result);
+
+  console.log('Private Field:', operation.getPrivate());
+
+  const complexObjProxy = new Proxy(operation, {
+    get(target, prop) {
+      console.log(`Accessing property: ${prop}`);
+      return target[prop];
+    },
+  });
+
+  console.log('Access via Proxy:', complexObjProxy.result);
+})();
+```

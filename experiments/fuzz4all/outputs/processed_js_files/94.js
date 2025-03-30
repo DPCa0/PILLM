@@ -1,0 +1,34 @@
+ 
+
+ 
+async function* fetchDataSimulator() {
+  const data = ['John', 'Jane', 'Doe', 'Smith'];
+  for (const item of data) {
+    await new Promise(res => setTimeout(res, 100));  
+    yield item;
+  }
+}
+
+ 
+const customIterator = Symbol('customIterator');
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === customIterator) {
+      return target[Symbol.asyncIterator].bind(target);
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const proxyGenerator = new Proxy(fetchDataSimulator(), handler);
+
+ 
+(async function processData() {
+  for await (const name of proxyGenerator[customIterator]()) {
+    print(`Processing: ${name.toUpperCase()}`);
+  }
+  print('All data processed!');
+})();

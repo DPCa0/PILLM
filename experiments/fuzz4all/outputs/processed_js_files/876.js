@@ -1,0 +1,41 @@
+ 
+(async () => {
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+   
+  const target = {
+    message1: "Hello",
+    message2: "World"
+  };
+
+  const handler = {
+    get: (obj, prop) => {
+      print(`Property ${prop} has been accessed.`);
+      return obj[prop];
+    }
+  };
+
+  const proxy = new Proxy(target, handler);
+
+   
+  function* messageGenerator() {
+    yield proxy.message1;
+    yield proxy.message2;
+    yield '!';
+  }
+
+   
+  const messages = [...messageGenerator()].map((msg, index, { length }) =>
+    index === length - 1 ? msg : `${msg},`
+  );
+
+  print(messages.join(' '));
+
+   
+  try {
+    const response = await axios.get('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched Data:', response.data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

@@ -1,0 +1,64 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
+
+const fetchWithRetry = async (url, retries = 3, backoff = 300) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fetchData(url);
+        } catch (err) {
+            if (i < retries - 1) {
+                await delay(backoff * Math.pow(2, i));  
+            } else {
+                throw err;
+            }
+        }
+    }
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('dataFetched', data => print('Data Fetched:', data));
+    eventEmitter.on('error', error => console.error('Error:', error));
+
+    try {
+        const data = await fetchWithRetry('https://jsonplaceholder.typicode.com/posts/1');
+        eventEmitter.emit('dataFetched', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+})();

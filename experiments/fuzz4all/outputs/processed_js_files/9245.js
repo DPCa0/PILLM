@@ -1,0 +1,55 @@
+class TaskQueue {
+    constructor(concurrency) {
+        this.concurrency = concurrency;
+        this.queue = [];
+        this.running = 0;
+    }
+
+    runTask(task) {
+        return new Promise((resolve, reject) => {
+            this.queue.push(() => task().then(resolve).catch(reject));
+            process.nextTick(this.next.bind(this));
+        });
+    }
+
+    next() {
+        if (this.running >= this.concurrency || this.queue.length === 0) {
+            return;
+        }
+
+        const task = this.queue.shift();
+        this.running++;
+
+        task()
+            .then(() => {
+                this.running--;
+                process.nextTick(this.next.bind(this));
+            })
+            .catch(() => {
+                this.running--;
+                process.nextTick(this.next.bind(this));
+            });
+    }
+}
+
+async function asyncTask(id, delay) {
+    print(`Task ${id} started`);
+    return new Promise(resolve => setTimeout(() => {
+        print(`Task ${id} completed`);
+        resolve();
+    }, delay));
+}
+
+const queue = new TaskQueue(2);
+
+(async () => {
+    const tasks = [
+        () => asyncTask(1, 1000),
+        () => asyncTask(2, 500),
+        () => asyncTask(3, 300),
+        () => asyncTask(4, 700)
+    ];
+
+    const results = await Promise.all(tasks.map(task => queue.runTask(task)));
+    print('All tasks completed');
+})();

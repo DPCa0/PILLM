@@ -1,0 +1,33 @@
+ 
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    yield `Fetched data from ${url}`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (Reflect.has(target, prop)) {
+      print(`Accessing ${prop}`);
+      const result = Reflect.get(target, prop, receiver);
+      if (typeof result === 'string') {
+        return `Modified: ${result}`;
+      }
+      return result;
+    }
+    return undefined;
+  }
+};
+
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const proxyUrls = new Proxy(urls, handler);
+
+  for await (const data of fetchData(proxyUrls)) {
+    print(data);
+  }
+})();

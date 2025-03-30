@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+class CryptoProcessor {
+  #key;
+  
+  constructor() {
+    this.#key = CryptoProcessor.#generateKey();
+  }
+  
+  static async #generateKey() {
+    const rawKey = window.crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey(
+      'raw',
+      rawKey,
+      'AES-GCM',
+      true,
+      ['encrypt', 'decrypt']
+    );
+    return key;
+  }
+  
+  async encryptMessage(message) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv: iv },
+      await this.#key,
+      data
+    );
+    return { iv, encrypted };
+  }
+  
+  async decryptMessage(iv, encrypted) {
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: iv },
+      await this.#key,
+      encrypted
+    );
+    const decoder = new TextDecoder();
+    return decoder.decode(decrypted);
+  }
+}
+
+ 
+(async () => {
+  const processor = new CryptoProcessor();
+  const message = 'Confidential Message';
+  
+  const { iv, encrypted } = await processor.encryptMessage(message);
+  
+  const decrypted = await processor.decryptMessage(iv, encrypted);
+
+  console.log('Original:', message);
+  console.log('Decrypted:', decrypted);
+
+   
+  const messages = ['Hello, world!', 'Secret Code', 'Advanced JS'];
+  const encryptions = messages.map(m => processor.encryptMessage(m));
+  const results = await Promise.all(encryptions);
+
+  console.log('Encrypted Results:', results);
+})();
+```

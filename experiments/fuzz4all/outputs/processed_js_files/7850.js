@@ -1,0 +1,45 @@
+ 
+const { promises: fs } = require('fs');
+const { join } = require('path');
+
+ 
+(async () => {
+    try {
+         
+        const { default: fetch } = await import('node-fetch');
+
+         
+        let response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        let posts = await response.json();
+
+         
+        const [firstPost] = posts.map(({ id, title, body }) => ({
+            id, title, body
+        }));
+
+         
+        const postDetails = {
+            ...firstPost,
+            date: new Date().toISOString(),
+        };
+
+         
+        const seen = new Set();
+        const sym = Symbol('id');
+
+        if (!seen.has(postDetails[sym])) {
+            seen.add(postDetails[sym]);
+
+             
+            await fs.writeFile(
+                join(__dirname, 'postDetails.json'),
+                JSON.stringify(postDetails, null, 2),
+                'utf8'
+            );
+        }
+
+        print('Post details saved!', postDetails);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

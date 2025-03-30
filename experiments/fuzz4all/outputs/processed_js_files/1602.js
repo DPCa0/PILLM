@@ -1,0 +1,45 @@
+ 
+
+class Fibonacci {
+  constructor() {
+    this.cache = new Map();
+  }
+  
+  calculate(n) {
+    if (this.cache.has(n)) return this.cache.get(n);
+    if (n < 2) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.cache.set(n, result);
+    return result;
+  }
+}
+
+const fib = new Fibonacci();
+
+const handler = {
+  get(target, property) {
+    print(`Accessing property ${property}`);
+    return Reflect.get(target, property);
+  },
+};
+
+const proxyFib = new Proxy(fib, handler);
+
+async function calculateFibonacciAsync(n) {
+  const promise = new Promise((resolve) => {
+    setTimeout(() => resolve(proxyFib.calculate(n)), 1000);
+  });
+  const result = await promise;
+  print(`Fibonacci(${n}) = ${result}`);
+  return result;
+}
+
+(async () => {
+  const results = await Promise.all([
+    calculateFibonacciAsync(5),
+    calculateFibonacciAsync(10),
+    calculateFibonacciAsync(15),
+  ]);
+
+  print('Final Results:', results);
+})();

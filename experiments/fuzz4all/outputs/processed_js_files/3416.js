@@ -1,0 +1,43 @@
+ 
+
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) {
+                resolve(`Data from ${url}`);
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+}
+
+function* dataProcessor(data) {
+    try {
+        yield `Processing: ${data}`;
+        yield `Transformed: ${data.toUpperCase()}`;
+    } catch (error) {
+        yield `Error processing data: ${error}`;
+    }
+}
+
+async function main() {
+    const urls = ['https://api.example.com/data1', '', 'https://api.example.com/data3'];
+    const results = [];
+    
+    for await (const url of urls) {
+        try {
+            const data = await fetchData(url);
+            const [processStep1, processStep2] = [...dataProcessor(data)];
+            results.push({ url, processStep1, processStep2 });
+        } catch (error) {
+            results.push({ url, error });
+        }
+    }
+
+    const [{ url: firstUrl, processStep1 }, ...restResults] = results;
+    print(`First result from ${firstUrl}: ${processStep1}`);
+    print('Remaining Results:', restResults);
+}
+
+main().catch(console.error);

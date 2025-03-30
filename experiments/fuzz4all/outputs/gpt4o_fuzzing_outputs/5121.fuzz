@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* squareGenerator() {
+  for (let i = 1; i <= 10; i++) {
+    yield i * i;
+  }
+}
+
+ 
+async function processSquares() {
+  const squares = [];
+  for (const square of squareGenerator()) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    squares.push(square);
+  }
+  return squares;
+}
+
+ 
+const squaresHandler = {
+  get(target, property) {
+    console.log(`Accessing property "${property}" with value "${target[property]}"`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting property "${property}" to value "${value}"`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  console.log('Generating squares:');
+  
+  const squares = await processSquares();
+  const proxySquares = new Proxy(squares, squaresHandler);
+
+   
+  proxySquares.forEach((square, index) => {
+    console.log(`Square of ${index + 1}: ${square}`);
+  });
+
+   
+  proxySquares[0] = 0;
+
+   
+  console.log(`Access square of 2: ${proxySquares[1]}`);
+})();
+```

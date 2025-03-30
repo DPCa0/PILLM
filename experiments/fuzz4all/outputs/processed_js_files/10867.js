@@ -1,0 +1,64 @@
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function (...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const processData = (data) => {
+  const processed = data.map(({ id, value }) => ({ id, value: value * 2 }));
+  print(processed);
+};
+
+const complexObject = {
+  data: [],
+  fetchAndProcess: async function (url) {
+    this.data = await fetchData(url);
+    processData(this.data);
+  },
+};
+
+const enhancedFetch = debounce(complexObject.fetchAndProcess.bind(complexObject), 300);
+
+const map = new Map([
+  ['user1', { name: 'Alice', age: 30 }],
+  ['user2', { name: 'Bob', age: 24 }],
+]);
+
+for (let [key, { name, age }] of map.entries()) {
+  print(`User: ${name}, Age: ${age}`);
+}
+
+class Singleton {
+  constructor() {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+    Singleton.instance = this;
+  }
+
+  showMessage() {
+    print('Singleton instance method called');
+  }
+}
+
+const instance1 = new Singleton();
+const instance2 = new Singleton();
+print(instance1 === instance2);  
+
+instance1.showMessage();
+
+ 
+enhancedFetch('https://api.example.com/data');

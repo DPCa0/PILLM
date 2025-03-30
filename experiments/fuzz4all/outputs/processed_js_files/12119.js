@@ -1,0 +1,41 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async *fetchDataGenerator() {
+    const response = await fetch(this.url);
+    const data = await response.json();
+    for (let item of data) {
+      yield item;
+    }
+  }
+}
+
+const processItem = ({ id, name, info }) => ({
+  id,
+  name: name.toUpperCase(),
+  extra: {
+    ...info,
+    processedDate: new Date().toISOString()
+  }
+});
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const fetcher = new DataFetcher(url);
+    const results = [];
+
+    for await (let item of fetcher.fetchDataGenerator()) {
+      results.push(processItem(item));
+    }
+
+    const uniqueResults = Array.from(new Set(results.map(JSON.stringify))).map(JSON.parse);
+    uniqueResults.forEach((result) => print(result));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

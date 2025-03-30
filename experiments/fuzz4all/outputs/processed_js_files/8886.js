@@ -1,0 +1,43 @@
+ 
+async function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+async function displayFibonacci(limit) {
+    const sequence = fibonacci(limit);
+    const results = [];
+    const promises = [];
+
+    for await (const number of sequence) {
+        promises.push(Promise.resolve(number));
+    }
+
+    await Promise.all(promises).then(values => results.push(...values));
+    print(results);
+}
+
+ 
+(async () => {
+    try {
+         
+        const num = process?.argv?.[2] ?? 10;
+        const limit = parseInt(num, 10);
+
+         
+        const formatOutput = (strings, ...values) => 
+            strings.reduce((acc, str, i) => acc + str + (values[i] !== undefined ? `[${values[i]}]` : ''), '');
+        
+        print(formatOutput`Calculating Fibonacci sequence up to ${limit} numbers...`);
+
+         
+        await displayFibonacci(limit);
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+})();

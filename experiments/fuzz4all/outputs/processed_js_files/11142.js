@@ -1,0 +1,44 @@
+const fetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Could not fetch data: ${error}`);
+    }
+};
+
+const processAndTransformData = (data) => {
+    return data.map(({ id, title, body }) => ({
+        identifier: id,
+        heading: title.toUpperCase(),
+        content: body.split(' ').reverse().join(' ')
+    }));
+};
+
+const analyzeData = (transformedData) => {
+    const wordCount = transformedData.reduce((acc, { content }) => {
+        const count = content.split(' ').length;
+        return acc + count;
+    }, 0);
+
+    return {
+        totalItems: transformedData.length,
+        totalWords: wordCount,
+        averageWordsPerItem: wordCount / transformedData.length
+    };
+};
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    let data = await fetchData(url);
+
+    if (data) {
+        let transformedData = processAndTransformData(data);
+        let analysis = analyzeData(transformedData);
+
+        console.table(transformedData);
+        print(analysis);
+    }
+})();

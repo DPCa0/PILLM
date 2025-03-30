@@ -1,0 +1,61 @@
+ 
+const target = { name: 'Advanced JavaScript', topics: ['ES6', 'Proxies', 'Generators'] };
+const handler = {
+  get: function(obj, prop) {
+    return prop in obj ? obj[prop] : `Property ${prop} does not exist`;
+  },
+  set: function(obj, prop, value) {
+    if (typeof value === 'string' && value.length > 0) {
+      obj[prop] = value;
+      return true;
+    } else {
+      console.error('Invalid value');
+      return false;
+    }
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+function* objectEntries(obj) {
+  const keys = Reflect.ownKeys(obj);
+  for (let key of keys) {
+    yield [key, obj[key]];
+  }
+}
+
+const entries = objectEntries(proxy);
+
+ 
+async function processEntries() {
+  for await (let [key, value] of entries) {
+    print(`${key}: ${value}`);
+  }
+}
+
+ 
+const promises = [
+  Promise.resolve('Promise 1 resolved'),
+  Promise.reject('Promise 2 rejected'),
+  Promise.resolve('Promise 3 resolved')
+];
+
+Promise.allSettled(promises).then(results =>
+  results.forEach((result, index) =>
+    console.log(`Promise ${index + 1}: ${result.status}`)
+  )
+);
+
+ 
+processEntries();
+
+ 
+(async () => {
+  try {
+    const { dynamicFeature } = await import('./dynamicModule.js');
+    print(dynamicFeature?.info() ?? 'Dynamic feature not available');
+  } catch (error) {
+    console.error('Dynamic import failed', error);
+  }
+})();

@@ -1,0 +1,51 @@
+ 
+import { readFile } from 'fs/promises';
+import EventEmitter from 'events';
+
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+    
+     
+    print(data?.title ?? 'Title not found');
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+})();
+
+ 
+async function* asyncGenerator() {
+  yield await Promise.resolve('Hello');
+  yield await Promise.resolve('Async');
+  yield await Promise.resolve('Generator');
+}
+
+ 
+(async () => {
+  for await (const val of asyncGenerator()) {
+    print(val);
+  }
+})();
+
+ 
+class MyEmitter extends EventEmitter {}
+const myEmitter = new MyEmitter();
+
+myEmitter.on('event', async () => {
+   
+  try {
+    const content = await readFile('./example.txt', 'utf8');
+    print(content);
+  } catch (error) {
+    console.error('File read error:', error);
+  }
+});
+
+setImmediate(() => {
+  myEmitter.emit('event');
+});

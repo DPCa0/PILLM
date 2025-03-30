@@ -1,0 +1,50 @@
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.resolveQueue = [];
+    }
+    enqueue(item) {
+        if (this.resolveQueue.length > 0) {
+            const resolve = this.resolveQueue.shift();
+            resolve(item);
+        } else {
+            this.queue.push(item);
+        }
+    }
+    dequeue() {
+        return new Promise(resolve => {
+            if (this.queue.length > 0) {
+                resolve(this.queue.shift());
+            } else {
+                this.resolveQueue.push(resolve);
+            }
+        });
+    }
+    [Symbol.asyncIterator]() {
+        return {
+            next: async () => ({
+                done: false,
+                value: await this.dequeue()
+            })
+        };
+    }
+}
+
+const fetchData = async () => {
+    const dataQueue = new AsyncIterableQueue();
+    const dataProducer = async () => {
+        for (let i = 1; i <= 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000));  
+            dataQueue.enqueue(`Data-${i}`);
+        }
+    };
+
+    dataProducer();
+
+    for await (let data of dataQueue) {
+        print(`Received: ${data}`);
+        if (data === 'Data-5') break;
+    }
+};
+
+fetchData();

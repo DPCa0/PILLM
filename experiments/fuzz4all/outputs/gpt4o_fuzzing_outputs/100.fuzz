@@ -1,0 +1,30 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+            const data = await response.json();
+            yield data;
+        } catch (error) {
+            yield { error: error.message };
+        }
+    }
+}
+
+const processUrls = async (urls) => {
+    const resultArray = [];
+    for await (const data of fetchData(urls)) {
+        const { name, value } = data.error ? { name: 'Error', value: data.error } : { name: data.name, value: data.value };
+        resultArray.push({ [name]: value });
+    }
+    return resultArray;
+};
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+processUrls(urls).then(results => {
+    results.map(({ Error, ...rest }) => Error ? console.error(Error) : console.log(rest));
+});
+```

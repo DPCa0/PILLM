@@ -1,0 +1,55 @@
+ 
+"use strict";
+
+ 
+async function complexOperation() {
+     
+    const uniqueValues = new Set([1, 2, 2, 3, 4, 5, 5, 6]);
+    
+     
+    const squaredMap = new Map();
+    
+    uniqueValues.forEach(value => {
+        squaredMap.set(value, value ** 2);
+    });
+    
+     
+    const handler = {
+        get: (obj, prop) => prop in obj ? obj[prop] : 'Property not found',
+    };
+    
+    const proxyObject = new Proxy({
+        name: 'Advanced JavaScript',
+        type: 'Programming',
+    }, handler);
+    
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);
+    
+     
+    const { name, ...rest } = proxyObject;
+    
+     
+    function highlight(strings, ...values) {
+        return strings.reduce((acc, str, index) => `${acc}${str}<b>${values[index] || ''}</b>`, '');
+    }
+    
+     
+    async function* asyncGenerator(map) {
+        for (const [key, value] of map) {
+            await delay(500);
+            yield `Key: ${key}, Value: ${value}`;
+        }
+    }
+    
+    const gen = asyncGenerator(squaredMap);
+    
+    print(highlight`Object Info: Name - ${name}, Other - ${JSON.stringify(rest)}`);
+    for await (const value of gen) {
+        print(value);
+    }
+}
+
+ 
+complexOperation().catch(console.error);

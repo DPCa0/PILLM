@@ -1,0 +1,46 @@
+ 
+class DataService {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+  
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.apiUrl}/${endpoint}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch data: ${error}`);
+    }
+  }
+}
+
+const processData = (data) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (data.length === 0) {
+        reject("No data to process");
+      } else {
+        const processed = data.map(item => ({
+          ...item,
+          processed: true
+        }));
+        resolve(processed);
+      }
+    }, 1000);
+  });
+};
+
+(async () => {
+  const dataService = new DataService('https://jsonplaceholder.typicode.com');
+  const endpoint = 'posts';
+  
+  try {
+    const data = await dataService.fetchData(endpoint);
+    const processedData = await processData(data);
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error during data handling:', error);
+  }
+})();

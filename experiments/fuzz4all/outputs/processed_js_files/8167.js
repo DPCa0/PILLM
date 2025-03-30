@@ -1,0 +1,54 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event].push(listener);
+    return this;
+  }
+
+  async emit(event, ...args) {
+    if (!this.events[event]) return false;
+    for (const listener of this.events[event]) {
+      await listener(...args);
+    }
+    return true;
+  }
+
+  off(event, listener) {
+    if (!this.events[event]) return this;
+    this.events[event] = this.events[event].filter(l => l !== listener);
+    return this;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return await response.json();
+}
+
+async function main() {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('dataReceived', async data => {
+    print('Data received:', data);
+    const processed = data.map(item => ({ ...item, processed: true }));
+    print('Processed data:', processed);
+  });
+
+  emitter.on('error', error => {
+    console.error('Error occurred:', error);
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    await emitter.emit('dataReceived', data);
+  } catch (error) {
+    await emitter.emit('error', error);
+  }
+}
+
+main();

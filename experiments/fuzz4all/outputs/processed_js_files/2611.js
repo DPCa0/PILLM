@@ -1,0 +1,46 @@
+ 
+
+class Auction {
+    constructor(item) {
+        this.item = item;
+        this.bids = new Map();
+    }
+
+    placeBid(bidder, amount) {
+        if (!this.bids.has(bidder) || this.bids.get(bidder) < amount) {
+            this.bids.set(bidder, amount);
+        }
+    }
+
+    getWinningBid() {
+        return [...this.bids.entries()].reduce((maxBid, currBid) => {
+            return currBid[1] > maxBid[1] ? currBid : maxBid;
+        }, ["No bidders", 0]);
+    }
+}
+
+ 
+async function simulateBidding(auction, bidders) {
+    await Promise.all(bidders.map(async (bidder) => {
+        const delay = Math.floor(Math.random() * 5000);
+        const bidAmount = Math.floor(Math.random() * 100) + 1;
+        return new Promise(resolve => setTimeout(() => {
+            auction.placeBid(bidder, bidAmount);
+            print(`${bidder} placed a bid of $${bidAmount}`);
+            resolve();
+        }, delay));
+    }));
+}
+
+ 
+(async () => {
+    const auction = new Auction('Rare Book');
+    const bidders = ['Alice', 'Bob', 'Charlie', 'Diana'];
+
+    print(`Auction started for: ${auction.item}`);
+    
+    await simulateBidding(auction, bidders);
+    
+    const [winner, amount] = auction.getWinningBid();
+    print(`Auction ended. Winner is ${winner} with a bid of $${amount}`);
+})();

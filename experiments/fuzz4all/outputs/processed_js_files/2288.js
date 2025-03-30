@@ -1,0 +1,33 @@
+ 
+import fs from 'fs/promises';
+
+ 
+const readConfig = async () => {
+  const data = await fs.readFile('./config.json', 'utf-8');
+  return JSON.parse(data);
+};
+
+ 
+(async () => {
+  const config = await readConfig();
+  const { featureFlag } = config;
+
+  const { featureFunction } = await import(`./features/${featureFlag}.js`);
+
+   
+  const result = featureFunction?.() ?? 'Default behavior executed';
+
+   
+  const target = { result };
+  const handler = {
+    get: (obj, prop) => {
+      if (prop === 'result') {
+        return `Result: ${obj[prop]}`;
+      }
+      return `Property ${prop} doesn't exist`;
+    }
+  };
+
+  const proxy = new Proxy(target, handler);
+  print(proxy.result);  
+})();

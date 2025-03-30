@@ -1,0 +1,45 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => setTimeout(() => resolve({ data: `Data from ${url}` }), 1000));
+}
+
+ 
+const logAccessHandler = {
+  get(target, prop, receiver) {
+    print(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+let dataCache = new Proxy({}, logAccessHandler);
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+   
+  const results = await Promise.all(urls.map(url => fetchData(url)));
+
+   
+  const [data1, data2] = results.map(result => result.data);
+
+   
+  dataCache = { ...dataCache, data1, data2 };
+
+   
+  function* dataGenerator() {
+    for (let key in dataCache) {
+      yield `${key}: ${dataCache[key]}`;
+    }
+  }
+
+   
+  const generator = dataGenerator();
+  for (const entry of generator) {
+    print(entry);
+  }
+
+   
+  print(dataCache?.data1 || 'Data not found');
+  print(dataCache?.data3 || 'Data not found');
+})();

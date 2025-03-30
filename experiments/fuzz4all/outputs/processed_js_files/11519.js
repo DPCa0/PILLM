@@ -1,0 +1,52 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+class AsyncDataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async fetchData() {
+        const response = await fetch(this.url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    }
+}
+
+async function main() {
+    const dataObservable = new Observable();
+    
+    dataObservable.subscribe(data => {
+        print("Subscriber 1 received data:", data);
+    });
+    
+    dataObservable.subscribe(data => {
+        print("Subscriber 2 processed data length:", data.length);
+    });
+    
+    const fetcher = new AsyncDataFetcher('https://jsonplaceholder.typicode.com/posts');
+    
+    try {
+        const data = await fetcher.fetchData();
+        dataObservable.notify(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+main();

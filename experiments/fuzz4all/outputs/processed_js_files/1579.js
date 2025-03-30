@@ -1,0 +1,26 @@
+ 
+
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: { items: [1, 2, 3, 4, 5] } });
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+};
+
+const processData = async () => {
+    try {
+        const response = await fetchData('https://api.example.com/data');
+        const { data: { items } } = response;
+        const processedItems = items.map(item => item * 2);
+        print('Processed Items:', processedItems);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+processData();

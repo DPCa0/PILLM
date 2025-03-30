@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class WeatherStation {
+  #temperatureRecords = [];  
+
+  constructor(name) {
+    this.name = name;
+  }
+
+   
+  async *getTemperatureRecordsAsync() {
+    for (const record of this.#temperatureRecords) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield record;
+    }
+  }
+
+   
+  static async fetchWeatherData() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({
+          temperature: (Math.random() * 30 + 10).toFixed(1),  
+          timestamp: new Date().toISOString()
+        });
+      }, 1000);
+    });
+  }
+
+   
+  async updateTemperature() {
+    try {
+      const data = await WeatherStation.fetchWeatherData();
+      this.#temperatureRecords.push(data);
+      console.log(`Updated temperature: ${data.temperature}°C at ${data.timestamp}`);
+    } catch (error) {
+      console.error('Failed to update temperature', error);
+    }
+  }
+}
+
+(async () => {
+  const station = new WeatherStation('Downtown');
+
+   
+  await Promise.all([station.updateTemperature(), station.updateTemperature(), station.updateTemperature()]);
+
+   
+  console.log('Temperature Records:');
+  for await (const record of station.getTemperatureRecordsAsync()) {
+    console.log(record);
+  }
+})();
+```

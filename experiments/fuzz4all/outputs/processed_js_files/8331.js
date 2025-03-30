@@ -1,0 +1,35 @@
+class ComplexCalculator {
+    constructor() {
+        this.memoization = new Map();
+    }
+
+    factorial(n) {
+        if (this.memoization.has(n)) return this.memoization.get(n);
+        if (n <= 1) return 1;
+        const result = n * this.factorial(n - 1);
+        this.memoization.set(n, result);
+        return result;
+    }
+
+    async fetchNumberTrivia(number) {
+        const response = await fetch(`http: 
+        const data = await response.json();
+        return data.text;
+    }
+
+    async calculateAndFetchTrivia(n) {
+        const fact = this.factorial(n);
+        print(`Factorial of ${n} is ${fact}`);
+
+        const trivia = await this.fetchNumberTrivia(fact);
+        print(`Trivia: ${trivia}`);
+    }
+
+    static async executeCalculations() {
+        const calculator = new ComplexCalculator();
+        const promises = [5, 7, 10].map(num => calculator.calculateAndFetchTrivia(num));
+        await Promise.all(promises);
+    }
+}
+
+ComplexCalculator.executeCalculations();

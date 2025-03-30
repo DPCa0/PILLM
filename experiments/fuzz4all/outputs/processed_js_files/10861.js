@@ -1,0 +1,29 @@
+ 
+
+ 
+const fakeAPICall = (data, delay) => new Promise((resolve) => {
+    setTimeout(() => resolve(`Processed: ${data}`), delay);
+});
+
+ 
+function* asyncTasks() {
+    yield fakeAPICall('Task 1', 1000);
+    yield fakeAPICall('Task 2', 2000);
+    yield fakeAPICall('Task 3', 500);
+}
+
+ 
+async function runGenerator(gen) {
+    const iterator = gen();
+    for (let promise of iterator) {
+        const result = await promise;
+        print(result);
+    }
+}
+
+ 
+(async () => {
+    print('Starting complex async flow...');
+    await runGenerator(asyncTasks);
+    print('Completed complex async flow.');
+})();

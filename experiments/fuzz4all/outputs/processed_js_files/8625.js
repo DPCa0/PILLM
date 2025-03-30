@@ -1,0 +1,63 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+const asyncFunction = async (num) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Resolved async function with value: ${num}`);
+        }, 1000);
+    });
+};
+
+const pipeline = async (...fns) => {
+    return (input) => fns.reduce((chain, func) => chain.then(func), Promise.resolve(input));
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', (message) => {
+        print(`Received message: ${message}`);
+    });
+
+    eventEmitter.on('data', (message) => {
+        print(`Logging second listener: ${message}`);
+    });
+
+    const increment = async (num) => num + 1;
+    const double = async (num) => num * 2;
+    const printResult = async (num) => {
+        const message = `Final result: ${num}`;
+        eventEmitter.emit('data', message);
+        return num;
+    };
+
+    const process = pipeline(increment, double, asyncFunction, printResult);
+
+    const result = await process(3);
+    print(result);
+})();

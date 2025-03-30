@@ -1,0 +1,41 @@
+class AsyncIterableRange {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      current: this.start,
+      last: this.end,
+      async next() {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (this.current <= this.last) {
+          return { done: false, value: this.current++ };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+async function processNumbers(range, transformFn) {
+  const results = [];
+  for await (const num of range) {
+    results.push(transformFn(num));
+  }
+  return results;
+}
+
+const numbers = new AsyncIterableRange(1, 5);
+const transformFn = (num) => num * num;
+
+(async () => {
+  try {
+    const squaredNumbers = await processNumbers(numbers, transformFn);
+    print('Squared Numbers:', squaredNumbers);
+  } catch (error) {
+    console.error('Error processing numbers:', error);
+  }
+})();

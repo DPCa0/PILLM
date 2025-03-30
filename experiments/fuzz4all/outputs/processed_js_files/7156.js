@@ -1,0 +1,36 @@
+ 
+async function fetchData(url) {
+     
+    const response = await fetch(url);
+     
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+     
+    const data = await response.json();
+     
+    const { results } = data;
+    return results;
+}
+
+ 
+function processData(processFn) {
+    return async function (url) {
+        try {
+            const results = await fetchData(url);
+             
+            const processed = results.map(processFn);
+            print(processed);
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    };
+}
+
+ 
+const extractNames = ({ name: { first = 'N/A', last = 'N/A' } = {} } = {}) => `${first} ${last}`;
+
+ 
+const apiUrl = 'https://randomuser.me/api/?results=5';
+
+ 
+const displayUserNames = processData(extractNames);
+displayUserNames(apiUrl);

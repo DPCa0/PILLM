@@ -1,0 +1,40 @@
+const fetchUserData = async (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const users = {
+        1: { name: 'Alice', age: 25 },
+        2: { name: 'Bob', age: 30 },
+      };
+      const user = users[userId];
+      if (user) resolve(user);
+      else reject(new Error('User not found'));
+    }, 1000);
+  });
+};
+
+const processData = (user) => {
+  const { name, age } = user;
+  const msg = `${name} is ${age} years old.`;
+  print(msg);
+  return msg.toUpperCase();
+};
+
+(async () => {
+  try {
+    const user = await fetchUserData(1);
+    const result = processData(user);
+    
+    const encoder = new TextEncoder();
+    const uint8Array = encoder.encode(result);
+    print(uint8Array);
+
+    const buffer = new ArrayBuffer(uint8Array.length);
+    const view = new DataView(buffer);
+    uint8Array.forEach((byte, i) => view.setUint8(i, byte));
+
+    const decoder = new TextDecoder();
+    print(decoder.decode(buffer));
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

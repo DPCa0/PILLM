@@ -1,0 +1,68 @@
+ 
+
+ 
+function* numberGenerator() {
+    let num = 1;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+async function fetchData(num) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (num % 2 === 0) {
+                resolve(`Data for ${num}`);
+            } else {
+                reject(`No data for odd number: ${num}`);
+            }
+        }, 1000);
+    });
+}
+
+ 
+const dataHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            print(`Property ${prop} doesn't exist`);
+            return null;
+        }
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'string') {
+            target[prop] = value;
+            print(`Property ${prop} set to ${value}`);
+        } else {
+            print(`Only strings are allowed for property ${prop}`);
+        }
+    }
+};
+
+ 
+const dataStore = {};
+
+ 
+const proxy = new Proxy(dataStore, dataHandler);
+
+ 
+async function main() {
+    const generator = numberGenerator();
+
+    for (let i = 0; i < 5; i++) {
+        const { value } = generator.next();
+        try {
+            const data = await fetchData(value);
+            proxy[`data${value}`] = data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    print(proxy);
+}
+
+ 
+main();

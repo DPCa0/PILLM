@@ -1,0 +1,52 @@
+ 
+async function fetchUserData(userId) {
+  try {
+    let response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+  }
+}
+
+ 
+const processUserData = async (userId) => {
+  let userData = await fetchUserData(userId);
+  if (!userData) return;
+
+   
+  const { name, email, address: { city }, company: { name: companyName } } = userData;
+
+   
+  const formatUserDetails = (strings, name, email, city, companyName) =>
+    `${strings[0]}${name}${strings[1]}${email}${strings[2]}${city}${strings[3]}${companyName}`;
+  
+   
+  const userDetails = formatUserDetails`User Details:
+  Name: ${name}
+  Email: ${email}
+  City: ${city}
+  Company: ${companyName}`;
+
+  print(userDetails);
+
+   
+  const toTitleCase = str => str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
+
+   
+  let userMap = new Map();
+  userMap.set('Name', toTitleCase(name));
+  userMap.set('Email', email.toLowerCase());
+  userMap.set('City', toTitleCase(city));
+  userMap.set('Company', toTitleCase(companyName));
+
+  for (let [key, value] of userMap.entries()) {
+    print(`${key}: ${value}`);
+  }
+};
+
+ 
+(async () => {
+  await processUserData(1);
+})();

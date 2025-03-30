@@ -1,0 +1,44 @@
+ 
+async function fetchDataAndProcess(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const data = await response.json();
+
+         
+        const { userId, title, body } = data;
+        
+         
+        const processMessage = (strings, id, title) => 
+            `${strings[0]}${id}${strings[1]}${title}`;
+        
+        const message = processMessage`Processing post #${userId} titled: "${title}"`;
+        print(message);
+        
+         
+        const wordsArray = body.split(' ');
+        const uniqueWords = Array.from(new Set(wordsArray));
+        
+         
+        function* longWords(words) {
+            for (const word of words) {
+                if (word.length > 5) yield word;
+            }
+        }
+
+         
+        const longWordsGenerator = longWords(uniqueWords);
+        for (const word of longWordsGenerator) {
+            print(`Long word: ${word}`);
+        }
+    } catch (error) {
+         
+        console.error(error?.message ?? 'Unknown error occurred');
+    }
+}
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/posts/1');

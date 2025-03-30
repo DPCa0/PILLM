@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+    console.log("Fetching data...");
+    await delay(1000);
+    return { userId: 1, name: "John Doe", role: "Admin" };
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            return target[property];
+        } else {
+            console.warn(`Property "${property}" does not exist on target.`);
+            return null;
+        }
+    },
+    set(target, property, value) {
+        console.log(`Setting property "${property}" to "${value}"`);
+        target[property] = value;
+        return true;
+    }
+};
+
+(async () => {
+     
+    const user = await fetchData();
+
+     
+    const userProxy = new Proxy(user, handler);
+
+     
+    console.log(`Name: ${userProxy.name}`);   
+    console.log(`Age: ${userProxy.age}`);     
+
+     
+    userProxy.role = "User";
+    console.log(`Updated role: ${userProxy.role}`);
+
+     
+    await delay(500);
+    console.log("Operation complete.");
+})();
+```

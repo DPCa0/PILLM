@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    processData(data) {
+        return data.map(({ id, name, attributes }) => {
+            const { height, weight } = attributes;
+            return `ID: ${id}, Name: ${name}, Height: ${height}, Weight: ${weight}`;
+        });
+    }
+}
+
+(async () => {
+    const url = 'https://api.example.com/data';
+    const dataProcessor = new DataProcessor(url);
+
+    const rawData = await dataProcessor.fetchData();
+    if (!rawData) return;
+
+    const processedData = dataProcessor.processData(rawData);
+    processedData.forEach(entry => console.log(entry));
+})();
+```

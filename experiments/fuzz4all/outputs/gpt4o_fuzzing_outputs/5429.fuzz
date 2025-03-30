@@ -1,0 +1,36 @@
+print('Hello, world!');
+Certainly! Here's a complex JavaScript program using advanced features such as async/await, Promises, and destructuring assignment:
+
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async () => {
+  try {
+    const [users, posts] = await Promise.all([
+      fetchData('https: 
+      fetchData('https://jsonplaceholder.typicode.com/posts')
+    ]);
+
+    const userPosts = users.map(user => {
+      const { id, name } = user;
+      const userSpecificPosts = posts.filter(post => post.userId === id);
+      return {
+        name,
+        posts: userSpecificPosts.map(({ title, body }) => ({ title, body }))
+      };
+    });
+
+    console.log(userPosts);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+processData();
+```
+
+This code uses asynchronous functions and handles multiple Promises with `Promise.all`, as well as using destructuring to access object properties efficiently.

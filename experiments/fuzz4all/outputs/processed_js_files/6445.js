@@ -1,0 +1,40 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncHandler = (fn) => (...args) => Promise.resolve(fn(...args));
+
+const fetchData = async () => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => resolve("Data fetched!"), 1000);
+  });
+}
+
+const processAsync = asyncHandler(async (emitter) => {
+  const data = await fetchData();
+  emitter.emit('dataReceived', data);
+});
+
+const emitter = new EventEmitter();
+
+emitter.on('dataReceived', (data) => {
+  print(data);
+});
+
+processAsync(emitter);

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error: ', error);
+      return null;
+    }
+  }
+}
+
+class DataProcessor {
+  process({ results = [] }) {
+    return results.map(({ name, height, mass }) => ({
+      name,
+      bmi: this.calculateBMI(height, mass),
+    }));
+  }
+
+  calculateBMI(height, mass) {
+    if (!height || !mass) return null;
+    return (mass / Math.pow(height / 100, 2)).toFixed(2);
+  }
+}
+
+const runApp = async () => {
+  const fetcher = new DataFetcher('https://swapi.dev/api/people/');
+  const processor = new DataProcessor();
+
+  try {
+    const data = await fetcher.fetchData();
+    if (!data) throw new Error('No data to process');
+
+    const processedData = processor.process(data);
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error in processing:', error);
+  }
+};
+
+ 
+runApp();
+```

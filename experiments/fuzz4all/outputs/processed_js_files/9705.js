@@ -1,0 +1,61 @@
+ 
+const ArithmeticModule = (() => {
+   
+  const history = [];
+
+  const logOperation = (operation, result) => {
+    history.push({ operation, result });
+  };
+
+   
+  return {
+    add: (a, b) => {
+      const result = a + b;
+      logOperation(`${a} + ${b}`, result);
+      return result;
+    },
+    subtract: (a, b) => {
+      const result = a - b;
+      logOperation(`${a} - ${b}`, result);
+      return result;
+    },
+    multiply: (a, b) => {
+      const result = a * b;
+      logOperation(`${a} * ${b}`, result);
+      return result;
+    },
+    divide: (a, b) => {
+      if (b === 0) throw new Error("Division by zero");
+      const result = a / b;
+      logOperation(`${a} / ${b}`, result);
+      return result;
+    },
+    getHistory: () => [...history]
+  };
+})();
+
+ 
+const ArithmeticProxy = new Proxy(ArithmeticModule, {
+  get: (target, property, receiver) => {
+    if (typeof target[property] === 'function') {
+      return (...args) => {
+        if (args.some(arg => typeof arg !== 'number')) {
+          throw new Error("All arguments must be numbers");
+        }
+        return Reflect.apply(target[property], receiver, args);
+      };
+    }
+    return Reflect.get(target, property, receiver);
+  }
+});
+
+ 
+const result1 = ArithmeticProxy.add(5, 7);
+const result2 = ArithmeticProxy.multiply(result1, 10);
+const result3 = ArithmeticProxy.subtract(result2, 20);
+const result4 = ArithmeticProxy.divide(result3, 4);
+
+ 
+const { getHistory } = ArithmeticProxy;
+const history = getHistory();
+print(`Operation History:\n${history.map(({ operation, result }) => `${operation} = ${result}`).join('\n')}`);

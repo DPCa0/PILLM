@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(null, args));
+        }
+    }
+}
+
+class Calculator extends EventEmitter {
+    constructor() {
+        super();
+    }
+    
+    async calculate(expression) {
+        try {
+            const result = await this.#complexCalculation(expression);
+            this.emit('result', result);
+        } catch (error) {
+            this.emit('error', error);
+        }
+    }
+    
+    async #complexCalculation(expression) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (Math.random() > 0.8) throw new Error('Calculation error');
+        return eval(expression);
+    }
+}
+
+const calculator = new Calculator();
+calculator.on('result', result => console.log('Result:', result));
+calculator.on('error', error => console.error('Error:', error));
+
+(async () => {
+    for (const expression of ['5 + 5', '10 * 2', 'Math.pow(2, 8)', '100 / 0']) {
+        await calculator.calculate(expression);
+    }
+})();
+```

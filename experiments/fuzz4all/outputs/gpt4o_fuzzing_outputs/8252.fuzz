@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const data = new Proxy({ message: 'Hello, advanced JavaScript!' }, handler);
+
+ 
+function* dataGenerator() {
+  yield data.message;
+  yield* [1, 2, 3];  
+}
+
+ 
+async function processData() {
+  const gen = dataGenerator();
+  for (const val of gen) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    console.log(`Processed: ${val}`);
+  }
+}
+
+ 
+(async () => {
+  const [result1, result2] = await Promise.all([
+    processData(),
+    new Promise(resolve => setTimeout(() => resolve('Another async operation'), 1000))
+  ]);
+
+  console.log(`Results: ${result1}, ${result2}`);
+})();
+```

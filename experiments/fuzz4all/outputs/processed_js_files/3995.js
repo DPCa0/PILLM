@@ -1,0 +1,52 @@
+class Shape {
+    constructor(name) {
+        this.name = name;
+    }
+
+    static description() {
+        return 'This is a shape class';
+    }
+
+    get area() {
+        return 0;
+    }
+}
+
+class Circle extends Shape {
+    #radius;  
+
+    constructor(radius) {
+        super('Circle');
+        this.#radius = radius;
+    }
+
+    get area() {
+        return Math.PI * this.#radius ** 2;
+    }
+
+    *scaleGenerator(factor) {
+        let currentRadius = this.#radius;
+        while (true) {
+            currentRadius *= factor;
+            yield Math.PI * currentRadius ** 2;
+        }
+    }
+}
+
+const circle = new Circle(1);
+print(circle.area);  
+
+const areaIterator = circle.scaleGenerator(2);
+print(areaIterator.next().value);  
+print(areaIterator.next().value);  
+
+(async () => {
+    const fetchShapeDescription = async () => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(Shape.description());
+            }, 1000);
+        });
+    };
+    print(await fetchShapeDescription());
+})();

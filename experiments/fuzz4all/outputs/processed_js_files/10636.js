@@ -1,0 +1,58 @@
+(async () => {
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
+  };
+
+   
+  const processUserData = ({ name, username, email, ...rest }) => ({
+    name,
+    username,
+    email,
+    details: { ...rest },
+  });
+
+   
+  function* userDataGenerator(users) {
+    for (const user of users) {
+      yield processUserData(user);
+    }
+  }
+
+   
+  const apiURL = 'https://jsonplaceholder.typicode.com/users';
+  try {
+    const users = await fetchData(apiURL);
+    
+     
+    const userIterator = userDataGenerator(users);
+
+     
+    const enhancedUserIterator = new Proxy(userIterator, {
+      get(target, prop, receiver) {
+        if (prop === 'next') {
+          const nextValue = Reflect.get(target, prop, receiver).call(target);
+          if (!nextValue.done) {
+            print('Processing User:', nextValue.value);
+          }
+          return nextValue;
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+    });
+
+     
+    for (const user of enhancedUserIterator) {
+      print(user);
+    }
+  } catch (error) {
+    console.error('Error in fetching or processing data:', error);
+  }
+})();

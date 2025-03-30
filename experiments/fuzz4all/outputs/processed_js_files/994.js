@@ -1,0 +1,48 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function advancedFeatures() {
+    try {
+         
+        const { default: _ } = await import('lodash');
+        
+         
+        const { a, b, ...rest } = { a: 1, b: 2, c: 3, d: 4 };
+        print('Destructuring:', a, b, rest);
+
+         
+        const data = await readFile(new URL('./data.json', import.meta.url), 'utf-8');
+        print('File Data:', JSON.parse(data));
+
+         
+        const numbers = [1, 2, 3, 4, 5];
+        const filteredAndMapped = _.chain(numbers)
+            .filter(n => n % 2 === 0)
+            .map(n => n * n)
+            .value();
+        print('Filtered and Mapped:', filteredAndMapped);
+
+         
+        const promises = [
+            Promise.resolve('Resolved!'),
+            Promise.reject('Rejected!'),
+            Promise.resolve('Also Resolved!')
+        ];
+        const results = await Promise.allSettled(promises);
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                print(`Promise ${index + 1} fulfilled with`, result.value);
+            } else {
+                print(`Promise ${index + 1} rejected with`, result.reason);
+            }
+        });
+
+    } catch (error) {
+         
+        console.error('An error occurred:', error);
+    }
+}
+
+ 
+advancedFeatures();

@@ -1,0 +1,51 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+function createPromise() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve('Success!') : reject('Failure!');
+    }, 1000);
+  });
+}
+
+async function asyncEventHandler(emitter, event) {
+  try {
+    const result = await createPromise();
+    emitter.emit(event, result);
+  } catch (error) {
+    emitter.emit(event, error);
+  }
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('result', (message) => {
+  print('Result received:', message);
+});
+
+asyncEventHandler(emitter, 'result');

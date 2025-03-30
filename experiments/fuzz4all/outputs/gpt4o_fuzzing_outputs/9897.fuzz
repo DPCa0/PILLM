@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) {
+            resolve({ data: `Data from ${url}` });
+        } else {
+            reject('URL not provided');
+        }
+    }, 1000);
+});
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            return `Property ${prop} does not exist.`;
+        }
+    }
+};
+
+ 
+const apiProxy = new Proxy({
+    endpoint1: 'https://api.example.com/data1',
+    endpoint2: 'https://api.example.com/data2'
+}, handler);
+
+ 
+async function main() {
+    const urls = ['endpoint1', 'endpoint2', 'endpoint3'];
+    const promises = urls.map(async (key) => {
+        try {
+            const url = apiProxy[key];
+            const { data } = await fetchData(url);
+            console.log(data);
+        } catch (error) {
+            console.error(`Error fetching data for ${key}:`, error);
+        }
+    });
+
+     
+    await Promise.all(promises);
+}
+
+ 
+main();
+```

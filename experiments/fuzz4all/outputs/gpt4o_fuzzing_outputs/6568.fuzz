@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const userHandler = {
+  get(target, prop) {
+    console.log(`Getting property ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+async function fetchUserData(id) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, name: `User${id}`, age: 20 + id });
+    }, 1000);
+  });
+}
+
+ 
+(async function main() {
+  const gen = idGenerator();
+  const userId = gen.next().value;
+
+  console.log('Fetching user data...');
+  const userData = await fetchUserData(userId);
+
+  const user = new Proxy(userData, userHandler);
+
+  console.log('User data:', user);
+  console.log('User name:', user.name);
+
+  user.age = 30;
+  console.log('Updated user age:', user.age);
+})();
+```

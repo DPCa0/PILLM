@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  async *processData() {
+    for (const item of this.#data) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield this.#transformData(item);
+    }
+  }
+  
+  #transformData(item) {
+    return item * 2;  
+  }
+}
+
+function runPipeline(data) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    const processor = new DataProcessor(data);
+    const iterator = processor.processData();
+    
+    (function iterate() {
+      iterator.next().then(({ value, done }) => {
+        if (done) {
+          resolve(results);
+        } else {
+          results.push(value);
+          iterate();
+        }
+      }).catch(reject);
+    })();
+  });
+}
+
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+  try {
+    const processedData = await runPipeline(data);
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();
+```

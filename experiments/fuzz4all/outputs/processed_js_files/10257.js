@@ -1,0 +1,37 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(null, args));
+        }
+    }
+}
+
+const asyncOperation = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+    const emitter = new EventEmitter();
+
+    emitter.on('start', () => print('Operation started'));
+    emitter.on('end', () => print('Operation ended'));
+    emitter.on('progress', (percent) => print(`Progress: ${percent}%`));
+
+    emitter.emit('start');
+    
+    for (let i = 0; i <= 100; i += 20) {
+        await asyncOperation(500);   
+        emitter.emit('progress', i);
+    }
+
+    emitter.emit('end');
+}
+
+main();

@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+async function complexOperation() {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    
+     
+    async function* dataGenerator() {
+        for (let i = 1; i <= 5; i++) {
+            await delay(200);  
+            yield `Data ${i}`;
+        }
+    }
+    
+    const asyncIterable = dataGenerator();
+    const results = await Promise.all([
+        asyncIterable.next(),
+        asyncIterable.next(),
+        asyncIterable.next()
+    ]);
+
+     
+    const [{ value: firstValue }, , { value: thirdValue }] = results;
+    
+     
+    const dataList = [firstValue, thirdValue ?? 'No Data', ...results.map(r => r?.value)];
+
+     
+    const uppercaseList = dataList.map(data => data?.toUpperCase() ?? 'UNKNOWN');
+
+    console.log(`Processed Data: ${uppercaseList.join(' | ')}`);
+}
+
+complexOperation().catch(console.error);
+```

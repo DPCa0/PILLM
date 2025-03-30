@@ -1,0 +1,55 @@
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+}
+
+ 
+const dataHandler = {
+  get(target, property) {
+    print(`Accessing ${property}`);
+    return target[property];
+  }
+};
+
+ 
+const _privateField = Symbol('privateField');
+
+ 
+class DataProcessor {
+  constructor(data) {
+    this[_privateField] = data;
+  }
+
+  *_filterData(criteria) {
+    for (let item of this[_privateField]) {
+      if (criteria(item)) yield item;
+    }
+  }
+
+  process(criteria) {
+    const filteredData = this._filterData(criteria);
+    for (let item of filteredData) {
+      print(item);
+    }
+  }
+}
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const rawData = await fetchData(url);
+  if (!rawData) return;
+
+  const proxyData = new Proxy(rawData, dataHandler);
+  const processor = new DataProcessor(proxyData);
+
+   
+  processor.process(item => item.userId === 1);
+})();

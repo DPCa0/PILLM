@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+
+   
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        console.log(`Accessing property "${prop}" with value: ${target[prop]}`);
+      } else {
+        console.log(`Property "${prop}" does not exist.`);
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  };
+
+  const data = {
+    name: 'Advanced JS',
+    version: '1.0',
+  };
+
+  const proxiedData = new Proxy(data, handler);
+
+   
+  const filePath = './data.json';
+
+  try {
+    await fs.writeFile(filePath, JSON.stringify(proxiedData, null, 2));
+    console.log('File written successfully.');
+
+    const fileContent = await fs.readFile(filePath, 'utf8');
+    console.log('Read file content:', fileContent);
+
+     
+    console.log(proxiedData.name);
+    console.log(proxiedData.unknownProp);
+
+     
+    await fs.unlink(filePath);
+    console.log('File deleted.');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

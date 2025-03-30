@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class Logger {
+  static levels = ['info', 'warn', 'error'];
+
+  constructor() {
+    Logger.levels.forEach(level => {
+      this[level] = (message, ...args) => this.log(level, message, ...args);
+    });
+  }
+
+  log(level, message, ...args) {
+    console[level](`[${level.toUpperCase()}] ${message}`, ...args);
+  }
+}
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    logger.error('Fetch error:', error);
+    throw error;
+  }
+}
+
+function* range(start, end) {
+  for (let i = start; i < end; i++) {
+    yield i;
+  }
+}
+
+const emitter = new EventEmitter();
+const logger = new Logger();
+
+emitter.on('dataReceived', data => {
+  logger.info('Data received:', data);
+});
+
+emitter.on('rangeGenerated', range => {
+  logger.info('Range generated:', [...range]);
+});
+
+fetchData('https://jsonplaceholder.typicode.com/posts')
+  .then(data => emitter.emit('dataReceived', data.slice(0, 5)));
+
+emitter.emit('rangeGenerated', range(1, 5));
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return `Property ${prop} does not exist on target`;
+    }
+  }
+};
+
+const proxy = new Proxy({ a: 1, b: 2 }, proxyHandler);
+logger.info(proxy.a);  
+logger.info(proxy.c);  
+```

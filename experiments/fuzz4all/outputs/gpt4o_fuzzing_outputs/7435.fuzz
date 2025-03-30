@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [randomInt(1, 100), randomInt(1, 100), randomInt(1, 100)] });
+    }, 1000);
+  });
+};
+
+ 
+function* dataProcessor(data) {
+  for (const item of data) {
+    yield item * 2;  
+  }
+}
+
+ 
+(async () => {
+  try {
+    console.log("Fetching data...");
+    const response = await fetchData();
+    console.log("Data fetched:", response.data);
+
+     
+    const generator = dataProcessor(response.data);
+    for (const value of generator) {
+      console.log("Processed value:", value);
+    }
+
+     
+    const uniqueValues = [...new Set(response.data)];
+    console.log("Unique data values:", uniqueValues);
+
+     
+    const dataProxy = new Proxy(response.data, {
+      get(target, prop) {
+        if (prop in target) {
+          console.log(`Accessing data at index ${prop}:`, target[prop]);
+          return target[prop];
+        } else {
+          throw new Error(`Property ${prop} does not exist on target`);
+        }
+      },
+    });
+
+    console.log("Accessing data via Proxy:", dataProxy[1]);
+
+  } catch (error) {
+    console.error("An error occurred:", error.message);
+  }
+})();
+```

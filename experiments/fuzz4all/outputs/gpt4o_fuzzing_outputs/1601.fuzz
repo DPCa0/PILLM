@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({
+            user: {
+                name: 'Jane Doe',
+                age: 28,
+                hobbies: ['coding', 'hiking', 'photography']
+            }
+        });
+    }, 1000);
+});
+
+ 
+const fetchAdditionalInfo = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({
+            occupation: 'Software Engineer',
+            location: 'San Francisco'
+        });
+    }, 1000);
+});
+
+ 
+const logger = (fn) => async (...args) => {
+    try {
+        const result = await fn(...args);
+        console.log(`Result: ${JSON.stringify(result, null, 2)}`);
+        return result;
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+};
+
+ 
+const getUserProfile = logger(async () => {
+    const [userResponse, additionalResponse] = await Promise.all([
+        fetchUserData(),
+        fetchAdditionalInfo()
+    ]);
+
+    const {
+        user: { name, age, hobbies }
+    } = userResponse;
+    
+    const {
+        occupation, location
+    } = additionalResponse;
+
+    const profile = {
+        name,
+        age,
+        occupation,
+        location,
+        hobbies: hobbies.map((hobby) => hobby.toUpperCase())
+    };
+
+    return profile;
+});
+
+ 
+getUserProfile();
+```

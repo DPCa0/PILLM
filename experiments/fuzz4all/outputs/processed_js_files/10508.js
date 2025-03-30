@@ -1,0 +1,38 @@
+ 
+async function loadAndProcessData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+
+         
+        const { users } = data;
+        const processedData = users
+            .filter(({ age }) => age > 18)
+            .map(({ name, age }) => ({
+                name: name.toUpperCase(),
+                ageIn5Years: age + 5
+            }));
+
+         
+        const userMap = new Map();
+        processedData.forEach(user => userMap.set(user.name, user.ageIn5Years));
+
+         
+        const handler = {
+            get(target, prop) {
+                print(`Accessing property '${prop}'`);
+                return target[prop];
+            }
+        };
+        const proxiedUserMap = new Proxy(userMap, handler);
+
+        print(proxiedUserMap.get('JOHN DOE'));  
+
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+}
+
+ 
+loadAndProcessData('https://example.com/data.json');

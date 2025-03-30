@@ -1,0 +1,50 @@
+ 
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async fetchData() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const data = { info: `Data for ${this.name}` };
+        if (data) resolve(data);
+        else reject('Error fetching data');
+      }, 1000);
+    });
+  }
+}
+
+const userProxyHandler = {
+  get(target, property) {
+    if (property === 'name') {
+      return `Proxy - ${target[property]}`;
+    }
+    return target[property];
+  },
+  set(target, property, value) {
+    if (property === 'name' && typeof value !== 'string') {
+      throw new Error('Name must be a string');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const userInstance = new User('Alice');
+const proxiedUser = new Proxy(userInstance, userProxyHandler);
+
+(async () => {
+  try {
+    print(proxiedUser.name);  
+    
+    proxiedUser.name = 'Bob';
+    print(proxiedUser.name);  
+    
+    const data = await proxiedUser.fetchData();
+    print(data);  
+  } catch (error) {
+    console.error(error);
+  }
+})();

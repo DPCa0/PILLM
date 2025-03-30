@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+const complexObject = {
+    users: [
+        { id: 1, name: "Alice", hobbies: ["reading", "hiking"] },
+        { id: 2, name: "Bob", hobbies: ["painting", "gaming"] },
+        { id: 3, name: "Charlie", hobbies: ["swimming", "biking"] }
+    ],
+    settings: {
+        theme: "dark",
+        notifications: true,
+    }
+};
+
+ 
+async function fetchData() {
+    const dataPromise = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("Fetched Data");
+        }, 1000);
+    });
+
+    const data = await dataPromise;
+    return data;
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const [firstUser, ...otherUsers] = complexObject.users;
+const { theme, ...otherSettings } = complexObject.settings;
+
+ 
+const secondUserHobby = complexObject.users[1]?.hobbies[0] ?? "No hobby";
+
+ 
+(function () {
+    const idGen = idGenerator();
+    console.log("New ID:", idGen.next().value);
+})();
+
+ 
+function highlight(strings, ...values) {
+    return strings.reduce((result, string, i) => 
+        `${result}${string}<strong>${values[i] || ''}</strong>`, '');
+}
+
+const hobbyMessage = highlight`Bob's first hobby is ${secondUserHobby}`;
+
+// Use of map, filter, and reduce
+const hobbyLengths = complexObject.users
+    .map(user => user.hobbies)
+    .flat()
+    .filter(hobby => hobby.length > 5)
+    .reduce((acc, hobby) => ({ ...acc, [hobby]: hobby.length }), {});
+
+console.log("First User:", firstUser);
+console.log("Other Users:", otherUsers);
+console.log("Theme:", theme);
+console.log("Other Settings:", otherSettings);
+console.log("Second User's Hobby:", secondUserHobby);
+console.log("Hobby Message:", hobbyMessage);
+console.log("Hobby Lengths:", hobbyLengths);
+
+// Async/await call
+fetchData().then(data => console.log("Async Data:", data

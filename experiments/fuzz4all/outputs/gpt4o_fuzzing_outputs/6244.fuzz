@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+    yield delay(1000).then(() => console.log('First yield resolved'));
+    yield delay(2000).then(() => console.log('Second yield resolved'));
+    return 'Done';
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.log(`Property ${prop} does not exist`);
+            return null;
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const targetObject = {a: 1, b: 2};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function asyncRunner(genFunc) {
+    const generator = genFunc();
+    let result = generator.next();
+    while (!result.done) {
+        await result.value;
+        result = generator.next();
+    }
+    console.log(result.value);  
+}
+
+ 
+console.log(proxy.a);  
+proxy.c = 3;  
+console.log(proxy.c);  
+
+ 
+asyncRunner(asyncGenerator);
+```

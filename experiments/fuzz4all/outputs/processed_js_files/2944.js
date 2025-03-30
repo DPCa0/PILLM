@@ -1,0 +1,48 @@
+ 
+import fs from 'fs/promises';
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const getCurrentTimestamp = () => new Date().toISOString();
+
+ 
+(async () => {
+  try {
+     
+    const dataHandler = {
+      set: (obj, prop, value) => {
+        if (typeof value !== 'string') {
+          throw new TypeError('Property values must be strings');
+        }
+        obj[prop] = value.toUpperCase();  
+        return true;
+      }
+    };
+
+    const data = new Proxy({}, dataHandler);
+    
+     
+    data.message = 'Hello, World!';
+    data.timestamp = getCurrentTimestamp();
+
+     
+    const logData = { ...data, id: Math.random().toString(36).substring(7) };
+
+     
+    await fs.writeFile('log.json', JSON.stringify(logData, null, 2));
+    
+    print('Data logged successfully:', logData);
+
+     
+    await delay(1000);
+    
+     
+    const fileContents = await fs.readFile('log.json', 'utf-8');
+    print('File Contents:\n', fileContents);
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

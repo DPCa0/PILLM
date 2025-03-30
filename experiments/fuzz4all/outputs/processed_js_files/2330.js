@@ -1,0 +1,61 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+            if (this.events.get(event).size === 0) {
+                this.events.delete(event);
+            }
+        }
+    }
+}
+
+const emitter = new EventEmitter();
+
+const asyncOperation = (data) => new Promise((resolve) => {
+    setTimeout(() => resolve(`Processed: ${data}`), 1000);
+});
+
+async function* dataStreamProcessor(dataStream) {
+    for await (const data of dataStream) {
+        yield await asyncOperation(data);
+    }
+}
+
+const sampleDataStream = (async function* () {
+    for (let i = 0; i < 5; i++) {
+        yield `Data ${i}`;
+    }
+})();
+
+emitter.on('data', (processedData) => {
+    print(`Listener 1: ${processedData}`);
+});
+
+emitter.on('data', (processedData) => {
+    print(`Listener 2: ${processedData}`);
+});
+
+(async () => {
+    for await (const processedData of dataStreamProcessor(sampleDataStream)) {
+        emitter.emit('data', processedData);
+    }
+})();

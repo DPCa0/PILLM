@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const logHandler = {
+  get(target, property) {
+    console.log(`Getting ${property}`);
+    return property in target ? target[property] : 42;
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const obj = new Proxy({}, logHandler);
+
+ 
+(async () => {
+  const module = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash-es.js');
+  console.log('Lodash module loaded');
+  
+   
+  const mergeObjects = (obj1, obj2) => ({ ...obj1, ...obj2 });
+  const newObj = mergeObjects({ a: 1 }, { b: 2 });
+  console.log(newObj);
+
+   
+  const tag = (strings, ...values) => strings.map((str, i) => `${str.toUpperCase()}${values[i] || ''}`).join('');
+  const dynamicStr = tag`Value of a is ${newObj.a} and value of b is ${newObj.b}`;
+  console.log(dynamicStr);
+
+   
+  obj.x = 100;
+  console.log(obj.x);
+  console.log(obj.y);  
+})();
+
+ 
+function* generatorFunction() {
+  yield 'Hello';
+  yield 'World';
+  return '!';
+}
+
+const iterator = generatorFunction();
+let result = iterator.next();
+while (!result.done) {
+  console.log(result.value);
+  result = iterator.next();
+}
+```

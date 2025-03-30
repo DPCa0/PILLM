@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class User {
+  #name;  
+  static #users = [];  
+
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+    this.id = User.#generateId();
+    User.#users.push(this);
+  }
+
+   
+  static #generateId() {
+    return `user-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+   
+  userInfo(taggedFn) {
+    return taggedFn`Name: ${this.#name}, Age: ${this.age}`;
+  }
+
+  static getUsers() {
+    return this.#users;
+  }
+}
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => `${result}${string}<b>${values[i] || ''}</b>`, '');
+}
+
+ 
+async function fetchUserData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]);
+    }, 1000);
+  });
+}
+
+ 
+(async function main() {
+  const usersData = await fetchUserData();
+  usersData?.forEach(data => {
+    const user = new User(data.name, data.age);
+    console.log(user.userInfo(highlight));
+  });
+
+   
+  import('./module.js')
+    .then(module => {
+      console.log(module.someExportedFunction());
+    })
+    .catch(err => {
+      console.error("Failed to load module:", err);
+    });
+})();
+```

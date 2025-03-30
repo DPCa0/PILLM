@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class AsyncDataHandler {
+    #dataCache = new Map();
+
+    constructor(apiUrls) {
+        this.apiUrls = apiUrls;
+    }
+
+    async fetchData() {
+        try {
+            const dataPromises = this.apiUrls.map(url => this.#fetchDataFromUrl(url));
+            const dataResults = await Promise.allSettled(dataPromises);
+
+            dataResults.forEach(result => {
+                if (result.status === 'fulfilled') {
+                    const { url, data } = result.value;
+                    this.#dataCache.set(url, data);
+                } else {
+                    console.error('Error fetching data:', result.reason);
+                }
+            });
+        } catch (error) {
+            console.error('Unexpected error:', error);
+        }
+    }
+
+    #fetchDataFromUrl(url) {
+        return fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => ({ url, data }))
+            .catch(error => Promise.reject(error));
+    }
+
+    *getCachedData() {
+        for (const [url, data] of this.#dataCache.entries()) {
+            yield { url, data };
+        }
+    }
+
+    static async manipulateAndLogData(apiUrls) {
+        const handler = new AsyncDataHandler(apiUrls);
+        await handler.fetchData();
+        const processedData = Array.from(handler.getCachedData()).map(({ url, data }) => ({
+            url,
+            processedData: data.map(item => ({ ...item, processed: true }))
+        }));
+
+        console.log('Processed Data:', JSON.stringify(processedData, null, 2));
+    }
+}
+
+ 
+AsyncDataHandler.manipulateAndLogData([
+    'https://jsonplaceholder.typicode.com/posts',
+    'https://jsonplaceholder.typicode.com/comments'
+]);
+```

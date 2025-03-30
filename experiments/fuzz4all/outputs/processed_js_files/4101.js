@@ -1,0 +1,38 @@
+ 
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+async function processData() {
+  try {
+     
+    const data = JSON.parse(await readFile(new URL('./data.json', import.meta.url)));
+
+     
+    const [firstItem, ...restItems] = data.items;
+    const processedItems = restItems
+      .filter(item => item.value > 10)
+      .map(({ name, value }) => ({ name: name.toUpperCase(), value: value * 2 }));
+
+     
+    print('First Item:', firstItem);
+    print('Processed Items:', processedItems);
+
+     
+    const uniqueNames = new Set(processedItems.map(item => item.name));
+    print('Unique Names:', uniqueNames);
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+class CustomEventEmitter extends EventEmitter {}
+const myEmitter = new CustomEventEmitter();
+
+ 
+myEmitter.on('processData', processData);
+
+ 
+myEmitter.emit('processData');

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const transformData = (data) => {
+   
+  return data.map(({ id, name, price }) => ({
+    id,
+    name: name.toUpperCase(),
+    cost: price * 1.2,
+  }));
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData('https://api.example.com/products');
+    
+     
+    const transformedData = transformData(data ?? []);
+    
+     
+    const outputTemplate = (strings, ...values) => strings.reduce((acc, str, idx) => {
+      return acc + str + (values[idx] ? `**${values[idx]}**` : '');
+    }, '');
+
+    transformedData.forEach(item => {
+      console.log(outputTemplate`Product: ${item.name}, Cost: ${item.cost}`);
+    });
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+processData();
+```

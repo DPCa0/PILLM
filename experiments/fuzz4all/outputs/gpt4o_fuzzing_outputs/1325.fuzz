@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this._listeners = new Set();
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(newValue) {
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this._notify();
+    }
+  }
+
+  subscribe(listener) {
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  }
+
+  _notify() {
+    this._listeners.forEach(listener => listener(this._value));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const observable = new Observable(0);
+
+  const unsubscribe = observable.subscribe(newValue => {
+    console.log(`New value: ${newValue}`);
+  });
+
+  for (let i = 1; i <= 5; i++) {
+    await delay(1000);
+    observable.value = i;
+  }
+
+  unsubscribe();
+
+   
+  observable.value = 100;  
+})();
+```

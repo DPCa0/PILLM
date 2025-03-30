@@ -1,0 +1,53 @@
+ 
+
+class Fibonacci {
+  constructor() {
+    this.memo = {};
+  }
+  
+  *generator() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  async calculate(n) {
+    if (n in this.memo) return this.memo[n];
+    if (n <= 1) return n;
+
+    const result = (await this.calculate(n - 1)) + (await this.calculate(n - 2));
+    this.memo[n] = result;
+    return result;
+  }
+}
+
+const fib = new Fibonacci();
+const fibGen = fib.generator();
+
+const fibonacciHandler = {
+  get: function(target, prop, receiver) {
+    if (prop === 'asyncFib') {
+      return async function(n) {
+        return await target.calculate(n);
+      }
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxyFib = new Proxy(fib, fibonacciHandler);
+
+(async () => {
+  print('First 10 Fibonacci numbers using generator:');
+  for (let i = 0; i < 10; i++) {
+    print(fibGen.next().value);
+  }
+
+  print('\nFibonacci of 10 using async/await:');
+  print(await proxyFib.asyncFib(10));
+
+  print('\nFibonacci of 20 using async/await:');
+  print(await proxyFib.asyncFib(20));
+})();

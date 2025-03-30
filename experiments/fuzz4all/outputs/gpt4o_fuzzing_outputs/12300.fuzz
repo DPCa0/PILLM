@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const _private = Symbol('private');
+
+ 
+class FluentPerson {
+  constructor(name) {
+    this.name = name;
+    this[_private] = {};
+  }
+
+  setAge(age) {
+    if (typeof age !== 'number' || age < 0) throw new Error('Invalid age');
+    this[_private].age = age;
+    return this;
+  }
+
+  setHobbies(...hobbies) {
+    if (!Array.isArray(hobbies)) throw new Error('Hobbies must be an array');
+    this[_private].hobbies = hobbies;
+    return this;
+  }
+
+  setAddress({ city, country }) {
+    this[_private].address = { city, country };
+    return this;
+  }
+
+  getProfile() {
+    const { age, hobbies, address } = this[_private];
+    return {
+      name: this.name,
+      age,
+      hobbies,
+      address,
+    };
+  }
+
+  [Symbol.iterator]() {
+    const properties = Object.entries(this.getProfile());
+    let index = 0;
+    return {
+      next: () => {
+        if (index < properties.length) {
+          const [key, value] = properties[index++];
+          return { value: { [key]: value }, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+ 
+const john = new FluentPerson('John Doe')
+  .setAge(30)
+  .setHobbies('Reading', 'Cycling', 'Gaming')
+  .setAddress({ city: 'New York', country: 'USA' });
+
+for (const property of john) {
+  console.log(property);
+}
+```

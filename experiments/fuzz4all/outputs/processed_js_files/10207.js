@@ -1,0 +1,54 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events[event]) return;
+        this.events[event] = this.events[event].filter(listener => listener !== listenerToRemove);
+    }
+
+    async emit(event, ...args) {
+        if (!this.events[event]) return;
+        for (const listener of this.events[event]) {
+            await listener(...args);
+        }
+    }
+}
+
+ 
+const emitter = new AsyncEventEmitter();
+const handler = {
+    get(target, prop, receiver) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Called: ${prop}(${args.map(arg => JSON.stringify(arg)).join(", ")})`);
+                return Reflect.apply(target[prop], target, args);
+            }
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxyEmitter = new Proxy(emitter, handler);
+
+ 
+proxyEmitter.on('data', async (value) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    print(`Processed: ${value}`);
+});
+
+async function main() {
+    print('Emitting event...');
+    await proxyEmitter.emit('data', 'Sample data');
+    print('Event processed.');
+}
+
+main().catch(console.error);

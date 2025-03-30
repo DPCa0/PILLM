@@ -1,0 +1,71 @@
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return function (...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const fibonacci = memoize((n) => {
+  if (n < 2) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+ 
+const delayedExecution = async (fn, delay, ...args) => {
+  await new Promise((resolve) => setTimeout(resolve, delay));
+  return fn(...args);
+};
+
+ 
+const [first, second, ...rest] = [1, 2, 3, 4, 5];
+
+ 
+const sum = (x, y, z) => x + y + z;
+const numbers = [1, 2, 3];
+const total = sum(...numbers);
+
+ 
+function* generatorFunction(limit) {
+  let count = 0;
+  while (count < limit) {
+    yield count++;
+  }
+}
+
+const gen = generatorFunction(5);
+for (let value of gen) {
+  print(`Generated value: ${value}`);
+}
+
+ 
+const user = {
+  name: 'John Doe',
+  age: 30,
+  address: {
+    city: 'New York',
+    zip: 10001,
+  },
+};
+
+const {
+  name,
+  address: { city },
+} = user;
+
+ 
+(async () => {
+  print(`Memoized Fibonacci of 10: ${fibonacci(10)}`);
+  print(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+  print(`Total of spread numbers: ${total}`);
+  print(`User's city: ${city}`);
+  const delayedResult = await delayedExecution((x) => x * 2, 1000, 5);
+  print(`Delayed result: ${delayedResult}`);
+})();

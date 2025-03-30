@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchJsonData(urls) {
+    const fetchPromises = urls.map(url => fetch(url).then(response => response.json()));
+    for (const promise of fetchPromises) {
+        yield await promise;
+    }
+}
+
+ 
+const logger = (obj) => new Proxy(obj, {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Accessing property "${property}" with value "${target[property]}"`);
+            return target[property];
+        } else {
+            console.log(`Property "${property}" does not exist.`);
+            return undefined;
+        }
+    }
+});
+
+ 
+function htmlEscape(strings, ...values) {
+    return strings.reduce((result, str, i) => result + str + (values[i] ? String(values[i]).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ""), "");
+}
+
+ 
+(async () => {
+     
+    const urls = [
+        'https://api.github.com/users/octocat',
+        'https://api.github.com/users/defunkt'
+    ];
+    
+    const dataIterator = fetchJsonData(urls);
+    for await (const data of dataIterator) {
+        const userData = logger(data);
+        console.log(userData.login, userData.id);  
+    }
+
+     
+    const userName = "John & Jane <The Developers>";
+    console.log(htmlEscape`User: ${userName}`);  
+
+     
+    const sym = Symbol('uniqueKey');
+    const obj = { [sym]: 'hiddenValue', publicKey: 42 };
+    Reflect.set(obj, 'publicKey', 100);
+    console.log(obj[Reflect.ownKeys(obj)[0]]);  
+    console.log(obj.publicKey);  
+})();
+```

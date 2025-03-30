@@ -1,0 +1,50 @@
+class Scheduler {
+    #tasks = new Map();
+
+    scheduleTask(name, time, callback) {
+        if (this.#tasks.has(name)) throw new Error("Task already scheduled.");
+        const id = setTimeout(() => {
+            callback();
+            this.#tasks.delete(name);
+        }, time);
+        this.#tasks.set(name, id);
+        print(`Task "${name}" scheduled.`);
+    }
+
+    cancelTask(name) {
+        if (!this.#tasks.has(name)) throw new Error("Task not found.");
+        clearTimeout(this.#tasks.get(name));
+        this.#tasks.delete(name);
+        print(`Task "${name}" canceled.`);
+    }
+
+    listTasks() {
+        print("Scheduled Tasks:", [...this.#tasks.keys()]);
+    }
+}
+
+const advancedFunction = async (...promises) => {
+    try {
+        const results = await Promise.allSettled(promises);
+        return results.map(({status, value, reason}) => 
+            status === 'fulfilled' ? value : `Error: ${reason}`);
+    } catch (e) {
+        console.error(`Execution failed: ${e.message}`);
+    }
+};
+
+const scheduler = new Scheduler();
+scheduler.scheduleTask("task1", 2000, async () => {
+    const results = await advancedFunction(
+        Promise.resolve("Success!"),
+        Promise.reject("Failure."),
+        Promise.resolve(42)
+    );
+    print("Task1 Results:", results);
+});
+scheduler.scheduleTask("task2", 1000, () => print("Task2 Executed"));
+
+setTimeout(() => {
+    scheduler.listTasks();
+    scheduler.cancelTask("task1");
+}, 500);

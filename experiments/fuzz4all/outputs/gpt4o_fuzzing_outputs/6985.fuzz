@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const { createInterface } = require('readline');
+const { promises: fsPromises } = require('fs');
+
+ 
+async function processFile(filePath) {
+  const rl = createInterface({
+    input: await fsPromises.open(filePath).then(fileHandle => fileHandle.createReadStream()),
+    output: process.stdout,
+    terminal: false
+  });
+
+   
+  const wordFrequency = new Map();
+
+   
+  for await (const line of rl) {
+    const words = line.split(/\W+/).filter(Boolean);
+    words.forEach(word => {
+      const lowerCaseWord = word.toLowerCase();
+      wordFrequency.set(lowerCaseWord, (wordFrequency.get(lowerCaseWord) || 0) + 1);
+    });
+  }
+
+   
+  const sortedWords = Array.from(wordFrequency.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+   
+  sortedWords.forEach(([word, count]) => {
+    console.log(`${word}: ${count}`);
+  });
+}
+
+ 
+(async () => {
+  try {
+    await processFile('textfile.txt');
+  } catch (error) {
+    console.error('Error processing the file:', error);
+  }
+})();
+```

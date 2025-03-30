@@ -1,0 +1,28 @@
+ 
+
+ 
+const fakeFetch = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    url === "valid/url" ? resolve({ data: { user: { name: "Jane Doe", age: 30 } } }) : reject("Invalid URL");
+  }, 1000);
+});
+
+const processUserData = async (url) => {
+  try {
+    const { data: { user } } = await fakeFetch(url);
+    const { name, age } = user;
+    return `User Info: Name - ${name}, Age - ${age}`;
+  } catch (error) {
+    return `Error: ${error}`;
+  }
+};
+
+const additionalData = { occupation: "Software Developer", country: "USA" };
+
+const execute = async () => {
+  const userInfo = await processUserData("valid/url");
+  const finalData = { ...JSON.parse(userInfo.replace('User Info: ', '{"userInfo": {').replace(/, /g, '", "').replace(/ - /g, '": "') + '}}'), ...additionalData };
+  print(`Result: ${JSON.stringify(finalData, null, 2)}`);
+};
+
+execute();

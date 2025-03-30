@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    #matrix;
+    
+    constructor(rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.#matrix = Array.from({ length: rows }, () => Array(cols).fill(0));
+    }
+
+    static from(arr) {
+        const m = new Matrix(arr.length, arr[0].length);
+        m.#matrix = arr;
+        return m;
+    }
+
+    #apply(func) {
+        this.#matrix = this.#matrix.map((row, i) => row.map((val, j) => func(val, i, j)));
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) throw new Error("Incompatible matrices");
+        const result = new Matrix(a.rows, b.cols);
+        return result.#apply((_, i, j) =>
+            a.#matrix[i].reduce((sum, elm, k) => sum + elm * b.#matrix[k][j], 0)
+        );
+    }
+
+    get determinant() {
+        if (this.rows !== this.cols) throw new Error("Not a square matrix");
+        
+        const cloneMatrix = (matrix) => matrix.map(row => [...row]);
+        const calculateDeterminant = (matrix) => {
+            const n = matrix.length;
+            if (n === 1) return matrix[0][0];
+            if (n === 2) return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0];
+
+            return matrix[0].reduce((det, coeff, j) => {
+                const subMatrix = cloneMatrix(matrix.slice(1)).map(row => row.filter((_, idx) => idx !== j));
+                return det + coeff * Math.pow(-1, j) * calculateDeterminant(subMatrix);
+            }, 0);
+        };
+        
+        return calculateDeterminant(cloneMatrix(this.#matrix));
+    }
+
+    [Symbol.iterator]() {
+        let row = 0, col = 0;
+        return {
+            next: () => {
+                if (row >= this.rows) return { done: true };
+                const value = this.#matrix[row][col];
+                col++;
+                if (col >= this.cols) {
+                    col = 0;
+                    row++;
+                }
+                return { value, done: false };
+            }
+        };
+    }
+
+    toString() {
+        return this.#matrix.map(row => row.join

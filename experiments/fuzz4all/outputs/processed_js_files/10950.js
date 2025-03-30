@@ -1,0 +1,63 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+class ComplexSystem {
+     
+    #data;
+    #filePath;
+
+    constructor(filePath) {
+        this.#filePath = filePath;
+    }
+
+     
+    async #loadData() {
+        try {
+            const data = await fs.readFile(this.#filePath, 'utf8');
+            this.#data = JSON.parse(data);
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
+    }
+
+     
+    async initialize() {
+        await this.#loadData();
+
+        const tasks = this.#data.map(item => this.processItem(item));
+        const results = await Promise.all(tasks);
+
+        print('Processing results:', results);
+    }
+
+     
+    static [Symbol.iterator]() {
+        const values = [1, 2, 3, 4, 5];
+        let index = 0;
+        return {
+            next() {
+                return {
+                    value: values[index++],
+                    done: index > values.length
+                };
+            }
+        };
+    }
+
+     
+    *processItem(item) {
+        yield `${item} processed`;
+    }
+}
+
+ 
+(async () => {
+    const system = new ComplexSystem('./data.json');
+    await system.initialize();
+
+     
+    for (const value of ComplexSystem) {
+        print('Iterated value:', value);
+    }
+})();

@@ -1,0 +1,47 @@
+ 
+
+class AsyncDataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchJsonData(endpoint) {
+    const response = await fetch(`${this.apiUrl}${endpoint}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  }
+}
+
+function* dataGenerator(dataArray) {
+  for (let data of dataArray) {
+    yield data;
+  }
+}
+
+const handler = {
+  get: function(target, property) {
+    if (property in target) {
+      print(`Accessed property ${property}`);
+      return target[property];
+    }
+    throw new ReferenceError(`Property ${property} not found`);
+  }
+};
+
+const fetcherProxy = new Proxy(new AsyncDataFetcher('https://api.example.com'), handler);
+
+(async () => {
+  try {
+    const data = await fetcherProxy.fetchJsonData('/data');
+    
+    const iterator = dataGenerator(data.items);
+    let result = iterator.next();
+    
+    while (!result.done) {
+      print(`Item: ${JSON.stringify(result.value)}`);
+      result = iterator.next();
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

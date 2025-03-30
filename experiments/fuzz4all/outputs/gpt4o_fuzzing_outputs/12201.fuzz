@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncPipeline {
+  constructor(initialValue) {
+    this.promise = Promise.resolve(initialValue);
+  }
+
+  pipe(asyncFn) {
+    this.promise = this.promise.then(asyncFn);
+    return this;
+  }
+
+  catch(errorHandler) {
+    this.promise = this.promise.catch(errorHandler);
+    return this;
+  }
+
+  finally(callback) {
+    this.promise = this.promise.finally(callback);
+    return this;
+  }
+
+  static range(start, end) {
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }
+}
+
+ 
+const fetchFakeData = (id) =>
+  new Promise((resolve, reject) =>
+    setTimeout(() => (Math.random() > 0.2 ? resolve({ id, data: `Data for ${id}` }) : reject(`Failed to fetch data for ${id}`)), 1000)
+  );
+
+new AsyncPipeline(AsyncPipeline.range(1, 5))
+  .pipe((ids) =>
+    Promise.all(
+      ids.map((id) =>
+        fetchFakeData(id).catch((err) => {
+          console.error(err);
+          return null;  
+        })
+      )
+    )
+  )
+  .pipe((results) => results.filter(Boolean))
+  .pipe((validResults) => {
+    console.log("Successfully fetched data:", validResults);
+    return validResults;
+  })
+  .catch((error) => console.error("Unhandled error:", error))
+  .finally(() => console.log("Pipeline execution completed."));
+```

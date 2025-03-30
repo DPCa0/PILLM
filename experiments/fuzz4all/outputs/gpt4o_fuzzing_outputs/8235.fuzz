@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+(async () => {
+   
+  function createCounter() {
+    let count = 0;
+    return {
+      increment() {
+        count += 1;
+        return count;
+      },
+      get value() {
+        return count;
+      },
+    };
+  }
+
+   
+  function fetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ data: { user: 'Jane Doe', age: 30 } });
+      }, 1000);
+    });
+  }
+
+   
+  async function getUserData() {
+    try {
+      const response = await fetchData();
+      const { data: { user, age } } = response;  
+      return { user, age };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+   
+  const counter = createCounter();
+  
+   
+  async function main() {
+    console.log(`Counter: ${counter.increment()}`);  
+    const { user, age } = await getUserData();
+    console.log(`User: ${user}, Age: ${age}`);
+    console.log(`Counter: ${counter.increment()}`);  
+  }
+
+   
+  main();
+
+   
+  console.log(`Initial Counter: ${counter.value}`);  
+})();
+```

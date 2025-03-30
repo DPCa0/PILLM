@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const observable = new Observable();
+
+const asyncTask = async () => {
+  const simulateAsyncOperation = () => new Promise(resolve => setTimeout(() => resolve("Data Loaded"), 1000));
+
+  try {
+    const result = await simulateAsyncOperation();
+    observable.notify(result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+};
+
+const logData = (data) => console.log(`Log Subscriber: ${data}`);
+const transformData = (data) => console.log(`Transform Subscriber: ${data.toUpperCase()}`);
+
+observable.subscribe(logData);
+observable.subscribe(transformData);
+
+asyncTask();
+
+const proxyHandler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Accessing property: ${property}`);
+      return target[property];
+    } else {
+      console.log(`Property ${property} doesn't exist`);
+      return undefined;
+    }
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, proxyHandler);
+
+console.log(proxyObject.a); // Accessing property: a
+console.log(proxyObject.b); // Accessing property: b
+console.log(proxyObject.c); // Property c doesn't exist
+```

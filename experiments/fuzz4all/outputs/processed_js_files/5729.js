@@ -1,0 +1,40 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.sequence = this.#generateSequence();
+    }
+
+    *#generator() {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    #generateSequence() {
+        return [...this.#generator()];
+    }
+
+    [Symbol.iterator]() {
+        let index = 0;
+        return {
+            next: () => ({
+                value: this.sequence[index++],
+                done: index > this.sequence.length
+            })
+        };
+    }
+
+    async printSequence() {
+        for (let num of this) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            print(num);
+        }
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+    await fib.printSequence();
+})();

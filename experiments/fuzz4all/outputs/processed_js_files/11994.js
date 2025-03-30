@@ -1,0 +1,61 @@
+class NetworkRequest {
+    constructor(url, method = 'GET') {
+        this.url = url;
+        this.method = method;
+    }
+
+    async fetchData() {
+        const response = await fetch(this.url, { method: this.method });
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    }
+}
+
+const debounce = (func, delay) => {
+    let timer;
+    return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+const fetchDataAndRender = async () => {
+    try {
+        const request = new NetworkRequest('https://jsonplaceholder.typicode.com/posts');
+        const data = await request.fetchData();
+        document.body.innerHTML = data.map(post => `<h2>${post.title}</h2><p>${post.body}</p>`).join('');
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Property '${prop}' has been accessed.`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        print(`Setting value '${value}' to property '${prop}'.`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const userPreferences = {
+    theme: 'dark',
+    notificationsEnabled: true
+};
+
+const proxyPreferences = new Proxy(userPreferences, handler);
+
+const input = document.createElement('input');
+input.type = 'text';
+input.placeholder = 'Type to search...';
+input.addEventListener('input', debounce(fetchDataAndRender, 300));
+document.body.appendChild(input);
+
+proxyPreferences.theme = 'light';   
+print(proxyPreferences.theme);   
+
+fetchDataAndRender();   

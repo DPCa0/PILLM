@@ -1,0 +1,43 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+        return () => this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+}
+
+(async () => {
+    const observable = new Observable();
+
+    const logSubscriber = observable.subscribe(data => print('Subscriber 1:', data));
+    observable.subscribe(data => print('Subscriber 2:', data));
+    
+    try {
+        const data = await fetchWithRetry('https://jsonplaceholder.typicode.com/posts/1');
+        observable.notify(data);
+    } catch (error) {
+        console.error('Failed to fetch:', error);
+    }
+
+    logSubscriber();  
+})();

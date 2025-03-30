@@ -1,0 +1,22 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const map = new Map(data.map(item => [item.id, { ...item, processed: true }]));
+    for (const [id, { name, processed }] of map.entries()) {
+      print(`ID: ${id}, Name: ${name}, Processed: ${processed}`);
+    }
+  } catch (error) {
+    console.error(`Failed to process data: ${error}`);
+  }
+};
+
+ 
+const dataUrl = 'https://jsonplaceholder.typicode.com/users';
+processData(dataUrl);

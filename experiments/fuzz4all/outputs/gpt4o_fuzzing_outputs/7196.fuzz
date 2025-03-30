@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+     
+    async function* fetchData(urls) {
+        for (const url of urls) {
+            await delay(1000);  
+            yield fetch(url)
+                .then(response => response.json())
+                .catch(error => ({ error: error.message }));
+        }
+    }
+
+     
+    const apiUrls = [
+        'https://api.github.com/users/github',
+        'https://api.github.com/users/microsoft',
+        'https://api.github.com/users/google'
+    ];
+
+     
+    const userCache = new Map();
+
+     
+    for await (const userData of fetchData(apiUrls)) {
+        if (!userData.error) {
+            userCache.set(userData.login, userData);
+        }
+    }
+
+     
+    for (const [username, { name, company, public_repos }] of userCache) {
+        console.log(`Username: ${username}
+        Name: ${name}
+        Company: ${company}
+        Public Repos: ${public_repos}\n`);
+    }
+})();
+```

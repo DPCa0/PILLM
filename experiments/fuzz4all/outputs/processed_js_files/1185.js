@@ -1,0 +1,41 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  filterData(predicate) {
+    return this.data.filter(predicate);
+  }
+
+  transformData(transformFunction) {
+    return this.data.map(transformFunction);
+  }
+}
+
+const process = async (url) => {
+  try {
+    const rawData = await fetchData(url);
+    const processor = new DataProcessor(rawData);
+
+    const filteredData = processor.filterData(item => item.active);
+    const transformedData = processor.transformData(item => ({
+      ...item,
+      name: item.name.toUpperCase()
+    }));
+
+    const output = transformedData.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {});
+    print(output);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+process('https://api.example.com/data');

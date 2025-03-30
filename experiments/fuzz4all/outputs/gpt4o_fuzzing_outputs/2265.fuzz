@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(fn) {
+    this.subscribers.add(fn);
+    return () => this.subscribers.delete(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const complexComputation = async function* () {
+  for (let i = 0; i < 3; i++) {
+    yield new Promise(async (resolve) => {
+      console.log(`Step ${i}: Starting complex computation...`);
+      await delay(1000);
+      console.log(`Step ${i}: Computation complete.`);
+      resolve(i * 2);
+    });
+  }
+};
+
+(async () => {
+  const observable = new Observable();
+  
+  const unsub = observable.subscribe(data => {
+    console.log('Received:', data);
+  });
+  
+  for await (let result of complexComputation()) {
+    observable.notify(result);
+  }
+  
+  unsub();
+  console.log('Unsubscribed from notifications.');
+})();
+```

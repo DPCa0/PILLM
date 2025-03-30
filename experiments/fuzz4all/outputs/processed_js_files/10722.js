@@ -1,0 +1,36 @@
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve({ id, name: `Item${id}`, value: Math.random() * 100 }), 1000)
+  );
+};
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop);
+  },
+};
+
+ 
+const processData = async () => {
+  const rawData = await fetchData(1);
+  const { name, value } = rawData;  
+
+  const processedData = { id: rawData.id, name, value: value.toFixed(2) };
+  return new Proxy(processedData, handler);
+};
+
+ 
+class DataProcessor {
+  static async run() {
+    const data = await processData();
+    print(`Processed Data: ${data.name} with value ${data.value}`);
+  }
+}
+
+ 
+DataProcessor.run();

@@ -1,0 +1,53 @@
+ 
+ 
+
+ 
+function asyncOperation(value, delay) {
+  return new Promise((resolve) => setTimeout(() => resolve(value), delay));
+}
+
+ 
+const logger = {
+  get(target, property, receiver) {
+    print(`Getting ${property}`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    print(`Setting ${property} to ${value}`);
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+
+ 
+async function processItems(items) {
+  const processedSet = new Set();
+  const proxySet = new Proxy(processedSet, logger);
+
+  for (const item of items) {
+    const processedItem = await asyncOperation(item * 2, 100);
+    proxySet.add(processedItem);
+  }
+
+  return proxySet;
+}
+
+ 
+async function processAndMapItems(items) {
+  const processedSet = await processItems(items);
+
+   
+  const mappedArray = Array.from(processedSet).map((item) => item + 1);
+
+   
+  const proxyMappedArray = new Proxy(mappedArray, logger);
+  
+  return proxyMappedArray;
+}
+
+ 
+(async () => {
+  const items = [1, 2, 3, 4, 5];
+  const result = await processAndMapItems(items);
+  
+  print('Final Result:', result);
+})();

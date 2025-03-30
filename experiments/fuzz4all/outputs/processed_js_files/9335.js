@@ -1,0 +1,57 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ data }) => {
+  return data.map((item, index) => ({
+    id: item.id,
+    value: item.value ** 2,
+    timestamp: new Date().toISOString(),
+    index,
+  }));
+};
+
+const renderData = (processedData) => {
+  processedData.forEach((item) => {
+    print(`ID: ${item.id}, Value: ${item.value}, Index: ${item.index}`);
+  });
+};
+
+const pipeline = async (url) => {
+  try {
+    const rawData = await fetchData(url);
+    const processedData = processData(rawData);
+    renderData(processedData);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+};
+
+const url = 'https://api.example.com/data';
+pipeline(url);
+
+ 
+const config = {
+  retries: 3,
+  timeout: 5000,
+};
+
+const handler = {
+  get(target, property) {
+    print(`Getting the value of ${property}`);
+    return property in target ? target[property] : 'Property does not exist';
+  },
+  set(target, property, value) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+const proxiedConfig = new Proxy(config, handler);
+
+proxiedConfig.retries;      
+proxiedConfig.timeout = 3000;   
+proxiedConfig.nonExistent;  

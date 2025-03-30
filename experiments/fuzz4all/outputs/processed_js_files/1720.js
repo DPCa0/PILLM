@@ -1,0 +1,49 @@
+ 
+
+ 
+const users = Array.from({ length: 10 }, (_, i) => ({
+  id: i + 1,
+  name: `User${i + 1}`,
+  email: `user${i + 1}@example.com`,
+  age: Math.floor(Math.random() * 50) + 18,
+}));
+
+ 
+const fetchUserData = (id) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const user = users.find(user => user.id === id);
+      user ? resolve(user) : reject(new Error('User not found'));
+    }, Math.random() * 1000);
+  });
+};
+
+ 
+const processUserData = ({ id, name, email, age }) => {
+  print(`Processing data for ${name}...`);
+  return {
+    id,
+    name: name.toUpperCase(),
+    contact: email,
+    isAdult: age >= 18,
+    message: `Hello, ${name}! You are ${age} years old.`,
+  };
+};
+
+ 
+async function fetchAndProcessUsers() {
+  try {
+    const results = await Promise.all(users.map(user => fetchUserData(user.id)));
+    const processedUsers = results.map(processUserData);
+    print('Processed Users:', processedUsers);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+ 
+(async () => {
+  print('Starting user data processing...');
+  await fetchAndProcessUsers();
+  print('User data processing completed.');
+})();

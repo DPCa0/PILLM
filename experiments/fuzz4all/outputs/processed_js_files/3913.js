@@ -1,0 +1,51 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (this.events[event]) {
+            await Promise.all(this.events[event].map(listener => listener(...args)));
+        }
+    }
+}
+
+const debounce = (fn, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const heavyComputation = debounce((input) => {
+    print(`Result of computation for: ${input}`);
+}, 300);
+
+const emitter = new AsyncEventEmitter();
+
+emitter.on('compute', async (input) => {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    heavyComputation(input);
+});
+
+const randomHexColor = () => `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
+
+const asyncAction = async () => {
+    const color = randomHexColor();
+    print(`Starting computation for color: ${color}`);
+    await emitter.emit('compute', color);
+};
+
+(async () => {
+    for (let i = 0; i < 5; i++) {
+        await asyncAction();
+    }
+})();

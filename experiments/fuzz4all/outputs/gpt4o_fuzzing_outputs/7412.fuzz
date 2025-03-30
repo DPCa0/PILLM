@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+const range = function* (start, end, step = 1) {
+    let current = start;
+    while (current < end) {
+        yield current;
+        current += step;
+    }
+};
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Accessing property "${property}"`);
+        return Reflect.get(target, property);
+    }
+};
+
+const targetObj = {
+    name: 'Advanced JS',
+    version: 'ES2020',
+    features: ['Proxy', 'Generator', 'Async/Await', 'Map', 'Set']
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+const asyncOperation = async () => {
+    console.log('Starting async operation...');
+    
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);
+    
+    console.log('Async operation completed!');
+};
+
+ 
+const setA = new Set([1, 2, 3]);
+const setB = new Set([3, 4, 5]);
+
+const union = new Set([...setA, ...setB]);
+const intersection = new Set([...setA].filter(x => setB.has(x)));
+const difference = new Set([...setA].filter(x => !setB.has(x)));
+
+ 
+const functionMap = new Map();
+const keyFn = () => 'Hello';
+functionMap.set(keyFn, 'World');
+
+ 
+(async () => {
+    console.log([...range(0, 10, 2)]);  
+    
+    console.log(proxyObj.name);  
+    console.log(proxyObj.features[2]);  
+
+    await asyncOperation();  
+
+    console.log('Union:', [...union]);
+    console.log('Intersection:', [...intersection]);
+    console.log('Difference:', [...difference]);
+
+    console.log('Function Map:', functionMap.get(keyFn));  
+})();
+```

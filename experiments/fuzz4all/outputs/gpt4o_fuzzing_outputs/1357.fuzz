@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+class SecureStorage {
+  #data = new WeakMap();
+
+  constructor() {
+    this.#data.set(this, {});
+  }
+
+   
+  #validateKey(key) {
+    if (typeof key !== 'string' || !key) {
+      throw new Error('Invalid key');
+    }
+  }
+
+   
+  setItem(key, value) {
+    this.#validateKey(key);
+    const currentData = this.#data.get(this);
+    const proxyHandler = {
+      set(target, property, newValue) {
+        console.log(`Setting ${property} to ${newValue}`);
+        target[property] = newValue;
+        return true;
+      }
+    };
+    const proxy = new Proxy(currentData, proxyHandler);
+    proxy[key] = value;
+  }
+
+  getItem(key) {
+    this.#validateKey(key);
+    return this.#data.get(this)[key];
+  }
+
+  async #hashValue(value) {
+    const msgUint8 = new TextEncoder().encode(value);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async storeSecure(key, value) {
+    const hashedValue = await this.#hashValue(value);
+    this.setItem(key, hashedValue);
+  }
+}
+
+ 
+(async () => {
+  const storage = new SecureStorage();
+  await storage.storeSecure('userToken', 'mySecretToken123');
+  console.log(storage?.getItem('userToken'));  
+})();
+```

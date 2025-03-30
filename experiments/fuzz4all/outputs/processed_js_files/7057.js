@@ -1,0 +1,59 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  static fromEvent(element, event) {
+    return new Observable(observer => {
+      const handler = e => observer.next(e);
+      element.addEventListener(event, handler);
+      return {
+        unsubscribe: () => element.removeEventListener(event, handler)
+      };
+    });
+  }
+}
+
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const fibs = fibonacci();
+const myMap = new Map();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const button = document.createElement('button');
+  button.innerText = 'Click me';
+  document.body.appendChild(button);
+
+  const buttonClicks = Observable.fromEvent(button, 'click');
+
+  const subscription = buttonClicks.subscribe({
+    next: () => {
+      const nextFib = fibs.next().value;
+      print(`Fibonacci: ${nextFib}`);
+      myMap.set(Date.now(), nextFib);
+
+      if (myMap.size > 5) {
+        print('Map entries:');
+        for (const [key, value] of myMap) {
+          print(`Timestamp: ${key}, Fibonacci: ${value}`);
+        }
+        myMap.clear();
+      }
+    }
+  });
+
+  setTimeout(() => {
+    subscription.unsubscribe();
+    print('No longer listening to button clicks.');
+  }, 30000);
+});

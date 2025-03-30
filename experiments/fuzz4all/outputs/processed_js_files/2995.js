@@ -1,0 +1,43 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncNumbers(max, delayTime) {
+  for (let i = 1; i <= max; i++) {
+    await delay(delayTime);
+    yield i;
+  }
+}
+
+const pipeline = async (emitter, max) => {
+  for await (let num of asyncNumbers(max, 1000)) {
+    if (num % 2 === 0) emitter.emit('even', num);
+    else emitter.emit('odd', num);
+  }
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('even', num => print(`Even number: ${num}`));
+emitter.on('odd', num => print(`Odd number: ${num}`));
+
+(async () => {
+  await pipeline(emitter, 10);
+})();

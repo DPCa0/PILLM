@@ -1,0 +1,44 @@
+class FibonacciSequence {
+  *[Symbol.iterator]() {
+    let a = 0, b = 1;
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+const fibonacci = new FibonacciSequence();
+const firstTenFibs = [...fibonacci].slice(0, 10);
+
+const double = (n) => n * 2;
+const isEven = (n) => n % 2 === 0;
+const processNumbers = async (numbers) => {
+  const doubled = numbers.map(double);
+  const even = doubled.filter(isEven);
+  return new Promise(resolve => setTimeout(() => resolve(even), 1000));
+};
+
+const processFibonacci = async () => {
+  print("Original sequence:", firstTenFibs);
+  const result = await processNumbers(firstTenFibs);
+  print("Processed (doubled evens):", result);
+};
+
+processFibonacci();
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1')
+  .then(data => console.log('Fetched Data:', data))
+  .catch(error => console.error('Error:', error));

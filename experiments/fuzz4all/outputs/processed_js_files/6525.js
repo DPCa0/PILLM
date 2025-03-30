@@ -1,0 +1,54 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(callback) {
+    this.subscribers.add(callback);
+  }
+
+  unsubscribe(callback) {
+    this.subscribers.delete(callback);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const complexOperation = async (url) => {
+  const observable = new Observable();
+
+   
+  const logObserver = data => print('Logging data:', data);
+  observable.subscribe(logObserver);
+
+   
+  const processObserver = data => print('Processed data:', data.map(item => item.toUpperCase()));
+  observable.subscribe(processObserver);
+
+  try {
+    const data = await fetchData(url);
+    observable.notify(data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  } finally {
+    observable.unsubscribe(logObserver);
+    observable.unsubscribe(processObserver);
+  }
+};
+
+ 
+globalThis.fetch = async () => ({
+  ok: true,
+  json: async () => ['hello', 'world']
+});
+
+ 
+complexOperation('https://example.com/data');

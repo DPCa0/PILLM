@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject(new Error("404: Not Found"));
+      }
+    }, 2000);
+  });
+}
+
+ 
+function* processData(data) {
+  for (const num of data) {
+    yield num * 2;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}': ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.warn(`Property '${prop}' does not exist`);
+      return undefined;
+    }
+  }
+};
+
+ 
+async function main() {
+  try {
+    const response = await fetchData("https://api.example.com/data");
+    const generator = processData(response.data);
+
+    const proxy = new Proxy(response.data, handler);
+    console.log("Data through Proxy: ", proxy[0]);  
+
+    let result = [];
+    for (let value of generator) {
+      result.push(value);
+    }
+    console.log("Processed data: ", result);
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+ 
+main();
+```

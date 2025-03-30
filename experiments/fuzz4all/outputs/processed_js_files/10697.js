@@ -1,0 +1,77 @@
+ 
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+     
+    static compareAges(person1, person2) {
+        return person1.age - person2.age;
+    }
+
+     
+    getDetails() {
+        return `${this.name} is ${this.age} years old.`;
+    }
+
+     
+    async getFutureAge(years) {
+        const futureAge = await new Promise((resolve) => {
+            setTimeout(() => resolve(this.age + years), 1000);
+        });
+        return futureAge;
+    }
+}
+
+ 
+const mapExample = () => {
+    let numbers = new Map([
+        [1, 'one'],
+        [2, 'two'],
+        [3, 'three']
+    ]);
+
+    numbers.forEach((value, key) => print(`Number: ${key}, Word: ${value}`));
+};
+
+ 
+(() => {
+    const person = {name: 'Alice', age: 30};
+    const {name, age} = person;
+    print(`Destructured name: ${name}, age: ${age}`);
+})();
+
+ 
+const fetchExample = async () => {
+    try {
+        let response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+        let data = await response.json();
+        print('Fetched Data:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+const templateLiteralExample = () => {
+    const place = 'world';
+    print(`Hello, ${place}!`);
+};
+
+ 
+const runExamples = async () => {
+    mapExample();
+    templateLiteralExample();
+    
+    const alice = new Person('Alice', 25);
+    const bob = new Person('Bob', 30);
+    print(alice.getDetails());
+    print(`Alice's future age in 5 years will be ${await alice.getFutureAge(5)}`);
+
+    print(`Age comparison: ${Person.compareAges(alice, bob)}`);
+
+    await fetchExample();
+};
+
+runExamples();

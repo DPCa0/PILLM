@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { pipeline } from 'stream/promises';
+import { createReadStream, createWriteStream } from 'fs';
+import zlib from 'zlib';
+
+ 
+(async () => {
+   
+  const dynamicKey = 'world';
+  const complexObj = {
+    hello: `Hello, ${dynamicKey}!`,
+    [dynamicKey]: 'Using dynamic property!'
+  };
+
+   
+  const filePath = 'greeting.txt';
+  await fs.writeFile(filePath, complexObj.hello);
+
+   
+  await pipeline(
+    createReadStream(filePath),
+    zlib.createGzip(),
+    createWriteStream(`${filePath}.gz`)
+  );
+
+  console.log('File compressed successfully');
+
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      }
+      return `Property ${prop} not found`;
+    }
+  };
+
+  const proxiedObj = new Proxy(complexObj, handler);
+  console.log(proxiedObj.hello);  
+  console.log(proxiedObj.goodbye);  
+
+   
+  const uniqueNumbers = new Set([1, 2, 3, 4]);
+  uniqueNumbers.add(2);  
+  console.log([...uniqueNumbers]);
+
+   
+  function* numberGenerator(...numbers) {
+    for (const num of numbers) {
+      yield num * num;
+    }
+  }
+
+   
+  for (const squared of numberGenerator(1, 2, 3, 4)) {
+    console.log(squared);
+  }
+
+   
+  await fs.unlink(filePath);
+  await fs.unlink(`${filePath}.gz`);
+})();
+```

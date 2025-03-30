@@ -1,0 +1,41 @@
+ 
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    *chunkArray(size) {
+        for (let i = 0; i < this.data.length; i += size) {
+            yield this.data.slice(i, i + size);
+        }
+    }
+
+    async processData() {
+        const promises = [...this.chunkArray(3)].map((chunk, index) => 
+            this.simulateAsyncProcessing(chunk, index)
+        );
+        const results = await Promise.all(promises);
+        return results.reduce((acc, curr) => acc.concat(curr), []);
+    }
+
+    simulateAsyncProcessing(chunk, index) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const processedChunk = chunk.map(x => x * 2);
+                print(`Chunk ${index + 1} processed:`, processedChunk);
+                resolve(processedChunk);
+            }, Math.random() * 1000);
+        });
+    }
+}
+
+(async () => {
+    const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const { data: newData } = { data: data };  
+    const processor = new DataProcessor(newData);
+
+    print("Starting data processing...");
+    const processedData = await processor.processData();
+    print("All data processed:", processedData);
+})();

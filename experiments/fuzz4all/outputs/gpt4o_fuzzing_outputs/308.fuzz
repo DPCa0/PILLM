@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const person = { name: 'Alice', age: 30, role: 'developer' };
+    const { name, role } = person;
+
+     
+    await fsPromises.writeFile('person.json', JSON.stringify(person, null, 2));
+    console.log(`Successfully saved ${name}'s data as a ${role}.`);
+
+    // Reading the same file
+    const data = await fsPromises.readFile('person.json', 'utf8');
+    
+    // Parsing JSON data using the spread operator to clone and manipulate objects
+    const personData = JSON.parse(data);
+    const updatedPersonData = { ...personData, active: true };
+
+    // Console log with a tagged template for processing strings
+    console.log(taggedTemplate`Loaded person data: ${JSON.stringify(updatedPersonData)}`);
+    
+    // JavaScript Map to showcase higher-order functions and map iteration
+    const skills = new Map([
+      ['JavaScript', { level: 'Advanced' }],
+      ['Python', { level: 'Intermediate' }],
+      ['Java', { level: 'Beginner' }],
+    ]);
+
+    // Demonstrating for...of loop and optional chaining
+    for (const [key, value] of skills) {
+      console.log(`Skill: ${key}, Level: ${value?.level ?? 'unknown'}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+// Tagged template function example
+function taggedTemplate(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? JSON.stringify(values[i]) : '';
+    return `${result}${string}${value}`;
+  }, '');
+}
+```

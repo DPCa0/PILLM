@@ -1,0 +1,45 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw error;
+  }
+};
+
+const processUserData = ({ name, email }) => {
+  const now = new Date();
+  const userDetails = {
+    name: name.toUpperCase(),
+    email: email.toLowerCase(),
+    timestamp: now.toISOString(),
+  };
+  return userDetails;
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await fetchData(url);
+
+    const enrichedUsers = users.map(processUserData);
+    console.table(enrichedUsers);
+
+    const emailDomainCounts = enrichedUsers.reduce((acc, user) => {
+      const domain = user.email.split('@')[1];
+      acc[domain] = (acc[domain] || 0) + 1;
+      return acc;
+    }, {});
+
+    print('Email Domain Counts:', emailDomainCounts);
+
+    const [firstUser, ...restUsers] = enrichedUsers;
+    print('First user:', firstUser);
+    print('Other users:', restUsers);
+  } catch (error) {
+    console.error('Error during processing:', error);
+  }
+})();

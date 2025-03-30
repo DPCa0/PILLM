@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return response.json();
+  };
+
+  const processData = (data) => {
+    const mappedData = data.map(({ name, age }) => ({ [name]: age }));
+    const reducedData = mappedData.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+    return reducedData;
+  };
+
+  const printData = (data) => {
+    console.log("Processed Data:", JSON.stringify(data, null, 2));
+  };
+
+  const generateAsyncIterable = async function* (urls) {
+    for (const url of urls) {
+      yield fetchData(url);
+    }
+  };
+
+  const urls = ["https://api.example.com/users/1", "https://api.example.com/users/2"];
+  try {
+    const asyncIterable = generateAsyncIterable(urls);
+    for await (const userDataPromise of asyncIterable) {
+      const userData = await userDataPromise;
+      const processedData = processData(userData);
+      printData(processedData);
+    }
+  } catch (error) {
+    console.error("An error occurred:", error.message);
+  }
+})();
+```

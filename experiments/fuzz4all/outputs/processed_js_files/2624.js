@@ -1,0 +1,62 @@
+ 
+class Task {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async execute() {
+    print(`Executing task: ${this.name}`);
+  }
+}
+
+const taskNames = ['task1', 'task2', 'task3'];
+const tasks = taskNames.map(name => new Task(name));
+
+ 
+function* taskGenerator() {
+  for (const task of tasks) {
+    yield task.execute();
+  }
+}
+
+ 
+async function runTasks(maxConcurrency) {
+  const iterator = taskGenerator();
+  const activeTasks = new Set();
+
+  for (const taskPromise of iterator) {
+     
+    const taskExecution = (async () => {
+      await taskPromise;
+      activeTasks.delete(taskExecution);
+    })();
+    activeTasks.add(taskExecution);
+
+     
+    if (activeTasks.size >= maxConcurrency) {
+      await Promise.race(activeTasks);
+    }
+  }
+
+   
+  await Promise.all(activeTasks);
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'execute') {
+      return async function (...args) {
+        print(`Intercepting execution of: ${target.name}`);
+        return await target[prop](...args);
+      };
+    }
+    return target[prop];
+  }
+};
+
+ 
+const proxiedTasks = tasks.map(task => new Proxy(task, handler));
+
+ 
+runTasks(2).then(() => print('All tasks completed.'));

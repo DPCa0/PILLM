@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class User {
+    #name;
+    static #idCounter = 0;
+
+    constructor(name, age) {
+        this.#name = name;
+        this.age = age;
+        this.id = User.#generateId();
+    }
+
+    static #generateId() {
+        return ++this.#idCounter;
+    }
+
+    getName() {
+        return this.#name;
+    }
+
+    *yearsLived() {
+        for (let i = 0; i <= this.age; i++) {
+            yield i;
+        }
+    }
+}
+
+function logUserDetails(user) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (user instanceof User) {
+                resolve(`User: ${user.getName()}, Age: ${user.age}, ID: ${user.id}`);
+            } else {
+                reject('Invalid user');
+            }
+        }, 1000);
+    });
+}
+
+async function main() {
+    const alice = new User('Alice', 25);
+    const bob = new User('Bob', 30);
+
+    try {
+        const details = await Promise.all([logUserDetails(alice), logUserDetails(bob)]);
+        console.log(details.join('\n'));
+    } catch (error) {
+        console.error(error);
+    }
+
+    const [aliceYears, bobYears] = [alice.yearsLived(), bob.yearsLived()];
+    console.log('Alice has lived these years:', [...aliceYears]);
+    console.log('Bob has lived these years:', [...bobYears]);
+}
+
+main();
+```

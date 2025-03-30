@@ -1,0 +1,48 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+ 
+const complexLogger = new Proxy(console, {
+    get(target, prop) {
+        if (prop === 'logWithTimestamp') {
+            return (message) => target.log(`[${new Date().toISOString()}] ${message}`);
+        }
+        return target[prop];
+    }
+});
+
+ 
+function* idGenerator(start = 0) {
+    let id = start;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const colors = ['red', 'green', 'blue', 'yellow'];
+const [primaryColor, secondaryColor, ...otherColors] = colors;
+
+ 
+const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+ 
+(async () => {
+    try {
+        const data = await fetchData(url);
+        complexLogger.logWithTimestamp('Data fetched successfully');
+        complexLogger.log('Primary Color:', primaryColor);
+        complexLogger.log('Other Colors:', ...otherColors);
+        complexLogger.log('Fetched Data:', data);
+
+        const idGen = idGenerator();
+        complexLogger.log('ID Sequence:', idGen.next().value, idGen.next().value, idGen.next().value);
+    } catch (error) {
+        complexLogger.error('An error occurred:', error);
+    }
+})();

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class Temperature {
+  #celsius;
+
+  constructor(celsius) {
+    this.#celsius = celsius;
+  }
+
+  get fahrenheit() {
+    return this.#celsius * 9 / 5 + 32;
+  }
+
+  static fromFahrenheit(fahrenheit) {
+    return new Temperature((fahrenheit - 32) * 5 / 9);
+  }
+
+  *generateForecast() {
+    for (let day = 1; day <= 5; day++) {
+      yield `${this.#celsius + Math.round(Math.random() * 10 - 5)} °C`;
+    }
+  }
+
+  async printForecast() {
+    for await (const forecast of this.generateForecast()) {
+      console.log(forecast);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+}
+
+(async () => {
+  const temp = Temperature.fromFahrenheit(86);
+  console.log(`Temperature in Celsius: ${temp.#celsius}°C`);  
+  console.log(`Temperature in Fahrenheit: ${temp.fahrenheit}°F`);
+
+  console.log('5-Day Temperature Forecast:');
+  await temp.printForecast();
+})();
+```

@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._listeners = new Set();
+    }
+
+    subscribe(listener) {
+        this._listeners.add(listener);
+        listener(this._value);
+        return () => this._listeners.delete(listener);
+    }
+
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._listeners.forEach(listener => listener(newValue));
+        }
+    }
+
+    get value() {
+        return this._value;
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const debounce = (fn, delay) => {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+};
+
+(async () => {
+    const obs = new Observable(0);
+
+    const unsub = obs.subscribe(debounce(value => {
+        console.log(`Value updated to: ${value}`);
+    }, 300));
+
+    for (let i = 1; i <= 5; i++) {
+        await sleep(200);
+        obs.value = i;
+    }
+
+    unsub();
+})();
+```

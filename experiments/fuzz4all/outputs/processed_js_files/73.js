@@ -1,0 +1,53 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+};
+
+ 
+const compose = (...funcs) => x => funcs.reduceRight((acc, fn) => fn(acc), x);
+
+ 
+const createValidatedObject = (validator, target = {}) => {
+  return new Proxy(target, {
+    set: (obj, prop, value) => {
+      if (validator(value)) {
+        obj[prop] = value;
+        return true;
+      }
+      console.error(`Invalid value: ${value}`);
+      return false;
+    }
+  });
+};
+
+ 
+const log = (strings, ...values) => {
+  print(strings.raw[0] + values.map((val, i) => `${val}${strings.raw[i + 1]}`).join(''));
+};
+
+ 
+(() => {
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  const isValid = value => typeof value === 'string' && value.length > 0;
+
+   
+  const settings = createValidatedObject(isValid);
+
+  settings.title = 'Initial Title';  
+  settings.title = '';  
+
+  const processResponse = compose(
+    data => data.body,
+    data => ({ ...data, summary: data.body.slice(0, 20) })
+  );
+
+   
+  fetchData(url)
+    .then(processResponse)
+    .then(data => log`Fetched Data Summary: ${data.summary}`)
+    .catch(error => console.error(error));
+})();

@@ -1,0 +1,33 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *generateAsync() {
+    for (let item of this.data) {
+      yield new Promise(resolve => setTimeout(() => resolve(item * 2), 100));
+    }
+  }
+
+  async process() {
+    let results = [];
+    for await (let value of this.generateAsync()) {
+      results.push(value);
+    }
+    return results;
+  }
+}
+
+const processData = async () => {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new AsyncProcessor(data);
+
+  try {
+    const results = await processor.process();
+    print('Processed Results:', results);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+processData();

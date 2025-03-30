@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class ComplexOperation {
+    #privateData = new WeakMap();
+    
+    constructor(initialValue) {
+        this.#privateData.set(this, initialValue);
+        this.value = initialValue;
+    }
+
+    async complexCalculation() {
+        const result = await new Promise((resolve) => {
+            setTimeout(() => {
+                const data = this.#privateData.get(this);
+                const complexResult = data * Math.random();
+                resolve(complexResult);
+            }, 1000);
+        });
+        this.value = result;
+        return result;
+    }
+
+    getValueWithClosure() {
+        let internalValue = this.value;
+        return function() {
+            return `Current Value: ${internalValue}`;
+        };
+    }
+
+    *valueGenerator(limit) {
+        let count = 0;
+        while (count < limit) {
+            yield count;
+            count += this.value;
+        }
+    }
+
+    static async runDemo() {
+        console.log("Starting complex operation...");
+        const operation = new ComplexOperation(5);
+        
+        const newValue = await operation.complexCalculation();
+        console.log(`New Value: ${newValue}`);
+        
+        const closure = operation.getValueWithClosure();
+        console.log(closure());
+        
+        console.log("Generated Values:");
+        for (let val of operation.valueGenerator(20)) {
+            console.log(val);
+        }
+    }
+}
+
+ComplexOperation.runDemo().catch(console.error);
+```

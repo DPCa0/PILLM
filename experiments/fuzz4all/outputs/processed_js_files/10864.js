@@ -1,0 +1,34 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+   
+  const { id, ...rest } = data;
+  return { identifier: id, ...rest };
+};
+
+const main = async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  try {
+     
+    const responses = await Promise.all(urls.map(fetchData));
+    const processedData = responses.map(processData);
+
+    processedData.forEach(({ identifier, title, body }) => {
+      print(`ID: ${identifier}\nTitle: ${title}\nBody: ${body}\n`);
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+main();

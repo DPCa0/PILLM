@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const target = { message: "Hello, ", time: "morning" };
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      console.log(`Getting property ${prop}`);
+      return obj[prop];
+    } else {
+      throw new ReferenceError(`Property "${prop}" does not exist.`);
+    }
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting property ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData() {
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      proxy.time = "evening";  
+      resolve({ name: "world!" });
+    }, 1000);
+  });
+
+  const { name } = await promise;  
+  console.log(proxy.message + name);  
+}
+
+ 
+fetchData().catch(console.error);
+```

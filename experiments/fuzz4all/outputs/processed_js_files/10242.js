@@ -1,0 +1,42 @@
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const fetchMultipleData = async (urls) => {
+  try {
+    const dataPromises = urls.map(url => fetchData(url));
+    const data = await Promise.all(dataPromises);
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+ 
+const createLoggingProxy = (obj) => {
+  return new Proxy(obj, {
+    get(target, prop, receiver) {
+      print(`Accessing property '${prop}'`);
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+};
+
+(async () => {
+  const [data1, data2, data3] = await fetchMultipleData(urls);
+  const allData = createLoggingProxy({ ...data1, ...data2, ...data3 });
+  
+   
+  const { key1, key2, key3 } = allData;
+  print(key1, key2, key3);
+})();

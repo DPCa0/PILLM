@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(["apple", "banana", "cherry"]), 1000);
+  });
+};
+
+ 
+async function* asyncGenerator(dataArray) {
+  for (const item of dataArray) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    yield item;
+  }
+}
+
+ 
+class FruitProcessor {
+  #fruits;
+  
+  constructor(fruits) {
+    this.#fruits = fruits;
+  }
+
+  async #processFruit(fruit) {
+     
+    return `Processed ${fruit}`;
+  }
+
+  async processAll() {
+    const results = [];
+    for await (const fruit of asyncGenerator(this.#fruits)) {
+      results.push(await this.#processFruit(fruit));
+    }
+    return results;
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const fruits = await fetchData();
+
+     
+    const processor = new FruitProcessor(fruits);
+    const processedFruits = await processor.processAll();
+
+     
+    const handler = {
+      get: (target, prop) => {
+        if (prop === 'toString') {
+          return () => `Processed Fruits: ${target.join(", ")}`;
+        }
+        return target[prop];
+      },
+    };
+    const proxy = new Proxy(processedFruits, handler);
+
+     
+    console.log(proxy.toString());
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();
+```

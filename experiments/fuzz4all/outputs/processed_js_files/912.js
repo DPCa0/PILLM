@@ -1,0 +1,42 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchData() {
+    const data = ['apple', 'banana', 'cherry', 'date'];
+    for (const item of data) {
+        await delay(1000);  
+        yield `Fetched: ${item}`;
+    }
+}
+
+ 
+const callCounter = (fn) => {
+    let count = 0;
+    return new Proxy(fn, {
+        apply(target, thisArg, args) {
+            count++;
+            print(`Function called ${count} times`);
+            return Reflect.apply(target, thisArg, args);
+        }
+    });
+};
+
+ 
+const describeFruit = callCounter(({ name, color, taste }) => {
+    return `The ${name} is ${color} and tastes ${taste}.`;
+});
+
+ 
+(async () => {
+     
+    for await (const message of fetchData()) {
+        print(message);
+    }
+
+     
+    const fruit1 = { name: 'Apple', color: 'red', taste: 'sweet' };
+    const fruit2 = { name: 'Banana', color: 'yellow', taste: 'creamy' };
+    print(describeFruit(fruit1));
+    print(describeFruit(fruit2));
+})();

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const complexObject = { 
+    secret: 'hidden', 
+    number: 42 
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property: ${prop}`);
+        return target[prop];
+    }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+function* promiseGenerator() {
+    yield new Promise(resolve => setTimeout(() => resolve('First'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Second'), 2000));
+    yield new Promise(resolve => setTimeout(() => resolve('Third'), 3000));
+}
+
+ 
+async function processPromises(gen) {
+    for (let p of gen) {
+        const result = await p;
+        console.log(result);
+    }
+}
+
+(async () => {
+    console.log(`The secret is: ${proxiedObject.secret}`);
+    console.log(`The number is: ${proxiedObject.number}`);
+
+    const gen = promiseGenerator();
+    await processPromises(gen);
+
+    console.log('All promises processed.');
+})();
+```

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: 1, name: 'Advanced JS', details: { level: 'Complex', tech: 'JavaScript' } });
+    }, 1000);
+  });
+};
+
+ 
+const logHandler = {
+  get: (target, property) => {
+    console.log(`Accessing property "${property}": ${target[property]}`);
+    return target[property];
+  },
+};
+
+ 
+(async function main() {
+   
+  const data = await fetchData();
+
+   
+  const { id, name, details: { level, tech } } = data;
+
+   
+  const detailsMap = new Map();
+  detailsMap.set(id, { name, level, tech });
+
+   
+  const proxiedDetails = new Proxy(detailsMap.get(id), logHandler);
+
+   
+  console.log(`Name: ${proxiedDetails.name}`);
+  console.log(`Level: ${proxiedDetails.level}`);
+  console.log(`Tech: ${proxiedDetails.tech}`);
+
+   
+  const additionalTask = new Promise((resolve) => setTimeout(() => resolve('Task Complete'), 500));
+  console.log(await additionalTask);
+})();
+```

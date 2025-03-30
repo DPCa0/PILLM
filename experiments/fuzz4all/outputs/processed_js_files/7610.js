@@ -1,0 +1,50 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+  
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (curr <= this.limit) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  fibMemo(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    let result = this.fibMemo(n - 1) + this.fibMemo(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+  static async fetchAndLogData(url) {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      print('Fetched Data:', data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+const fib = new Fibonacci(100);
+print([...fib]);
+
+const proxyFib = new Proxy(fib, {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing property '${prop}'`);
+      return target[prop];
+    } else {
+      console.warn(`Property '${prop}' does not exist.`);
+      return undefined;
+    }
+  }
+});
+
+proxyFib.fibMemo(10);
+Fibonacci.fetchAndLogData('https://jsonplaceholder.typicode.com/todos/1');

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *fetchData() {
+    for (let item of this.data) {
+      yield new Promise((resolve) => setTimeout(() => resolve(item * 2), 1000));
+    }
+  }
+
+  async process() {
+    const results = [];
+    for await (let value of this.fetchData()) {
+      results.push(value);
+    }
+    return results;
+  }
+}
+
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new AsyncProcessor(data);
+
+  const [first, ...rest] = await processor.process();
+  
+  const mappedResults = rest.map(x => x + 1);
+  const setResults = new Set(mappedResults);
+  
+  console.log([...setResults]);
+
+  const obj = {
+    name: 'Complex Object',
+    nested: {
+      printName() {
+        return `${this.name} -> ${this.value}`;
+      },
+      value: 'Deep Value'
+    }
+  };
+
+  const { name, nested: { printName } } = obj;
+
+  console.log(printName.call(obj.nested));
+})();
+```

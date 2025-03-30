@@ -1,0 +1,59 @@
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+  const throttle = (func, limit) => {
+    let inThrottle;
+    return (...args) => {
+      if (!inThrottle) {
+        func(...args);
+        inThrottle = true;
+        setTimeout(() => (inThrottle = false), limit);
+      }
+    };
+  };
+
+  class Observable {
+    constructor() {
+      this.subscribers = [];
+    }
+
+    subscribe(callback) {
+      this.subscribers.push(callback);
+    }
+
+    notify(data) {
+      this.subscribers.forEach((callback) => callback(data));
+    }
+  }
+
+  const observable = new Observable();
+  observable.subscribe(data => print('Subscriber 1:', data));
+  observable.subscribe(data => print('Subscriber 2:', data));
+
+  const processData = async () => {
+    try {
+      const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+      observable.notify(data.slice(0, 5));
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  const debouncedProcess = debounce(processData, 2000);
+  const throttledProcess = throttle(processData, 5000);
+
+  document.getElementById('debounceButton').addEventListener('click', debouncedProcess);
+  document.getElementById('throttleButton').addEventListener('click', throttledProcess);
+})();

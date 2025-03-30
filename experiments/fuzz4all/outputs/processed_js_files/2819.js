@@ -1,0 +1,47 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  async enqueue(task) {
+    this.queue.push(task);
+    if (!this.isProcessing) {
+      this.isProcessing = true;
+      while (this.queue.length > 0) {
+        const currentTask = this.queue.shift();
+        try {
+          await currentTask();
+        } catch (error) {
+          console.error('Task failed:', error);
+        }
+      }
+      this.isProcessing = false;
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const task1 = async () => {
+  print('Task 1 started');
+  await delay(1000);
+  print('Task 1 completed');
+};
+
+const task2 = async () => {
+  print('Task 2 started');
+  await delay(500);
+  print('Task 2 completed');
+};
+
+const task3 = async () => {
+  print('Task 3 started');
+  await delay(2000);
+  print('Task 3 completed');
+};
+
+const queue = new AsyncQueue();
+queue.enqueue(task1);
+queue.enqueue(task2);
+queue.enqueue(task3);

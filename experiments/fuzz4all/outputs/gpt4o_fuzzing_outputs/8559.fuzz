@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                await listener(...args);
+            }
+        }
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (data) => {
+    console.log(`Received data: ${data}`);
+    await delay(1000);  
+    console.log(`Processed data: ${data}`);
+});
+
+(async () => {
+    console.log("Starting");
+    await Promise.all([
+        emitter.emit('data', 'Item 1'),
+        emitter.emit('data', 'Item 2'),
+        emitter.emit('data', 'Item 3'),
+    ]);
+    console.log("All items processed");
+})();
+```

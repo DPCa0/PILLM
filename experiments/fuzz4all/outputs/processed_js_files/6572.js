@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (Math.random() > 0.2) {   
+            resolve(`Data from ${url}`);
+        } else {
+            reject(`Error fetching data from ${url}`);
+        }
+    }, 1000);
+});
+
+ 
+function* urlGenerator(urls) {
+    for (const url of urls) {
+        yield url;
+    }
+}
+
+ 
+async function processUrls(urls) {
+    const generator = urlGenerator(urls);
+    let done = false;
+    while (!done) {
+        const { value: url, done: isDone } = generator.next();
+        done = isDone;
+        if (url) {
+            try {
+                const data = await fetchData(url);
+                print(`Successfully fetched: ${data}`);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }
+}
+
+ 
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3',
+];
+
+ 
+processUrls(urls);

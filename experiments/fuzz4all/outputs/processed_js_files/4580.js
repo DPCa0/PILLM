@@ -1,0 +1,54 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchWithTimeout = async (url, options, timeout = 7000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    options.signal = controller.signal;
+
+    try {
+        const response = await fetch(url, options);
+        clearTimeout(id);
+        return response.json();
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', (data) => {
+        print('Data received:', data);
+    });
+
+    emitter.on('error', (error) => {
+        console.error('Error occurred:', error.message);
+    });
+
+    const url = 'https://api.spacexdata.com/v4/launches/latest';
+
+    try {
+        const data = await fetchWithTimeout(url, {}, 5000);
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+})();

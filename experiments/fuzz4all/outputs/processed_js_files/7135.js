@@ -1,0 +1,38 @@
+ 
+async function fetchDataAndProcess() {
+   
+  const response = await fetch('https://api.example.com/data');
+  const data = await response.json();
+
+   
+  const { results, ...metadata } = data;
+  const processedResults = results.map(({ id, ...rest }) => ({
+    id,
+    ...rest,
+    processed: true,
+  }));
+
+   
+  const uniqueIds = new Set(processedResults.map(item => item.id));
+
+   
+  const resultMap = new Map();
+  processedResults.forEach(item => resultMap.set(item.id, item));
+
+   
+  print(`Fetched ${uniqueIds.size} unique items from API:`);
+  print([...resultMap.entries()]);
+
+   
+  await new Promise(resolve => setTimeout(resolve, 1000));  
+  print('Further processing complete');
+}
+
+ 
+(async () => {
+  try {
+    await fetchDataAndProcess();
+  } catch (error) {
+    console.error(`Error fetching or processing data: ${error.message}`);
+  }
+})();

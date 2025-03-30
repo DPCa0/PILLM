@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+   
+  try {
+    let response = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.5 ? resolve({ data: "Success" }) : reject("Fetch Error");
+      }, 1000);
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+ 
+(async () => {
+   
+  const user = { id: 1, name: 'John Doe', age: 30, profession: 'Developer' };
+  const { age, profession, ...rest } = user;
+  
+   
+  console.log(`User Info: ${JSON.stringify(rest)}`);
+  
+   
+  const { logMessage } = await import('./messageModule.js').catch(() => ({ logMessage: () => 'Module Load Error' }));
+  console.log(logMessage());
+
+   
+  const uniqueKey = Symbol('unique');
+  const dataMap = new Map();
+  dataMap.set(uniqueKey, 'Sensitive Data');
+  console.log(`Data associated with unique key: ${dataMap.get(uniqueKey)}`);
+
+   
+  const serverResponse = { payload: null };
+  console.log(`Response Payload: ${serverResponse.payload?.data ?? 'No Data Available'}`);
+
+   
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    console.log(`Fetched Data: ${data}`);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```
+
+Note: `import` syntax and dynamic imports are not directly executable in a Node.js REPL or many older browsers, so they should be tested within a module-based environment or a tool that supports ES6 modules. You need to have a file named `messageModule.js` with a `logMessage` function exported to test the dynamic import.

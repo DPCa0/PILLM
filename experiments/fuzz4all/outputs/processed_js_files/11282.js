@@ -1,0 +1,42 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    const promises = this.events.get(event).map(listener => Promise.resolve().then(() => listener(...args)));
+    await Promise.all(promises);
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+    this.events.set(event, listeners);
+  }
+}
+
+ 
+(async () => {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('data', async data => {
+    const processedData = await new Promise(resolve => setTimeout(() => resolve(data * 2), 1000));
+    print(`Processed: ${processedData}`);
+  });
+
+  emitter.on('data', data => {
+    print(`Immediate Log: ${data}`);
+  });
+
+  print('Start');
+  await emitter.emit('data', 5);
+  print('End');
+})();

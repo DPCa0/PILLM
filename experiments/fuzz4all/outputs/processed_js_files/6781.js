@@ -1,0 +1,53 @@
+ 
+class AsyncProcessor {
+  constructor() {
+    this.queue = [];
+  }
+
+   
+  *taskGenerator() {
+    while (this.queue.length) {
+      yield this.queue.shift();
+    }
+  }
+
+   
+  async processTasks() {
+    const tasks = this.taskGenerator();
+    for (let task of tasks) {
+      try {
+        const result = await task();
+        print('Task result:', result);
+      } catch (error) {
+        console.error('Task error:', error);
+      }
+    }
+  }
+
+   
+  addTask(task) {
+    if (typeof task === 'function') {
+      this.queue.push(task);
+    }
+  }
+}
+
+ 
+const taskHandler = {
+  apply(target, thisArg, args) {
+    print(`Intercepted call to addTask:`, ...args);
+    return Reflect.apply(target, thisArg, args);
+  }
+};
+
+ 
+const processor = new AsyncProcessor();
+const proxy = new Proxy(processor.addTask.bind(processor), taskHandler);
+
+ 
+proxy(() => new Promise(resolve => setTimeout(() => resolve('Task 1 completed'), 1000)));
+proxy(() => new Promise(resolve => setTimeout(() => resolve('Task 2 completed'), 500)));
+proxy(() => new Promise((_, reject) => setTimeout(() => reject('Task 3 failed'), 800)));
+
+ 
+processor.processTasks();

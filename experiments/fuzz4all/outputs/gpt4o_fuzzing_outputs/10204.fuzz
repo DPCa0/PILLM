@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+const calculate = operation => a => b => {
+    switch (operation) {
+        case 'add':
+            return a + b;
+        case 'subtract':
+            return a - b;
+        case 'multiply':
+            return a * b;
+        case 'divide':
+            return b !== 0 ? a / b : 'Division by zero!';
+        default:
+            return 'Unknown operation';
+    }
+};
+
+ 
+const fetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok.');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetching data failed', error);
+    }
+};
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Accessing property ${property}`);
+        return property in target ? target[property] : `Property ${property} not found`;
+    },
+    set: (target, property, value) => {
+        console.log(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObj = { x: 10, y: 20 };
+const proxyObj = new Proxy(targetObj, handler);
+
+proxyObj.x;   
+proxyObj.z;   
+proxyObj.y = 30;   
+
+ 
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    let data = await fetchData(url);
+    console.log('Fetched Data:', data);
+
+    const addOperation = calculate('add');
+    console.log('Addition:', addOperation(10)(20));
+
+    const subtractOperation = calculate('subtract');
+    console.log('Subtraction:', subtractOperation(30)(15));
+})();
+```

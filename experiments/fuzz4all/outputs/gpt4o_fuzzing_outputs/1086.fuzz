@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const mockApi = {
+    data: {
+        user1: { name: 'Alice', age: 30 },
+        user2: { name: 'Bob', age: 25 },
+        user3: { name: 'Charlie', age: 35 }
+    }
+};
+
+ 
+const fetchData = (user) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            mockApi.data[user] ? resolve(mockApi.data[user]) : reject('User not found');
+        }, 1000);
+    });
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Fetching data for ${prop}...`);
+            return Reflect.get(target, prop);
+        } else {
+            return async () => {
+                try {
+                    const data = await fetchData(prop);
+                    target[prop] = data;   
+                    console.log(`Data for ${prop} has been fetched and cached.`);
+                    return data;
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+        }
+    }
+};
+
+ 
+const userFetcher = new Proxy({}, handler);
+
+ 
+(async () => {
+    console.log(await userFetcher.user1);  
+    console.log(await userFetcher.user4());  
+    console.log(await userFetcher.user4);  
+})();
+```

@@ -1,0 +1,50 @@
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+   
+  const [{ id, ...rest }] = data;
+  return { id, ...rest };
+};
+
+const calculateSum = (arr) => {
+   
+  return arr.reduce((acc, { value }) => acc + value, 0);
+};
+
+const displayResults = ({ id, data }) => {
+   
+  print(`ID: ${id}, Values: ${JSON.stringify(data)}`);
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchData(url);
+
+    const data = rawData.map((item) => ({
+       
+      id: item.id,
+      value: item.value
+    }));
+
+    const processedData = processData(data);
+    const totalSum = calculateSum(data);
+
+     
+    const finalData = processedData?.data ?? [];
+    displayResults({ ...processedData, data: finalData, sum: totalSum });
+
+     
+    const additionalData = await Promise.all(
+      data.map(item => fetchData(`https: 
+    );
+    print('Additional Data:', additionalData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

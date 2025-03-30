@@ -1,0 +1,45 @@
+ 
+
+ 
+function* numberGenerator(limit) {
+    let num = 1;
+    while (num <= limit) {
+        yield num++;
+    }
+}
+
+ 
+async function fetchData(number) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {
+                resolve(`Data for ${number}`);
+            } else {
+                reject(`Failed to fetch data for ${number}`);
+            }
+        }, 100);
+    });
+}
+
+ 
+async function transformData(iterator) {
+    const results = [];
+    for (const num of iterator) {
+        try {
+            const data = await fetchData(num);
+            results.push(data.toUpperCase());
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    return results;
+}
+
+ 
+(async () => {
+    const limit = 5;
+    const numberIterator = numberGenerator(limit);
+    const transformedData = await transformData(numberIterator);
+
+    print('Transformed Data:', transformedData);
+})();

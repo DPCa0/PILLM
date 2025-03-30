@@ -1,0 +1,28 @@
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+const processData = ({ results = [] }) => {
+    const filteredData = results.filter(({ age }) => age >= 18);
+    return filteredData.map(({ name, email }) => ({ name, email }));
+};
+
+const logData = (data) => {
+    print('Processed Data:', JSON.stringify(data, null, 2));
+};
+
+(async () => {
+    const url = 'https://randomuser.me/api/?results=5';
+    const data = await fetchData(url);
+    if (data) {
+        const processed = processData(data);
+        logData(processed);
+    }
+})();

@@ -1,0 +1,36 @@
+ 
+import { readFileSync } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const [filePath, ...transformFunctions] = process.argv.slice(2);
+
+     
+    const { default: chalk } = await import('chalk');
+
+     
+    const applyTransforms = (str, transforms) => {
+      return transforms.reduce((acc, fn) => {
+         
+        const transformFunction = new Function('text', fn);
+        return transformFunction(acc);
+      }, str);
+    };
+
+     
+    const data = readFileSync(filePath)?.toString() ?? "Default Content";
+
+     
+    const styledText = chalk.bold.green(applyTransforms(data, transformFunctions));
+
+     
+    print(`Styled Output: ${styledText}`);
+  } catch (error) {
+     
+    console.error({ message: 'An error occurred', error });
+  }
+})();
+
+This code snippet demonstrates several advanced JavaScript features, including async/await with an immediately invoked function expression (IIFE), dynamic imports, destructuring with rest parameters, the use of Function constructors, optional chaining, nullish coalescing, and template literals.

@@ -1,0 +1,46 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(observer) {
+    this.subscribers.add(observer);
+    return () => this.subscribers.delete(observer);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(observer => observer(data));
+  }
+}
+
+class ReactiveState {
+  constructor(initialState) {
+    this.state = new Proxy(initialState, {
+      set: (target, property, value) => {
+        target[property] = value;
+        this.stateObservable.notify(this.state);
+        return true;
+      }
+    });
+    this.stateObservable = new Observable();
+  }
+
+  subscribe(observer) {
+    return this.stateObservable.subscribe(observer);
+  }
+}
+
+const state = new ReactiveState({ count: 0 });
+
+state.subscribe(newState => {
+  print(`State updated: ${JSON.stringify(newState)}`);
+});
+
+(async function simulateAsyncUpdates() {
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  
+  for await (const delay of [1000, 1500, 2000]) {
+    await sleep(delay);
+    state.state.count += 1;
+  }
+})();

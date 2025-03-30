@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+ 
+function processData({ id, name, completed = false }) {
+  console.log(`Task ID: ${id}`);
+  console.log(`Task Name: ${name}`);
+  console.log(`Task Completed: ${completed}`);
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const todo = new Proxy({}, handler);
+
+ 
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+   
+  const { id, title: name, completed } = data;
+  processData({ id, name, completed });
+
+   
+  todo.id = id;
+  todo.name = name;
+  todo.completed = completed;
+
+  console.log(todo.name);
+})();
+```

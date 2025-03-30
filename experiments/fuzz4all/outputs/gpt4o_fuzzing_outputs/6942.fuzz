@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (num) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (num > 0) {
+      resolve(num * 2);
+    } else {
+      reject('Negative input error');
+    }
+  }, 1000);
+});
+
+ 
+const advancedAsyncFunction = async () => {
+  try {
+    const numbers = [1, 2, 3, 4, 5];
+     
+    const promises = numbers.map(asyncOperation);
+
+     
+    const results = await Promise.all(promises);
+
+     
+    const totalSum = results.reduce((acc, curr) => acc + curr, 0);
+
+    console.log(`The total sum is: ${totalSum}`);
+  } catch (error) {
+    console.error(`Error encountered: ${error}`);
+  }
+};
+
+ 
+(async () => {
+  await advancedAsyncFunction();
+})();
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Property accessed: ${property}`);
+    return property in target ? target[property] : `Property ${property} not found`;
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const person = {
+  name: 'Alice',
+  age: 30
+};
+
+const proxyPerson = new Proxy(person, handler);
+
+ 
+console.log(proxyPerson.name);  
+proxyPerson.age = 31;           
+console.log(proxyPerson.height);  
+```

@@ -1,0 +1,40 @@
+ 
+
+const fetchData = () => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { name: 'Alice', scores: [85, 90, 78] },
+                { name: 'Bob', scores: [92, 88, 95] },
+                { name: 'Charlie', scores: [70, 75, 80] }
+            ]);
+        }, 1000);
+    });
+};
+
+const calculateAverage = (scores) => {
+    const total = scores.reduce((acc, score) => acc + score, 0);
+    return total / scores.length;
+};
+
+const processData = async () => {
+    try {
+        const data = await fetchData();
+        
+        const result = data.map(({ name, scores }) => {
+            const averageScore = calculateAverage(scores);
+            return { name, averageScore };
+        });
+        
+        const highScorers = result.filter(({ averageScore }) => averageScore >= 80);
+
+        return highScorers;
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+processData().then((highScorers) => {
+    print('Students with high average scores:', highScorers);
+});

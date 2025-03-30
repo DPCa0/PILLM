@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+class Task {
+    #status;  
+    constructor(title) {
+        this.title = title;
+        this.#status = "pending";  
+    }
+    complete() {
+        this.#status = "completed";
+    }
+    getStatus() {
+        return this.#status;
+    }
+}
+
+ 
+const taskHandler = {
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    },
+    get(target, property) {
+        console.log(`Getting ${property}`);
+        return target[property];
+    }
+};
+
+ 
+const taskSymbol = Symbol("task");
+
+const tasks = {
+    [taskSymbol]: new Proxy(new Task('Learn advanced JS'), taskHandler)
+};
+
+ 
+async function completeTask(task) {
+    console.log("Starting task...");
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    task.complete();
+    console.log(`Task status: ${task.getStatus()}`);
+}
+
+ 
+(async () => {
+    const task = tasks[taskSymbol];
+    console.log(`Task title: ${task.title}`);
+    await completeTask(task);
+})();
+```

@@ -1,0 +1,44 @@
+ 
+const processData = async ({ url, method = 'GET', headers = {}, body = null }) => {
+  try {
+     
+    const response = await fetch(url, { method, headers, body });
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const { parse } = await import('json5');
+    const data = await response.json();
+    print('Data received:', parse(data));
+  } catch (error) {
+    console.error('There was a problem with your fetch operation:', error);
+  }
+};
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Property "${property}" accessed.`);
+    return Reflect.get(target, property);
+  },
+};
+
+const settings = new Proxy(
+  { url: 'https://api.example.com/data', method: 'POST' },
+  handler
+);
+
+ 
+function* apiSequence() {
+  yield { url: settings.url, method: 'GET' };
+  yield { url: settings.url, method: 'POST', body: JSON.stringify({ key: 'value' }) };
+  yield { url: settings.url, method: 'DELETE' };
+}
+
+ 
+const executeApiCalls = async () => {
+  for (const request of apiSequence()) {
+    await processData(request);
+  }
+};
+
+executeApiCalls();

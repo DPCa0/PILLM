@@ -1,0 +1,56 @@
+ 
+
+ 
+class AdvancedCalculator {
+  #precision;
+
+  constructor(precision = 2) {
+    this.#precision = precision;
+  }
+
+   
+  #formatResult(value) {
+    return value.toFixed(this.#precision);
+  }
+
+   
+  add(...numbers) {
+    const result = numbers.reduce((acc, num) => acc + num, 0);
+    return this.#formatResult(result);
+  }
+
+  multiply(...numbers) {
+    const result = numbers.reduce((acc, num) => acc * num, 1);
+    return this.#formatResult(result);
+  }
+}
+
+ 
+async function performOperations(calculator) {
+  const delayedAdd = (a, b) => new Promise(resolve => setTimeout(() => resolve(calculator.add(a, b)), 1000));
+  const delayedMultiply = (a, b) => new Promise(resolve => setTimeout(() => resolve(calculator.multiply(a, b)), 1000));
+
+  try {
+    const sum = await delayedAdd(5, 10);
+    print(`Sum: ${sum}`);
+
+    const product = await delayedMultiply(5, 10);
+    print(`Product: ${product}`);
+  } catch (error) {
+    console.error('Error performing operations:', error);
+  }
+}
+
+ 
+const operationCollection = new Map();
+operationCollection.set('add', (a, b) => a + b);
+operationCollection.set('multiply', (a, b) => a * b);
+
+const uniqueOperations = new Set(operationCollection.keys());
+
+uniqueOperations.forEach(op => {
+  print(`Performing unique operation: ${op}`);
+});
+
+const calculator = new AdvancedCalculator(3);
+performOperations(calculator);

@@ -1,0 +1,53 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events.has(event)) return;
+
+        const listeners = this.events.get(event);
+        const filteredListeners = listeners.filter(listener => listener !== listenerToRemove);
+
+        this.events.set(event, filteredListeners);
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    const listener1 = async (msg) => {
+        await delay(1000);
+        print(`Listener 1 received: ${msg}`);
+    };
+
+    const listener2 = async (msg) => {
+        await delay(500);
+        print(`Listener 2 received: ${msg}`);
+    };
+
+    emitter.on('data', listener1);
+    emitter.on('data', listener2);
+
+    emitter.emit('data', 'Hello, world!');
+    
+    await delay(2000);
+
+    emitter.off('data', listener1);
+    emitter.emit('data', 'Hello again!');
+})();

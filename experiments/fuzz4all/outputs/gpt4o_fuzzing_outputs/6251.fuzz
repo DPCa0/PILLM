@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  memoizedFibonacci(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.memoizedFibonacci(n - 1) + this.memoizedFibonacci(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncMap(arr, callback) {
+  return Promise.all(arr.map(async (item, index) => {
+    await delay(10 * index);  
+    return callback(item, index);
+  }));
+}
+
+(async () => {
+  const fib = new Fibonacci(10);
+  for (const num of fib) {
+    console.log(`Iterative Fibonacci: ${num}`);
+  }
+
+  const results = await asyncMap(Array.from({ length: 10 }, (_, i) => i), async num => {
+    const result = fib.memoizedFibonacci(num);
+    console.log(`Memoized Fibonacci(${num}): ${result}`);
+    return result;
+  });
+
+  console.log('Results:', results);
+})();
+```

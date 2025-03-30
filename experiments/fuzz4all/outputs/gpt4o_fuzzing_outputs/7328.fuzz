@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (endpoint) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (endpoint === 'validEndpoint') {
+        resolve({
+          data: {
+            users: [
+              { id: 1, name: 'Alice' },
+              { id: 2, name: 'Bob' },
+              { id: 3, name: 'Charlie' },
+            ],
+            status: 'success',
+          },
+        });
+      } else {
+        reject(new Error('Invalid Endpoint'));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async (endpoint) => {
+  try {
+     
+    const { data: { users, status } } = await fetchData(endpoint);
+
+     
+    console.log(`API Call Status: ${status}`);
+    const updatedUsers = [...users, { id: 4, name: 'David' }];
+
+     
+    const names = updatedUsers.map(user => user.name.toUpperCase());
+
+     
+    console.log('User Names:', names.join(', '));
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+ 
+processData('validEndpoint');
+```

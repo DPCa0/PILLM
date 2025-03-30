@@ -1,0 +1,35 @@
+ 
+async function* getJokes() {
+  const response = await fetch('https://official-joke-api.appspot.com/random_ten');
+  if (!response.ok) throw new Error('Network response was not ok');
+  const jokes = await response.json();
+  for (const joke of jokes) {
+    yield `${joke.setup} - ${joke.punchline}`;
+  }
+}
+
+ 
+const consoleWithTimestamp = new Proxy(console, {
+  get(target, prop) {
+    if (prop === 'log') {
+      return (...args) => {
+        target.log(new Date().toISOString(), ...args);
+      };
+    }
+    return target[prop];
+  },
+});
+
+ 
+(async () => {
+  try {
+    const jokeGen = getJokes();
+    consoleWithTimestamp.log("Fetching jokes...");
+    
+    for await (const joke of jokeGen) {
+      consoleWithTimestamp.log(joke);
+    }
+  } catch (error) {
+    consoleWithTimestamp.log('Error:', error.message);
+  }
+})();

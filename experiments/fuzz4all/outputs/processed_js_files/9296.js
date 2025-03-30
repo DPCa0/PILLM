@@ -1,0 +1,59 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => fill));
+    }
+
+    static fromArray(arr) {
+        return new Matrix(arr.length, 1, 0).map((_, i) => arr[i]);
+    }
+
+    toArray() {
+        return [].concat(...this.data);
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    static map(A, fn) {
+        return new Matrix(A.rows, A.cols).map((_, i, j) => fn(A.data[i][j], i, j));
+    }
+
+    static multiply(A, B) {
+        if (A.cols !== B.rows) throw new Error("Columns of A must match rows of B");
+        return new Matrix(A.rows, B.cols).map((_, i, j) =>
+            A.data[i].reduce((sum, elm, k) => sum + elm * B.data[k][j], 0)
+        );
+    }
+
+    print() {
+        console.table(this.data);
+        return this;
+    }
+}
+
+class NeuralNetwork {
+    constructor(inputNodes, hiddenNodes, outputNodes) {
+        this.inputNodes = inputNodes;
+        this.hiddenNodes = hiddenNodes;
+        this.outputNodes = outputNodes;
+
+        this.weightsIH = new Matrix(this.hiddenNodes, this.inputNodes).map(() => Math.random() * 2 - 1);
+        this.weightsHO = new Matrix(this.outputNodes, this.hiddenNodes).map(() => Math.random() * 2 - 1);
+
+        this.biasH = new Matrix(this.hiddenNodes, 1).map(() => Math.random() * 2 - 1);
+        this.biasO = new Matrix(this.outputNodes, 1).map(() => Math.random() * 2 - 1);
+
+        this.learningRate = 0.1;
+    }
+
+    feedforward(inputArray) {
+        const inputs = Matrix.fromArray(inputArray);
+
+        const hidden = Matrix.multiply(this.weightsIH, inputs).map((val, i, j) => val + this.biasH.data[i][j]);
+        hidden.map(x => 1 / (1 + Math.exp(-x)));
+
+        const output = Matrix.multiply(this.weightsHO,

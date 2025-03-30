@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+  #dataCache = new Map();
+
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    if (this.#dataCache.has(endpoint)) {
+      console.log('Returning cached data');
+      return Promise.resolve(this.#dataCache.get(endpoint));
+    }
+
+    console.log('Fetching new data');
+    const response = await fetch(`${this.apiUrl}${endpoint}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+    this.#dataCache.set(endpoint, data);
+    return data;
+  }
+}
+
+async function getProcessedData(api, endpoint) {
+  const dataFetcher = new DataFetcher(api);
+  try {
+    const data = await dataFetcher.fetchData(endpoint);
+    const processed = data.map(item => ({
+      ...item,
+      processedDate: new Date(item.date).toLocaleString()
+    }));
+    console.table(processed);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+const fetchApiData = async () => {
+  const api = 'https://api.example.com';
+  const endpoint = '/data';
+  await getProcessedData(api, endpoint);
+};
+
+fetchApiData();
+
+ 
+const proxyHandler = {
+  get: (target, prop) => {
+    console.log(`Accessing property: ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const dataCacheProxy = new Proxy(new DataFetcher('https://api.example.com'), proxyHandler);
+dataCacheProxy.fetchData('/data');
+```

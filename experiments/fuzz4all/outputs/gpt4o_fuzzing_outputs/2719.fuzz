@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncProcess = async function* (arr) {
+    for (let item of arr) {
+        yield new Promise(resolve => setTimeout(() => resolve(item * 2), 100));
+    }
+};
+
+const processItems = async (items) => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', (data) => console.log('Data:', data));
+    emitter.on('end', () => console.log('Process Ended'));
+
+    for await (const item of asyncProcess(items)) {
+        emitter.emit('data', item);
+    }
+
+    emitter.emit('end');
+};
+
+const items = [1, 2, 3, 4, 5];
+processItems(items);
+
+ 
+const obj = { a: 1, b: 2, c: 3 };
+const loggedObj = new Proxy(obj, {
+    get(target, prop, receiver) {
+        console.log(`Property '${prop}' accessed with value: ${Reflect.get(target, prop, receiver)}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property '${prop}' to value: ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+});
+
+loggedObj.a;
+loggedObj.b = 4;
+```

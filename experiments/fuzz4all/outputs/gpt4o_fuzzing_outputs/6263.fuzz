@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+function fetchUserData(userId) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (userId === 1) {
+        resolve({
+          id: 1,
+          name: "John Doe",
+          email: "john.doe@example.com"
+        });
+      } else {
+        reject(new Error("User not found"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+(async () => {
+  const { default: utils } = await import('./utils.js');  
+  
+   
+  class User {
+    constructor({ id, name, email }) {
+      this.id = id;
+      this.name = name;
+      this.email = email;
+    }
+
+    display() {
+      console.log(`User Info:\nName: ${this.name}\nEmail: ${this.email}`);
+    }
+  }
+
+   
+  async function getUserAndDisplay(userId) {
+    try {
+      const userData = await fetchUserData(userId);
+      const user = new User({ ...userData });  
+
+       
+      const { name, email } = user;
+      console.log(`Destructured User Data:\nName: ${name}\nEmail: ${email}`);
+
+      user.display();
+      
+       
+      utils.logUserActivity(user);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+   
+  getUserAndDisplay(1);
+})();
+```

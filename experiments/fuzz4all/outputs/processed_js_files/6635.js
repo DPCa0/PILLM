@@ -1,0 +1,55 @@
+ 
+
+ 
+const complexHandler = {
+    get(target, property) {
+        if (property in target) {
+            print(`Accessing ${property}`);
+            return target[property];
+        } else {
+            print(`Property ${property} not found`);
+            return undefined;
+        }
+    },
+    set(target, property, value) {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const complexObject = new Proxy({}, complexHandler);
+
+complexObject.name = "Advanced JavaScript";
+complexObject.version = "ES2021";
+
+ 
+async function processGenerator(genFunc) {
+    const results = [];
+    for await (let value of genFunc()) {
+        results.push(value);
+    }
+    return results;
+}
+
+ 
+async function* asyncGenerator(start, end) {
+    let current = start;
+    while (current <= end) {
+        yield new Promise(resolve => setTimeout(() => resolve(current++), 100));
+    }
+}
+
+ 
+(async () => {
+    const genResults = await processGenerator(() => asyncGenerator(1, 5));
+    const resultMap = new Map();
+
+    genResults.forEach((value, index) => {
+        resultMap.set(`Result ${index + 1}`, value);
+    });
+
+    resultMap.forEach((value, key) => {
+        print(`${key}: ${value}`);
+    });
+})();

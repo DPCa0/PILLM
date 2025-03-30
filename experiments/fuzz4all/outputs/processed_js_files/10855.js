@@ -1,0 +1,37 @@
+ 
+const getRandomDelay = () => new Promise(resolve => {
+    const delay = Math.floor(Math.random() * 1000);
+    setTimeout(resolve, delay);
+});
+
+ 
+const fetchData = async () => {
+    await getRandomDelay();
+    return { id: 1, name: "Advanced JavaScript" };
+};
+
+ 
+const processData = ({ id, name }) => {
+    return new Proxy({ id, name }, {
+        get(target, prop) {
+            if (prop === 'name') {
+                return `Course: ${Reflect.get(target, prop)}`;
+            }
+            return Reflect.get(target, prop);
+        }
+    });
+};
+
+ 
+(async () => {
+    try {
+        const data = await fetchData();
+        const processedData = processData(data);
+        
+         
+        const { id, name } = processedData;
+        print(`ID: ${id}, Name: ${name}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

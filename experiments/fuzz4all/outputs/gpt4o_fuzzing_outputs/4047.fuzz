@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  processData() {
+    const results = this.data.map(item => ({
+      ...item,
+      valueSquared: item.value ** 2,
+    }));
+    return results;
+  }
+}
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+  if (data) {
+    const processor = new DataProcessor(data);
+    const processedData = processor.processData();
+
+     
+    processedData.forEach(({ id, value, valueSquared }) => {
+      console.log(`Item ID: ${id}, Value: ${value}, Value Squared: ${valueSquared}`);
+    });
+  }
+})();
+
+const myPromise = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    const success = Math.random() > 0.5;
+    success ? resolve('Promise resolved!') : reject('Promise rejected!');
+  }, 1000);
+});
+
+myPromise
+  .then(result => console.log(result))
+  .catch(error => console.error(error))
+  .finally(() => console.log('Promise completed!'));
+```

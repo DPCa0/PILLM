@@ -1,0 +1,38 @@
+class EnhancedCalculator {
+  constructor() {
+    this.history = [];
+  }
+
+  operate(operator, ...operands) {
+    const result = operands.reduce((acc, curr) => {
+      switch (operator) {
+        case '+': return acc + curr;
+        case '-': return acc - curr;
+        case '*': return acc * curr;
+        case '/': return acc / curr;
+        case '**': return Math.pow(acc, curr);
+        default: throw new Error('Invalid operator');
+      }
+    });
+    this.history.push({ operator, operands, result });
+    return result;
+  }
+
+  *getHistory() {
+    for (const entry of this.history) {
+      yield `${entry.operands.join(' ' + entry.operator + ' ')} = ${entry.result}`;
+    }
+  }
+}
+
+(async () => {
+  const calculator = new EnhancedCalculator();
+  print(calculator.operate('+', 1, 2, 3));   
+  print(calculator.operate('*', 4, 5));     
+  print(calculator.operate('**', 2, 3));    
+
+  print('\nCalculation History:');
+  for await (const record of calculator.getHistory()) {
+    print(record);
+  }
+})();

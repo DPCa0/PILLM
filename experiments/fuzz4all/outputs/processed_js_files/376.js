@@ -1,0 +1,63 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  get magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+  static fromPolar(radius, angle) {
+    return new ComplexNumber(
+      radius * Math.cos(angle),
+      radius * Math.sin(angle)
+    );
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'string') {
+      return `${this.real} + ${this.imaginary}i`;
+    }
+    return this.magnitude;
+  }
+
+  *[Symbol.iterator]() {
+    yield this.real;
+    yield this.imaginary;
+  }
+
+  async conjugate() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(new ComplexNumber(this.real, -this.imaginary));
+      }, 1000);
+    });
+  }
+
+  async logConjugate() {
+    const conjugate = await this.conjugate();
+    print(conjugate.toString());
+  }
+
+  static async *conjugateSequence(numbers) {
+    for (let number of numbers) {
+      yield await number.conjugate();
+    }
+  }
+}
+
+const complex1 = new ComplexNumber(3, 4);
+const complex2 = ComplexNumber.fromPolar(5, Math.PI / 4);
+
+print(`Complex1: ${complex1}`);
+print(`Magnitude: ${+complex1}`);
+
+complex1.logConjugate();
+
+(async () => {
+  const numbers = [complex1, complex2];
+  for await (const conj of ComplexNumber.conjugateSequence(numbers)) {
+    print(`Conjugate: ${conj}`);
+  }
+})();

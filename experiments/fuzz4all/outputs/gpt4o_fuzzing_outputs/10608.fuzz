@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');  
+
+(async () => {
+   
+  const randomDelay = (min, max) => 
+    new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * (max - min + 1)) + min));
+
+   
+  const { advice } = await fetch('https://api.adviceslip.com/advice')
+    .then(response => response.json())
+    .then(({ slip }) => slip);
+
+   
+  const emphasize = (strings, ...values) => 
+    strings.reduce((result, str, i) => `${result}${str.toUpperCase()}${values[i] ? `<strong>${values[i]}</strong>` : ''}`, '');
+
+  console.log(emphasize`Here's a piece of advice: ${advice}`);
+
+  // Utilize Proxy to log access to an object
+  const person = { name: 'John', age: 30 };
+  const personProxy = new Proxy(person, {
+    get(target, property) {
+      console.log(`Property '${property}' accessed`);
+      return target[property];
+    }
+  });
+
+  console.log(personProxy.name);
+  console.log(personProxy.age);
+
+  // Use async iterators and generators
+  async function* adviceGenerator() {
+    for (let i = 0; i < 3; i++) {
+      await randomDelay(1000, 2000);
+      const { advice } = await fetch('https: 
+        .then(response => response.json())
+        .then(({ slip }) => slip);
+      yield advice;
+    }
+  }
+
+  for await (const newAdvice of adviceGenerator()) {
+    console.log(`Received new advice: ${newAdvice}`);
+  }
+})();
+```

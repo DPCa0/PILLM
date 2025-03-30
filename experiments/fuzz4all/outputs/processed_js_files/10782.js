@@ -1,0 +1,54 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) listeners.forEach(listener => listener(...args));
+    }
+}
+
+function* fibonacciGenerator() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    const data = await fetchData(url);
+    print('Fetched Data:', data);
+
+    const emitter = new EventEmitter();
+    emitter.on('data', data => print('Event Data:', data));
+    emitter.emit('data', data);
+
+    const fib = fibonacciGenerator();
+    print('Fibonacci:', Array.from({ length: 5 }, () => fib.next().value));
+
+    const [a, b, ...rest] = [1, 2, 3, 4, 5, 6];
+    print('Array Destructuring:', a, b, rest);
+
+    const obj = { x: 1, y: 2, z: 3 };
+    const { x, ...others } = obj;
+    print('Object Destructuring:', x, others);
+})();

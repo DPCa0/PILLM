@@ -1,0 +1,58 @@
+ 
+async function fetchJSON(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch from ${url}`);
+    return response.json();
+}
+
+ 
+const defaultHandler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : `No such property: ${prop}`)
+};
+
+const withDefaults = (obj) => new Proxy(obj, defaultHandler);
+
+ 
+(async function complexExample() {
+    try {
+         
+        const data = await fetchJSON('https://jsonplaceholder.typicode.com/users/1');
+        
+         
+        const { name: userName = "Anonymous", email = "No Email", address: { city = "Unknown City" } = {} } = data;
+
+         
+        const uniqueKeys = {
+            NAME: Symbol('name'),
+            EMAIL: Symbol('email'),
+            CITY: Symbol('city')
+        };
+
+         
+        const userMap = new Map();
+        userMap.set(uniqueKeys.NAME, userName);
+        userMap.set(uniqueKeys.EMAIL, email);
+        userMap.set(uniqueKeys.CITY, city);
+
+         
+        const uniqueValues = new Set(userMap.values());
+
+         
+        const userData = withDefaults({
+            name: userMap.get(uniqueKeys.NAME),
+            email: userMap.get(uniqueKeys.EMAIL),
+            city: userMap.get(uniqueKeys.CITY),
+            uniqueCount: uniqueValues.size
+        });
+
+         
+        console.log(`User Info:
+            Name: ${userData.name}
+            Email: ${userData.email}
+            City: ${userData.city}
+            Unique Values Count: ${userData.uniqueCount}`);
+
+    } catch (error) {
+        console.error(`Error occurred: ${error.message}`);
+    }
+})();

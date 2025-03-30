@@ -1,0 +1,50 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = (result, ms) => new Promise(resolve => setTimeout(() => resolve(result), ms));
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', async (url) => {
+        try {
+            let data = await asyncOperation(`Fetched data from ${url}`, 1000);
+            print(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+
+    const urls = ['https://api.example1.com', 'https://api.example2.com', 'https://api.example3.com'];
+
+     
+    await Promise.all(urls.map(async url => {
+        const { default: fetchData } = await import('./mockFetch.js');
+        const data = await fetchData(url);
+        eventEmitter.emit('data', data);
+    }));
+
+})();
+
+In this code:
+- We define an `EventEmitter` class that handles subscribing to events and emitting them.
+- We simulate an asynchronous operation using `asyncOperation`, which returns a promise.
+- Inside an immediately-invoked async function, we create an instance of `EventEmitter` and set up an event listener for `'data'` events.
+- We use `Promise.all` and dynamic import to handle multiple URLs concurrently, emitting events as data is fetched.
+- This example demonstrates the use of ES6+ features such as classes, async/await, and dynamic imports.

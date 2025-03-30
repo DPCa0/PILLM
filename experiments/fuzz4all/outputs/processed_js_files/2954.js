@@ -1,0 +1,43 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+    throw error;
+  }
+};
+
+const processData = (data) => {
+  const uniqueValues = new Set(data.map(({ id }) => id));
+  const mappedData = new Map(data.map(item => [item.id, item]));
+  const processedArray = [];
+
+  for (const id of uniqueValues) {
+    const { name, value } = mappedData.get(id);
+    processedArray.push({ id, name, value: value * 2 });
+  }
+  
+  return processedArray;
+};
+
+const displayResults = (results) => {
+  results.forEach(({ id, name, value }) => {
+    print(`ID: ${id}, Name: ${name}, New Value: ${value}`);
+  });
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';  
+    const rawData = await fetchData(url);
+    const processedData = processData(rawData);
+    displayResults(processedData);
+  } catch (error) {
+    console.error(`Overall error: ${error}`);
+  }
+})();

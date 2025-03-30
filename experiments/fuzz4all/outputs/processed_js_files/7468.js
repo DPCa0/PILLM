@@ -1,0 +1,30 @@
+ 
+const fs = require('fs').promises;
+
+ 
+(async function() {
+  try {
+     
+    const data = await fs.readFile('data.json', 'utf8');
+    const jsonData = JSON.parse(data);
+    
+     
+    const processedData = jsonData
+      .map(item => ({
+        ...item,
+        priceWithTax: item.price * 1.2
+      }))
+      .filter(item => item.priceWithTax < 100)
+      .reduce((acc, item) => acc + item.priceWithTax, 0);
+
+     
+    const uniqueCategories = new Set(jsonData.map(item => item.category));
+
+     
+    print(`Total price of items under $100 with tax: $${processedData.toFixed(2)}`);
+    print(`Unique Categories: ${[...uniqueCategories].join(', ')}`);
+
+  } catch (error) {
+    console.error('Error reading or processing data:', error);
+  }
+})();

@@ -1,0 +1,30 @@
+ 
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Network response was not ok");
+  return response.json();
+}
+
+async function processFibonacci() {
+  const fibGen = fibonacciGenerator();
+  const promises = Array.from({ length: 5 }, async () => {
+    const fibNum = fibGen.next().value;
+    try {
+      const data = await fetchData(`https: 
+      print(`Fetched data for Fibonacci number ${fibNum}:`, data);
+    } catch (error) {
+      console.error(`Error fetching data for Fibonacci number ${fibNum}:`, error);
+    }
+  });
+  await Promise.all(promises);
+}
+
+processFibonacci();

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fibonacciGenerator() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+const fibonacciProxy = new Proxy(fibonacciGenerator(), {
+    get(target, prop, receiver) {
+        if (prop === 'next') {
+            return (...args) => {
+                let result = Reflect.get(target, prop, receiver).apply(target, args);
+                 
+                result.value *= 2;
+                return result;
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+});
+
+ 
+const delayedFib = (ms) => new Promise(resolve => {
+    setTimeout(() => resolve(fibonacciProxy.next().value), ms);
+});
+
+ 
+(async function runFibonacci() {
+    console.log('Fetching Fibonacci numbers with delay...');
+    for (let i = 0; i < 5; i++) {
+        let fibNum = await delayedFib(1000);
+        console.log(`Fibonacci #${i + 1}:`, fibNum);
+    }
+    console.log('Done!');
+})();
+```

@@ -1,0 +1,38 @@
+ 
+ 
+
+import fs from 'fs/promises';
+
+ 
+(async function () {
+    try {
+         
+        const data = await fs.readFile('./data.json', 'utf-8');
+        
+         
+        let jsonData = JSON.parse(data);
+
+         
+        let userName = jsonData?.user?.name ?? 'Anonymous';
+
+         
+        let numbers = jsonData?.numbers ?? [];
+        let processedNumbers = numbers
+            .filter(n => n > 10)         
+            .map(n => n * 2)             
+            .reduce((acc, n) => acc + n, 0);  
+
+        print(`User: ${userName}`);
+        print(`Processed Sum: ${processedNumbers}`);
+
+         
+        if (userName === 'Admin') {
+            const { default: adminModule } = await import('./adminModule.js');
+            adminModule.performAdminTask();
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+
+This script utilizes advanced JavaScript features, including async/await, the optional chaining operator, nullish coalescing, modern array methods, and dynamic imports. It provides an example of handling asynchronous file reading, JSON parsing, data processing, and conditional module loading.

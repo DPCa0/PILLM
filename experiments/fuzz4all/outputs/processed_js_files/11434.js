@@ -1,0 +1,62 @@
+ 
+const delay = (min, max) => new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * (max - min)) + min));
+
+ 
+(async () => {
+  try {
+     
+    const fetchData = async ({ url, method = 'GET' }) => {
+       
+      const response = await fetch(url, { method });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    };
+    
+     
+    const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+    const results = await Promise.all(urls.map(url => fetchData({ url })));
+    
+     
+    const uniqueResults = new Set(results.map(result => result.title));
+    
+     
+    for (const title of uniqueResults) {
+       
+      print(processTitle`Title: ${title}`);
+    }
+    
+     
+    const privateMethod = Symbol('privateMethod');
+    const obj = {
+      [privateMethod]: () => console.log('This is a private method'),
+      publicMethod: () => obj[privateMethod]()
+    };
+    
+     
+    const { publicMethod, ...rest } = obj;
+    publicMethod();
+    
+     
+    function* idGenerator() {
+      let id = 1;
+      while (true) yield id++;
+    }
+
+    const gen = idGenerator();
+    print(`Generated ID: ${gen.next().value}`);
+    print(`Generated ID: ${gen.next().value}`);
+    
+     
+    await delay(1000, 2000);
+    print('Finished after random delay');
+    
+  } catch (error) {
+     
+    console.error(`Error: ${error.message}`);
+  }
+})();
+
+ 
+function processTitle(strings, title) {
+  return `${strings[0]}**${title.toUpperCase()}**`;
+}

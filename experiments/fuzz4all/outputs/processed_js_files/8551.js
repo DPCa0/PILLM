@@ -1,0 +1,51 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(arr) {
+    const m = new Matrix(arr.length, arr[0].length);
+    m.data = arr;
+    return m;
+  }
+
+  map(fn) {
+    return Matrix.from(this.data.map((row, i) => row.map((val, j) => fn(val, i, j))));
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B.');
+    }
+    return Matrix.from(a.data.map((row, i) =>
+      Array.from({ length: b.data[0].length }, (_, j) =>
+        row.reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+      )
+    ));
+  }
+
+  log() {
+    console.table(this.data);
+  }
+}
+
+const asyncOperation = async () => {
+  return new Promise((resolve) => setTimeout(() => resolve('Async Hello, World!'), 1000));
+};
+
+const processAsync = async () => {
+  try {
+    const message = await asyncOperation();
+    print(message);
+
+    const a = new Matrix(2, 3, 1);
+    const b = new Matrix(3, 2, 2);
+    const c = Matrix.multiply(a, b);
+
+    c.map(value => value * 10).log();
+  } catch (error) {
+    console.error('Error in processing:', error);
+  }
+};
+
+processAsync();

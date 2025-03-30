@@ -1,0 +1,62 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+class ComplexMath {
+  #secret;
+
+  constructor(secret) {
+    this.#secret = secret;
+  }
+
+  async calculate(input) {
+    const data = await Promise.all([
+      this.#expensiveOperation(input),
+      this.#expensiveOperation(input * 2),
+    ]);
+    return data[0] + data[1] - this.#secret;
+  }
+
+  #expensiveOperation(num) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(num ** 2), 1000);
+    });
+  }
+}
+
+const eventEmitter = new EventEmitter();
+const math = new ComplexMath(42);
+
+eventEmitter.on('calculate', async (value) => {
+  const result = await math.calculate(value);
+  print(`Calculated result: ${result}`);
+});
+
+(async () => {
+  print('Starting calculations...');
+  eventEmitter.emit('calculate', 10);
+  eventEmitter.emit('calculate', 20);
+})();

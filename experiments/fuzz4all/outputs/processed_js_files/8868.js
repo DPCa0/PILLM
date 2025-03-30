@@ -1,0 +1,50 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncFetch = (url) => 
+  new Promise((resolve, reject) => 
+    setTimeout(() => {
+      url === 'validUrl' ? resolve('Data fetched') : reject('Error fetching data');
+    }, 1000)
+  );
+
+(async () => {
+  const emitter = new EventEmitter();
+  
+  const fetchDataWithTimeout = async (url, timeout) => {
+    const fetchPromise = asyncFetch(url);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject('Fetch timeout'), timeout)
+    );
+    
+    return Promise.race([fetchPromise, timeoutPromise]);
+  };
+  
+  emitter.on('fetchData', async (url) => {
+    try {
+      const data = await fetchDataWithTimeout(url, 500);
+      print(data);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+  
+  emitter.emit('fetchData', 'validUrl');  
+  emitter.emit('fetchData', 'invalidUrl');  
+})();

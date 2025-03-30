@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(name) {
+    this.name = name;
+    this.completed = false;
+  }
+
+  complete() {
+    this.completed = true;
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function executeTasks(tasks) {
+  for await (const task of tasks) {
+    console.log(`Starting: ${task.name}`);
+    await delay(1000);  
+    task.complete();
+    console.log(`Completed: ${task.name}`);
+  }
+}
+
+const tasks = [
+  new Task('Task 1'),
+  new Task('Task 2'),
+  new Task('Task 3')
+];
+
+(async () => {
+  await executeTasks(tasks);
+  console.log('All tasks finished!');
+})();
+```

@@ -1,0 +1,40 @@
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+const dataHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      console.error(`Property ${prop} does not exist`);
+    }
+  },
+  set(target, prop, value) {
+    print(`Setting property: ${prop} with value: ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+const processData = async (url) => {
+  const data = await fetchData(url);
+  const proxyData = new Proxy(data, dataHandler);
+  
+  for (let item of dataGenerator(proxyData)) {
+    print(item);
+  }
+};
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+processData(url);

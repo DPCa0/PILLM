@@ -1,0 +1,41 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* fetchData() {
+  yield delay(1000).then(() => ({ name: "John", age: 30 }));
+  yield delay(1000).then(() => ({ name: "Jane", age: 25 }));
+  yield delay(1000).then(() => ({ name: "Doe", age: 40 }));
+}
+
+ 
+async function processData() {
+  const dataGenerator = fetchData();
+  for (let dataPromise of dataGenerator) {
+    const data = await dataPromise;
+    const { name, age } = data;  
+    print(`Processing: Name - ${name}, Age - ${age}`);
+  }
+}
+
+ 
+async function executeConcurrentTasks() {
+  const tasks = [
+    delay(500).then(() => "Task 1 Completed"),
+    delay(700).then(() => "Task 2 Completed"),
+    delay(300).then(() => "Task 3 Completed"),
+  ];
+  
+  const results = await Promise.all(tasks);
+  results.forEach((result, index) => print(`Result ${index + 1}: ${result}`));
+}
+
+ 
+(async () => {
+  print("Starting async operations...");
+  await processData();
+  await executeConcurrentTasks();
+  print("All operations completed.");
+})();

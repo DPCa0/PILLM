@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class ComplexFeature {
+  constructor(values) {
+    this.values = values;
+  }
+  
+  static async fetchData() {
+     
+    return new Promise(resolve => {
+      setTimeout(() => resolve([10, 20, 30, 40]), 1000);
+    });
+  }
+
+  async *numberGenerator() {
+    for (let value of this.values) {
+      yield await new Promise(resolve => setTimeout(() => resolve(value), 500));
+    }
+  }
+
+  static #privateHelper(value) {
+    return value * 2;
+  }
+
+  async processValues() {
+    const processedValues = [];
+    for await (let value of this.numberGenerator()) {
+      processedValues.push(ComplexFeature.#privateHelper(value));
+    }
+    return processedValues;
+  }
+}
+
+(async () => {
+  const fetchedData = await ComplexFeature.fetchData();
+  const complex = new ComplexFeature(fetchedData);
+  const results = await complex.processValues();
+
+  console.log(`Processed values: ${results}`);
+})();
+```

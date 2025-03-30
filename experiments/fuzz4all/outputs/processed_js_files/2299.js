@@ -1,0 +1,45 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+  return response.json();
+};
+
+const processData = (data) => {
+  return data.map(({ id, title, completed }) => ({
+    identifier: id,
+    task: title.toUpperCase(),
+    status: completed ? 'DONE' : 'PENDING',
+  }));
+};
+
+const runTasks = async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos');
+    const processedData = processData(data);
+
+     
+    const randomData = processedData?.[Math.floor(Math.random() * processedData.length)] ?? {};
+    
+    const { default: chalk } = await import('chalk');
+    console.log(
+      chalk.blue(`Task ID: ${randomData.identifier}`),
+      chalk.green(`Task: ${randomData.task}`),
+      chalk.red(`Status: ${randomData.status}`)
+    );
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+const handler = {
+  apply(target, thisArg, argumentsList) {
+    print(`runTasks called with args: ${argumentsList}`);
+    return target.apply(thisArg, argumentsList);
+  },
+};
+
+const proxiedRunTasks = new Proxy(runTasks, handler);
+
+proxiedRunTasks();

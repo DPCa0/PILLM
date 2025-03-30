@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = true;
+      if (success) {
+        resolve({
+          id: 1,
+          name: "John Doe",
+          email: "johndoe@example.com",
+          preferences: { theme: "dark", notifications: true }
+        });
+      } else {
+        reject("Failed to fetch user data");
+      }
+    }, 1000);
+  });
+};
+
+ 
+const getUserData = async () => {
+  try {
+    const userData = await fetchUserData();
+    const { id, name, email, preferences: { theme } } = userData;
+
+    console.log(`User Info:
+      ID: ${id}
+      Name: ${name}
+      Email: ${email}
+      Preferred Theme: ${theme}`);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+ 
+getUserData();
+```

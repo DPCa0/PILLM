@@ -1,0 +1,56 @@
+class Observable {
+  constructor() {
+    this.observers = new Set();
+  }
+
+  subscribe(observer) {
+    this.observers.add(observer);
+  }
+
+  unsubscribe(observer) {
+    this.observers.delete(observer);
+  }
+
+  notify(data) {
+    this.observers.forEach(observer => observer.update(data));
+  }
+}
+
+class Observer {
+  constructor(name) {
+    this.name = name;
+  }
+
+  update(data) {
+    print(`${this.name} received data:`, data);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* dataGenerator() {
+  let count = 0;
+  while (true) {
+    await delay(1000);  
+    yield { value: count++, timestamp: new Date().toISOString() };
+  }
+}
+
+(async function main() {
+  const observable = new Observable();
+
+  const observer1 = new Observer('Observer 1');
+  const observer2 = new Observer('Observer 2');
+
+  observable.subscribe(observer1);
+  observable.subscribe(observer2);
+
+  const generator = dataGenerator();
+  for await (const data of generator) {
+    if (data.value >= 5) {
+      observable.unsubscribe(observer2);
+    }
+    observable.notify(data);
+    if (data.value >= 10) break;
+  }
+})();

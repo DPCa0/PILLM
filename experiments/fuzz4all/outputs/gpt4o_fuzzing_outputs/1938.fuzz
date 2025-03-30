@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { name: "Alice", age: 30 }, status: "active" });
+    }, 1000);
+  });
+};
+
+ 
+const logHandler = {
+  get: (target, property) => {
+    console.log(`Property '${property}' accessed`);
+    return target[property];
+  }
+};
+
+ 
+const main = async () => {
+  console.log("Fetching data...");
+  const { user: { name, age }, status } = await fetchData();
+
+  const userProxy = new Proxy({ name, age, status }, logHandler);
+
+  console.log(`Name: ${userProxy.name}`);
+  console.log(`Age: ${userProxy.age}`);
+  console.log(`Status: ${userProxy.status}`);
+};
+
+main();
+```

@@ -1,0 +1,52 @@
+ 
+const fs = require('fs').promises;
+const https = require('https');
+
+ 
+(async () => {
+  try {
+     
+    const fetchData = (url) => new Promise((resolve, reject) => {
+      https.get(url, (resp) => {
+        let data = '';
+
+         
+        resp.on('data', (chunk) => {
+          data += chunk;
+        });
+
+         
+        resp.on('end', () => resolve(JSON.parse(data)));
+      }).on("error", (err) => reject(err));
+    });
+
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await fetchData(url);
+
+     
+    const userData = users
+      .filter(user => user.address.geo.lat > 0)
+      .map(user => ({
+        name: user.name,
+        email: user.email,
+        city: user.address.city
+      }))
+      .reduce((acc, user) => `${acc}${user.name} from ${user.city} (${user.email})\n`, '');
+
+     
+    await fs.writeFile('users.txt', userData, 'utf8');
+    print('User data has been written to users.txt');
+
+     
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : `Property ${prop} does not exist`),
+    };
+
+    const userProxy = new Proxy(users[0], handler);
+    print(userProxy.name);  
+    print(userProxy.nonExistentProperty);  
+
+  } catch (error) {
+    console.error(`Error fetching or processing data: ${error.message}`);
+  }
+})();

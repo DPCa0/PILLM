@@ -1,0 +1,51 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { user: 'John Doe', age: 30 };
+      Math.random() > 0.5 ? resolve(data) : reject('Failed to fetch data');
+    }, 1000);
+  });
+};
+
+ 
+async function getUserData(url) {
+  try {
+    let data = await fetchData(url);
+    print('User Data Retrieved:', data);
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+const userHandler = {
+  get: (target, property) => {
+    print(`Property '${property}' accessed`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    print(`Property '${property}' set to '${value}'`);
+    target[property] = value;
+    return true;
+  },
+};
+
+ 
+const createUserProxy = (user) => {
+  const proxyUser = new Proxy(user, userHandler);
+  return proxyUser;
+};
+
+ 
+(async () => {
+  const userData = await getUserData('https://api.example.com/user');
+  if (userData) {
+    const proxyUser = createUserProxy(userData);
+    print(proxyUser.user);   
+    proxyUser.age = 31;            
+  }
+})();

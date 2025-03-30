@@ -1,0 +1,40 @@
+ 
+
+const getData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const dataHandler = {
+  get: function (target, prop) {
+    if (prop in target) {
+      print(`Accessing ${prop} property`);
+      return Reflect.get(target, prop);
+    } else {
+      throw new Error(`Property ${prop} does not exist on target`);
+    }
+  },
+  set: function (target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+(async () => {
+  try {
+    const apiUrl = 'https://api.chucknorris.io/jokes/random';
+    const jokeData = await getData(apiUrl);
+    const proxyJokeData = new Proxy(jokeData, dataHandler);
+
+     
+    print(proxyJokeData.value);
+
+     
+    proxyJokeData.updatedAt = new Date().toISOString();
+    print(proxyJokeData.updatedAt);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

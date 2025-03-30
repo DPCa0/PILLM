@@ -1,0 +1,42 @@
+class DataFetcher {
+  async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  }
+}
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idGen = idGenerator();
+
+function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+}
+
+const fetchDataDebounced = debounce(async (url) => {
+  try {
+    const fetcher = new DataFetcher();
+    const data = await fetcher.fetchData(url);
+    print(`Fetched Data (ID: ${idGen.next().value}):`, data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}, 500);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const button = document.getElementById('fetchButton');
+  button.addEventListener('click', () => {
+    fetchDataDebounced('https://jsonplaceholder.typicode.com/todos/1');
+  });
+});

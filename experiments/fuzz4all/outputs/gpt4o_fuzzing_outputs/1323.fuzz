@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+const asyncIterable = {
+  async *[Symbol.asyncIterator]() {
+    for (let i = 1; i <= 3; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      yield i * i;
+    }
+  }
+};
+
+const calculateFactorial = n =>
+  n <= 1 ? 1 : n * calculateFactorial(n - 1);
+
+const memoize = fn => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+const cachedFactorial = memoize(calculateFactorial);
+
+const handler = {
+  get: (target, prop) =>
+    prop in target ? target[prop] : `Property "${prop}" not found`
+};
+
+const proxy = new Proxy(
+  { a: 1, b: 2 },
+  handler
+);
+
+(async () => {
+  for await (const num of asyncIterable) {
+    console.log(`Square: ${num}, Factorial: ${cachedFactorial(num)}`);
+  }
+  console.log(proxy.a);
+  console.log(proxy.c);
+})();
+```

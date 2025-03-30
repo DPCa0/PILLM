@@ -1,0 +1,90 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomError";
+  }
+}
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new CustomError('Failed to fetch data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw new CustomError(`Fetch error: ${error.message}`);
+  }
+};
+
+ 
+const logger = {
+  get(target, prop) {
+    if (typeof target[prop] === 'function') {
+      return (...args) => {
+        print(`Calling ${prop} with args: ${JSON.stringify(args)}`);
+        return target[prop](...args);
+      };
+    }
+    return target[prop];
+  }
+};
+
+ 
+const person = new Proxy({
+  name: 'John Doe',
+  age: 30
+}, {
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+ 
+function* numberGenerator() {
+  yield* [1, 2, 3, 4, 5];
+}
+
+ 
+const uniqueId = Symbol('id');
+
+ 
+class User {
+  #id;
+  constructor(name) {
+    this.name = name;
+    this.#id = uniqueId;
+  }
+  getId() {
+    return this.#id;
+  }
+}
+
+ 
+(async () => {
+  print('Starting complex JS program');
+
+   
+  const proxiedConsole = new Proxy(console, logger);
+  proxiedConsole.log('Proxied console log');
+
+   
+  person.name = 'Jane Smith';
+  person.age = 25;
+
+   
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    proxiedConsole.log('Fetched data:', data);
+  } catch (error) {
+    proxiedConsole.error(error);
+  }
+
+   
+  const gen = numberGenerator();
+  for (const num of gen) {
+    proxiedConsole.log(`Generated number: ${num}`);
+  }

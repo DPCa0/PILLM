@@ -1,0 +1,49 @@
+ 
+
+ 
+const fetchUserData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ id: 1, name: "John Doe", posts: [{ id: 101, title: "Hello World" }, { id: 102, title: "Advanced JS" }] });
+    }, 1000);
+});
+
+class User {
+    constructor({ id, name, posts }) {
+        this.id = id;
+        this.name = name;
+        this.posts = posts;
+    }
+
+    async fetchDetailedPosts() {
+         
+        this.posts = await Promise.all(this.posts.map(post => 
+            new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({ ...post, content: `Content of post ${post.id}` });
+                }, 500);
+            })
+        ));
+    }
+}
+
+(async () => {
+    try {
+         
+        const userData = await fetchUserData();
+        
+         
+        const user = new User(userData);
+
+        print(`User fetched: ${user.name}`);
+        
+         
+        await user.fetchDetailedPosts();
+        
+         
+        user.posts.forEach(({ id, title, content }) => {
+            print(`Post ID: ${id}, Title: ${title}, Content: ${content}`);
+        });
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();

@@ -1,0 +1,39 @@
+ 
+
+ 
+function fetchUser() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        name: {
+          first: 'Jane',
+          last: 'Doe'
+        },
+        email: 'janedoe@example.com',
+        address: {
+          city: 'Metropolis',
+          country: 'Fictionland'
+        }
+      });
+    }, 1000);
+  });
+}
+
+ 
+async function displayUserInfo() {
+  try {
+     
+    const { name: { first, last }, email, address: { city, country } } = await fetchUser();
+    
+     
+    console.log(`User Info:
+    Name: ${first} ${last}
+    Email: ${email}
+    Location: ${city}, ${country}`);
+  } catch (error) {
+    console.error('Failed to fetch user info:', error);
+  }
+}
+
+ 
+displayUserInfo();

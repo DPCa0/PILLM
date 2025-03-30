@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+export const dataFetcher = {
+  fetchData: async () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ status: 'success', data: [1, 2, 3, 4, 5] });
+      }, 1000);
+    });
+  }
+};
+
+ 
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  processData() {
+    return this.data.map(num => num * 2);
+  }
+
+   
+  static summarizeData(...args) {
+    const { length } = args;
+    const sum = args.reduce((total, num) => total + num, 0);
+    return { count: length, sum };
+  }
+}
+
+ 
+const main = async () => {
+   
+  const { fetchData } = await import('./dataFetcher.js');
+  
+  try {
+     
+    const response = await fetchData();
+    
+    if (response.status === 'success') {
+      const dataProcessor = new DataProcessor(response.data);
+      const processedData = dataProcessor.processData();
+      console.log('Processed Data:', processedData);
+
+      const summary = DataProcessor.summarizeData(...processedData);
+      console.log('Data Summary:', summary);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+main();
+```
+
+Note: To run this code, you need to set up a JavaScript environment that supports ES6 modules, such as running it in a modern browser with a web server or using a bundler like Webpack. Save the data fetching logic in `dataFetcher.js` and ensure the correct relative path when importing.

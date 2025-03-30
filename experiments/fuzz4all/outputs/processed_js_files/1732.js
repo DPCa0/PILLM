@@ -1,0 +1,77 @@
+class Matrix {
+  constructor(rows, cols, elements = []) {
+    this.rows = rows;
+    this.cols = cols;
+    this.elements = elements.length ? elements : Array(rows * cols).fill(0);
+  }
+
+  static fromArray(arr) {
+    const m = new Matrix(arr.length, arr[0].length);
+    m.elements = arr.reduce((acc, val) => acc.concat(val), []);
+    return m;
+  }
+
+  get(row, col) {
+    return this.elements[row * this.cols + col];
+  }
+
+  set(row, col, value) {
+    this.elements[row * this.cols + col] = value;
+  }
+
+  map(func) {
+    const newMatrix = new Matrix(this.rows, this.cols);
+    newMatrix.elements = this.elements.map(func);
+    return newMatrix;
+  }
+
+  multiply(other) {
+    if (this.cols !== other.rows) throw new Error('Matrix sizes do not match for multiplication');
+    const result = new Matrix(this.rows, other.cols);
+
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < other.cols; j++) {
+        let sum = 0;
+        for (let k = 0; k < this.cols; k++) {
+          sum += this.get(i, k) * other.get(k, j);
+        }
+        result.set(i, j, sum);
+      }
+    }
+    return result;
+  }
+
+  toArray() {
+    const array = [];
+    for (let i = 0; i < this.rows; i++) {
+      array.push(this.elements.slice(i * this.cols, (i + 1) * this.cols));
+    }
+    return array;
+  }
+}
+
+ 
+const asyncMatrixMultiply = async (m1, m2) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        resolve(m1.multiply(m2));
+      } catch (error) {
+        reject(error);
+      }
+    }, 1000);  
+  });
+};
+
+ 
+(async () => {
+  const m1 = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6],
+  ]);
+
+  const m2 = Matrix.fromArray([
+    [7, 8],
+    [9, 10],
+    [11, 12],
+  ]);

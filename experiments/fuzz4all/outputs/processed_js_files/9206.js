@@ -1,0 +1,38 @@
+ 
+
+class WeatherStation {
+    constructor(location) {
+        this.location = location;
+    }
+
+    async getWeatherData() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    temperature: 22,
+                    humidity: 60,
+                    windSpeed: 10,
+                    conditions: 'Sunny',
+                });
+            }, 1000);
+        });
+    }
+}
+
+const displayWeather = async (location) => {
+    const station = new WeatherStation(location);
+    try {
+        const data = await station.getWeatherData();
+        const { temperature, humidity, windSpeed, conditions } = data;
+        const formattedData = {
+            ...data,
+            summary: `The weather in ${location} is currently ${conditions} with a temperature of ${temperature}°C.`
+        };
+        print(formattedData.summary);
+        print(`Humidity: ${humidity}%, Wind Speed: ${windSpeed} km/h`);
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+    }
+};
+
+displayWeather('New York');

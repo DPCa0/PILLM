@@ -1,0 +1,68 @@
+ 
+(async () => {
+    const fs = await import('fs/promises');
+
+     
+    const settingsHandler = {
+        get: (target, property) => {
+            print(`Getting ${property}: ${target[property]}`);
+            return target[property];
+        },
+        set: (target, property, value) => {
+            print(`Setting ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        }
+    };
+
+    const settings = new Proxy({ theme: 'dark', notifications: true }, settingsHandler);
+
+     
+    async function readAndLogFile(filePath) {
+        try {
+            const data = await fs.readFile(filePath, 'utf8');
+            print('File content:', data);
+        } catch (error) {
+            console.error('Error reading file:', error);
+        }
+    }
+
+     
+    async function* asyncGenerator(limit) {
+        for (let i = 0; i < limit; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield i;
+        }
+    }
+
+    (async () => {
+        for await (const num of asyncGenerator(5)) {
+            print(`Generated number: ${num}`);
+        }
+    })();
+
+     
+    function highlight(strings, ...values) {
+        return strings.reduce((result, string, i) => `${result}${string}<b>${values[i] || ''}</b>`, '');
+    }
+
+    const name = "JavaScript";
+    const message = highlight`Hello, welcome to the world of ${name}!`;
+    print(message);
+
+     
+    function displayUser({ name = 'Guest', age = 'Unknown' }) {
+        print(`User: ${name}, Age: ${age}`);
+    }
+
+    const user = { name: 'Alice', age: 30 };
+    displayUser(user);
+    displayUser({});
+
+     
+    print(settings.theme);  
+    settings.notifications = false;  
+
+     
+    await readAndLogFile('./example.txt');
+})();

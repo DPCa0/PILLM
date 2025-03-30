@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+    const fetchUserData = () => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: 'Alice',
+                age: 30,
+                occupation: 'Developer'
+            });
+        }, 1000);
+    });
+
+    const fetchUserPosts = () => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['Post 1', 'Post 2', 'Post 3']);
+        }, 1000);
+    });
+
+    const fetchUserComments = () => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['Comment A', 'Comment B']);
+        }, 1000);
+    });
+
+    try {
+        const [userData, userPosts, userComments] = await Promise.all([
+            fetchUserData(),
+            fetchUserPosts(),
+            fetchUserComments()
+        ]);
+
+        const { name, age, occupation } = userData;
+
+        const output = {
+            userInfo: { name, age, occupation },
+            posts: userPosts,
+            comments: userComments
+        };
+
+        console.log(output);
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

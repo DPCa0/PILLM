@@ -1,0 +1,51 @@
+ 
+async function* fetchJsonData(urls) {
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Error fetching ${url}`);
+      const data = await response.json();
+      yield data;
+    } catch (error) {
+      console.error(`Failed to fetch from ${url}:`, error);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Accessed property "${property}"`);
+    return property in target ? target[property] : `No such property: ${property}`;
+  },
+};
+
+const person = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+  ];
+
+  const dataGenerator = fetchJsonData(urls);
+  const dataPromises = [];
+
+  for await (const data of dataGenerator) {
+    dataPromises.push(Promise.resolve(data));
+  }
+
+   
+  const [firstData, ...restData] = await Promise.all(dataPromises);
+  print('First Data:', firstData);
+  print('Rest of the Data:', restData);
+
+   
+  function tag(strings, ...values) {
+    return strings.reduce((result, string, i) => `${result}${string}${values[i] || ''}`, '');
+  }
+
+  const message = tag`Hello, ${person.name}! You are ${person.age} years old.`;
+  print(message);
+})();

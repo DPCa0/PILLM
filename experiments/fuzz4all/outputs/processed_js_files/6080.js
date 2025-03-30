@@ -1,0 +1,53 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(event, callback) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
+    }
+    this.subscribers.get(event).push(callback);
+  }
+
+  emit(event, data) {
+    if (this.subscribers.has(event)) {
+      this.subscribers.get(event).forEach(callback => callback(data));
+    }
+  }
+}
+
+class Task {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async run() {
+    print(`Starting task: ${this.name}`);
+    return new Promise(resolve => setTimeout(() => {
+      print(`Task complete: ${this.name}`);
+      resolve();
+    }, Math.random() * 1000));
+  }
+}
+
+async function* taskGenerator(taskNames) {
+  for (const name of taskNames) {
+    yield new Task(name);
+  }
+}
+
+(async () => {
+  const observer = new Observer();
+  observer.subscribe('taskComplete', data => {
+    print(`Observer received completion event for: ${data}`);
+  });
+
+  const taskNames = ['Task 1', 'Task 2', 'Task 3'];
+  const tasks = taskGenerator(taskNames);
+
+  for await (const task of tasks) {
+    await task.run();
+    observer.emit('taskComplete', task.name);
+  }
+})();

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const target = {
+    data: [1, 2, 3, 4, 5]
+};
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'length') {
+            return Reflect.get(obj, 'data').length;
+        }
+        if (prop === 'double') {
+            return Reflect.get(obj, 'data').map(x => x * 2);
+        }
+        return Reflect.get(obj, prop);
+    }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                newData: [6, 7, 8, 9, 10]
+            });
+        }, 1000);
+    });
+}
+
+ 
+async function main() {
+    console.log('Original length:', proxy.length);  
+
+    const { newData } = await fetchData();  
+
+    proxy.data.push(...newData);  
+
+    console.log('Updated length:', proxy.length);  
+    console.log('Doubled data:', proxy.double);  
+}
+
+main();
+```

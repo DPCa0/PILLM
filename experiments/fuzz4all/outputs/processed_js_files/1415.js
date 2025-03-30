@@ -1,0 +1,38 @@
+ 
+
+ 
+async function fetchData(url) {
+     
+    function* dataChunks() {
+        const dataParts = ["Hello", "world", "this", "is", "advanced", "JavaScript"];
+        for (let part of dataParts) {
+            yield part;
+        }
+    }
+
+     
+    const handler = {
+        get: function(target, prop, receiver) {
+            if (prop === 'next') {
+                print("Fetching next chunk...");
+            }
+            return Reflect.get(target, prop, receiver);
+        }
+    };
+
+    const chunks = new Proxy(dataChunks(), handler);
+
+     
+    const data = new Promise((resolve, reject) => {
+        let result = [];
+        for (let chunk of chunks) {
+            result.push(chunk);
+        }
+        setTimeout(() => resolve(result.join(" ")), 1000);
+    });
+
+    return await data;
+}
+
+ 
+fetchData().then(result => print(result)).catch(err => console.error(err));

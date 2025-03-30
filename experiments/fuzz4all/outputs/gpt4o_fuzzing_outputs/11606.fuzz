@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Network {
+  constructor() {
+    this.nodes = new Set();
+    this.edges = new Map();
+  }
+  
+  addNode(node) {
+    this.nodes.add(node);
+    this.edges.set(node, []);
+  }
+
+  addEdge(from, to) {
+    if (this.nodes.has(from) && this.nodes.has(to)) {
+      this.edges.get(from).push(to);
+    } else {
+      throw new Error("Invalid nodes specified");
+    }
+  }
+
+  *traverse(start) {
+    if (!this.nodes.has(start)) return;
+    const visited = new Set();
+    const stack = [start];
+    
+    while (stack.length) {
+      const node = stack.pop();
+      if (!visited.has(node)) {
+        yield node;
+        visited.add(node);
+        stack.push(...this.edges.get(node).filter(n => !visited.has(n)));
+      }
+    }
+  }
+}
+
+(async () => {
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  const network = new Network();
+  ['A', 'B', 'C', 'D'].forEach(n => network.addNode(n));
+  network.addEdge('A', 'B');
+  network.addEdge('B', 'C');
+  network.addEdge('A', 'D');
+
+  console.log("Network Traversal:");
+  for (const node of network.traverse('A')) {
+    await delay(500);  
+    console.log(node);
+  }
+
+  const numbers = [1, 2, 3, 4, 5];
+  const doubledAsync = await Promise.all(numbers.map(async num => {
+    await delay(100);
+    return num * 2;
+  }));
+
+  console.log("Doubled Numbers:", doubledAsync);
+})();
+```

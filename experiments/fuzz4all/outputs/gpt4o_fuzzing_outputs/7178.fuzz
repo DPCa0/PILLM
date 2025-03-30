@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+   
+  const { results } = data;
+  return results
+    .filter(({ score }) => score > 50)  
+    .map(({ name, score }) => ({ name, score }))  
+    .reduce(
+      (acc, { name, score }) => ({
+        totalScore: acc.totalScore + score,
+        names: [...acc.names, name],
+      }),
+      { totalScore: 0, names: [] }
+    );  
+};
+
+const logResults = ({ totalScore, names }) => {
+  console.log(`Total Score: ${totalScore}`);
+  console.log(`Names: ${names.join(', ')}`);
+};
+
+ 
+(async () => {
+  const data = await fetchData('https://api.example.com/data');
+  if (data) {
+    const results = processData(data);
+    logResults(results);
+  }
+})();
+```

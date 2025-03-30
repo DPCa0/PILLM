@@ -1,0 +1,63 @@
+ 
+import { performance } from 'perf_hooks';
+
+ 
+
+ 
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+ 
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    print(`Accessing property: ${property}`);
+    return target[property];
+  },
+};
+
+const targetObject = { foo: 'bar', baz: 42 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const processNumbers = (numbers) => {
+  const [max, min] = [Math.max(...numbers), Math.min(...numbers)];
+  const filteredNumbers = numbers.filter((n) => n > 5);
+  const sum = filteredNumbers.reduce((a, b) => a + b, 0);
+  return { max, min, sum };
+};
+
+ 
+(async () => {
+  try {
+    const start = performance.now();
+
+     
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    const gen = dataGenerator(data);
+    print('First data item:', gen.next().value);
+
+     
+    print(proxy.foo);
+
+     
+    const numbers = [1, 6, 3, 9, 7, 5];
+    const { max, min, sum } = processNumbers(numbers);
+    print(`Max: ${max}, Min: ${min}, Sum: ${sum}`);
+
+    const end = performance.now();
+    print(`Execution time: ${(end - start).toFixed(2)} ms`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

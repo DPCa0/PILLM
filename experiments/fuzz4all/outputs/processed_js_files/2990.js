@@ -1,0 +1,35 @@
+ 
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+  }
+}
+
+function processData({ userId, id, title, completed }) {
+  return {
+    summary: `Todo ID: ${id} belongs to User ID: ${userId}`,
+    status: completed ? 'Task Completed' : 'Task Pending',
+    details: `Title: ${title}`
+  };
+}
+
+async function main() {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  
+  try {
+    const data = await fetchData(url);
+    if (data) {
+      const { summary, status, details } = processData(data);
+      print(`${summary}\n${status}\n${details}`);
+    }
+  } catch (error) {
+    console.error(`Main error: ${error}`);
+  }
+}
+
+main();

@@ -1,0 +1,44 @@
+class Complex {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({ real, imaginary }) {
+        return new Complex(this.real + real, this.imaginary + imaginary);
+    }
+
+    multiply({ real, imaginary }) {
+        return new Complex(
+            this.real * real - this.imaginary * imaginary,
+            this.real * imaginary + this.imaginary * real
+        );
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+const complex1 = new Complex(2, 3);
+const complex2 = new Complex(4, 5);
+
+const sum = complex1.add(complex2);
+const product = complex1.multiply(complex2);
+
+(async function handleComplexNumbers() {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    print(`First complex number: ${complex1}`);
+    print(`Second complex number: ${complex2}`);
+
+    await delay(1000);
+    print(`Sum: ${sum}`);
+
+    await delay(1000);
+    print(`Product: ${product}`);
+
+    const promiseSet = new Set([delay(200), delay(400), delay(300)]);
+    await Promise.all([...promiseSet]);
+    print('All promises in the set have been resolved.');
+})();

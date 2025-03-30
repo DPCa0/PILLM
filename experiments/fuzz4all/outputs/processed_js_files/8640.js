@@ -1,0 +1,43 @@
+class AdvancedCalculator {
+  constructor() {
+    this.result = 0;
+  }
+
+  async compute(expression) {
+    try {
+      const func = new Function('return ' + expression);
+      this.result = await Promise.resolve(func());
+      return this.result;
+    } catch (error) {
+      console.error('Invalid Expression:', error.message);
+    }
+  }
+
+  *generateFibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  static logWithTimestamp(message) {
+    print(`[${new Date().toISOString()}] ${message}`);
+  }
+}
+
+(async () => {
+  const calc = new AdvancedCalculator();
+  
+   
+  const a = 5, b = 10;
+  const expression = `${a} * (${b} + 20) / 2`;
+  const result = await calc.compute(expression);
+  AdvancedCalculator.logWithTimestamp(`Result of expression "${expression}": ${result}`);
+
+   
+  print('Fibonacci series up to 10 terms:');
+  for (const num of calc.generateFibonacci(10)) {
+    process.stdout.write(num + ' ');
+  }
+})();

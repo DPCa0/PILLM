@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (id) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, value: `Data for ${id}` });
+        }, Math.random() * 1000);
+    });
+};
+
+ 
+const safeFetchData = async (id) => {
+    try {
+        return await fetchData(id);
+    } catch (error) {
+        console.error(`Failed to fetch data for ID ${id}:`, error);
+        return null;
+    }
+};
+
+ 
+const processData = async (ids) => {
+    const dataMap = new Map();
+
+    await Promise.all(ids.map(async (id) => {
+        const data = await safeFetchData(id);
+        if (data) dataMap.set(id, data.value);
+    }));
+
+    return dataMap;
+};
+
+ 
+(async () => {
+    const ids = [1, 2, 3, 4, 5];
+    const resultMap = await processData(ids);
+
+    for (const [id, value] of resultMap) {
+        console.log(`ID: ${id}, Value: ${value}`);
+    }
+})();
+```

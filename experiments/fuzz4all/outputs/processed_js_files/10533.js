@@ -1,0 +1,40 @@
+class Matrix {
+  constructor(rows, cols, filler = 0) {
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => filler));
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr.length, arr[0].length).map((_, i, j) => arr[i][j]);
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  multiply(other) {
+    if (this.cols !== other.rows) throw new Error("Incompatible matrices for multiplication");
+    return new Matrix(this.rows, other.cols).map((_, i, j) => 
+      this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+    );
+  }
+
+  get rows() { return this.data.length; }
+  get cols() { return this.data[0].length; }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const matrixA = Matrix.fromArray([[1, 2], [3, 4]]);
+const matrixB = Matrix.fromArray([[2, 0], [1, 2]]);
+
+try {
+  const matrixC = matrixA.multiply(matrixB);
+  print('Matrix C:');
+  print(matrixC.toString());
+} catch (error) {
+  console.error(error);
+}

@@ -1,0 +1,43 @@
+ 
+const fibonacci = {
+  [Symbol.iterator]: function* () {
+    let a = 0, b = 1;
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+};
+
+ 
+const [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth] = [...fibonacci].slice(0, 10);
+
+ 
+async function fetchData() {
+  const data = await new Promise(resolve => setTimeout(() => resolve({
+    numbers: [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth]
+  }), 1000));
+  return data;
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Set property: ${prop} to value: ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  const data = await fetchData();
+  const proxyData = new Proxy(data, handler);
+
+  print('Fibonacci sequence:', proxyData.numbers);
+  proxyData.additionalData = 'Extra information';
+})();

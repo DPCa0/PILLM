@@ -1,0 +1,43 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === "https://api.example.com/data") {
+            resolve({
+                status: 200,
+                data: [
+                    { id: 1, name: "Alice", age: 30 },
+                    { id: 2, name: "Bob", age: 25 },
+                    { id: 3, name: "Charlie", age: 35 },
+                ]
+            });
+        } else {
+            reject({ status: 404, message: "Not Found" });
+        }
+    }, 1000);
+});
+
+ 
+const processUserData = async (url) => {
+    try {
+        const response = await fetchData(url);
+        
+        if (response.status === 200) {
+             
+            const { data } = response;
+            
+             
+            const names = data.map(({ name, age }) => `${name} is ${age} years old`);
+
+            print("Processed User Data:", names);
+        } else {
+            console.error(`Error: ${response.status} - ${response.message}`);
+        }
+    } catch (error) {
+        console.error("Fetch failed:", error);
+    }
+};
+
+ 
+processUserData("https://api.example.com/data");

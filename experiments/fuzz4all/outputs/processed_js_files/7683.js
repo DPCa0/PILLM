@@ -1,0 +1,39 @@
+ 
+
+ 
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+    const response = await fetch(`https: 
+    yield response.json();
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        print(`Method ${prop} called with arguments:`, args);
+        return target[prop](...args);
+      };
+    }
+    return target[prop];
+  },
+};
+
+ 
+function applyMethod(target, thisArg, args) {
+  return Reflect.apply(target, thisArg, args);
+}
+
+ 
+(async function () {
+  const userIds = [1, 2, 3];
+  const userGen = fetchUserData(userIds);
+
+  const consoleProxy = new Proxy(console, handler);
+
+  for await (const userData of userGen) {
+    applyMethod(consoleProxy.log, console, ['Fetched User:', userData]);
+  }
+})();

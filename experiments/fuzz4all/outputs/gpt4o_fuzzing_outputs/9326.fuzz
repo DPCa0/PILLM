@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error("Network response was not ok");
+    let data = await response.json();
+    return data;
+}
+
+ 
+const handler = {
+    set(target, key, value) {
+        if (key === 'age' && typeof value !== 'number') {
+            throw new TypeError('Age must be a number');
+        }
+        target[key] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, handler);
+
+ 
+const uniqueSymbol = Symbol('uniqueIdentifier');
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield `${uniqueSymbol.toString()}_${id++}`;
+    }
+}
+
+const generatorInstance = idGenerator();
+
+ 
+const userMap = new Map();
+const idSet = new Set();
+
+ 
+class User {
+    #id;
+    #name;
+    constructor(name) {
+        this.#id = generatorInstance.next().value;
+        this.#name = name;
+        userMap.set(this.#id, this.#name);
+        idSet.add(this.#id);
+    }
+
+    getUserInfo() {
+        return { id: this.#id, name: this.#name };
+    }
+}
+
+ 
+(async () => {
+    try {
+        person.name = "John Doe";
+        person.age = 30;
+        
+        const user = new User(person.name);
+
+         
+        console.log(`User created with ID: ${user.getUserInfo().id} and Name: ${user.getUserInfo().name}`);
+        console.log(`Current unique IDs in set: ${[...idSet].join(', ')}`);
+
+         
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        console.log('Fetched Data:', data);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

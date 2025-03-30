@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *filterByCriteria(criteria) {
+    for (let item of this.data) {
+      if (criteria(item)) yield item;
+    }
+  }
+
+  async processFilteredData() {
+    let criteria = (item) => item.value > 10;
+    for (let item of this.filterByCriteria(criteria)) {
+      console.log(`Processing item: ${item.name} with value ${item.value}`);
+      await new Promise((resolve) => setTimeout(resolve, 1000));  
+    }
+  }
+}
+
+(async () => {
+  const dataUrl = 'https://api.example.com/data';
+  const rawData = await fetchData(dataUrl);
+
+  if (rawData) {
+    const processor = new DataProcessor(rawData);
+    await processor.processFilteredData();
+  }
+})();
+```

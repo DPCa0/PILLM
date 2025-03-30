@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+ 
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+ 
+async function processData() {
+  try {
+    const data = await fetchData();
+    const generator = dataGenerator(data);
+    let result = generator.next();
+    while (!result.done) {
+      print('Processing:', result.value);
+      result = generator.next();
+    }
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+const handler = {
+  apply: function (target, thisArg, argumentsList) {
+    print(`Called function: ${target.name} with arguments:`, argumentsList);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+ 
+const proxiedProcessData = new Proxy(processData, handler);
+
+ 
+proxiedProcessData();

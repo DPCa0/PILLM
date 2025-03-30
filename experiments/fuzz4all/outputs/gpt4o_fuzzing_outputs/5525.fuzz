@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === "https://api.example.com/data") {
+            resolve({ data: [1, 2, 3, 4, 5] });
+        } else {
+            reject("Invalid URL");
+        }
+    }, 1000);
+});
+
+ 
+async function* asyncDataProcessor(url) {
+    try {
+        const response = await fetchData(url);
+        for (const item of response.data) {
+            yield item * 2;   
+        }
+    } catch (error) {
+        throw new Error("Error processing data: " + error);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.log(`Property "${prop}" not found.`);
+            return null;
+        }
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number') {
+            Reflect.set(target, prop, value);
+        } else {
+            console.log(`Invalid value for property "${prop}". Must be a number.`);
+        }
+        return true;
+    }
+};
+
+ 
+const dataManager = new Proxy({ processedData: [] }, handler);
+
+ 
+(async () => {
+    const dataUrl = "https://api.example.com/data";
+    const processor = asyncDataProcessor(dataUrl);
+
+    for await (let processedItem of processor) {
+        dataManager.processedData.push(processedItem);
+    }
+
+    console.log('Processed Data:', dataManager.processedData);
+})();
+```

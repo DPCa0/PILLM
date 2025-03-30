@@ -1,0 +1,32 @@
+ 
+
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { user: 'John Doe', age: 30, location: 'New York' };
+      Math.random() > 0.5 ? resolve(data) : reject('Failed to fetch data');
+    }, 1000);
+  });
+};
+
+const processUserData = async () => {
+  try {
+    const { user, age, location } = await fetchData();
+    print(`User Data: ${user}, ${age}, located in ${location}`);
+
+    const additionalInfo = { hobbies: ['reading', 'gaming'], profession: 'developer' };
+    const completeData = { ...additionalInfo, user, age, location };
+
+    print('Complete User Data:', completeData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const execute = async () => {
+  print('Fetching User Data...');
+  await processUserData();
+  print('Process Complete');
+};
+
+execute();

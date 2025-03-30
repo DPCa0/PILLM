@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Temperature {
+  #celsius;  
+
+  constructor(celsius) {
+    this.#celsius = celsius;
+  }
+
+  get fahrenheit() {
+    return (this.#celsius * 9/5) + 32;
+  }
+
+  set fahrenheit(value) {
+    this.#celsius = (value - 32) * 5/9;
+  }
+
+  async delayConversion() {
+     
+    const conversion = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Converted: ${this.fahrenheit.toFixed(2)} °F`);
+      }, 1000);
+    });
+    return await conversion;
+  }
+}
+
+(async () => {
+   
+  let temp = new Temperature(25);
+  console.log(`Initial: ${temp.fahrenheit.toFixed(2)} °F`);
+
+  temp.fahrenheit = 212;
+  console.log(`Updated: ${temp.fahrenheit.toFixed(2)} °F`);
+
+  console.log(await temp.delayConversion());
+})();
+
+let temperatures = [25, 30, 35, 40];
+
+temperatures = temperatures
+  .map(c => new Temperature(c))
+  .filter(t => t.fahrenheit > 95)
+  .reduce((acc, curr) => acc + curr.fahrenheit, 0);  
+
+console.log(`Average Fahrenheit of filtered: ${(temperatures / 2).toFixed(2)} °F`);
+```

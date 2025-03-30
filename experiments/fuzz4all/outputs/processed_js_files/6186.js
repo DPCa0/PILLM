@@ -1,0 +1,54 @@
+ 
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const person = {
+  name: 'Alice',
+  age: 25
+};
+
+const handler = {
+  get(target, property) {
+    print(`Getting property ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting property ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxyPerson = new Proxy(person, handler);
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+ 
+const processUserData = async (userId) => {
+  const data = await fetchData(`https: 
+  if (data) {
+    print(`User fetched:`, data.name);
+    proxyPerson.name = data.name;
+    print(`Assigned to proxyPerson.name: ${proxyPerson.name}`);
+  }
+};
+
+ 
+processUserData(gen.next().value + 1);

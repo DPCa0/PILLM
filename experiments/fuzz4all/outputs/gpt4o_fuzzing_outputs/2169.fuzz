@@ -1,0 +1,46 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program that utilizes some advanced features, such as Promises, async/await, destructuring, and the Spread/Rest operator:
+
+```javascript
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ status: 200, data: { id: 1, name: "John Doe", age: 30 } });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async (url) => {
+  try {
+    const response = await fetchData(url);
+    const { status, data: { name, ...restData } } = response;
+
+    if (status === 200) {
+      console.log(`Name: ${name}`);
+      console.log(`Rest of the data:`, restData);
+    } else {
+      console.error("Failed to fetch data");
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+const defaultSettings = { theme: "light", notifications: true };
+const userSettings = { notifications: false };
+const mergedSettings = { ...defaultSettings, ...userSettings };
+
+console.log("Merged Settings:", mergedSettings);
+
+ 
+processData("https://api.example.com/data");
+```
+
+This code demonstrates fetching and processing data asynchronously, handling exceptions, destructuring objects, and merging objects with the spread operator.

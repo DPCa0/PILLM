@@ -1,0 +1,56 @@
+ 
+
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: [1, 2, 3, 4, 5], timestamp: Date.now() });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+};
+
+const cacheHandler = {
+  get: (target, name) => {
+    if (name in target) {
+      print(`Fetching ${name} from cache`);
+      return target[name];
+    } else {
+      return undefined;
+    }
+  },
+  set: (target, name, value) => {
+    print(`Saving ${name} to cache`);
+    target[name] = value;
+    return true;
+  },
+};
+
+const cache = new Proxy({}, cacheHandler);
+
+const processData = async (url) => {
+  try {
+    if (!cache[url]) {
+      const response = await fetchData(url);
+      const squaredData = response.data.map((x) => x ** 2);
+      const result = new Map(
+        squaredData.map((val, index) => [`${index}`, val])
+      );
+      cache[url] = result;
+    }
+    return cache[url];
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+(async () => {
+  const url = "https://api.example.com/data";
+  const data1 = await processData(url);
+  print("Processed Data 1:", [...data1.entries()]);
+
+  const data2 = await processData(url);
+  print("Processed Data 2:", [...data2.entries()]);
+})();

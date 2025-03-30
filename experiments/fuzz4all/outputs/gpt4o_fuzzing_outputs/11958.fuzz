@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`GET ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`SET ${prop} = ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const target = {};
+const proxy = new Proxy(target, handler);
+
+proxy.a = 10;  
+console.log(proxy.a);  
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((acc, str, i) => acc + str.toUpperCase() + (values[i] || ''), '');
+}
+
+const name = 'world';
+console.log(tag`Hello, ${name}!`);
+
+ 
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+const numbers = range(1, 5);
+for (const num of numbers) {
+  console.log(num);
+}
+```

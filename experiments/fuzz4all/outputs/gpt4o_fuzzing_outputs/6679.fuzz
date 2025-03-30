@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+class NetworkRequester {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    const data = await response.json();
+    return data;
+  }
+}
+
+const processAsyncTasks = async (urls) => {
+  const results = await Promise.all(
+    urls.map(async (url) => {
+      const requester = new NetworkRequester(url);
+      const data = await requester.fetchData();
+      return { url, data };
+    })
+  );
+
+  for (const result of results) {
+    console.log(`Data from ${result.url}:`, JSON.stringify(result.data, null, 2));
+  }
+};
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+processAsyncTasks(urls);
+```

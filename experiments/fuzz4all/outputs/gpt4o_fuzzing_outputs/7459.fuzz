@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  async emit(eventName, ...args) {
+    if (this.events.has(eventName)) {
+      const eventFns = this.events.get(eventName);
+      for (const fn of eventFns) {
+        await fn(...args);
+      }
+    }
+  }
+
+  on(eventName, fn) {
+    if (!this.events.has(eventName)) {
+      this.events.set(eventName, []);
+    }
+    this.events.get(eventName).push(fn);
+  }
+
+  off(eventName, fn) {
+    if (this.events.has(eventName)) {
+      const eventFns = this.events.get(eventName).filter(f => f !== fn);
+      this.events.set(eventName, eventFns);
+    }
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const asyncOperation = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Processed: ${data}`);
+    }, 1000);
+  });
+};
+
+(async () => {
+  const eventEmitter = new AsyncEventEmitter();
+  const debouncedLogger = debounce(console.log, 500);
+
+  eventEmitter.on('data', async (data) => {
+    const result = await asyncOperation(data);
+    debouncedLogger(result);
+  });
+
+  await eventEmitter.emit('data', 'Sample Data 1');
+  await eventEmitter.emit('data', 'Sample Data 2');
+
+  eventEmitter.on('data', async (data) => {
+    console.log(`Additional processing for: ${data}`);
+  });
+
+  await eventEmitter.emit('data', 'Sample Data 3');
+})();
+```

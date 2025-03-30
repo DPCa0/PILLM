@@ -1,0 +1,53 @@
+ 
+
+ 
+function* generateSequence() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+ 
+async function asyncProcess(generator) {
+    const gen = generator();
+    for (const value of gen) {
+        await new Promise((resolve) => setTimeout(() => {
+            print(`Processing value: ${value}`);
+            resolve();
+        }, 1000));
+    }
+    return 'Finished processing sequence!';
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            print(`Getting property: ${prop}`);
+            return target[prop];
+        } else {
+            throw new ReferenceError(`Property "${prop}" does not exist.`);
+        }
+    },
+    set: (target, prop, value) => {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const obj = new Proxy({ a: 10, b: 20 }, handler);
+
+ 
+(async function main() {
+    obj.a = 30;
+    print(obj.a);
+    try {
+        print(obj.c);
+    } catch (e) {
+        console.error(e.message);
+    }
+    
+    const result = await asyncProcess(generateSequence);
+    print(result);
+})();

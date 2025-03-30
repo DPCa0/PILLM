@@ -1,0 +1,39 @@
+class MathSet extends Set {
+  intersection(otherSet) {
+    return new MathSet([...this].filter(x => otherSet.has(x)));
+  }
+  
+  union(otherSet) {
+    return new MathSet([...this, ...otherSet]);
+  }
+}
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+const processData = async (urls) => {
+  const mathSets = [];
+  
+  for await (const data of fetchData(urls)) {
+    const numSet = new MathSet(data.numbers);
+    mathSets.push(numSet);
+  }
+  
+  const allUnion = mathSets.reduce((acc, set) => acc.union(set));
+  const allIntersection = mathSets.reduce((acc, set) => acc.intersection(set));
+  
+  print('Union of all sets:', [...allUnion]);
+  print('Intersection of all sets:', [...allIntersection]);
+};
+
+const sampleUrls = [
+  'https://api.example.com/numbers1',
+  'https://api.example.com/numbers2',
+  'https://api.example.com/numbers3'
+];
+
+processData(sampleUrls);

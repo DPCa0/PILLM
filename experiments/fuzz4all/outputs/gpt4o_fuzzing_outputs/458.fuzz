@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  process() {
+    return this.data.map((item) => item * 2);
+  }
+}
+
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Accessing property: ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property: ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const dataProxy = new Proxy([1, 2, 3, 4, 5], handler);
+
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(dataProxy), 1000);
+  });
+}
+
+async function main() {
+  console.log('Fetching data...');
+  const rawData = await fetchData();
+  
+  const processor = new DataProcessor(rawData);
+  const processedData = processor.process();
+  
+  console.log('Processed Data:');
+  const dataGen = dataGenerator(processedData);
+  
+  for (let value of dataGen) {
+    console.log(value);
+  }
+}
+
+main();
+```

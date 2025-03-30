@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+  constructor() {
+    this.operations = [];
+  }
+
+  addOperation(operation) {
+    this.operations.push(operation);
+  }
+
+  async calculate(initialValue) {
+    return this.operations.reduce(async (acc, operation) => {
+      const value = await acc;
+      return operation(value);
+    }, Promise.resolve(initialValue));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncAdd = value => async num => {
+  await delay(100);
+  return num + value;
+};
+
+const asyncMultiply = value => async num => {
+  await delay(100);
+  return num * value;
+};
+
+(async () => {
+  const calculator = new AsyncCalculator();
+
+  calculator.addOperation(asyncAdd(5));
+  calculator.addOperation(asyncMultiply(2));
+  calculator.addOperation(async num => num - 3);
+
+  const result = await calculator.calculate(10);
+  console.log(result);  
+})();
+```

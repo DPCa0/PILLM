@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+class User {
+    constructor(name) {
+        this._name = name;
+    }
+    get name() {
+        return this._name;
+    }
+    set name(value) {
+        this._name = value;
+    }
+}
+
+const userObservable = new Observable();
+
+const logger = (data) => console.log(`Logger: User ${data.name} has been updated.`);
+const greeter = (data) => console.log(`Greeter: Hello, ${data.name}!`);
+
+userObservable.subscribe(logger);
+userObservable.subscribe(greeter);
+
+let user = new User('Alice');
+userObservable.notify(user);
+
+setTimeout(() => {
+    user.name = 'Bob';
+    userObservable.notify(user);
+}, 2000);
+
+(async () => {
+    const dynamicImport = await import('https://cdn.skypack.dev/lodash');
+    const { capitalize } = dynamicImport.default;
+
+    user.name = capitalize(user.name.toLowerCase());
+    userObservable.notify(user);
+})();
+```

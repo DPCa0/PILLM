@@ -1,0 +1,47 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return await response.json();
+};
+
+ 
+function* paginateData(data, itemsPerPage) {
+  let page = 0;
+  while (page * itemsPerPage < data.length) {
+    yield data.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+    page++;
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+
+     
+    const handler = {
+      get: (target, property) => {
+        print(`Accessing property "${property}"`);
+        return target[property];
+      }
+    };
+    const proxiedData = new Proxy(data, handler);
+
+     
+    const [firstPost] = proxiedData;
+    print(`Title of the first post: ${firstPost.title}`);
+
+     
+    const itemsPerPage = 5;
+    const paginatedData = paginateData(proxiedData, itemsPerPage);
+
+    for (const page of paginatedData) {
+      print('Page:', page);
+    }
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

@@ -1,0 +1,34 @@
+class Person {
+    constructor(name) {
+        this.name = name;
+    }
+
+    greet() {
+        return `Hello, ${this.name}!`;
+    }
+}
+
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.5 ? resolve(`Data from ${url}`) : reject('Failed to fetch data');
+        }, 1000);
+    });
+}
+
+async function fetchAndProcessData(urls) {
+    const results = await Promise.allSettled(urls.map(url => fetchData(url)));
+    const successfulResults = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value);
+    return successfulResults.join(', ');
+}
+
+const john = new Person('John');
+print(john.greet());
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+
+fetchAndProcessData(urls)
+    .then(data => console.log(`Fetched and processed: ${data}`))
+    .catch(error => console.error(`Error: ${error}`));

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({ name: "John Doe", age: 30, city: "New York" });
+        }, 1000);
+    });
+};
+
+ 
+const loggerProxyHandler = {
+    get(target, property) {
+        console.log(`GET property '${property}'`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`SET property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const processData = async () => {
+    try {
+        const data = await fetchData();
+        const proxiedData = new Proxy(data, loggerProxyHandler);
+
+        console.log('Initial Data:', proxiedData);
+
+         
+        console.log('Name:', proxiedData.name);
+        console.log('Age:', proxiedData.age);
+
+         
+        proxiedData.age = 31;
+        console.log('Updated Age:', proxiedData.age);
+
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+ 
+processData();
+```

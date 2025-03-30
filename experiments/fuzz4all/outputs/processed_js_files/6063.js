@@ -1,0 +1,61 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchWithRetry(url, options, retries = 3) {
+    const deferred = new Deferred();
+    const executeFetch = async (attempt = 1) => {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error('Fetch failed');
+            const data = await response.json();
+            deferred.resolve(data);
+        } catch (error) {
+            if (attempt < retries) {
+                print(`Retry attempt ${attempt} for ${url}`);
+                executeFetch(attempt + 1);
+            } else {
+                deferred.reject(error);
+            }
+        }
+    };
+    executeFetch();
+    return deferred.promise;
+}
+
+function memoizeAsync(fn) {
+    const cache = new Map();
+    return async function (...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) return cache.get(key);
+        const result = await fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+}
+
+const fetchUserData = memoizeAsync(async (userId) => {
+    print(`Fetching data for user ${userId}`);
+    return fetchWithRetry(`https: 
+});
+
+(async () => {
+    try {
+        const user1 = await fetchUserData(1);
+        print('User 1:', user1);
+
+        const user2 = await fetchUserData(2);
+        print('User 2:', user2);
+
+         
+        const user1Cached = await fetchUserData(1);
+        print('User 1 (cached):', user1Cached);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

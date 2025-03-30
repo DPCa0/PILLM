@@ -1,0 +1,41 @@
+ 
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+ 
+async function* dataGenerator(urls) {
+  for (const url of urls) {
+    yield await fetchData(url);
+  }
+}
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      print(`Accessing property '${String(prop)}'`);
+      return obj[prop];
+    },
+  });
+};
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+(async () => {
+  const generator = dataGenerator(urls);
+
+  for await (const data of generator) {
+    const proxiedData = createLoggingProxy(data);
+
+     
+    const uniqueId = Symbol('id');
+    proxiedData[uniqueId] = Math.random().toString(36).substr(2, 9);
+
+    print(`Fetched Data:`, proxiedData);
+    print(`Unique ID: ${proxiedData[uniqueId]}`);
+  }
+})();

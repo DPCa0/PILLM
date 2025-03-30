@@ -1,0 +1,35 @@
+ 
+
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+function* dataProcessor(dataArray) {
+    for (let item of dataArray) {
+        yield item * 2;
+    }
+}
+
+async function processData() {
+    const dataUrl = 'https://api.example.com/data';
+    let data = await fetchData(dataUrl);
+    
+     
+    let [{ value: first }, { value: second }] = data;
+    
+    print(`First: ${first}, Second: ${second}`);
+    
+     
+    const processor = dataProcessor(data.map(item => item.value));
+    for (let processedValue of processor) {
+        print(processedValue);
+    }
+}
+
+processData();

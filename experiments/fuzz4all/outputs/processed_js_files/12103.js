@@ -1,0 +1,39 @@
+ 
+const fs = require('fs').promises;
+
+ 
+async function processFile() {
+  try {
+     
+    const data = await import(`./data.json`).then(module => module.default);
+    
+     
+    const uniqueValues = [...new Set(data.values)];
+    
+     
+    const [first, ...rest] = uniqueValues;
+    const { length } = uniqueValues;
+
+     
+    const output = {
+      firstValue: first ?? 'No values found',
+      restValues: rest.length ? rest : 'No additional values',
+      totalValues: length ?? 0,
+      nestedValue: data.nested?.innerValue ?? 'Nested value not found'
+    };
+
+     
+    const jsonString = JSON.stringify(output, (key, value) =>
+      typeof value === 'string' ? value.toUpperCase() : value, 2);
+
+     
+    await fs.writeFile(`./output.json`, jsonString);
+    print('File processed successfully.');
+  } catch (error) {
+     
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+(async () => await processFile())();

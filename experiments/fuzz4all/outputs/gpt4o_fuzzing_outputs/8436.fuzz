@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+  yield { id: 1, value: 'Data1' };
+  yield { id: 2, value: 'Data2' };
+  yield { id: 3, value: 'Data3' };
+}
+
+ 
+async function fetchData(gen) {
+  const map = new Map();
+  for (let data of gen) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    map.set(data.id, data.value);
+  }
+  return map;
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  }
+};
+
+ 
+(async function() {
+  const gen = dataGenerator();
+  const dataMap = await fetchData(gen);
+  const proxiedMap = new Proxy(dataMap, handler);
+
+  try {
+    console.log(proxiedMap.get(1));  
+    console.log(proxiedMap.get(4));  
+  } catch (e) {
+    console.error(e.message);  
+  }
+})();
+```

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve({
+    user: 'Alice',
+    roles: ['admin', 'user'],
+    settings: {
+        theme: 'dark',
+        language: 'en'
+    }
+}), 1000));
+
+ 
+const defaultSettings = {
+    theme: 'light',
+    language: 'en'
+};
+
+const settingsHandler = {
+    get(target, prop) {
+        return prop in target ? target[prop] : defaultSettings[prop];
+    }
+};
+
+ 
+function logExecutionTime(target, name, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = async function(...args) {
+        console.time(name);
+        const result = await originalMethod.apply(this, args);
+        console.timeEnd(name);
+        return result;
+    };
+    return descriptor;
+}
+
+class UserProfile {
+    constructor(data) {
+        this.user = data.user;
+        this.roles = new Set(data.roles);
+        this.settings = new Proxy(data.settings, settingsHandler);
+    }
+
+    @logExecutionTime
+    async displayProfile() {
+        console.log(`User: ${this.user}`);
+        console.log(`Roles: ${[...this.roles].join(', ')}`);
+        console.log(`Theme: ${this.settings.theme}`);
+        console.log(`Language: ${this.settings.language}`);
+    }
+}
+
+ 
+(async () => {
+    console.log('Fetching user data...');
+    const userData = await fetchData();
+    const userProfile = new UserProfile(userData);
+    await userProfile.displayProfile();
+})();
+```

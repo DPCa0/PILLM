@@ -1,0 +1,50 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataGenerator(urls) {
+    for (const url of urls) {
+        await delay(500);  
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+const transformData = (fn, data) => data.map(fn);
+
+ 
+const validationHandler = {
+    set: (target, property, value) => {
+        if (typeof value === 'string' && property === 'username') {
+            if (value.length < 3) {
+                throw new Error('Username must be at least 3 characters long');
+            }
+        }
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+let user = new Proxy({}, validationHandler);
+
+ 
+(async function main() {
+    const urls = ['https://api.mocki.io/v1/b043df5a', 'https://api.mocki.io/v1/ce5f60e2'];  
+    const dataGenerator = fetchDataGenerator(urls);
+
+    for await (const data of dataGenerator) {
+        print('Fetched Data:', data);
+        const transformedData = transformData(item => ({ ...item, timestamp: Date.now() }), data);
+        print('Transformed Data:', transformedData);
+    }
+
+    try {
+        user.username = 'js';  
+    } catch (e) {
+        console.error('Error:', e.message);
+    }
+
+    user.username = 'jsMaster';  
+    print('User:', user);
+})();

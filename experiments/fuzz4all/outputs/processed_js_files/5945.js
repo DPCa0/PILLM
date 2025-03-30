@@ -1,0 +1,57 @@
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  static add(c1, c2) {
+    return new ComplexNumber(c1.#real + c2.#real, c1.#imaginary + c2.#imaginary);
+  }
+
+  conjugate() {
+    return new ComplexNumber(this.#real, -this.#imaginary);
+  }
+
+  *[Symbol.iterator]() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+
+  toString() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+}
+
+ 
+const complexHandler = {
+  get: function(target, prop) {
+    if (prop === 'magnitude') {
+      return Math.sqrt(target.#real ** 2 + target.#imaginary ** 2);
+    }
+    return target[prop];
+  }
+};
+
+ 
+const c1 = new ComplexNumber(2, 3);
+const c2 = new ComplexNumber(4, -5);
+
+const p1 = new Proxy(c1, complexHandler);
+const p2 = new Proxy(c2, complexHandler);
+
+const c3 = ComplexNumber.add(p1, p2);
+print(`Sum: ${c3.toString()}`);
+print(`Magnitude of c1: ${p1.magnitude}`);
+
+ 
+const [real, imaginary] = c3;
+print(`Destructured: Real = ${real}, Imaginary = ${imaginary}`);
+
+print("Iterating over c3:");
+for (const part of c3) {
+  print(part);
+}

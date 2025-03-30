@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+import axios from 'axios';
+
+ 
+async function fetchAndSaveData(url, filePath) {
+    try {
+         
+        const { data } = await axios.get(url);
+
+         
+        const [firstItem, ...rest] = data.items;
+        const { title, body } = firstItem;
+
+         
+        const content = `
+        Title: ${title}
+        Body: ${body}
+
+        ... more items: ${rest.length}
+        `;
+
+         
+        const trimmedContent = content.trimStart().trimEnd();
+
+         
+        await fs.writeFile(filePath, trimmedContent);
+
+        console.log(`Data saved to ${filePath}`);
+    } catch (error) {
+        console.error('Error fetching or saving data:', error);
+    }
+}
+
+ 
+(async () => {
+    const url = 'https://api.example.com/data';  
+    const filePath = './data.txt';
+    
+    await fetchAndSaveData(url, filePath);
+})();
+```

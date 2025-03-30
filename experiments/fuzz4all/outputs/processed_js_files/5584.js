@@ -1,0 +1,56 @@
+ 
+(async () => {
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+   
+  const dataPromise = fetchData('https://jsonplaceholder.typicode.com/posts');
+
+   
+  const uniqueIds = new Set();
+  const postMap = new Map();
+
+  const data = await dataPromise;
+  data.forEach((post) => {
+    uniqueIds.add(post.userId);
+    postMap.set(post.id, post);
+  });
+
+   
+  function* userPostGenerator(userId) {
+    for (const post of postMap.values()) {
+      if (post.userId === userId) yield post;
+    }
+  }
+
+   
+  const handler = {
+    get: function (target, prop) {
+      return prop in target ? target[prop] : `No such property: ${prop}`;
+    },
+  };
+
+  const proxiedPost = new Proxy(postMap.get(1), handler);
+
+   
+  const highlight = (strings, ...values) =>
+    strings.reduce((acc, str, i) => `${acc}${str}<strong>${values[i] || ''}</strong>`, '');
+
+  print(`Unique User IDs: ${Array.from(uniqueIds).join(', ')}`);
+  print(`Proxied Post Title: ${highlight`Title: ${proxiedPost.title}`}`);
+
+   
+  const userId = 1;  
+  const userPosts = userPostGenerator(userId);
+  for (const post of userPosts) {
+    print(`Post by User ${userId}: ${post.title}`);
+  }
+})();

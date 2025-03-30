@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+  setTimeout(() => {
+    resolve(['JavaScript', 'Python', 'C++', 'Java']);
+  }, 1000);
+});
+
+ 
+function* languageGenerator(data) {
+  for (const item of data) {
+    yield new Promise(resolve => setTimeout(() => resolve(item), 500));
+  }
+}
+
+ 
+async function processLanguages(generator) {
+  for await (const language of generator) {
+    print(`Processing: ${language}`);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessing property: ${prop}`);
+    return target[prop];
+  }
+};
+
+ 
+(async function main() {
+  try {
+    const data = await fetchData();
+    const generator = languageGenerator(data);
+    const proxiedGenerator = new Proxy(generator, handler);
+
+     
+    await processLanguages(proxiedGenerator);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

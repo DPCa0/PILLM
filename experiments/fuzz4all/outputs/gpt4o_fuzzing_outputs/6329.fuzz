@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchUser() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: 'John Doe',
+                age: 30,
+                job: {
+                    title: 'Developer',
+                    skills: ['JavaScript', 'React', 'Node.js']
+                }
+            });
+        }, 1000);
+    });
+}
+
+ 
+async function interactWithUser() {
+    try {
+         
+        const { name, age, job: { title, skills } } = await fetchUser();
+        
+         
+        const userProxy = new Proxy({ name, age, title, skills }, {
+            get(target, prop) {
+                console.log(`Accessed property ${prop}: ${target[prop]}`);
+                return target[prop];
+            },
+            set(target, prop, value) {
+                console.log(`Set property ${prop} to ${value}`);
+                target[prop] = value;
+                return true;
+            }
+        });
+
+         
+        console.log(`Hello, ${userProxy.name}!`);
+        userProxy.age += 1;
+        console.log(`Happy Birthday! You are now ${userProxy.age}.`);
+        
+        console.log(`You are a ${userProxy.title} with skills in: ${userProxy.skills.join(', ')}.`);
+        
+         
+        userProxy.skills.push('TypeScript');
+        console.log(`Updated skills: ${userProxy.skills.join(', ')}.`);
+        
+    } catch (error) {
+        console.error("Error interacting with user data:", error);
+    }
+}
+
+ 
+interactWithUser();
+```

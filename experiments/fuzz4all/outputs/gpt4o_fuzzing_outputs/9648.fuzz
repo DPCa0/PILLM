@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class Task {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    async execute() {
+        const result = await this.simulateAsyncTask();
+        console.log(`Task "${this.name}" completed with result: ${result}`);
+    }
+    
+    simulateAsyncTask() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(`${this.name} done!`), Math.random() * 3000);
+        });
+    }
+}
+
+function* taskGenerator(tasks) {
+    for (let task of tasks) {
+        yield task.execute();
+    }
+}
+
+const tasks = [
+    new Task('Task 1'),
+    new Task('Task 2'),
+    new Task('Task 3')
+];
+
+const taskGen = taskGenerator(tasks);
+
+(async () => {
+    for (let taskPromise of taskGen) {
+        await taskPromise;
+    }
+    console.log("All tasks are completed!");
+})();
+```

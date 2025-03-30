@@ -1,0 +1,46 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class Logger {
+  constructor(name) {
+    this.name = name;
+  }
+
+  log(message) {
+    print(`[${this.name}] ${message}`);
+  }
+}
+
+const advancedLoggerHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'log') {
+      return new Proxy(target.log, {
+        apply(target, thisArg, args) {
+          const timestamp = new Date().toISOString();
+          args[0] = `${timestamp} - ${args[0]}`;
+          return Reflect.apply(target, thisArg, args);
+        }
+      });
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const logger = new Proxy(new Logger('AdvancedLogger'), advancedLoggerHandler);
+
+async function runComplexTask() {
+  logger.log('Starting complex task...');
+  
+  try {
+    await delay(1000);
+    logger.log('Task in progress...');
+    
+    await delay(1000);
+    logger.log('Task completed!');
+    
+  } catch (error) {
+    logger.log(`Error encountered: ${error.message}`);
+  }
+}
+
+runComplexTask();

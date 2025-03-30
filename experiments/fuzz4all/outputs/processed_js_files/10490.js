@@ -1,0 +1,40 @@
+class Fibonacci {
+  #cache = new Map();  
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  nth(n) {
+    if (this.#cache.has(n)) return this.#cache.get(n);
+    const result = Array.from({ length: n }, (_, i) => i).reduce(
+      ([prev, curr]) => [curr, prev + curr],
+      [0, 1]
+    )[0];
+    this.#cache.set(n, result);
+    return result;
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+      for (const num of fib) {
+        if (num > 1000) break;
+        yield new Promise((resolve) => setTimeout(resolve, 100, num));
+      }
+    },
+  };
+
+  for await (const num of asyncIterable) {
+    print(`Async Fibonacci: ${num}`);
+  }
+
+  print(`10th Fibonacci number: ${fib.nth(10)}`);
+  print(`Cached 10th Fibonacci number: ${fib.nth(10)}`);
+})();

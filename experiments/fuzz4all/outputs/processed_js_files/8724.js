@@ -1,0 +1,39 @@
+ 
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+};
+
+const processUserData = async () => {
+    const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+
+    const enhancedUsers = users.map(({ id, name, email, ...rest }) => ({
+        id,
+        name,
+        email,
+        initials: `${name.split(' ')[0][0]}${name.split(' ')[1]?.[0] || ''}`.toUpperCase(),
+        contactInfo: { email },
+        ...rest
+    }));
+
+    return enhancedUsers;
+};
+
+const userHandler = {
+    get(target, property) {
+        if (property === 'allEmails') {
+            return target.map(user => user.email);
+        }
+        return target[property];
+    }
+};
+
+(async () => {
+    const users = await processUserData();
+    const proxyUsers = new Proxy(users, userHandler);
+
+    print('User Emails:', proxyUsers.allEmails);
+    print('First User:', proxyUsers[0]);
+})();

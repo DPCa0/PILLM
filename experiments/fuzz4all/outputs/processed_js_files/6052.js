@@ -1,0 +1,53 @@
+class AsyncResource {
+    constructor(data) {
+        this.data = data;
+    }
+    
+    async fetchData() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (this.data) resolve(this.data);
+                else reject(new Error('No data found.'));
+            }, 1000);
+        });
+    }
+}
+
+function* dataProcessor(dataArray) {
+    for (const data of dataArray) {
+        yield data * 2;
+    }
+}
+
+async function main() {
+    const resource = new AsyncResource([1, 2, 3, 4, 5]);
+    try {
+        const data = await resource.fetchData();
+        const processedData = [...dataProcessor(data)];
+        print(processedData);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        print(`Property accessed: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxiedResource = new Proxy(new AsyncResource([6, 7, 8]), handler);
+
+async function runWithProxy() {
+    try {
+        const data = await proxiedResource.fetchData();
+        print('Data fetched with proxy:', data);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+main();
+runWithProxy();

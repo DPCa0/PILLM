@@ -1,0 +1,43 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(eventType, callback) {
+    if (!this.subscribers.has(eventType)) {
+      this.subscribers.set(eventType, []);
+    }
+    this.subscribers.get(eventType).push(callback);
+  }
+
+  emit(eventType, ...args) {
+    if (this.subscribers.has(eventType)) {
+      this.subscribers.get(eventType).forEach(callback => callback(...args));
+    }
+  }
+}
+
+function* numberGenerator() {
+  let i = 1;
+  while (true) {
+    yield i++;
+  }
+}
+
+const observer = new Observer();
+const generator = numberGenerator();
+const asyncOperation = async (number) => {
+  const result = await new Promise((resolve) => 
+    setTimeout(() => resolve(number * 2), 1000)
+  );
+  observer.emit('data', result);
+};
+
+observer.subscribe('data', data => {
+  print(`Received data: ${data}`);
+  if (data < 20) {
+    asyncOperation(generator.next().value);
+  }
+});
+
+asyncOperation(generator.next().value);

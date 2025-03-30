@@ -1,0 +1,46 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    const dataUrl = 'https://jsonplaceholder.typicode.com/posts';
+
+    emitter.on('dataReceived', data => {
+        print('Data Received:', data.slice(0, 3));  
+    });
+
+    emitter.on('error', error => {
+        console.error('An error occurred:', error.message);
+    });
+
+    try {
+        const data = await fetchData(dataUrl);
+        emitter.emit('dataReceived', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+})();

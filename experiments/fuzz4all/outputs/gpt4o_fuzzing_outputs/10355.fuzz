@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id, name: `Item ${id}` }), 100);
+  });
+};
+
+ 
+const uniqueIds = new Set([1, 2, 3, 4, 5]);
+
+ 
+const dataMap = new Map();
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Getting property: ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+ 
+const proxyDataMap = new Proxy(dataMap, handler);
+
+(async () => {
+   
+  for (const id of uniqueIds) {
+     
+    const data = await fetchData(id);
+
+     
+    proxyDataMap.set(id, data);
+  }
+
+   
+  for (const [key, value] of proxyDataMap) {
+    console.log(`ID: ${key}, Name: ${value.name}`);
+  }
+})();
+```

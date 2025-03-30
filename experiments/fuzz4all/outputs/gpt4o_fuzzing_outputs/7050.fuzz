@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+const complexFunction = async () => {
+    const getData = () => new Promise(resolve => {
+        setTimeout(() => resolve({
+            user: { name: 'Alice', age: 25 },
+            hobbies: ['reading', 'hiking', 'coding'],
+            location: { city: 'Wonderland', country: 'Fiction' }
+        }), 1000);
+    });
+
+    try {
+        const { user: { name, age }, hobbies, location: { city } } = await getData();
+        const profile = { 
+            ...{ name, age }, 
+            hobbies: hobbies.join(', '), 
+            city 
+        };
+
+        const formatProfile = ({ name, age, hobbies, city }) =>
+            `Name: ${name}, Age: ${age}, Hobbies: ${hobbies}, City: ${city}`;
+
+        console.log(formatProfile(profile));
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+};
+
+complexFunction();
+```

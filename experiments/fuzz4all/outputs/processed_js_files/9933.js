@@ -1,0 +1,26 @@
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({data: [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}]}), 1000);
+    });
+}
+
+function* createIdGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+async function processUsers() {
+    const idGen = createIdGenerator();
+    const {data: users} = await fetchData();
+    
+    const userMap = new Map(users.map(user => [idGen.next().value, {...user, timestamp: Date.now()}]));
+    
+    for (const [id, userInfo] of userMap.entries()) {
+        print(`User ID: ${id}, Name: ${userInfo.name}, Timestamp: ${userInfo.timestamp}`);
+    }
+}
+
+processUsers();

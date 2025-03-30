@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncDataStream() {
+    for (let i = 0; i < 5; i++) {
+        await delay(1000);  
+        yield i;
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Getting property: ${property}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting property: ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const proxiedObj = new Proxy({value: 0}, handler);
+
+(async function() {
+    const stream = asyncDataStream();
+
+    for await (let number of stream) {
+        console.log(`Received number: ${number}`);
+        proxiedObj.value = number * 10;
+        console.log(`Proxied value: ${proxiedObj.value}`);
+    }
+})();
+```

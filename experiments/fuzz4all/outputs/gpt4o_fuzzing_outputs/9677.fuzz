@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+    this.memo.set(0, 0);
+    this.memo.set(1, 1);
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const fibonacci = new Fibonacci();
+
+const asyncFibCalc = async (n) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(fibonacci.calculate(n)), 0);
+  });
+};
+
+(async () => {
+  try {
+    const sequenceLength = 10;
+    const promises = Array.from({ length: sequenceLength }, (_, i) => asyncFibCalc(i));
+
+    const results = await Promise.all(promises);
+
+    results.forEach((num, index) => {
+      console.log(`Fib(${index}) = ${num}`);
+    });
+  } catch (error) {
+    console.error("Error calculating Fibonacci sequence:", error);
+  }
+})();
+```

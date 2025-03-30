@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+function* numberGenerator(start = 0, end = 100, step = 1) {
+  for (let i = start; i < end; i += step) {
+    yield i;
+  }
+}
+
+ 
+const target = { a: 1, b: 2, c: 3 };
+const handler = {
+  set(obj, prop, value) {
+    console.log(`Property ${prop} set to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function asyncOperation() {
+  console.log("Async operation started");
+  return new Promise((resolve) => setTimeout(() => resolve("Operation complete"), 1000));
+}
+
+ 
+async function performOperations() {
+  const results = await Promise.all([asyncOperation(), asyncOperation()]);
+  console.log(results);
+}
+
+ 
+const { a, ...rest } = proxy;
+console.log(`Destructured value a: ${a}`);
+console.log("Rest of the properties:", rest);
+
+ 
+(async () => {
+  const module = await import('./someModule.js');
+  console.log('Dynamic module loaded:', module);
+})().catch(err => console.error("Failed to load module:", err));
+
+ 
+const gen = numberGenerator(0, 10, 2);
+for (const num of gen) {
+  console.log(num);
+}
+
+ 
+proxy.b = 5;
+
+ 
+performOperations();
+```

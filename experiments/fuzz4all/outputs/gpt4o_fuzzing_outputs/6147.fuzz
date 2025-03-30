@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', role: 'Developer' },
+        { id: 2, name: 'Bob', role: 'Designer' },
+        { id: 3, name: 'Charlie', role: 'Manager' }
+      ]);
+    }, 1000);
+  });
+
+const processData = async () => {
+  try {
+    const data = await fetchData();
+    const [first, ...others] = data;
+    
+    console.log('First:', first);
+
+    const names = others.map(({ name }) => name);
+    console.log('Others:', ...names);
+
+    const transformedData = data.reduce((acc, { id, ...rest }) => {
+      return { ...acc, [id]: { ...rest, active: true } };
+    }, {});
+
+    console.log('Transformed Data:', transformedData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+processData();
+```

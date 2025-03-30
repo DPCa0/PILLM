@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+class Complex {
+  #hiddenValue;
+
+  constructor(value) {
+    this.#hiddenValue = value;
+  }
+
+   
+  multiply(factor) {
+    return this.#getHiddenValue() * factor;
+  }
+
+   
+  #getHiddenValue() {
+    return this.#hiddenValue;
+  }
+}
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Data fetched');
+    }, 1000);
+  });
+}
+
+async function process() {
+  console.log('Start processing');
+  const result = await fetchData();
+  console.log(result);
+  console.log('End processing');
+}
+
+ 
+const target = {
+  message1: "Hello",
+  message2: "Everyone"
+};
+
+const handler = {
+  get: function(obj, prop) {
+    return prop in obj ? obj[prop] : `Property ${prop} not found`;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+function tag(strings, ...values) {
+  return strings.raw.reduce((acc, str, i) => `${acc}${str}${values[i] || ''}`, '');
+}
+
+const name = 'World';
+const greeting = tag`Hello, \n${name}!`;
+
+ 
+const complexInstance = new Complex(5);
+console.log(`Multiply result: ${complexInstance.multiply(3)}`);
+
+process();
+
+console.log(proxy.message1);  
+console.log(proxy.nonExistentProperty);  
+
+console.log(greeting);
+```

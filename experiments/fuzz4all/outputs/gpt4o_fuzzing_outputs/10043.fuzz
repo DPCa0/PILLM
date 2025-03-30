@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+function createLoggingProxy(target) {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Accessed property: ${prop}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      console.log(`Setting property: ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  });
+}
+
+ 
+const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+
+ 
+(async () => {
+  for await (const dataPromise of fetchDataGenerator(urls)) {
+    const data = await dataPromise;
+    const proxyData = createLoggingProxy(data);
+    console.log(`Title: ${proxyData.title}`);
+    
+     
+    proxyData.title = "New Title";
+    console.log(`Updated Title: ${proxyData.title}`);
+  }
+})();
+```

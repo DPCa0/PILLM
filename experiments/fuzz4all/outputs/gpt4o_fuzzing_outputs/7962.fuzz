@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  #memo = new Map();  
+  constructor() {
+    this.#memo.set(0, 0);
+    this.#memo.set(1, 1);
+  }
+
+  *generateSequence(n) {  
+    for (let i = 0; i < n; i++) {
+      yield this.#get(i);
+    }
+  }
+
+  #get(n) {  
+    if (!this.#memo.has(n)) {
+      this.#memo.set(n, this.#get(n - 1) + this.#get(n - 2));
+    }
+    return this.#memo.get(n);
+  }
+
+  static async visualize(sequence) {  
+    console.clear();
+    for await (let num of sequence) {
+      console.log('Fibonacci:', num);
+      await new Promise(resolve => setTimeout(resolve, 500));  
+    }
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  const sequence = fib.generateSequence(10);
+  await Fibonacci.visualize(sequence);
+})();
+```

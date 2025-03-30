@@ -1,0 +1,52 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncProcess = async function* () {
+  yield 'Fetching data...';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Processing data...';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Completed!';
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('log', console.log);
+
+  for await (let message of asyncProcess()) {
+    emitter.emit('log', message);
+  }
+
+  const proxyHandler = {
+    get: function(target, property) {
+      if (property in target) {
+        return target[property];
+      } else {
+        return `Property '${property}' does not exist.`;
+      }
+    }
+  };
+
+  const targetObject = { greeting: 'Hello, world!' };
+  const proxy = new Proxy(targetObject, proxyHandler);
+
+  print(proxy.greeting);
+  print(proxy.farewell);
+})();

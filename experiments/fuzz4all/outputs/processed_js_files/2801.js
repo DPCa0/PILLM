@@ -1,0 +1,54 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+const asyncPool = async (urls, poolLimit) => {
+    const results = [];
+    const executing = new Set();
+    const deferred = new Deferred();
+
+    const iterator = fetchData(urls);
+
+    for (let i = 0; i < poolLimit; i++) {
+        const next = async () => {
+            const { value: promise, done } = await iterator.next();
+            if (done) {
+                if (!executing.size) deferred.resolve();
+                return;
+            }
+            promise
+                .then(data => results.push(data))
+                .catch(console.error)
+                .finally(() => {
+                    executing.delete(next);
+                    next();
+                });
+            executing.add(next);
+        };
+        next();
+    }
+
+    await deferred.promise;
+    return results;
+};
+
+(async () => {
+    const urls = [
+        "https://jsonplaceholder.typicode.com/posts/1",
+        "https://jsonplaceholder.typicode.com/posts/2",
+        "https://jsonplaceholder.typicode.com/posts/3"
+    ];
+    const results = await asyncPool(urls, 2);
+    print(results);
+})();

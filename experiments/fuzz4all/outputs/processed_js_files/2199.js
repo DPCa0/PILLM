@@ -1,0 +1,46 @@
+ 
+
+class API {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.baseURL}/${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Fetch error: ${error}`);
+    }
+  }
+}
+
+const enhancedAPI = new Proxy(new API('https://jsonplaceholder.typicode.com'), {
+  get: (target, prop) => {
+    return (...args) => {
+      print(`Called ${prop} with`, args);
+      return target[prop](...args);
+    };
+  },
+});
+
+(async () => {
+   
+  const [users, posts] = await Promise.all([
+    enhancedAPI.fetchData('users'),
+    enhancedAPI.fetchData('posts'),
+  ]);
+
+   
+  users.map(({ id, name }) => {
+    const userPosts = posts.filter(post => post.userId === id);
+    print(`\n${name}'s Posts:`);
+    userPosts.forEach(({ title }) => print(`- ${title}`));
+  });
+
+  // Using Spread and Set to get unique userIds with posts
+  const uniqueUserIds = [...new Set(posts.map(post => post.userId))];
+  print(`\nUser IDs with posts: ${uniqueUserIds.join(', ')}`);
+})();

@@ -1,0 +1,41 @@
+ 
+const fetch = require('node-fetch');
+
+class DynamicAPIHandler {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+    return new Proxy(this, {
+      get: (target, prop) => target._request.bind(target, prop)
+    });
+  }
+
+  async _request(endpoint, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${this.baseURL}/${endpoint}?${queryString}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch from endpoint ${endpoint}: ${error.message}`);
+      return null;
+    }
+  }
+}
+
+ 
+const api = new DynamicAPIHandler('https://api.example.com');
+
+(async () => {
+  try {
+    const users = await api.users({ page: 1 });
+    const posts = await api.posts({ limit: 5 });
+    print('Users:', users);
+    print('Posts:', posts);
+  } catch (error) {
+    console.error('An error occurred:', error.message);
+  }
+})();

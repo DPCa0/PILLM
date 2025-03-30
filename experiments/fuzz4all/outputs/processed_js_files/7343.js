@@ -1,0 +1,38 @@
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const processedData = this.data.map(({ name, value }) => ({
+          name: name.toUpperCase(),
+          value: value * 2,
+        }));
+        resolve(processedData);
+      }, 1000);
+    });
+  }
+}
+
+async function run() {
+  const rawData = [
+    { name: 'alpha', value: 10 },
+    { name: 'beta', value: 20 },
+  ];
+
+  const processor = new DataProcessor(rawData);
+  const result = await processor.processData();
+
+  const output = result.reduce((acc, { name, value }) => {
+    return `${acc}\nProcessed ${name}: ${value}`;
+  }, 'Results:');
+
+  print(output);
+}
+
+run();

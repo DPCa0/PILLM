@@ -1,0 +1,34 @@
+ 
+
+async function complexOperation() {
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+     
+    const fetchData = async () => {
+        await delay(1000);
+        return { data: { user: { name: 'Alice', age: 30, location: 'Wonderland' } } };
+    };
+
+     
+    try {
+        const { data: { user } } = await fetchData();  
+        print('User fetched:', user);
+
+         
+        const updatedUser = { ...user, age: 31 };
+        print('Updated User:', updatedUser);
+        
+         
+        const results = await Promise.all([
+            delay(500).then(() => 'First Promise Resolved'),
+            delay(300).then(() => 'Second Promise Resolved')
+        ]);
+
+        print('Promise Results:', results);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+complexOperation();

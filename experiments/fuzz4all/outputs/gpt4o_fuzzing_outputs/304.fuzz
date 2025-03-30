@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchUserData(userId) {
+    const response = await fetch(`https: 
+    yield await response.json();
+}
+
+async function main() {
+    const userIdArray = [1, 2, 3, 4, 5];
+    
+    const userPromises = userIdArray.map(userId => (async () => {
+        for await (let userData of fetchUserData(userId)) {
+            return userData;
+        }
+    })());
+
+    const users = await Promise.all(userPromises);
+
+    const userNames = users.map(user => user.name);
+    console.log('User Names:', userNames);
+    
+     
+    const uniqueFirstLetters = [...new Set(userNames.map(name => name[0]))];
+    console.log('Unique First Letters:', uniqueFirstLetters);
+    
+     
+    for (const { name, email } of users) {
+        console.log(`Name: ${name}, Email: ${email}`);
+    }
+}
+
+main().catch(console.error);
+```

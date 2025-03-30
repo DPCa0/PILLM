@@ -1,0 +1,39 @@
+ 
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+function* dataGenerator(dataArray) {
+    for (let data of dataArray) {
+        yield data;
+    }
+}
+
+function processData(url) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const data = await fetchData(url);
+            const gen = dataGenerator(data);
+            let result = [];
+            for (let item of gen) {
+                result.push(item);
+            }
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+(async function main() {
+    try {
+        const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+        const processedData = await processData(apiUrl);
+        print('Processed Data:', processedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

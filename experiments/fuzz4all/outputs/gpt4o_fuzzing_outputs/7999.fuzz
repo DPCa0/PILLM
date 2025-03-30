@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property}`);
+        return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value}`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+ 
+const complexObject = {
+    data: [1, 2, 3, 4, 5],
+    user: {
+        name: "Alice",
+        age: 30,
+        preferences: {
+            theme: "dark",
+            notifications: true
+        }
+    },
+    calculate: function (x, y) {
+        return x + y;
+    }
+};
+
+ 
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+const { user: { name, ...otherDetails } } = proxiedObject;
+console.log(name);  
+console.log(otherDetails);  
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve("Data fetched"), 1000);
+    });
+}
+
+async function performAsyncTask() {
+    const message = await fetchData();
+    console.log(message);
+}
+
+performAsyncTask();
+
+ 
+import('./someModule.js')
+    .then(module => {
+        module.doSomething();
+    })
+    .catch(err => console.error('Error loading module:', err));
+
+ 
+const uniqueKey = Symbol("unique");
+const collection = new Map();
+collection.set(uniqueKey, { id: 1, value: "Symbolic Data" });
+
+const set = new Set([1, 2, 3, 4]);
+set.add(5);
+
+console.log(`Collection has unique key: ${collection.has(uniqueKey)}`);
+console.log(`Set has value 3: ${set.has(3)}`);
+```

@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+(async () => {
+     
+    const sum = (...numbers) => numbers.reduce((acc, num) => acc + num, 0);
+
+     
+    const target = { num1: 10, num2: 20 };
+    const handler = {
+        get: (obj, prop) => {
+            console.log(`Accessed property: ${prop}`);
+            return obj[prop];
+        },
+        set: (obj, prop, value) => {
+            console.log(`Set property ${prop} to ${value}`);
+            obj[prop] = value;
+            return true;
+        }
+    };
+    const proxy = new Proxy(target, handler);
+
+     
+    const map = new Map();
+    const weakMap = new WeakMap();
+    const obj = {};
+
+    map.set('key1', 'value1');
+    weakMap.set(obj, 'This is a weakly-held object');
+
+     
+    console.log(map.get('key1'));
+    console.log(weakMap.get(obj));
+
+     
+    const sym = Symbol('unique');
+    const myObj = {
+        [sym]: 'Symbol value',
+        regularKey: 'Regular value'
+    };
+    console.log(myObj[sym]);
+
+     
+    class MyClass {
+        #privateField = 42;
+
+        #privateMethod() {
+            return `The meaning of life is ${this.#privateField}`;
+        }
+
+        publicMethod() {
+            console.log(this.#privateMethod());
+        }
+    }
+
+    const instance = new MyClass();
+    instance.publicMethod();
+
+     
+    const { default: moduleData } = await import('./someModule.js');
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const squared = numbers.map((n) => n ** 2);
+    console.log('Squared numbers:', squared);
+
+     
+    try {
+        await wait(1000);
+        console.log('Waited for 1 second');
+    } catch (

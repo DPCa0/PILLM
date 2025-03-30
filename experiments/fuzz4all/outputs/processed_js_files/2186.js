@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Fetching data failed", error);
+    }
+};
+
+const processData = (data) => {
+    return data.map(({ id, name, username }) => ({
+        id,
+        name: name.toUpperCase(),
+        username: username.split('').reverse().join('')
+    }));
+};
+
+const debounce = (func, delay) => {
+    let debounceTimer;
+    return function(...args) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(this, args), delay);
+    }
+};
+
+const delayedLog = debounce((message) => {
+    print("Debounced Log:", message);
+}, 1000);
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+
+(async () => {
+    const data = await fetchData(url);
+    if (data) {
+        const processedData = processData(data);
+        console.table(processedData);
+    }
+})();
+
+document.addEventListener('click', () => delayedLog('User clicked the document!'));

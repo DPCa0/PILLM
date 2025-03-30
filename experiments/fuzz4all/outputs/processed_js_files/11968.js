@@ -1,0 +1,41 @@
+ 
+const randomDelay = (min, max) => new Promise(resolve => {
+  const delay = Math.floor(Math.random() * (max - min + 1)) + min;
+  setTimeout(() => resolve(delay), delay);
+});
+
+ 
+const processTasks = async () => {
+  const tasks = [
+    { id: 1, name: "Task 1" },
+    { id: 2, name: "Task 2" },
+    { id: 3, name: "Task 3" },
+    { id: 4, name: "Task 4" }
+  ];
+
+  try {
+     
+    const results = await Promise.all(tasks.map(async task => {
+      const delay = await randomDelay(100, 1000);
+      return { ...task, delay, status: 'completed' };
+    }));
+
+     
+    const filteredResults = results.filter(task => task.delay <= 500);
+    print('Tasks with delay less than or equal to 500ms:', filteredResults);
+
+     
+    const delaySummary = results.reduce((acc, task) => {
+      acc.totalDelay += task.delay;
+      acc.tasks.push(task.name);
+      return acc;
+    }, { totalDelay: 0, tasks: [] });
+
+    print('Summary:', delaySummary);
+  } catch (error) {
+    console.error('Error processing tasks:', error);
+  }
+};
+
+ 
+processTasks();

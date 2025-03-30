@@ -1,0 +1,68 @@
+ 
+const createPerson = (() => {
+  const privateData = new WeakMap();
+
+  return class {
+    constructor(name, age) {
+      const privateProperties = {
+        name,
+        age
+      };
+      privateData.set(this, privateProperties);
+    }
+
+     
+    getDetails() {
+      const { name, age } = privateData.get(this);
+      return `Name: ${name}, Age: ${age}`;
+    }
+
+     
+    static getPropertyNames(obj) {
+      const keys = Reflect.ownKeys(obj);
+      return keys.filter(key => typeof key === 'string');
+    }
+
+     
+    static createWithValidation(name, age) {
+      return new Proxy(new this(name, age), {
+        set(target, property, value) {
+          if (property === 'name' && typeof value !== 'string') {
+            throw new Error('Name must be a string');
+          }
+          if (property === 'age' && (typeof value !== 'number' || value < 0)) {
+            throw new Error('Age must be a non-negative number');
+          }
+          return Reflect.set(target, property, value);
+        }
+      });
+    }
+  };
+})();
+
+ 
+const john = createPerson.createWithValidation('John Doe', 30);
+print(john.getDetails());
+
+ 
+print(createPerson.getPropertyNames(john));
+
+ 
+try {
+  john.age = -5;  
+} catch (e) {
+  console.error(e.message);
+}
+
+ 
+const numbers = {
+  *[Symbol.iterator]() {
+    for (let i = 1; i <= 5; i++) {
+      yield i;
+    }
+  }
+};
+
+for (const num of numbers) {
+  print(num);  
+}

@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  console.log('Fetching data...');
+
+   
+  await delay(1000);
+
+   
+  const data = { id: 1, name: 'Sample Data' };
+  console.log('Data fetched:', data);
+  return data;
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting property ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting property ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const dataHandler = {
+  data: null,
+  getData: async function() {
+    if (!this.data) {
+      this.data = await fetchData();
+    }
+    return this.data;
+  }
+};
+
+ 
+const proxyDataHandler = new Proxy(dataHandler, handler);
+
+ 
+(async () => {
+  const data = await proxyDataHandler.getData();
+  console.log('Processed data:', data);
+  
+   
+  const { id, name } = data;
+  console.log(`Data: ID = ${id}, Name = ${name}`);
+})();
+```

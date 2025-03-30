@@ -1,0 +1,53 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.resolve = null;
+    }
+    
+    async next() {
+        if (this.queue.length > 0) {
+            return Promise.resolve(this.queue.shift());
+        }
+        return new Promise(res => this.resolve = res);
+    }
+    
+    push(value) {
+        if (this.resolve) {
+            this.resolve(value);
+            this.resolve = null;
+        } else {
+            this.queue.push(value);
+        }
+    }
+}
+
+async function* generatorWithTimeout(timeout) {
+    let value = 0;
+    while (true) {
+        await new Promise(r => setTimeout(r, timeout));
+        yield value++;
+    }
+}
+
+async function complexProcessing() {
+    const asyncQueue = new AsyncQueue();
+    const generator = generatorWithTimeout(100);
+
+     
+    (async () => {
+        for await (const value of generator) {
+            print(`Producing: ${value}`);
+            asyncQueue.push(value);
+        }
+    })();
+
+     
+    while (true) {
+        const value = await asyncQueue.next();
+        print(`Consuming: ${value}`);
+        
+        if (value > 10) break;
+    }
+}
+
+complexProcessing();

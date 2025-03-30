@@ -1,0 +1,48 @@
+class AsyncResourceManager {
+    constructor(resources) {
+        this.resources = resources;
+    }
+
+    async *fetchResources() {
+        for (const resource of this.resources) {
+            yield fetch(resource).then(res => res.json());
+        }
+    }
+    
+    async processResources() {
+        const results = [];
+        for await (const data of this.fetchResources()) {
+            results.push(this.transformData(data));
+        }
+        return results;
+    }
+
+    transformData(data) {
+        return new Proxy(data, {
+            get(target, prop) {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    console.warn(`Property ${prop} does not exist on target`);
+                    return null;
+                }
+            }
+        });
+    }
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+(async () => {
+    const manager = new AsyncResourceManager(urls);
+    const transformedData = await manager.processResources();
+    
+    print('Transformed Data:', transformedData);
+
+    transformedData.forEach(data => {
+         
+        print('Name:', data.name);
+         
+        print('Unknown:', data.unknown);
+    });
+})();

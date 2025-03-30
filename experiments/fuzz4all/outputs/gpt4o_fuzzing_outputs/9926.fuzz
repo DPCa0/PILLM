@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchData(ids) {
+  for (let id of ids) {
+    yield new Promise((resolve) => setTimeout(() => resolve(`Data for ID: ${id}`), 1000));
+  }
+}
+
+ 
+async function processGenerator(gen) {
+  const results = [];
+  for (let promise of gen) {
+    results.push(await promise);
+  }
+  return results;
+}
+
+ 
+const logger = {
+  logData(data) {
+    console.log(`Logging: ${data}`);
+  }
+};
+
+const handler = {
+  get: (target, prop) => {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        console.log(`Calling method: ${prop} with arguments: ${args}`);
+        return target[prop].apply(this, args);
+      };
+    }
+    return target[prop];
+  }
+};
+
+const proxyLogger = new Proxy(logger, handler);
+
+ 
+(async function main() {
+  const dataGenerator = fetchData([1, 2, 3]);
+  const dataResults = await processGenerator(dataGenerator);
+
+  dataResults.forEach(data => {
+    proxyLogger.logData(data);
+  });
+})();
+```

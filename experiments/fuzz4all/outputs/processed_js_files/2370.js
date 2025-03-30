@@ -1,0 +1,46 @@
+ 
+(async () => {
+  const fs = await import('fs/promises');
+
+   
+  const data = { greeting: "Hello", target: "World" };
+  const handler = {
+    get: (obj, prop) => {
+      print(`Accessing property: ${prop}`);
+      return obj[prop];
+    }
+  };
+  const proxyData = new Proxy(data, handler);
+
+   
+  function tag(strings, ...values) {
+    return strings.raw[0].toUpperCase() + values.join(' ').toUpperCase() + strings.raw[1].toUpperCase();
+  }
+  
+   
+  async function asyncFunction() {
+    try {
+      await fs.writeFile('output.txt', tag`${proxyData.greeting}, ${proxyData.target}!`);
+      const content = await fs.readFile('output.txt', 'utf8');
+      print('File Content:', content);
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
+  
+   
+  const uniqueSet = new Set([1, 2, 2, 3, 4, 4, 5]);
+  const uniqueArray = [...uniqueSet];
+  print('Unique Array:', uniqueArray);
+
+   
+  asyncFunction();
+
+   
+  const [first, second, ...rest] = uniqueArray;
+  print('Destructured:', first, second, rest);
+
+   
+  const squared = uniqueArray.map(n => n ** 2);
+  print('Squared:', squared);
+})();

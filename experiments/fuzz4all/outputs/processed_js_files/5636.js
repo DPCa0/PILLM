@@ -1,0 +1,32 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *[Symbol.iterator]() {
+    let n = 0;
+    while (true) {
+      yield this.calculate(n++);
+    }
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    let result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+(async () => {
+  const fibonacci = new Fibonacci();
+  let count = 0;
+  for (const num of fibonacci) {
+    if (count >= 10) break;  
+    print(`Fibonacci(${count}) = ${num}`);
+    await delay(500);  
+    count++;
+  }
+})();

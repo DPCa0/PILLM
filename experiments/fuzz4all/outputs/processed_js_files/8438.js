@@ -1,0 +1,54 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) resolve(`Data from ${url}`);
+        else reject('Invalid URL');
+    }, 1000);
+});
+
+ 
+async function getData(urls) {
+    try {
+        const data = [];
+        for (const url of urls) {
+            const result = await fetchData(url);
+            data.push(result);
+        }
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (const data of dataArray) {
+        yield data;
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'getAllData') {
+            return async function() {
+                const data = await target(prop);
+                const generator = dataGenerator(data);
+                return Array.from(generator);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const dataHandler = new Proxy(getData, handler);
+
+ 
+(async () => {
+    const urls = ['http://api.example.com/1', 'http://api.example.com/2'];
+    const data = await dataHandler.getAllData(urls);
+    print(data);  
+})();

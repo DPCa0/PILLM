@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve('Operation Completed!'), 1000));
+
+async function* dataGenerator() {
+  for (let i = 0; i < 3; i++) {
+    const result = await asyncOperation();
+    yield `${result} - Iteration ${i + 1}`;
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('data', data => {
+    console.log(`Received: ${data}`);
+  });
+  
+  const gen = dataGenerator();
+  
+  for await (const data of gen) {
+    eventEmitter.emit('data', data);
+  }
+})();
+```

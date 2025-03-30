@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => setTimeout(() => resolve({
+  user: {
+    name: 'Alice',
+    age: 30,
+    address: { city: 'Wonderland', zip: '12345' }
+  }
+}), 1000));
+
+ 
+const createLogger = (prefix) => {
+  return (message) => {
+    console.log(`[${prefix}] ${message}`);
+  };
+};
+
+const main = async () => {
+  const log = createLogger('INFO');  
+
+  log('Fetching data...');
+  try {
+    const { user: { name, age, address: { city, zip } } } = await fetchData();  
+
+    log(`User name is ${name}`);
+    log(`User age is ${age}`);
+    log(`User city is ${city}, zip ${zip}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+main();
+```

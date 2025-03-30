@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        return new Matrix(arr.length, arr[0].length, (i, j) => arr[i][j]);
+    }
+
+    apply(func) {
+        this.data = this.data.map((row, i) => row.map((value, j) => func(value, i, j)));
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) throw 'Columns of A must match rows of B';
+        return new Matrix(a.rows, b.cols).apply((_, i, j) =>
+            a.data[i].reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+        );
+    }
+
+    static fromFunction(rows, cols, func) {
+        return new Matrix(rows, cols).apply((_, i, j) => func(i, j));
+    }
+
+    toString() {
+        return this.data.map(row => row.join(' ')).join('\n');
+    }
+}
+
+ 
+async function fetchAndProcessMatrixData(url) {
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+        const matrixA = Matrix.fromArray(json.matrixA);
+        const matrixB = Matrix.fromArray(json.matrixB);
+        return Matrix.multiply(matrixA, matrixB).toString();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+function html(literals, ...expressions) {
+    return literals.reduce((result, literal, i) => 
+        `${result}${literal}${expressions[i] ? `<strong>${expressions[i]}</strong>` : ''}`, '');
+}
+
+console.log(html`Matrix multiplication results: ${'Not calculated yet'}`);
+
+ 
+fetchAndProcessMatrixData('https://api.example.com/matrices')
+    .then(result => console.log(html`Matrix multiplication results:\n${result}`));
+```

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const { EventEmitter } = require('events');
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ data: 'Sample Data' }), 1000);
+  });
+}
+
+ 
+const dataHandler = {
+  get(target, prop) {
+    console.log(`Getting ${prop}`);
+    return prop in target ? target[prop] : null;
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const dataStore = new Proxy({}, dataHandler);
+
+ 
+const eventBus = new EventEmitter();
+
+ 
+eventBus.on('dataFetched', (data) => {
+  console.log('Event received: dataFetched');
+  dataStore.latest = data;
+  console.log(`Updated dataStore: ${JSON.stringify(dataStore)}`);
+});
+
+ 
+(async () => {
+  console.log('Fetching data...');
+  const result = await fetchData();
+  eventBus.emit('dataFetched', result.data);
+})();
+```

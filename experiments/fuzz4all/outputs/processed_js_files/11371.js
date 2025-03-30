@@ -1,0 +1,53 @@
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new CustomError(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+
+function* generateData(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i * 2;
+  }
+}
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      throw new CustomError(`Property ${prop} does not exist`);
+    }
+  },
+};
+
+const dataObject = new Proxy({ name: 'JavaScript', type: 'Programming' }, proxyHandler);
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+
+    const generator = generateData(1, 5);
+    for (const value of generator) {
+      print(value);  
+    }
+
+    print(dataObject.name);  
+    print(dataObject.nonexistent);  
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error('Custom Error:', error.message);
+    } else {
+      console.error('General Error:', error);
+    }
+  }
+})();

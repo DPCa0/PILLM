@@ -1,0 +1,50 @@
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    print(`${this.name} makes a noise.`);
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    super.speak();
+    print(`${this.name} barks.`);
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchDogData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch dog data:', error);
+  }
+};
+
+const processDogData = async () => {
+  const dogDataUrl = 'https://dog.ceo/api/breeds/list/all';
+  const data = await fetchDogData(dogDataUrl);
+
+  if (data && data.message) {
+    const breeds = Object.keys(data.message);
+    const randomBreed = breeds[Math.floor(Math.random() * breeds.length)];
+    const randomDog = new Dog(randomBreed);
+
+    randomDog.speak();
+
+    await delay(2000);
+    print('Fetching another random dog after 2 seconds...');
+    await delay(2000);
+
+    return processDogData();
+  }
+};
+
+processDogData();

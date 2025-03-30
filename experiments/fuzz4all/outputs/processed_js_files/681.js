@@ -1,0 +1,40 @@
+ 
+
+ 
+
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const results = await Promise.all(this.data.map(item => this.complexOperation(item)));
+      const filteredResults = results.filter(item => item != null);
+      print('Processed Results:', filteredResults);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async complexOperation(input) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+         
+        const result = input > 5 ? input * 2 : null;
+        resolve(result);
+      }, 1000);
+    });
+  }
+
+  static async initialize() {
+    const data = [1, 7, 3, 9, 11, 4];
+    const processor = new AsyncProcessor(data);
+    await processor.processData();
+  }
+}
+
+ 
+(async () => {
+  await AsyncProcessor.initialize();
+})();

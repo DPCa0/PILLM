@@ -1,0 +1,43 @@
+class Task {
+    constructor(name, dueDate) {
+        this.name = name;
+        this.dueDate = dueDate;
+        this.completed = false;
+    }
+    complete() {
+        this.completed = true;
+    }
+    get status() {
+        return this.completed ? 'Completed' : 'Pending';
+    }
+    static createTasksFromJSON(jsonString) {
+        return JSON.parse(jsonString).map(taskObj => new Task(taskObj.name, new Date(taskObj.dueDate)));
+    }
+}
+
+async function simulateFetch(url) {
+    return new Promise(resolve => setTimeout(() => {
+        const mockData = JSON.stringify([
+            { name: 'Task 1', dueDate: '2023-10-10' },
+            { name: 'Task 2', dueDate: '2023-11-01' }
+        ]);
+        resolve({ json: () => Promise.resolve(mockData) });
+    }, 1000));
+}
+
+(async function manageTasks() {
+    try {
+        const response = await simulateFetch('https://api.example.com/tasks');
+        const tasks = Task.createTasksFromJSON(await response.json());
+
+        tasks.forEach(task => {
+            print(`Task: ${task.name}, Status: ${task.status}`);
+            if (new Date() >= task.dueDate) task.complete();
+        });
+
+        const incompleteTasks = tasks.filter(task => !task.completed);
+        print(`You have ${incompleteTasks.length} incomplete tasks.`);
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+    }
+})();

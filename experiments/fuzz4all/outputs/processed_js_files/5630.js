@@ -1,0 +1,48 @@
+ 
+
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const data = `Data from ${this.url}`;
+                resolve(data);
+            }, 1000);
+        });
+    }
+}
+
+const cacheHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Fetching from cache: ${prop}`);
+            return target[prop];
+        } else {
+            print(`Fetching from network: ${prop}`);
+            return async function() {
+                const networkRequest = new NetworkRequest(prop);
+                const data = await networkRequest.fetchData();
+                target[prop] = data;
+                return data;
+            };
+        }
+    }
+};
+
+const dataCache = new Proxy({}, cacheHandler);
+
+(async () => {
+    const url1 = 'https://api.example.com/data1';
+    const url2 = 'https://api.example.com/data2';
+
+     
+    print(await dataCache[url1]());
+    print(await dataCache[url2]());
+
+     
+    print(await dataCache[url1]());
+    print(await dataCache[url2]());
+})();

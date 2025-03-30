@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    console.log('Fetching data...');
+    await delay(1000);  
+    return new Map([
+        ['name', 'Alice'],
+        ['age', 30],
+        ['location', 'Wonderland']
+    ]);
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting ${prop} from map`);
+        return target.get(prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value} in map`);
+        target.set(prop, value);
+        return true;
+    }
+};
+
+ 
+async function main() {
+    const data = await fetchData();
+    const proxyMap = new Proxy(data, handler);
+    
+     
+    console.log(`Name: ${proxyMap.name}`);
+    console.log(`Age: ${proxyMap.age}`);
+    
+     
+    proxyMap.location = 'New Wonderland';
+    console.log(`Updated Location: ${proxyMap.location}`);
+}
+
+main().catch(error => console.error('Error:', error));
+```

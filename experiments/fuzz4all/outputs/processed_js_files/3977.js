@@ -1,0 +1,52 @@
+ 
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Failed to fetch data: ${error}`);
+  }
+};
+
+ 
+const displayUser = ({ id, name, username, email }) => {
+  print(`ID: ${id}, Name: ${name}, Username: ${username}, Email: ${email}`);
+};
+
+ 
+const createValidatedUser = (user) => {
+  return new Proxy(user, {
+    set(target, prop, value) {
+      if (prop === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+        throw new Error("Invalid email address");
+      }
+      target[prop] = value;
+      return true;
+    }
+  });
+};
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users/1';
+  const userData = await fetchData(url);
+  
+   
+  const user = userData ?? { id: 0, name: "Unknown", username: "unknown", email: "unknown" };
+
+  displayUser(user);
+
+   
+  const additionalData = { ...user, website: "example.com" };
+  
+  print("Additional User Data:", additionalData);
+
+  try {
+    const validatedUser = createValidatedUser(user);
+    validatedUser.email = "invalid-email";  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

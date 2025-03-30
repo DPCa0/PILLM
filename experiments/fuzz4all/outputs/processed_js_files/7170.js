@@ -1,0 +1,43 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  calculate(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+  *generator(limit) {
+    for (let i = 0; i < limit; i++) {
+      yield this.calculate(i);
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+const fibonacci = new Fibonacci();
+const fibNumbers = [...fibonacci.generator(10)];
+print('Fibonacci Numbers:', fibNumbers);
+
+fetchData('https://jsonplaceholder.typicode.com/posts/1')
+  .then(data => console.log('Fetched Data:', data))
+  .catch(error => console.error('Fetch Error:', error));
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    print('User Data:', data);
+  } catch (error) {
+    console.error('Async/Await Fetch Error:', error);
+  }
+})();

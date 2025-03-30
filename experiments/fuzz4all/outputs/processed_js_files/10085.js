@@ -1,0 +1,46 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static from(array) {
+    const mat = new Matrix(array.length, array[0].length);
+    mat.data = array.map(row => [...row]);
+    return mat;
+  }
+
+  map(fn) {
+    return Matrix.from(
+      this.data.map((row, i) =>
+        row.map((value, j) => fn(value, i, j, this))
+      )
+    );
+  }
+
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.data[0].length !== other.data.length) throw new Error('Incompatible matrices');
+      return new Matrix(this.data.length, other.data[0].length).map(
+        (_, i, j) => this.data[i].reduce((sum, val, k) => sum + val * other.data[k][j], 0)
+      );
+    } else {
+      return this.map(value => value * other);
+    }
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const randomMatrix = (rows, cols) => new Matrix(rows, cols).map(() => Math.floor(Math.random() * 10));
+const m1 = randomMatrix(3, 2);
+const m2 = randomMatrix(2, 4);
+
+print("Matrix 1:\n" + m1.toString() + "\n");
+print("Matrix 2:\n" + m2.toString() + "\n");
+
+const product = m1.multiply(m2);
+print("Product:\n" + product.toString());

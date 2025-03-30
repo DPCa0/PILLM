@@ -1,0 +1,52 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fetchWithTimeout(urls, timeout) {
+  for (const url of urls) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      yield response.json();
+    } catch (error) {
+      yield { error: error.message };
+    } finally {
+      clearTimeout(id);
+    }
+  }
+}
+
+async function parallelAsyncActions(actions, concurrency = 3) {
+  const results = [];
+  const queue = [...actions];
+  const workers = Array(concurrency).fill().map(async () => {
+    while (queue.length) {
+      const action = queue.shift();
+      results.push(await action());
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+(async function main() {
+  const urls = [
+    "https://jsonplaceholder.typicode.com/todos/1",
+    "https://jsonplaceholder.typicode.com/todos/2",
+    "https://jsonplaceholder.typicode.com/todos/3",
+  ];
+
+  const fetchTasks = [...fetchWithTimeout(urls, 2000)];
+
+  const results = await parallelAsyncActions(fetchTasks.map(task => () => task));
+  
+  print("Fetched data:", results);
+})().catch(console.error);

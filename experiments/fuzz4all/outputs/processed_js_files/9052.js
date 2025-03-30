@@ -1,0 +1,55 @@
+ 
+
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  printDetails() {
+    print(`Name: ${this.name}, Age: ${this.age}`);
+  }
+}
+
+const fetchUserData = async (id) => {
+  const url = `https: 
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const userData = await response.json();
+    const { name, username: alias } = userData;
+    return { name, alias };
+    
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+const createUser = (name, age) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!name || !age) {
+        reject(new Error('Invalid user data'));
+      } else {
+        const user = new User(name, age);
+        resolve(user);
+      }
+    }, 1000);
+  });
+};
+
+(async () => {
+  try {
+    const { name, alias } = await fetchUserData(1);
+
+    print(`Fetched User: ${name} (Alias: ${alias})`);
+    
+    const user = await createUser(name, 30);
+    user.printDetails();
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,36 @@
+class FibonacciSequence {
+    constructor(maxLength) {
+        this.maxLength = maxLength;
+        this.cache = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < this.maxLength; i++) {
+            yield prev;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    async calculateNth(n) {
+        if (n <= 1) return n;
+        if (this.cache.has(n)) return this.cache.get(n);
+
+        const fibNMinus1 = await this.calculateNth(n - 1);
+        const fibNMinus2 = await this.calculateNth(n - 2);
+        const result = fibNMinus1 + fibNMinus2;
+
+        this.cache.set(n, result);
+        return result;
+    }
+}
+
+(async () => {
+    const fibonacci = new FibonacciSequence(10);
+    
+    print('First 10 Fibonacci numbers:');
+    print([...fibonacci]);
+
+    const nthFib = await fibonacci.calculateNth(30);
+    print(`30th Fibonacci number: ${nthFib}`);
+})();

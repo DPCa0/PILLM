@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const targetObj = { a: 1, b: 2 };
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Getting property '${prop}'`);
+      return target[prop];
+    } else {
+      throw new Error(`Property '${prop}' not found`);
+    }
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+async function asyncOperation() {
+  console.log('Starting async operation...');
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log('Async operation completed.');
+      resolve('Result from async operation');
+    }, 1000);
+  });
+}
+
+ 
+function* generatorFunc() {
+  yield 'Step 1';
+  yield 'Step 2';
+  yield asyncOperation().then(result => `Step 3: ${result}`);
+}
+
+ 
+(async () => {
+  console.log('Proxy and Generator Demo');
+
+   
+  try {
+    console.log(proxyObj.a);  
+    proxyObj.c = 3;  
+    console.log(proxyObj.c);  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+   
+  const gen = generatorFunc();
+  for (const step of gen) {
+    if (step instanceof Promise) {
+      console.log(await step);
+    } else {
+      console.log(step);
+    }
+  }
+})();
+```

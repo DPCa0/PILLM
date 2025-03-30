@@ -1,0 +1,61 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const processedData = data.map(item => ({
+        ...item,
+        processedDate: new Date().toISOString()
+    }));
+
+    return processedData;
+}
+
+ 
+const uniqueId = Symbol('id');
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const handler = {
+    get: function(target, property) {
+        if (property === 'id') {
+            return target[uniqueId];
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+const dataProxy = new Proxy({}, handler);
+dataProxy[uniqueId] = idGenerator().next().value;
+
+ 
+class DataManager {
+    constructor() {
+        this.data = [];
+    }
+
+    async addData(url) {
+        const data = await fetchData(url);
+        this.data = [...this.data, ...data];
+    }
+
+    getData() {
+        return this.data;
+    }
+}
+
+ 
+async function executeDataManager() {
+    const manager = new DataManager();
+    await manager.addData('https://jsonplaceholder.typicode.com/posts');
+    print(manager.getData());
+    print(`Data ID: ${dataProxy.id}`);
+}
+
+ 
+executeDataManager().catch(error => console.error('Error fetching data:', error));

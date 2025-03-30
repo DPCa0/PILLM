@@ -1,0 +1,50 @@
+ 
+
+class TaskRunner {
+  constructor() {
+    this.tasks = [];
+  }
+
+  addTask(task) {
+    this.tasks.push(task);
+  }
+
+  async execute() {
+    const results = await Promise.all(
+      this.tasks.map(async task => {
+        const result = await task();
+        return result;
+      })
+    );
+    return results;
+  }
+}
+
+const createTask = (delay, value) => () => new Promise(resolve => {
+  setTimeout(() => resolve(value), delay);
+});
+
+const taskRunner = new TaskRunner();
+
+ 
+const [task1, task2, task3] = [
+  createTask(1000, "Task 1 Complete"),
+  createTask(500, "Task 2 Complete"),
+  createTask(2000, "Task 3 Complete")
+];
+
+taskRunner.addTask(task1);
+taskRunner.addTask(task2);
+taskRunner.addTask(task3);
+
+(async () => {
+  const start = Date.now();
+  print('Tasks started...');
+
+  const results = await taskRunner.execute();
+
+  const end = Date.now();
+  print('All tasks completed in:', end - start, 'ms');
+  
+  results.forEach((result, index) => print(`Result of Task ${index + 1}:`, result));
+})();

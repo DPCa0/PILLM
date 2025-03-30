@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class User {
+  #privateId;
+  static #maxId = 0;
+  
+  constructor(name) {
+    this.name = name;
+    this.#privateId = ++User.#maxId;
+  }
+
+  get info() {
+    return { id: this.#privateId, name: this.name };
+  }
+
+  static mergeUsers(...users) {
+    return users.map(user => user.info).reduce((acc, { id, name }) => {
+      acc[id] = name;
+      return acc;
+    }, {});
+  }
+}
+
+ 
+async function fetchData(url) {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await delay(1000);   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+ 
+const logHandler = {
+  get(target, prop, receiver) {
+    console.log(`Property '${prop}' is being accessed.`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const userProxy = new Proxy(new User('Alice'), logHandler);
+console.log(userProxy.info);
+
+ 
+(async () => {
+  if (window?.fetch) {
+    try {
+      const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  } else {
+    console.warn('Fetch API is not supported');
+  }
+})();
+
+ 
+const user1 = new User('Bob');
+const user2 = new User('Charlie');
+console.log(User.mergeUsers(userProxy, user1, user2));
+```

@@ -1,0 +1,40 @@
+class AsyncDataHandler {
+  static async *fetchData(urls) {
+    for (const url of urls) {
+      yield fetch(url).then(response => response.json());
+    }
+  }
+
+  static async process(urls) {
+    const dataCollector = [];
+    for await (const data of this.fetchData(urls)) {
+      dataCollector.push(data);
+    }
+    return dataCollector;
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const processData = debounce(async urls => {
+  try {
+    const data = await AsyncDataHandler.process(urls);
+    print('Processed Data:', data);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}, 300);
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+processData(urls);

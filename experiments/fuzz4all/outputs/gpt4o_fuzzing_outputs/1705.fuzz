@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const resultCache = new Map();
+
+ 
+const functionProxyHandler = {
+  apply: async function(target, thisArg, argumentsList) {
+    const key = JSON.stringify(argumentsList);
+    if (resultCache.has(key)) {
+      console.log('Fetching from cache:', key);
+      return Promise.resolve(resultCache.get(key));
+    }
+    console.log('Computing result for:', key);
+    const result = await target.apply(thisArg, argumentsList);
+    resultCache.set(key, result);
+    return result;
+  }
+};
+
+ 
+async function fetchData(number) {
+  await new Promise(resolve => setTimeout(resolve, 1000));  
+  return number * 2;
+}
+
+ 
+const proxiedFetchData = new Proxy(fetchData, functionProxyHandler);
+
+ 
+(async function main() {
+  console.log(await proxiedFetchData(5));  
+  console.log(await proxiedFetchData(5));  
+  console.log(await proxiedFetchData(10));  
+  console.log(await proxiedFetchData(10));  
+})();
+```

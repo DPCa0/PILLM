@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class AsyncNumberSequence {
+  constructor(start = 0) {
+    this.start = start;
+    this.current = start;
+  }
+
+  async *generateSequence() {
+    while (true) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));  
+      yield this.current++;
+    }
+  }
+
+  static async calculateSum(sequence, count) {
+    let sum = 0;
+    for await (const num of sequence) {
+      if (count-- === 0) break;
+      sum += num;
+    }
+    return sum;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const sequence = new Proxy(new AsyncNumberSequence(5), handler);
+
+(async () => {
+  const seqGenerator = sequence.generateSequence();
+  const total = await AsyncNumberSequence.calculateSum(seqGenerator, 5);
+  console.log(`Sum of sequence: ${total}`);  
+})();
+```

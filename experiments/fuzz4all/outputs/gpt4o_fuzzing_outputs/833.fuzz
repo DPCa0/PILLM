@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* numberGenerator() {
+  for (let i = 0; i < 3; i++) {
+    yield new Promise((resolve) => setTimeout(() => resolve(i), 1000));
+  }
+}
+
+async function processNumbers() {
+  const numbers = numberGenerator();
+  for await (const num of numbers) {
+    console.log(`Generated number: ${num}`);
+  }
+}
+
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}" with value "${target[prop]}"`);
+      return target[prop];
+    } else {
+      throw new Error(`Property "${prop}" not found`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting property "${prop}" to "${value}"`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj.name = "Advanced JavaScript";
+console.log(obj.name);
+
+processNumbers().then(() => console.log('All numbers processed.'));
+```

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+    }
+
+    async enqueue(asyncFunction) {
+        this.queue.push(asyncFunction);
+        if (!this.isProcessing) {
+            this.isProcessing = true;
+            await this.processQueue();
+        }
+    }
+
+    async processQueue() {
+        while (this.queue.length > 0) {
+            const asyncFunction = this.queue.shift();
+            try {
+                await asyncFunction();
+            } catch (error) {
+                console.error("Error processing function:", error);
+            }
+        }
+        this.isProcessing = false;
+    }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+(async () => {
+    const asyncQueue = new AsyncQueue();
+
+    const task1 = async () => {
+        await delay(1000);
+        console.log("Task 1 completed");
+    };
+
+    const task2 = async () => {
+        await delay(500);
+        console.log("Task 2 completed");
+    };
+
+    const task3 = async () => {
+        await delay(300);
+        console.log("Task 3 completed");
+    };
+
+    asyncQueue.enqueue(task1);
+    asyncQueue.enqueue(task2);
+    asyncQueue.enqueue(task3);
+})();
+```

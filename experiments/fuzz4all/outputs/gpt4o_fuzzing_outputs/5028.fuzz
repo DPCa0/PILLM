@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function apiCallSimulation(data) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (data) {
+                resolve(`Data received: ${data}`);
+            } else {
+                reject("No data received");
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function fetchData() {
+    try {
+        const result = await apiCallSimulation("Sample Data");
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+function* generateNumbers() {
+    let num = 1;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop) {
+        console.log(`Property '${prop}' accessed`);
+        return target[prop];
+    },
+    set: function(target, prop, value) {
+        console.log(`Property '${prop}' set to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const dataObj = {
+    name: "JavaScript",
+    type: "Language"
+};
+
+const proxiedDataObj = new Proxy(dataObj, handler);
+
+ 
+(async function main() {
+    await fetchData();
+    
+    const numbers = generateNumbers();
+    console.log(numbers.next().value);  
+    console.log(numbers.next().value);  
+    console.log(numbers.next().value);  
+    
+    proxiedDataObj.name = "TypeScript";
+    console.log(proxiedDataObj.name);
+})();
+```

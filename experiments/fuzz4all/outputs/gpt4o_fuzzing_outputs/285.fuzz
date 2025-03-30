@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (Math.random() > 0.2) {
+            resolve(`Data from ${url}`);
+        } else {
+            reject('Fetch error');
+        }
+    }, 1000);
+});
+
+ 
+async function* dataFetcher(urls) {
+    for (const url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield data;
+        } catch (error) {
+            yield error;
+        }
+    }
+}
+
+ 
+const loggingProxyHandler = {
+    get(target, property) {
+        console.log(`Accessing property "${property}"`);
+        return target[property];
+    }
+};
+
+ 
+const apiEndpoint = new Proxy({ baseUrl: 'https://api.example.com' }, loggingProxyHandler);
+
+ 
+(async () => {
+    const urls = ['/endpoint1', '/endpoint2', '/endpoint3'].map(path => apiEndpoint.baseUrl + path);
+    const generator = dataFetcher(urls);
+
+    for await (const data of generator) {
+        console.log(data);
+    }
+})();
+```

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class ComplexCalculator {
+    #result = 0;  
+
+    static async calculate(operations) {
+        const calculator = new ComplexCalculator();
+        for (let op of operations) {
+            await new Promise(r => setTimeout(r, 10));  
+            calculator.#applyOperation(op);
+        }
+        return calculator.#result;
+    }
+
+    #applyOperation({ type, value }) {
+        switch (type) {
+            case 'add':
+                this.#result += value;
+                break;
+            case 'subtract':
+                this.#result -= value;
+                break;
+            case 'multiply':
+                this.#result *= value;
+                break;
+            case 'divide':
+                if (value !== 0) this.#result /= value;
+                break;
+            default:
+                throw new Error('Unknown operation');
+        }
+    }
+}
+
+(async () => {
+    const operations = [
+        { type: 'add', value: 10 },
+        { type: 'multiply', value: 3 },
+        { type: 'subtract', value: 5 },
+        { type: 'divide', value: 2 }
+    ];
+
+    try {
+        const result = await ComplexCalculator.calculate(operations);
+        console.log(`Result: ${result}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();
+```

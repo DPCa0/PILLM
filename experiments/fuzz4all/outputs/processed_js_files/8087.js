@@ -1,0 +1,50 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fibonacciGen(max) {
+    let [prev, curr] = [0, 1];
+    while (curr <= max) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+function memoize(fn) {
+    const cache = new WeakMap();
+    return function(...args) {
+        if (cache.has(args[0])) {
+            return cache.get(args[0]);
+        }
+        const result = fn(...args);
+        cache.set(args[0], result);
+        return result;
+    };
+}
+
+const slowFunction = (num) => {
+    const deferred = new Deferred();
+    setTimeout(() => deferred.resolve(num * 2), 1000);
+    return deferred.promise;
+};
+
+const fastFunction = memoize(slowFunction);
+
+(async () => {
+    const input = { value: 21 };
+    print(`Calculating fastFunction(${input.value})...`);
+
+    const result = await fastFunction(input);
+    print(`Result: ${result}`);
+
+    const fibGen = fibonacciGen(result);
+    print('Fibonacci sequence:');
+    for await (const num of fibGen) {
+        print(num);
+    }
+})();

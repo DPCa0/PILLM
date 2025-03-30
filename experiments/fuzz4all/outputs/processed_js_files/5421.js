@@ -1,0 +1,36 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+    }
+
+    *generateSequence() {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+
+    async logSequence() {
+        const sequence = [];
+        for (const num of this.generateSequence()) {
+            sequence.push(num);
+        }
+        return new Promise(resolve => setTimeout(() => {
+            print(`Fibonacci Sequence: ${sequence.join(', ')}`);
+            resolve();
+        }, 1000));
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+    await fib.logSequence();
+    const asyncTask = async num => {
+        print(`Square of ${num}: ${await new Promise(res => setTimeout(() => res(num * num), 500))}`);
+    };
+
+    const sequence = [...fib.generateSequence()];
+    const taskPromises = sequence.map(asyncTask);
+    await Promise.all(taskPromises);
+})();

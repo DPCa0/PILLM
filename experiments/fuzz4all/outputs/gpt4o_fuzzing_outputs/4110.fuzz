@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve({ data: 'Fetched Data' }), 1000));
+
+ 
+async function getData() {
+  const response = await fetchData();
+  console.log(`Response: ${response.data}`);
+}
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Accessed property: ${prop}`);
+      return obj[prop];
+    }
+  });
+};
+
+ 
+class DataProcessor {
+  #data;
+  
+  constructor() {
+    this.#data = null;
+  }
+
+  async loadData() {
+    await getData();
+    this.#data = 'Processed Data';
+    console.log('Data loaded and processed.');
+  }
+
+   
+  #processData(input) {
+    return `${input} - additional processing`;
+  }
+
+  useData() {
+    if (this.#data) {
+      const processed = this.#processData(this.#data);
+      console.log(`Using data: ${processed}`);
+    } else {
+      console.log('No data to use.');
+    }
+  }
+}
+
+ 
+(async () => {
+  const processor = new DataProcessor();
+  await processor.loadData();
+  processor.useData();
+
+   
+  const proxiedProcessor = createLoggingProxy(processor);
+  console.log(proxiedProcessor.useData());
+})();
+```

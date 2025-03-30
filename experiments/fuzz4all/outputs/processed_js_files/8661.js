@@ -1,0 +1,30 @@
+ 
+
+ 
+export const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+ 
+import { fetchData } from './utils.js';
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    const { title, body } = await fetchData(url);
+
+    const displayData = ({ title, body }) => `
+      <div>
+        <h1>${title}</h1>
+        <p>${body}</p>
+      </div>
+    `;
+
+    document.body.innerHTML = displayData({ title, body });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    document.body.innerHTML = `<p>Error fetching data</p>`;
+  }
+})();

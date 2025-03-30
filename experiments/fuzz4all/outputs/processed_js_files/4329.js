@@ -1,0 +1,59 @@
+ 
+
+class AsyncCache {
+  constructor() {
+    this.cache = new Map();
+     
+    return new Proxy(this, {
+      get: (target, prop) => {
+        if (prop in target) {
+          return target[prop];
+        }
+        if (target.cache.has(prop)) {
+          return Promise.resolve(target.cache.get(prop));
+        }
+        throw new Error(`Property ${prop} not found`);
+      },
+      set: (target, prop, value) => {
+         
+        if (value instanceof Promise) {
+          value.then(res => Reflect.set(target.cache, prop, res))
+               .catch(err => console.error(`Failed to set ${prop}:`, err));
+        } else {
+          Reflect.set(target.cache, prop, value);
+        }
+        return true;
+      }
+    });
+  }
+
+  async fetchData(key, dataFetcher) {
+    if (!this.cache.has(key)) {
+      const data = await dataFetcher();
+      this.cache.set(key, data);
+    }
+    return this.cache.get(key);
+  }
+}
+
+ 
+(async () => {
+  const apiSimulator = key => new Promise(resolve => 
+    setTimeout(() => resolve(`Data for ${key}`), 1000)
+  );
+
+  const cache = new AsyncCache();
+
+   
+  cache.user = apiSimulator('user');
+
+  try {
+    print(await cache.user);  
+  } catch (err) {
+    console.error(err.message);
+  }
+
+   
+  const data = await cache.fetchData('product', () => apiSimulator('product'));
+  print(data);  
+})();

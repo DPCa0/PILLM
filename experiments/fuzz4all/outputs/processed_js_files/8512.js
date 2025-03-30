@@ -1,0 +1,49 @@
+class ComplexFeatureDemo {
+    constructor() {
+        this.data = [1, 2, 3, 4, 5];
+    }
+
+    async fetchData() {
+         
+        return new Promise(resolve => setTimeout(() => resolve([6, 7, 8, 9, 10]), 1000));
+    }
+
+    *generateData() {
+        yield* this.data;
+    }
+
+    async process() {
+        try {
+            const fetchedData = await this.fetchData();
+            this.data = [...this.data, ...fetchedData];
+
+            const dataGenerator = this.generateData();
+            for (let value of dataGenerator) {
+                print(`Processing: ${value}`);
+            }
+            
+             
+            const handler = {
+                set: (obj, prop, value) => {
+                    if (typeof value === 'number' && value > 0) {
+                        obj[prop] = value;
+                        return true;
+                    } else {
+                        throw new Error('Invalid data entry');
+                    }
+                }
+            };
+            
+            const proxyData = new Proxy(this.data, handler);
+            proxyData[0] = 11;  
+             
+            print('Final Data:', proxyData);
+            
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+const demo = new ComplexFeatureDemo();
+demo.process();

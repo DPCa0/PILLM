@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ name: 'Alice', age: 30, city: 'Wonderland', occupation: 'Explorer' });
+        }, 1000);
+    });
+};
+
+ 
+const processUserData = async () => {
+    try {
+         
+        const data = await fetchData();
+        
+         
+        const { name, age, ...rest } = data;
+        
+         
+        console.log(`User's name is ${name} and age is ${age}.`);
+        
+        // Use spread operator to gather remaining user details
+        const additionalInfo = { ...rest };
+        
+        // Create a new object with more properties
+        const userDetails = { ...data, active: true, hobbies: ['Reading', 'Traveling'] };
+        
+        // Log the full user details object
+        console.log(userDetails);
+        
+        return additionalInfo;
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+};
+
+// Execute the processUserData function
+processUserData().then((additionalInfo) => {
+    // Log additional user information obtained from spread operator
+    console.log('Additional User Info:', additionalInfo);
+});
+```

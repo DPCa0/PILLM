@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processUserData = async () => {
+  try {
+    const userData = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const userEmails = userData
+      .filter(({ email }) => email.endsWith('.net'))
+      .reduce((acc, { name, email }) => ({ ...acc, [name]: email }), {});
+    console.table(userEmails);
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+};
+
+const sum = (a, b, ...rest) => {
+  const initialSum = a + b;
+  return rest.reduce((total, num) => total + num, initialSum);
+};
+
+console.log('Sum of numbers:', sum(1, 2, 3, 4, 5));  
+
+const observe = (fn) => {
+  const callback = (mutationsList) => {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'childList') {
+        fn();
+      }
+    }
+  };
+  return new MutationObserver(callback);
+};
+
+const targetNode = document.getElementById('app');
+if (targetNode) {
+  const observer = observe(() => console.log('DOM changed!'));
+  observer.observe(targetNode, { childList: true });
+}
+
+processUserData();
+```

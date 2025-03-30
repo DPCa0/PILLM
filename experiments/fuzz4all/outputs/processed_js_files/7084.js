@@ -1,0 +1,54 @@
+class ComplexNumbers {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static add(a, b) {
+        return new ComplexNumbers(a.real + b.real, a.imaginary + b.imaginary);
+    }
+
+    static multiply(a, b) {
+        return new ComplexNumbers(
+            a.real * b.real - a.imaginary * b.imaginary,
+            a.real * b.imaginary + a.imaginary * b.real
+        );
+    }
+
+    [Symbol.toPrimitive](hint) {
+        if (hint === 'string') {
+            return `${this.real} + ${this.imaginary}i`;
+        }
+        return this.magnitude();
+    }
+
+    magnitude() {
+        return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+    }
+}
+
+const complexAsyncFunction = async (operation, num1, num2) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));  
+    if (operation === 'add') {
+        return ComplexNumbers.add(num1, num2);
+    } else if (operation === 'multiply') {
+        return ComplexNumbers.multiply(num1, num2);
+    } else {
+        throw new Error('Invalid operation');
+    }
+};
+
+(async () => {
+    const num1 = new ComplexNumbers(2, 3);
+    const num2 = new ComplexNumbers(4, -1);
+
+    try {
+        const addedResult = await complexAsyncFunction('add', num1, num2);
+        print(`Addition Result: ${String(addedResult)}`);
+
+        const multipliedResult = await complexAsyncFunction('multiply', num1, num2);
+        print(`Multiplication Result: ${String(multipliedResult)}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

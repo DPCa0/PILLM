@@ -1,0 +1,32 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const fetchData = async () => {
+    const simulatedDataFetch = async () => {
+      await delay(1000);
+      return { data: 'Sample data from async operation' };
+    };
+
+    return simulatedDataFetch();
+  };
+
+  const processData = ({ data }) => {
+    return new Proxy(data, {
+      get(target, prop) {
+        if (prop === 'formatted') {
+          return `**${target.toUpperCase()}**`;
+        }
+        return target[prop];
+      }
+    });
+  };
+
+  const runAsyncGenerators = async function* () {
+    const fetchedData = await fetchData();
+    yield processData(fetchedData);
+  };
+
+  for await (let dataProxy of runAsyncGenerators()) {
+    print(dataProxy.formatted);
+  }
+})();

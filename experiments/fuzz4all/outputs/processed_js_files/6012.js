@@ -1,0 +1,40 @@
+const data = {
+  users: [
+    { id: 1, name: "Alice", age: 28 },
+    { id: 2, name: "Bob", age: 22 },
+    { id: 3, name: "Charlie", age: 32 },
+  ],
+  settings: {
+    theme: "dark",
+    notifications: true,
+  },
+};
+
+const fetchData = () =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve(data), 1000);
+  });
+
+const transformData = ({ users, settings }) => {
+  const olderUsers = users
+    .filter(({ age }) => age > 25)
+    .map(({ name, age }) => ({ name, ageInFiveYears: age + 5 }));
+  return { olderUsers, theme: settings.theme };
+};
+
+const logData = async () => {
+  try {
+    const data = await fetchData();
+    const { olderUsers, theme } = transformData(data);
+
+    print("Transformed Data:");
+    olderUsers.forEach(({ name, ageInFiveYears }) =>
+      console.log(`${name} will be ${ageInFiveYears} in five years`)
+    );
+    print(`Current theme is: ${theme}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+};
+
+logData();

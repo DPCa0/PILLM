@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const target = {
+  firstName: 'Jane',
+  lastName: 'Doe',
+  age: 30,
+};
+
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' accessed.`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting '${prop}' to '${value}'.`);
+    obj[prop] = value;
+    return true;
+  },
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+    console.log(`Fetching data for user ${id}`);
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve({ id, name: `User${id}` }), 1000)
+    );
+  }
+}
+
+async function processUsers(userIds) {
+  for await (const userData of fetchUserData(userIds)) {
+    console.log(`Received:`, userData);
+  }
+}
+
+const userIds = [1, 2, 3];
+processUsers(userIds);
+
+ 
+console.log(proxy.firstName);  
+proxy.age = 31;  
+
+ 
+function upper(strings, ...values) {
+  return strings.reduce(
+    (acc, str, i) => acc + str + (values[i] ? values[i].toUpperCase() : ''),
+    ''
+  );
+}
+
+const name = 'John';
+console.log(upper`Hello, ${name}! Welcome to the future.`);
+```

@@ -1,0 +1,68 @@
+class Matrix {
+  constructor(rows, cols, elements = []) {
+    this.rows = rows;
+    this.cols = cols;
+    this.elements = elements.length ? elements : Array(rows * cols).fill(0);
+  }
+
+  static fromArray(array) {
+    return new Matrix(array.length, array[0].length, array.flat());
+  }
+
+  to2DArray() {
+    let result = [];
+    for (let i = 0; i < this.rows; i++) {
+      result.push(this.elements.slice(i * this.cols, (i + 1) * this.cols));
+    }
+    return result;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    return {
+      next: () => ({
+        value: this.elements[index++],
+        done: index > this.elements.length,
+      }),
+    };
+  }
+
+  map(fn) {
+    this.elements = this.elements.map((val, idx) => fn(val, idx, this));
+    return this;
+  }
+
+  static add(matA, matB) {
+    if (matA.rows !== matB.rows || matA.cols !== matB.cols)
+      throw new Error('Matrices dimensions must match');
+    let elements = matA.elements.map((el, idx) => el + matB.elements[idx]);
+    return new Matrix(matA.rows, matA.cols, elements);
+  }
+}
+
+(async () => {
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const matrixA = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]);
+  const matrixB = Matrix.fromArray([
+    [9, 8, 7],
+    [6, 5, 4],
+    [3, 2, 1],
+  ]);
+
+  print('Matrix A:', matrixA.to2DArray());
+  print('Matrix B:', matrixB.to2DArray());
+
+  for await (let value of matrixA) {
+    await sleep(200);
+    print('Iterating Matrix A:', value);
+  }
+
+  const result = Matrix.add(matrixA, matrixB)
+    .map((val) => val * 2)
+    .to2DArray();
+  print('Result Matrix (A + B) * 2:', result);
+})();

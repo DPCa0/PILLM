@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async () => {
+     
+    const greeter = {
+        greeting: 'Hello, world!',
+        async greet() {
+             
+            console.log(`${this.greeting}`);
+            await delay(1000);
+            console.log('...this message was delayed!');
+        },
+         
+        *numbers() {
+            yield* [1, 2, 3];
+        }
+    };
+
+     
+    const { greet, ...restProps } = greeter;
+    
+     
+    await greet.call(greeter);
+
+     
+    const uniqueNumbers = new Set(greeter.numbers());
+    
+     
+    console.log(...uniqueNumbers);
+
+     
+    const maybeUndefined = null;
+    console.log(maybeUndefined?.value ?? 'No value');
+    
+     
+    const proxy = new Proxy(greeter, {
+        get(target, prop) {
+            return prop in target ? target[prop] : `Property ${prop} does not exist`;
+        }
+    });
+
+     
+    console.log(proxy.greeting);
+    console.log(proxy.nonexistentProp);
+})();
+```

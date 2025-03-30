@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  console.log(`Fetching data from ${url}...`);
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data from ${url}`), 1000);
+  });
+};
+
+ 
+function* urlGenerator() {
+  yield "https://api.example.com/data1";
+  yield "https://api.example.com/data2";
+  yield "https://api.example.com/data3";
+}
+
+ 
+const loggerHandler = {
+  get: (target, prop) => {
+    console.log(`Accessing property '${prop}'`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property '${prop}' to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+let config = new Proxy({ baseUrl: "https://api.example.com" }, loggerHandler);
+
+ 
+const accessProp = (obj, prop) => {
+  if (Reflect.has(obj, prop)) {
+    console.log(`Property '${prop}' exists`);
+    return Reflect.get(obj, prop);
+  } else {
+    console.log(`Property '${prop}' does not exist`);
+    return undefined;
+  }
+};
+
+ 
+const processUrls = async () => {
+  const urls = urlGenerator();
+  for (let url of urls) {
+    let data = await fetchData(url);
+    console.log(`Received: ${data}`);
+  }
+};
+
+ 
+const asyncIterable = {
+  async *[Symbol.asyncIterator]() {
+    const items = ["item1", "item2", "item3"];
+    for (const item of items) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      yield item;
+    }
+  }
+};
+
+ 
+(async () => {
+  console.log("Start processing URLs");
+  await processUrls();
+
+  console.log("Accessing baseUrl from config:", accessProp(config, "baseUrl"));
+  config.newProperty = "test";
+  
+  console.log("Iterating over async iterable:");
+  for await (let value of asyncIterable) {
+    console.log(value);
+  }
+})();
+```

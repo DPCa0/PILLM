@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* infiniteSequence() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+const infiniteIterable = {
+    [Symbol.iterator]: infiniteSequence
+};
+
+ 
+(async function processSequence() {
+    let count = 0;
+    for (let number of infiniteIterable) {
+        console.log(`Processing number: ${number}`);
+        await delay(1000);  
+        if (++count >= 5) break;
+    }
+    console.log('Done processing numbers.');
+})();
+
+ 
+const handler = {
+    get: function(target, prop) {
+        return prop in target ? target[prop] : `Property ${prop} does not exist`;
+    }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, handler);
+
+console.log(proxyObject.a);  
+console.log(proxyObject.b);  
+console.log(proxyObject.c);  
+
+ 
+const _privateField = new WeakMap();
+
+class Secret {
+    constructor(secret) {
+        _privateField.set(this, secret);
+    }
+    
+    revealSecret() {
+        console.log(`The secret is: ${_privateField.get(this)}`);
+    }
+}
+
+const mySecret = new Secret('Top Secret');
+mySecret.revealSecret();  
+```

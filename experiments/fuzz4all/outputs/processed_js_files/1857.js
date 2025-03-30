@@ -1,0 +1,29 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+             
+            url ? resolve(`Data from ${url}`) : reject('No URL provided');
+        }, 1000);
+    });
+};
+
+ 
+(async () => {
+    try {
+        const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+         
+        const promises = urls.map(async url => await fetchData(url));
+
+         
+        const results = await Promise.allSettled(promises);
+
+         
+        for (const { status, value, reason } of results) {
+            print(status === 'fulfilled' ? value?.toUpperCase() : `Error: ${reason}`);
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

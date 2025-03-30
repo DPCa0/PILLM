@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class Observer {
+    constructor() {
+        this.observers = new Set();
+    }
+
+    subscribe(fn) {
+        this.observers.add(fn);
+    }
+
+    unsubscribe(fn) {
+        this.observers.delete(fn);
+    }
+
+    notify(data) {
+        this.observers.forEach(observer => observer(data));
+    }
+}
+
+const createReactiveObject = (obj) => {
+    const handler = {
+        set(target, property, value) {
+            target[property] = value;
+            observer.notify({ property, value });
+            return true;
+        }
+    };
+    const proxy = new Proxy(obj, handler);
+    return proxy;
+};
+
+ 
+const dynamicModuleLoader = async (moduleName) => {
+    try {
+        const module = await import(`./modules/${moduleName}.js`);
+        return module;
+    } catch (error) {
+        console.error(`Error loading module: ${moduleName}`, error);
+    }
+};
+
+const observer = new Observer();
+observer.subscribe(data => console.log(`Property ${data.property} changed to ${data.value}`));
+
+const reactiveData = createReactiveObject({ name: 'John', age: 30 });
+
+reactiveData.name = 'Doe';  
+
+(async () => {
+    const moduleName = 'utils';
+    const utils = await dynamicModuleLoader(moduleName);
+    
+    if (utils && utils.default) {
+        utils.default();  
+    }
+})();
+
+ 
+const promises = [
+    fetch('https://api.example.com/data1'),
+    fetch('https://api.example.com/data2'),
+    fetch('https://api.example.com/data3')
+];
+
+Promise.allSettled(promises)
+    .then(results => results.forEach(result => {
+        if (result.status === 'fulfilled') {
+            console.log('Data received:', result.value);
+        } else {
+            console.log('Fetch error:', result.reason);
+        }
+    }));
+```

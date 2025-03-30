@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const ComplexModule = (function() {
+     
+    let data = {};
+
+     
+    function processData(input) {
+        return Object.entries(input).map(([key, value]) => ({
+            [key]: value * 2
+        }));
+    }
+
+    return {
+         
+        async fetchDataAndProcess(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const jsonData = await response.json();
+
+                 
+                const { name, ...otherData } = jsonData;
+
+                 
+                const { cloneDeep } = await import('https://cdn.skypack.dev/lodash-es');
+
+                 
+                function tag(strings, ...values) {
+                    return strings.reduce((result, string, i) => result + string + (values[i] || ''), '');
+                }
+
+                console.log(tag`Hello ${name}, here is your processed data:`);
+
+                 
+                data = cloneDeep(processData(otherData));
+                
+                console.log(data);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+})();
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxiedModule = new Proxy(ComplexModule, handler);
+
+ 
+proxiedModule.fetchDataAndProcess('https://api.example.com/data');
+```

@@ -1,0 +1,40 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+  *[Symbol.iterator]() {
+    let [a, b] = [0, 1];
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+  nth(n) {
+    if (n <= 1) return n;
+    if (!this.memo.has(n)) {
+      this.memo.set(n, this.nth(n - 1) + this.nth(n - 2));
+    }
+    return this.memo.get(n);
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  
+   
+  const fetchFib = async (n) => {
+    return new Promise(resolve => setTimeout(() => resolve(fib.nth(n)), 100));
+  };
+
+  print("Generating Fibonacci sequence:");
+  const seq = fib[Symbol.iterator]();
+  
+   
+  for (const _ of Array.from({ length: 10 })) {
+    print(seq.next().value);
+  }
+
+   
+  const nthFib = await fetchFib(20);
+  print(`The 20th Fibonacci number is ${nthFib}`);
+})();

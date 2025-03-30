@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData() {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  for (const url of urls) {
+     
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+     
+    yield { url, data: `Data from ${url}` };
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting property ${prop}`);
+    return prop in target ? target[prop] : `No property ${prop}`;
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const proxyObject = new Proxy({ name: 'JavaScript', type: 'Programming Language' }, handler);
+
+ 
+proxyObject.version = 'ES2023';
+console.log(proxyObject.name);
+console.log(proxyObject.category);
+
+ 
+const getVersion = obj => obj?.version ?? 'Unknown version';
+console.log(`Version: ${getVersion(proxyObject)}`);
+
+ 
+(async () => {
+  const [{ url: url1, data: data1 }, { url: url2, data: data2 }] = await Promise.all(fetchData());
+  console.log(`Fetched data: ${data1} and ${data2}`);
+})();
+```

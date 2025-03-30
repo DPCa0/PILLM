@@ -1,0 +1,52 @@
+ 
+
+class WeatherFetcher {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  }
+  
+  async getWeather(city) {
+    try {
+      const url = `${this.baseUrl}?q=${city}&appid=${this.apiKey}&units=metric`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Weather data not found');
+      const data = await response.json();
+      return this.parseWeatherData(data);
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  parseWeatherData(data) {
+    const {
+      name: city,
+      main: { temp, humidity },
+      weather: [{ description }]
+    } = data;
+
+    return {
+      city,
+      temperature: temp,
+      humidity,
+      description
+    };
+  }
+}
+
+(async () => {
+  const apiKey = 'your_api_key_here';  
+  const cities = ['London', 'New York', 'Tokyo'];
+  const weatherFetcher = new WeatherFetcher(apiKey);
+
+  const promises = cities.map(city => weatherFetcher.getWeather(city));
+  const weatherResults = await Promise.all(promises);
+
+  weatherResults.forEach(weather => {
+    if (weather) {
+      const { city, temperature, humidity, description } = weather;
+      print(`In ${city}, the temperature is ${temperature}°C with ${humidity}% humidity and conditions are ${description}.`);
+    }
+  });
+})();

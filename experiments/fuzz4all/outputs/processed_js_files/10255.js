@@ -1,0 +1,38 @@
+ 
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield `ID-${id++}`;
+    }
+}
+
+ 
+const fetchData = (() => {
+    const data = [
+        { id: 'ID-1', value: 'First' },
+        { id: 'ID-2', value: 'Second' },
+        { id: 'ID-3', value: 'Third' },
+    ];
+
+    return async (id) => {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        return data.find(item => item.id === id) || { id, value: 'Not Found' };
+    };
+})();
+
+ 
+async function processItems() {
+    const idGen = idGenerator();
+    const idsToFetch = [idGen.next().value, idGen.next().value, idGen.next().value, idGen.next().value];
+
+    const results = await Promise.all(idsToFetch.map(id => fetchData(id)));
+
+    results.forEach(result => {
+        print(`Fetched: ${result.id} -> ${result.value}`);
+    });
+}
+
+ 
+processItems().catch(console.error);

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const asyncIterable = {
+  [Symbol.asyncIterator]() {
+    return {
+      i: 0,
+      next() {
+        if (this.i < 5) {
+          return new Promise(resolve => {
+            setTimeout(() => resolve({ value: this.i++, done: false }), 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+};
+
+const processNumber = async number => {
+  const factorial = n => (n <= 1 ? 1 : n * factorial(n - 1));
+  console.log(`Factorial of ${number} is ${factorial(number)}`);
+};
+
+(async () => {
+  for await (const num of asyncIterable) {
+    await processNumber(num);
+  }
+})();
+
+const fibonacci = (function () {
+  const cache = {};
+  return n => {
+    if (n in cache) return cache[n];
+    if (n <= 1) return n;
+    return (cache[n] = fibonacci(n - 1) + fibonacci(n - 2));
+  };
+})();
+
+const logFibonacci = num => {
+  console.log(`Fibonacci of ${num} is ${fibonacci(num)}`);
+};
+
+[...Array(10).keys()].forEach(logFibonacci);
+```

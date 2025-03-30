@@ -1,0 +1,25 @@
+ 
+async function fetchUserData() {
+     
+    const fetchData = () => new Promise(resolve => setTimeout(() => {
+        resolve([
+            { name: 'Alice', age: 30, profession: 'Engineer' },
+            { name: 'Bob', age: 24, profession: 'Designer' },
+            { name: 'Charlie', age: 28, profession: 'Teacher' }
+        ]);
+    }, 1000));
+
+    const userData = await fetchData();
+
+     
+    const userSummaries = userData.map(({ name, profession }) => `${name} works as a ${profession}.`);
+
+     
+    const processedData = await new Promise(resolve => setTimeout(() => {
+        resolve(userSummaries.join('\n'));
+    }, 500));
+
+    print(processedData);
+}
+
+fetchUserData();

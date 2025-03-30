@@ -1,0 +1,28 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+  }
+  *sequence() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+const asyncComputeFib = async (limit) => {
+  const fib = new Fibonacci(limit);
+  const sequence = fib.sequence();
+  
+  const results = [];
+  for await (const num of sequence) {
+    results.push(await new Promise(resolve => setTimeout(() => resolve(num), 100)));
+  }
+  return results;
+};
+
+(async () => {
+  const fibNumbers = await asyncComputeFib(10);
+  print(fibNumbers.join(', '));
+})();

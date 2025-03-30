@@ -1,0 +1,40 @@
+class DataProcessor {
+  #data = new Map();
+  
+  constructor(data) {
+    this.#data = data instanceof Map ? data : new Map(Object.entries(data));
+  }
+
+  *[Symbol.iterator]() {
+    yield* this.#data;
+  }
+  
+  async process(callback) {
+    const promises = [];
+    for (const [key, value] of this.#data) {
+      promises.push(Promise.resolve(callback(key, value)));
+    }
+    return await Promise.all(promises);
+  }
+  
+  async *transform(transformFn) {
+    for (const [key, value] of this.#data) {
+      yield await Promise.resolve(transformFn(key, value));
+    }
+  }
+}
+
+(async () => {
+  const data = new DataProcessor({ a: 1, b: 2, c: 3 });
+  
+  for await (const [key, value] of data) {
+    print(`Processing ${key}: ${value}`);
+  }
+  
+  const processedData = await data.process((key, value) => value * 2);
+  print("Processed Data:", processedData);
+  
+  for await (const transformed of data.transform((key, value) => ({ [key]: value ** 2 }))) {
+    print("Transformed:", transformed);
+  }
+})();

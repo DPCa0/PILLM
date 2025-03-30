@@ -1,0 +1,63 @@
+ 
+(async () => {
+  const fs = await import('fs/promises');
+  const os = await import('os');
+
+   
+  const { username, homedir } = os.userInfo();
+  print(`Hello, ${username}! Welcome to your home directory: ${homedir}`);
+
+   
+  async function* readLines(filePath) {
+    const fileHandle = await fs.open(filePath, 'r');
+    try {
+      for await (const line of fileHandle.readLines()) {
+        yield line;
+      }
+    } finally {
+      await fileHandle.close();
+    }
+  }
+
+   
+  const envHandler = {
+    get(target, property) {
+      print(`Accessing environment variable: ${property}`);
+      return target[property];
+    }
+  };
+  const env = new Proxy(process.env, envHandler);
+
+  print(`Node.js version is: ${env['NODE_VERSION'] || 'unknown'}`);
+
+   
+  async function readFileAndPrint(filePath) {
+    try {
+      const linesIterator = readLines(filePath);
+      for await (const line of linesIterator) {
+        print(line);
+      }
+    } catch (error) {
+      console.error(`Error reading file: ${error.message}`);
+    }
+  }
+
+   
+  const fileName = process.argv[2] ?? 'example.txt';
+  print(`Reading file: ${fileName}`);
+
+   
+  await readFileAndPrint(fileName);
+
+   
+  const wordFrequencyMap = new Map();
+
+  async function analyzeWordFrequency(filePath) {
+    try {
+      const fileContents = await fs.readFile(filePath, 'utf-8');
+      const words = fileContents.split(/\s+/);
+      words.forEach(word => {
+        wordFrequencyMap.set(word, (wordFrequencyMap.get(word) || 0) + 1);
+      });
+      print('Word Frequency:', [...wordFrequencyMap.entries()]);
+    } catch (error) {

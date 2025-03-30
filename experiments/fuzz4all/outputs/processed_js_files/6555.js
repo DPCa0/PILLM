@@ -1,0 +1,25 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { title: 'Async/Await in JS', views: 1024, likes: 300 };
+      resolve(data);
+    }, 1000);
+  });
+  return promise;
+};
+
+ 
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const { title, views, likes } = await fetchData(url);  
+    console.log(`Title: ${title}
+Views: ${views.toLocaleString()}
+Likes: ${likes.toLocaleString()}`);  
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

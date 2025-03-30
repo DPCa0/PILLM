@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+ 
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+ 
+async function processData() {
+  console.log('Fetching data...');
+  const data = await fetchData();
+  console.log('Data fetched:', data);
+
+  const generator = dataGenerator(data);
+
+  for (let item of generator) {
+    console.log('Processing item:', item);
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessing property "${property}"`);
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    console.log(`Setting property "${property}" to "${value}"`);
+    return Reflect.set(target, property, value);
+  },
+};
+
+ 
+const dataObject = {
+  count: 0,
+};
+
+ 
+const proxyData = new Proxy(dataObject, handler);
+
+ 
+proxyData.count = 1;
+console.log(proxyData.count);
+
+ 
+processData();
+```

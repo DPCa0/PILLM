@@ -1,0 +1,32 @@
+class DataLoader {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async *fetchData() {
+    let page = 1;
+    while (true) {
+      const response = await fetch(`${this.url}?page=${page}`);
+      const data = await response.json();
+      if (!data.length) break;
+      yield data;
+      page++;
+    }
+  }
+}
+
+function processData(records) {
+  return records.map(({ id, name, email }) => ({
+    id,
+    displayName: `${name.toUpperCase()} <${email}>`,
+  }));
+}
+
+(async function main() {
+  const loader = new DataLoader('https://api.example.com/data');
+  
+  for await (const batch of loader.fetchData()) {
+    const processed = processData(batch);
+    print(processed);
+  }
+})();

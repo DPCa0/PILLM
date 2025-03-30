@@ -1,0 +1,58 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+const eventEmitter = new EventEmitter();
+
+ 
+let handler = {
+  set(target, property, value) {
+    target[property] = value;
+    eventEmitter.emit('update', property, value);
+    return true;
+  }
+};
+
+let dataStore = new Proxy({}, handler);
+
+eventEmitter.on('update', (key, value) => {
+  print(`Property ${key} was updated to ${value}`);
+});
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(url);
+
+  if (data) {
+    Object.entries(data).forEach(([key, value]) => {
+      dataStore[key] = value;  
+    });
+  }
+})();

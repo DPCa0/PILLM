@@ -1,0 +1,46 @@
+ 
+const fs = require('fs').promises;
+const { EventEmitter } = require('events');
+const crypto = require('crypto');
+
+ 
+class MyEmitter extends EventEmitter {}
+const myEmitter = new MyEmitter();
+
+ 
+async function hashAndSave(data, filename) {
+    try {
+         
+        const hash = crypto.createHash('sha256').update(data).digest('hex');
+
+         
+        myEmitter.emit('beforeWrite', { hash, filename });
+
+         
+        await fs.writeFile(filename, hash);
+
+         
+        myEmitter.emit('afterWrite', { hash, filename });
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+myEmitter.on('beforeWrite', ({ hash, filename }) => {
+    print(`About to write hash ${hash} to file: ${filename}`);
+});
+
+myEmitter.on('afterWrite', ({ hash, filename }) => {
+    print(`Successfully wrote hash ${hash} to file: ${filename}`);
+});
+
+ 
+(async () => {
+    const dataToHash = 'Hello, world!';
+    const filename = `./hash_${Date.now()}.txt`;
+
+     
+    await hashAndSave(dataToHash, filename);
+})();

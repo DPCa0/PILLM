@@ -1,0 +1,43 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    const results = await Promise.all(this.data.map(async (item, index) => {
+      const transformed = await this.transformItem(item, index);
+      return transformed;
+    }));
+    return results;
+  }
+
+  async transformItem(item, index) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const transformed = this.#privateHelperMethod(item, index);
+          resolve(transformed);
+        } catch (error) {
+          reject(error);
+        }
+      }, 1000);
+    });
+  }
+
+  #privateHelperMethod(item, index) {
+    const calculation = ((value) => value * (index + 1))(item);
+    return `Processed: ${calculation}`;
+  }
+}
+
+const data = [5, 10, 15, 20];
+const processor = new AsyncProcessor(data);
+
+(async () => {
+  try {
+    const results = await processor.processData();
+    print(results);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();

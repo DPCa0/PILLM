@@ -1,0 +1,51 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncSequence = async function*(start = 1) {
+  let current = start;
+  while (true) {
+    yield delay(1000).then(() => current++);
+  }
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  const sequence = asyncSequence();
+
+  emitter.on('data', data => {
+    print(`Received data: ${data}`);
+  });
+
+  emitter.on('stop', () => {
+    print('Stopping event emission.');
+    clearInterval(interval);
+  });
+
+  const interval = setInterval(async () => {
+    const { value } = await sequence.next();
+    if (value > 5) {
+      emitter.emit('stop');
+    } else {
+      emitter.emit('data', value);
+    }
+  }, 1000);
+
+})();

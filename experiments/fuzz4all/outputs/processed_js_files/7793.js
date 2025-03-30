@@ -1,0 +1,40 @@
+ 
+
+ 
+async function fetchData() {
+  const data = await new Promise((resolve, reject) => {
+    setTimeout(() => resolve({ value: 42 }), 1000);
+  });
+  return data;
+}
+
+ 
+function* dataGenerator(data) {
+  yield* data;
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Accessing property "${property}" with value "${target[property]}"`);
+    return target[property];
+  }
+};
+
+(async function() {
+  try {
+     
+    const result = await fetchData();
+    
+     
+    const proxyData = new Proxy(result, handler);
+    
+     
+    const gen = dataGenerator(Object.entries(proxyData));
+    for (let entry of gen) {
+      print(`Key: ${entry[0]}, Value: ${entry[1]}`);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

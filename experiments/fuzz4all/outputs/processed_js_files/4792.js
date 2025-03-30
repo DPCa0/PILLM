@@ -1,0 +1,43 @@
+const fetch = require('node-fetch');
+
+ 
+async function fetchAndProcessData(url) {
+    try {
+         
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        let data = await response.json();
+        
+         
+        let { rates } = data;
+
+         
+        let updatedRates = { ...rates, USD: 1 };
+
+         
+        let convertedRates = Object.entries(updatedRates)
+            .map(([currency, rate]) => ({ currency, rate: rate * 2 }))
+            .filter(item => item.rate > 1);
+
+         
+        print(`Processed Rates: ${JSON.stringify(convertedRates)}`);
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+}
+
+ 
+function executeAfterDelay(func, delay) {
+    setTimeout(func, delay);
+}
+
+ 
+(async function() {
+     
+    const url = 'https://api.exchangerate-api.com/v4/latest/USD';
+    
+     
+    executeAfterDelay(async () => await fetchAndProcessData(url), 1000);
+})();

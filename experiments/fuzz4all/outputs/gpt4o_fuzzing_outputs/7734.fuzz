@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const getRandomNumberWithDelay = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const randomNum = Math.floor(Math.random() * 100);
+      resolve(randomNum);
+    }, 1000);
+  });
+};
+
+ 
+const computeFactorial = async () => {
+  try {
+    const number = await getRandomNumberWithDelay();
+    console.log(`Random Number: ${number}`);
+
+     
+    const factorial = (n) => (n === 0 ? 1 : n * factorial(n - 1));
+
+    const result = factorial(number);
+    console.log(`Factorial of ${number} is: ${result}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+const calculator = {
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
+  divide: (a, b) => (b !== 0 ? a / b : 'Infinity'),
+};
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      console.log(`Accessing ${prop} method`);
+      return target[prop];
+    }
+    return `No such method: ${prop}`;
+  },
+};
+
+const proxyCalculator = new Proxy(calculator, handler);
+
+ 
+console.log(proxyCalculator.add(10, 5));       
+console.log(proxyCalculator.subtract(10, 5));  
+console.log(proxyCalculator.multiply(10, 5));  
+console.log(proxyCalculator.divide(10, 5));    
+
+ 
+computeFactorial();
+```

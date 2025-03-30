@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class ComplexFeatureDemo {
+    constructor() {
+        this.value = 0;
+    }
+
+     
+    createProxy() {
+        return new Proxy(this, {
+            get(target, prop, receiver) {
+                console.log(`Accessed property: ${String(prop)}`);
+                return Reflect.get(target, prop, receiver);
+            },
+            set(target, prop, value, receiver) {
+                console.log(`Setting property: ${String(prop)} to ${value}`);
+                return Reflect.set(target, prop, value, receiver);
+            }
+        });
+    }
+
+     
+    static *range(start, end) {
+        for (let i = start; i <= end; i++) {
+            yield i;
+        }
+    }
+
+     
+    async simulateAsyncOperation() {
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+        console.log("Starting async operation...");
+        await delay(1000);  
+        console.log("Async operation completed.");
+    }
+}
+
+ 
+const dataMap = new Map([
+    ['a', 1],
+    ['b', 2],
+    ['c', 3]
+]);
+
+console.log('Iterating over a Map:');
+for (let [key, value] of dataMap) {
+    console.log(`${key}: ${value}`);
+}
+
+ 
+const [firstKey, firstValue] = dataMap.entries().next().value;
+console.log(`First entry in Map: ${firstKey}: ${firstValue}`);
+
+ 
+const demoInstance = new ComplexFeatureDemo();
+const proxy = demoInstance.createProxy();
+proxy.value = 42;
+console.log(`Current value: ${proxy.value}`);
+
+ 
+console.log('Range from 5 to 10:');
+for (let num of ComplexFeatureDemo.range(5, 10)) {
+    console.log(num);
+}
+
+ 
+demoInstance.simulateAsyncOperation();
+```

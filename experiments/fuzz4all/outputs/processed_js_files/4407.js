@@ -1,0 +1,38 @@
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+    this.completed = false;
+  }
+
+  complete() {
+    this.completed = true;
+  }
+}
+
+const tasks = [
+  new Task('Task 1', 3000),
+  new Task('Task 2', 2000),
+  new Task('Task 3', 1000),
+];
+
+async function executeTask(task) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      task.complete();
+      print(`Completed: ${task.name}`);
+      resolve(task);
+    }, task.duration);
+  });
+}
+
+(async () => {
+  for await (const task of tasks) {
+    await executeTask(task);
+  }
+
+  const completedTasks = tasks.filter((task) => task.completed);
+  console.log(
+    `All tasks completed: ${completedTasks.map((task) => task.name).join(', ')}`
+  );
+})();

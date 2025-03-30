@@ -1,0 +1,30 @@
+print('Hello, world!');
+```javascript
+const compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x);
+
+const asyncOperation = async (value) => new Promise((resolve) => 
+  setTimeout(() => resolve(value + 10), 1000));
+
+const promiseHandler = async (value) => {
+  try {
+    const result = await asyncOperation(value);
+    console.log(`Result after async operation: ${result}`);
+    return result;
+  } catch (error) {
+    console.error('Error in async operation', error);
+  }
+};
+
+const multiply = factor => value => value * factor;
+const add = increment => value => value + increment;
+const logValue = value => (console.log(`Current value: ${value}`), value);
+
+const complexFunction = compose(
+  promiseHandler,
+  logValue,
+  multiply(2),
+  add(5),
+);
+
+complexFunction(10).then(result => console.log(`Final result: ${result}`));
+```

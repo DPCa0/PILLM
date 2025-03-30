@@ -1,0 +1,61 @@
+ 
+class AdvancedFeatures {
+  #privateField = 'private';
+
+  constructor(name) {
+    this.name = name;
+  }
+
+   
+  *generatorFunction() {
+    yield `Hello from ${this.name}`;
+    yield* this.#iteratePrivate();
+  }
+
+   
+  #iteratePrivate() {
+    return [...this.#privateField].map(letter => `Private letter: ${letter}`);
+  }
+
+   
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  }
+
+   
+  get privateContent() {
+    return this.#privateField;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'name') {
+      return `Intercepted access to name: ${target[prop]}`;
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const advancedInstance = new Proxy(new AdvancedFeatures('John Doe'), handler);
+
+ 
+const { name: interceptedName, ...restProps } = advancedInstance;
+
+ 
+const gen = advancedInstance.generatorFunction();
+for (let value of gen) {
+  print(value);
+}
+
+ 
+AdvancedFeatures.fetchData('https://api.github.com').then(data => {
+  print('Fetched Data:', data);
+}).catch(error => {
+  console.error('Error fetching data:', error);
+});

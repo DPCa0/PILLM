@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return new Proxy(data, {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        console.warn(`Property ${prop} does not exist`);
+        return null;
+      }
+    },
+    set(target, prop, value) {
+      print(`Setting value of ${prop} to ${value}`);
+      target[prop] = value;
+      return true;
+    },
+  });
+};
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+fetchData(url)
+  .then(data => {
+    const proxyData = processData(data);
+    print(proxyData[0].title);   
+    print(proxyData[100]?.title);   
+    proxyData[0].title = 'New Title';   
+  })
+  .catch(error => {
+    console.error('Error during data fetching and processing:', error);
+  });
+

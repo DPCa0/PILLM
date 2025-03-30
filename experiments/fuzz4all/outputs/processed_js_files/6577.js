@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) {
+            resolve({
+                data: {
+                    user: {
+                        id: 1,
+                        name: 'Jane Doe',
+                        interests: ['coding', 'music', 'art']
+                    }
+                }
+            });
+        } else {
+            reject(new Error('URL not provided'));
+        }
+    }, 1000);
+});
+
+ 
+async function processUserData(url) {
+    try {
+        const { data: { user: { name, interests } } } = await fetchData(url);
+        
+         
+        const uniqueInterests = new Set(interests);
+        const interestList = Array.from(uniqueInterests).map(
+            interest => interest.toUpperCase()
+        ).join(', ');
+
+        print(`User: ${name}`);
+        print(`Interests: ${interestList}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+}
+
+ 
+processUserData('https://api.example.com/user');

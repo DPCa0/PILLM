@@ -1,0 +1,30 @@
+ 
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return await response.json();
+  };
+
+  const processUsers = (users) => {
+    const groupedByAge = users.reduce((acc, user) => {
+      const ageGroup = Math.floor(user.age / 10) * 10;
+      acc[ageGroup] = acc[ageGroup] || [];
+      acc[ageGroup].push(user.name);
+      return acc;
+    }, {});
+    return groupedByAge;
+  };
+
+  try {
+    const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const userData = users.map(user => ({ name: user.name, age: Math.floor(Math.random() * 60) + 18 }));
+    const groupedUsers = processUsers(userData);
+
+    for (const [ageGroup, names] of Object.entries(groupedUsers)) {
+      print(`Ages ${ageGroup}-${+ageGroup + 9}: ${names.join(', ')}`);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})();

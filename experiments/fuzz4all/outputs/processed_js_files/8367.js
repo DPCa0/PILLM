@@ -1,0 +1,27 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+  }
+};
+
+const processUserData = async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+  
+  const users = await fetchData(apiUrl);
+  
+  const formattedUsers = users.map(({ id, name, email, address: { city } }) => {
+    return { id, name, email, city };
+  });
+
+  formattedUsers.forEach(user => {
+    print(`User: ${user.name} (ID: ${user.id})\nEmail: ${user.email}\nCity: ${user.city}\n`);
+  });
+};
+
+processUserData();

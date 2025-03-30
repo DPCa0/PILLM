@@ -1,0 +1,46 @@
+const dataPipeline = (() => {
+    const fetchData = async (url) => {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    };
+
+    const transformData = (data, ...fns) => fns.reduce((acc, fn) => fn(acc), data);
+
+    const filterByCriteria = (criteria) => (data) =>
+        data.filter(item => Object.entries(criteria).every(([key, value]) => item[key] === value));
+
+    const sortByKey = (key, order = 'asc') => (data) =>
+        data.sort((a, b) => (a[key] > b[key] ? 1 : -1) * (order === 'asc' ? 1 : -1));
+
+    const unique = (key) => (data) =>
+        Array.from(new Map(data.map(item => [item[key], item])).values());
+
+    return {
+        process: async (url, criteria, sortKey) => {
+            try {
+                const rawData = await fetchData(url);
+                const processedData = transformData(
+                    rawData,
+                    filterByCriteria(criteria),
+                    sortByKey(sortKey),
+                    unique(sortKey)
+                );
+                print(processedData);
+            } catch (error) {
+                console.error('Processing error:', error);
+            }
+        }
+    };
+})();
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+const criteria = { company: { name: 'Romaguera-Crona' } };
+dataPipeline.process(url, criteria, 'id');
+
+This JavaScript program uses modern features such as async/await, closures, higher-order functions, and ES6+ syntax to build a small data pipeline for fetching, filtering, sorting, and deduplicating data from an API.

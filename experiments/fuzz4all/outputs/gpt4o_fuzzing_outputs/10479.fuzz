@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class CurrencyConverter {
+    constructor() {
+        this.rates = new Map();
+    }
+
+    async fetchRates() {
+        const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+        const data = await response.json();
+        this.rates = new Map(Object.entries(data.rates));
+    }
+
+    *filterRates(predicate) {
+        for (let [currency, rate] of this.rates) {
+            if (predicate(currency, rate)) {
+                yield { currency, rate };
+            }
+        }
+    }
+
+    async convert(amount, from, to) {
+        if (!this.rates.size) await this.fetchRates();
+        const fromRate = this.rates.get(from);
+        const toRate = this.rates.get(to);
+        if (fromRate && toRate) {
+            return (amount / fromRate * toRate).toFixed(2);
+        } else {
+            throw new Error('Invalid currency code');
+        }
+    }
+
+    async logTopCurrencies(limit = 5) {
+        if (!this.rates.size) await this.fetchRates();
+        console.log('Top Currencies by Rate:');
+        [...this.filterRates(() => true)]
+            .sort((a, b) => b.rate - a.rate)
+            .slice(0, limit)
+            .forEach(({ currency, rate }) => {
+                console.log(`${currency}: ${rate}`);
+            });
+    }
+}
+
+(async () => {
+    const converter = new CurrencyConverter();
+    try {
+        console.log(`100 USD to EUR: ${await converter.convert(100, 'USD', 'EUR')}`);
+        await converter.logTopCurrencies();
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();
+```

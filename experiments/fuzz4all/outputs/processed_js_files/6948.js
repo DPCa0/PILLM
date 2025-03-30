@@ -1,0 +1,40 @@
+ 
+class ComplexExample {
+  constructor() {
+    this.data = { message: "Initial Data" };
+    this.handler = {
+      get: (target, prop, receiver) => {
+        if (prop in target) {
+          print(`Accessing property: ${prop}`);
+          return Reflect.get(target, prop, receiver);
+        }
+        throw new Error(`Property ${prop} does not exist`);
+      },
+      set: (target, prop, value, receiver) => {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+      },
+    };
+    this.proxy = new Proxy(this.data, this.handler);
+  }
+
+  async fetchData() {
+    print("Fetching data...");
+    return new Promise((resolve) => {
+      setTimeout(() => resolve("Fetched Data"), 2000);
+    });
+  }
+
+  async run() {
+    try {
+      const data = await this.fetchData();
+      this.proxy.message = data;
+      print(this.proxy.message);
+    } catch (error) {
+      console.error("An error occurred:", error.message);
+    }
+  }
+}
+
+const complexExample = new ComplexExample();
+complexExample.run();

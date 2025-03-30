@@ -1,0 +1,49 @@
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this.listeners = new Set();
+  }
+  
+  get value() {
+    return this._value;
+  }
+
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this.notify();
+    }
+  }
+  
+  subscribe(listener) {
+    this.listeners.add(listener);
+  }
+
+  unsubscribe(listener) {
+    this.listeners.delete(listener);
+  }
+
+  notify() {
+    this.listeners.forEach(listener => listener(this._value));
+  }
+}
+
+const asyncProcess = async (delay) => {
+  return new Promise((resolve) => setTimeout(() => resolve(`Resolved after ${delay}ms`), delay));
+};
+
+(async () => {
+  const observable = new Observable(0);
+
+  observable.subscribe(value => {
+    print(`Value changed: ${value}`);
+  });
+
+  for (let i = 1; i <= 5; i++) {
+    const message = await asyncProcess(1000 * i);
+    print(message);
+    observable.value = i;
+  }
+})();
+
+ 

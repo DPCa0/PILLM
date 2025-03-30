@@ -1,0 +1,36 @@
+ 
+
+ 
+function fetchData(api) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                users: [
+                    { id: 1, name: 'Alice', age: 28 },
+                    { id: 2, name: 'Bob', age: 34 },
+                    { id: 3, name: 'Charlie', age: 25 },
+                ],
+            };
+             
+            api === 'valid' ? resolve(data) : reject('API fetch error');
+        }, 1000);
+    });
+}
+
+ 
+async function getUserDetails(api) {
+    try {
+        const { users } = await fetchData(api);  
+        return users.map(({ id, name, age }) => ({ id, fullName: name, age }));  
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+(async () => {
+    const userDetails = await getUserDetails('valid');
+    if (userDetails) {
+        print('User Details:', userDetails);
+    }
+})();

@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const randomTimeout = () => new Promise((resolve) => setTimeout(resolve, Math.random() * 1000));
+
+ 
+async function* asyncNumberGenerator() {
+  let i = 0;
+  while (true) {
+    await randomTimeout();  
+    yield i++;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Getting value of ${property}: ${target[property]}`);
+      return target[property];
+    } else {
+      console.warn(`Property ${property} not found`);
+      return undefined;
+    }
+  },
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+console.log(proxyObject.a);
+console.log(proxyObject.b);
+console.log(proxyObject.c);
+
+ 
+const map = new Map([['apple', 1], ['banana', 2], ['cherry', 3]]);
+const filteredMap = new Map(
+  [...map].filter(([, value]) => value > 1)
+);
+
+console.log('Filtered Map:', filteredMap);
+
+ 
+(async () => {
+  const { value: firstValue } = await asyncNumberGenerator().next();
+  const { value: secondValue } = await asyncNumberGenerator().next();
+  console.log('Generated Numbers:', firstValue, secondValue);
+
+   
+  const array = [1, 2, 3, 4];
+  const [first, , third] = array;
+  console.log('First and Third:', first, third);
+
+  const obj = { x: 10, y: 20, z: 30 };
+  const { x, z } = obj;
+  console.log('Destructured Object:', x, z);
+})();
+```

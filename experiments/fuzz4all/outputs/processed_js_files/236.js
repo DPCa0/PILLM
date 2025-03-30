@@ -1,0 +1,41 @@
+ 
+
+ 
+function* asyncGenerator() {
+  yield fetchData(1);
+  yield fetchData(2);
+  yield fetchData(3);
+}
+
+ 
+async function fetchData(id) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data for ID: ${id}`);
+    }, 1000);
+  });
+}
+
+ 
+async function processGenerator(gen) {
+  for (const promise of gen) {
+    try {
+      const result = await promise;
+      print(result);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+}
+
+ 
+const generator = asyncGenerator();
+const proxy = new Proxy(generator, {
+  get(target, prop) {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  },
+});
+
+ 
+processGenerator(proxy);

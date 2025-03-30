@@ -1,0 +1,60 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+    this.closed = false;
+  }
+
+  enqueue(item) {
+    if (this.closed) throw new Error("Queue is closed");
+    if (this.resolvers.length) {
+      this.resolvers.shift()(item);
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  close() {
+    this.closed = true;
+    for (const resolve of this.resolvers) {
+      resolve({ done: true });
+    }
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (this.queue.length || !this.closed) {
+      if (this.queue.length) {
+        yield this.queue.shift();
+      } else {
+        yield await new Promise(resolve => this.resolvers.push(resolve));
+      }
+    }
+  }
+}
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+(async () => {
+  const queue = new AsyncIterableQueue();
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  (async () => {
+    for await (const data of fetchData(urls)) {
+      queue.enqueue(data);
+    }
+    queue.close();
+  })();
+
+  for await (const item of queue) {
+    print(item);
+  }
+})();

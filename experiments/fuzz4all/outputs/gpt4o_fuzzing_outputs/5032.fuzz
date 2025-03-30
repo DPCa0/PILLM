@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Getting ${property}: ${target[property]}`);
+      return target[property];
+    } else {
+      console.warn(`Property ${property} does not exist.`);
+    }
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+const updateUserDetails = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      user.name = 'Alice';
+      user.age = 30;
+      resolve('User details updated');
+    }, 2000);
+  });
+};
+
+ 
+const favoriteNumbers = new Set([1, 2, 3, 4, 5]);
+
+const process = async () => {
+  console.log('Starting process...');
+  
+   
+  const message = await updateUserDetails();
+  console.log(message);
+
+   
+  console.log('Favorite Numbers:');
+  favoriteNumbers.forEach((num) => console.log(num));
+
+   
+  console.log(`User name: ${user.name}`);
+  console.log(`User age: ${user.age}`);
+  
+   
+  console.log(`User address: ${user.address}`);
+};
+
+process();
+```

@@ -1,0 +1,39 @@
+ 
+async function fetchDataAndProcess(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+         
+        const data = await response.json();
+
+         
+        const { results } = data;
+
+         
+        const processedData = results.map(({ name, age }) => ({
+            name: name.toUpperCase(),
+            isAdult: age >= 18
+        }));
+
+         
+        const uniqueNames = [...new Set(processedData.map(({ name }) => name))];
+
+         
+        print(`Unique names in uppercase: ${uniqueNames.join(', ')}`);
+        
+         
+        const clonedData = [...processedData];
+
+         
+        print(clonedData[0]?.name ?? 'No name available');
+
+    } catch (error) {
+         
+        console.error({ message: error.message, stack: error.stack });
+    }
+}
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/users');

@@ -1,0 +1,47 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(promiseFunc) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ promiseFunc, resolve, reject });
+            if (!this.processing) {
+                this.process();
+            }
+        });
+    }
+
+    async process() {
+        this.processing = true;
+        while (this.queue.length > 0) {
+            const { promiseFunc, resolve, reject } = this.queue.shift();
+            try {
+                const result = await promiseFunc();
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        }
+        this.processing = false;
+    }
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+    const queue = new AsyncQueue();
+    
+    const promises = Array.from({ length: 5 }, (_, i) => 
+        queue.enqueue(async () => {
+            await sleep(1000);
+            return `Task ${i} completed`;
+        })
+    );
+
+    const results = await Promise.all(promises);
+    print(results);
+}
+
+main().catch(console.error);

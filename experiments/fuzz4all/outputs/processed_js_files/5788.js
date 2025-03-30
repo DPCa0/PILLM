@@ -1,0 +1,36 @@
+ 
+const sum = (...nums) => nums.reduce((acc, n) => acc + n, 0);
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value, receiver) => {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+ 
+const asyncFunction = async () => {
+    const p1 = Promise.resolve(42);
+    const p2 = new Promise((resolve, reject) => setTimeout(() => resolve(58), 1000));
+    const result = await Promise.all([p1, p2]);
+
+    return sum(...result);
+};
+
+ 
+(async () => {
+    print(`Sum: ${await asyncFunction()}`);
+
+     
+    proxy.a = 10;
+    print(`Proxy a: ${proxy.a}`);
+})();

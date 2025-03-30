@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+
+    static fromEvent(target, eventName) {
+        return new Observable(observer => {
+            const handler = event => observer.next(event);
+            target.addEventListener(eventName, handler);
+            return () => target.removeEventListener(eventName, handler);
+        });
+    }
+
+    map(transform) {
+        return new Observable(observer =>
+            this.subscribe({
+                next: value => observer.next(transform(value)),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            })
+        );
+    }
+
+    filter(predicate) {
+        return new Observable(observer =>
+            this.subscribe({
+                next: value => predicate(value) && observer.next(value),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            })
+        );
+    }
+}
+
+ 
+const click$ = Observable.fromEvent(document, 'click');
+
+const subscription = click$
+    .map(event => ({ x: event.clientX, y: event.clientY }))
+    .filter(coord => coord.x > 100 && coord.y > 100)
+    .subscribe({
+        next: coord => console.log(`Clicked at: ${coord.x}, ${coord.y}`),
+        error: err => console.error('Error:', err),
+        complete: () => console.log('Completed')
+    });
+
+ 
+setTimeout(() => subscription(), 10000);
+```

@@ -1,0 +1,56 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static from(array) {
+        return new Matrix(array);
+    }
+
+    *[Symbol.iterator]() {
+        for (const row of this.data) {
+            for (const value of row) {
+                yield value;
+            }
+        }
+    }
+
+    map(fn) {
+        return Matrix.from(this.data.map((row, i) => row.map((value, j) => fn(value, i, j))));
+    }
+
+    async transformAsync(fn) {
+        const transformed = await Promise.all(this.data.map(
+            async (row, i) => await Promise.all(row.map((value, j) => fn(value, i, j)))
+        ));
+        return Matrix.from(transformed);
+    }
+
+    toString() {
+        return this.data.map(row => row.join(' ')).join('\n');
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+    const matrix = Matrix.from([
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+    ]);
+
+    print("Original Matrix:");
+    print(matrix.toString());
+
+    const incrementedMatrix = matrix.map(value => value + 1);
+    print("\nIncremented Matrix:");
+    print(incrementedMatrix.toString());
+
+    const asyncTransformedMatrix = await matrix.transformAsync(async (value) => {
+        await delay(100);
+        return value * 2;
+    });
+    print("\nAsync Transformed Matrix:");
+    print(asyncTransformedMatrix.toString());
+})();

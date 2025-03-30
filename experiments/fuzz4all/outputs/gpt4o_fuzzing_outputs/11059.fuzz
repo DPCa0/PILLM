@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class ComplexSystem {
+    #hiddenValue = 42;
+    static #registry = new Map();
+
+    constructor(name) {
+        this.name = name;
+        ComplexSystem.#registry.set(name, this);
+    }
+
+    static *[Symbol.iterator]() {
+        yield* ComplexSystem.#registry.values();
+    }
+
+    async processData(data) {
+        return await this.#simulateAsyncOperation(data.map(x => x * this.#hiddenValue));
+    }
+
+    #simulateAsyncOperation(data) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(data.reduce((a, b) => a + b, 0));
+            }, 1000);
+        });
+    }
+
+    static getRegistryNames() {
+        return Array.from(ComplexSystem.#registry.keys());
+    }
+}
+
+(async function executeComplexSystem() {
+    const system1 = new ComplexSystem('System A');
+    const system2 = new ComplexSystem('System B');
+    
+    const data = [1, 2, 3, 4, 5];
+    
+    const results = await Promise.all(
+        [...ComplexSystem].map(sys => sys.processData(data))
+    );
+
+    console.log('Processed results:', results);
+    console.log('Registry names:', ComplexSystem.getRegistryNames());
+})();
+```

@@ -1,0 +1,53 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        for (const listener of this.events.get(event)) {
+            listener(...args);
+        }
+    }
+
+    off(event, listener) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).delete(listener);
+        if (this.events.get(event).size === 0) {
+            this.events.delete(event);
+        }
+    }
+}
+
+const promiseDelay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+    yield await promiseDelay(1000).then(() => 'First');
+    yield await promiseDelay(1000).then(() => 'Second');
+    yield await promiseDelay(1000).then(() => 'Third');
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    const asyncGen = asyncGenerator();
+
+    const handleEvent = async (label) => {
+        for await (const val of asyncGen) {
+            print(`${label}: ${val}`);
+        }
+    };
+
+    emitter.on('start', handleEvent);
+    emitter.emit('start', 'Generator');
+
+    setTimeout(() => {
+        emitter.off('start', handleEvent);
+    }, 3500);
+})();

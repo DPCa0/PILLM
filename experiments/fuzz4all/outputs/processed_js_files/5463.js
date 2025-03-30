@@ -1,0 +1,35 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processUserData = async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+  const [firstUser, ...otherUsers] = data;
+
+  const enhancedUsers = otherUsers.map(user => ({
+    ...user,
+    fullName: `${user.name} (alias: ${user.username})`,
+    contact: {
+      email: user.email,
+      phone: user.phone,
+    },
+    websiteInfo: {
+      host: new URL(user.website).hostname,
+    }
+  }));
+
+  const userMap = new Map(enhancedUsers.map(user => [user.id, user]));
+  const displayUsers = (filterFn) => [...userMap.values()].filter(filterFn);
+
+  print('First User:', firstUser);
+  print('Enhanced Users:', displayUsers(user => user.name.startsWith('C')));
+};
+
+processUserData();

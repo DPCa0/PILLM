@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const reactiveHandler = {
+  get(target, property, receiver) {
+    if (typeof target[property] === 'function') {
+      return (...args) => {
+        console.log(`Method called: ${property}`);
+        return target[property].apply(target, args);
+      };
+    }
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    console.log(`Property set: ${property} = ${value}`);
+    return Reflect.set(target, property, value, receiver);
+  },
+};
+
+const reactiveObject = new Proxy({ name: 'Alice', age: 30 }, reactiveHandler);
+
+ 
+const fetchAndMemoizeData = memoize(fetchData);
+fetchAndMemoizeData('https://jsonplaceholder.typicode.com/todos/1')
+  .then(data => console.log('Fetched Data:', data))
+  .catch(err => console.error(err));
+
+reactiveObject.name = 'Bob';
+console.log(reactiveObject.age);
+```

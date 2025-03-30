@@ -1,0 +1,59 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+  
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const dataStream = new Observable();
+const debouncedLogger = debounce((data) => print(`Debounced Data: ${data}`), 200);
+
+dataStream.subscribe(console.log);
+dataStream.subscribe(debouncedLogger);
+
+const fetchData = async () => {
+  const data = await new Promise(resolve => setTimeout(() => resolve('Fetched Data'), 100));
+  dataStream.notify(data);
+};
+
+(async function* generator() {
+  while (true) {
+    await new Promise(r => setTimeout(r, 500));
+    yield fetchData();
+  }
+})().next();
+
+(async () => {
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+      let i = 0;
+      while (i < 5) {
+        await new Promise(r => setTimeout(r, 1000));
+        yield `Async Data ${++i}`;
+      }
+    }
+  };
+
+  for await (const data of asyncIterable) {
+    dataStream.notify(data);
+  }
+})();

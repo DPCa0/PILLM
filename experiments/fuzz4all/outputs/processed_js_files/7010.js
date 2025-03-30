@@ -1,0 +1,40 @@
+ 
+const { promises: fs } = require('fs');
+
+ 
+async function manipulateJsonFile() {
+  try {
+     
+    const data = await fs.readFile('./data.json', 'utf-8');
+    const jsonObject = JSON.parse(data);
+
+     
+    const updatedObject = {
+      ...jsonObject,
+      newField: 'Added Value',
+      timestamp: new Date().toISOString(),
+    };
+
+     
+    const sortedKeysObject = Object.keys(updatedObject)
+      .sort()
+      .reduce((obj, key) => {
+        obj[key] = updatedObject[key];
+        return obj;
+      }, {});
+
+     
+    const complexCalculation = sortedKeysObject?.complexData ?? 'Default Value';
+
+     
+    await fs.writeFile('./updatedData.json', JSON.stringify(sortedKeysObject, null, 2));
+
+    print(`File updated successfully! Complex Calculation: ${complexCalculation}`);
+  } catch (error) {
+     
+    console.error(`Error processing file: ${error.message}`);
+  }
+}
+
+ 
+manipulateJsonFile();

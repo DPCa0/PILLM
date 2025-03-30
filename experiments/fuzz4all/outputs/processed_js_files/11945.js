@@ -1,0 +1,41 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);  
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+
+     
+    const handler = {
+      get: (target, property) => {
+        if (property in target) {
+          return target[property];
+        } else {
+          console.warn(`Property ${property} doesn't exist. Returning null.`);
+          return null;
+        }
+      },
+    };
+
+    const proxyData = new Proxy(data, handler);
+
+    // Use optional chaining and nullish coalescing operator.
+    print(`Fetched title: ${proxyData?.title ?? 'No Title Found'}`);
+    
+    // Use dynamic imports to conditionally load modules.
+    if (proxyData?.isAdmin) {
+      const { adminFeatures } = await import('./adminFeatures.js');
+      adminFeatures();
+    }
+  } catch (error) {
+    console.error('Fetch error: ', error);
+  }
+};
+
+// Utilize template literals and tagged templates for dynamic URL creation.
+const apiEndpoint = 'https: 
+const resource = 'posts';
+const endpoint = (strings, ...values) => strings.raw.reduce((result, string, i) => `${result}${string}${values[i] || ''}`, '');
+
+fetchData(endpoint`${apiEndpoint}/${resource}/1`);

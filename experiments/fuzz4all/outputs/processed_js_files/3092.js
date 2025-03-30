@@ -1,0 +1,64 @@
+ 
+class Person {
+   
+  #firstName;
+  #lastName;
+
+  constructor(firstName, lastName) {
+    this.#firstName = firstName;
+    this.#lastName = lastName;
+  }
+
+   
+  get ['fullName']() {
+    return `${this.#firstName} ${this.#lastName}`;
+  }
+
+   
+  async fetchMessage() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(`Hello, ${this.fullName}!`), 1000);
+    });
+  }
+
+   
+  static fromFullName(fullName) {
+    const [firstName, lastName] = fullName.split(' ');
+    return new Person(firstName, lastName);
+  }
+}
+
+ 
+const uniqueId = Symbol('id');
+
+ 
+const personHandler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop}' accessed.`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    print(`Property '${prop}' set to '${value}'.`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+ 
+const johnDoe = new Person('John', 'Doe');
+johnDoe[uniqueId] = 12345;
+const proxiedJohnDoe = new Proxy(johnDoe, personHandler);
+
+ 
+print(proxiedJohnDoe.fullName);
+proxiedJohnDoe[uniqueId] = 67890;
+
+ 
+proxiedJohnDoe.fetchMessage().then(console.log);
+
+ 
+function tag(strings, ...values) {
+  return strings.raw[0].toUpperCase() + values[0] + strings[1];
+}
+
+const hobby = 'coding';
+print(tag`This person's hobby is ${hobby}.`);

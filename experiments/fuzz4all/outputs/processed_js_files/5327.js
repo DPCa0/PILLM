@@ -1,0 +1,50 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    const obs = typeof observer === 'function' ? { next: observer } : observer;
+    const subscription = { unsubscribe: () => {} };
+    subscription.unsubscribe = this._subscribe({
+      next: obs.next || (() => {}),
+      error: obs.error || ((err) => { throw err; }),
+      complete: obs.complete || (() => {})
+    });
+    return subscription;
+  }
+
+  map(transformFn) {
+    return new Observable(observer => 
+      this.subscribe({
+        next: value => observer.next(transformFn(value)),
+        error: err => observer.error(err),
+        complete: () => observer.complete()
+      })
+    );
+  }
+
+  static fromEvent(domElement, eventName) {
+    return new Observable(observer => {
+      const handler = (event) => observer.next(event);
+      domElement.addEventListener(eventName, handler);
+      return () => domElement.removeEventListener(eventName, handler);
+    });
+  }
+}
+
+ 
+const clickObservable = Observable.fromEvent(document, 'click')
+  .map(event => ({ x: event.clientX, y: event.clientY }));
+
+const subscription = clickObservable.subscribe({
+  next: position => console.log(`Clicked at: ${position.x}, ${position.y}`),
+  error: err => console.error('Error:', err),
+  complete: () => console.log('Completed')
+});
+
+ 
+setTimeout(() => {
+  subscription.unsubscribe();
+  print('Unsubscribed from click events');
+}, 10000);

@@ -1,0 +1,46 @@
+ 
+async function* primeGenerator(limit) {
+  const isPrime = (num) => {
+    if (num <= 1) return false;
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+      if (num % i === 0) return false;
+    }
+    return true;
+  };
+  
+  let num = 2;
+  while (num <= limit) {
+    if (isPrime(num)) yield num;
+    num++;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessing ${prop}: ${target[prop]}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+let obj = { message: "Hello, advanced JavaScript!" };
+const proxy = new Proxy(obj, handler);
+
+ 
+(async () => {
+  print(proxy.message);  
+  
+  let primeLimit = 20;
+  print(`Prime numbers up to ${primeLimit}:`);
+  
+  for await (const prime of primeGenerator(primeLimit)) {
+    print(prime);
+  }
+  
+  proxy.message = "JavaScript is powerful!";  
+})();

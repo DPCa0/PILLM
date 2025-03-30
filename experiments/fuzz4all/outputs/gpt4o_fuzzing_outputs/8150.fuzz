@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+const fetchWeatherData = async (city) => {
+    const apiKey = 'your_api_key_here';  
+    const endpoint = `https: 
+
+    try {
+        const response = await fetch(endpoint);
+        if (!response.ok) throw new Error(`City ${city} not found`);
+
+        const data = await response.json();
+        const { main: { temp }, weather: [details] } = data;
+        console.log(`The temperature in ${city} is ${temp}°C with ${details.description}.`);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const cities = ['New York', 'London', 'Tokyo', 'Delhi'];
+const cityWeatherPromises = cities.map(city => fetchWeatherData(city));
+
+Promise.all(cityWeatherPromises)
+    .then(() => console.log('Weather data fetched for all cities.'))
+    .catch(error => console.error('Error fetching weather data:', error));
+
+class WeatherEmitter extends EventTarget {
+    emit(eventName, detail) {
+        this.dispatchEvent(new CustomEvent(eventName, { detail }));
+    }
+}
+
+const weatherEmitter = new WeatherEmitter();
+
+weatherEmitter.addEventListener('weatherUpdate', event => {
+    console.log('Weather update received:', event.detail);
+});
+
+setTimeout(() => {
+    weatherEmitter.emit('weatherUpdate', { city: 'New York', temp: 22, description: 'clear sky' });
+}, 2000);
+```

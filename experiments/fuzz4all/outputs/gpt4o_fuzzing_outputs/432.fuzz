@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    throw new ReferenceError(`Property "${prop}" not found`);
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number') {
+      target[prop] = value;
+      return true;
+    }
+    throw new TypeError('Property value must be a number');
+  }
+};
+
+const dynamicObject = new Proxy({}, handler);
+
+ 
+async function processUrls(urls) {
+  try {
+    const dataGenerator = fetchData(urls);
+    const results = [];
+    for await (const data of dataGenerator) {
+      results.push(data);
+    }
+     
+    await Promise.all(results.map(result => {
+       
+      return new Promise(resolve => setTimeout(() => {
+        dynamicObject[result.id] = result.value;
+        resolve();
+      }, 100));
+    }));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+processUrls(urls);
+
+ 
+dynamicObject.someProperty = 42;  
+console.log(dynamicObject.someProperty);
+
+try {
+  dynamicObject.someProperty = 'not a number';  
+} catch (error) {
+  console.error(error);
+}
+```

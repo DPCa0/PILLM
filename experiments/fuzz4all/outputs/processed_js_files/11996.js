@@ -1,0 +1,57 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.cache = new Map();
+  }
+
+  *generateSequence() {
+    let [a, b] = [0, 1];
+    while (b <= this.limit) {
+      yield b;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  memoize(fn) {
+    return (n) => {
+      if (this.cache.has(n)) return this.cache.get(n);
+      const result = fn(n);
+      this.cache.set(n, result);
+      return result;
+    };
+  }
+
+  nthFibonacci(n) {
+    const fib = this.memoize((n) => {
+      if (n <= 1) return n;
+      return fib(n - 1) + fib(n - 2);
+    });
+    return fib(n);
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci(1000);
+
+  print("Fibonacci Sequence:");
+  for (const num of fib.generateSequence()) {
+    print(num);
+  }
+
+  const n = 10;
+  print(`The ${n}th Fibonacci number is: ${await fib.nthFibonacci(n)}`);
+
+   
+  const handler = {
+    get(target, prop, receiver) {
+      const origMethod = target[prop];
+      return function (...args) {
+        print(`Called ${prop} with arguments: ${args}`);
+        return origMethod.apply(this, args);
+      };
+    },
+  };
+
+  const proxiedFib = new Proxy(fib, handler);
+  print(`The ${n}th Fibonacci number (via proxy) is: ${proxiedFib.nthFibonacci(n)}`);
+})();

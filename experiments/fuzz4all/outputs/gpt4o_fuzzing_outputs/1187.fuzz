@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+class RandomNumberStream {
+  constructor(limit) {
+    this.limit = limit;
+    this.count = 0;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            if (this.count < this.limit) {
+              this.count++;
+              resolve({ value: Math.random(), done: false });
+            } else {
+              resolve({ done: true });
+            }
+          }, 1000);
+        });
+      },
+    };
+  }
+}
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    }
+    return `Property '${prop}' does not exist.`;
+  },
+};
+
+const proxiedStream = new Proxy(new RandomNumberStream(5), handler);
+
+(async () => {
+  for await (const num of proxiedStream) {
+    console.log(num.toFixed(2));
+  }
+  console.log(proxiedStream.nonExistentProperty);
+})();
+```

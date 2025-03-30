@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+};
+
+class DataProcessor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  *filterData(predicate) {
+    for (const item of this.#data) {
+      if (predicate(item)) yield item;
+    }
+  }
+  
+  async processData(transform) {
+    const results = [];
+    for await (const item of this.filterData((item) => item.active)) {
+      results.push(transform(item));
+    }
+    return results;
+  }
+}
+
+const execute = async () => {
+  const url = 'https://api.example.com/data';
+  const rawData = await fetchData(url);
+  
+  if (rawData) {
+    const processor = new DataProcessor(rawData);
+    
+    const processedData = await processor.processData((item) => ({
+      id: item.id,
+      name: item.name.toUpperCase(),
+      details: { ...item.details, processed: true },
+    }));
+    
+    console.log('Processed Data:', processedData);
+  }
+};
+
+execute();
+```

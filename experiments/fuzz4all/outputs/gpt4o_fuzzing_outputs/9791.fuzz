@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchDataAndProcess(url) {
+     
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const dataHandler = {
+        get(target, property) {
+            if (property in target) {
+                console.log(`Accessing property: ${property}`);
+                return target[property];
+            } else {
+                console.warn(`Property ${property} does not exist.`);
+                return null;
+            }
+        }
+    };
+    const proxiedData = new Proxy(data, dataHandler);
+
+     
+    const { title, userId } = proxiedData;
+    console.log(`Title: ${title}, User ID: ${userId}`);
+
+     
+    function* propertyGenerator(obj) {
+        for (const key of Object.keys(obj)) {
+            yield [key, obj[key]];
+        }
+    }
+
+     
+    for (const [key, value] of propertyGenerator(proxiedData)) {
+        console.log(`${key}: ${value}`);
+    }
+}
+
+ 
+const testUrl = 'https://jsonplaceholder.typicode.com/posts/1';
+
+ 
+fetchDataAndProcess(testUrl).catch(console.error);
+
+ 
+(() => {
+    const greet = name => `Hello, ${name}!`;
+    console.log(greet('Advanced JS Enthusiast'));
+})();
+```

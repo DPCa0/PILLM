@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+(function() {
+  const asyncOperation = (duration, value) => new Promise(resolve => setTimeout(() => resolve(value), duration));
+
+  const handler = {
+    get: (target, prop, receiver) => {
+      if (prop in target) {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+      } else {
+        console.warn(`Property ${prop} doesn't exist`);
+        return undefined;
+      }
+    }
+  };
+
+  const target = { a: 10, b: 20 };
+  const proxy = new Proxy(target, handler);
+
+  async function main() {
+    try {
+      console.log('Starting async operations...');
+      const result1 = await asyncOperation(1000, 'First Result');
+      console.log(result1);
+
+      const result2 = await asyncOperation(500, 'Second Result');
+      console.log(result2);
+
+      console.log('Accessing properties through Proxy:');
+      console.log(proxy.a);
+      console.log(proxy.b);
+      console.log(proxy.c);
+
+    } catch (error) {
+      console.error('Error occurred:', error);
+    }
+  }
+
+  main();
+})();
+```

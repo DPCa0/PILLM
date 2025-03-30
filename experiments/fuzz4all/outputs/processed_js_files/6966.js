@@ -1,0 +1,38 @@
+ 
+import fs from 'fs/promises';
+import crypto from 'crypto';
+import { promisify } from 'util';
+
+ 
+async function generateRandomString() {
+  const randomBytes = promisify(crypto.randomBytes);
+  const bytes = await randomBytes(16);
+  return bytes.toString('hex');
+}
+
+ 
+async function createFilesWithRandomContent() {
+  const filenames = ['file1.txt', 'file2.txt', 'file3.txt'];
+  const filePromises = filenames.map(async (filename) => {
+    const randomString = await generateRandomString();
+    const content = `File: ${filename}\nRandom Content: ${randomString}`;
+    await fs.writeFile(filename, content);
+    return `${filename} created`;
+  });
+
+  const results = await Promise.all(filePromises);
+  print(results);
+}
+
+ 
+const handler = {
+  set(target, property, value) {
+    print(`Setting value ${value} to property ${property}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+let obj = new Proxy({}, handler);
+obj.name = 'Advanced JavaScript';
+
+createFilesWithRandomContent();

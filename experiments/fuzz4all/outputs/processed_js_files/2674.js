@@ -1,0 +1,54 @@
+ 
+class Fibonacci {
+   
+  #cache = new Map();
+
+   
+  static generate(n) {
+    const fib = (x, memo = {}) => {
+      if (x in memo) return memo[x];
+      if (x <= 1) return x;
+      return memo[x] = fib(x - 1, memo) + fib(x - 2, memo);
+    };
+    return Array.from({ length: n }, (_, i) => fib(i));
+  }
+
+   
+  *sequence(n) {
+    if (this.#cache.has(n)) {
+      yield* this.#cache.get(n);
+      return;
+    }
+    const result = Fibonacci.generate(n);
+    this.#cache.set(n, result);
+    yield* result;
+  }
+
+   
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  }
+}
+
+ 
+(async () => {
+  const fib = new Fibonacci();
+  const n = 10;
+
+   
+  print(`Fibonacci sequence up to ${n}:`);
+  for (const num of fib.sequence(n)) {
+    print(num);
+  }
+
+   
+  try {
+    const data = await Fibonacci.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetching failed:', error);
+  }
+})();

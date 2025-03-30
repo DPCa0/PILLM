@@ -1,0 +1,51 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static from(arr) {
+        return new Matrix(arr);
+    }
+
+    map(func) {
+        return new Matrix(this.data.map(row => row.map(func)));
+    }
+
+    transpose() {
+        return new Matrix(this.data[0].map((_, colIndex) => this.data.map(row => row[colIndex])));
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) throw new Error('Incompatible matrices');
+        return new Matrix(a.data.map(row => b.transpose().data.map(col => col.reduce((sum, val, i) => sum + val * row[i], 0))));
+    }
+
+    [Symbol.iterator]() {
+        return this.data[Symbol.iterator]();
+    }
+
+    toString() {
+        return this.data.map(row => row.join(', ')).join('\n');
+    }
+}
+
+const matrix1 = Matrix.from([
+    [1, 2, 3],
+    [4, 5, 6]
+]);
+
+const matrix2 = Matrix.from([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+]);
+
+const multipliedMatrix = Matrix.multiply(matrix1, matrix2);
+print('Multiplied Matrix:\n', multipliedMatrix.toString());
+
+const transposedMatrix = multipliedMatrix.transpose().map(x => x + 1);
+print('\nTransposed and Incremented Matrix:\n', transposedMatrix.toString());
+
+for (const row of transposedMatrix) {
+    print('Row:', row);
+}

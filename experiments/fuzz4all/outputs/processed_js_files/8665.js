@@ -1,0 +1,48 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = async (data) => {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(`Processed: ${data}`), 1000);
+    });
+};
+
+const processArray = async (arr) => {
+    const promises = arr.map(async (data) => {
+        const result = await asyncOperation(data);
+        return result;
+    });
+    return Promise.all(promises);
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataProcessed', (data) => {
+    print(`Event received: ${data}`);
+});
+
+(async () => {
+    const data = ['Alpha', 'Bravo', 'Charlie'];
+
+    const results = await processArray(data);
+
+    for (const result of results) {
+        eventEmitter.emit('dataProcessed', result);
+    }
+})();

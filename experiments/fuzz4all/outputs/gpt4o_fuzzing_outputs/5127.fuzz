@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+  console.log('Step 1: Start generator');
+  yield delay(1000).then(() => console.log('Step 2: After 1 second delay'));
+  console.log('Step 3: Continue generator');
+  yield delay(2000).then(() => console.log('Step 4: After 2 seconds delay'));
+  console.log('Step 5: Generator complete');
+}
+
+ 
+async function runGenerator(gen) {
+  const iterator = gen();
+  let result = iterator.next();
+
+  while (!result.done) {
+    if (result.value instanceof Promise) {
+      await result.value;
+    }
+    result = iterator.next();
+  }
+}
+
+ 
+(async () => {
+  console.log('Start async flow');
+  await runGenerator(asyncGenerator);
+  console.log('End async flow');
+})();
+```

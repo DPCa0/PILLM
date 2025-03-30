@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+  const promises = urls.map(url =>
+    fetch(url).then(response => response.json())
+  );
+  for await (const data of promises) {
+    yield data;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Getting property ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 4, 4, 5]);  
+
+const metadata = new WeakMap();
+const obj1 = { name: 'Object1' };
+metadata.set(obj1, { id: 101 });
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+   
+  for await (const data of fetchData(urls)) {
+    console.log('Fetched Data:', data);
+  }
+
+   
+  try {
+    console.log(proxy.a);  
+    proxy.c = 3;           
+    console.log(proxy.b);  
+  } catch (e) {
+    console.error(e.message);
+  }
+
+   
+  console.log('Unique Numbers:', uniqueNumbers);
+
+   
+  console.log('Metadata for obj1:', metadata.get(obj1));
+})();
+```

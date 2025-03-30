@@ -1,0 +1,62 @@
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop === 'secret') {
+      return 'Access Denied';
+    }
+    return Reflect.get(...arguments);
+  },
+  set: function(target, prop, value) {
+    if (prop === 'status') {
+      target[prop] = value.toUpperCase();
+      return true;
+    }
+    return Reflect.set(...arguments);
+  }
+};
+
+const dataHandler = new Proxy({}, handler);
+
+ 
+(async function() {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(url);
+
+   
+  const generator = idGenerator();
+  print(`Generated ID: ${generator.next().value}`);
+  print(`Generated ID: ${generator.next().value}`);
+
+   
+  dataHandler.name = 'Test Proxy';
+  dataHandler.status = 'active';
+  dataHandler.secret = 'This is a secret';
+
+  print(dataHandler);  
+  print(`Secret: ${dataHandler.secret}`);  
+
+   
+  print(`Fetched Data: ${JSON.stringify(data)}`);
+})();

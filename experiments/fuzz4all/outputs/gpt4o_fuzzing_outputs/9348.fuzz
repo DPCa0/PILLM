@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 1'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 2'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 3'), 1000));
+}
+
+ 
+async function consumeDataGenerator(generator) {
+  for (let promise of generator) {
+    const data = await promise;
+    console.log(`Fetched: ${data}`);
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+const handler = {
+  get: (target, prop) => {
+    console.log(`Property '${prop}' accessed`);
+    return target[prop];
+  },
+};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  console.log('Starting data fetch...');
+  await consumeDataGenerator(fetchDataGenerator());
+
+  console.log('Accessing proxy object properties:');
+  console.log(proxy.a);
+  console.log(proxy.b);
+  console.log(proxy.c);
+})();
+```

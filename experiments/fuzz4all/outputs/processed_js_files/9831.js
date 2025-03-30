@@ -1,0 +1,37 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Proxy({}, {
+      get: (obj, prop) => prop in obj ? obj[prop] : this.calculate(prop)
+    });
+  }
+  
+  calculate(n) {
+    if (n < 2) return n;
+    if (!this.memo[n]) this.memo[n] = this.memo[n - 1] + this.memo[n - 2];
+    return this.memo[n];
+  }
+  
+  *generate(n) {
+    for (let i = 0; i <= n; i++) {
+      yield this.memo[i];
+    }
+  }
+}
+
+const fibonacci = new Fibonacci();
+const sequence = [...fibonacci.generate(10)];
+
+const promise = new Promise((resolve, reject) => {
+  setTimeout(() => sequence.includes(5) ? resolve(sequence) : reject('5 not found'), 1000);
+});
+
+async function displayFibonacci() {
+  try {
+    const result = await promise;
+    print('Fibonacci Sequence:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+displayFibonacci();

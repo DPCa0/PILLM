@@ -1,0 +1,41 @@
+ 
+(async () => {
+    const { readFile } = await import('fs/promises');
+    
+     
+    const files = ['file1.txt', 'file2.txt', 'file3.txt'];
+    try {
+        const fileContents = await Promise.all(files.map(file => readFile(file, 'utf-8')));
+        
+         
+        const [first, ...rest] = fileContents;
+        const restObject = { ...rest };
+        
+         
+        const wordFrequency = new Map();
+        const uniqueWords = new Set();
+        const allWords = first.split(/\W+/);
+        
+        for (const word of allWords) {
+            uniqueWords.add(word.toLowerCase());
+            wordFrequency.set(word, (wordFrequency.get(word) || 0) + 1);
+        }
+        
+         
+        for (const [word, count] of wordFrequency.entries()) {
+            print(`The word "${word}" appears ${count} times.`);
+        }
+        
+         
+        print(`Unique words: ${uniqueWords.size ?? 'unknown'}`);
+        print(`Contents of the rest of the files: ${restObject[0] ?? 'No additional content'}`);
+        
+         
+        const tag = (strings, ...values) => strings.raw.map((str, i) => str + (values[i] || '')).join('');
+        
+        print(tag`File Analysis Complete. Total Words: ${allWords.length}`);
+        
+    } catch (error) {
+        console.error('Error reading files:', error);
+    }
+})();

@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(`Fetch error: ${error.message}`);
+            throw error;
+        }
+    }
+}
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const fetcher = new DataFetcher(url);
+
+    try {
+        const users = await fetcher.fetchData();
+        users.forEach(({ id, name, email }) => {
+            console.log(`User ID: ${id}\nName: ${name}\nEmail: ${email}\n`);
+        });
+    } catch (error) {
+        console.error('Failed to fetch and display users:', error);
+    }
+})();
+```

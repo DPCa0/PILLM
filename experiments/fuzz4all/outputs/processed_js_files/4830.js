@@ -1,0 +1,38 @@
+ 
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry']);
+        }, 1000);
+    });
+};
+
+ 
+const processFruits = async () => {
+    try {
+        const fruits = await fetchData();  
+        const [first, second, ...rest] = fruits;  
+        print(`First: ${first}, Second: ${second}, Others: ${rest.join(', ')}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+const fruitPrices = new Map([
+    ['apple', 1.5],
+    ['banana', 0.5],
+    ['cherry', 2.0]
+]);
+
+ 
+const additionalFruits = { mango: 1.8, pineapple: 3.0 };
+const allFruitPrices = { ...Object.fromEntries(fruitPrices), ...additionalFruits };
+
+print('All Fruit Prices:', allFruitPrices);
+
+ 
+processFruits();

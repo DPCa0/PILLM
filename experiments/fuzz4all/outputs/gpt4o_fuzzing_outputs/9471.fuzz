@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData(url) {
+    await delay(1000);  
+    return { data: `Data from ${url}`, timestamp: Date.now() };
+}
+
+ 
+const PRIVATE_DATA = Symbol('privateData');
+
+ 
+const createProxiedObject = () => {
+    const targetObject = {
+        [PRIVATE_DATA]: 'This is hidden',
+        visibleData: 'This data is visible'
+    };
+    
+    return new Proxy(targetObject, {
+        get(target, prop, receiver) {
+            if (prop === PRIVATE_DATA) {
+                return 'Access Denied';
+            }
+            return Reflect.get(target, prop, receiver);
+        }
+    });
+};
+
+ 
+(async () => {
+    try {
+        console.log('Fetching data...');
+        const result = await fetchData('https://example.com/api');
+        console.log(result);
+
+        const proxiedObject = createProxiedObject();
+        console.log('Visible Data:', proxiedObject.visibleData);
+        console.log('Private Data:', proxiedObject[PRIVATE_DATA]);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

@@ -1,0 +1,42 @@
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) {
+            resolve({ data: `Data from ${url}` });
+        } else {
+            reject(new Error('Invalid URL'));
+        }
+    }, 1000);
+});
+
+ 
+const fetchDataFromUrls = async (urls) => {
+    try {
+         
+        const results = await Promise.allSettled(urls.map(url => fetchData(url)));
+
+         
+        const successfulData = results
+            .filter(({ status }) => status === 'fulfilled')
+            .map(({ value }) => value.data);
+
+        return successfulData;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+const dataSymbol = Symbol('data');
+const apiResults = new Map();
+
+ 
+(async () => {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', null];
+    const data = await fetchDataFromUrls(urls);
+
+     
+    apiResults.set(dataSymbol, data);
+
+    print('Fetched data:', apiResults.get(dataSymbol));
+})();

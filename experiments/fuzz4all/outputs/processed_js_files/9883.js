@@ -1,0 +1,39 @@
+class Task {
+    #status = 'pending';
+    
+    constructor(name, timeRequired) {
+        this.name = name;
+        this.timeRequired = timeRequired;
+    }
+
+    get status() {
+        return this.#status;
+    }
+
+    async complete() {
+        await new Promise(resolve => setTimeout(resolve, this.timeRequired));
+        this.#status = 'completed';
+        print(`${this.name} is ${this.status}`);
+    }
+}
+
+const taskList = new Proxy([], {
+    get(target, prop) {
+        if (prop === 'completedTasks') {
+            return target.filter(task => task.status === 'completed');
+        }
+        return Reflect.get(target, prop);
+    }
+});
+
+(async () => {
+    const task1 = new Task('Task 1', 1000);
+    const task2 = new Task('Task 2', 2000);
+    
+    taskList.push(task1, task2);
+
+    print('Starting tasks...');
+    await Promise.all(taskList.map(task => task.complete()));
+
+    print('Completed tasks:', taskList.completedTasks.map(t => t.name));
+})();

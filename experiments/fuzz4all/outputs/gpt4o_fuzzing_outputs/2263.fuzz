@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const sum = (...numbers) => numbers.reduce((acc, num) => acc + num, 0);
+
+ 
+class Counter {
+  #count = 0;  
+
+  increment() {
+    this.#count++;
+    return this;
+  }
+
+  decrement() {
+    this.#count--;
+    return this;
+  }
+
+  getCount() {
+    return this.#count;
+  }
+}
+
+ 
+async function* asyncNumberGenerator() {
+  for (let i = 1; i <= 5; i++) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield i;
+  }
+}
+
+(async function execute() {
+  const counter = new Counter();
+
+  console.log("Initial count:", counter.getCount());
+
+   
+  counter.increment().increment().decrement();
+
+  console.log("Count after operations:", counter.getCount());
+
+   
+  const result = sum(1, 2, 3, 4, 5);
+  console.log("Sum:", result);
+
+   
+  console.log("Generating numbers:");
+  for await (const num of asyncNumberGenerator()) {
+    console.log(num);
+  }
+
+   
+  const target = { a: 1, b: 2 };
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Accessing property "${prop}" with value ${obj[prop]}`);
+      return obj[prop];
+    }
+  };
+
+  const proxy = new Proxy(target, handler);
+  console.log("Proxy access:", proxy.a, proxy.b);
+})();
+```

@@ -1,0 +1,69 @@
+ 
+
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+
+    speak() {
+        print(`${this.name} makes a noise.`);
+    }
+}
+
+class Dog extends Animal {
+    constructor(name, breed) {
+        super(name);
+        this.breed = breed;
+    }
+
+    speak() {
+        print(`${this.name} barks.`);
+    }
+
+    get description() {
+        return `${this.name} is a ${this.breed}.`;
+    }
+
+    static createRandomDog() {
+        const names = ['Max', 'Bella', 'Charlie'];
+        const breeds = ['Labrador', 'Bulldog', 'Beagle'];
+        const name = names[Math.floor(Math.random() * names.length)];
+        const breed = breeds[Math.floor(Math.random() * breeds.length)];
+        return new Dog(name, breed);
+    }
+}
+
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Data fetched!'), 1000);
+});
+
+promise
+    .then(data => {
+        print(data);
+
+        const dog1 = new Dog('Rex', 'German Shepherd');
+        const dog2 = Dog.createRandomDog();
+        
+        print(dog1.description);
+        dog1.speak();
+
+        print(dog2.description);
+        dog2.speak();
+        
+        return fetch('https://jsonplaceholder.typicode.com/todos/1');
+    })
+    .then(response => response.json())
+    .then(json => console.log('Fetched Data:', json))
+    .catch(error => console.error('Error:', error));
+
+const asyncFunction = async () => {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/todos/2');
+        const data = await response.json();
+        print('Async Fetched Data:', data);
+    } catch (error) {
+        console.error('Async Error:', error);
+    }
+};
+
+asyncFunction();

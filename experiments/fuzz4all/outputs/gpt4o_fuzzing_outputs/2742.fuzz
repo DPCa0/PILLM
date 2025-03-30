@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+    yield* [1, 2, 3, 4, 5];
+}
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Getting property ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { key1: 'value1', key2: 'value2' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve([...dataGenerator()]), 1000);
+    });
+}
+
+ 
+async function processData() {
+    console.log('Fetching data...');
+    const data = await fetchData();
+    console.log('Data received:', data);
+
+    console.log('Processing data...');
+    data.forEach((item, index) => {
+        proxyObject[`item${index}`] = item * 2;  
+    });
+
+    console.log('Processed data stored in proxyObject:');
+    for (let i = 0; i < data.length; i++) {
+        console.log(proxyObject[`item${i}`]);  
+    }
+}
+
+processData();
+```

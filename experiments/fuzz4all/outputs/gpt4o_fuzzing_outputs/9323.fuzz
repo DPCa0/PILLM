@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+class Person {
+  #name;  
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+  }
+
+   
+  static fromBirthYear(name, birthYear) {
+    const age = new Date().getFullYear() - birthYear;
+    return new Person(name, age);
+  }
+
+   
+  get name() {
+    return this.#name;
+  }
+
+  set name(newName) {
+    this.#name = newName;
+  }
+
+   
+  async greet() {
+    const greeting = await this.getGreeting();
+    console.log(`${greeting}, I am ${this.#name} and I am ${this.age} years old.`);
+  }
+
+   
+  async #getTimeOfDayGreeting() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const hour = new Date().getHours();
+        if (hour < 12) {
+          resolve("Good morning");
+        } else if (hour < 18) {
+          resolve("Good afternoon");
+        } else {
+          resolve("Good evening");
+        }
+      }, 1000);
+    });
+  }
+
+   
+  getGreeting() {
+    return this.#getTimeOfDayGreeting();
+  }
+}
+
+ 
+function* generateEvenNumbers(limit) {
+  let num = 0;
+  while (num <= limit) {
+    yield num;
+    num += 2;
+  }
+}
+
+ 
+(async () => {
+  const john = Person.fromBirthYear("John Doe", 1990);
+  john.greet();
+
+  john.name = "Jonathan Doe";  
+  console.log(`Updated name: ${john.name}`);  
+
+  console.log("Even numbers up to 10:");
+  for (const num of generateEvenNumbers(10)) {
+    console.log(num);
+  }
+})();
+```

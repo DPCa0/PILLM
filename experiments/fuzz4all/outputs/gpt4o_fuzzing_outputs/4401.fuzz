@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async fetchData() {
+     
+    return new Promise(resolve => {
+      setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000);
+    });
+  }
+
+  *dataGenerator() {
+    for (const item of this.data) {
+      yield item * 2;
+    }
+  }
+
+  async process() {
+    const data = await DataProcessor.fetchData();
+    const processor = new DataProcessor(data);
+
+    const results = [];
+    for (let value of processor.dataGenerator()) {
+      results.push(value);
+    }
+    
+    return results;
+  }
+}
+
+(async function main() {
+  const dataProcessor = new DataProcessor([]);
+  const results = await dataProcessor.process();
+  
+  const [first, ...rest] = results;  
+  console.log('Processed Data:', first, rest);
+})();
+```

@@ -1,0 +1,38 @@
+class AsyncHandler {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+
+  processData() {
+    return this.data.map(item => ({ ...item, processed: true }));
+  }
+
+  async *asyncGenerator() {
+    for (const item of this.processData()) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield item;
+    }
+  }
+
+  static async execute(url) {
+    try {
+      const data = await AsyncHandler.fetchData(url);
+      const handler = new AsyncHandler(data);
+      for await (const processedItem of handler.asyncGenerator()) {
+        print('Processed Item:', processedItem);
+      }
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  }
+}
+
+ 
+const testUrl = 'https://jsonplaceholder.typicode.com/todos';
+AsyncHandler.execute(testUrl);

@@ -1,0 +1,50 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncHandler = async (event, ...args) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    print(`Async handled event: ${event} with args:`, ...args);
+};
+
+const emitter = new EventEmitter();
+
+const factorial = (n) => (n <= 1 ? 1 : n * factorial(n - 1));
+
+emitter.on('calculate', asyncHandler);
+emitter.on('calculate', (num) => print(`Factorial of ${num} is ${factorial(num)}`));
+
+const handlerProxy = new Proxy(emitter, {
+    get(target, prop, receiver) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Calling ${prop} with arguments:`, args);
+                return target[prop].apply(this, args);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+});
+
+(async () => {
+    print("Starting calculations...");
+    handlerProxy.emit('calculate', 5);
+    handlerProxy.emit('calculate', 7);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    print("Calculations done.");
+})();

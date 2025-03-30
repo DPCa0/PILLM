@@ -1,0 +1,64 @@
+class AsyncQueue {
+    constructor() {
+        this.tasks = [];
+        this.running = false;
+    }
+
+    async run(task, delay = 0) {
+        this.tasks.push({ task, delay });
+        if (!this.running) {
+            this.running = true;
+            while (this.tasks.length > 0) {
+                const { task, delay } = this.tasks.shift();
+                await this.executeTask(task, delay);
+            }
+            this.running = false;
+        }
+    }
+
+    async executeTask(task, delay) {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return task();
+    }
+}
+
+const createTask = (id) => async () => {
+    const result = await fetch(`https: 
+        .then(response => response.json())
+        .catch(err => console.error(`Error fetching post ${id}:`, err));
+
+    print(`Task ${id} result:`, result);
+};
+
+const queue = new AsyncQueue();
+[1, 2, 3, 4, 5].forEach(id => queue.run(createTask(id), Math.random() * 2000));
+
+ 
+const reactive = new Proxy({ value: 0 }, {
+    get(target, property) {
+        print(`Getting value: ${target[property]}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+});
+
+reactive.value = 10;
+print(reactive.value);
+
+const asyncGeneratorFunction = async function* () {
+    let i = 0;
+    while (i < 5) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+    }
+};
+
+(async () => {
+    for await (let num of asyncGeneratorFunction()) {
+        print(`Async Generator output: ${num}`);
+    }
+})();
+

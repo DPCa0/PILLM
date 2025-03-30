@@ -1,0 +1,40 @@
+ 
+const fs = require('fs').promises;
+const http = require('http');
+
+ 
+const readJsonFile = async (filePath) => {
+    try {
+        const data = await fs.readFile(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading file:', error);
+    }
+};
+
+ 
+const createServer = (port, message) => {
+    const server = http.createServer(async (req, res) => {
+        const { url, method } = req;
+
+        if (url === '/' && method === 'GET') {
+            const data = await readJsonFile('data.json');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message, data }));
+        } else {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('404 Not Found');
+        }
+    });
+
+    server.listen(port, () => {
+        console.log(`Server running at http: 
+    });
+};
+
+ 
+(async () => {
+    const port = process.env.PORT || 3000;
+    const message = 'Hello, advanced JavaScript!';
+    await createServer(port, message);
+})();

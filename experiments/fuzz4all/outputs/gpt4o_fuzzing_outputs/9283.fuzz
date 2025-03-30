@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+}
+
+ 
+function* asyncGenerator(data) {
+    for (const item of data) {
+        yield new Promise((resolve) => setTimeout(() => resolve(item), 1000));
+    }
+}
+
+ 
+const processData = ({ id, name, email }) => {
+    console.log(`User ID: ${id}, Name: ${name}, Email: ${email}`);
+};
+
+ 
+const userValidator = {
+    set(target, key, value) {
+        if (key === 'age' && (typeof value !== 'number' || value < 0)) {
+            throw new Error('Invalid age');
+        }
+        target[key] = value;
+        return true;
+    }
+};
+
+const user = new Proxy({}, userValidator);
+
+ 
+async function main() {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/users';
+        const users = await fetchData(url);
+
+        for (const promise of asyncGenerator(users)) {
+            const userData = await promise;
+            processData(userData);
+        }
+
+         
+        user.age = 30;
+        console.log(`User age set to: ${user.age}`);
+        
+         
+         
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+main();
+```

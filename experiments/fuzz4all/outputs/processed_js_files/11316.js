@@ -1,0 +1,66 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchWithTimeout = async (url, timeout = 5000) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        return response.json();
+    } finally {
+        clearTimeout(timeoutId);
+    }
+};
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('data', debounce(async data => {
+    try {
+        const result = await fetchWithTimeout(`https: 
+        print('Fetched data:', result);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}, 300));
+
+emitter.emit('data', { id: 42 });
+
+(async () => {
+    const promise1 = Promise.resolve('Hello');
+    const promise2 = new Promise((resolve) => setTimeout(resolve, 100, 'World'));
+    const promise3 = Promise.reject('Oops');
+
+    const allSettledResults = await Promise.allSettled([promise1, promise2, promise3]);
+    allSettledResults.forEach(result => {
+        if (result.status === 'fulfilled') {
+            print('Fulfilled:', result.value);
+        } else {
+            console.error('Rejected:', result.reason);
+        }
+    });
+})();

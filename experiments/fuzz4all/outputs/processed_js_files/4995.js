@@ -1,0 +1,76 @@
+ 
+async function fetchData(url) {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+}
+
+ 
+async function* dataGenerator(urls) {
+  for (const url of urls) {
+     
+    yield await fetchData(url);
+  }
+}
+
+ 
+class DataProcessor {
+   
+  #processedData = new WeakMap();
+
+  constructor(rawData) {
+    this.rawData = rawData;
+    this.#processData();
+  }
+
+  #processData() {
+    const processed = this.rawData.map((data) => `Processed: ${data}`);
+    this.#processedData.set(this, processed);
+  }
+
+  getProcessedData() {
+    return this.#processedData.get(this);
+  }
+
+   
+  static async createInstanceFromUrls(urls) {
+    const data = [];
+    const generator = dataGenerator(urls);
+
+    for await (const item of generator) {
+      data.push(item);
+    }
+
+    return new DataProcessor(data);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        print(`Calling method: ${prop}`);
+        return Reflect.apply(target[prop], target, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+const urls = ['http://api.example.com/data1', 'http://api.example.com/data2'];
+
+(async () => {
+   
+  const processor = await DataProcessor.createInstanceFromUrls(urls);
+
+   
+  const proxiedProcessor = new Proxy(processor, handler);
+
+   
+  print(proxiedProcessor.getProcessedData());
+})();

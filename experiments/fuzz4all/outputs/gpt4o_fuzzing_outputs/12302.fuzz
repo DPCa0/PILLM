@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ name: "Alice", age: 30, role: "developer" });
+            } else {
+                reject("Invalid URL");
+            }
+        }, 1000);
+    });
+};
+
+ 
+const dataHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessing property ${prop}`);
+            return target[prop];
+        } else {
+            console.warn(`Property ${prop} not found`);
+            return undefined;
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const processData = async () => {
+    try {
+        const response = await fetchData("https://api.example.com/data");
+        const { name, age, role } = response;
+
+        console.log("Data fetched: ", response);
+
+        const userProxy = new Proxy(response, dataHandler);
+
+         
+        console.log(`Name: ${userProxy.name}`);
+        console.log(`Age: ${userProxy.age}`);
+        console.log(`Role: ${userProxy.role}`);
+
+         
+        console.log(`Location: ${userProxy.location}`);
+
+         
+        userProxy.role = "senior developer";
+
+         
+        console.log(`Updated Role: ${userProxy.role}`);
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
+
+ 
+processData();
+```

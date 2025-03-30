@@ -1,0 +1,62 @@
+ 
+(async () => {
+   
+  const apiRequests = [fetchData('/api/data1'), fetchData('/api/data2'), fetchData('/api/data3')];
+  const results = await Promise.allSettled(apiRequests);
+  
+   
+  const dataMap = new Map();
+  results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value)
+    .forEach(data => {
+      data.forEach(item => {
+        if (!dataMap.has(item.id)) {
+          dataMap.set(item.id, { ...item, tags: new Set() });
+        }
+        item.tags.forEach(tag => dataMap.get(item.id).tags.add(tag));
+      });
+    });
+
+   
+  function* dataIterator(map) {
+    for (const [key, value] of map) {
+      yield { id: key, ...value, tags: [...value.tags] };
+    }
+  }
+  
+   
+  const handler = {
+    get(target, property) {
+      print(`Accessing property ${property}`);
+      return target[property];
+    }
+  };
+
+   
+  const proxyData = new Proxy([...dataIterator(dataMap)], handler);
+
+   
+  const UNIQUE_PROPERTY = Symbol('unique');
+  proxyData[0][UNIQUE_PROPERTY] = 'Some unique value';
+
+   
+  print(proxyData[0]?.[UNIQUE_PROPERTY] ?? 'Default Value');
+
+   
+  function logData(...entries) {
+    entries.forEach(entry => print(`Entry ID: ${entry.id}, Tags: ${entry.tags.join(', ')}`));
+  }
+  
+  logData(...proxyData);
+})();
+
+ 
+async function fetchData(endpoint) {
+  return new Promise(resolve => setTimeout(() => {
+    resolve([
+      { id: 1, name: 'Item 1', tags: ['tag1', 'tag2'] },
+      { id: 2, name: 'Item 2', tags: ['tag3'] },
+    ]);
+  }, Math.random() * 1000));
+}

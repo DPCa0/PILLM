@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class CustomEventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, []);
+        }
+        this.#events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.set(
+                event,
+                this.#events.get(event).filter(l => l !== listener)
+            );
+        }
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const asyncGenerator = async function* (start, end) {
+    for (let i = start; i <= end; i++) {
+        await delay(500);
+        yield i;
+    }
+};
+
+(async () => {
+    const eventEmitter = new CustomEventEmitter();
+
+    eventEmitter.on('data', data => {
+        console.log(`Received: ${data}`);
+        if (data === 5) {
+            console.log('Max value reached, removing listener.');
+            eventEmitter.off('data', listenerRef);
+        }
+    });
+
+    const listenerRef = eventEmitter.#events.get('data')[0];
+
+    const asyncGen = asyncGenerator(1, 10);
+
+    for await (const num of asyncGen) {
+        eventEmitter.emit('data', num);
+    }
+})();
+```

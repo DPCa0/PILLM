@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* generateData() {
+  yield 'data1';
+  yield 'data2';
+  yield 'data3';
+}
+
+const asyncTask = data =>
+  new Promise(resolve =>
+    setTimeout(() => resolve(`Processed: ${data}`), Math.random() * 2000)
+  );
+
+async function processData(generator) {
+  const results = [];
+  for (const data of generator) {
+    results.push(await asyncTask(data));
+  }
+  return results;
+}
+
+const dataGenerator = generateData();
+const proxy = new Proxy(dataGenerator, {
+  get: (target, prop) => {
+    if (prop === 'next') {
+      const nextValue = target.next();
+      console.log(`Accessing: ${nextValue.value}`);
+      return () => nextValue;
+    }
+    return target[prop];
+  },
+});
+
+processData(proxy).then(results => {
+  console.log('All results processed:', results);
+});
+```

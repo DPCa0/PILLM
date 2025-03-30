@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+    setTimeout(() => resolve({ user: { id: 1, name: 'John Doe' }, posts: [1, 2, 3] }), 1000);
+});
+
+ 
+async function getUserData() {
+    const { user, posts } = await fetchData();  
+    print(`Fetched user: ${user.name}`);
+    
+    const postsData = await Promise.all(posts.map(fetchPost));  
+    for (let post of postsData) {
+        print(`Post ID: ${post.id}, Title: ${post.title}`);
+    }
+}
+
+ 
+function* generatePostData() {
+    yield { id: 1, title: 'First Post' };
+    yield { id: 2, title: 'Second Post' };
+    yield { id: 3, title: 'Third Post' };
+}
+
+const postGenerator = generatePostData();
+
+ 
+const fetchPost = (postId) => new Promise(resolve => {
+    const post = postGenerator.next().value;
+    setTimeout(() => resolve(post), 500);
+});
+
+ 
+getUserData().catch(console.error);

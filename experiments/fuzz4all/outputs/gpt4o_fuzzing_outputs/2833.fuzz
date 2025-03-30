@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+ 
+const validator = {
+    set: (obj, prop, value) => {
+        if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new Error('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, validator);
+
+ 
+const uniqueID = Symbol('id');
+person[uniqueID] = 12345;
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const ids = idGenerator();
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Data fetched!');
+        }, 1000);
+    });
+};
+
+ 
+(async () => {
+    const data = await fetchData();
+    console.log(data);
+    console.log(`Generated ID: ${ids.next().value}`);
+    
+    try {
+        person.age = 25;
+        console.log(`Person's age set to: ${person.age}`);
+    } catch (e) {
+        console.error(e.message);
+    }
+
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('greet', (name) => console.log(`Hello, ${name}!`));
+
+    eventEmitter.emit('greet', 'world');
+})();
+```

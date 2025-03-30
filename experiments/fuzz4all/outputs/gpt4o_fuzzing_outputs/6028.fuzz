@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(name) {
+    this.name = name;
+    this.completed = false;
+  }
+  
+  complete() {
+    this.completed = true;
+  }
+}
+
+const taskProxyHandler = {
+  get(target, property) {
+    if (property === 'name') {
+      return `Task: ${target[property]}`;
+    }
+    return target[property];
+  },
+  set(target, property, value) {
+    if (property === 'completed' && typeof value === 'boolean') {
+      console.log(`Changing 'completed' to ${value} for ${target.name}`);
+      target[property] = value;
+    }
+  }
+};
+
+const taskCollection = new WeakMap();
+
+class TaskList {
+  constructor() {
+    this.tasks = [];
+  }
+  
+  addTask(task) {
+    const proxyTask = new Proxy(task, taskProxyHandler);
+    this.tasks.push(proxyTask);
+    taskCollection.set(task, { createdAt: new Date() });
+  }
+  
+  *[Symbol.iterator]() {
+    for (let task of this.tasks) {
+      yield task;
+    }
+  }
+
+  async processTasks() {
+    const promises = this.tasks.map(task => new Promise(resolve => {
+      setTimeout(() => {
+        task.complete();
+        resolve(task);
+      }, Math.random() * 1000);
+    }));
+    
+    for await (let task of promises) {
+      console.log(`${task.name} - Completed: ${task.completed}`);
+    }
+  }
+}
+
+ 
+const myTasks = new TaskList();
+myTasks.addTask(new Task('Write Code'));
+myTasks.addTask(new Task('Review PR'));
+myTasks.addTask(new Task('Deploy App'));
+
+(async () => {
+  console.log('Processing tasks...');
+  await myTasks.processTasks();
+  for (let task of myTasks) {
+    console.log(task.name, taskCollection.get(task));
+  }
+})();
+```

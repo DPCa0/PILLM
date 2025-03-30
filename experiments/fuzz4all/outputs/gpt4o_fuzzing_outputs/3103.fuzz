@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+class AsyncRandomStringGenerator {
+  constructor(length) {
+    this.length = length;
+    this.characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    this.string = '';
+  }
+
+  async *generateRandomCharacter() {
+    while (this.string.length < this.length) {
+      await new Promise(resolve => setTimeout(resolve, 50));  
+      const char = this.characters.charAt(Math.floor(Math.random() * this.characters.length));
+      yield char;
+    }
+  }
+
+  async generateString() {
+    const generator = this.generateRandomCharacter();
+    for await (const char of generator) {
+      this.string += char;
+    }
+    return this.string;
+  }
+}
+
+(async function() {
+  const stringGenerator = new AsyncRandomStringGenerator(10);
+  console.time('Generation Time');
+  const randomString = await stringGenerator.generateString();
+  console.timeEnd('Generation Time');
+  console.log('Generated Random String:', randomString);
+})();
+```

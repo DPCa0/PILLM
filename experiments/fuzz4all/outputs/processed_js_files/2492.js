@@ -1,0 +1,37 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+    
+    get(n) {
+        if (this.memo.has(n)) {
+            return this.memo.get(n);
+        }
+        let value = this.get(n - 1) + this.get(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const asyncGenerator = async function* (n) {
+    const fib = new Fibonacci();
+    for (let i = 0; i <= n; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(fib.get(i)), 100));
+    }
+};
+
+(async () => {
+    const fibSequence = asyncGenerator(10);
+    for await (let num of fibSequence) {
+        print(`Fibonacci: ${num}`);
+    }
+
+    const double = x => x * 2;
+    const square = x => x * x;
+    
+    const compose = (...funcs) => x => funcs.reduceRight((v, f) => f(v), x);
+    
+    const operate = compose(double, square);
+    
+    print(`Double of square of 5: ${operate(5)}`);
+})();

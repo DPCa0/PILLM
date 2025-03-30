@@ -1,0 +1,56 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event].push(listener);
+  }
+
+  emit(event, args) {
+    if (this.events[event]) this.events[event].forEach(listener => listener(args));
+  }
+}
+
+const cache = new Map();
+
+const memoizedFetchData = async (url) => {
+  if (cache.has(url)) {
+    print("Fetching from cache");
+    return cache.get(url);
+  }
+  print("Fetching from network");
+  const data = await fetchData(url);
+  cache.set(url, data);
+  return data;
+};
+
+const emitter = new EventEmitter();
+emitter.on('dataFetched', (data) => print('Data received:', data));
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  try {
+    const data = await memoizedFetchData(url);
+    emitter.emit('dataFetched', data);
+    
+    const cachedData = await memoizedFetchData(url);
+    emitter.emit('dataFetched', cachedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+This JavaScript program uses several advanced features, including:
+- `async/await` for asynchronous operations.
+- Fetch API for network requests.
+- Classes and objects to create an event-driven pattern with an `EventEmitter`.
+- Maps for caching data, simulating memoization.
+- Using ES6+ features such as arrow functions and template literals.

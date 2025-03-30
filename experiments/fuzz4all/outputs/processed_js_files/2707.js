@@ -1,0 +1,38 @@
+class Emitter extends EventTarget {
+  async emitAsync(eventName, detail = {}) {
+    const event = new CustomEvent(eventName, { detail });
+    this.dispatchEvent(event);
+    await Promise.resolve();  
+  }
+}
+
+function debounce(func, wait, immediate) {
+  let timeout;
+  return function executedFunction(...args) {
+    const context = this;
+    const later = function() {
+      timeout = null;
+      if (!immediate) func.apply(context, args);
+    };
+    const callNow = immediate && !timeout;
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+    if (callNow) func.apply(context, args);
+  };
+}
+
+const emitter = new Emitter();
+
+emitter.addEventListener('customEvent', async (event) => {
+  print('Event received:', event.detail);
+  const data = await new Promise((resolve) => setTimeout(() => resolve('async data'), 1000));
+  print(data);
+});
+
+const debouncedEmit = debounce(async () => {
+  await emitter.emitAsync('customEvent', { message: 'Hello, world!' });
+}, 300);
+
+debouncedEmit();
+debouncedEmit();
+debouncedEmit();

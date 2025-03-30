@@ -1,0 +1,33 @@
+Certainly! Here's a JavaScript program that utilizes advanced features such as Promises, async/await, destructuring, and higher-order functions:
+
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000);
+});
+
+ 
+const processArray = (arr, fn) => arr.map(fn);
+
+ 
+async function processData() {
+  try {
+     
+    const { data } = await fetchData();
+
+     
+    const processed = processArray(data, num => num * 2);
+
+     
+    return processed;
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+ 
+(async () => {
+  const result = await processData();
+  print("Processed Data:", result);
+})();
+
+This script demonstrates the use of several modern JavaScript features in a cohesive way.

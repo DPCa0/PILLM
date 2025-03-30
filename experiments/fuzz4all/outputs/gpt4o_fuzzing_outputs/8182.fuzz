@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+  #firstName;
+  #lastName;
+  
+  constructor(firstName, lastName) {
+    this.#firstName = firstName;
+    this.#lastName = lastName;
+  }
+  
+  get fullName() {
+    return `${this.#firstName} ${this.#lastName}`;
+  }
+  
+   
+  static fromFullName(fullName) {
+    const [firstName, lastName] = fullName.split(' ');
+    return new Person(firstName, lastName);
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+}
+
+ 
+const personLogger = (target) => new Proxy(target, {
+  get: (obj, prop) => {
+    console.log(`Accessing property '${prop}'`);
+    return obj[prop];
+  }
+});
+
+ 
+const uniquePeople = new Set();
+
+uniquePeople.add(Person.fromFullName('John Doe'));
+uniquePeople.add(Person.fromFullName('Jane Smith'));
+
+ 
+uniquePeople.forEach(person => {
+  const loggedPerson = personLogger(person);
+  console.log(loggedPerson.fullName);
+});
+
+ 
+fetchData('https://api.example.com/data')
+  .then(data => console.log('Fetched data:', data));
+```

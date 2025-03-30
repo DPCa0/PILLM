@@ -1,0 +1,62 @@
+class EventEmitter {
+  #listeners = new Map();
+
+  on(event, listener) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, []);
+    }
+    this.#listeners.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.#listeners.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener(...args));
+    }
+  }
+}
+
+class AsyncQueue {
+  #queue = [];
+  #pendingPromise = false;
+
+  enqueue(task) {
+    return new Promise(resolve => {
+      this.#queue.push(() => task().then(resolve));
+      this.#processQueue();
+    });
+  }
+
+  async #processQueue() {
+    if (this.#pendingPromise || !this.#queue.length) return;
+    this.#pendingPromise = true;
+    const task = this.#queue.shift();
+    await task();
+    this.#pendingPromise = false;
+    this.#processQueue();
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+  const queue = new AsyncQueue();
+
+  emitter.on('event1', async data => {
+    await queue.enqueue(async () => {
+      print('Event 1:', data);
+      return new Promise(resolve => setTimeout(resolve, 1000));
+    });
+  });
+
+  emitter.on('event2', data => {
+    queue.enqueue(() => {
+      print('Event 2:', data);
+      return Promise.resolve();
+    });
+  });
+
+  emitter.emit('event1', 'Hello');
+  emitter.emit('event2', 'World');
+  emitter.emit('event1', 'Foo');
+  emitter.emit('event2', 'Bar');
+})();

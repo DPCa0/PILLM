@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(task) {
+        this.queue.push(task);
+        if (!this.processing) {
+            this.processing = true;
+            while (this.queue.length) {
+                const currentTask = this.queue.shift();
+                try {
+                    await currentTask();
+                } catch (e) {
+                    console.error('Task failed:', e);
+                }
+            }
+            this.processing = false;
+        }
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function taskWithDelay(name, ms) {
+    console.log(`Starting ${name}`);
+    await delay(ms);
+    console.log(`Completed ${name}`);
+}
+
+const asyncQueue = new AsyncQueue();
+
+const tasks = [
+    async () => await taskWithDelay('Task 1', 1000),
+    async () => await taskWithDelay('Task 2', 500),
+    async () => await taskWithDelay('Task 3', 200),
+];
+
+(async () => {
+    await Promise.all(tasks.map(task => asyncQueue.enqueue(task)));
+    console.log('All tasks processed');
+})();
+```

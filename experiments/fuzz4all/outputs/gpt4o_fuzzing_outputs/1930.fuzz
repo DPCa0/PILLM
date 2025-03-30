@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+const processData = async () => {
+  try {
+     
+    const data = await fs.readFile('./data.json', 'utf-8');
+    const jsonData = JSON.parse(data);
+
+     
+    const { name, age, ...rest } = jsonData;
+
+     
+    const handler = {
+      get: (obj, prop) => {
+        console.log(`Accessing property ${prop}`);
+        return obj[prop];
+      },
+    };
+    const proxiedData = new Proxy({ name, age, ...rest }, handler);
+
+     
+    const formatData = () => new Promise((resolve) => {
+      setTimeout(() => {
+        const formattedData = `${proxiedData.name} is ${proxiedData.age} years old.`;
+        resolve(formattedData);
+      }, 1000);
+    });
+
+     
+    const additionalInfo = proxiedData.additionalInfo?.bio ?? 'No additional info available.';
+    console.log(additionalInfo);
+
+     
+    const result = await formatData();
+    console.log(result);
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();
+```
+
+This JavaScript program demonstrates the use of several advanced features: dynamic import, async/await for asynchronous operations, destructuring with rest and spread operators, Proxy to intercept property access, promises, optional chaining, and nullish coalescing. It performs file operations and processes JSON data in a non-blocking manner.

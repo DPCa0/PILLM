@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: { name: 'John Doe', age: 30, location: 'USA' } });
+        }, 1000);
+    });
+}
+
+ 
+async function handleData() {
+    try {
+        const { data: { name, age, location } } = await fetchData('https://api.example.com/user');
+        
+         
+        const user = { name, age, location };
+        const handler = {
+            set(target, property, value) {
+                console.log(`Property '${property}' changed from ${target[property]} to ${value}`);
+                target[property] = value;
+                return true;
+            }
+        };
+        
+        const proxyUser = new Proxy(user, handler);
+        
+         
+        proxyUser.age = 31;
+
+        console.log(`User's updated data: ${JSON.stringify(proxyUser)}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+handleData();
+```

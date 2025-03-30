@@ -1,0 +1,40 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that makes use of advanced features such as Promises, async/await, arrow functions, and ES6 modules:
+
+```javascript
+// utils.js - A utility module
+export const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+export const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+// main.js - Main module
+import { delay, fetchData } from './utils.js';
+
+const processData = (data) => {
+  return data.map(({ id, title }) => ({ id, title }));
+};
+
+const displayData = (data) => {
+  console.log('Processed Data:', data);
+};
+
+const main = async () => {
+  try {
+    console.log('Fetching data...');
+    const data = await fetchData('https: 
+    await delay(1000);  
+    const processedData = processData(data);
+    displayData(processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();
+```
+
+To run this code, you'd need to have a server or environment that supports ES6 modules, and ensure both `utils.js` and `main.js` are available in the correct directory structure.

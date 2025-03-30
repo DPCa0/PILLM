@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Complex {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+  get magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+  static add(a, b) {
+    return new Complex(a.real + b.real, a.imaginary + b.imaginary);
+  }
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+async function asyncComplexCalculation() {
+  const complexNumbers = [new Complex(1, 1), new Complex(2, 3), new Complex(4, 5)];
+  
+  function* generator(array) {
+    for (const item of array) {
+      yield item;
+    }
+  }
+
+  const gen = generator(complexNumbers);
+  const results = [];
+
+  for (const complex of gen) {
+    const promise = new Promise((resolve) => {
+      setTimeout(() => resolve(complex.magnitude), 100);
+    });
+    results.push(await promise);
+  }
+
+  return results;
+}
+
+(async () => {
+  const results = await asyncComplexCalculation();
+  const [first, second, third] = results;
+
+  console.log(`Magnitude of complex numbers: ${first.toFixed(2)}, ${second.toFixed(2)}, ${third.toFixed(2)}`);
+})();
+```

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexComputation {
+  constructor() {
+     
+    this.computationMap = new Map();
+  }
+
+   
+  async performAsyncComputation(key) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const result = key.reduce((acc, val) => acc + val, 0);
+        resolve(result);
+      }, 1000);
+    });
+  }
+
+   
+  createProxyHandler() {
+    return {
+      get: (target, prop) => {
+        if (prop === 'get' || prop === 'set') {
+          console.log(`Accessing method: ${prop}`);
+        }
+        return target[prop];
+      },
+    };
+  }
+
+  async computeComplexValues(keysArray) {
+    const computationMapProxy = new Proxy(this.computationMap, this.createProxyHandler());
+
+    for (let key of keysArray) {
+      if (!computationMapProxy.has(key.toString())) {
+        console.log(`Computing value for key: ${key}`);
+        const result = await this.performAsyncComputation(key);
+        computationMapProxy.set(key.toString(), result);
+      } else {
+        console.log(`Cached value found for key: ${key}`);
+      }
+    }
+
+     
+    for (let [key, value] of computationMapProxy) {
+      console.log(`Key: [${key.split(',')}] => Computed Value: ${value}`);
+    }
+  }
+}
+
+ 
+const complexComputationInstance = new ComplexComputation();
+complexComputationInstance.computeComplexValues([
+  [1, 2, 3],
+  [4, 5, 6],
+  [1, 2, 3],
+  [7, 8, 9],
+]).then(() => console.log('Computation complete.'));
+```

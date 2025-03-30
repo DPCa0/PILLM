@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  };
+
+   
+  const userHandler = {
+    set(target, prop, value) {
+      if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+        throw new TypeError('Age must be a positive number');
+      }
+      target[prop] = value;
+      return true;
+    },
+  };
+
+  const user = new Proxy({}, userHandler);
+
+   
+  const userMap = new Map();
+  userMap.set('user1', { name: 'Alice', age: 25 });
+  userMap.set('user2', { name: 'Bob', age: 30 });
+
+   
+  const uniqueAges = new Set(userMap.values().map(user => user.age));
+
+   
+  for (const [key, { name, age }] of userMap.entries()) {
+    console.log(`${name}, Age: ${age}`);
+  }
+
+   
+  console.log(`Unique ages in the map: ${[...uniqueAges].join(', ')}`);
+
+   
+  const user3 = userMap.get('user3');
+  console.log(`User 3 age: ${user3?.age ?? 'unknown'}`);
+
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+     
+    const data = await fetchData('https://api.github.com');
+    console.log(`GitHub API rate limit: ${data.rate_limit_url}`);
+
+     
+    await delay(1000);
+    console.log('Operation completed after 1 second delay');
+
+     
+    user.age = 40;  
+    console.log(`User age set to: ${user.age}`);
+    user.age = -5;  
+  } catch (error) {
+    console

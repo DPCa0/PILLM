@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function complexFunction() {
+   
+  const target = { count: 0 };
+  const handler = {
+    get(obj, prop) {
+      console.log(`Getting ${prop} from target`);
+      return prop in obj ? obj[prop] : 'Not Found';
+    },
+    set(obj, prop, value) {
+      console.log(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    },
+  };
+  const proxy = new Proxy(target, handler);
+
+   
+  const apiCall = () => new Promise((resolve) => setTimeout(() => resolve(42), 2000));
+
+   
+  const [result] = await Promise.all([apiCall(), apiCall()]);
+
+  proxy.count = result;  
+
+   
+  function* generatorFunction() {
+    let i = 0;
+    while (i < proxy.count) {
+      yield i++;
+    }
+  }
+
+   
+  const numbers = [...generatorFunction()];
+
+   
+  const processedNumbers = numbers.map((x) => x * 2).filter((x) => x % 3 === 0);
+
+   
+  const uniqueNumbers = new Set(processedNumbers);
+
+   
+  for (let num of uniqueNumbers) {
+    console.log(num);
+  }
+}
+
+ 
+complexFunction();
+```

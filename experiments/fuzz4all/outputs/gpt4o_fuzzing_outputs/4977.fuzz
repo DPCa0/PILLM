@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+const processData = async (urls) => {
+  try {
+    const results = [];
+    for await (const data of fetchData(urls)) {
+      const { id, ...rest } = data;
+      results.push({ id, ...rest });
+    }
+    return results;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/todos/1',
+  'https://jsonplaceholder.typicode.com/todos/2'
+];
+
+processData(urls).then((results) => {
+  const [{ id: firstId }, { id: secondId }] = results;
+  console.log(`Fetched IDs: ${firstId}, ${secondId}`);
+});
+```

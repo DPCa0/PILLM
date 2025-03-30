@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Temperature {
+  #celsius;
+
+  constructor(celsius) {
+    this.#celsius = celsius;
+  }
+
+  get fahrenheit() {
+    return this.#celsius * 1.8 + 32;
+  }
+
+  static fromFahrenheit(fahrenheit) {
+    return new Temperature((fahrenheit - 32) / 1.8);
+  }
+}
+
+const getWeather = async (city) => {
+  const response = await fetch(`https: 
+  const data = await response.json();
+  return data.temperature;
+};
+
+const measureCityTemperatures = async (...cities) => {
+  const temperatureMap = new Map();
+
+  await Promise.all(cities.map(async (city) => {
+    const celsiusTemp = await getWeather(city);
+    const tempObj = new Temperature(celsiusTemp);
+    temperatureMap.set(city, tempObj);
+  }));
+
+  return temperatureMap;
+};
+
+(async () => {
+  try {
+    const citiesTemperatures = await measureCityTemperatures('New York', 'Los Angeles', 'London');
+
+    for (const [city, tempObj] of citiesTemperatures.entries()) {
+      console.log(`${city}: ${tempObj.fahrenheit.toFixed(2)}°F (${tempObj.#celsius.toFixed(2)}°C)`);
+    }
+  } catch (error) {
+    console.error('Error fetching temperatures:', error);
+  }
+})();
+```

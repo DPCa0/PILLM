@@ -1,0 +1,51 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function asyncTask() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve('Task complete'), 1000);
+  });
+}
+
+function* generator() {
+  yield 'Step 1';
+  yield 'Step 2';
+  yield asyncTask();
+}
+
+(async function main() {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('start', async () => {
+    print('Starting generator sequence...');
+    const gen = generator();
+    for (let step of gen) {
+      if (step instanceof Promise) {
+        print(await step);
+      } else {
+        print(step);
+      }
+    }
+    eventEmitter.emit('end');
+  });
+
+  eventEmitter.on('end', () => {
+    print('Generator sequence complete.');
+  });
+
+  eventEmitter.emit('start');
+})();

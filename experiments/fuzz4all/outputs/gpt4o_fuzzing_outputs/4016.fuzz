@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline');
+const {promisify} = require('util');
+
+ 
+const wait = promisify(setTimeout);
+
+ 
+const randomDelay = () => Math.floor(Math.random() * 3000);
+
+ 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+const question = (query) => new Promise(resolve => rl.question(query, resolve));
+
+(async () => {
+  try {
+     
+    const greetUser = (...names) => `Hello, ${names.join(', ')}!`;
+
+     
+    const userNames = new Set();
+
+    let shouldContinue = true;
+
+    while (shouldContinue) {
+      const name = await question('Enter your name (or type "exit" to finish): ');
+
+      if (name.toLowerCase() === 'exit') {
+        shouldContinue = false;
+      } else {
+        userNames.add(name);
+      }
+    }
+
+    rl.close();
+
+     
+    const greetings = await Promise.all(
+      [...userNames].map(async user => {
+        await wait(randomDelay());
+        return greetUser(user);
+      })
+    );
+
+     
+    const END_SYMBOL = Symbol('end');
+
+     
+    const greetingsWithEndSymbol = new Map([
+      ...greetings.map((greet, index) => [index, greet]),
+      [END_SYMBOL, 'End of Greetings']
+    ]);
+
+     
+    for (let [key, greeting] of greetingsWithEndSymbol) {
+      console.log(`${key}: ${greeting}`);
+    }
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

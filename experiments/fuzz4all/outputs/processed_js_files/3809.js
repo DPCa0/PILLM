@@ -1,0 +1,43 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ name: "JavaScript", paradigm: "Event-driven", year: 1995 });
+    }, 1000);
+  });
+
+ 
+async function displayData() {
+  try {
+    const data = await fetchData();
+    const { name, paradigm, year } = data;
+    print(`Language: ${name}, Paradigm: ${paradigm}, Year: ${year}`);
+  } catch (error) {
+    console.error("Error fetching data", error);
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    print(`Property '${property}' accessed`);
+    return target[property];
+  },
+};
+
+ 
+const targetObject = { language: "JavaScript", level: "Advanced" };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function showProxyData() {
+  Object.keys(proxyObject).map((key) =>
+    console.log(`${key}: ${proxyObject[key]}`)
+  );
+}
+
+ 
+displayData();
+showProxyData();

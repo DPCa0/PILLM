@@ -1,0 +1,59 @@
+class ComplexFeatureShowcase {
+  static #privateStaticField = "Accessing Private Static Field";
+  
+  #privateField = "Accessing Private Instance Field";
+  
+  constructor(name) {
+    this.name = name;
+  }
+
+  #privateMethod() {
+    return `Hello from ${this.#privateField}`;
+  }
+
+  static *generateNumbers() {
+    yield* [1, 2, 3, 4, 5];
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      return await response.json();
+    } catch (error) {
+      console.error("Fetch Error:", error);
+    }
+  }
+
+  async #logAsyncPrivateMethod() {
+    print(await this.#privateMethod());
+  }
+
+  [Symbol.iterator]() {
+    let count = 0;
+    const self = this;
+    return {
+      next() {
+        if (count < self.name.length) {
+          return { value: self.name[count++], done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  static showcase() {
+    const instance = new ComplexFeatureShowcase("AdvancedJS");
+    print(this.#privateStaticField);
+    
+    instance.#logAsyncPrivateMethod();
+    
+    print([...instance]);
+    
+    for (let num of this.generateNumbers()) {
+      print(num);
+    }
+  }
+}
+
+ 
+ComplexFeatureShowcase.showcase();

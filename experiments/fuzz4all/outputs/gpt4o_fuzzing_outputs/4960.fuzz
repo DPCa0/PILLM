@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+const pipeline = (...fns) => initial => fns.reduce((acc, fn) => acc.then(fn), Promise.resolve(initial));
+
+const fetchUserData = async userId => {
+  const response = await fetch(`https: 
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const transformUserData = user => {
+  const { id, name, username, email } = user;
+  return { id, name, username, email };
+};
+
+const simulateHeavyComputation = user => new Promise(resolve => {
+  setTimeout(() => {
+    console.log('Heavy computation completed for:', user.name);
+    resolve(user);
+  }, 1000);
+});
+
+const printUserData = user => console.log(`User Info: ${JSON.stringify(user, null, 2)}`);
+
+const handleError = error => console.error('An error occurred:', error);
+
+const processUser = pipeline(
+  fetchUserData,
+  transformUserData,
+  simulateHeavyComputation,
+  printUserData
+);
+
+processUser(1).catch(handleError);
+```

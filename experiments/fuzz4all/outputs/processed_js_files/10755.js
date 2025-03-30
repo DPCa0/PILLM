@@ -1,0 +1,58 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => 
+      Array.from({ length: cols }, () => typeof fill === 'function' ? fill() : fill)
+    );
+  }
+
+  static fromArray(array) {
+    let matrix = new Matrix(array.length, 1);
+    for (let i = 0; i < array.length; i++) {
+      matrix.data[i][0] = array[i];
+    }
+    return matrix;
+  }
+
+  toArray() {
+    let array = [];
+    this.data.forEach(row => row.forEach(val => array.push(val)));
+    return array;
+  }
+
+  static multiply(a, b) {
+    let result = new Matrix(a.rows, b.cols);
+    for (let i = 0; i < result.rows; i++) {
+      for (let j = 0; j < result.cols; j++) {
+        result.data[i][j] = a.data[i].reduce((sum, elem, index) => sum + (elem * b.data[index][j]), 0);
+      }
+    }
+    return result;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static map(matrix, fn) {
+    return new Matrix(matrix.rows, matrix.cols)
+      .map((_, i, j) => fn(matrix.data[i][j], i, j));
+  }
+}
+
+const sigmoid = x => 1 / (1 + Math.exp(-x));
+const dsigmoid = y => y * (1 - y);
+
+class NeuralNetwork {
+  constructor(inputNodes, hiddenNodes, outputNodes) {
+    this.inputNodes = inputNodes;
+    this.hiddenNodes = hiddenNodes;
+    this.outputNodes = outputNodes;
+    
+    this.weights_ih = new Matrix(this.hiddenNodes, this.inputNodes, () => Math.random() * 2 - 1);
+    this.weights_ho = new Matrix(this.outputNodes, this.hiddenNodes, () => Math.random() * 2 - 1);
+    
+    this.bias_h = new Matrix(this.hiddenNodes, 1, () => Math.random() * 2 - 1);
+    this.bias_o = new Matrix(this.outputNodes, 1, () => Math.random() *

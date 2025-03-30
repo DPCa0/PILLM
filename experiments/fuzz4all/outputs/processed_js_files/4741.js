@@ -1,0 +1,53 @@
+ 
+class ComplexCalculator {
+  constructor() {
+    this.operations = {
+      add: (a, b) => a + b,
+      subtract: (a, b) => a - b,
+      multiply: (a, b) => a * b,
+      divide: (a, b) => b !== 0 ? a / b : 'Error: Division by zero',
+    };
+
+    return new Proxy(this, {
+      get: (target, prop) => {
+        if (prop in target.operations) {
+          return (...args) => {
+            print(`Performing ${prop} with arguments:`, args);
+            return Reflect.apply(target.operations[prop], target, args);
+          };
+        }
+        return Reflect.get(target, prop);
+      },
+    });
+  }
+
+  async performOperation(name, a, b) {
+    return new Promise((resolve, reject) => {
+      if (this.operations[name]) {
+        setTimeout(() => resolve(this.operations[name](a, b)), 1000);
+      } else {
+        reject('Operation not found');
+      }
+    });
+  }
+
+  static async runCalculations() {
+    const calc = new ComplexCalculator();
+    
+    try {
+      const results = await Promise.all([
+        calc.performOperation('add', 5, 7),
+        calc.performOperation('multiply', 3, 4),
+        calc.performOperation('subtract', 10, 6),
+        calc.performOperation('divide', 12, 4),
+      ]);
+
+      print('Results:', results);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+ComplexCalculator.runCalculations();

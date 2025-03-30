@@ -1,0 +1,48 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  const result = data.reduce((acc, item) => {
+    acc[item.category] = acc[item.category] || [];
+    acc[item.category].push(item.value);
+    return acc;
+  }, {});
+  return result;
+};
+
+const fetchAndProcessData = async (url) => {
+  const rawData = await fetchData(url);
+  if (rawData) {
+    const processedData = processData(rawData);
+    print('Processed Data:', processedData);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timer;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(context, args), delay);
+  };
+};
+
+const debouncedFetchAndProcess = debounce(() => {
+  fetchAndProcessData('https://api.example.com/data');
+}, 500);
+
+document.querySelector('#fetchButton').addEventListener('click', debouncedFetchAndProcess);
+
+ 
+ 
+ 
+ 
+ 
+ 

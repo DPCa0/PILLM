@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+    #real;
+    #imaginary;
+
+    constructor(real, imaginary) {
+        this.#real = real;
+        this.#imaginary = imaginary;
+    }
+
+    get real() {
+        return this.#real;
+    }
+
+    get imaginary() {
+        return this.#imaginary;
+    }
+
+    [Symbol.toPrimitive](hint) {
+        if (hint === 'string') {
+            return `${this.#real} + ${this.#imaginary}i`;
+        }
+        return this.#real + this.#imaginary;
+    }
+
+    static *complexGenerator(limit) {
+        let real = 0, imaginary = 1;
+        while (limit-- > 0) {
+            yield new ComplexNumber(real++, imaginary++);
+        }
+    }
+
+    add(other) {
+        return new ComplexNumber(this.#real + other.real, this.#imaginary + other.imaginary);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const complexProxy = new Proxy(new ComplexNumber(3, 4), handler);
+
+for (let c of ComplexNumber.complexGenerator(3)) {
+    console.log(`Generated complex number: ${String(c)}`);
+}
+
+const sum = complexProxy.add(new ComplexNumber(1, 2));
+console.log(`Sum: ${String(sum)}`);
+```

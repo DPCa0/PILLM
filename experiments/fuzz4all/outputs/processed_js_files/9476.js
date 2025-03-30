@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({
+            userId: 1,
+            id: 101,
+            title: 'Complex JavaScript Program',
+            body: 'This is a demonstration of advanced JavaScript features.'
+        });
+    }, 1000);
+});
+
+ 
+const processData = async (dataHandler) => {
+    try {
+        const data = await fetchData();
+        dataHandler(data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+const displayData = ({ userId, title, body }) => {
+    print(`User ID: ${userId}`);
+    print(`Title: ${title}`);
+    print(`Body: ${body}`);
+};
+
+ 
+processData(displayData);

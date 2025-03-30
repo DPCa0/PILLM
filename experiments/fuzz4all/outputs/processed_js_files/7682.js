@@ -1,0 +1,38 @@
+ 
+
+ 
+function fetchData(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id, value: Math.floor(Math.random() * 100) };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+ 
+async function fetchMultipleData(...ids) {
+    try {
+        const promises = ids.map(id => fetchData(id));
+        const results = await Promise.all(promises);
+
+         
+        const aggregatedResult = results.reduce((acc, { id, value }) => {
+            acc.sum += value;
+            acc.details.push({ id, value });
+            return acc;
+        }, { sum: 0, details: [] });
+
+        return aggregatedResult;
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+ 
+(async () => {
+    const ids = [1, 2, 3, 4, 5];
+    const { sum, details } = await fetchMultipleData(...ids);
+    print('Aggregated Sum:', sum);
+    print('Details:', details);
+})();

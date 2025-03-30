@@ -1,0 +1,43 @@
+class Animal {
+    #hunger = 100;
+    constructor(name) {
+        this.name = name;
+    }
+    feed(amount) {
+        this.#hunger -= amount;
+        print(`${this.name} is fed and its hunger is now ${this.#hunger}`);
+    }
+    get isHungry() {
+        return this.#hunger > 50;
+    }
+}
+
+function* hungerGame(animals) {
+    while (animals.some(animal => animal.isHungry)) {
+        for (let animal of animals) {
+            if (animal.isHungry) {
+                yield animal.feed(20);
+            }
+        }
+    }
+}
+
+const zoo = new Proxy({
+    lion: new Animal('Lion'),
+    tiger: new Animal('Tiger'),
+    bear: new Animal('Bear')
+}, {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`Animal ${prop} does not exist in the zoo.`);
+        }
+    }
+});
+
+(async function manageZoo() {
+    print('Starting to feed animals...');
+    for await (const _ of hungerGame(Object.values(zoo))) {}
+    print('All animals are fed and not hungry anymore!');
+})().catch(console.error);

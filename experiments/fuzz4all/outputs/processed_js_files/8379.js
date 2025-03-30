@@ -1,0 +1,41 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    if (this.events.has(event)) {
+      const promises = this.events.get(event).map(listener => listener(...args));
+      await Promise.all(promises);
+    }
+  }
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function main() {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('data', async (msg) => {
+    await delay(1000);
+    print(`Listener 1 received: ${msg}`);
+  });
+
+  emitter.on('data', async (msg) => {
+    await delay(500);
+    print(`Listener 2 received: ${msg}`);
+  });
+
+  print('Emitting event with message: "Hello, world!"');
+  await emitter.emit('data', 'Hello, world!');
+  print('All listeners have processed the event.');
+}
+
+main().catch(console.error);

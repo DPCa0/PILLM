@@ -1,0 +1,41 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+function* dataGenerator(data) {
+  for (const item of data) {
+    yield item;
+  }
+}
+
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      print(`Property "${prop}" accessed.`);
+      return obj[prop];
+    } else {
+      console.error(`Property "${prop}" does not exist.`);
+      return undefined;
+    }
+  },
+};
+
+const processData = async (url) => {
+  try {
+    const rawData = await fetchData(url);
+    const proxyData = new Proxy(rawData, handler);
+    const generator = dataGenerator(proxyData);
+
+    for (const item of generator) {
+      print(item);
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+ 
+processData('https://jsonplaceholder.typicode.com/posts');

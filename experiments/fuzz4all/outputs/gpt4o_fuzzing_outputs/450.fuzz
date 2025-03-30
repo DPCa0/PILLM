@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+class FibonacciSequence {
+  constructor() {
+    this.cache = new Map();
+  }
+
+   
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+async function complexAsyncTask() {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched Data:', data);
+
+    const sequence = new FibonacciSequence();
+    const fibs = [];
+    for (const num of sequence) {
+      fibs.push(num);
+      if (fibs.length === 10) break;
+    }
+    console.log('First 10 Fibonacci numbers:', fibs);
+
+    const [first, second, , , fifth] = fibs;
+    console.log('Destructured Fibonacci numbers:', { first, second, fifth });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+complexAsyncTask();
+```

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class User {
+  #name;  
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  set name(name) {
+    this.#name = name;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+const processUserData = async (url) => {
+  try {
+    const users = await fetchData(url);
+    const enhancedUsers = users.map(({ name, age }) => {
+      const user = new User(name, age);
+      return { name: user.name, age: user.age, yearOfBirth: new Date().getFullYear() - user.age };
+    });
+    console.table(enhancedUsers);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+processUserData('https://jsonplaceholder.typicode.com/users');
+```

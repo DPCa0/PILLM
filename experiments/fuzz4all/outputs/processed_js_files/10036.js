@@ -1,0 +1,41 @@
+ 
+
+ 
+export const getRandomNumber = (max = 100) => Math.floor(Math.random() * max);
+
+ 
+export const add = (a, b) => a + b;
+export const multiply = (a, b) => a * b;
+
+ 
+import { getRandomNumber } from './randomNumber.js';
+import { add, multiply } from './mathOperations.js';
+
+ 
+const asyncOperation = (num) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(num * num);
+        }, 1000);
+    });
+};
+
+ 
+const complexOperation = async (...numbers) => {
+    let [a, b, c = 0] = numbers;
+    a = await asyncOperation(a);
+    b = await asyncOperation(b);
+    c = await asyncOperation(c);
+
+    return {
+        addition: add(a, b),
+        multiplication: multiply(a, b, c),
+    };
+};
+
+ 
+const numbers = [getRandomNumber(), getRandomNumber()];
+complexOperation(...numbers).then(result => {
+    const { addition, multiplication } = result;
+    print(`Addition: ${addition}, Multiplication: ${multiplication}`);
+});

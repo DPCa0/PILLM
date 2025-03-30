@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve({ data: { user: 'John Doe', age: 30 } }) : reject('Fetch error!');
+    }, 1000);
+  });
+}
+
+ 
+async function getUserData() {
+  try {
+    const response = await fetchData();
+    return response.data;
+  } catch (error) {
+    return { error };
+  }
+}
+
+ 
+const userDataHandler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    }
+    return 'Property not available';
+  },
+  set(target, property, value) {
+    if (typeof value === 'string') {
+      target[property] = value.toUpperCase();  
+      return true;
+    }
+    console.warn('Value must be a string');
+    return false;
+  }
+};
+
+ 
+const UNIQUE_ID = Symbol('uniqueID');
+
+(async function() {
+  const userData = await getUserData();
+  if (userData.error) {
+    console.error(userData.error);
+  } else {
+    const proxyUserData = new Proxy(userData, userDataHandler);
+    proxyUserData.name = 'Jane Smith';
+    proxyUserData.age = 'Twenty Five';  
+    
+    proxyUserData[UNIQUE_ID] = 'ID123456';
+
+    console.log(proxyUserData.name);  
+    console.log(proxyUserData.age);   
+    console.log(proxyUserData[UNIQUE_ID]);  
+    console.log(proxyUserData.address);  
+  }
+})();
+```

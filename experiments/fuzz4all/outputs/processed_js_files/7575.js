@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = (data, delay) => {
+  return new Promise(resolve => setTimeout(() => resolve(data), delay));
+};
+
+ 
+async function* asyncGenerator() {
+  const data1 = await fetchData("First Data", 1000);
+  yield data1;
+  const data2 = await fetchData("Second Data", 2000);
+  yield data2;
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Getting ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const dataProxy = new Proxy({}, handler);
+
+(async () => {
+  const asyncGen = asyncGenerator();
+
+  for await (const value of asyncGen) {
+    print("Received:", value);
+    dataProxy[value] = value;  
+  }
+
+   
+  print("Accessing stored data:", dataProxy["First Data"]);
+})();

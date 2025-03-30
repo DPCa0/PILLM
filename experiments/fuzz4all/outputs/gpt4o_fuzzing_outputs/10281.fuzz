@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+const fibProxy = new Proxy(fibonacciGenerator(), {
+  get(target, prop, receiver) {
+    if (prop === 'next') {
+      console.log(`Accessing Fibonacci number`);
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+ 
+async function getFibonacciNumbers(count) {
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    result.push(fibProxy.next().value);
+  }
+  return result;
+}
+
+ 
+async function main() {
+  try {
+    console.log("Fetching Fibonacci numbers...");
+    const fibNumbers = await getFibonacciNumbers(10);
+    console.log("Fibonacci numbers:", fibNumbers);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+main();
+```

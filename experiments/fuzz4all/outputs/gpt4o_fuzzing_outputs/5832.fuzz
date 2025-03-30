@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' has been accessed.`);
+    return obj[prop];
+  },
+};
+
+ 
+const processData = ({ name: userName = 'Guest', age = 0 }) => {
+  console.log(`User: ${userName}, Age: ${age}`);
+};
+
+ 
+(async () => {
+  try {
+     
+    const user = {
+      name: 'Alice',
+      age: 25,
+    };
+
+     
+    const proxyUser = new Proxy(user, handler);
+
+     
+    console.log(`Name: ${proxyUser.name}`);
+    console.log(`Age: ${proxyUser.age}`);
+
+     
+    const apiData = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    
+     
+    processData(apiData);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

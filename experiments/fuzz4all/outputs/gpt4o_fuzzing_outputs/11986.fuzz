@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => fill)
+        );
+    }
+
+    static randomize(matrix) {
+        return new Matrix(
+            matrix.data.length,
+            matrix.data[0].length,
+            0
+        ).map((_, row, col) => Math.random());
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) =>
+            row.map((val, j) => fn(val, i, j))
+        );
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) {
+            throw new Error("Columns of A must match rows of B");
+        }
+        return new Matrix(a.data.length, b.data[0].length).map(
+            (_, i, j) =>
+                a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+        );
+    }
+}
+
+const asyncMatrixMultiply = async (a, b) => {
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    await sleep(100);
+    return Matrix.multiply(a, b);
+};
+
+(async () => {
+    try {
+        let a = new Matrix(3, 2);
+        a = Matrix.randomize(a);
+        let b = new Matrix(2, 3);
+        b = Matrix.randomize(b);
+
+        console.log("Matrix A:", a.data);
+        console.log("Matrix B:", b.data);
+
+        const c = await asyncMatrixMultiply(a, b);
+
+        console.log("Matrix A x B:", c.data);
+    } catch (error) {
+        console.error("Error:", error.message);
+    }
+})();
+```

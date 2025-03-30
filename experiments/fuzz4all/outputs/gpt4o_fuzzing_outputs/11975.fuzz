@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class AsyncIterable {
+    constructor(data) {
+        this.data = data;
+    }
+
+    [Symbol.asyncIterator]() {
+        let index = 0;
+        const data = this.data;
+        return {
+            async next() {
+                if (index < data.length) {
+                    await new Promise(res => setTimeout(res, 100));  
+                    return { value: data[index++], done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+}
+
+async function* processData(asyncIterable) {
+    for await (let item of asyncIterable) {
+        yield* item.split('').map(char => char.toUpperCase());
+    }
+}
+
+(async function main() {
+    const data = ['hello', 'world', 'complex', 'javascript'];
+    const asyncIterable = new AsyncIterable(data);
+    const processedData = processData(asyncIterable);
+
+    for await (let char of processedData) {
+        console.log(char);
+    }
+})();
+```

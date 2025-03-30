@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+class DataPipeline {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async* process() {
+    const results = await Promise.all(
+      this.data.map(async (item) => {
+        if (typeof item === 'number') {
+          return item * item;  
+        } else if (typeof item === 'string') {
+          return item.toUpperCase();  
+        }
+        throw new Error('Unsupported data type');
+      })
+    );
+    
+    for (const result of results) {
+      yield result;
+    }
+  }
+}
+
+(async () => {
+  const pipeline = new DataPipeline([1, 'hello', 3, 'world']);
+  for await (const output of pipeline.process()) {
+    console.log(output);  
+  }
+})();
+```

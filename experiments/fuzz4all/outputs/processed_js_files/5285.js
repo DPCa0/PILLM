@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ data: { userId: 1, title: 'Sample Title', completed: false } });
+    }, 1000);
+});
+
+ 
+const processData = async () => {
+    try {
+        const { data } = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        const { userId, title, completed } = data;
+        
+         
+        const dataMap = new Map([
+            ['User ID', userId],
+            ['Title', title],
+            ['Completed', completed],
+        ]);
+
+         
+        dataMap.forEach((value, key) => {
+            print(`${key}: ${value}`);
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+processData();

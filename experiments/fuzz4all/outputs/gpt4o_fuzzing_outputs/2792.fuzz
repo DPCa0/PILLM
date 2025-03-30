@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretVault {
+  #secrets = new Map();
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  #generateKey() {
+    return Symbol('key');
+  }
+
+  store(secret) {
+    const key = this.#generateKey();
+    this.#secrets.set(key, secret);
+    return key;
+  }
+
+  retrieve(key) {
+    return this.#secrets.get(key);
+  }
+}
+
+ 
+const vaultHandler = {
+  get(target, propKey, receiver) {
+    const origMethod = target[propKey];
+    if (typeof origMethod === 'function') {
+      return function(...args) {
+        console.log(`Method ${propKey} called with arguments:`, args);
+        return Reflect.apply(origMethod, target, args);
+      };
+    }
+    return Reflect.get(target, propKey, receiver);
+  }
+};
+
+ 
+async function secretManager() {
+  const vault = new Proxy(new SecretVault('MyVault'), vaultHandler);
+
+  const key1 = vault.store('The secret formula');
+  const key2 = vault.store('Hidden treasure map');
+
+  console.log('Retrieving secrets...');
+
+   
+  const secrets = await Promise.all([
+    Promise.resolve(vault.retrieve(key1)),
+    Promise.resolve(vault.retrieve(key2))
+  ]);
+
+  console.log('Retrieved secrets:', secrets);
+}
+
+ 
+const launchSecrets = async ({ showLogs = true } = {}) => {
+  if (showLogs) console.log('Launching secret manager...');
+  await secretManager();
+};
+
+ 
+(async () => {
+  await launchSecrets();
+})();
+```

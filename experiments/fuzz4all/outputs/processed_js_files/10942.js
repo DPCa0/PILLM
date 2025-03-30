@@ -1,0 +1,56 @@
+const crypto = require('crypto');
+
+class AdvancedExample {
+  constructor() {
+    this.secret = "SuperSecretKey";
+    this.data = { user: "Alice", permissions: ["read", "write", "execute"] };
+  }
+
+  async complexProcess() {
+    try {
+      const hashedData = await this.hashData(JSON.stringify(this.data));
+      print(`Hashed Data: ${hashedData}`);
+
+      const encryptedData = await this.encryptData(hashedData);
+      print(`Encrypted Data: ${encryptedData}`);
+
+      const decryptedData = await this.decryptData(encryptedData);
+      print(`Decrypted Data: ${decryptedData}`);
+
+      const isValid = this.validateHash(decryptedData, hashedData);
+      print(`Is Decrypted Data Valid: ${isValid}`);
+    } catch (error) {
+      console.error(`Error in complex process: ${error.message}`);
+    }
+  }
+
+  hashData(data) {
+    return new Promise((resolve, reject) => {
+      crypto.pbkdf2(data, 'salt', 1000, 64, 'sha512', (err, derivedKey) => {
+        if (err) reject(err);
+        else resolve(derivedKey.toString('hex'));
+      });
+    });
+  }
+
+  encryptData(data) {
+    const cipher = crypto.createCipher('aes-256-cbc', this.secret);
+    let encrypted = cipher.update(data, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return Promise.resolve(encrypted);
+  }
+
+  decryptData(encryptedData) {
+    const decipher = crypto.createDecipher('aes-256-cbc', this.secret);
+    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return Promise.resolve(decrypted);
+  }
+
+  validateHash(data, hash) {
+    return data === hash;
+  }
+}
+
+ 
+(new AdvancedExample()).complexProcess();

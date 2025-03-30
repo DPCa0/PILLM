@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const delayedMessage = (msg, delay) => new Promise(resolve => setTimeout(() => resolve(msg), delay));
+
+     
+    const fetchMessages = async () => {
+        const messages = await Promise.all([
+            delayedMessage('First message after 2 seconds', 2000),
+            delayedMessage('Second message after 1 second', 1000),
+            delayedMessage('Third message after 3 seconds', 3000)
+        ]);
+        return messages;
+    };
+
+     
+    const processMessages = (messages) => {
+        const uniqueMessages = new Set(messages);
+        const messageMap = new Map();
+        uniqueMessages.forEach((msg, index) => messageMap.set(index + 1, msg));
+        return messageMap;
+    };
+
+     
+    const createLoggingProxy = (map) => new Proxy(map, {
+        get(target, property) {
+            console.log(`Accessing message ${property}: ${target.get(property)}`);
+            return target.get(property);
+        }
+    });
+
+     
+    try {
+        const messages = await fetchMessages();
+        const messageMap = processMessages(messages);
+        const proxy = createLoggingProxy(messageMap);
+
+         
+        proxy.get(1);
+        proxy.get(2);
+        proxy.get(3);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

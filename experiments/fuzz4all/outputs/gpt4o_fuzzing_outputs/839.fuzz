@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+(async function complexExample() {
+   
+
+   
+  const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice' },
+        posts: [
+          { id: 101, title: 'Post One' },
+          { id: 102, title: 'Post Two' }
+        ]
+      });
+    }, 1000);
+  });
+
+   
+  const getUserData = async () => {
+    const data = await fetchData();
+    return data;
+  };
+
+   
+  const main = async () => {
+    try {
+      const { user, posts } = await getUserData();
+
+      console.log(`User Info:\nID: ${user.id}\nName: ${user.name}`);
+      console.log(`Posts:`);
+
+       
+      posts.map(({ id, title }) => console.log(`- ${title} (ID: ${id})`));
+
+       
+      const logUserDetails = ({ name, ...details }) => console.log(`Details for ${name}:`, details);
+      logUserDetails(user);
+
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
+
+  await main();
+})();
+```

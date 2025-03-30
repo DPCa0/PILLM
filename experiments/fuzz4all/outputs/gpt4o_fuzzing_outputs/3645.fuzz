@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, Math.random() * 2000 + 1000);
+  });
+}
+
+ 
+const urls = ['https://api.service1.com', 'https://api.service2.com', 'https://api.service3.com'];
+
+ 
+const loggerHandler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Accessing property: ${property}`);
+      return target[property];
+    } else {
+      console.warn(`Property ${property} does not exist on target`);
+      return undefined;
+    }
+  },
+};
+
+ 
+async function fetchAllData() {
+  const fetchPromises = urls.map((url) => fetchData(url));
+  const responses = await Promise.all(fetchPromises);
+
+   
+  const [response1, ...otherResponses] = responses;
+  console.log('First response:', response1);
+  console.log('Other responses:', ...otherResponses);
+
+   
+  const responseProxy = new Proxy({ response1, otherResponses }, loggerHandler);
+
+   
+  console.log('Response1 via proxy:', responseProxy.response1);
+  console.log('Accessing non-existent property:', responseProxy.nonExistent);
+
+  return responseProxy;
+}
+
+ 
+fetchAllData().then((dataProxy) => {
+  console.log('Finished fetching data via proxy:', dataProxy);
+});
+```

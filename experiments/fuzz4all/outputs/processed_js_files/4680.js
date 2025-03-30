@@ -1,0 +1,46 @@
+ 
+async function* asyncGenerator(data) {
+  for (let item of data) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield item * 2;  
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Getting ${prop}`);
+      return target[prop];
+    } else {
+      return `Property ${prop} not found`;
+    }
+  },
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+  }
+};
+
+let data = new Proxy([1, 2, 3, 4, 5], handler);
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+data[uniqueKey] = 'Unique property value';
+
+ 
+(async () => {
+  const iter = asyncGenerator(data);
+  
+  for await (const value of iter) {
+    print(value);  
+  }
+
+   
+  print(data[0]);  
+  data[3] = 10;  
+  print(data.nonExistent);  
+
+   
+  print(data[uniqueKey]);
+})();

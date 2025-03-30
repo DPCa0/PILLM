@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+    try {
+         
+        const { users } = JSON.parse(await fs.readFile('./users.json', 'utf8'));
+
+         
+        const userMap = new Map(users.map(user => [user.id, user]));
+
+         
+        const userHandler = {
+            get: (target, prop) => {
+                if (prop in target) {
+                    console.log(`Accessing user property: ${prop}`);
+                    return target[prop];
+                } else {
+                    throw new Error(`Property ${prop} does not exist`);
+                }
+            }
+        };
+
+         
+        for (const userId of userMap.keys()) {
+            const user = new Proxy(userMap.get(userId), userHandler);
+            console.log(`User Info: ID - ${user.id}, Name - ${user.name}, Email - ${user.email}`);
+        }
+
+         
+        const newUser = { ...userMap.get(1), id: users.length + 1, name: 'New User' };
+        userMap.set(newUser.id, newUser);
+
+         
+        console.log(`New User's phone: ${newUser.phone?.number ?? 'Not Available'}`);
+
+    } catch (error) {
+        // Enhanced error handling using try/catch blocks
+        console.error('Error processing users:', error);
+    }
+})();
+```
+
+This JavaScript program demonstrates various advanced features: ES6 import/export syntax, async/await, Promises, object destructuring, Map, Proxy, spread operator, template literals, optional chaining, and nullish coalescing, combined in a complex but cohesive manner. Note that the code assumes the existence of a `users.json` file with the appropriate data structure.

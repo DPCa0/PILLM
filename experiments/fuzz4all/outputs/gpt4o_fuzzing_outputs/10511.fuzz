@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(url) {
+     
+    const data = await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const fakeResponse = { 
+                success: true, 
+                data: { 
+                    user: { name: "Alice", age: 30 }, 
+                    scores: [100, 90, 80] 
+                } 
+            };
+            resolve(fakeResponse);
+        }, 1000);
+    });
+    return data;
+}
+
+async function main() {
+    try {
+        const { success, data } = await fetchData('https://api.example.com/user');
+        
+        if (success) {
+            const { user: { name, age }, scores } = data;
+            const averageScore = (scores.reduce((acc, score) => acc + score, 0) / scores.length).toFixed(2);
+
+            console.log(`Name: ${name}, Age: ${age}`);
+            console.log(`Average Score: ${averageScore}`);
+        } else {
+            console.error("Failed to fetch data.");
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+
+main();
+```

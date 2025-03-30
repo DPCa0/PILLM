@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+
+class AsyncQueue {
+  constructor() {
+    this.tasks = [];
+  }
+  
+  enqueue(task) {
+    this.tasks.push(task);
+    if (this.tasks.length === 1) this.dequeue();
+  }
+  
+  async dequeue() {
+    while (this.tasks.length > 0) {
+      const task = this.tasks[0];
+      try {
+        const result = await task();
+        console.log(`Task completed with result: ${result}`);
+      } catch (error) {
+        console.error(`Task failed with error: ${error}`);
+      } finally {
+        this.tasks.shift();
+      }
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const complexTask = (id, time) => async () => {
+  await delay(time);
+  if (Math.random() > 0.7) throw new Error(`Error in task ${id}`);
+  return `Result of task ${id}`;
+};
+
+const queue = new AsyncQueue();
+
+for (let i = 1; i <= 5; i++) {
+  const time = Math.floor(Math.random() * 3000);
+  queue.enqueue(complexTask(i, time));
+}
+
+ 
+const handler = {
+  set(target, prop, value) {
+    console.log(`Setting value ${value} at position ${prop}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const arr = new Proxy([], handler);
+
+arr.push(1);
+arr.push(2);
+
+ 
+(async () => {
+  const results = await Promise.allSettled([
+    Promise.resolve('First value'),
+    Promise.reject('Second error'),
+    Promise.resolve('Third value')
+  ]);
+
+  for (const result of results) {
+    if (result.status === 'fulfilled') {
+      console.log(`Fulfilled with: ${result.value}`);
+    } else {
+      console.error(`Rejected with: ${result.reason}`);
+    }
+  }
+})();
+```

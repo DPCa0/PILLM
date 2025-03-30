@@ -1,0 +1,36 @@
+const fs = require('fs').promises;
+
+(async () => {
+   
+  function* range(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield i;
+    }
+  }
+
+   
+  const squares = [...range(1, 5)].map(x => x ** 2);
+
+   
+  const writeSquaresToFile = async (filename, data) => {
+    try {
+      await fs.writeFile(filename, data, 'utf8');
+      print(`Data successfully written to ${filename}`);
+    } catch (error) {
+      console.error(`Error writing to file: ${error}`);
+    }
+  };
+
+   
+  const [first, second, ...rest] = squares;
+
+   
+  const data = `First square: ${first}\nSecond square: ${second}\nRest: ${rest.join(', ')}`;
+
+   
+  const sanitize = (strings, ...values) =>
+    strings.reduce((acc, str, i) => acc + str + (values[i] ? String(values[i]).replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''), '');
+
+   
+  await writeSquaresToFile('squares.txt', sanitize`${data}`);
+})();

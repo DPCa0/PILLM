@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { id: 1, name: 'John Doe', age: 30 };
+      Math.random() > 0.1 ? resolve(data) : reject('Error fetching data');
+    }, 1000);
+  });
+};
+
+const processUserData = async () => {
+  try {
+    const { id, ...rest } = await fetchData();  
+    const user = { id, ...rest, active: true };  
+    return `User Data: ${JSON.stringify(user)}`;  
+  } catch (error) {
+    throw new Error(`Process Failed: ${error}`);
+  }
+};
+
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Property '${prop}' accessed with value: ${Reflect.get(obj, prop)}`);
+      return Reflect.get(obj, prop);
+    },
+    set: (obj, prop, value) => {
+      console.log(`Property '${prop}' set to value: ${value}`);
+      return Reflect.set(obj, prop, value);
+    }
+  });
+};
+
+(async () => {
+  try {
+    let userData = await processUserData();
+    console.log(userData);
+
+    const userObj = { name: 'Alice', age: 28 };
+    const proxiedUser = createLoggingProxy(userObj);
+
+    proxiedUser.name;  
+    proxiedUser.age = 29;  
+    console.log(proxiedUser);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

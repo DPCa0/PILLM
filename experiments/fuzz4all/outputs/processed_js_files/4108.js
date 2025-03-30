@@ -1,0 +1,59 @@
+ 
+
+class DataFetcher {
+  constructor(baseUrl) {
+    this.baseUrl = baseUrl;
+    this.cache = new Map();
+
+     
+    return new Proxy(this, {
+      get: (target, prop) => {
+        if (prop in target) {
+          return target[prop];
+        } else if (prop.startsWith('fetch')) {
+           
+          const endpoint = prop.replace('fetch', '').toLowerCase();
+          return async (params) => {
+            const url = `${target.baseUrl}/${endpoint}?${new URLSearchParams(params)}`;
+            if (target.cache.has(url)) {
+              return target.cache.get(url);
+            }
+            const data = await target._fetchData(url);
+            target.cache.set(url, data);
+            return data;
+          };
+        }
+      },
+    });
+  }
+
+  async _fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data from ${url}`);
+    return response.json();
+  }
+
+  clearCache() {
+    this.cache.clear();
+  }
+}
+
+ 
+(async () => {
+  const api = new DataFetcher('https://jsonplaceholder.typicode.com');
+
+   
+  try {
+    const posts = await api.fetchPosts({ userId: 1 });
+    print('Posts:', posts);
+
+    const comments = await api.fetchComments({ postId: 1 });
+    print('Comments:', comments);
+
+     
+    const cachedPosts = await api.fetchPosts({ userId: 1 });
+    print('Cached Posts:', cachedPosts);
+  } catch (error) {
+    console.error(error);
+  }
+})();

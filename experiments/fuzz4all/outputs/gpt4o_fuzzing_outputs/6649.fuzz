@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+    constructor() {
+        this.result = 0;
+    }
+
+    async add(value) {
+        this.result += value;
+        return new Promise(resolve => setTimeout(() => resolve(this.result), 100));
+    }
+
+    async subtract(value) {
+        this.result -= value;
+        return new Promise(resolve => setTimeout(() => resolve(this.result), 100));
+    }
+
+    async multiply(value) {
+        this.result *= value;
+        return new Promise(resolve => setTimeout(() => resolve(this.result), 100));
+    }
+
+    async divide(value) {
+        if (value === 0) throw new Error('Division by zero');
+        this.result /= value;
+        return new Promise(resolve => setTimeout(() => resolve(this.result), 100));
+    }
+
+    async calculate(operations) {
+        for (const operation of operations) {
+            const { method, value } = operation;
+            this.result = await this[method](value);
+            console.log(`After ${method} ${value}: ${this.result}`);
+        }
+        return this.result;
+    }
+
+    static async execute() {
+        try {
+            const calculator = new AsyncCalculator();
+            const operations = [
+                { method: 'add', value: 10 },
+                { method: 'subtract', value: 5 },
+                { method: 'multiply', value: 3 },
+                { method: 'divide', value: 2 }
+            ];
+            const finalResult = await calculator.calculate(operations);
+            console.log(`Final Result: ${finalResult}`);
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+}
+
+ 
+AsyncCalculator.execute();
+```

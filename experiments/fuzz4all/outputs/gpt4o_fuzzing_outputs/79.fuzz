@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class NeuralLayer {
+  constructor(size, activation) {
+    this.size = size;
+    this.activation = activation;
+    this.biases = Array.from({ length: size }, () => Math.random());
+    this.weights = [];
+  }
+
+  connect(previousLayer) {
+    this.weights = Array.from({ length: this.size }, () =>
+      Array.from({ length: previousLayer.size }, () => Math.random())
+    );
+  }
+
+  activate(inputs) {
+    return inputs.map((input, index) =>
+      this.activation(
+        this.weights[index].reduce((acc, weight, i) => acc + weight * input[i], this.biases[index])
+      )
+    );
+  }
+}
+
+const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+
+class NeuralNetwork {
+  constructor(layers) {
+    this.layers = layers;
+    for (let i = 1; i < layers.length; i++) {
+      layers[i].connect(layers[i - 1]);
+    }
+  }
+
+  forward(input) {
+    return this.layers.reduce((inputs, layer) => layer.activate(inputs), input);
+  }
+}
+
+const inputLayer = new NeuralLayer(3, sigmoid);
+const hiddenLayer = new NeuralLayer(4, sigmoid);
+const outputLayer = new NeuralLayer(1, sigmoid);
+
+const neuralNetwork = new NeuralNetwork([inputLayer, hiddenLayer, outputLayer]);
+
+const input = [0.1, 0.2, 0.3];
+const output = neuralNetwork.forward(input);
+console.log(output);
+```

@@ -1,0 +1,38 @@
+ 
+const fetchData = async () => {
+     
+    const simulateFetch = (id) => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                id,
+                data: {
+                    name: `User ${id}`,
+                    scores: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
+                }
+            });
+        }, 1000);
+    });
+
+    try {
+         
+        const results = await Promise.all([simulateFetch(1), simulateFetch(2), simulateFetch(3)]);
+        
+         
+        const [user1, user2, user3] = results;
+
+         
+        const allScores = [...user1.data.scores, ...user2.data.scores, ...user3.data.scores];
+        
+         
+        const averageScore = allScores.reduce((acc, score) => acc + score, 0) / allScores.length;
+
+        print(`Fetched Data:`, results);
+        print(`All Scores:`, allScores);
+        print(`Average Score:`, averageScore.toFixed(2));
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+fetchData();

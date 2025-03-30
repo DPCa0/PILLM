@@ -1,0 +1,55 @@
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+
+         
+        const uniqueItems = new Set(data.items.map(item => item.name));
+        const itemMap = new Map();
+
+        uniqueItems.forEach(itemName => {
+            const filteredItems = data.items.filter(item => item.name === itemName);
+            const totalValue = filteredItems.reduce((sum, item) => sum + item.value, 0);
+            itemMap.set(itemName, totalValue);
+        });
+
+         
+        itemMap.forEach((value, key) => {
+            print(`Item: ${key}, Total Value: ${value}`);
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+const person = {
+    firstName: 'John',
+    lastName: 'Doe'
+};
+
+const personProxy = new Proxy(person, {
+    get: (target, property) => {
+        if (property === 'fullName') {
+            return `${target.firstName} ${target.lastName}`;
+        }
+        return target[property];
+    },
+    set: (target, property, value) => {
+        if (property === 'firstName' || property === 'lastName') {
+            print(`Updating ${property} to ${value}`);
+        }
+        target[property] = value;
+        return true;
+    }
+});
+
+print(personProxy.fullName);  
+personProxy.firstName = 'Jane';
+print(personProxy.fullName);  
+
+ 
+fetchData('https://api.example.com/data');

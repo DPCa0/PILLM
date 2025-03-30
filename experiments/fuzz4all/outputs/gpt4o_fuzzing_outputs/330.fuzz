@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class Robot {
+  static #energySource = "Solar";
+  #id;
+  #name;
+  
+  constructor(id, name) {
+    this.#id = id;
+    this.#name = name;
+  }
+
+  static getEnergySource() {
+    return this.#energySource;
+  }
+
+  #task = () => {
+    console.log(`Robot ${this.#name} (${this.#id}) is executing a task.`);
+  };
+
+  async performTask() {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    this.#task();
+  }
+}
+
+function* generateTaskIds(start = 1) {
+  let id = start;
+  while (true) {
+    yield `TASK-${id++}`;
+  }
+}
+
+(async function manageRobots() {
+  const taskIdGenerator = generateTaskIds();
+
+  const robots = [
+    new Robot(1, 'Alpha'),
+    new Robot(2, 'Beta'),
+    new Robot(3, 'Gamma')
+  ];
+
+  console.log(`Energy Source: ${Robot.getEnergySource()}`);
+  
+  for (const robot of robots) {
+    const taskId = taskIdGenerator.next().value;
+    console.log(`Assigning ${taskId} to robot ${robot.constructor.name}...`);
+    await robot.performTask();
+  }
+})();
+```

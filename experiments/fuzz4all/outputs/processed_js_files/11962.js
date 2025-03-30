@@ -1,0 +1,50 @@
+ 
+const fs = require('fs').promises;
+const path = require('path');
+const https = require('https');
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        https.get(url, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => resolve(data));
+        }).on('error', (err) => reject(err));
+    });
+}
+
+ 
+(async () => {
+    try {
+         
+        const url = `https: 
+
+         
+        const { name, description, stargazers_count: stars } = JSON.parse(await fetchData(url));
+
+         
+        const info = new Map([
+            ['Name', name],
+            ['Description', description],
+            ['Stars', stars],
+        ]);
+
+         
+        for (const [key, value] of info.entries()) {
+            print(`${key}: ${value}`);
+        }
+
+         
+        const jsonContent = { ...Object.fromEntries(info) };
+
+         
+        const filePath = path.join(__dirname, `${name.toLowerCase()}-info.json`);
+        await fs.writeFile(filePath, JSON.stringify(jsonContent, null, 2));
+        print(`Data successfully written to ${filePath}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

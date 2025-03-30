@@ -1,0 +1,48 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function*() {
+        for (let i = 0; i < 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            yield i;
+        }
+    }
+};
+
+const dataCache = new WeakMap();
+const object = {};
+
+async function fetchData() {
+    if (!dataCache.has(object)) {
+        const data = await (async () => {
+            return new Promise(resolve => setTimeout(() => resolve('Fetched Data'), 2000));
+        })();
+        dataCache.set(object, data);
+    }
+    return dataCache.get(object);
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('data', console.log);
+
+    for await (const value of asyncIterable) {
+        const data = await fetchData();
+        eventEmitter.emit('data', `Value: ${value}, Data: ${data}`);
+    }
+})();

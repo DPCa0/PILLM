@@ -1,0 +1,40 @@
+class Fibonacci {
+  #memo = new Map([[0, 0], [1, 1]]);  
+
+  constructor(n) {
+    this.sequence = [...Array(n).keys()].map(i => this.#getFib(i));
+  }
+
+  #getFib(n) {  
+    if (this.#memo.has(n)) return this.#memo.get(n);
+    let value = this.#getFib(n - 1) + this.#getFib(n - 2);
+    this.#memo.set(n, value);
+    return value;
+  }
+
+  *[Symbol.iterator]() {  
+    yield* this.sequence;
+  }
+
+  async fetchData(url) {  
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      print(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+ 
+(async () => {
+  const fib = new Fibonacci(10);
+  for (const num of fib) {
+    print(num);
+  }
+
+   
+  await fib.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+})();

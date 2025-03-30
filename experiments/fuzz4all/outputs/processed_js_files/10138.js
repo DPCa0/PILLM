@@ -1,0 +1,23 @@
+ 
+
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve({ data: { title: 'Hello', body: 'World' } });
+        }, 1000);
+    });
+}
+
+async function processAndDisplayData(url) {
+    try {
+        const { data: { title, body } } = await fetchData(url);
+        const message = `${title.toUpperCase()} ${body.repeat(2).toLowerCase()}`;
+        const displayData = ({ message, timestamp: new Date().toISOString() });
+        
+        print(`Display Data:`, ...Object.entries(displayData).map(([key, val]) => `${key}: ${val}`));
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+processAndDisplayData('https://example.com/api/data');

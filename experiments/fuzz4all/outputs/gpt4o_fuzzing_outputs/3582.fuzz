@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async calculate(op, ...args) {
+    const key = `${op}-${args.join(',')}`;
+    if (this.cache.has(key)) {
+      console.log('Fetching from cache');
+      return this.cache.get(key);
+    }
+
+    const result = await this._operation(op, ...args);
+    this.cache.set(key, result);
+    return result;
+  }
+
+  async _operation(op, ...args) {
+    await this._delay(500);  
+    switch (op) {
+      case 'add':
+        return args.reduce((a, b) => a + b, 0);
+      case 'multiply':
+        return args.reduce((a, b) => a * b, 1);
+      default:
+        throw new Error('Unknown operation');
+    }
+  }
+
+  _delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+(async () => {
+  const calc = new AsyncCalculator();
+
+  const results = await Promise.all([
+    calc.calculate('add', 2, 3),
+    calc.calculate('multiply', 3, 4),
+    calc.calculate('add', 2, 3),  
+    calc.calculate('multiply', 5, 5),
+    calc.calculate('unknown', 1, 2)  
+      .catch(err => console.error(`Caught error: ${err.message}`))
+  ]);
+
+  console.log('Results:', results);
+})();
+```

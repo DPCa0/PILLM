@@ -1,0 +1,34 @@
+ 
+
+ 
+function* fetchData() {
+  yield new Promise(resolve => setTimeout(() => resolve({ user: 'Alice' }), 1000));
+  yield new Promise(resolve => setTimeout(() => resolve({ items: ['book', 'pen'] }), 1000));
+}
+
+ 
+async function handleData(generator) {
+  const collectedData = [];
+  for await (let data of generator()) {
+    collectedData.push(data);
+  }
+  return collectedData;
+}
+
+ 
+function processUserData([user, items]) {
+  const { user: userName } = user;
+  const { items: userItems } = items;
+  return { userName, userItems: [...userItems, 'notebook'] };  
+}
+
+ 
+(async () => {
+  try {
+    const fetchedData = await handleData(fetchData);
+    const combinedData = processUserData(fetchedData);
+    print('Combined Data:', combinedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

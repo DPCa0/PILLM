@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ users }) => {
+  const activeUsers = users
+    .filter(user => user.isActive)
+    .map(({ name, email, loginHistory }) => ({
+      name,
+      email,
+      lastLogin: new Date(Math.max(...loginHistory.map(date => new Date(date))))
+    }));
+  
+  return activeUsers.sort((a, b) => b.lastLogin - a.lastLogin);
+};
+
+const main = async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    
+    const activeUsers = processData(data);
+    
+    activeUsers.forEach(({ name, email, lastLogin }) => {
+      console.log(`Name: ${name}, Email: ${email}, Last Login: ${lastLogin}`);
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();
+```

@@ -1,0 +1,37 @@
+class FibonacciSequence {
+  #sequence = [0, 1];
+
+  constructor(limit) {
+    if (typeof limit !== 'number' || limit < 2) throw new Error('Limit must be a number greater than 1.');
+    this.limit = limit;
+    this.generateSequence();
+  }
+
+  generateSequence() {
+    while (this.#sequence.length < this.limit) {
+      const [last, secondLast] = this.#sequence.slice(-2);
+      this.#sequence.push(last + secondLast);
+    }
+  }
+
+  get sequence() {
+    return [...this.#sequence];
+  }
+
+  * [Symbol.iterator]() {
+    for (const num of this.#sequence) {
+      yield num;
+    }
+  }
+
+  static async printSequence(sequence) {
+    for await (const num of sequence) {
+      print(num);
+    }
+  }
+}
+
+(async () => {
+  const fibSequence = new FibonacciSequence(10);
+  await FibonacciSequence.printSequence(fibSequence);
+})();

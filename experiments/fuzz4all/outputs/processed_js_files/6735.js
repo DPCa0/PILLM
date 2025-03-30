@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: { message: 'Hello, World!' } });
+        }, 1000);
+    });
+};
+
+ 
+const createDataProxy = (data) => {
+    return new Proxy(data, {
+        get: (target, prop) => {
+            if (prop in target) {
+                print(`Accessing property: "${prop}" with value: "${target[prop]}"`);
+                return target[prop];
+            } else {
+                throw new Error(`Property "${prop}" does not exist.`);
+            }
+        },
+    });
+};
+
+ 
+(async () => {
+    try {
+        const response = await fetchData();
+        const dataProxy = createDataProxy(response.data);
+        print(dataProxy.message);  
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

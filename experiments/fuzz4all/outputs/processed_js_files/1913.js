@@ -1,0 +1,38 @@
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        name: 'Advanced Feature Example',
+        value: 42,
+        items: ['Alpha', 'Beta', 'Gamma']
+      });
+    }, 1000);
+  });
+}
+
+ 
+async function processData() {
+  const { name, value, items } = await fetchData();
+  print(`Processing data: ${name} with value: ${value}`);
+  
+   
+  const processedItems = [...items].map((item, index) => {
+    return { id: index, label: item.toUpperCase() };
+  });
+
+   
+  const uniqueItems = new Set(processedItems.map(item => item.label));
+
+   
+  print('Unique processed items:', Array.from(uniqueItems));
+
+   
+  const symbolKey = Symbol('uniqueKey');
+  const dataObject = { [symbolKey]: 'privateValue', items: processedItems };
+
+   
+  print('Symbol property:', Reflect.get(dataObject, symbolKey));
+}
+
+processData().catch(console.error);

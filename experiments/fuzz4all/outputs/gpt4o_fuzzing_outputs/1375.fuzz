@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const data = JSON.parse((await fs.readFile('config.json', 'utf-8')) ?? '{}');
+    const value = data?.settings?.theme ?? 'default';
+    
+     
+    const theme = setTheme`The selected theme is: ${value}`;
+
+     
+    const handler = {
+      get(target, prop) {
+        return prop in target ? target[prop] : 'Property not found';
+      }
+    };
+    
+    const proxyConfig = new Proxy(data, handler);
+    console.log(Reflect.get(proxyConfig, 'settings'));
+
+     
+    const map = new Map();
+    map.set('theme', theme);
+    map.set('version', '1.0.0');
+    const [themeKey, versionKey] = [...map.keys()];
+    console.log(`Keys: ${themeKey}, ${versionKey}`);
+
+    const set = new Set(['js', 'python', 'ruby']);
+    for (const lang of set) {
+      console.log(`Language: ${lang}`);
+    }
+
+  } catch (error) {
+     
+    console.error('Error:', error?.message ?? 'Unknown Error');
+  }
+})();
+
+ 
+function setTheme(strings, theme) {
+  return `\u001b[33m${strings[0]}${theme}\u001b[0m`;  
+}
+```

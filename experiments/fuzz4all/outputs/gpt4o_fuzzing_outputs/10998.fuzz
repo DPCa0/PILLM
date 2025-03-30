@@ -1,0 +1,51 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program that uses some advanced features such as Promises, async/await, closures, and higher-order functions:
+
+```javascript
+ 
+const delayedOperation = (operation, delay) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(operation());
+        }, delay);
+    });
+};
+
+ 
+const counter = (() => {
+    let count = 0;
+    return {
+        increment: () => ++count,
+        decrement: () => --count,
+        getValue: () => count
+    };
+})();
+
+ 
+const executeTasks = async () => {
+    console.log('Starting tasks...');
+    
+    const result1 = await delayedOperation(() => counter.increment(), 1000);
+    console.log(`Counter after increment: ${result1}`);
+    
+    const result2 = await delayedOperation(() => counter.decrement(), 2000);
+    console.log(`Counter after decrement: ${result2}`);
+    
+    const result3 = await delayedOperation(() => counter.increment(), 1500);
+    console.log(`Counter after another increment: ${result3}`);
+    
+    console.log('All tasks completed!');
+};
+
+ 
+const array = [1, 2, 3, 4, 5];
+const doubledArray = array.map(num => num * 2);
+
+console.log(`Original array: [${array.join(', ')}]`);
+console.log(`Doubled array: [${doubledArray.join(', ')}]`);
+
+ 
+executeTasks();
+```
+
+This program combines several advanced JavaScript features to perform asynchronous tasks with delayed execution, manipulates a stateful closure, and demonstrates the use of higher-order functions for array transformations.

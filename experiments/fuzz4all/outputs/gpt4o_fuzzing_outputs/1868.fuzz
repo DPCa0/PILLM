@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+
+ 
+const findFiles = async (dir, ext, fileList = []) => {
+    const files = await fs.readdir(dir);
+    for (const file of files) {
+        const filePath = path.join(dir, file);
+        const stat = await fs.stat(filePath);
+        if (stat.isDirectory()) {
+            await findFiles(filePath, ext, fileList);
+        } else if (filePath.endsWith(ext)) {
+            fileList.push(filePath);
+        }
+    }
+    return fileList;
+};
+
+ 
+(async () => {
+    try {
+         
+        const { SOURCE_DIR = './src', FILE_EXTENSION = '.js' } = process.env;
+
+         
+        const jsFiles = (await findFiles(SOURCE_DIR, FILE_EXTENSION))
+            .filter(file => file.includes('test'))
+            .map(file => `Found JS test file: ${file}`);
+
+         
+        console.log(...jsFiles);
+
+         
+        const { someUtility } = await import('./utils/someUtility.js');
+        
+         
+        const log = (strings, ...values) => {
+            console.log('[LOG]:', strings.raw[0], ...values);
+        };
+        log`Processed ${jsFiles.length} files.`;
+        
+         
+        const uniqueFiles = new Set(jsFiles);
+        const fileMap = new Map();
+        uniqueFiles.forEach(file => {
+            const fileName = path.basename(file);
+            fileMap.set(fileName, file);
+        });
+
+        console.log('Unique JS test files:', Array.from(uniqueFiles));
+        console.log('File Map:', fileMap);
+
+    } catch (err) {
+        console.error('Error:', err);
+    }
+})();
+```

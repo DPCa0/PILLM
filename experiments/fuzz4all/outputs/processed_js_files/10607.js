@@ -1,0 +1,61 @@
+ 
+class SecretKeeper {
+  #secret;
+
+  constructor(secret) {
+    this.#secret = secret;
+  }
+
+  revealSecret() {
+    return this.#decrypt(this.#secret);
+  }
+
+   
+  #decrypt(secret) {
+    return secret.split('').reverse().join('');
+  }
+}
+
+ 
+const handler = {
+  get: function(obj, prop) {
+    if (prop === 'revealSecret') {
+      print('Someone is trying to reveal the secret!');
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const mySecret = new SecretKeeper('!dlrow ,olleH');
+const proxySecret = new Proxy(mySecret, handler);
+
+ 
+function* revealWithDelay(proxySecret) {
+  yield 'Thinking...';
+  yield 'Almost there...';
+  yield proxySecret.revealSecret();
+}
+
+ 
+(async function() {
+  const secretIterator = revealWithDelay(proxySecret);
+  for (const msg of secretIterator) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    print(msg);
+  }
+})();
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { user: { name: 'John Doe', age: 30 } } });
+    }, 2000);
+  });
+}
+
+(async function() {
+  const { data: { user: { name, age } } } = await fetchData();
+  print(`User: ${name}, Age: ${age}`);
+})();

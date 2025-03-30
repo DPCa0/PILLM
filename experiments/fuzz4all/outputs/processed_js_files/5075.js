@@ -1,0 +1,37 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static from(dimensions, fill = 0) {
+        return new Matrix(Array.from({ length: dimensions[0] }, () => 
+            Array.from({ length: dimensions[1] }, () => fill)
+        ));
+    }
+
+    map(fn) {
+        return new Matrix(this.data.map((row, i) => row.map((val, j) => fn(val, i, j))));
+    }
+
+    add(matrix) {
+        if (!(matrix instanceof Matrix)) throw new Error("Argument must be a Matrix");
+        return this.map((val, i, j) => val + matrix.data[i][j]);
+    }
+
+    *[Symbol.iterator]() {
+        for (let row of this.data) yield row;
+    }
+}
+
+(async () => {
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const dimensions = [2, 3];
+    const matrixA = Matrix.from(dimensions, 2);
+    const matrixB = Matrix.from(dimensions, 3);
+
+    for await (const _ of sleep(100)) {
+        const resultMatrix = matrixA.add(matrixB);
+        console.table(resultMatrix.data);
+        break;
+    }
+})();

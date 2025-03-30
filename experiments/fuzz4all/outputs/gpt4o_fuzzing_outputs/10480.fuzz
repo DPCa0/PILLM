@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+     
+    return { userId: 1, name: 'John Doe', email: 'john.doe@example.com' };
+}
+
+ 
+function logger(fn) {
+    return async function (...args) {
+        console.log('Function is starting:', fn.name);
+        const result = await fn(...args);
+        console.log('Function completed:', fn.name);
+        return result;
+    };
+}
+
+ 
+function createCounter() {
+    let count = 0;
+    return {
+        increment: () => ++count,
+        decrement: () => --count,
+        getCount: () => count
+    };
+}
+
+ 
+const userHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Getting property "${prop}": ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.log(`Property "${prop}" not found.`);
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property "${prop}" to "${value}"`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+(async function main() {
+     
+    const loggedFetchData = logger(fetchData);
+
+     
+    const data = await loggedFetchData();
+    console.log('Fetched data:', data);
+
+     
+    const counter = createCounter();
+    console.log('Initial Count:', counter.getCount());
+    counter.increment();
+    console.log('After Increment:', counter.getCount());
+    counter.decrement();
+    console.log('After Decrement:', counter.getCount());
+
+     
+    const user = new Proxy({}, userHandler);
+    user.name = 'Alice';
+    console.log(user.name);
+    console.log(user.age);  
+})();
+```

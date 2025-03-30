@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Fetched Data' });
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, property, receiver) => {
+        console.log(`Property '${property}' was accessed.`);
+        return Reflect.get(target, property, receiver);
+    },
+    set: (target, property, value, receiver) => {
+        console.log(`Property '${property}' was set to '${value}'.`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+const dataProxy = new Proxy({ data: null }, handler);
+
+ 
+const metaDataTag = Symbol('meta');
+
+async function complexFunction() {
+    const fetched = await fetchData();
+
+     
+    dataProxy.data = fetched.data;
+    console.log(dataProxy.data);
+
+     
+    dataProxy[metaDataTag] = { timestamp: new Date() };
+
+     
+    const symbols = Object.getOwnPropertySymbols(dataProxy);
+    for (const sym of symbols) {
+        console.log(`Symbol: ${sym.toString()}, Value: ${JSON.stringify(dataProxy[sym])}`);
+    }
+}
+
+complexFunction();
+```

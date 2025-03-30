@@ -1,0 +1,41 @@
+class FibonacciSequence {
+  #cache = new Map();
+
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.limit; i++) {
+      yield this.#fib(i);
+    }
+  }
+
+  #fib(n) {
+    if (this.#cache.has(n)) {
+      return this.#cache.get(n);
+    }
+    if (n < 2) return n;
+    const value = this.#fib(n - 1) + this.#fib(n - 2);
+    this.#cache.set(n, value);
+    return value;
+  }
+}
+
+const asyncPrintFibonacci = async (limit) => {
+  const sequence = new FibonacciSequence(limit);
+
+  const results = await Promise.all(
+    [...sequence].map(async (num, index) => {
+      const delay = Math.random() * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return `Fib(${index}): ${num} (Delay: ${delay.toFixed(2)}ms)`;
+    })
+  );
+
+  results.forEach(result => print(result));
+};
+
+(async () => {
+  await asyncPrintFibonacci(10);
+})();

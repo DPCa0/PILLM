@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class ComplexOperations {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data.map(item => item * 2));
+      }, 1000);
+    });
+  }
+
+  *generatorFunction() {
+    yield* this.data;
+  }
+
+  async processData() {
+    try {
+      const doubledData = await this.fetchData();
+      const result = doubledData.filter(item => item % 3 === 0)
+                                .reduce((sum, item) => sum + item, 0);
+      
+      const dataIterator = this.generatorFunction();
+      for (const value of dataIterator) {
+        console.log(`Generator yields: ${value}`);
+      }
+
+      return `Processed Result: ${result}`;
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+}
+
+ 
+const complexOps = new ComplexOperations([1, 2, 3, 4, 5, 6]);
+complexOps.processData().then(result => console.log(result));
+```

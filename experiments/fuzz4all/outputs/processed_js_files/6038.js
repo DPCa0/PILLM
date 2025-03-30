@@ -1,0 +1,54 @@
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then((response) => response.json());
+  }
+}
+
+const processUrlData = async (urls) => {
+  const processedData = [];
+
+  for await (const dataPromise of fetchData(urls)) {
+    const data = await dataPromise;
+    processedData.push(data);
+  }
+
+  return processedData;
+};
+
+ 
+const createValidatedObject = (obj) => {
+  return new Proxy(obj, {
+    set(target, prop, value) {
+      if (typeof value !== 'string') {
+        throw new TypeError('Property values must be strings');
+      }
+      target[prop] = value;
+      return true;
+    },
+  });
+};
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+  ];
+
+  try {
+    const data = await processUrlData(urls);
+    print('Fetched Data:', data);
+
+    const validatedObject = createValidatedObject({});
+
+    validatedObject.name = 'John Doe';
+    print('Validated Object:', validatedObject);
+
+     
+    validatedObject.age = 30;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

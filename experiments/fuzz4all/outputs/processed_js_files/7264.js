@@ -1,0 +1,58 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchJsonData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        throw new Error(`Fetch error: ${error.message}`);
+    }
+};
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+const example = async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', debounce((data) => {
+        print('Received data:', data);
+    }, 300));
+
+    emitter.on('error', debounce((error) => {
+        console.error('Error:', error);
+    }, 300));
+
+    try {
+        const data = await fetchJsonData('https://api.example.com/data');
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+};
+
+example();

@@ -1,0 +1,54 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) this.#events.set(event, []);
+        this.#events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.#events.has(event)) return;
+        this.#events.get(event).forEach(listener => listener(...args));
+    }
+
+    off(event, listener) {
+        if (!this.#events.has(event)) return;
+        this.#events.set(event, this.#events.get(event).filter(l => l !== listener));
+    }
+}
+
+class AsyncQueue {
+    #queue = [];
+    #isProcessing = false;
+
+    enqueue(promiseFactory) {
+        this.#queue.push(promiseFactory);
+        this.#processQueue();
+    }
+
+    async #processQueue() {
+        if (this.#isProcessing) return;
+        this.#isProcessing = true;
+
+        while (this.#queue.length) {
+            const promiseFactory = this.#queue.shift();
+            await promiseFactory();
+        }
+
+        this.#isProcessing = false;
+    }
+}
+
+const emitter = new EventEmitter();
+const asyncQueue = new AsyncQueue();
+
+emitter.on('data', data => {
+    asyncQueue.enqueue(async () => {
+        const result = await new Promise(resolve => setTimeout(() => resolve(data * 2), 100));
+        print('Processed:', result);
+    });
+});
+
+emitter.emit('data', 1);
+emitter.emit('data', 2);
+emitter.emit('data', 3);

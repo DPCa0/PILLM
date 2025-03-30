@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+}
+
+ 
+fetchData('https://api.example.com/data')
+    .then(data => {
+         
+        const { title, value } = data;
+        console.log(`Fetched Data - Title: ${title}, Value: ${value}`);
+        
+         
+        const items = new Set([title, value, 'additional', 'items']);
+        const uniqueItems = new Map([...items].map((item, index) => [index, item]));
+        
+        console.log('Unique Items Map:', uniqueItems);
+        
+         
+        return [...uniqueItems.values()];
+    })
+    .then(uniqueItemsArray => {
+         
+        const message = `Processed unique items: ${uniqueItemsArray.join(', ')}`;
+        console.log(message);
+    })
+    .catch(error => console.error('Processing Error:', error));
+
+ 
+async function* asyncGenerator() {
+    const dataSources = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    
+    for (const url of dataSources) {
+        const data = await fetchData(url);
+        if (data) yield data;
+    }
+}
+
+(async function() {
+    const gen = asyncGenerator();
+    
+    for await (const result of gen) {
+        console.log('Generator result:', result);
+    }
+})();
+```

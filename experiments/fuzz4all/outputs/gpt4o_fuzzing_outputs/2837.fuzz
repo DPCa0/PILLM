@@ -1,0 +1,29 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+  yield delay(1000).then(() => 'Task 1 completed');
+  yield delay(500).then(() => 'Task 2 completed');
+  yield delay(2000).then(() => 'Task 3 completed');
+}
+
+ 
+async function executeTasks() {
+  const gen = asyncGenerator();
+  
+   
+  const [task1, task2, task3] = [gen.next().value, gen.next().value, gen.next().value];
+  
+   
+  const results = await Promise.all([task1, task2, task3]);
+  
+   
+  results.forEach((result, index) => console.log(`Result ${index + 1}: ${result}`));
+}
+
+executeTasks();
+```

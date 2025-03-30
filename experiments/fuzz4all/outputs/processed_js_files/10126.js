@@ -1,0 +1,62 @@
+ 
+class Matrix {
+  constructor(size) {
+    this.size = size;
+    this.data = Array.from({ length: size }, (_, i) => 
+      Array.from({ length: size }, (_, j) => (i + 1) * (j + 1))
+    );
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row < this.size && col < this.size) {
+          let value = this.data[row][col++];
+          if (col === this.size) { row++; col = 0; }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+const matrixHandler = {
+  get(target, property) {
+    if (property === 'transpose') {
+      return target.data[0].map((_, i) => target.data.map(row => row[i]));
+    }
+    return Reflect.get(target, property);
+  }
+};
+
+const proxyMatrix = new Proxy(new Matrix(3), matrixHandler);
+
+function* multiply(generatorMatrix, factor) {
+  for (let value of generatorMatrix) {
+    yield value * factor;
+  }
+}
+
+async function printMatrixAsync(matrix, factor) {
+  const multiplied = multiply(matrix, factor);
+  
+  for (let value of multiplied) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    print(value);
+  }
+}
+
+(async () => {
+  print("Original Matrix:");
+  for (let row of proxyMatrix) {
+    print(row);
+  }
+  
+  print("\nTranspose Matrix:");
+  print(proxyMatrix.transpose);
+
+  print("\nMultiplied Matrix Elements:");
+  await printMatrixAsync(proxyMatrix, 2);
+})();

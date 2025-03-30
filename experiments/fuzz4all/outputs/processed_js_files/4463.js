@@ -1,0 +1,48 @@
+class AsyncQueue {
+  #queue = [];
+  #pendingPromise = false;
+
+  enqueue(item) {
+    return new Promise(resolve => {
+      this.#queue.push({ item, resolve });
+      this.#dequeue();
+    });
+  }
+
+  async #dequeue() {
+    if (!this.#pendingPromise && this.#queue.length) {
+      this.#pendingPromise = true;
+      const { item, resolve } = this.#queue.shift();
+      
+      try {
+        const result = await item();
+        resolve(result);
+      } catch (error) {
+        resolve(Promise.reject(error));
+      }
+      
+      this.#pendingPromise = false;
+      this.#dequeue();
+    }
+  }
+}
+
+const asyncQueue = new AsyncQueue();
+
+ 
+const asyncTask = (value) => async () => {
+  print(`Processing ${value}`);
+  return new Promise(resolve => setTimeout(() => {
+    print(`Completed ${value}`);
+    resolve(`Result ${value}`);
+  }, 1000));
+};
+
+ 
+async function main() {
+  const tasks = [1, 2, 3, 4, 5].map(num => asyncQueue.enqueue(asyncTask(num)));
+  const results = await Promise.all(tasks);
+  print('All tasks completed:', results);
+}
+
+main();

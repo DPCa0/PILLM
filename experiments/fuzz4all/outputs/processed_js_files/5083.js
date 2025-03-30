@@ -1,0 +1,28 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const simulateApi = (data, delay) => new Promise((resolve) => setTimeout(() => resolve(data), delay));
+
+const processData = async () => {
+  const data = await simulateApi({ name: 'Alice', age: 30, location: 'Wonderland' }, 1000);
+  
+   
+  const { name, ...otherDetails } = data;
+  
+   
+  const newDetails = { ...otherDetails, hobby: 'Adventuring' };
+  
+   
+  print(`${name} is from ${newDetails.location} and enjoys ${newDetails.hobby}.`);
+};
+
+processData();

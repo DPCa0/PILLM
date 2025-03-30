@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+ 
+const mapHandler = {
+  get: (target, property) => {
+    if (property === 'set') {
+      return (key, value) => {
+        console.log(`Setting key: ${key}, value: ${value}`);
+        return target.set(key, value);
+      };
+    }
+    return Reflect.get(target, property);
+  }
+};
+
+const dataMap = new Proxy(new Map(), mapHandler);
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    data.forEach(item => dataMap.set(item.id, item));
+    console.log('Data processed and stored in the map');
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processData('https://jsonplaceholder.typicode.com/posts');
+```

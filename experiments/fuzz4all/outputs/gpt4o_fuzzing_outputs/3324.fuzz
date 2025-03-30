@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+class FetchError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'FetchError';
+  }
+}
+
+ 
+async function getData(url) {
+  try {
+    const response = await fetchData(url);
+    if (!response.data) throw new FetchError('No data received');
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Accessed property: ${property}`);
+    return Reflect.get(target, property);
+  },
+};
+
+ 
+const data = { user: 'Alice', age: 30 };
+const proxiedData = new Proxy(data, handler);
+
+ 
+(async () => {
+  console.log(await getData('https://example.com/api/data'));
+  console.log(proxiedData.user);  
+  console.log(proxiedData.age);   
+})();
+```

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+const complexFunction = async (message) => {
+     
+    const asyncOperation = (msg) => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Asynchronously processed: ${msg}`);
+        }, 1000);
+    });
+
+     
+    const result = await asyncOperation(message);
+
+     
+    const target = {
+        process: function(data) {
+            return `Processing data: ${data}`;
+        }
+    };
+
+     
+    const handler = {
+        get: function(obj, prop) {
+            if (prop === 'process') {
+                return (data) => `Proxy intercepted - ${obj[prop](data)}`;
+            }
+            return obj[prop];
+        }
+    };
+
+    const proxy = new Proxy(target, handler);
+
+     
+    const taggedTemplate = (strings, ...values) => {
+        return strings.map((str, i) => `${str}${values[i] || ''}`).join('');
+    };
+
+    console.log(proxy.process(taggedTemplate`Final Result: ${result}`));
+};
+
+ 
+complexFunction('Hello, world!');
+```

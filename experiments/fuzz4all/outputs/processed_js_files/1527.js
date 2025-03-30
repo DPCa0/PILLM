@@ -1,0 +1,48 @@
+ 
+
+ 
+function* range(start, end) {
+  for (let i = start; i < end; i++) {
+    yield i;
+  }
+}
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, name: `Item ${id}`, value: Math.random() });
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    }
+    return `Property ${prop} is not available`;
+  },
+};
+
+ 
+const processRange = async (start, end) => {
+  let items = {};
+  
+   
+  for (let number of range(start, end)) {
+    const data = await fetchData(number);
+    items[data.id] = data;
+  }
+  
+   
+  const proxyItems = new Proxy(items, handler);
+  
+  print('Processed Items:', proxyItems);
+  
+   
+  print('Non-existent Property:', proxyItems[999]);
+};
+
+processRange(1, 5);

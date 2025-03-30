@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncProcess = async (data) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            data % 2 === 0 ? resolve(`Resolved: ${data}`) : reject(`Rejected: ${data}`);
+        }, 1000);
+    });
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('processComplete', result => console.log(result));
+    eventEmitter.on('processError', error => console.error(error));
+
+    const dataItems = [1, 2, 3, 4, 5];
+
+    const promises = dataItems.map(async (item) => {
+        try {
+            const result = await asyncProcess(item);
+            eventEmitter.emit('processComplete', result);
+        } catch (error) {
+            eventEmitter.emit('processError', error);
+        }
+    });
+
+    await Promise.all(promises);
+})();
+```

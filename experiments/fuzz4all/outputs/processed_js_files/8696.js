@@ -1,0 +1,38 @@
+class Scheduler {
+  #tasks = [];
+  
+  constructor(...tasks) {
+    this.#tasks = tasks;
+  }
+
+  async #runTask(task) {
+    try {
+      print(`Starting task: ${task.name}`);
+      await task();
+      print(`Completed task: ${task.name}`);
+    } catch (error) {
+      console.error(`Error in task ${task.name}: ${error.message}`);
+    }
+  }
+
+  startAll() {
+    return Promise.all(this.#tasks.map(task => this.#runTask(task)));
+  }
+}
+
+ 
+function* taskGenerator(name, delay, throwError = false) {
+  yield new Promise((resolve) => setTimeout(resolve, delay));
+  if (throwError) {
+    throw new Error(`${name} failed`);
+  }
+  print(`${name} completed`);
+}
+
+ 
+const task1 = async () => { for await (const _ of taskGenerator('Task1', 1000)) {} };
+const task2 = async () => { for await (const _ of taskGenerator('Task2', 500)) {} };
+const task3 = async () => { for await (const _ of taskGenerator('Task3', 800, true)) {} };
+
+const scheduler = new Scheduler(task1, task2, task3);
+scheduler.startAll().then(() => print('All tasks done.'));

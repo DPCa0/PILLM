@@ -1,0 +1,92 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      console.warn(`Property ${property} does not exist, returning default.`);
+      return 'default value';
+    }
+  }
+};
+
+const person = new Proxy({
+  name: 'John Doe',
+  age: 30
+}, handler);
+
+console.log(person.name);  
+console.log(person.gender);  
+
+ 
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const sequence = generateSequence();
+console.log(sequence.next().value);  
+console.log(sequence.next().value);  
+console.log(sequence.next().value);  
+
+ 
+const user = {
+  id: 1,
+  username: 'johndoe',
+  email: 'john.doe@example.com'
+};
+
+const { id, username } = user;
+console.log(`User ID: ${id}, Username: ${username}`);
+
+ 
+function sum(...numbers) {
+  return numbers.reduce((acc, curr) => acc + curr, 0);
+}
+
+const numbersArray = [1, 2, 3, 4];
+console.log(sum(...numbersArray));  
+
+ 
+const map = new Map();
+map.set('key1', 'value1');
+map.set('key2', 'value2');
+
+map.forEach((value, key) => console.log(`${key}: ${value}`));
+
+const set = new Set([1, 2, 3, 4, 4, 5]);
+set.add(6);
+set.forEach(value => console.log(value));
+
+ 
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    console.log(`${this.name} makes a noise.`);
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    console.log(`${this.name} barks.`);
+  }
+}
+
+const dog = new Dog('Rover');
+dog.speak();  
+```

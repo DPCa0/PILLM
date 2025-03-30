@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+  }
+
+  off(event, listener) {
+    if (this.#events.has(event)) {
+      this.#events.set(
+        event,
+        this.#events.get(event).filter(l => l !== listener)
+      );
+    }
+  }
+
+  async emit(event, ...args) {
+    if (this.#events.has(event)) {
+      await Promise.all(
+        this.#events.get(event).map(listener => listener(...args))
+      );
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+    this.eventEmitter = new AsyncEventEmitter();
+  }
+
+  async fetchData() {
+    try {
+      this.eventEmitter.emit('start', this.url);
+      await delay(1000);  
+      let response = await fetch(this.url);
+      let data = await response.json();
+      this.eventEmitter.emit('data', data);
+    } catch (error) {
+      this.eventEmitter.emit('error', error);
+    } finally {
+      this.eventEmitter.emit('end');
+    }
+  }
+
+  on(event, listener) {
+    this.eventEmitter.on(event, listener);
+  }
+}
+
+ 
+(async () => {
+  const fetcher = new DataFetcher('https://api.github.com');
+
+  fetcher.on('start', url => console.log(`Fetching data from: ${url}`));
+  fetcher.on('data', data => console.log('Data received:', data));
+  fetcher.on('error', error => console.error('Error occurred:', error));
+  fetcher.on('end', () => console.log('Fetch operation ended'));
+
+  await fetcher.fetchData();
+})();
+```

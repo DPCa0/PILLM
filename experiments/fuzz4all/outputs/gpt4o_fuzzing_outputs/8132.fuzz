@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* generateAsyncTasks() {
+  for (let i = 1; i <= 3; i++) {
+    yield new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.1 ? resolve(`Task ${i} completed`) : reject(`Task ${i} failed`);
+      }, i * 1000);
+    });
+  }
+}
+
+ 
+async function executeTasks(generator) {
+  const tasks = generator();
+  for (let task of tasks) {
+    try {
+      const result = await task;
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+const logger = {
+  log: (message) => console.log(`Logger: ${message}`)
+};
+
+const loggerHandler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'log') {
+      return (msg) => Reflect.get(target, prop, receiver)(`[LOGGED]: ${msg}`);
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxyLogger = new Proxy(logger, loggerHandler);
+
+ 
+(async function main() {
+  proxyLogger.log('Starting async task execution');
+  await executeTasks(generateAsyncTasks);
+  proxyLogger.log('All tasks processed');
+})();
+```

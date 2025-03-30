@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const fetchData = async (url) => {
+        const response = await fetch(url);
+        return response.json();
+    };
+
+     
+    const dataHandler = {
+        get: (target, prop) => {
+            console.log(`Accessed property ${prop}`);
+            return target[prop];
+        }
+    };
+
+     
+    const processUniqueItems = (data) => {
+        const uniqueItems = new Set(data.map(item => item.id));
+        return [...uniqueItems];
+    };
+
+     
+    const transformData = (data) => {
+        const dataMap = new Map();
+        data.forEach(item => {
+            const transformedItem = {
+                ...item,
+                fullName: `${item.first_name} ${item.last_name}`
+            };
+            dataMap.set(item.id, transformedItem);
+        });
+        return dataMap;
+    };
+
+     
+    const main = async () => {
+        try {
+            const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+            const uniqueItems = processUniqueItems(data);
+            const dataMap = transformData(data);
+
+            const proxyData = new Proxy(dataMap, dataHandler);
+            uniqueItems.forEach(id => {
+                const user = proxyData.get(id);
+                if (user) {
+                    console.log(`User ID: ${id}, Name: ${user.fullName}`);
+                }
+            });
+
+        } catch (error) {
+            console.error('Error fetching or processing data:', error);
+        }
+    };
+
+    main();
+})();
+```

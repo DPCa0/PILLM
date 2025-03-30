@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+async function processData(urls) {
+    const results = [];
+    for await (const dataPromise of fetchData(urls)) {
+        const data = await dataPromise;
+        results.push(data);
+    }
+    return results;
+}
+
+const handler = {
+    get: (target, prop, receiver) => {
+        if (prop === 'result' && !target[prop]) {
+            throw new Error("Data is still being processed");
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value) => {
+        if (prop === 'result') {
+            target['updated'] = new Date();
+        }
+        return Reflect.set(target, prop, value);
+    }
+};
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+    const dataHandler = {
+        result: null,
+        updated: null
+    };
+    
+    const proxyData = new Proxy(dataHandler, handler);
+
+    try {
+        proxyData.result = await processData(urls);
+        console.log('Data:', proxyData.result);
+        console.log('Last updated:', proxyData.updated);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();
+```

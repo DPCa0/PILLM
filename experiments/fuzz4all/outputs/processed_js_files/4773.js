@@ -1,0 +1,54 @@
+ 
+async function complexFeatures() {
+  function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+
+  function getFibonacciNumbers(n) {
+    const gen = fibonacci();
+    return Array.from({ length: n }, () => gen.next().value);
+  }
+
+  const fibonacciNumbers = getFibonacciNumbers(10);
+
+  const proxyHandler = {
+    get(target, prop) {
+      return prop in target ? target[prop] : `No such property: ${prop}`;
+    },
+    set(target, prop, value) {
+      if (typeof value === 'number' && value > 0) {
+        target[prop] = value;
+        return true;
+      } else {
+        throw new Error('Value must be a positive number');
+      }
+    }
+  };
+
+  const fibonacciProxy = new Proxy(fibonacciNumbers, proxyHandler);
+
+  fibonacciProxy[10] = 55;
+
+  const fetchNumber = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(34);
+    }, 1000);
+  });
+
+  try {
+    const num = await fetchNumber;
+    fibonacciProxy[11] = num;
+
+    print(`Fibonacci series with async number: ${fibonacciProxy}`);
+  } catch (err) {
+    console.error(err);
+  }
+
+  print(fibonacciProxy.nonExistentProperty);  
+}
+
+complexFeatures();

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchData() {
+    const dataChunks = [
+        { id: 1, value: 'Chunk 1' },
+        { id: 2, value: 'Chunk 2' },
+        { id: 3, value: 'Chunk 3' }
+    ];
+    for (const chunk of dataChunks) {
+        yield new Promise(resolve => setTimeout(() => resolve(chunk), 1000));
+    }
+}
+
+ 
+async function processChunks(generator) {
+    for (const promise of generator) {
+        const chunk = await promise;
+        console.log('Processing:', chunk);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property: ${prop}`);
+        return Reflect.get(...arguments);
+    }
+};
+
+const proxyObject = new Proxy({ a: 1, b: 2, c: 3 }, handler);
+
+ 
+(async () => {
+    console.log('Starting data processing...');
+    await processChunks(fetchData());
+
+    console.log('Accessing properties through proxy:');
+    console.log(proxyObject.a);
+    console.log(proxyObject.b);
+    console.log(proxyObject.c);
+})();
+```

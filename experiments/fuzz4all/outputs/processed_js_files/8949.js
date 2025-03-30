@@ -1,0 +1,30 @@
+class AsyncCache {
+    constructor(fetchFunc) {
+        this.cache = new Map();
+        this.fetchFunc = fetchFunc;
+    }
+
+    async get(key) {
+        if (!this.cache.has(key)) {
+            this.cache.set(key, this.fetchFunc(key));
+        }
+        return this.cache.get(key);
+    }
+}
+
+const fetchData = async (key) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    return `Data for ${key}`;
+};
+
+const cache = new AsyncCache(fetchData);
+
+const logData = async (key) => {
+    print(await cache.get(key));
+};
+
+(async () => {
+    await Promise.all(['a', 'b', 'a', 'c'].map(logData));
+    const [res1, res2] = await Promise.all(['b', 'c'].map(key => cache.get(key)));
+    print(res1, res2);
+})();

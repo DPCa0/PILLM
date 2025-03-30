@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  return data;
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+    return this;
+  }
+  
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+}
+
+const pipeline = (...functions) => (initialValue) =>
+  functions.reduce((acc, func) => acc.then(func), Promise.resolve(initialValue));
+
+const url = 'https://api.example.com/data';
+const transformations = [
+  data => data.filter(item => item.active),
+  data => data.map(item => ({ ...item, extra: 'info' })),
+];
+
+(async () => {
+  try {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('dataReady', data => console.log('Data processed:', data));
+
+    const processData = pipeline(fetchData, ...transformations);
+    const result = await processData(url);
+
+    eventEmitter.emit('dataReady', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

@@ -1,0 +1,56 @@
+ 
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+   
+  ["greet" + "User"]() {
+    print(`Hello, my name is ${this.name}.`);
+  }
+
+   
+  static printUserInfo(user) {
+    print(`User: ${user?.name ?? "Unknown"}, Age: ${user?.age ?? "N/A"}`);
+  }
+}
+
+ 
+const userValidator = {
+  set: (obj, prop, value) => {
+    if (prop === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+ 
+const createValidatedUser = (name, age) => new Proxy(new User(name, age), userValidator);
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => setTimeout(() => resolve(`Data from ${url}`), 1000));
+}
+
+ 
+const urls = ['url1', 'url2', 'url3'];
+const fetchPromises = urls.map(url => fetchData(url));
+
+ 
+Promise.all(fetchPromises).then(data => {
+  const [data1, data2, data3] = data;
+  print(data1, data2, data3);
+});
+
+ 
+try {
+  const user = createValidatedUser('Alice', 30);
+  user.greetUser();
+  User.printUserInfo(user);
+  user.age = "thirty";   
+} catch (e) {
+  console.error(e.message);
+}

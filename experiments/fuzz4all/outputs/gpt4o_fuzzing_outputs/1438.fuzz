@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = () => new Promise((resolve) => {
+    setTimeout(() => resolve("Operation Complete"), 1000);
+});
+
+async function run() {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => console.log(`Received: ${data}`));
+    emitter.on('complete', message => console.log(message));
+
+    const proxyHandler = {
+        get(target, property) {
+            console.log(`Accessing property: ${property}`);
+            return target[property];
+        }
+    };
+
+    const targetObject = {
+        info: "Complex JavaScript Example"
+    };
+
+    const proxy = new Proxy(targetObject, proxyHandler);
+
+    console.log(proxy.info);
+
+    const data = await asyncOperation();
+    emitter.emit('data', proxy.info);
+    emitter.emit('complete', data);
+}
+
+run();
+```

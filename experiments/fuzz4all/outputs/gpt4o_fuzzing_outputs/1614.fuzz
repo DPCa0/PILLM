@@ -1,0 +1,40 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program that utilizes some advanced features such as Promises, async/await, and the Fetch API to make an HTTP request to a public API and manipulate the response:
+
+```javascript
+const fetchJsonData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+};
+
+const processData = (data) => {
+  if (!Array.isArray(data)) throw new Error('Invalid data format');
+  return data
+    .map((item) => ({ title: item.title.toUpperCase(), id: item.id }))
+    .filter((item) => item.id % 2 === 0);
+};
+
+const logResults = (data) => {
+  console.group('Processed Data');
+  data.forEach((item) => console.log(item));
+  console.groupEnd();
+};
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos';
+  const rawData = await fetchJsonData(url);
+  const processedData = processData(rawData);
+  logResults(processedData);
+})();
+```
+
+This code performs the following operations:
+1. Uses the Fetch API to retrieve JSON data from a public API.
+2. Utilizes async/await for handling asynchronous operations.
+3. Processes the data by mapping and filtering items.
+4. Logs the processed data to the console using console.group for organized output.

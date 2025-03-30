@@ -1,0 +1,43 @@
+class AsyncNumberGenerator {
+  constructor(maxNumber) {
+    this.maxNumber = maxNumber;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = 1; i <= this.maxNumber; i++) {
+       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield i;
+    }
+  }
+}
+
+async function fetchData(number) {
+   
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(`Fetched data for number: ${number}`);
+    }, 50);
+  });
+}
+
+async function processNumbers(maxNumber) {
+  const generator = new AsyncNumberGenerator(maxNumber);
+
+  const results = await Promise.allSettled(
+    Array.from(generator).map(async number => {
+      const data = await fetchData(number);
+      return `${number}: ${data}`;
+    })
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      print(`Result for promise ${index + 1}:`, result.value);
+    } else {
+      console.error(`Promise ${index + 1} failed:`, result.reason);
+    }
+  });
+}
+
+processNumbers(5);

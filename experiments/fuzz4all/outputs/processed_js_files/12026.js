@@ -1,0 +1,87 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+}
+
+class TaskRunner {
+    constructor(tasks = []) {
+        this.tasks = tasks;
+    }
+
+    async run() {
+        for (const task of this.tasks) {
+            print(`Running task: ${task.name}`);
+            await task();
+        }
+    }
+
+    addTask(task) {
+        this.tasks.push(task);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Calling method: ${prop}`);
+                return target[prop].apply(this, args);
+            };
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const emitter = new EventEmitter();
+const taskRunner = new TaskRunner();
+
+ 
+const taskRunnerProxy = new Proxy(taskRunner, handler);
+
+ 
+const task1 = async () => {
+    return new Promise(resolve => setTimeout(() => {
+        print('Task 1 completed');
+        resolve();
+    }, 1000));
+};
+
+const task2 = async () => {
+    return new Promise(resolve => setTimeout(() => {
+        print('Task 2 completed');
+        resolve();
+    }, 1500));
+};
+
+ 
+taskRunnerProxy.addTask(task1);
+taskRunnerProxy.addTask(task2);
+
+ 
+emitter.on('start', () => print('Tasks are starting...'));
+emitter.on('end', () => print('All tasks completed!'));
+
+ 
+(async () => {
+    emitter.emit('start');
+    await taskRunnerProxy.run();
+    emitter.emit('end');
+})();

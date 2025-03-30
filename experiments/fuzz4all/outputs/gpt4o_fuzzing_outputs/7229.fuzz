@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+(async function() {
+    const _ = await import('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js');
+
+     
+    const targetObject = {
+        message: "Hello, world!",
+        count: 0
+    };
+
+    const handler = {
+        get(target, prop) {
+            console.log(`Property '${prop}' accessed: ${target[prop]}`);
+            return target[prop];
+        },
+        set(target, prop, value) {
+            console.log(`Property '${prop}' set to: ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+
+    const reactiveObject = new Proxy(targetObject, handler);
+
+     
+    const myMap = new Map();
+    const uniqueKey = Symbol('unique');
+
+    myMap.set(uniqueKey, 'Some unique value');
+    console.log(`Unique value in map: ${myMap.get(uniqueKey)}`);
+
+     
+    const clonedObject = _.cloneDeep(reactiveObject);
+    console.log('Cloned object:', clonedObject);
+
+     
+    async function fetchData() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve("Data fetched successfully"), 1000);
+        });
+    }
+
+    console.log(await fetchData());
+
+     
+    console.log(reactiveObject.message);
+    reactiveObject.count += 1;
+    reactiveObject.message = "Hello, advanced JavaScript!";
+})();
+```

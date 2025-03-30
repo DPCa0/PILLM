@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+  }
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  *dataIterator() {
+    for (const item of this.data) {
+      yield item;
+    }
+  }
+
+  process() {
+     
+    const processedData = [...this.dataIterator()].map(({ id, title }) => ({
+      id,
+      title: title.toUpperCase(),
+    }));
+    console.log(processedData);
+  }
+}
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const data = await fetchData(url);
+  const processor = new DataProcessor(data);
+  processor.process();
+})();
+```

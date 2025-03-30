@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    const observerWithDefaults = {
+      next: observer.next || (() => {}),
+      error: observer.error || ((err) => { throw err; }),
+      complete: observer.complete || (() => {}),
+    };
+
+    this._subscribe(observerWithDefaults);
+  }
+
+  static fromEvent(element, eventType) {
+    return new Observable((observer) => {
+      const handler = (event) => observer.next(event);
+
+      element.addEventListener(eventType, handler);
+
+      return () => element.removeEventListener(eventType, handler);
+    });
+  }
+
+  map(transformFn) {
+    return new Observable((observer) => {
+      this.subscribe({
+        next: (val) => observer.next(transformFn(val)),
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+
+  filter(predicateFn) {
+    return new Observable((observer) => {
+      this.subscribe({
+        next: (val) => {
+          if (predicateFn(val)) observer.next(val);
+        },
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+}
+
+const button = document.querySelector('button');
+
+const clickObservable = Observable.fromEvent(button, 'click')
+  .map((event) => ({ x: event.clientX, y: event.clientY }))
+  .filter((coords) => coords.x > 100);
+
+clickObservable.subscribe({
+  next: (coords) => console.log(`Button clicked at: ${coords.x}, ${coords.y}`),
+  error: (err) => console.error('Error:', err),
+  complete: () => console.log('Complete'),
+});
+```

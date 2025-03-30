@@ -1,0 +1,64 @@
+ 
+const dynamicKey = (prefix, index) => `${prefix}_${index}`;
+const complexObject = {
+  [dynamicKey('key', 1)]: 'Value 1',
+  [dynamicKey('key', 2)]: 'Value 2',
+  nested: {
+    async fetchData(url) {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data;
+    }
+  }
+};
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Accessing property: ${property}`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    if (typeof value === 'string') {
+      print(`Setting property: ${property} to ${value}`);
+      return Reflect.set(target, property, value, receiver);
+    } else {
+      console.error('Only string values are allowed');
+      return false;
+    }
+  }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+function* generateSequence(...args) {
+  for (let arg of args) {
+    yield arg;
+  }
+}
+
+const sequence = generateSequence(1, 2, 3, 4);
+for (let value of sequence) {
+  print(value);
+}
+
+ 
+async function fetchMultiple(urls) {
+  try {
+    const fetchPromises = urls.map(url => proxiedObject.nested.fetchData(url));
+    const results = await Promise.all(fetchPromises);
+    print(results);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+proxiedObject.key_1 = "Updated Value";
+
+ 
+fetchMultiple([
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+]);

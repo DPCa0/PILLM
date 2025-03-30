@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class ComplexOperation {
+  constructor(values) {
+    this.values = values;
+  }
+
+  async* processValues() {
+    for (let value of this.values) {
+      yield await this.asyncCompute(value);
+    }
+  }
+
+  async asyncCompute(value) {
+     
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(value * value), Math.random() * 1000)
+    );
+  }
+
+  static #privateMethod(arr) {
+    return arr.reduce((a, b) => a + b, 0);
+  }
+
+  async execute() {
+    const results = [];
+    for await (let result of this.processValues()) {
+      results.push(result);
+    }
+    return ComplexOperation.#privateMethod(results);
+  }
+}
+
+const pipeline = async (input) => {
+  const operation = new ComplexOperation(input);
+
+  const result = await operation.execute();
+  console.log(`Final Result: ${result}`);
+};
+
+const values = [1, 2, 3, 4, 5];
+pipeline(values).catch(console.error);
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Getting ${prop.toString()}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value) => {
+    if (typeof value !== "number" || isNaN(value)) {
+      throw new TypeError("Value must be a valid number");
+    }
+    console.log(`Setting ${prop.toString()} to ${value}`);
+    return Reflect.set(target, prop, value);
+  },
+};
+
+const numbers = new Proxy(values, handler);
+numbers[0] = 42;  
+```

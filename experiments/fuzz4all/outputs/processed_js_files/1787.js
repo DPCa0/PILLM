@@ -1,0 +1,60 @@
+class AsyncCalculator {
+    constructor(initialValue = 0) {
+        this.value = initialValue;
+    }
+
+    async add(x) {
+        return new Promise(resolve => setTimeout(() => {
+            this.value += x;
+            resolve(this.value);
+        }, 1000));
+    }
+
+    async subtract(x) {
+        return new Promise(resolve => setTimeout(() => {
+            this.value -= x;
+            resolve(this.value);
+        }, 1000));
+    }
+
+    async multiply(x) {
+        return new Promise(resolve => setTimeout(() => {
+            this.value *= x;
+            resolve(this.value);
+        }, 1000));
+    }
+
+    async divide(x) {
+        if (x === 0) throw new Error('Division by zero');
+        return new Promise(resolve => setTimeout(() => {
+            this.value /= x;
+            resolve(this.value);
+        }, 1000));
+    }
+
+    static async compute(operations) {
+        const calculator = new AsyncCalculator();
+        for (let operation of operations) {
+            const [method, arg] = operation;
+            await calculator[method](arg);
+        }
+        return calculator.value;
+    }
+}
+
+ 
+(async () => {
+    const operations = [
+        ['add', 10],
+        ['subtract', 5],
+        ['multiply', 3],
+        ['divide', 2]
+    ];
+
+    try {
+        const result = await AsyncCalculator.compute(operations);
+        print(`Final result: ${result}`);  
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

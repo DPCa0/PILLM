@@ -1,0 +1,60 @@
+ 
+const app = {
+    state: new Proxy({
+        users: [],
+        settings: {
+            theme: 'dark',
+            notifications: true
+        }
+    }, {
+        get(target, prop, receiver) {
+            print(`Getting property: ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        },
+        set(target, prop, value, receiver) {
+            print(`Setting property: ${prop} to ${value}`);
+            return Reflect.set(target, prop, value, receiver);
+        }
+    }),
+    
+    init() {
+        this.loadUsers()
+            .then(users => {
+                this.state.users = users;
+                this.render();
+            })
+            .catch(error => console.error(error));
+    },
+    
+    async loadUsers() {
+        try {
+            const response = await fetch('https://jsonplaceholder.typicode.com/users');
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetching users failed:', error);
+            throw error;
+        }
+    },
+    
+    render() {
+        const themeClass = this.state.settings.theme === 'dark' ? 'dark-theme' : 'light-theme';
+        document.body.className = themeClass;
+        
+        document.body.innerHTML = `
+            <h1>User List</h1>
+            <ul>${this.state.users.map(user => `<li>${user.name}</li>`).join('')}</ul>
+        `;
+    }
+};
+
+ 
+(async () => {
+    try {
+        print('Initializing Application...');
+        await app.init();
+        print('Application Initialized');
+    } catch (error) {
+        console.error('Application failed to initialize', error);
+    }
+})();

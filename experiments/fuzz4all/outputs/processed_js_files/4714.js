@@ -1,0 +1,46 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (!this.listeners.has(event)) return;
+        
+        const listeners = this.listeners.get(event).slice();
+        for (const listener of listeners) {
+            await listener(...args);
+        }
+    }
+}
+
+async function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function* range(start, end) {
+    while (start < end) {
+        yield start++;
+    }
+}
+
+const asyncEmitter = new AsyncEventEmitter();
+
+asyncEmitter.on('process', async num => {
+    await delay(1000);
+    print(`Processing ${num} done`);
+});
+
+(async () => {
+    print("Start processing");
+    for (const num of range(1, 5)) {
+        await asyncEmitter.emit('process', num);
+    }
+    print("All processing completed");
+})();

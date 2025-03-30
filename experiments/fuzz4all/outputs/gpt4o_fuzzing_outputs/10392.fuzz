@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(task) {
+        this.queue.push(task);
+        if (!this.processing) {
+            this.processing = true;
+            while (this.queue.length > 0) {
+                const currentTask = this.queue.shift();
+                try {
+                    await currentTask();
+                } catch (e) {
+                    console.error('Task failed:', e);
+                }
+            }
+            this.processing = false;
+        }
+    }
+}
+
+const fetchWithTimeout = (url, ms) =>
+    Promise.race([
+        fetch(url).then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        }),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), ms)
+        ),
+    ]);
+
+const queue = new AsyncQueue();
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+urls.forEach((url, index) => {
+    queue.enqueue(async () => {
+        try {
+            const data = await fetchWithTimeout(url, 3000);
+            console.log(`Data ${index + 1}:`, data);
+        } catch (error) {
+            console.error(`Error fetching data ${index + 1}:`, error);
+        }
+    });
+});
+```

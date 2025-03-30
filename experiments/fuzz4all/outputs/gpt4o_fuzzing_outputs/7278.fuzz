@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchData() {
+    yield new Promise((resolve) => setTimeout(() => resolve('Data Part 1'), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve('Data Part 2'), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve('Data Part 3'), 1000));
+}
+
+ 
+async function handleDataFetch(generator) {
+    for (const promise of generator) {
+        const data = await promise;
+        console.log(data);
+    }
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property}`);
+        return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value}`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+const dataObject = new Proxy({ key: 'initial' }, handler);
+
+ 
+(async function main() {
+    const dataGen = fetchData();
+    console.log('Fetching data asynchronously:');
+    await handleDataFetch(dataGen);
+
+    console.log('\nInteracting with proxied object:');
+    console.log(dataObject.key);  
+    dataObject.key = 'updated';   
+    console.log(dataObject.key);  
+})();
+```

@@ -1,0 +1,52 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function fetchData(url) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+(async () => {
+  const results = await Promise.allSettled(urls.map(fetchData));
+  const deferredResults = results.map((result, index) => {
+    const deferred = new Deferred();
+    setTimeout(() => {
+      if (result.status === 'fulfilled') {
+        deferred.resolve(`Data from URL ${index + 1}: ${JSON.stringify(result.value)}`);
+      } else {
+        deferred.reject(`Error with URL ${index + 1}: ${result.reason.message}`);
+      }
+    }, index * 1000);
+    return deferred.promise;
+  });
+
+  for await (const res of deferredResults) {
+    try {
+      print(await res);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+})();

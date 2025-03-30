@@ -1,0 +1,42 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+   
+  return data
+    .filter(item => item.active)
+    .map(item => ({
+      ...item,
+      value: item.value * 2
+    }))
+    .reduce((acc, curr) => {
+      acc.totalValue += curr.value;
+      acc.items.push(curr);
+      return acc;
+    }, { totalValue: 0, items: [] });
+};
+
+const executeComplexOperation = async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+    
+    const asyncOperation = new Promise((resolve) => {
+      setTimeout(() => resolve(processedData), 2000);
+    });
+    
+    asyncOperation.then(result => {
+      print('Processed Data:', result);
+      const resultString = JSON.stringify(result, null, 2);
+      document.body.innerHTML = `<pre>${resultString}</pre>`;
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+executeComplexOperation();

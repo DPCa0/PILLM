@@ -1,0 +1,59 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    const safeObserver = {
+      next: observer.next || (() => {}),
+      error: observer.error || (() => {}),
+      complete: observer.complete || (() => {})
+    };
+    const unsubscribe = this._subscribe(safeObserver);
+    return {
+      unsubscribe: unsubscribe
+    };
+  }
+
+  static fromEvent(el, eventName) {
+    return new Observable(observer => {
+      const handler = (event) => observer.next(event);
+      el.addEventListener(eventName, handler);
+      return () => el.removeEventListener(eventName, handler);
+    });
+  }
+
+  map(transform) {
+    return new Observable(observer => this.subscribe({
+      next: (val) => observer.next(transform(val)),
+      error: (err) => observer.error(err),
+      complete: () => observer.complete()
+    }));
+  }
+
+  filter(predicate) {
+    return new Observable(observer => this.subscribe({
+      next: (val) => predicate(val) && observer.next(val),
+      error: (err) => observer.error(err),
+      complete: () => observer.complete()
+    }));
+  }
+}
+
+ 
+const button = document.createElement('button');
+button.textContent = 'Click Me';
+document.body.appendChild(button);
+
+const clicks = Observable.fromEvent(button, 'click')
+  .map(event => ({ x: event.clientX, y: event.clientY }))
+  .filter(coord => coord.x > 100);
+
+const subscription = clicks.subscribe({
+  next: coord => console.log('Clicked at: ', coord),
+  error: err => console.error('Error: ', err),
+  complete: () => console.log('Completed')
+});
+
+ 
+setTimeout(() => subscription.unsubscribe(), 10000);

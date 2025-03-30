@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncTaskQueue {
+  constructor(concurrency) {
+    this.queue = [];
+    this.running = 0;
+    this.concurrency = concurrency;
+  }
+  
+  async run(task) {
+    if (this.running >= this.concurrency) {
+      await new Promise(resolve => this.queue.push(resolve));
+    }
+    this.running++;
+    try {
+      return await task();
+    } finally {
+      this.running--;
+      if (this.queue.length) {
+        this.queue.shift()();
+      }
+    }
+  }
+}
+
+const taskQueue = new AsyncTaskQueue(2);
+
+async function performComplexCalculation(data) {
+  return new Promise(resolve => setTimeout(() => resolve(data * 2), 1000));
+}
+
+async function executeTasks() {
+  const tasks = Array.from({ length: 5 }, (_, i) => async () => {
+    console.log(`Starting task ${i + 1}`);
+    const result = await performComplexCalculation(i + 1);
+    console.log(`Finished task ${i + 1} with result ${result}`);
+    return result;
+  });
+
+  const results = await Promise.all(tasks.map(task => taskQueue.run(task)));
+  console.log('All tasks completed:', results);
+}
+
+executeTasks();
+```

@@ -1,0 +1,54 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+  
+  async run() {
+    if (this.running) return;
+    this.running = true;
+    
+    while (this.queue.length) {
+      const task = this.queue.shift();
+      await task();
+    }
+    
+    this.running = false;
+  }
+
+  add(task) {
+    this.queue.push(task);
+    this.run();
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function advancedFeatureDemo() {
+  const queue = new AsyncQueue();
+
+  const tasks = [1, 2, 3, 4, 5].map(i => async () => {
+    await delay(1000);
+    print(`Task ${i} completed at ${new Date().toLocaleTimeString()}`);
+  });
+
+  tasks.forEach(task => queue.add(task));
+
+  const obj = {
+    data: [10, 20, 30, 40, 50],
+    [Symbol.iterator]: function* () {
+      for (let item of this.data) {
+        yield item;
+      }
+    }
+  };
+
+  print('Iterating over custom iterable:');
+  for (const item of obj) {
+    print(item);
+  }
+}
+
+advancedFeatureDemo();

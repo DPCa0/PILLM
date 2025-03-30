@@ -1,0 +1,82 @@
+class AdvancedFeatureDemo {
+   
+  #privateValue = 42;
+
+  constructor(name) {
+    this.name = name;
+  }
+
+   
+  static [Symbol.iterator]() {
+    let step = 0;
+    const iterator = {
+      next() {
+        step++;
+        if (step === 1) return { value: 'Hello', done: false };
+        if (step === 2) return { value: 'World', done: false };
+        return { value: undefined, done: true };
+      },
+    };
+    return iterator;
+  }
+
+   
+  get secret() {
+    return `Secret: ${this.#privateValue}`;
+  }
+
+  set secret(value) {
+    if (typeof value === 'number') {
+      this.#privateValue = value;
+    }
+  }
+
+   
+  *fibonacci(n) {
+    let a = 0, b = 1;
+    while (n--) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+   
+  async asyncTask() {
+    const promise = new Promise((resolve) => {
+      setTimeout(() => resolve(`Async result for ${this.name}`), 1000);
+    });
+    const result = await promise;
+    print(result);
+  }
+}
+
+ 
+const handler = {
+  set(target, property, value) {
+    print(`Property ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+const obj = new AdvancedFeatureDemo('Complex Demo');
+const proxy = new Proxy(obj, handler);
+
+ 
+proxy.asyncTask();
+
+ 
+print(proxy.secret);
+proxy.secret = 100;
+print(proxy.secret);
+
+ 
+const fib = proxy.fibonacci(5);
+for (const num of fib) {
+  print(num);
+}
+
+ 
+for (const word of AdvancedFeatureDemo) {
+  print(word);
+}

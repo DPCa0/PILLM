@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+   
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+   
+  return Promise.resolve([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]);
+};
+
+ 
+const dataMap = new Map();
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData();
+    
+     
+    const processedData = data.map(({ id, name }) => ({ id, fullName: `${name} Smith` }));
+    const dataSummary = processedData.reduce((acc, curr) => {
+      acc[curr.id] = curr.fullName;
+      return acc;
+    }, {});
+
+     
+    for (const [id, fullName] of Object.entries(dataSummary)) {
+      dataMap.set(parseInt(id, 10), fullName);
+    }
+
+     
+    for (const [id, fullName] of dataMap) {
+      console.log(`User ID: ${id}, Name: ${fullName}`);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

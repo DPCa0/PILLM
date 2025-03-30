@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { id, value: Math.random() * 100 };
+      data.value > 50 ? resolve(data) : reject(`Error: Data value too low for ID ${id}`);
+    }, Math.random() * 1000);
+  });
+};
+
+ 
+const processAllData = async () => {
+  try {
+    const ids = [1, 2, 3, 4, 5];
+    const promises = ids.map(async (id) => {
+      try {
+        const result = await fetchData(id);
+        return { ...result, processed: true };
+      } catch (error) {
+        return { id, error };
+      }
+    });
+
+     
+    const results = await Promise.allSettled(promises);
+    const successfulData = results
+      .filter(result => result.status === 'fulfilled' && result.value.processed)
+      .map(result => result.value);
+
+    print('Processed Data:', successfulData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+processAllData();

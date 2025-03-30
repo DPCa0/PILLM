@@ -1,0 +1,37 @@
+class Particle {
+  #mass;
+  constructor(name, mass) {
+    this.name = name;
+    this.#mass = mass;
+  }
+  getMass() {
+    return `${this.#mass} kg`;
+  }
+}
+
+const quantumField = new Proxy({}, {
+  get(target, prop) {
+    if (!(prop in target)) {
+      target[prop] = new Particle(prop, Math.random());
+    }
+    return target[prop];
+  }
+});
+
+async function* decaySimulation(particle) {
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield `${particle.name} decayed into energy`;
+  }
+}
+
+(async function() {
+  const electron = quantumField.electron;
+  print(`Mass of electron: ${electron.getMass()}`);
+
+  const decayGen = decaySimulation(electron);
+  
+  for await (const message of decayGen) {
+    print(message);
+  }
+})();

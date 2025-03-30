@@ -1,0 +1,41 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* asyncGeneratorFunction(arr) {
+    for (const item of arr) {
+        await new Promise(r => setTimeout(r, 100));
+        yield item * item;
+    }
+}
+
+const processItems = async () => {
+    const items = [1, 2, 3, 4, 5];
+    const results = [];
+    const deferred = new Deferred();
+
+    (async () => {
+        for await (const num of asyncGeneratorFunction(items)) {
+            results.push(num);
+            print(`Processed: ${num}`);
+        }
+        deferred.resolve();
+    })();
+
+    await deferred.promise;
+    return results;
+};
+
+(async () => {
+    try {
+        const results = await processItems();
+        print(`Final Results: ${results}`);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

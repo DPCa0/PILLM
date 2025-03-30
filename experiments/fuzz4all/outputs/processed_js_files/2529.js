@@ -1,0 +1,68 @@
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  distanceTo({ x, y }) {
+    return Math.sqrt((this.x - x) ** 2 + (this.y - y) ** 2);
+  }
+}
+
+class Shape {
+  constructor(...points) {
+    this.points = points;
+  }
+
+  *[Symbol.iterator]() {
+    for (const point of this.points) {
+      yield point;
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+(async () => {
+  const square = new Shape(
+    new Point(0, 0),
+    new Point(0, 1),
+    new Point(1, 0),
+    new Point(1, 1)
+  );
+
+  for (const point of square) {
+    print(`Point at (${point.x}, ${point.y})`);
+  }
+
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+
+  const [first, ...rest] = square.points;
+  print('First point:', first);
+  print('Rest points:', rest);
+
+  const distances = square.points.map(p => first.distanceTo(p));
+  print('Distances from first point:', distances);
+
+  const proxy = new Proxy(square, {
+    get(target, prop) {
+      if (prop === 'area') {
+        return 1;  
+      }
+      return Reflect.get(target, prop);
+    }
+  });
+
+  print('Proxy area:', proxy.area);
+})();

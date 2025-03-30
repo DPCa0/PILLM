@@ -1,0 +1,42 @@
+ 
+class EventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) this.listeners.set(event, []);
+        this.listeners.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            this.listeners.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = (duration) => new Promise((resolve) => {
+    setTimeout(() => resolve(`Completed in ${duration} ms`), duration);
+});
+
+async function* asyncGenerator(operations) {
+    for (const operation of operations) {
+        yield await asyncOperation(operation);
+    }
+}
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('data', data => print('Data received:', data));
+eventEmitter.on('end', () => print('Async operations completed.'));
+
+(async function run() {
+    const durations = [1000, 500, 2000];
+    const generator = asyncGenerator(durations);
+
+    for await (const result of generator) {
+        eventEmitter.emit('data', result);
+    }
+    
+    eventEmitter.emit('end');
+})();

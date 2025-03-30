@@ -1,0 +1,50 @@
+class FibonacciSequence {
+  *[Symbol.iterator]() {
+    let a = 0, b = 1;
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+const sequence = new FibonacciSequence();
+
+ 
+const fetchAndCalculate = async (url) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const fibNumber = data.number;
+    const fibIterator = sequence[Symbol.iterator]();
+    let fibValue;
+
+    for (let i = 0; i <= fibNumber; i++) {
+      fibValue = fibIterator.next().value;
+    }
+
+    print(`The Fibonacci number at position ${fibNumber} is ${fibValue}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessing property: ${prop}`);
+    return target[prop];
+  }
+};
+
+const target = { number: 10 };
+const proxy = new Proxy(target, handler);
+
+ 
+const url = 'https://api.example.com/getNumber';
+
+ 
+const num = proxy?.number ?? 0;
+
+fetchAndCalculate(url);

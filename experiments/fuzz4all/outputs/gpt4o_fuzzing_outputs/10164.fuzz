@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = (data) => {
+  const [firstUser, ...rest] = data;
+  const { name, email, address: { city, geo: { lat, lng } } } = firstUser;
+  return { name, email, city, coordinates: { lat, lng } };
+};
+
+const main = async () => {
+  try {
+    const usersData = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const { name, email, city, coordinates } = processData(usersData);
+    
+    console.log(`Name: ${name}\nEmail: ${email}\nCity: ${city}`);
+    console.log(`Coordinates: Latitude ${coordinates.lat}, Longitude ${coordinates.lng}`);
+    
+    const logMessage = `User ${name} from ${city} was processed at ${new Date().toISOString()}`;
+    console.groupCollapsed('Processing Info');
+    console.info(logMessage);
+    console.groupEnd();
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+};
+
+main();
+```

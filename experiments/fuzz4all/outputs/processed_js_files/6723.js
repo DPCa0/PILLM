@@ -1,0 +1,45 @@
+ 
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      
+      const data = await response.json();
+      this.processData(data);
+    } catch (error) {
+      console.error(`Fetch error: ${error.message}`);
+    }
+  }
+
+  processData(data) {
+    const processedData = data.map(({ id, name, value }) => ({ id, name, value: value * 2 }));
+    this.logData(processedData);
+  }
+
+  logData(data) {
+    console.table(data);
+  }
+}
+
+ 
+const dataValidator = {
+  set(target, property, value) {
+    if (property === 'url' && typeof value !== 'string') {
+      throw new TypeError('URL must be a string');
+    }
+    return Reflect.set(target, property, value);
+  }
+};
+
+ 
+const fetcher = new Proxy(new DataFetcher('https://api.example.com/data'), dataValidator);
+
+ 
+(async () => {
+  await fetcher.fetchData();
+})();

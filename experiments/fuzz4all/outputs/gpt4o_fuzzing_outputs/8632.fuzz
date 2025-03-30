@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataSimulator() {
+    const data = ["apple", "banana", "cherry"];
+    for (const item of data) {
+         
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Accessing property '${prop}': ${target[prop]}`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.warn(`Property '${prop}' does not exist`);
+            return undefined;
+        }
+    }
+};
+
+ 
+(async () => {
+    const fruits = {};
+    const proxyFruits = new Proxy(fruits, handler);
+
+     
+    const results = [];
+    for await (const fruit of fetchDataSimulator()) {
+        results.push(fruit);
+    }
+
+     
+    results.forEach((fruit, index) => proxyFruits[index] = fruit);
+
+     
+    console.log(proxyFruits[0]);  
+    console.log(proxyFruits[1]);  
+    console.log(proxyFruits[2]);  
+    console.log(proxyFruits[3]);  
+})();
+```

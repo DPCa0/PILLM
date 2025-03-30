@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+async function fetchData(filePath) {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+}
+
+ 
+class DataProcessor extends EventEmitter {
+  constructor(data) {
+    super();
+    this.data = data;
+  }
+
+  process() {
+     
+    const processedData = this.data.map(item => ({
+      ...item,
+      processedValue: item.value * 2,
+    }));
+    this.emit('processed', processedData);
+  }
+}
+
+ 
+(async () => {
+   
+  const { FILE_PATH = './data.json' } = process.env;
+
+   
+  const rawData = await fetchData(FILE_PATH);
+  const data = rawData?.items ?? [];
+
+   
+  const processor = new DataProcessor(data);
+  processor.on('processed', (processedData) => {
+     
+    const [firstItem, ...others] = processedData;
+    console.log('First processed item:', firstItem);
+    console.log('Other processed items count:', others.length);
+  });
+
+   
+  const uniqueValues = new Set(data.map(item => item.value));
+  console.log('Unique values:', [...uniqueValues]);
+
+   
+  processor.process();
+})();
+```

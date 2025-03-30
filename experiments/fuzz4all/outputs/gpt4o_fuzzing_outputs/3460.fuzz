@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async function advancedJavaScriptShowcase() {
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const [first, second, ...rest] = numbers;
+    console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+     
+    const squares = numbers.map(num => num ** 2);
+    console.log(`Squares: ${squares}`);
+
+     
+    const duplicatesArray = [1, 2, 2, 3, 4, 4, 5];
+    const uniqueNumbers = [...new Set(duplicatesArray)];
+    console.log(`Unique Numbers: ${uniqueNumbers}`);
+
+     
+    const obj1 = { a: 1, b: 2 };
+    const obj2 = { b: 3, c: 4 };
+    const combinedObj = { ...obj1, ...obj2, d: 5, ['e' + 1]: 6 };
+    console.log('Combined Object:', combinedObj);
+
+     
+    const handler = {
+        get(target, prop) {
+            console.log(`Accessed property: ${prop}`);
+            return target[prop];
+        }
+    };
+    const proxyObj = new Proxy(combinedObj, handler);
+    console.log(proxyObj.a);  
+
+     
+    console.log('Waiting for 2 seconds...');
+    await delay(2000);
+    console.log('Done waiting!');
+
+     
+    function* numberGenerator() {
+        let num = 1;
+        while (true) {
+            yield num++;
+        }
+    }
+    const gen = numberGenerator();
+    console.log('Generated Numbers:', gen.next().value, gen.next().value, gen.next().value);
+
+     
+    const getCoordinates = () => [100, 200];
+    const [x, y] = getCoordinates();
+    console.log(`Coordinates: X=${x}, Y=${y}`);
+
+     
+    const sym = Symbol('unique');
+    const objWithSymbol = { [sym

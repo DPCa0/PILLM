@@ -1,0 +1,65 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+   
+  static add(a, b) {
+    if (!(a instanceof ComplexNumber) || !(b instanceof ComplexNumber)) {
+      throw new TypeError('Arguments must be instances of ComplexNumber');
+    }
+    return new ComplexNumber(a.real + b.real, a.imaginary + b.imaginary);
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+}
+
+function* fibonacci(n) {
+  let a = 0, b = 1, current = 0;
+  for (let i = 0; i < n; i++) {
+    current = a;
+    a = b;
+    b = current + a;
+    yield current;
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop === 'magnitude') {
+      return Math.sqrt(target.real ** 2 + target.imaginary ** 2);
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const complex1 = new ComplexNumber(3, 4);
+const complex2 = new ComplexNumber(1, 2);
+const sum = ComplexNumber.add(complex1, complex2);
+const complexProxy = new Proxy(complex1, handler);
+
+print(`Sum: ${sum}`);                 
+print(`Magnitude: ${complexProxy.magnitude}`);   
+
+ 
+ 
+
+ 
+const fibSequence = fibonacci(10);
+print([...fibSequence]);              

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+    throw error;
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+(async () => {
+  const ee = new EventEmitter();
+  
+  ee.on('dataReceived', (data) => {
+    console.log('Data:', data);
+  });
+  
+  ee.on('fetchError', (error) => {
+    console.error('Error during fetch:', error);
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    ee.emit('dataReceived', data);
+  } catch (error) {
+    ee.emit('fetchError', error);
+  }
+
+  const proxy = new Proxy(ee, {
+    get(target, prop) {
+      if (prop === 'emit') {
+        return new Proxy(target[prop], {
+          apply(target, thisArg, argumentsList) {
+            console.log(`Event triggered: ${argumentsList[0]}`);
+            return Reflect.apply(target, thisArg, argumentsList);
+          }
+        });
+      }
+      return Reflect.get(target, prop);
+    }
+  });
+
+  proxy.emit('dataReceived', { message: 'Hello, world!' });
+})();
+```

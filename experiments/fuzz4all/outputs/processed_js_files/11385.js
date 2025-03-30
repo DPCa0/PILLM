@@ -1,0 +1,48 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processUserData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const users = data.results
+      .filter(user => user.age >= 18)
+      .map(user => ({
+        name: `${user.name.first} ${user.name.last}`,
+        email: user.email
+      }));
+
+    console.table(users);
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+};
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function (...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func.apply(this, args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+const onSearch = debounce((query) => {
+  print(`Searching for: ${query}`);
+  processUserData(`https: 
+}, 300);
+
+document.getElementById('searchInput').addEventListener('input', (event) => {
+  onSearch(event.target.value);
+});

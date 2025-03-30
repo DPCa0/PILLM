@@ -1,0 +1,39 @@
+class FibonacciGenerator {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+  
+  *[Symbol.iterator]() {
+    let i = 0;
+    while (true) {
+      yield this.getFibonacci(i++);
+    }
+  }
+  
+  getFibonacci(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    let result = this.getFibonacci(n - 1) + this.getFibonacci(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const asyncFibonacciLogger = async () => {
+  const fibGenerator = new FibonacciGenerator();
+  const fibIterator = fibGenerator[Symbol.iterator]();
+  
+  for await (const fib of fibIterator) {
+    if (fib > 1000) break;
+    print(`Fibonacci: ${fib}`);
+    await new Promise(resolve => setTimeout(resolve, 100));  
+  }
+};
+
+(async () => {
+  try {
+    await asyncFibonacciLogger();
+    print('Finished logging Fibonacci numbers.');
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

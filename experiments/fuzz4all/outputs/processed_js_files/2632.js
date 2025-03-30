@@ -1,0 +1,36 @@
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+ 
+(async () => {
+  try {
+    const data = await fetchData();
+    
+     
+    const transformedData = data.map(fruit => {
+      return {
+        name: fruit,
+        length: fruit.length,
+        message: `The fruit ${fruit} has ${fruit.length} letters.`
+      };
+    });
+    
+     
+    const [firstFruit, ...otherFruits] = transformedData;
+    
+     
+    const extendedFruits = [...transformedData, { name: 'date', length: 4, message: 'The fruit date has 4 letters.' }];
+    
+    print('First fruit:', firstFruit);
+    print('Other fruits:', otherFruits);
+    print('Extended fruits list:', extendedFruits);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

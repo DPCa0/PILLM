@@ -1,0 +1,50 @@
+ 
+
+ 
+const fetchData = (url) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve({ data: `Data from ${url}` });
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+
+ 
+async function* asyncDataGenerator(urls) {
+  for (let url of urls) {
+    try {
+      const response = await fetchData(url);
+      yield response.data;
+    } catch (error) {
+      yield `Error: ${error}`;
+    }
+  }
+}
+
+ 
+const dataHandler = {
+  get: function (target, prop) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      return `Property ${prop} not found`;
+    }
+  },
+};
+
+ 
+async function displayData(urls) {
+  const dataGen = asyncDataGenerator(urls);
+
+  for await (let data of dataGen) {
+    const proxyData = new Proxy({ result: data }, dataHandler);
+    print(proxyData.result);
+  }
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', ''];
+displayData(urls);

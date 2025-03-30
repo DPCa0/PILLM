@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    const { promises: fs } = await import('fs');
+    
+     
+    async function* readLines(filePath) {
+        const data = await fs.readFile(filePath, 'utf8');
+        const lines = data.split('\n');
+        for (const line of lines) {
+            yield line;
+        }
+    }
+
+     
+    const handler = {
+        get(target, property) {
+            console.log(`Getting property: ${property}`);
+            return target[property];
+        }
+    };
+
+    const targetObject = { message: "Advanced JavaScript!" };
+    const proxy = new Proxy(targetObject, handler);
+
+    console.log(proxy.message);
+
+     
+    const privateMethod = Symbol('privateMethod');
+    
+    class Complex {
+        constructor() {
+            this[privateMethod] = () => 'This is a private method';
+        }
+
+        publicMethod() {
+            return this[privateMethod]();
+        }
+    }
+
+    const complexInstance = new Complex();
+    console.log(complexInstance.publicMethod());
+    
+     
+    (async () => {
+        for await (const line of readLines('./example.txt')) {
+            console.log(`Line: ${line}`);
+        }
+    })();
+})();
+```
+This JavaScript program showcases some advanced features: dynamic import, asynchronous generators, Proxies, Symbols for private methods, and async iterators. It includes functionality for file processing, demonstrating a complex use of modern JavaScript features.

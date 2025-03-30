@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Getting property ${property}`);
+      return Reflect.get(target, property);
+    }
+    console.log(`Property ${property} does not exist.`);
+    return 'default';
+  },
+  set(target, property, value) {
+    console.log(`Setting property ${property} to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+const data = {
+  name: 'Alice',
+  age: 25,
+  async fetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ location: 'Wonderland', occupation: 'Explorer' }), 1000);
+    });
+  }
+};
+
+const proxyData = new Proxy(data, handler);
+
+(async () => {
+  const { name, age, fetchData } = proxyData;
+  
+  console.log(`Name: ${name}`);
+  console.log(`Age: ${age}`);
+  
+  try {
+    const additionalData = await fetchData();
+    const { location, occupation } = additionalData;
+    console.log(`Location: ${location}`);
+    console.log(`Occupation: ${occupation}`);
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+  
+  proxyData.name = 'Bob';
+  console.log(`Updated Name: ${proxyData.name}`);
+  
+  console.log(`Non-existing property: ${proxyData.hobby}`);
+})();
+```

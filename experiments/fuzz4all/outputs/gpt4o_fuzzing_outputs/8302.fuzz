@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* fibonacci(n) {
+    let a = 0, b = 1, count = 0;
+    while (count < n) {
+        yield a;
+        [a, b] = [b, a + b];
+        count++;
+    }
+}
+
+async function getFibonacciSequence(n) {
+    const fibGen = fibonacci(n);
+    const sequence = [];
+    for (let value of fibGen) {
+        sequence.push(value);
+    }
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(sequence), 1000);
+    });
+}
+
+const sequenceHandler = {
+    get: (target, property) => {
+        if (property in target) {
+            return target[property];
+        } else {
+            return `Property ${property} doesn't exist`;
+        }
+    }
+};
+
+(async function() {
+    try {
+        const seq = await getFibonacciSequence(10);
+        const proxySeq = new Proxy(seq, sequenceHandler);
+        console.log(`Fibonacci Sequence: ${proxySeq}`);
+        console.log(`Element at index 5: ${proxySeq[5]}`);
+        console.log(`Attempting to access non-existent property: ${proxySeq['foo']}`);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

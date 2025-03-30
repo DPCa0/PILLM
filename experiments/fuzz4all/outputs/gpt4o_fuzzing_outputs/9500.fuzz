@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataAsync() {
+    const data = ['apple', 'banana', 'cherry'];
+    for (const item of data) {
+        await delay(1000);  
+        yield `Fetched: ${item}`;
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property === 'greeting') {
+            return () => 'Hello from a Proxy!';
+        }
+        return Reflect.get(target, property);
+    }
+};
+
+ 
+const dynamicObject = new Proxy({}, handler);
+
+ 
+(async function main() {
+    console.log(dynamicObject.greeting());  
+
+     
+    const uniqueKey = Symbol('unique');
+    const obj = {
+        [uniqueKey]: 'This is a unique value'
+    };
+    console.log(obj[uniqueKey]);  
+
+     
+    for await (const data of fetchDataAsync()) {
+        console.log(data);
+    }
+
+     
+    const asyncFunctions = [
+        async () => 'Result 1',
+        async () => 'Result 2',
+        async () => 'Result 3'
+    ];
+    const results = await Promise.all(asyncFunctions.map(fn => fn()));
+    console.log(results);
+
+     
+    const { a, ...rest } = { a: 1, b: 2, c: 3 };
+    console.log(a);  
+    console.log(rest);  
+
+     
+    const greet = (name = 'World') => `Hello, ${name}!`;
+    console.log(greet('JavaScript'));
+    console.log(greet());
+})();
+```

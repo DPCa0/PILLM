@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+     
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve(`Fetched data for user ${id}`), 1000)
+    );
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Getting property ${prop}`);
+    return prop in target ? target[prop] : `Property ${prop} not found`;
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+class SecretBox {
+  #secret = 'Super Secret';
+
+  #revealSecret() {
+    console.log(`Revealed: ${this.#secret}`);
+  }
+
+  showSecret() {
+    this.#revealSecret();
+  }
+}
+
+ 
+(async () => {
+  const userIds = [1, 2, 3];
+  const userData = fetchUserData(userIds);
+
+  for await (const data of userData) {
+    console.log(data);
+  }
+
+   
+  user.name = 'John Doe';
+  console.log(user.name);
+  console.log(user.age);
+
+   
+  const box = new SecretBox();
+  box.showSecret();
+})();
+```

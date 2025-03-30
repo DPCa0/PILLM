@@ -1,0 +1,61 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const logger = {
+  get(target, property) {
+    print(`Property '${property}' accessed, value: ${target[property]}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Property '${property}' set to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+const user = new Proxy(new User('Alice', 25), logger);
+
+ 
+const multiply = (a, b) => a * b;
+const higherOrderFunction = (func, ...args) => {
+  const [first, ...rest] = args;
+  return func(first, rest.reduce(func));
+};
+
+ 
+const highlight = (strings, ...values) => {
+  return strings.reduce((result, str, i) => {
+    return `${result}${str}<strong>${values[i] || ''}</strong>`;
+  }, '');
+};
+
+const name = 'Alice';
+const greeting = highlight`Hello, ${name}! Welcome to the future of JavaScript.`;
+
+ 
+(async () => {
+  user.name;  
+  user.age = 26;  
+  print(greeting);
+  print('Product of 2, 3, 4 is:', higherOrderFunction(multiply, 2, 3, 4));
+  const apiData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  print(apiData);
+})();

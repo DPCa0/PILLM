@@ -1,0 +1,51 @@
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error: ', error);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    print(`Property '${property}' has been accessed`);
+    return property in target ? target[property] : 'Property does not exist';
+  }
+};
+
+ 
+class Calculator {
+  #factor = 2;
+
+  static multiplyByFactor(number) {
+    return number * this.prototype.#factor;
+  }
+}
+
+ 
+(async function() {
+  const urls = [
+    'https://api.coindesk.com/v1/bpi/currentprice.json',
+    'https://dog.ceo/api/breeds/image/random'
+  ];
+
+  let proxy = new Proxy({ bitcoin: null, dogImage: null }, handler);
+
+  try {
+    let [bitcoinData, dogImageData] = await Promise.all(urls.map(url => fetchData(url)));
+    proxy.bitcoin = bitcoinData.bpi.USD.rate;
+    proxy.dogImage = dogImageData.message;
+  } catch (error) {
+    console.error('Data fetch failed: ', error);
+  }
+
+   
+  print('Current Bitcoin Price in USD:', proxy.bitcoin);
+  print('Random Dog Image URL:', proxy.dogImage);
+  print('Multiply 5 by factor in Calculator:', Calculator.multiplyByFactor(5));
+})();

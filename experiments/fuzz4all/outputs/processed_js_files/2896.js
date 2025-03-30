@@ -1,0 +1,53 @@
+ 
+
+class AsyncIterable {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async *[Symbol.asyncIterator]() {
+        for (const item of this.data) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            yield item;
+        }
+    }
+}
+
+const asyncIteratorInstance = new AsyncIterable([1, 2, 3, 4, 5]);
+
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            return `Property ${prop} does not exist`;
+        }
+    }
+};
+
+const proxy = new Proxy(asyncIteratorInstance, handler);
+
+async function processAsyncIterable() {
+    for await (const value of proxy) {
+        print(`Processing value: ${value}`);
+    }
+}
+
+async function processWithErrorHandling() {
+    try {
+        await processAsyncIterable();
+        print(proxy.nonExistentProp);  
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+}
+
+const execute = async function*() {
+    yield* processWithErrorHandling();
+};
+
+(async () => {
+    for await (const step of execute()) {
+        print(step);
+    }
+})();

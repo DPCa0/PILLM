@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData(endpoints) {
+  for (const endpoint of endpoints) {
+    const response = await fetch(endpoint);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Getting ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+const sampleData = {
+  user: 'Alice',
+  role: 'Admin'
+};
+
+const proxiedData = new Proxy(sampleData, handler);
+
+ 
+(async function() {
+  const endpoints = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+  
+  const dataGen = fetchData(endpoints);
+  
+  for await (let data of dataGen) {
+    console.log('Fetched data:', data);
+  }
+
+   
+  try {
+    console.log(proxiedData.user);   
+    proxiedData.age = 30;            
+    console.log(proxiedData.age);    
+    console.log(proxiedData.nonExistentProp);   
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

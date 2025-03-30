@@ -1,0 +1,42 @@
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000));
+
+ 
+async function* asyncDataGenerator() {
+  const result = await fetchData();
+  for (const item of result.data) {
+    yield new Promise(resolve => setTimeout(() => resolve(item * 2), 500));  
+  }
+}
+
+ 
+function createLoggingProxy(obj) {
+  return new Proxy(obj, {
+    get(target, prop) {
+      print(`Accessing property "${prop}"`);
+      return target[prop];
+    },
+    set(target, prop, value) {
+      print(`Setting property "${prop}" to "${value}"`);
+      target[prop] = value;
+      return true;
+    }
+  });
+}
+
+ 
+const main = async () => {
+  const asyncData = asyncDataGenerator();
+
+  print("Starting to process data:");
+  for await (const processedItem of asyncData) {
+    print(`Processed item: ${processedItem}`);
+  }
+
+  const config = createLoggingProxy({ option1: true, option2: false });
+  print(`Initial value of option1: ${config.option1}`);
+  config.option1 = false;
+  print(`Updated value of option1: ${config.option1}`);
+};
+
+main();

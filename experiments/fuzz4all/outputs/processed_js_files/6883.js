@@ -1,0 +1,38 @@
+ 
+ 
+
+class WeatherService {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.apiURL = 'https://api.weatherapi.com/v1/current.json';
+    }
+
+    async getWeather(city) {
+        const response = await fetch(`${this.apiURL}?key=${this.apiKey}&q=${city}`);
+        if (!response.ok) throw new Error('Failed to fetch weather data');
+        return response.json();
+    }
+}
+
+const displayWeather = async (city) => {
+    const apiKey = 'YOUR_API_KEY';
+    const service = new WeatherService(apiKey);
+    
+    try {
+        const { location, current } = await service.getWeather(city);
+        print(`Weather in ${location.name}, ${location.country}`);
+        print(`Temperature: ${current.temp_c}°C`);
+        print(`Condition: ${current.condition.text}`);
+    } catch (error) {
+        console.error(`Error fetching weather: ${error.message}`);
+    }
+};
+
+ 
+(async () => {
+    const cities = ['New York', 'London', 'Tokyo'];
+
+     
+    const weatherPromises = cities.map(city => displayWeather(city));
+    await Promise.all(weatherPromises);
+})();

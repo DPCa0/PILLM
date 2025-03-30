@@ -1,0 +1,46 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+    yield delay(1000).then(() => print('Task 1 completed after 1 second'));
+    yield delay(2000).then(() => print('Task 2 completed after 2 seconds'));
+    yield delay(3000).then(() => print('Task 3 completed after 3 seconds'));
+}
+
+ 
+async function runGenerator(gen) {
+    const iterator = gen();
+
+    for (let task of iterator) {
+        await task;  
+    }
+}
+
+ 
+const handler = {
+    get: function(target, property) {
+        print(`Accessed property "${property}"`);
+        return target[property];
+    },
+    set: function(target, property, value) {
+        print(`Set property "${property}" to "${value}"`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const targetObject = { a: 1, b: 2 };
+
+ 
+const proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.a;         
+proxy.b = 42;    
+
+ 
+runGenerator(asyncGenerator);

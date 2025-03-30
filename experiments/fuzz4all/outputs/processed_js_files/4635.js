@@ -1,0 +1,46 @@
+ 
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Getting ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: function(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const data = { value: 42 };
+const proxyData = new Proxy(data, handler);
+
+ 
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  while (curr < limit) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+async function main() {
+  const fibGen = fibonacciGenerator(100);
+  for (let num of fibGen) {
+    print(`Fibonacci: ${num}`);
+  }
+
+  print(`Current value: ${proxyData.value}`);
+  proxyData.value = 100;
+  print(`Updated value: ${proxyData.value}`);
+
+  const promiseExample = () =>
+    new Promise((resolve) => setTimeout(() => resolve('Promise Resolved!'), 2000));
+
+  const result = await promiseExample();
+  print(result);
+}
+
+ 
+main();

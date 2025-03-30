@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const targetObject = { secret: "hidden message", exposed: "public info" };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' has been accessed.`);
+    return prop in obj ? obj[prop] : "Property does not exist.";
+  }
+};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve("Data fetched!") : reject("Fetch failed.");
+    }, 1000);
+  });
+};
+
+ 
+function* asyncGenerator() {
+  yield fetchData();
+  yield fetchData();
+}
+
+ 
+const processGenerator = async () => {
+  const generator = asyncGenerator();
+  for await (let promiseResult of generator) {
+    try {
+      console.log(await promiseResult);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
+
+ 
+(async () => {
+  console.log(proxy.secret);
+  await processGenerator();
+  console.log(proxy.exposed);
+})();
+```

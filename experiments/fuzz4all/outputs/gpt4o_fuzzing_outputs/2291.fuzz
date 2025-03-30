@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const withLogger = (fn) => (...args) => {
+  console.log(`Arguments: ${args}`);
+  const result = fn(...args);
+  console.log(`Result: ${result}`);
+  return result;
+};
+
+const asyncAdd = async (a, b) => a + b;
+
+const main = async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('greet', (message) => {
+    console.log(`Greeting: ${message}`);
+  });
+
+  eventEmitter.emit('greet', 'Hello, world!');
+
+  const loggedAsyncAdd = withLogger(asyncAdd);
+  const result = await loggedAsyncAdd(3, 4);
+
+  console.log(`Final Result: ${result}`);
+};
+
+main();
+```

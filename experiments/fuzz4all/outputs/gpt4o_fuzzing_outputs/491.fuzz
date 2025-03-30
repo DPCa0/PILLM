@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+async function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("Data retrieved successfully");
+        }, 2000);
+    });
+}
+
+ 
+async function handlePromises() {
+    const promises = [
+        fetchData(),
+        new Promise((_, reject) => setTimeout(() => reject("Error occurred"), 1000)),
+    ];
+
+    const results = await Promise.allSettled(promises);
+    results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+            console.log(`Promise ${index + 1} fulfilled:`, result.value);
+        } else {
+            console.error(`Promise ${index + 1} rejected:`, result.reason);
+        }
+    });
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Getting ${property}`);
+            return target[property];
+        } else {
+            console.error(`Property ${property} does not exist`);
+        }
+    },
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+    }
+};
+
+const person = new Proxy({}, handler);
+person.name = "Alice";
+console.log(person.name);
+console.log(person.age);
+
+ 
+(async function main() {
+    console.log("Starting Main Function");
+
+     
+    const fib = fibonacci();
+    console.log("Fibonacci Sequence:");
+    for (let i = 0; i < 5; i++) {
+        console.log(fib.next().value);
+    }
+
+     
+    await handlePromises();
+
+    console.log("Main Function Complete");
+})();
+```

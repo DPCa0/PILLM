@@ -1,0 +1,37 @@
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(url) {
+    await delay(1000);  
+    return { data: `Data from ${url}` };
+}
+
+const urlMap = new Map([
+    ['endpoint1', 'https://api.example.com/data1'],
+    ['endpoint2', 'https://api.example.com/data2'],
+]);
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            print(`Fetching data for: ${prop}`);
+            return fetchData(target[prop]);
+        } else {
+            throw new Error(`No endpoint for ${prop}`);
+        }
+    },
+};
+
+const api = new Proxy(urlMap, handler);
+
+async function loadData(...endpoints) {
+    try {
+        const results = await Promise.all(endpoints.map(endpoint => api[endpoint]));
+        print('Fetched Results:', ...results.map(res => res.data));
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+loadData('endpoint1', 'endpoint2');

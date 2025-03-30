@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [1, 2, 3, 4, 5] });
+    }, 1000);
+  });
+};
+
+ 
+const dataHandler = {
+  get(target, prop) {
+    if (prop === 'length') {
+      return target.data.length;
+    }
+    return Reflect.get(target, prop);
+  }
+};
+
+ 
+(async () => {
+   
+  const apiData = await fetchData();
+
+   
+  const proxyData = new Proxy(apiData, dataHandler);
+
+   
+  const [first, ...rest] = proxyData.data;
+
+   
+  const extendedData = [...rest, 6, 7];
+
+   
+  const transformedData = new Map(
+    extendedData.map((item, index) => [`Item ${index + 1}`, item ** 2])
+  );
+
+   
+  for (const [key, value] of transformedData) {
+    console.log(`${key}: ${value}`);
+  }
+
+   
+  console.log(`Data length: ${proxyData?.length ?? 'No data available'}`);
+})();
+```

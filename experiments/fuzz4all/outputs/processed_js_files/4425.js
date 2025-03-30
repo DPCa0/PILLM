@@ -1,0 +1,46 @@
+ 
+
+class DataStream {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let item of this.data) {
+       
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+      yield item;
+    }
+  }
+}
+
+function* processData() {
+  for (let i = 0; i < 10; i++) {
+    yield i * i;
+  }
+}
+
+async function fetchAndProcessData() {
+  const dataStream = new DataStream([...processData()]);
+  const results = [];
+
+  for await (let data of dataStream) {
+    results.push(data);
+  }
+
+  return results;
+}
+
+(async () => {
+  const processedData = await fetchAndProcessData();
+  print('Processed Data:', processedData);
+
+  const mappedResults = processedData.map(x => x * 2);
+  print('Mapped Results:', mappedResults);
+
+  const filteredResults = mappedResults.filter(x => x % 3 === 0);
+  print('Filtered Results:', filteredResults);
+
+  const reducedResult = filteredResults.reduce((acc, val) => acc + val, 0);
+  print('Reduced Result:', reducedResult);
+})();

@@ -1,0 +1,35 @@
+class Fibonacci {
+    constructor(max) {
+        this.max = max;
+        this.memo = new Map();
+    }
+    
+    *[Symbol.iterator]() {
+        for (let i = 0; i < this.max; i++) {
+            yield this._fib(i);
+        }
+    }
+    
+    _fib(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n < 2) return n;
+        
+        const result = this._fib(n - 1) + this._fib(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const asyncLogger = async (iterator) => {
+    for await (let num of iterator) {
+        await new Promise(resolve => setTimeout(resolve, 500));  
+        print(num);
+    }
+};
+
+(async () => {
+    const fibSequence = new Fibonacci(10);
+    
+    print('Generating Fibonacci sequence:');
+    await asyncLogger(fibSequence);
+})();

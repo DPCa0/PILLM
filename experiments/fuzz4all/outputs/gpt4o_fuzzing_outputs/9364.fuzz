@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  compute(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+
+    const result = this.compute(n - 1) + this.compute(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function* asyncFibonacci(n) {
+  const fib = new Fibonacci();
+  for (let i = 0; i <= n; i++) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield fib.compute(i);
+  }
+}
+
+(async () => {
+  const logWithTimestamp = (msg) => console.log(`[${new Date().toISOString()}] ${msg}`);
+  const fibSequence = asyncFibonacci(10);
+
+  for await (const num of fibSequence) {
+    logWithTimestamp(`Fibonacci number: ${num}`);
+  }
+
+  const obj = { a: 1, b: 2, c: 3 };
+  const handler = {
+    get: (target, prop, receiver) => {
+      console.log(`Getting ${prop} value`);
+      return Reflect.get(target, prop, receiver);
+    },
+  };
+
+  const proxiedObj = new Proxy(obj, handler);
+  console.log(proxiedObj.a);
+  console.log(proxiedObj.b);
+})();
+```

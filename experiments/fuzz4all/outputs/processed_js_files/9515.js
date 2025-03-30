@@ -1,0 +1,29 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+async function processData() {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+  ];
+
+  try {
+    const dataPromises = urls.map(url => fetchData(url));
+    const results = await Promise.all(dataPromises);
+
+    results.forEach((data, index) => {
+      const { id, value } = data;
+      print(`Data from URL ${index + 1}: ID = ${id}, Value = ${value}`);
+    });
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+processData();

@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+class SuperList {
+  #items = [];  
+
+  constructor(...initialItems) {
+    this.#items.push(...initialItems);
+  }
+
+   
+  get items() {
+    return new Proxy(this.#items, {
+      get(target, prop) {
+        if (prop in target) {
+          console.log(`Accessing item at index ${prop}`);
+          return target[prop];
+        }
+        return undefined;
+      },
+    });
+  }
+
+   
+  addItems(...newItems) {
+    function* generator(items) {
+      for (const item of items) {
+        yield item;
+      }
+    }
+    for (const item of generator(newItems)) {
+      this.#items.push(item);
+    }
+  }
+
+   
+  static merge(...lists) {
+    const allItems = lists.flatMap(list => list.items);
+    return new SuperList(...allItems);
+  }
+
+   
+  [Symbol.iterator]() {
+    let index = 0;
+    const items = this.#items;
+    return {
+      next() {
+        if (index < items.length) {
+          return { value: items[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      },
+    };
+  }
+}
+
+ 
+async function demo() {
+  const list1 = new SuperList(1, 2, 3);
+  const list2 = new SuperList(4, 5, 6);
+
+  list1.addItems(7, 8, 9);
+
+  const mergedList = SuperList.merge(list1, list2);
+
+   
+  for await (const item of mergedList) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    console.log(item);
+  }
+}
+
+demo();
+```

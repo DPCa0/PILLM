@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const reactive = obj => {
+  const handler = {
+    get(target, prop, receiver) {
+      console.log(`Accessed property "${prop}" with value: ${Reflect.get(...arguments)}`);
+      return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+      console.log(`Setting property "${prop}" to value: ${value}`);
+      return Reflect.set(...arguments);
+    }
+  };
+  return new Proxy(obj, handler);
+};
+
+ 
+const fetchData = async url => {
+  console.log(`Fetching data from ${url}...`);
+  await delay(1000);  
+  console.log(`Data fetched from ${url}`);
+  return { data: `Data from ${url}` };
+};
+
+ 
+(async () => {
+  const data = reactive(await fetchData('https://example.com/api'));
+
+  console.log(data.data);  
+
+   
+  const { default: _ } = await import('lodash');
+  const transformedData = _.toUpper(data.data);
+
+  console.log(`Transformed Data: ${transformedData}`);
+})();
+```

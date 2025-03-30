@@ -1,0 +1,30 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+   
+  const [{ name, ...details }] = data;
+  return { name, details };
+};
+
+const main = async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+  if (data) {
+    const processed = processData(data);
+    print('Processed Data:', processed);
+  }
+};
+
+ 
+main()
+  .then(() => console.log('All done'))
+  .catch(console.error);

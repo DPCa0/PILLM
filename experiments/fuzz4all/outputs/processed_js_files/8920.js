@@ -1,0 +1,29 @@
+ 
+
+function* range(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i;
+    }
+}
+
+async function fetchNumber(num) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(num * num), 500);
+    });
+}
+
+async function processNumbers() {
+    const numbers = [...range(1, 5)];
+    const promises = numbers.map(async (num) => {
+        const square = await fetchNumber(num);
+        return { num, square };
+    });
+
+    const results = await Promise.all(promises);
+
+    results.forEach(({ num, square }) => {
+        print(`The square of ${num} is ${square}`);
+    });
+}
+
+processNumbers();

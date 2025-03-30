@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from = (array) => new Matrix(array);
+
+  static identity = (size) => new Matrix(
+    Array.from({ length: size }, (_, i) => 
+      Array.from({ length: size }, (__, j) => (i === j ? 1 : 0))
+    )
+  );
+
+  multiply = (matrix) => {
+    if (this.data[0].length !== matrix.data.length) throw new Error('Invalid matrix size for multiplication');
+    return new Matrix(
+      this.data.map(row => 
+        matrix.data[0].map((_, i) => 
+          row.reduce((sum, elt, j) => sum + elt * matrix.data[j][i], 0)
+        )
+      )
+    );
+  }
+
+  transpose = () => new Matrix(
+    this.data[0].map((_, i) => this.data.map(row => row[i]))
+  );
+
+  map = (fn) => new Matrix(
+    this.data.map((row, i) => row.map((value, j) => fn(value, i, j)))
+  );
+
+  toString = () => this.data.map(row => row.join(' ')).join('\n');
+}
+
+const matrixA = Matrix.from([[1, 2], [3, 4]]);
+const matrixB = Matrix.identity(2);
+
+const matrixC = matrixA.multiply(matrixB).map(value => value * 2).transpose();
+
+console.log(matrixC.toString());
+```

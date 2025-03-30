@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+
+  async execute() {
+    console.log(`Starting task: ${this.name}`);
+    await new Promise(resolve => setTimeout(resolve, this.duration));
+    console.log(`Completed task: ${this.name}`);
+  }
+}
+
+function* taskGenerator(tasks) {
+  for (const task of tasks) {
+    yield task.execute();
+  }
+}
+
+const tasks = [
+  new Task('Task 1', 1000),
+  new Task('Task 2', 2000),
+  new Task('Task 3', 1500)
+];
+
+const taskGen = taskGenerator(tasks);
+
+(async () => {
+  for (let task of taskGen) {
+    await task;
+  }
+  console.log('All tasks completed.');
+})();
+
+const proxyTasks = new Proxy(tasks, {
+  get(target, prop, receiver) {
+    if (prop === 'length') {
+      console.log(`Accessing length: ${target.length}`);
+    }
+    return Reflect.get(...arguments);
+  }
+});
+
+console.log(`Number of tasks: ${proxyTasks.length}`);
+```

@@ -1,0 +1,51 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Fetched data from ${url}`);
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'data') {
+            return target[prop] ? target[prop] : 'Data not available';
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+const dataHandler = new Proxy({}, handler);
+
+ 
+async function processUrls(generator) {
+    for (let promise of generator) {
+        let data = await promise;
+        print(data);
+        dataHandler.data = data;   
+    }
+    print('All URLs processed.');
+}
+
+ 
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+ 
+const generator = dataGenerator(urls);
+processUrls(generator);

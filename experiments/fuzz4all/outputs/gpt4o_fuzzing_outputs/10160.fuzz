@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(obj) {
+    return new Proxy(obj, {
+      get(target, prop, receiver) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+      },
+      set(target, prop, value, receiver) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+      }
+    });
+  }
+}
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    for (let i = 0; i < 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      yield i;
+    }
+  }
+};
+
+(async function main() {
+  const obj = new Observable({a: 1, b: 2});
+  console.log(obj.a);
+  obj.b = 3;
+
+  for await (const num of asyncIterable) {
+    console.log(num);
+  }
+})();
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield ++id;
+  }
+}
+
+const idGen = idGenerator();
+const weakMap = new WeakMap();
+
+class Entity {
+  constructor(name) {
+    this.id = idGen.next().value;
+    this.name = name;
+    weakMap.set(this, `Secret for ${name}`);
+  }
+  
+  revealSecret() {
+    return weakMap.get(this);
+  }
+}
+
+const entity1 = new Entity('Entity1');
+console.log(`Created ${entity1.name} with id ${entity1.id}`);
+console.log(entity1.revealSecret());
+
+const entity2 = new Entity('Entity2');
+console.log(`Created ${entity2.name} with id ${entity2.id}`);
+console.log(entity2.revealSecret());
+```

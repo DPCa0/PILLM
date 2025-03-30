@@ -1,0 +1,50 @@
+class QuantumCircuit {
+    constructor(qubits) {
+        this.state = Array(2 ** qubits).fill(0).map((_, i) => i === 0 ? 1 : 0);
+        this.qubits = qubits;
+    }
+
+    applyGate(gate, targets) {
+        let newState = Array(2 ** this.qubits).fill(0);
+        for (let i = 0; i < this.state.length; i++) {
+            const binaryIndex = i.toString(2).padStart(this.qubits, '0');
+            const targetIndex = parseInt(targets.map(t => binaryIndex[t]).join(''), 2);
+            const targetState = gate[targetIndex];
+
+            for (let j = 0; j < targetState.length; j++) {
+                const amplitude = targetState[j];
+                if (amplitude !== 0) {
+                    const newIndex = parseInt(binaryIndex.split('').map((b, index) => targets.includes(index) ? targetState[j].index : b).join(''), 2);
+                    newState[newIndex] += this.state[i] * amplitude;
+                }
+            }
+        }
+        this.state = newState;
+    }
+
+    measure() {
+        let cumulativeProbability = 0;
+        const randomValue = Math.random();
+        for (let i = 0; i < this.state.length; i++) {
+            cumulativeProbability += Math.abs(this.state[i]) ** 2;
+            if (randomValue < cumulativeProbability) {
+                return i.toString(2).padStart(this.qubits, '0');
+            }
+        }
+    }
+}
+
+ 
+const hadamardGate = [
+    [1 / Math.sqrt(2), 1 / Math.sqrt(2)],
+    [1 / Math.sqrt(2), -1 / Math.sqrt(2)]
+];
+
+ 
+const qc = new QuantumCircuit(1);
+
+ 
+qc.applyGate(hadamardGate, [0]);
+
+ 
+print("Measured state: ", qc.measure());

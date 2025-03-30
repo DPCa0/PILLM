@@ -1,0 +1,48 @@
+ 
+(async () => {
+   
+  const uniqueNumbers = new Set();
+
+   
+  while (uniqueNumbers.size < 5) {
+    uniqueNumbers.add(Math.floor(Math.random() * 100));
+  }
+
+   
+  const numbersArray = [...uniqueNumbers];
+  print('Unique numbers:', numbersArray);
+
+   
+  const htmlListItems = numbersArray.map(num => `<li>${num}</li>`).join('');
+
+   
+  function htmlLogger(strings, ...values) {
+    print(strings.raw[0] + values.join('') + strings.raw[1]);
+  }
+
+  htmlLogger`<ul>${htmlListItems}</ul>`;
+
+   
+  const [data1, data2] = await Promise.all([
+    fetch('https://jsonplaceholder.typicode.com/posts/1').then(res => res.json()),
+    fetch('https://jsonplaceholder.typicode.com/posts/2').then(res => res.json())
+  ]);
+
+   
+  const { title: title1, body: body1 } = data1;
+  const { title: title2, body: body2 } = data2;
+
+   
+  const dataObject = {
+    title1,
+    body1,
+    title2,
+    body2
+  };
+
+   
+  const safeTitle1 = dataObject?.title1 ?? 'No Title';
+
+  print('Safe title 1:', safeTitle1);
+  print('Data object:', dataObject);
+})();

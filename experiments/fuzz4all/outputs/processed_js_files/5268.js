@@ -1,0 +1,53 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncFetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+};
+
+const fetchDataWithCache = (() => {
+    const cache = new Map();
+
+    return async (url) => {
+        if (cache.has(url)) {
+            return Promise.resolve(cache.get(url));
+        }
+        const data = await asyncFetchData(url);
+        cache.set(url, data);
+        return data;
+    };
+})();
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('dataFetched', (data) => {
+        print('Data received:', data);
+    });
+
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+    try {
+        const data = await fetchDataWithCache(url);
+        emitter.emit('dataFetched', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

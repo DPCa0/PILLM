@@ -1,0 +1,44 @@
+class Fibonacci {
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+}
+
+const fib = new Fibonacci();
+const asyncFetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return response.json();
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const memoizedFetch = memoize(asyncFetchData);
+
+(async () => {
+  const fibIter = fib[Symbol.iterator]();
+  print('Fibonacci:', [...Array(10)].map(() => fibIter.next().value));
+
+  try {
+    const data = await memoizedFetch('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched Data:', data);
+
+    const duplicateData = await memoizedFetch('https://jsonplaceholder.typicode.com/todos/1');
+    print('Duplicate Fetched Data from Cache:', duplicateData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

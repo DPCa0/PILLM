@@ -1,0 +1,52 @@
+const { createServer } = require('http');
+const { readFile } = require('fs').promises;
+const path = require('path');
+const url = require('url');
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function loadContent(filePath) {
+  try {
+    return await readFile(filePath, 'utf-8');
+  } catch (error) {
+    return 'Error loading content';
+  }
+}
+
+ 
+async function* generatePrimes(limit) {
+  const primes = [];
+  for (let number = 2; primes.length < limit; number++) {
+    if (primes.every((prime) => number % prime !== 0)) {
+      primes.push(number);
+      await delay(100);  
+      yield number;
+    }
+  }
+}
+
+ 
+createServer(async (req, res) => {
+  const parsedUrl = url.parse(req.url, true);
+  
+  if (parsedUrl.pathname === '/') {
+    const content = await loadContent(path.join(__dirname, 'index.html'));
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(content);
+  } else if (parsedUrl.pathname === '/primes') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    const limit = parseInt(parsedUrl.query.limit) || 10;
+    const primesGenerator = generatePrimes(limit);
+    for await (const prime of primesGenerator) {
+      res.write(prime.toString() + '\n');
+    }
+    res.end();
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('404 Not Found');
+  }
+}).listen(3000, () => {
+  print('Server running on http://localhost:3000');
+});

@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class AsyncLogger {
+  constructor() {
+    this.queue = [];
+  }
+  
+  log(message) {
+    const timestamp = new Date().toISOString();
+    this.queue.push(`[${timestamp}] ${message}`);
+  }
+  
+  async flush() {
+    while (this.queue.length > 0) {
+      const message = this.queue.shift();
+      await this.fakeNetworkRequest(message);
+    }
+  }
+  
+  async fakeNetworkRequest(message) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log('Sent:', message);
+        resolve();
+      }, Math.random() * 2000);
+    });
+  }
+}
+
+const logger = new AsyncLogger();
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const ids = idGenerator();
+
+function process(data) {
+  const id = ids.next().value;
+  logger.log(`Start processing id ${id}: ${data}`);
+  
+  const result = data.split('').reverse().join('');
+  
+  logger.log(`Finish processing id ${id}: ${result}`);
+  return result;
+}
+
+(async () => {
+  const results = ['apple', 'banana', 'cherry'].map(process);
+
+  logger.log('All processing started');
+  
+  console.log('Results:', results);
+  
+  await logger.flush();
+  
+  logger.log('All logs flushed');
+})();
+```

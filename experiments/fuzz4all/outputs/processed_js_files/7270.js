@@ -1,0 +1,42 @@
+ 
+
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(item) {
+  print(`Fetching data for item: ${item}`);
+  await delay(1000);
+  return `Data for item ${item}`;
+}
+
+async function processData() {
+  const rangeGenerator = range(1, 5);
+
+  for (let num of rangeGenerator) {
+    const data = await fetchData(num);
+    print(data);
+  }
+}
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Property '${property}' has been accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const dataProxy = new Proxy({ a: 1, b: 2, c: 3 }, handler);
+
+ 
+print(dataProxy.a);
+print(dataProxy.b);
+print(dataProxy.c);
+
+ 
+processData();

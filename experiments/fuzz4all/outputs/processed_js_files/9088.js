@@ -1,0 +1,38 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  const processed = data.map(({ id, name, ...rest }) => ({
+    id,
+    name,
+    description: rest.description || 'No description available',
+    attributes: {
+      ...rest,
+    },
+  }));
+  return processed;
+};
+
+const displayData = (data) => {
+  data.forEach(({ id, name, description }) => {
+    print(`ID: ${id}, Name: ${name}, Description: ${description}`);
+  });
+};
+
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+  const rawData = await fetchData(apiUrl);
+
+  if (rawData) {
+    const processedData = processData(rawData);
+    displayData(processedData);
+  }
+})();

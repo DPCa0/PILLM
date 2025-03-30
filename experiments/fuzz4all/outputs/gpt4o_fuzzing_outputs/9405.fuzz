@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchUserData(userId) {
+     
+    const userPromise = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                id: userId,
+                name: "John Doe",
+                address: { street: "123 Elm St", city: "Somewhere" },
+                hobbies: ["coding", "reading", "gaming"],
+            });
+        }, 1000);
+    });
+
+    const user = await userPromise;
+
+     
+    const { name, address: { city, ...restAddress }, hobbies } = user;
+
+    console.log(`User: ${name}`);
+    console.log(`City: ${city}`);
+    console.log(`Other Address Info: `, restAddress);
+
+     
+    const newHobbies = [...hobbies, "biking"];
+    console.log(`Updated Hobbies: `, newHobbies);
+}
+
+(async () => {
+    await fetchUserData(1);
+})();
+```

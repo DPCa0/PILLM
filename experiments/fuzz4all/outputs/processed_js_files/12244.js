@@ -1,0 +1,42 @@
+ 
+ 
+
+(async () => {
+   
+  const fetchData = async (url) => {
+    const data = { message: 'Hello, world!' };
+    return new Promise((resolve) => setTimeout(() => resolve(data), 1000));
+  };
+
+   
+  const { message = 'No data available' } = await fetchData('https://api.example.com/data');
+
+   
+  const handler = {
+    get: (target, prop) => {
+      return prop in target ? target[prop] : `Property ${prop} is not found!`;
+    }
+  };
+
+   
+  const logger = new Proxy({ log: console.log, warn: console.warn }, handler);
+
+   
+  const highlight = (strings, ...values) => {
+    return strings.reduce((acc, str, idx) => {
+      const value = values[idx] ? `<strong>${values[idx]}</strong>` : '';
+      return acc + str + value;
+    }, '');
+  };
+
+   
+  logger.log(highlight`Fetched data: ${message}`);
+
+   
+  const numbers = [1, 2, 3, 4, 5];
+  const numberSet = new Set(numbers);
+  const doubledNumbers = [...numberSet].map(num => num * 2);
+
+   
+  logger.log(`Doubled Numbers: ${doubledNumbers.join(', ')}`);
+})();

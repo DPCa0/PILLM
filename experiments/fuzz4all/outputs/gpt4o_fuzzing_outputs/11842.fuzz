@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+import { createInterface } from 'readline/promises';
+
+ 
+const getInput = async (question) => {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+  const answer = await rl.question(`${question}: `);
+  rl.close();
+  return answer;
+};
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      return target[prop];
+    }
+    return `Property ${prop} doesn't exist!`;
+  }
+};
+
+const data = new Proxy({}, handler);
+
+// Using Map, Set, and Spread Operator
+const uniqueNames = new Set(["Alice", "Bob", "Charlie"]);
+const nameMap = new Map([...uniqueNames].map((name, index) => [index, name]));
+
+// Main async function to demonstrate functionality
+(async () => {
+  // Arrow function and template literals
+  const greet = (name) => console.log(`Hello, ${name}!`);
+
+  const userName = await getInput('Enter your name');
+  greet(userName);
+
+  console.log("\nName mappings using Map:");
+  for (let [key, value] of nameMap) {
+    console.log(`${key} => ${value}`);
+  }
+
+  // Reflect to manipulate properties
+  Reflect.set(data, 'user', userName);
+  console.log("\nDynamic object behavior using Proxy and Reflect:");
+  console.log(`User: ${data.user}`);
+  console.log(`Unknown property: ${data.unknown}`);
+
+   
+  const simulateAsyncTasks = Array.from({ length: 3 }, (_, i) =>
+    new Promise((resolve) => setTimeout(() => resolve(`Task ${i + 1} completed`), Math.random() * 1000))
+  );
+
+  const results = await Promise.all(simulateAsyncTasks);
+  console.log("\nResults of simulated asynchronous tasks:");
+  results.forEach(result => console.log(result));
+})();
+```

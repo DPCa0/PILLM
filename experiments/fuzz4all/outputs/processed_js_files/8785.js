@@ -1,0 +1,72 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (this.events.has(event)) {
+            const promises = this.events.get(event).map(listener => listener(...args));
+            await Promise.all(promises);
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            const idx = this.events.get(event).indexOf(listener);
+            if (idx !== -1) {
+                this.events.get(event).splice(idx, 1);
+            }
+        }
+    }
+}
+
+ 
+const obj = new Proxy(new AsyncEventEmitter(), {
+    get(target, prop) {
+        if (prop === 'on' || prop === 'off') {
+            return function(...args) {
+                return target[prop](...args);
+            };
+        } else if (prop === 'emit') {
+            return async function(...args) {
+                print(`Emitting event: ${args[0]}`);
+                await target.emit(...args);
+                print(`Finished processing event: ${args[0]}`);
+            };
+        } else {
+            return Reflect.get(target, prop);
+        }
+    }
+});
+
+async function exampleUsage() {
+    obj.on('hello', async (name) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                print(`Hello, ${name}!`);
+                resolve();
+            }, 1000);
+        });
+    });
+
+    obj.on('goodbye', async (name) => {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                print(`Goodbye, ${name}!`);
+                resolve();
+            }, 500);
+        });
+    });
+
+    await obj.emit('hello', 'Alice');
+    await obj.emit('goodbye', 'Alice');
+}
+
+exampleUsage();

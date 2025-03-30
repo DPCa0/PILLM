@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueKey = Symbol('unique');
+
+const myObj = {
+  [uniqueKey]: "This is a unique property",
+  regularProp: "Hello"
+};
+
+ 
+const handler = {
+  get: function(target, property, receiver) {
+    if (property === 'secret') {
+      return `The secret is: ${target[property]}`;
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxyObj = new Proxy({ secret: "12345", regular: "test" }, handler);
+
+ 
+function* generateSequence() {
+  yield 'First';
+  yield 'Second';
+  yield 'Third';
+}
+
+const generator = generateSequence();
+
+ 
+async function asyncOperation() {
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Async operation complete!'), 1000);
+  });
+
+  const result = await promise;
+  console.log(result);
+}
+
+ 
+(async function() {
+  console.log('Symbol Example:', myObj[uniqueKey]);
+  console.log('Proxy Example:', proxyObj.secret);
+  
+  console.log('Generator Example:');
+  for (let value of generator) {
+    console.log(value);
+  }
+  
+  console.log('Async/Await Example:');
+  await asyncOperation();
+})();
+```

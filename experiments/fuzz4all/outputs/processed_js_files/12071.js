@@ -1,0 +1,40 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield prev;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  compute(n) {
+    if (n < 2) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.compute(n - 1) + this.compute(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+(async () => {
+  const fibonacci = new Fibonacci(10);
+  const numbers = [...fibonacci];
+  
+   
+  const results = await Promise.all(
+    numbers.map(async (num) => {
+      return { num, isEven: num % 2 === 0 };
+    })
+  );
+
+  print('Fibonacci Sequence:', numbers.join(', '));
+  print('Even Check:', results);
+
+  const twentyFifthFib = fibonacci.compute(25);
+  print('25th Fibonacci Number:', twentyFifthFib);
+})();

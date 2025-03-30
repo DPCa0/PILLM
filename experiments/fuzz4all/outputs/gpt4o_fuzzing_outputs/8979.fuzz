@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+const processData = async (url) => {
+  try {
+    const { results: [firstResult, ...otherResults] } = await fetchData(url);
+
+    const combinedData = [
+      { ...firstResult, extraInfo: 'Primary Data' },
+      ...otherResults.map(item => ({ ...item, extraInfo: 'Additional Data' }))
+    ];
+
+    return combinedData;
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+
+processData(url).then(data => console.log('Processed Data:', data)).catch(error => console.error('Final Error:', error));
+```

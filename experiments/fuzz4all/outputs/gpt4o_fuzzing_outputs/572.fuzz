@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ModuleLoader {
+  constructor() {
+    this.modules = new Map();
+  }
+  
+  async load(moduleName) {
+    if (!this.modules.has(moduleName)) {
+      const module = await import(`./modules/${moduleName}.js`).catch(err => {
+        console.error(`Failed to load module ${moduleName}:`, err);
+        return null;
+      });
+      this.modules.set(moduleName, module);
+    }
+    return this.modules.get(moduleName);
+  }
+}
+
+const loader = new ModuleLoader();
+
+(async () => {
+  const mathModule = await loader.load('math');
+  
+  if (mathModule) {
+    const proxy = new Proxy(mathModule, {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          console.log(`Accessing property "${prop}"`);
+          return Reflect.get(target, prop, receiver);
+        } else {
+          throw new Error(`Property "${prop}" does not exist in module`);
+        }
+      }
+    });
+    
+    try {
+      const sum = proxy.add(5, 3);
+      console.log(`Sum: ${sum}`);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+})();
+```
+
+Note: This code assumes that there is a 'math' module located in a `modules` folder relative to the file containing this script, and that this module exports an `add` function.

@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Getting property: ${property}`);
+            return target[property];
+        } else {
+            return 'Property not found';
+        }
+    },
+    set(target, property, value) {
+        console.log(`Setting property: ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const user = { name: 'Alice', age: 25 };
+const proxyUser = new Proxy(user, handler);
+console.log(proxyUser.name);  
+proxyUser.location = 'Wonderland';  
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        console.log('Fetched data:', data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+ 
+function* fibonacci(n) {
+    let a = 0, b = 1;
+    for (let i = 0; i < n; i++) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+const fib = fibonacci(10);
+console.log([...fib]);  
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const [first, second, ...rest] = numbers;
+console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+const person = { firstName: 'John', lastName: 'Doe', age: 30 };
+const { firstName, ...otherDetails } = person;
+console.log(`Name: ${firstName}, Details: ${JSON.stringify(otherDetails)}`);
+
+ 
+class Circle {
+    #radius;
+    constructor(radius) {
+        this.#radius = radius;
+    }
+    
+    get area() {
+        return Math.PI * this.#radius ** 2;
+    }
+    
+    static circumference(radius) {
+        return

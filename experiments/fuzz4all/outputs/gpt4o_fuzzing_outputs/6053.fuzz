@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline');
+
+ 
+async function complexOperation() {
+   
+  const [a, b, c] = [1, 2, 3];
+  const { x, y, z } = { x: 10, y: 20, z: 30 };
+
+   
+  const uniqueNumbers = new Set([a, b, b, c, a]);
+  const coordinateMap = new Map([['x', x], ['y', y], ['z', z]]);
+
+   
+  const resultString = `Unique numbers: ${[...uniqueNumbers].join(', ')}\nCoordinates: ${Array.from(coordinateMap.entries()).map(([k, v]) => `${k}: ${v}`).join(', ')}`;
+
+   
+  async function* numberGenerator() {
+    for (let number of uniqueNumbers) {
+      yield number * 2;
+    }
+  }
+
+   
+  for await (let number of numberGenerator()) {
+    console.log(`Doubled number: ${number}`);
+  }
+
+  return resultString;
+}
+
+ 
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+rl.question('Type "run" to execute the complex operation: ', async (answer) => {
+  if (answer.trim().toLowerCase() === 'run') {
+    try {
+       
+      const result = await complexOperation();
+      console.log(result);
+    } catch (err) {
+      console.error('An error occurred:', err);
+    }
+  } else {
+    console.log('Operation aborted.');
+  }
+  rl.close();
+});
+```

@@ -1,0 +1,26 @@
+ 
+(async () => {
+  try {
+     
+    let response = await fetch('https://jsonplaceholder.typicode.com/users');
+    let users = await response.json();
+
+     
+    let userEmails = users
+      .filter(user => user.id % 2 !== 0)  
+      .map(user => user.email.toUpperCase());  
+
+     
+    let uniqueEmails = new Set(userEmails);
+
+     
+    let [firstEmail, ...otherEmails] = [...uniqueEmails];
+    
+     
+    print(`First Email: ${firstEmail}\nOther Emails: ${otherEmails.join(', ')}`);
+
+  } catch (error) {
+     
+    console.error('Error fetching data:', error?.message ?? 'Unknown error');
+  }
+})();

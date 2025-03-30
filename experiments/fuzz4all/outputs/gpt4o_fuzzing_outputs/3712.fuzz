@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  try {
+     
+    await delay(2000);
+
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+
+     
+    const handler = {
+      get(target, property) {
+        console.log(`Property '${property}' has been accessed.`);
+        return target[property];
+      }
+    };
+    
+    const proxyData = new Proxy(data, handler);
+
+     
+    function* iterateData(obj) {
+      for (let key of Object.keys(obj)) {
+        yield [key, obj[key]];
+      }
+    }
+
+    const iterator = iterateData(proxyData);
+
+     
+    for (let [key, value] of iterator) {
+      console.log(`${key}: ${value}`);
+    }
+
+  } catch (error) {
+    console.error('Fetch operation failed:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+```

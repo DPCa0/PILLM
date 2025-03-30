@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  *[Symbol.iterator]() {
+    let a = 0, b = 1;
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (arg) => cache.has(arg) ? cache.get(arg) : cache.set(arg, fn(arg)).get(arg);
+};
+
+const asyncFactorial = memoize(async function(n) {
+  if (n <= 1) return 1;
+  return n * await asyncFactorial(n - 1);
+});
+
+(async () => {
+  const fib = new FibonacciSequence();
+  console.log('First 10 Fibonacci numbers:');
+  console.log([...fib].slice(0, 10).join(', '));
+
+  const factorial = await asyncFactorial(5);
+  console.log(`Factorial of 5 is: ${factorial}`);
+})();
+
+const eventLoopSimulator = async () => {
+  console.log('Simulating event loop with microtasks:');
+
+  Promise.resolve().then(() => console.log('Microtask 1: Promise resolved'));
+
+  setTimeout(() => console.log('Macrotask: Timeout'), 0);
+
+  process.nextTick(() => console.log('Microtask 2: nextTick'));
+
+  Promise.resolve().then(() => console.log('Microtask 3: Promise resolved again'));
+};
+
+eventLoopSimulator();
+```

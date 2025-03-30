@@ -1,0 +1,38 @@
+class APIClient {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.baseURL}${endpoint}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  try {
+    const client = new APIClient('https://jsonplaceholder.typicode.com');
+    const [post, comment] = await Promise.all([
+      client.fetchData('/posts/1'),
+      delay(2000).then(() => client.fetchData('/comments/1'))
+    ]);
+
+    const renderData = ({ title, body }) => {
+      const element = document.createElement('div');
+      element.innerHTML = `<h2>${title}</h2><p>${body}</p>`;
+      return element;
+    };
+
+    const postElement = renderData(post);
+    const commentElement = renderData(comment);
+
+    document.body.appendChild(postElement);
+    document.body.appendChild(commentElement);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

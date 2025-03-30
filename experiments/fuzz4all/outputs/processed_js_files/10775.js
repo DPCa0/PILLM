@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve({id: 1, name: 'Alice', age: 25, job: 'Engineer'});
+        }, 1000);
+    });
+};
+
+ 
+const processData = (data) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const {id, ...rest} = data;  
+            const newData = {...rest, location: 'New York'};  
+            resolve(newData);
+        }, 1000);
+    });
+};
+
+(async () => {
+    try {
+         
+        const rawData = await fetchData();
+        const processedData = await processData(rawData);
+
+        print('Processed Data:', processedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

@@ -1,0 +1,62 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data.map(({ name }) => name.toUpperCase());
+}
+
+ 
+const dataHandler = {
+  get(target, prop, receiver) {
+    print(`Property ${prop} has been accessed`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    print(`Property ${prop} is being set to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+class DataManager {
+  #data = [];
+  #updateData(newData) {
+    this.#data = [...this.#data, ...newData];
+  }
+
+  constructor(initialData = []) {
+    this.#updateData(initialData);
+  }
+
+  async loadData(url) {
+    try {
+      const data = await fetchData(url);
+      this.#updateData(data);
+    } catch (error) {
+      console.error("Failed to load data:", error);
+    }
+  }
+
+  get data() {
+    return [...this.#data];
+  }
+}
+
+ 
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+(async function main() {
+  const proxyHandler = new Proxy(new DataManager(), dataHandler);
+  await proxyHandler.loadData('https://jsonplaceholder.typicode.com/users');
+  print('Fetched Data:', proxyHandler.data);
+
+  const rangeGenerator = range(1, 5);
+  for (const num of rangeGenerator) {
+    print(`Range value: ${num}`);
+  }
+})();

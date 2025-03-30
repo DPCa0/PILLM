@@ -1,0 +1,61 @@
+ 
+const fetchData = async (endpoint) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${endpoint}`);
+        }, 1000);
+    });
+};
+
+ 
+const API = new Proxy({}, {
+    get: (target, prop) => {
+        return async () => {
+            const data = await fetchData(prop);
+            return data;
+        };
+    }
+});
+
+ 
+async function* dataGenerator(endpoints) {
+    for (const endpoint of endpoints) {
+        yield await API[endpoint]();
+    }
+}
+
+ 
+const endpoints = ['endpoint1', 'endpoint2', 'endpoint3'];
+const processData = async () => {
+    const results = [];
+    const generator = dataGenerator(endpoints);
+    for await (const data of generator) {
+        results.push(data.toUpperCase());
+    }
+    return results;
+};
+
+ 
+class DataProcessor {
+    #results;
+    
+    constructor() {
+        this.#results = [];
+    }
+
+    async #fetchAndProcessData() {
+        this.#results = await processData();
+    }
+
+    async getProcessedData() {
+        await this.#fetchAndProcessData();
+        return this.#results;
+    }
+}
+
+ 
+(async () => {
+    const processor = new DataProcessor();
+    const results = await processor.getProcessedData();
+    print('Processed Data:', results);
+})();

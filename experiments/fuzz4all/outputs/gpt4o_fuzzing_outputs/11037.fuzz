@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      if (url === 'https://api.example.com/data') {
+        resolve({ id: 1, name: 'Example Data' });
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function getData(url) {
+  try {
+    const data = await fetchData(url);
+    console.log('Data fetched:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+function* sequenceGenerator(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+const targetObject = {
+  message: 'Hello, Proxy!'
+};
+
+const handler = {
+  get(target, property) {
+    console.log(`Property "${property}" has been accessed.`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Property "${property}" is being set to "${value}".`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+   
+  await getData('https://api.example.com/data');
+
+   
+  const seq = sequenceGenerator(1, 5);
+  for (const num of seq) {
+    console.log('Generated number:', num);
+  }
+
+   
+  console.log(proxy.message);
+  proxy.message = 'Hello, advanced JavaScript!';
+  console.log(proxy.message);
+})();
+```

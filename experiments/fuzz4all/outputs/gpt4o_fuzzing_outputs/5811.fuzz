@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(['apple', 'banana', 'mango']), 1000);
+  });
+};
+
+ 
+const arrayHandler = {
+  get(target, property) {
+    if (typeof target[property] === 'function') {
+      return function (...args) {
+        console.log(`Operation: ${property}, Arguments: ${args}`);
+        return target[property].apply(this, args);
+      };
+    }
+    return target[property];
+  }
+};
+
+ 
+(async function main() {
+  try {
+    const data = await fetchData();  
+    const [firstFruit, ...restFruits] = data;  
+    
+    console.log(`First fruit: ${firstFruit}`);  
+    console.log(`Rest of the fruits: ${restFruits.join(', ')}`);
+    
+    const fruitsProxy = new Proxy(data, arrayHandler);  
+    fruitsProxy.push('orange');  
+    console.log(`Final fruits list: ${fruitsProxy.join(', ')}`);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

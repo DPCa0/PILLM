@@ -1,0 +1,54 @@
+class AsyncFibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  async fib(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = await Promise.all([this.fib(n - 1), this.fib(n - 2)])
+      .then(([a, b]) => a + b);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+(async () => {
+  const fibInstance = new AsyncFibonacci();
+  const result = await fibInstance.fib(10);
+  print(`Fibonacci(10): ${result}`);  
+})();
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Getting value of ${property}`);
+    return property in target ? target[property] : 42;
+  }
+};
+
+const obj = new Proxy({ a: 1, b: 2 }, handler);
+print(obj.a);  
+print(obj.c);  
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+print(gen.next().value);  
+print(gen.next().value);  
+print(gen.next().value);  
+
+ 
+const uniqueKey = Symbol('unique');
+const myObj = {
+  [uniqueKey]: 'This is unique',
+  common: 'This is common'
+};
+
+print(myObj[uniqueKey]);  
+print(Object.keys(myObj));  

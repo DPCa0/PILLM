@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataInChunks() {
+  const dataChunks = ["Hello", "Async", "Generators", "In", "JavaScript"];
+  for (const chunk of dataChunks) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield chunk;
+  }
+}
+
+ 
+const user = {
+  firstName: "Jane",
+  lastName: "Doe",
+  age: 28
+};
+
+const userProxy = new Proxy(user, {
+  get(target, prop) {
+    console.log(`Accessing ${prop}`);
+    return prop in target ? target[prop] : `No such property: ${prop}`;
+  },
+  set(target, prop, value) {
+    if (prop === "age" && typeof value !== "number") {
+      throw new TypeError("Age must be a number");
+    }
+    target[prop] = value;
+    console.log(`Setting ${prop} to ${value}`);
+    return true;
+  }
+});
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((acc, str, idx) => 
+    `${acc}${str}<strong>${values[idx] || ""}</strong>`, "");
+}
+
+(async function main() {
+  console.log(highlight`User: ${userProxy.firstName} ${userProxy.lastName}`);
+
+   
+  console.log(userProxy.age);
+  userProxy.age = 29;
+  console.log(userProxy.age);
+  try {
+    userProxy.age = "30";  
+  } catch (err) {
+    console.error(err.message);
+  }
+
+   
+  console.log("Fetching data in chunks:");
+  for await (const chunk of fetchDataInChunks()) {
+    console.log(chunk);
+  }
+})();
+```

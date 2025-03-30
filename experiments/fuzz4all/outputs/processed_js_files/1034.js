@@ -1,0 +1,78 @@
+ 
+
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+const observer = new Observable();
+
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error: ', error);
+    }
+}
+
+const proxyHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Get ${prop}:`, target[prop]);
+            return target[prop];
+        } else {
+            print(`${prop} does not exist on target.`);
+            return null;
+        }
+    },
+    set(target, prop, value) {
+        print(`Set ${prop} to:`, value);
+        target[prop] = value;
+        observer.notify({ type: 'set', prop, value });
+        return true;
+    }
+};
+
+let dataObject = {
+    id: gen.next().value,
+    value: 42
+};
+
+let proxiedData = new Proxy(dataObject, proxyHandler);
+
+observer.subscribe(change => print('Change detected:', change));
+
+proxiedData.value = 100;  
+proxiedData.nonExistent;  
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1')
+    .then(data => {
+        if (data) {
+            print('Fetched data:', data);
+            proxiedData.fetchedData = data;
+        }
+    });

@@ -1,0 +1,72 @@
+ 
+class ComplexCalculator {
+  #history = [];
+  #logOperation(operation) {
+    this.#history.push(operation);
+  }
+
+  constructor(name) {
+    this.name = name;
+    this.operations = {
+      '+': (a, b) => a + b,
+      '-': (a, b) => a - b,
+      '*': (a, b) => a * b,
+      '/': (a, b) => a / b,
+    };
+  }
+
+  calculate(operation, ...values) {
+    if (!this.operations[operation]) {
+      throw new Error('Invalid operation');
+    }
+    const result = values.reduce((acc, curr) => this.operations[operation](acc, curr));
+    this.#logOperation({ operation, values, result });
+    return result;
+  }
+
+  getHistory() {
+    return this.#history.map(entry => 
+      `${entry.values.join(` ${entry.operation} `)} = ${entry.result}`
+    ).join('\n');
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'calculate') {
+      print('Calculating...');
+    }
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    if (prop === 'name') {
+      print(`Setting name to ${value}`);
+    }
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+(async () => {
+  const calculator = new Proxy(new ComplexCalculator('MyCalc'), handler);
+
+  calculator.name = 'SuperCalc';
+
+  try {
+    const results = await Promise.all([
+      Promise.resolve(calculator.calculate('+', 5, 10, 15)),
+      Promise.resolve(calculator.calculate('*', 2, 3)),
+      Promise.resolve(calculator.calculate('-', 20, 5)),
+    ]);
+
+    results.forEach((result, index) => {
+      print(`Result ${index + 1}: ${result}`);
+    });
+
+    print('Calculation History:');
+    print(calculator.getHistory());
+  } catch (error) {
+    console.error('An error occurred:', error.message);
+  }
+})();

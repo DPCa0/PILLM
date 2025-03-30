@@ -1,0 +1,52 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = (value, delay) => new Promise(resolve => setTimeout(() => resolve(value), delay));
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  const wrapWithEmitter = async (operation, eventName) => {
+    const result = await operation;
+    emitter.emit(eventName, result);
+  };
+
+  emitter.on('data', data => print(`Received data: ${data}`));
+
+  const values = [10, 20, 30];
+  const promises = values.map(value => wrapWithEmitter(asyncOperation(value, 1000), 'data'));
+
+  await Promise.all(promises);
+
+  const exampleObj = { a: 1, b: 2 };
+  const proxiedObj = new Proxy(exampleObj, {
+    get(target, property) {
+      print(`Accessing property ${property}`);
+      return target[property];
+    },
+    set(target, property, value) {
+      print(`Setting property ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+  });
+
+  print(proxiedObj.a);
+  proxiedObj.b = 3;
+})();

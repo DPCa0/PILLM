@@ -1,0 +1,50 @@
+ 
+class SecretBox {
+  #secret;
+  
+  constructor(message) {
+    this.#secret = this.#encrypt(message);
+  }
+  
+   
+  #encrypt(message) {
+    return [...message].map(char => String.fromCharCode(char.charCodeAt() + 2)).join('');
+  }
+  
+   
+  static async revealSecrets(boxes) {
+    const decryptedSecrets = await Promise.all(
+      boxes.map(async (box) => await box.decrypt())
+    );
+    return decryptedSecrets;
+  }
+  
+   
+  *decrypt() {
+    for (const char of this.#secret) {
+      yield String.fromCharCode(char.charCodeAt() - 2);
+    }
+  }
+}
+
+ 
+const secretHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'secret') return 'Not allowed!';
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const box1 = new Proxy(new SecretBox('Hello, World!'), secretHandler);
+const box2 = new Proxy(new SecretBox('JavaScript'), secretHandler);
+
+ 
+(async () => {
+  const boxes = [box1, box2];
+  const secrets = await SecretBox.revealSecrets(boxes);
+
+  secrets.forEach(secretGen => {
+    print([...secretGen].join(''));  
+  });
+})();

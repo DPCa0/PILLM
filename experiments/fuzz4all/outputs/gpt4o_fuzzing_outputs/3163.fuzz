@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* dataStreamer() {
+  for (let i = 0; i < 5; i++) {
+    await delay(500);
+    yield `Data chunk ${i + 1}`;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property, receiver) => {
+    if (property === 'next') {
+      console.log('Accessing next data chunk...');
+    }
+    return Reflect.get(target, property, receiver);
+  }
+};
+
+(async () => {
+  const streamer = dataStreamer();
+  const proxiedStreamer = new Proxy(streamer, handler);
+  
+  for await (const chunk of proxiedStreamer) {
+    console.log(chunk);
+  }
+})();
+
+ 
+(() => {
+  const secret = 'This is a secret';
+  console.log(`Within IIFE: ${secret}`);
+})();
+
+ 
+const createPerson = (name, age) => ({
+  name,
+  age,
+  greet() {
+    console.log(`Hello, my name is ${this.name} and I am ${this.age} years old.`);
+  }
+});
+
+const person = createPerson('Alice', 30);
+person.greet();
+
+ 
+const sum = (...numbers) => numbers.reduce((total, num) => total + num, 0);
+console.log(`Sum: ${sum(1, 2, 3, 4)}`);
+
+ 
+const numbers = [1, 2, 3, 3, 4, 5];
+const uniqueNumbers = [...new Set(numbers)];
+console.log(`Unique numbers: ${uniqueNumbers}`);
+```

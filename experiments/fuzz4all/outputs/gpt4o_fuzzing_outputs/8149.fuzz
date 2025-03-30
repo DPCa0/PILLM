@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+   
+  let response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+ 
+const person = new Proxy({ name: 'Alice', age: 30 }, {
+  get: (target, prop) => {
+    console.log(`Property '${prop}' accessed.`);
+    return target[prop];
+  }
+});
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) yield id++;
+}
+
+ 
+const idGen = idGenerator();
+for (const id of idGen) {
+  console.log(`Generated ID: ${id}`);
+  if (id > 3) break;  
+}
+
+ 
+function createCounter() {
+  let count = 0;
+  return function() {
+    count += 1;
+    return count;
+  }
+}
+
+const counter = createCounter();
+console.log(counter());  
+console.log(counter());  
+
+ 
+const [first, ...rest] = [10, 20, 30, 40, 50];
+console.log(first);  
+console.log(rest);   
+
+ 
+(async () => {
+  try {
+    let data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log(`Fetched data: ${JSON.stringify(data)}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

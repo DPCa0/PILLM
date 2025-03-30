@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Calculator {
+    constructor() {
+        this.cache = new Map();
+    }
+
+    factorial(n) {
+        if (n < 0) throw new Error('Negative numbers are not allowed.');
+        if (n === 0) return 1;
+        if (this.cache.has(n)) return this.cache.get(n);
+
+        const result = n * this.factorial(n - 1);
+        this.cache.set(n, result);
+        return result;
+    }
+}
+
+const complexCalculation = async (array) => {
+    const calc = new Calculator();
+    
+    const factorials = array.map(num => {
+        if (typeof num !== 'number') throw new Error('Array must contain numbers only.');
+        return calc.factorial(num);
+    });
+
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const sum = factorials.reduce((acc, curr) => acc + curr, 0);
+            resolve(`Sum of factorials: ${sum}`);
+        }, 1000);
+    });
+
+    const result = await promise;
+    console.log(result);
+};
+
+(async () => {
+    const numArray = [1, 2, 3, 4, 5];
+    try {
+        await complexCalculation(numArray);
+    } catch (err) {
+        console.error(err.message);
+    }
+})();
+```

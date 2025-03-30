@@ -1,0 +1,28 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async (urls) => {
+  try {
+    const allData = await Promise.all(urls.map(url => fetchData(url)));
+    const transformedData = allData.map(data =>
+      Object.entries(data).reduce((acc, [key, value]) => {
+        acc[key.toUpperCase()] = Array.isArray(value)
+          ? value.map(v => (typeof v === 'number' ? v * 2 : v))
+          : value;
+        return acc;
+      }, {})
+    );
+    print('Processed Data:', JSON.stringify(transformedData, null, 2));
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+
+processData(urls);
+
+ 

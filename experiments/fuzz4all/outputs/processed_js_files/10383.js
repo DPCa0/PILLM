@@ -1,0 +1,50 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+  enqueue(promiseFn) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ promiseFn, resolve, reject });
+      if (!this.running) this._dequeue();
+    });
+  }
+
+  async _dequeue() {
+    this.running = true;
+    while (this.queue.length) {
+      const { promiseFn, resolve, reject } = this.queue.shift();
+      try {
+        const result = await promiseFn();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    }
+    this.running = false;
+  }
+}
+
+const asyncFunc = (id, delay) =>
+  new Promise(resolve => setTimeout(() => resolve(`Resolved: ${id}`), delay));
+
+(async () => {
+  const queue = new AsyncQueue();
+
+  const promises = [
+    queue.enqueue(() => asyncFunc(1, 1000)),
+    queue.enqueue(() => asyncFunc(2, 500)),
+    queue.enqueue(() => asyncFunc(3, 800)),
+  ];
+
+  const results = await Promise.all(promises);
+  print(results);  
+})();
+
+const data = [1, 2, 3, 4];
+const [a, , b, c] = data;
+print({ a, b, c });  
+
+const calculate = ({ x, y } = {}) => x * y;
+print(calculate({ x: 3, y: 4 }));  

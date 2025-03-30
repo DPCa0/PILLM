@@ -1,0 +1,66 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (response.ok) {
+      yield response.json();
+    } else {
+      yield Promise.reject(`Failed to fetch ${url}: ${response.statusText}`);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      console.warn(`Property ${String(prop)} does not exist.`);
+      return () => 'Unknown method';
+    }
+  }
+};
+
+ 
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  filterData(predicate) {
+    return this.data.filter(predicate);
+  }
+
+  transformData(mapper) {
+    return this.data.map(mapper);
+  }
+}
+
+ 
+const createDataProcessorProxy = (data) => new Proxy(new DataProcessor(data), handler);
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2'
+  ];
+
+  const processorProxies = [];
+
+  for await (const data of fetchData(urls)) {
+    const proxy = createDataProcessorProxy(data);
+    processorProxies.push(proxy);
+  }
+
+   
+  processorProxies.forEach((processor, index) => {
+    print(`Data from URL ${index + 1}:`, processor.data);
+    print('Filtered Data:', processor.filterData(item => item.completed));
+    print('Transformed Data:', processor.transformData(item => ({ title: item.title })));
+  });
+
+   
+  print(processorProxies[0].nonExistentMethod());
+})();

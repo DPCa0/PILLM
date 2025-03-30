@@ -1,0 +1,33 @@
+class AsyncResourceHandler {
+  #resource;
+  
+  constructor(resource) {
+    this.#resource = resource;
+  }
+
+  async *getAsyncData() {
+    while (this.#resource.hasMoreData()) {
+      yield await this.#resource.fetchNext();
+    }
+  }
+}
+
+const createResource = () => {
+  let counter = 0;
+  return {
+    hasMoreData: () => counter < 5,
+    fetchNext: () => new Promise(resolve => {
+      setTimeout(() => resolve(`Data ${++counter}`), 1000);
+    })
+  };
+};
+
+(async () => {
+  const resourceHandler = new AsyncResourceHandler(createResource());
+
+  for await (const data of resourceHandler.getAsyncData()) {
+    print(data);
+  }
+  
+  print('All data processed.');
+})();

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function complexFunctionality() {
+    try {
+         
+        const person = { name: 'Alice', age: 30 };
+        const { name, age } = person;
+        console.log(`Person: ${name}, Age: ${age}`);
+
+         
+        const uniqueNumbers = new Set([1, 2, 2, 3, 4]);
+        console.log('Unique Numbers:', [...uniqueNumbers]);
+
+         
+        const squares = [...uniqueNumbers].map(num => num ** 2);
+        console.log('Squares:', squares);
+
+         
+        const fileName = 'data.txt';
+        await fs.writeFile(fileName, `Name: ${name}, Age: ${age}, Squares: ${squares.join(', ')}`);
+
+         
+        const data = await fs.readFile(fileName, 'utf8');
+        console.log('File Content:', data);
+        
+         
+        const handler = {
+            get(target, prop, receiver) {
+                console.log(`Property "${prop}" accessed`);
+                return Reflect.get(target, prop, receiver);
+            }
+        };
+        const proxyPerson = new Proxy(person, handler);
+        console.log('Proxy Name Access:', proxyPerson.name);
+
+         
+        function* numberGenerator() {
+            yield* uniqueNumbers;
+        }
+        const gen = numberGenerator();
+        for (const num of gen) {
+            console.log('Generated number:', num);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+complexFunctionality();
+```

@@ -1,0 +1,45 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+    static identity(size) {
+        return new Matrix(size, size).map((v, i, j) => (i === j ? 1 : 0));
+    }
+    map(func) {
+        return this.data.forEach((row, i) =>
+            row.forEach((val, j) => {
+                this.data[i][j] = func(val, i, j);
+            })
+        );
+    }
+    multiply(other) {
+        if (this.data[0].length !== other.data.length) throw new Error('Incompatible matrices');
+        let result = new Matrix(this.data.length, other.data[0].length);
+        return result.map((_, i, j) =>
+            this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+        );
+    }
+}
+
+async function* asyncRange(start, end, step = 1) {
+    for (let i = start; i <= end; i += step) {
+        await new Promise((r) => setTimeout(r, 100));
+        yield i;
+    }
+}
+
+const complexOperation = async () => {
+    const identityMatrix = Matrix.identity(3);
+    print('Identity Matrix:', identityMatrix.data);
+
+    const doubledRange = [];
+    for await (const num of asyncRange(1, 5)) {
+        doubledRange.push(num * 2);
+    }
+    print('Doubled Range:', doubledRange);
+
+    const factorials = [1, 2, 3, 4, 5].reduce((acc, n) => [...acc, n * acc.slice(-1)], [1]);
+    print('Factorials:', factorials);
+};
+
+complexOperation();

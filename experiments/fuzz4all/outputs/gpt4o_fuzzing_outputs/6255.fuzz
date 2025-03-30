@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+    console.log(`Fetching data from ${url}`);
+    await delay(1000);   
+    return { data: `Data from ${url}` };
+};
+
+const memoizeAsync = fn => {
+    const cache = new Map();
+    return async function(...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            console.log('Returning cached data');
+            return cache.get(key);
+        }
+        const result = await fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+    const memoizedFetch = memoizeAsync(fetchData);
+
+    emitter.on('dataReceived', data => console.log('Data received:', data));
+
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+    for (const url of urls) {
+        const data = await memoizedFetch(url);
+        emitter.emit('dataReceived', data);
+    }
+
+     
+    const cachedData = await memoizedFetch(urls[0]);
+    emitter.emit('dataReceived', cachedData);
+})();
+```

@@ -1,0 +1,46 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    await delay(1000);  
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    }
+    return () => print(`No such property: ${prop}`);
+  }
+};
+
+const fetching = new Proxy({
+  start: () => console.log('Fetching started...'),
+  end: () => console.log('Fetching ended.')
+}, handler);
+
+ 
+async function processFetch(urls) {
+  fetching.start();
+  const fetchData = fetchDataGenerator(urls);
+  for await (const data of fetchData) {
+    print('Data:', data);
+  }
+  fetching.end();
+}
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+processFetch(urls).catch(err => console.error(err));

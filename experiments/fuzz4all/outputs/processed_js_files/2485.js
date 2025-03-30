@@ -1,0 +1,44 @@
+ 
+
+const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
+
+ 
+const memo = new Map();
+
+ 
+if (isMainThread) {
+    async function fibonacciAsync(n) {
+        if (n < 0) throw new Error('Negative index not allowed');
+        if (n === 0) return 0;
+        if (n === 1) return 1;
+
+        if (memo.has(n)) {
+            return memo.get(n);
+        }
+
+        return new Promise((resolve, reject) => {
+            const worker = new Worker(__filename, { workerData: n });
+            worker.on('message', result => {
+                memo.set(n, result);
+                resolve(result);
+            });
+            worker.on('error', reject);
+        });
+    }
+
+    (async () => {
+        try {
+            const result = await fibonacciAsync(40);
+            print(`Fibonacci(40) = ${result}`);
+        } catch (e) {
+            console.error(e);
+        }
+    })();
+
+ 
+} else {
+    const n = workerData;
+    const fib = (n) => (n <= 1 ? n : fib(n - 1) + fib(n - 2));
+    const result = fib(n);
+    parentPort.postMessage(result);
+}

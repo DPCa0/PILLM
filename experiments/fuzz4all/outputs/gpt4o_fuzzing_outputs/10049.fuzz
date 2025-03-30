@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class AsyncIterable {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = 0; i < this.limit; i++) {
+      yield await new Promise(resolve => 
+        setTimeout(() => resolve(i * i), 500)
+      );
+    }
+  }
+}
+
+const squareGenerator = async (limit) => {
+  const asyncIterable = new AsyncIterable(limit);
+  for await (const num of asyncIterable) {
+    console.log(num);
+  }
+};
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+
+  const processData = async (value) => {
+    await sleep(200);
+    return value * 2;
+  };
+
+  const mapAsync = async (arr, callback) => {
+    return Promise.all(arr.map(callback));
+  };
+
+  const results = await mapAsync(data, async item => await processData(item));
+  console.log('Processed Data:', results);
+
+   
+  const [first, ...rest] = results;
+  console.log('First:', first);
+  console.log('Rest:', rest);
+
+   
+  const sum = results.reduce((acc, num) => acc + num, 0);
+  console.log('Sum of processed data:', sum);
+
+  console.log('Squares:');
+  await squareGenerator(5);
+})();
+```

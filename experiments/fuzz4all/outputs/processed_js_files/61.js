@@ -1,0 +1,50 @@
+ 
+
+ 
+function* dataChunkGenerator() {
+    yield 'Chunk 1: {"id": 1, "value": "A"}';
+    yield 'Chunk 2: {"id": 2, "value": "B"}';
+    yield 'Chunk 3: {"id": 3, "value": "C"}';
+}
+
+ 
+async function fetchData() {
+    const dataIterator = dataChunkGenerator();
+    let result = [];
+    
+    for (let dataChunk of dataIterator) {
+        const parsedData = await new Promise((resolve) => {
+            setTimeout(() => {
+                const chunkData = JSON.parse(dataChunk.split(': ')[1]);
+                resolve(chunkData);
+            }, 1000);  
+        });
+        result.push(parsedData);
+    }
+    return result;
+}
+
+ 
+const dataProxyHandler = {
+    get(target, prop) {
+        print(`Getting property ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+(async function() {
+    const data = await fetchData();
+    
+     
+    const proxiedData = new Proxy(data, dataProxyHandler);
+
+    print(proxiedData[0]);   
+    proxiedData[1] = { id: 2, value: "Updated B" };   
+
+    print(proxiedData);
+})();

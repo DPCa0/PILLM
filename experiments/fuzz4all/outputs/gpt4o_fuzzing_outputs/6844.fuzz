@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+const createReactiveObject = (obj, callback) => {
+  return new Proxy(obj, {
+    set(target, property, value) {
+      target[property] = value;
+      callback(target);
+      return true;
+    },
+  });
+};
+
+const observeChanges = (obj) => {
+  console.log('Object changed:', obj);
+};
+
+(async () => {
+  const apiData = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  
+  const reactiveData = createReactiveObject(apiData || {}, observeChanges);
+
+  const handleUserInput = debounce((value) => {
+    console.log('User input:', value);
+  }, 300);
+
+  document.querySelector('input').addEventListener('input', (e) => {
+    handleUserInput(e.target.value);
+    reactiveData.title = e.target.value;
+  });
+})();
+```

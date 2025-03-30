@@ -1,0 +1,54 @@
+class Temperature {
+    constructor(celsius) {
+        this.celsius = celsius;
+    }
+    
+    get fahrenheit() {
+        return this.celsius * 1.8 + 32;
+    }
+    
+    set fahrenheit(value) {
+        this.celsius = (value - 32) / 1.8;
+    }
+
+    static fromKelvin(kelvin) {
+        return new Temperature(kelvin - 273.15);
+    }
+
+    [Symbol.iterator]() {
+        return {
+            current: this.celsius,
+            end: this.celsius + 5,
+            next() {
+                if (this.current <= this.end) {
+                    return { done: false, value: this.current++ };
+                }
+                return { done: true };
+            }
+        };
+    }
+}
+
+(async function() {
+    const temp = Temperature.fromKelvin(300);
+    
+    for (const t of temp) {
+        print(`Temperature: ${t.toFixed(2)}°C | ${((t * 1.8) + 32).toFixed(2)}°F`);
+    }
+    
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    
+    await sleep(1000);
+    
+    const temps = [temp.celsius, temp.fahrenheit];
+    print('Using rest operator:', [...temps]);
+    
+    const newTemps = new Map([
+        ['Tokyo', new Temperature(30)],
+        ['New York', new Temperature(25)],
+    ]);
+    
+    newTemps.forEach((value, key) => {
+        print(`City: ${key}, Temperature: ${value.celsius}°C | ${value.fahrenheit.toFixed(2)}°F`);
+    });
+})();

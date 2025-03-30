@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 2000));
+
+ 
+const advancedExample = async () => {
+  console.log('Starting advanced JavaScript demonstration.');
+
+   
+  const [first, , third] = ['JavaScript', 'Python', 'Ruby'];
+  console.log(`Destructured values: ${first} and ${third}.`);
+
+   
+  const handler = {
+    get: (target, prop) => prop in target ? target[prop] : `Property ${prop} not found`
+  };
+
+  const programmingLanguages = new Proxy({ js: "JavaScript", py: "Python" }, handler);
+  console.log(`Proxy access: ${programmingLanguages.js} and ${programmingLanguages.ruby}.`);
+
+   
+  await Promise.all([randomDelay(), randomDelay(), randomDelay()]);
+
+   
+  if (Math.random() > 0.5) {
+    const { join } = await import('path');
+    console.log(`Dynamic import: Using 'path.join': ${join('folder', 'file.txt')}`);
+  } else {
+    console.log('Dynamic import condition not met.');
+  }
+
+  console.log('Finished advanced JavaScript demonstration.');
+};
+
+advancedExample();
+```

@@ -1,0 +1,49 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        const safeObserver = this._safeObserver(observer);
+        return this._subscribe(safeObserver);
+    }
+
+    _safeObserver(observer) {
+        const defaultObserver = {
+            next: () => {},
+            error: () => {},
+            complete: () => {}
+        };
+        return { ...defaultObserver, ...observer };
+    }
+}
+
+const debounce = (fn, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const dataStream = new Observable((observer) => {
+    let counter = 0;
+    const intervalId = setInterval(() => {
+        if (counter > 10) {
+            observer.complete();
+            clearInterval(intervalId);
+        } else {
+            observer.next(counter++);
+        }
+    }, 200);
+
+    return () => clearInterval(intervalId);
+});
+
+const delayedLog = debounce(console.log, 500);
+
+dataStream.subscribe({
+    next: delayedLog,
+    error: (err) => console.error('Error:', err),
+    complete: () => console.log('Complete')
+});

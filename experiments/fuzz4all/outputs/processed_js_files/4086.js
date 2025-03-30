@@ -1,0 +1,35 @@
+ 
+
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+};
+
+const processData = async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2',
+        'https://jsonplaceholder.typicode.com/posts/3',
+    ];
+    
+    try {
+         
+        const [data1, data2, data3] = await Promise.all(urls.map(url => fetchData(url)));
+        
+         
+        const combinedData = [...data1, ...data2, ...data3];
+        const [{ title: firstTitle }] = combinedData;
+        
+        print('First title:', firstTitle);
+    } catch (error) {
+        console.error('Processing error:', error);
+    }
+};
+
+processData();

@@ -1,0 +1,59 @@
+ 
+const complexFunction = async () => {
+   
+  const uniqueNumbers = new Set([1, 2, 2, 3, 4, 5]);
+
+   
+  const promises = [...uniqueNumbers].map(num => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const result = num * 2;
+         
+        resolve(logResult`Number: ${num}, Doubled: ${result}`);
+      }, 1000);
+    });
+  });
+
+   
+  const results = await Promise.all(promises);
+
+   
+  function* resultsGenerator(arr) {
+    for (let item of arr) {
+      yield item;
+    }
+  }
+
+   
+  const gen = resultsGenerator(results);
+
+   
+  const handler = {
+    get: (target, property) => {
+      if (property in target) {
+        return target[property];
+      } else {
+        throw new Error(`Property ${property} does not exist`);
+      }
+    }
+  };
+
+  const proxy = new Proxy(gen, handler);
+
+   
+  try {
+    for (let i = 0; i < uniqueNumbers.size; i++) {
+      print(proxy.next().value);
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+ 
+function logResult(strings, ...values) {
+  return strings.reduce((acc, str, index) => `${acc}${str}${values[index] || ''}`, '');
+}
+
+ 
+complexFunction();

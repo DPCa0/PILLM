@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+const loggerHandler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' has been accessed`);
+    return obj[prop];
+  }
+};
+
+ 
+const data = {
+  message: "Hello, advanced JavaScript!",
+  count: 0,
+  increment() {
+    this.count++;
+    return this.count;
+  }
+};
+
+const proxyData = new Proxy(data, loggerHandler);
+
+ 
+const displayMessage = (msg = "Default Message") => `Displaying: ${msg}`;
+
+ 
+async function simulateAsyncTask() {
+  console.log("Starting async task...");
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  console.log("Async task completed.");
+}
+
+ 
+const mySet = new Set([1, 2, 2, 3]);
+const myMap = new Map();
+
+myMap.set('key1', 'value1');
+myMap.set('key2', 'value2');
+
+ 
+const [first, ...rest] = mySet;
+console.log(first, rest);
+
+proxyData.increment();  
+console.log(proxyData.message);  
+
+console.log(displayMessage(proxyData.message));  
+
+simulateAsyncTask();  
+```

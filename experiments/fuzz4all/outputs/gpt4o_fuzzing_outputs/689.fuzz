@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, fillValue = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => 
+            Array.from({ length: cols }, () => fillValue)
+        );
+    }
+    
+    static fromArray(array) {
+        const rows = array.length;
+        const cols = array[0].length;
+        const matrix = new Matrix(rows, cols);
+        matrix.data = array;
+        return matrix;
+    }
+    
+    map(fn) {
+        this.data = this.data.map((row, i) => 
+            row.map((value, j) => fn(value, i, j))
+        );
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) {
+            throw new Error("Columns of A must match rows of B.");
+        }
+        const result = new Matrix(a.rows, b.cols);
+        return result.map((_, i, j) => 
+            a.data[i].reduce((sum, val, n) => sum + val * b.data[n][j], 0)
+        );
+    }
+}
+
+const randomMatrix = (rows, cols) => 
+    new Matrix(rows, cols).map(() => Math.random() * 10);
+
+const prettyPrint = matrix => 
+    matrix.data.map(row => row.join('\t')).join('\n');
+
+(async () => {
+    try {
+        const [m1, m2] = await Promise.all([
+            randomMatrix(3, 2),
+            randomMatrix(2, 3)
+        ]);
+        
+        console.log("Matrix 1:\n", prettyPrint(m1));
+        console.log("Matrix 2:\n", prettyPrint(m2));
+        
+        const product = Matrix.multiply(m1, m2);
+        
+        console.log("Product:\n", prettyPrint(product));
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();
+```

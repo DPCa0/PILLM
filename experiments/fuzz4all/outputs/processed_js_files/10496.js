@@ -1,0 +1,64 @@
+ 
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'greeting') {
+            return () => target[prop].toUpperCase() + '!!!';
+        }
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value) {
+        if (prop === 'greeting' && typeof value === 'string') {
+            target[prop] = value.trim();
+            return true;
+        }
+        return false;
+    }
+};
+
+const obj = {
+    greeting: 'Hello, Proxy'
+};
+
+ 
+const proxy = new Proxy(obj, handler);
+
+ 
+let map = new Map([
+    [1, 'Learn'],
+    [2, 'JavaScript'],
+    [3, 'Advanced']
+]);
+
+ 
+function* mapIterator() {
+    for (let [key, value] of map) {
+        yield `${key}: ${value}`;
+    }
+}
+
+ 
+async function asyncOperation() {
+    const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve('Operation Completed');
+        }, 1000);
+    });
+
+    let result = await promise;
+    print(result);
+}
+
+ 
+const output = ({ greeting }) => print(greeting());
+
+ 
+(async () => {
+    print('Starting IIFE');
+    await asyncOperation();
+    output(proxy);
+    for (let item of mapIterator()) {
+        print(item);
+    }
+})();

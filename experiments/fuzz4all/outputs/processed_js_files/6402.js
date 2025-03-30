@@ -1,0 +1,39 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      return Promise.all(this.events.get(event).map(listener => listener(...args)));
+    }
+    return Promise.resolve([]);
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function complexFeatureDemo() {
+  const emitter = new AsyncEventEmitter();
+  
+  emitter.on('data', async (data) => {
+    await delay(100);
+    print(`Received data: ${data}`);
+  });
+  
+  emitter.on('data', async (data) => {
+    await delay(200);
+    print(`Processing data: ${data}`);
+  });
+  
+  print('Emitting data event...');
+  await emitter.emit('data', 'Hello, world!');
+  print('All listeners have processed the event.');
+})();

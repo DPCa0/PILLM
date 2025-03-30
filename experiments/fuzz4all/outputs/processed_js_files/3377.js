@@ -1,0 +1,36 @@
+ 
+async function* asyncGenerator() {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    for (let i = 1; i <= 5; i++) {
+        await delay(1000);
+        yield `Async value ${i}`;
+    }
+}
+
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            return Reflect.get(target, prop);
+        } else {
+            return `Property ${prop} is not found!`;
+        }
+    }
+};
+
+const targetObject = {
+    a: 1,
+    b: 2
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+(async function() {
+    const gen = asyncGenerator();
+
+    for await (const val of gen) {
+        print(val);
+    }
+
+    print(proxy.a);   
+    print(proxy.c);   
+})();

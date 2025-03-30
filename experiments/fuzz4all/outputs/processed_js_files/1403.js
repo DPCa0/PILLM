@@ -1,0 +1,31 @@
+ 
+ 
+
+(async () => {
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Could not fetch data: ${error}`);
+      throw error;
+    }
+  };
+
+  const processUserData = ({ name, email, address: { city } }) => {
+    print(`User: ${name} from ${city} can be reached at ${email}`);
+  };
+
+  try {
+    const [user] = await Promise.all([
+      fetchData('https://jsonplaceholder.typicode.com/users/1'),
+      new Promise((resolve) => setTimeout(resolve, 1000))  
+    ]);
+
+    processUserData(user);
+  } catch (error) {
+    console.error(`Failed to process user data: ${error}`);
+  }
+})();

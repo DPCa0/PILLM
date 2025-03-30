@@ -1,0 +1,34 @@
+ 
+(async () => {
+   
+  async function* generateNumbers() {
+    for (let i = 1; i <= 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      yield i;
+    }
+  }
+
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop === Symbol.asyncIterator) {
+        return target[prop].bind(target);
+      }
+      if (prop === 'next') {
+        return async () => {
+          const { done, value } = await target[prop]();
+          print(`Generated value: ${value}, Done: ${done}`);
+          return { done, value };
+        };
+      }
+      return target[prop];
+    }
+  };
+
+  const proxiedGenerator = new Proxy(generateNumbers(), handler);
+
+   
+  for await (const num of proxiedGenerator) {
+    print(`Processed number: ${num}`);
+  }
+})();

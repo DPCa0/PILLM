@@ -1,0 +1,37 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return await response.json();
+};
+
+const processData = (data) => {
+  const groupedData = data.reduce((acc, item) => {
+    const key = item.type;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item.value);
+    return acc;
+  }, {});
+
+  const processedData = Object.entries(groupedData).map(([key, values]) => ({
+    type: key,
+    average: values.reduce((a, b) => a + b, 0) / values.length,
+  }));
+
+  return processedData;
+};
+
+const displayData = (data) => {
+  data.forEach(item => {
+    print(`Type: ${item.type}, Average: ${item.average.toFixed(2)}`);
+  });
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+    displayData(processedData);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

@@ -1,0 +1,33 @@
+ 
+
+ 
+async function* fetchDataSimulator() {
+    const data = [
+        { id: 1, value: 'First' },
+        { id: 2, value: 'Second' },
+        { id: 3, value: 'Third' },
+    ];
+    
+    for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        yield item;
+    }
+}
+
+ 
+const loggerHandler = {
+    get: (target, prop) => {
+        print(`Accessed property: ${prop}`);
+        return target[prop];
+    }
+};
+
+ 
+(async function processData() {
+    const generator = fetchDataSimulator();
+    
+    for await (const data of generator) {
+        const proxyData = new Proxy(data, loggerHandler);
+        print(`Processing ID: ${proxyData.id}, Value: ${proxyData.value}`);
+    }
+})();

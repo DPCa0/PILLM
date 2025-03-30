@@ -1,0 +1,25 @@
+ 
+async function fetchDataAndProcess() {
+  try {
+     
+    const response = await fetch('https://api.github.com/users/octocat');
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const { login, avatar_url, public_repos, followers } = await response.json();
+
+     
+    print(`User: ${login}\nRepos: ${public_repos}\nFollowers: ${followers}`);
+
+     
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+     
+    print(`Avatar URL: ${avatar_url}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+fetchDataAndProcess();

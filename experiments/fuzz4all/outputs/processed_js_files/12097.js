@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.1
+        ? resolve([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }])
+        : reject('Error fetching data');
+    }, 1000);
+  });
+
+ 
+const processData = async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const namesMap = new Map(data.map((item) => [item.id, item.name.toUpperCase()]));
+
+     
+    const idSet = new Set(namesMap.keys());
+
+     
+    const result = [...idSet].map((id) => {
+      const name = namesMap.get(id);
+      return { id, name };
+    });
+
+    print('Processed Data:', result);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+processData();

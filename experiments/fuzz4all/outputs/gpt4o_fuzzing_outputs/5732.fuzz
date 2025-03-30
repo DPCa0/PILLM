@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  static fromEvent(element, eventName) {
+    return new Observable(observer => {
+      const handler = (event) => observer.next(event);
+      element.addEventListener(eventName, handler);
+      return {
+        unsubscribe: () => element.removeEventListener(eventName, handler),
+      };
+    });
+  }
+
+  map(transformFn) {
+    return new Observable(observer => {
+      return this.subscribe({
+        next: (value) => observer.next(transformFn(value)),
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+}
+
+const textElement = document.createElement('input');
+textElement.type = 'text';
+textElement.placeholder = 'Type and press Enter...';
+document.body.appendChild(textElement);
+
+const enterKey$ = Observable.fromEvent(textElement, 'keydown')
+  .map(event => event.key)
+  .map(key => key.toLowerCase())
+  .filter(key => key === 'enter');
+
+const subscription = enterKey$.subscribe({
+  next: () => console.log(`Entered text: ${textElement.value}`),
+});
+
+console.log('Type in the input box and press "Enter" to see the result in the console.');
+```

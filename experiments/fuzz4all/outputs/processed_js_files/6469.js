@@ -1,0 +1,54 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const memoize = fn => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+const asyncAdd = async (a, b) => {
+  const deferred = new Deferred();
+  setTimeout(() => deferred.resolve(a + b), 1000);
+  return deferred.promise;
+};
+
+const getFibonacciNumber = memoize(n => {
+  const fibSeq = fibonacci();
+  let result;
+  for (let i = 0; i < n; i++) {
+    result = fibSeq.next().value;
+  }
+  return result;
+});
+
+(async () => {
+  print('Starting complex JS program...');
+
+  const fibNum = getFibonacciNumber(10);
+  print(`10th Fibonacci number: ${fibNum}`);
+
+  const sum = await asyncAdd(5, 7);
+  print(`Sum of 5 and 7: ${sum}`);
+
+  print('Program complete.');
+})();

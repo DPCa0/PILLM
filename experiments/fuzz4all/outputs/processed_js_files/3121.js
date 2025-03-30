@@ -1,0 +1,62 @@
+ 
+(async () => {
+  const { readFileSync } = await import('fs');
+  const { join } = await import('path');
+  
+   
+  const handler = {
+    get: function(target, property) {
+      if (property in target) {
+        print(`Property '${property}' was accessed.`);
+        return target[property];
+      } else {
+        throw new Error(`Property '${property}' doesn't exist.`);
+      }
+    },
+    set: function(target, property, value) {
+      if (typeof value === 'number') {
+        print(`Setting value ${value} to property '${property}'.`);
+        target[property] = value;
+        return true;
+      } else {
+        throw new Error('Value must be a number');
+      }
+    }
+  };
+  
+  let targetObj = { a: 1, b: 2 };
+  let proxy = new Proxy(targetObj, handler);
+
+  // Working with async/await and Promises
+  async function fetchData(url) {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  }
+
+  // Using template literals and tagged templates
+  function safeHTML(literals, ...placeholders) {
+    let result = '';
+    for (let i = 0; i < placeholders.length; i++) {
+      result += literals[i];
+      result += String(placeholders[i]).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    result += literals[literals.length - 1];
+    return result;
+  }
+
+   
+  const filePath = join(__dirname, 'data.txt');
+  const fileContent = readFileSync(filePath, 'utf8');
+  print('File Content:', fileContent);
+
+   
+  let dataMap = new Map();
+  dataMap.set('key1', 'value1');
+  dataMap.set('key2', 'value2');
+  
+  let dataSet = new Set([1, 2, 3, 3, 4]);
+  
+  console.log('Map and Set:', dataMap, dataSet

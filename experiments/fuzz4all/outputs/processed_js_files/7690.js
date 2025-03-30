@@ -1,0 +1,80 @@
+class ComplexExample {
+  #privateField = 'I am private';  
+
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  static fromJSON(jsonString) {
+    try {
+      const parsedData = JSON.parse(jsonString);
+      return new ComplexExample(parsedData);
+    } catch {
+      return new ComplexExample({});
+    }
+  }
+
+   
+  get processedData() {
+    return this.#transformData(this.data);
+  }
+
+  set newData(data) {
+    this.data = data;
+  }
+
+   
+  *[Symbol.iterator]() {
+    for (let key of Object.keys(this.data)) {
+      yield [key, this.data[key]];
+    }
+  }
+
+   
+  #transformData(data) {
+    return Object.entries(data).map(([key, value]) => ({ key, value }));
+  }
+
+   
+  async fetchData(url) {
+    try {
+      let response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      let data = await response.json();
+      this.data = data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      print(`Property "${property}" does not exist.`);
+      return undefined;
+    }
+  }
+};
+
+ 
+const data = { name: 'Alice', age: 30 };
+const example = new ComplexExample(data);
+const proxiedExample = new Proxy(example, handler);
+
+ 
+for (let [key, value] of example) {
+  print(`${key}: ${value}`);
+}
+
+ 
+const jsonData = '{"name":"Bob","age":25}';
+const anotherExample = ComplexExample.fromJSON(jsonData);
+anotherExample.fetchData('https://api.example.com/data');
+
+ 
+print(proxiedExample.processedData);

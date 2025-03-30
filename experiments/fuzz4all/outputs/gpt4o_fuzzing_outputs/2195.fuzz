@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { data: `Data from ${url}` };
+};
+
+ 
+function* infiniteNumbers() {
+    let n = 0;
+    while (true) {
+        yield n++;
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop) {
+        console.log(`Getting property ${prop}`);
+        return target[prop];
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const reactiveObject = new Proxy({ count: 0 }, handler);
+
+ 
+const main = async () => {
+    console.log('Starting data fetch...');
+    
+    const dataPromise = fetchData('https://api.example.com/data');
+    
+     
+    const numGen = infiniteNumbers();
+    console.log(`First number: ${numGen.next().value}`);
+    
+     
+    reactiveObject.count = 1;
+    console.log(`Count: ${reactiveObject.count}`);
+
+     
+    const result = await dataPromise;
+    console.log(result.data);
+};
+
+main();
+```

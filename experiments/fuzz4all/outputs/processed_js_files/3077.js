@@ -1,0 +1,56 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async multiply(a, b) {
+    if (a.data[0].length !== b.data.length) throw new Error('Incompatible matrices');
+    let result = Array.from({ length: a.data.length }, () => Array(b.data[0].length).fill(0));
+
+    await Promise.all(result.map((row, i) =>
+      Promise.all(row.map(async (_, j) => {
+        for (let k = 0; k < a.data[0].length; k++) {
+          result[i][j] += a.data[i][k] * b.data[k][j];
+        }
+      }))
+    ));
+    
+    return new Matrix(result);
+  }
+
+  static *generateSequence(start, step, count) {
+    let current = start;
+    for (let i = 0; i < count; i++) {
+      yield current;
+      current += step;
+    }
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+(async () => {
+  const a = new Matrix([
+    [1, 2, 3],
+    [4, 5, 6]
+  ]);
+  const b = new Matrix([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+  ]);
+
+  try {
+    const c = await Matrix.multiply(a, b);
+    print('Product:\n' + c);
+  } catch (error) {
+    console.error(error);
+  }
+
+  print('Sequence:');
+  for (const num of Matrix.generateSequence(0, 2, 5)) {
+    print(num);
+  }
+})();

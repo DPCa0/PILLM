@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class AsyncLogger {
+  constructor() {
+    this.logs = [];
+  }
+
+  async log(message) {
+     
+    const logPromise = new Promise((resolve) => {
+      setTimeout(() => {
+        const timestampedMessage = `${new Date().toISOString()}: ${message}`;
+        this.logs.push(timestampedMessage);
+        console.log(timestampedMessage);
+        resolve(timestampedMessage);
+      }, 1000);
+    });
+
+    return await logPromise;
+  }
+
+  getRecentLogs(limit = 5) {
+    return this.logs.slice(-limit).reverse();
+  }
+
+  static async measurePerformance(asyncFunc) {
+    const start = performance.now();
+    await asyncFunc();
+    const end = performance.now();
+    return end - start;
+  }
+}
+
+async function complexTask() {
+  const numbers = Array.from({ length: 10000 }, (_, i) => i + 1);
+  return numbers.reduce((acc, num) => acc + num, 0);
+}
+
+(async () => {
+  const logger = new AsyncLogger();
+
+  const performanceLogger = async () => {
+    const duration = await AsyncLogger.measurePerformance(complexTask);
+    await logger.log(`complexTask executed in ${duration.toFixed(2)} ms`);
+  };
+
+  await logger.log("Starting complex tasks...");
+  await performanceLogger();
+  await logger.log("Finished complex tasks.");
+
+  console.log("Recent logs:", logger.getRecentLogs());
+})();
+```

@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        throw new Error('Fetching data failed: ' + error.message);
+    }
+};
+
+ 
+function* dataGenerator(dataArray) {
+    for (const item of dataArray) {
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Accessing property '${prop}'`);
+        return prop in obj ? obj[prop] : 'Property not found';
+    }
+};
+
+ 
+const url = 'https://jsonplaceholder.typicode.com/posts';
+
+(async () => {
+    console.log('Starting data fetch...');
+    const data = await fetchData(url);
+    
+    console.log('Data fetched, processing...');
+
+     
+    const gen = dataGenerator(data);
+    for (let i = 0; i < 5; i++) {
+        const item = gen.next();
+        if (!item.done) {
+            console.log(item.value);
+        }
+    }
+
+     
+    const proxyData = new Proxy(data[0], handler);
+    console.log(proxyData.title);  
+
+    console.log('Task completed after delay:');
+    await delay(2000);
+    console.log('Finished');
+})();
+```

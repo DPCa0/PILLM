@@ -1,0 +1,62 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *processData() {
+    for (const item of this.data) {
+      yield item.toUpperCase();
+    }
+  }
+}
+
+const fetchDataAndProcess = async (url) => {
+  const fetcher = new DataFetcher(url);
+  const data = await fetcher.fetchData();
+  if (data) {
+    const processor = new DataProcessor(data);
+    const processedData = [...processor.processData()];
+    print('Processed Data:', processedData);
+  }
+};
+
+ 
+fetchDataAndProcess('https://api.example.com/data')
+  .then(() => console.log('Data fetching and processing complete'))
+  .catch(console.error);
+
+ 
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3',
+];
+
+Promise.allSettled(urls.map((url) => fetchDataAndProcess(url)))
+  .then((results) => {
+    for (const { status, reason } of results) {
+      if (status === 'rejected') {
+        console.error('One of the requests failed:', reason);
+      }
+    }
+  });

@@ -1,0 +1,46 @@
+ 
+const fetchData = async (endpoint) => {
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+ 
+const createObservableObject = (target, callback) => {
+  const handler = {
+    set(obj, prop, value) {
+      obj[prop] = value;
+      callback(prop, value);
+      return true;
+    },
+  };
+  return new Proxy(target, handler);
+};
+
+ 
+const dataStore = createObservableObject({}, (prop, value) => {
+  print(`Property ${prop} has been set to ${value}`);
+});
+
+ 
+(async () => {
+  const apiData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  if (apiData) {
+    Object.keys(apiData).forEach((key) => (dataStore[key] = apiData[key]));
+  }
+})();
+
+ 
+const transformedData = new Map();
+transformedData.set('titleUpperCase', () => dataStore.title.toUpperCase());
+transformedData.set('titleLength', () => dataStore.title.length);
+
+ 
+setTimeout(() => {
+  print(`Uppercase Title: ${transformedData.get('titleUpperCase')()}`);
+  print(`Title Length: ${transformedData.get('titleLength')()}`);
+}, 1000);

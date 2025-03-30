@@ -1,0 +1,38 @@
+ 
+
+const fetchData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve({
+                user: { id: 1, name: 'John Doe' },
+                posts: [
+                    { id: 1, title: 'Advanced JS Features', content: 'Lorem ipsum...' },
+                    { id: 2, title: 'JavaScript Tips', content: 'Dolor sit amet...' }
+                ],
+                comments: [
+                    { postId: 1, comment: 'Great post!' },
+                    { postId: 2, comment: 'Very informative.' }
+                ]
+            });
+        }, 2000);
+    });
+};
+
+(async () => {
+    try {
+        const { user, posts, comments } = await fetchData();
+        
+        const enrichedPosts = posts.map(post => ({
+            ...post,
+            comments: comments.filter(comment => comment.postId === post.id)
+        }));
+
+        print(`User: ${user.name}`);
+        enrichedPosts.forEach(({ title, content, comments }) => {
+            print(`\nTitle: ${title}\nContent: ${content}\nComments:`);
+            comments.forEach(({ comment }) => print(`- ${comment}`));
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

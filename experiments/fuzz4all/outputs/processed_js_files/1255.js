@@ -1,0 +1,43 @@
+class EnhancedPromise extends Promise {
+    constructor(executor) {
+        super(executor);
+        this.callbacks = [];
+    }
+
+    chain(callback) {
+        this.callbacks.push(callback);
+        return this;
+    }
+
+    async executeChain(initialValue) {
+        let value = initialValue;
+        for (let callback of this.callbacks) {
+            value = await callback(value);
+        }
+        return value;
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncRange(start, end, step = 1) {
+    for (let i = start; i < end; i += step) {
+        await sleep(500);
+        yield i;
+    }
+}
+
+(async () => {
+    const numbers = asyncRange(1, 5);
+    const results = [];
+    for await (const num of numbers) {
+        results.push(num);
+    }
+
+    new EnhancedPromise(resolve => resolve(results))
+        .chain(nums => nums.map(num => num * 2))
+        .chain(nums => nums.reduce((acc, num) => acc + num, 0))
+        .executeChain(results)
+        .then(console.log)  
+        .catch(console.error);
+})();

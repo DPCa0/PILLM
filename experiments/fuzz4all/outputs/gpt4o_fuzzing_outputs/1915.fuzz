@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+class AdvancedFeatureDemo {
+  #privateField = 'Private Data';
+  static staticProperty = 'Static Data';
+  
+  constructor() {
+    this.instanceProperty = 'Instance Data';
+  }
+
+  #privateMethod() {
+    console.log(`Accessing: ${this.#privateField}`);
+  }
+
+  static staticMethod() {
+    console.log(`Accessing: ${this.staticProperty}`);
+  }
+
+  instanceMethod() {
+    const examplePromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('Promise Resolved');
+      }, 1000);
+    });
+
+    examplePromise
+      .then(data => {
+        console.log(data);
+        return new Promise(resolve => setTimeout(() => resolve('Chained Promise'), 1000));
+      })
+      .then(chainedData => {
+        console.log(chainedData);
+        this.#privateMethod();
+      });
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'instanceProperty') {
+      return Reflect.get(...arguments) + ' (Intercepted)';
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const instance = new Proxy(new AdvancedFeatureDemo(), handler);
+
+ 
+function* generatorFunction() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const [a, ...rest] = generatorFunction();
+console.log(a, rest);
+
+ 
+function tag(strings, ...values) {
+  console.log(strings.raw[0], values[0]);
+  return `Tagged: ${values[0]}`;
+}
+
+const taggedResult = tag`Hello ${instance.instanceProperty}`;
+
+ 
+console.log(taggedResult);
+AdvancedFeatureDemo.staticMethod();
+instance.instanceMethod();
+```

@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* asyncGenerator() {
+    yield delay(1000, 'First delay complete');
+    yield delay(1500, 'Second delay complete');
+    yield delay(500, 'Third delay complete');
+}
+
+ 
+function delay(ms, message) {
+    return new Promise(resolve => setTimeout(() => resolve(message), ms));
+}
+
+ 
+async function processAsyncGenerator(gen) {
+    const resultsMap = new Map();
+    for await (let promise of gen) {
+        const result = await promise;
+        resultsMap.set(Date.now(), result);
+        console.log(result);
+    }
+    console.log('All tasks completed, results stored in Map:', resultsMap);
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (target.has(prop)) {
+            console.log(`Accessing result with key: ${prop}`);
+            return target.get(prop);
+        } else {
+            console.log(`Key: ${prop} does not exist`);
+            return undefined;
+        }
+    }
+};
+
+ 
+const gen = asyncGenerator();
+processAsyncGenerator(gen).then(() => {
+    const results = new Map([
+        [1, 'First Result'],
+        [2, 'Second Result'],
+        [3, 'Third Result']
+    ]);
+    const proxiedResults = new Proxy(results, handler);
+    console.log(proxiedResults.get(1));  
+    console.log(proxiedResults.get(4));  
+});
+```

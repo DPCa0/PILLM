@@ -1,0 +1,41 @@
+ 
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+ 
+async function main() {
+  const apiUrl = "https://jsonplaceholder.typicode.com/posts";
+
+  try {
+    print("Fetching data...");
+    const posts = await fetchData(apiUrl);
+
+     
+    await delay(2000);
+
+    if (posts) {
+       
+      const titles = posts.map(({ id, title }) => ({ id, title }));
+      print("Transformed Data:", titles.slice(0, 5));
+    }
+  } catch (error) {
+    console.error("An error occurred in main:", error);
+  }
+}
+
+main();

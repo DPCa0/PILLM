@@ -1,0 +1,58 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function readConfigFile() {
+    try {
+         
+        const data = await import('./config.json', { assert: { type: 'json' } });
+        return data.default;
+    } catch (error) {
+        console.error('Error loading config:', error);
+    }
+}
+
+ 
+function createConfigProxy(config) {
+    return new Proxy(config, {
+        get(target, prop, receiver) {
+            if (prop in target) {
+                return target[prop];
+            }
+            throw new ReferenceError(`Property "${prop}" does not exist.`);
+        },
+        set(target, prop, value) {
+            print(`Setting value for ${prop}: ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    });
+}
+
+ 
+function logMethod(target, name, descriptor) {
+    const original = descriptor.value;
+    descriptor.value = function (...args) {
+        print(`Method ${name} invoked with args: ${JSON.stringify(args)}`);
+        return original.apply(this, args);
+    };
+    return descriptor;
+}
+
+class Application {
+    constructor(config) {
+        this.config = createConfigProxy(config);
+    }
+
+    @logMethod
+    start() {
+        print('Application started with config:', this.config);
+    }
+}
+
+ 
+(async () => {
+    const configData = await readConfigFile();
+    const app = new Application(configData?.settings || {});
+    app.start();
+})();

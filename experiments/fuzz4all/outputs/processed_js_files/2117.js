@@ -1,0 +1,48 @@
+ 
+
+function* fibonacci(limit) {
+    let a = 0, b = 1;
+    while (limit--) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return response.json();
+}
+
+const apiHandler = {
+    get: (obj, prop) => {
+        if (prop in obj) return obj[prop];
+        throw new ReferenceError(`Property ${prop} does not exist.`);
+    }
+};
+
+const api = new Proxy({
+    getUser: async (id) => await fetchData(`https: 
+}, apiHandler);
+
+(async () => {
+    print('Starting Fibonacci Generator:');
+    const fibGen = fibonacci(10);
+    for (let num of fibGen) {
+        print(num);
+    }
+
+    print('\nFetching User Data:');
+    try {
+        const user = await api.getUser(1);
+        print(`User: ${user.name}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    try {
+        const invalidProp = api.nonExistent;
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

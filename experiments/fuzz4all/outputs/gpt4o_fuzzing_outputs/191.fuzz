@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data
+    .filter(item => item.active)
+    .map(({ id, name, details }) => ({
+      id,
+      name: name.toUpperCase(),
+      detailCount: details.length
+    }))
+    .reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+};
+
+const main = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const data = await fetchData(url);
+  if (data) {
+    const processedData = processData(data);
+    console.log('Processed Data:', processedData);
+
+    const userIds = Object.keys(processedData);
+    console.log('User IDs:', userIds);
+
+    const uniqueNames = [...new Set(Object.values(processedData).map(user => user.name))];
+    console.log('Unique Names:', uniqueNames);
+
+    const summary = userIds.reduce((acc, id) => {
+      const user = processedData[id];
+      acc.totalCount++;
+      acc.totalDetails += user.detailCount;
+      return acc;
+    }, { totalCount: 0, totalDetails: 0 });
+
+    console.log('Summary:', summary);
+  }
+};
+
+main();
+```

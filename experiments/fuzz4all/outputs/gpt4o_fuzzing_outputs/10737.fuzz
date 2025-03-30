@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    this.events.set(event, this.events.get(event).filter(listener => listener !== listenerToRemove));
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event).slice();  
+    listeners.forEach(listener => listener(...args));
+  }
+
+  async emitAsync(event, ...args) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event).slice();
+    for (const listener of listeners) {
+      await Promise.resolve(listener(...args));
+    }
+  }
+}
+
+const asyncEmitter = new AsyncEventEmitter();
+
+asyncEmitter.on('fetchData', async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  console.log(`Fetched data from ${url}:`, data);
+});
+
+asyncEmitter.on('fetchData', async (url) => {
+  console.log(`Second listener for ${url}: Doing something else asynchronously.`);
+});
+
+(async () => {
+  await asyncEmitter.emitAsync('fetchData', 'https://jsonplaceholder.typicode.com/todos/1');
+})();
+```

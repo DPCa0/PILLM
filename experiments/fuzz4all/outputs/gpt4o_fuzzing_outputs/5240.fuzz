@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { createServer } from 'http';
+
+ 
+async function* readLines(filePath) {
+  const fileContent = await fs.readFile(filePath, 'utf8');
+  const lines = fileContent.split(/\r?\n/);
+  for (let line of lines) {
+    yield line;
+  }
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessed property ${prop}`);
+    return obj[prop];
+  },
+};
+
+const proxy = new Proxy({ name: 'Advanced JS', version: 'ES2023' }, handler);
+
+ 
+(async () => {
+   
+  for await (let line of readLines('./data.txt')) {
+    console.log(`Line from file: ${line}`);
+  }
+
+   
+  console.log(`Library: ${proxy.name} v${proxy.version}`);
+})();
+
+ 
+const uniqueItems = new Set();
+const metaData = new WeakMap();
+
+uniqueItems.add('item1');
+uniqueItems.add('item2');
+
+const obj = {};
+metaData.set(obj, { description: 'Important object' });
+
+ 
+const weakObj = new WeakRef(obj);
+
+ 
+const server = createServer((req, res) => {
+  const ref = weakObj.deref();
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end(`Server Response. Object: ${JSON.stringify(ref)}`);
+});
+
+server.listen(3000, () => {
+  console.log('Server running on http://localhost:3000/');
+});
+```
+
+Note: For the above code to work as intended, you should have a file named `data.txt` in the same directory containing some text data. Also, ensure that your JavaScript environment supports ES modules and the features used (e.g., Node.js 14+).

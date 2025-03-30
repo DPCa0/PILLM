@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property: ${String(prop)}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    console.log(`Setting property: ${String(prop)} = ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+const privateProp = Symbol('private');
+
+ 
+const target = {
+  [privateProp]: 'secret',
+  publicProp: 'accessible'
+};
+
+ 
+const proxiedObject = new Proxy(target, handler);
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Fetched Data');
+    }, 2000);
+  });
+}
+
+ 
+(async function main() {
+   
+  console.log(proxiedObject.publicProp);  
+  proxiedObject.publicProp = 'new value';  
+
+   
+  console.log(target[privateProp]); 
+
+   
+  console.log('Fetching...');
+  const data = await fetchData();
+  console.log(data);
+
+   
+  const sym1 = Symbol('unique');
+  const sym2 = Symbol('unique');
+
+  console.log(sym1 === sym2);  
+
+})();
+```

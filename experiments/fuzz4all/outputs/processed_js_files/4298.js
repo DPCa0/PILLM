@@ -1,0 +1,52 @@
+class LazyLoader {
+  constructor(resourcePaths) {
+    this.resources = resourcePaths.map(path => ({
+      path,
+      content: null,
+    }));
+  }
+
+  async loadAll() {
+    await Promise.all(this.resources.map(res => this._load(res)));
+  }
+
+  async _load(resource) {
+    resource.content = await fetch(resource.path).then(res => res.text());
+  }
+
+  * [Symbol.iterator]() {
+    for (let resource of this.resources) {
+      yield this._process(resource);
+    }
+  }
+
+  async *_process(resource) {
+    if (!resource.content) await this._load(resource);
+    yield `Content from ${resource.path}:` + "\n" + resource.content;
+  }
+}
+
+const dynamicImport = async (moduleName) => {
+  const { default: importedModule } = await import(moduleName);
+  return importedModule();
+};
+
+(async () => {
+  const resourcePaths = ['./data1.txt', './data2.txt', './data3.txt'];
+  const loader = new LazyLoader(resourcePaths);
+
+  await loader.loadAll();
+
+  for await (let processedContent of loader) {
+    for await (let content of processedContent) {
+      print(content);
+    }
+  }
+
+  try {
+    const dynamicResult = await dynamicImport('./dynamicModule.js');
+    print('Dynamically imported module result:', dynamicResult);
+  } catch (error) {
+    console.error('Failed to dynamically import module:', error);
+  }
+})();

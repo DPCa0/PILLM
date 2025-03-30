@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting property '${prop}'`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const target = { message: 'Hello, Proxy!' };
+const proxy = new Proxy(target, handler);
+
+ 
+async function* fetchData() {
+    const data = ['Data1', 'Data2', 'Data3'];
+    for (const item of data) {
+        yield new Promise(resolve => setTimeout(() => resolve(item), 1000));
+    }
+}
+
+ 
+(async () => {
+    proxy.message = 'Hello, World!';
+    console.log(proxy.message);
+
+    console.log('Fetching data using async generator:');
+    for await (const item of fetchData()) {
+        console.log(item);
+    }
+
+     
+    const weakMap = new WeakMap();
+    let obj = {};
+    weakMap.set(obj, 'Some value');
+    console.log('WeakMap value:', weakMap.get(obj));
+
+    obj = null;   
+
+     
+    const name = 'JavaScript';
+    console.log(`This code showcases advanced ${name} features!`);
+})();
+```

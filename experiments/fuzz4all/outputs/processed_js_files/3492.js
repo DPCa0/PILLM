@@ -1,0 +1,32 @@
+ 
+
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({
+            user: 'JohnDoe',
+            stats: {
+                posts: 42,
+                likes: 104,
+                followers: 987
+            }
+        });
+    }, 1000);
+});
+
+const processStats = ({ stats: { posts, likes, followers } }) => {
+    const engagementRate = ((likes / (posts * followers)) * 100).toFixed(2);
+    return `Engagement rate: ${engagementRate}%`;
+};
+
+const printMessage = async () => {
+    try {
+        const userData = await fetchData();
+        const message = processStats(userData);
+        print(`Hello, ${userData.user}!`);
+        print(message);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+printMessage();

@@ -1,0 +1,49 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.pendingPromise = false;
+  }
+
+  async enqueue(promiseFunction) {
+    this.queue.push(promiseFunction);
+    if (!this.pendingPromise) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    this.pendingPromise = true;
+    while (this.queue.length) {
+      const promiseFunction = this.queue.shift();
+      try {
+        await promiseFunction();
+      } catch (error) {
+        console.error('Error processing promise:', error);
+      }
+    }
+    this.pendingPromise = false;
+  }
+}
+
+ 
+const asyncQueue = new AsyncQueue();
+
+function fetchData(url) {
+  return async () => {
+    const response = await fetch(url);
+    const data = await response.json();
+    print('Fetched data:', data);
+  };
+}
+
+ 
+const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+urls.forEach(url => asyncQueue.enqueue(fetchData(url)));
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  await delay(2000);  
+  asyncQueue.enqueue(fetchData('https://jsonplaceholder.typicode.com/todos/3'));
+})();

@@ -1,0 +1,60 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(input) {
+  for (let i = 0; i < input.length; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(input[i]), 500));
+  }
+}
+
+const transformWithCache = (() => {
+  const cache = new WeakMap();
+
+  return (obj, transformer) => {
+    if (!cache.has(obj)) {
+      const transformed = transformer(obj);
+      cache.set(obj, transformed);
+    }
+    return cache.get(obj);
+  };
+})();
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop === 'greeting') {
+      return () => `Hello, ${Reflect.get(...arguments)}!`;
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const withDelay = (fn, delay) => (...args) =>
+  new Promise(resolve => setTimeout(() => resolve(fn(...args)), delay));
+
+const main = async () => {
+  const items = ['Alice', 'Bob', 'Charlie'];
+  const processedItems = [];
+
+  const transformer = obj => obj.map(name => name.toUpperCase());
+  const cachedTransform = transformWithCache(items, transformer);
+
+  for await (const name of asyncGenerator(cachedTransform)) {
+    const deferred = new Deferred();
+    const proxiedName = new Proxy({ name }, proxyHandler);
+    const greet = await withDelay(proxiedName.greeting, 1000)(proxiedName.name);
+
+    processedItems.push(greet);
+    deferred.resolve();
+    await deferred.promise;
+  }
+
+  print(processedItems);
+};
+
+main();

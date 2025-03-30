@@ -1,0 +1,53 @@
+ 
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Getting property '${property}'`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    print(`Setting property '${property}' to '${value}'`);
+    return Reflect.set(target, property, value, receiver);
+  },
+};
+
+ 
+const dataStore = {
+  users: [],
+  posts: [],
+};
+
+ 
+const proxyDataStore = new Proxy(dataStore, handler);
+
+ 
+async function processUrls(urls) {
+  for await (const data of fetchData(urls)) {
+     
+    if (data.type === 'user') {
+      proxyDataStore.users.push(data.content);
+    } else if (data.type === 'post') {
+      proxyDataStore.posts.push(data.content);
+    }
+  }
+  print('Users:', proxyDataStore.users);
+  print('Posts:', proxyDataStore.posts);
+}
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/users/1',
+  'https://jsonplaceholder.typicode.com/posts/1',
+];
+
+processUrls(urls).catch(console.error);

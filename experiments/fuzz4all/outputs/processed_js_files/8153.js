@@ -1,0 +1,45 @@
+ 
+class APIService {
+    constructor(apiEndpoints) {
+        this.apiData = new Set();
+        return new Proxy(this, {
+            get: (target, endpoint) => {
+                if (apiEndpoints[endpoint]) {
+                    return async () => {
+                        const response = await fetch(apiEndpoints[endpoint]);
+                        const data = await response.json();
+                        target.apiData.add(JSON.stringify(data));
+                        return data;
+                    };
+                } else {
+                    throw new Error(`API endpoint '${endpoint}' does not exist`);
+                }
+            }
+        });
+    }
+
+    showAllData() {
+        print([...this.apiData].map(data => JSON.parse(data)));
+    }
+}
+
+(async () => {
+    const endpoints = {
+        getUsers: 'https://jsonplaceholder.typicode.com/users',
+        getPosts: 'https://jsonplaceholder.typicode.com/posts'
+    };
+
+    const apiService = new APIService(endpoints);
+
+    try {
+        const users = await apiService.getUsers();
+        print('Users:', users);
+
+        const posts = await apiService.getPosts();
+        print('Posts:', posts);
+    } catch (error) {
+        console.error(error);
+    }
+
+    apiService.showAllData();
+})();

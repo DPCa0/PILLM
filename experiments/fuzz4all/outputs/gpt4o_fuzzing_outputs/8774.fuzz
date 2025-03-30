@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+async function complexFeatureDemo() {
+   
+  const fetchData = () =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ status: 'success', data: { value: 42 } }), 1000)
+    );
+
+   
+  const { status, data: { value } } = await fetchData();  
+
+   
+  const handler = {
+    get: (target, property) => {
+      console.log(`Getting property '${property}'`);
+      return target[property];
+    },
+    set: (target, property, value) => {
+      console.log(`Setting property '${property}' to '${value}'`);
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const dataProxy = new Proxy({ status, value }, handler);
+
+   
+  console.log(`Status: ${dataProxy.status}`);  
+  dataProxy.newProperty = 'added';  
+
+  console.log(`Updated object:`, dataProxy);
+}
+
+complexFeatureDemo();
+```

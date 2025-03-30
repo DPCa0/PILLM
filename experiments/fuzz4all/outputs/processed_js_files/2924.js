@@ -1,0 +1,56 @@
+ 
+
+class DataHandler {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  static combineArrays(...arrays) {
+    return [].concat(...arrays);
+  }
+
+   
+  async fetchData(url) {
+    try {
+      let response = await fetch(url);
+      let json = await response.json();
+      this.data = json;
+    } catch (error) {
+      console.error('Failed to fetch data', error);
+    }
+  }
+
+   
+  printData() {
+    const { name, value } = this.data;
+    print(`Data: ${name}, Value: ${value}`);
+  }
+
+   
+  processData(transformFn = data => data) {
+    return transformFn({ ...this.data });
+  }
+}
+
+ 
+const getData = (url) =>
+  new Promise((resolve, reject) => {
+    fetch(url)
+      .then(response => response.json())
+      .then(data => resolve(data))
+      .catch(error => reject(error));
+  });
+
+ 
+let handler = new DataHandler({ name: 'Test', value: 42 });
+DataHandler.combineArrays([1, 2, 3], [4, 5, 6])
+  .forEach(num => print(`Number: ${num}`));
+
+ 
+handler.fetchData('https://api.example.com/data')
+  .then(() => handler.printData());
+
+ 
+let transformedData = handler.processData(data => ({ ...data, value: data.value * 2 }));
+print('Transformed Data:', transformedData);

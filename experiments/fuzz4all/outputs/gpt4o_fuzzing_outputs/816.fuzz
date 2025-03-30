@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+function timeDecorator(target, key, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args) {
+        const start = performance.now();
+        const result = originalMethod.apply(this, args);
+        const end = performance.now();
+        console.log(`${key} executed in ${end - start}ms`);
+        return result;
+    };
+    return descriptor;
+}
+
+ 
+class ComplexFeatures {
+
+    constructor() {
+        this.data = new Map();
+    }
+
+     
+    addData(key, value) {
+        this.data.set(key, { value, timestamp: new Date() });
+    }
+
+     
+    @timeDecorator
+    async *asyncGenerator(count) {
+        for (let i = 0; i < count; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield `Data-${i}`;
+        }
+    }
+
+     
+    createLoggingProxy(obj) {
+        return new Proxy(obj, {
+            get(target, property) {
+                console.log(`Getting ${String(property)}`);
+                return target[property];
+            },
+            set(target, property, value) {
+                console.log(`Setting ${String(property)} to ${value}`);
+                target[property] = value;
+                return true;
+            }
+        });
+    }
+}
+
+ 
+const complex = new ComplexFeatures();
+
+ 
+const proxiedData = complex.createLoggingProxy({ name: 'ProxyExample' });
+proxiedData.name = 'NewName';
+console.log(proxiedData.name);
+
+ 
+(async () => {
+    const asyncGen = complex.asyncGenerator(3);
+    for await (const item of asyncGen) {
+        console.log(item);
+    }
+})();
+
+ 
+complex.addData('key1', 42);
+console.log(complex.data);
+```

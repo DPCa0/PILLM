@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+const myModule = (() => {
+   
+  const secretKey = Symbol('secret');
+  
+   
+  const encrypt = (data) => {
+    const encoded = Buffer.from(data).toString('base64');
+    return `ENC:${encoded}`;
+  };
+
+   
+  const _private = new WeakMap();
+
+  class SecureMessage {
+    constructor(message) {
+      this[secretKey] = encrypt(message);
+      _private.set(this, { timestamp: new Date() });
+    }
+
+     
+    get message() {
+      const { timestamp } = _private.get(this);
+      return `Message created at ${timestamp}: ${this[secretKey]}`;
+    }
+
+     
+    async decryptMessage(key) {
+      if (key !== secretKey) {
+        throw new Error('Invalid key!');
+      }
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const encodedMessage = this[secretKey].replace('ENC:', '');
+          const decoded = Buffer.from(encodedMessage, 'base64').toString('utf-8');
+          resolve(decoded);
+        }, 2000);  
+      });
+    }
+  }
+
+  return { SecureMessage };
+})();
+
+ 
+const { SecureMessage } = myModule;
+
+(async () => {
+  try {
+     
+    const myMessage = new SecureMessage(`Hello, world!`);
+    
+    console.log(myMessage.message);
+
+     
+    for await (const decrypted of [myMessage.decryptMessage(Symbol('wrongKey')).catch(e => e.message), myMessage.decryptMessage(Symbol.for('secret'))]) {
+      console.log(decrypted);
+    }
+
+     
+    const correctDecryption = await myMessage.decryptMessage(Object.getOwnPropertySymbols(myMessage)[0]);
+    console.log(`Decrypted message: ${correctDecryption}`);
+
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

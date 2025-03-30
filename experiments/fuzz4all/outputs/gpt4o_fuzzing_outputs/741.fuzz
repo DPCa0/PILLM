@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchAndProcessData() {
+  try {
+     
+    const response = await fetch('https://api.spacexdata.com/v4/launches/latest');
+    const data = await response.json();
+    
+     
+    const { name, date_utc, success, rocket } = data;
+    
+     
+    const [rocketResponse, payloadResponse] = await Promise.all([
+      fetch(`https: 
+      fetch(data.payloads[0] ? `https: 
+    ]);
+
+    const rocketData = await rocketResponse.json();
+    const payloadData = payloadResponse.status === 200 ? await payloadResponse.json() : {};
+
+     
+    console.log(`Latest SpaceX Launch:
+      Name: ${name}
+      Date: ${new Date(date_utc).toLocaleDateString()}
+      Success: ${success ? 'Yes' : 'No'}
+      Rocket: ${rocketData.name}
+      Payload: ${payloadData.name || 'N/A'}
+    `);
+
+     
+    const payloadType = payloadData.type ?? 'Unknown';
+    console.log(`Payload Type: ${payloadType}`);
+
+     
+    (function () {
+      const statusMessage = success ? 'Mission accomplished!' : 'Mission failed.';
+      console.log(statusMessage);
+    })();
+
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+}
+
+ 
+fetchAndProcessData();
+```

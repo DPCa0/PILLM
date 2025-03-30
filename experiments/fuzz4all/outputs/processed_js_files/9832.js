@@ -1,0 +1,75 @@
+ 
+
+class Component {
+  constructor(props) {
+    this.props = props;
+    this.state = {};
+    this.effectQueue = [];
+  }
+
+  setState(partialState) {
+    this.state = { ...this.state, ...partialState };
+    this.render();
+  }
+
+  useState(initialValue) {
+    const self = this;
+    const stateHook = {
+      value: initialValue,
+    };
+    this.effectQueue.push(() => {
+      stateHook.value = initialValue;
+    });
+
+    function setState(newValue) {
+      stateHook.value = newValue;
+      self.render();
+    }
+
+    return [stateHook, setState];
+  }
+
+  useEffect(effect, deps) {
+    const hasChanged = deps ? !this.previousDeps || deps.some((dep, i) => dep !== this.previousDeps[i]) : true;
+    if (hasChanged) {
+      this.effectQueue.push(effect);
+      this.previousDeps = deps;
+    }
+  }
+
+  render() {
+    this.effectQueue.forEach(effect => effect());
+    this.effectQueue = [];
+    const output = this.template();
+    print(output);
+  }
+
+  template() {
+    return '';
+  }
+}
+
+ 
+class Counter extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+    this.render();
+  }
+
+  template() {
+    return `Count is ${this.state.count}. Click to increase.`;
+  }
+}
+
+ 
+const counter = new Counter();
+const [count, setCount] = counter.useState(0);
+
+counter.useEffect(() => {
+  document.addEventListener('click', () => {
+    setCount(count.value + 1);
+  });
+}, []);
+
+counter.render();

@@ -1,0 +1,26 @@
+ 
+async function* fetchDataAndProcess(urls) {
+  const fetchPromises = urls.map(url => fetch(url).then(res => res.json()));
+
+  for await (const data of fetchPromises) {
+    const { title, body } = data;
+    yield `${title.toUpperCase()}: ${body.slice(0, 50)}...`;
+  }
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+(async () => {
+  try {
+    const generator = fetchDataAndProcess(urls);
+    for await (const summary of generator) {
+      print(summary);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

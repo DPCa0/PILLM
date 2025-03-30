@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const fetchData = (url) => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        data: [
+          { id: 1, name: 'Alice', skills: ['JavaScript', 'React'] },
+          { id: 2, name: 'Bob', skills: ['Python', 'Django'] },
+          { id: 3, name: 'Carol', skills: ['Java', 'Spring'] }
+        ]
+      });
+    }, 1000);
+  });
+
+   
+  const getUserData = async (url) => {
+    const response = await fetchData(url);
+    return response.data;
+  };
+
+   
+  const processUserData = (userData) => {
+    return userData.map(({ id, name, ...rest }) => ({
+      userId: id,
+      fullName: name.toUpperCase(),
+      ...rest
+    }));
+  };
+
+  const url = 'https://example.com/users';
+  try {
+    const userData = await getUserData(url);
+    const processedData = processUserData(userData);
+
+     
+    processedData.forEach(user => {
+      console.log(`User ID: ${user.userId}, Name: ${user.fullName}, Skills: ${user.skills.join(', ')}`);
+    });
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+})();
+```

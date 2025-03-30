@@ -1,0 +1,53 @@
+class TaskScheduler {
+    constructor() {
+        this.tasks = new Map();
+    }
+
+    addTask(name, callback, delay) {
+        const id = Symbol(name);
+        const task = {
+            callback: async () => {
+                try {
+                    await callback();
+                } catch (err) {
+                    console.error(`Task "${name}" failed:`, err);
+                } finally {
+                    if (this.tasks.has(id)) {
+                        setTimeout(task.callback, delay);
+                    }
+                }
+            }
+        };
+        this.tasks.set(id, task);
+        task.callback();
+        return id;
+    }
+
+    removeTask(id) {
+        this.tasks.delete(id);
+    }
+}
+
+async function fetchData() {
+    const data = await fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then(response => response.json())
+        .catch(error => { throw new Error("Network Error") });
+    print('Fetched Data:', data);
+}
+
+async function fetchDataUsingProxy() {
+    const handler = {
+        apply: async function(target, thisArg, argumentsList) {
+            print(`Fetching data at ${new Date().toLocaleTimeString()}`);
+            return await target.apply(thisArg, argumentsList);
+        }
+    };
+    const proxiedFetchData = new Proxy(fetchData, handler);
+    await proxiedFetchData();
+}
+
+const scheduler = new TaskScheduler();
+const fetchDataTaskId = scheduler.addTask('FetchData', fetchDataUsingProxy, 5000);
+
+ 
+setTimeout(() => scheduler.removeTask(fetchDataTaskId), 20000);

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const readAndProcessFiles = async ({ dirPath = './', fileType = '.txt', ...options }) => {
+       
+      const files = await fs.readdir(dirPath);
+      
+       
+      const fileReadPromises = files
+        .filter(file => file.includes(fileType))
+        .map(file => fs.readFile(`${dirPath}/${file}`, 'utf8'));
+
+       
+      const fileContents = await Promise.all(fileReadPromises);
+      return fileContents.map((content, index) => ({
+        fileName: files[index],
+        content,
+      }));
+    };
+
+     
+    const logWithTag = (strings, ...values) => {
+      console.log(`[${new Date().toISOString()}] ${strings[0]}${values.join('')}`);
+    };
+
+    const processData = async () => {
+      const data = await readAndProcessFiles({ dirPath: './data', fileType: '.js' });
+      data.forEach(({ fileName, content }) => logWithTag`File: ${fileName}\nContent:\n${content}\n`);
+    };
+
+    await processData();
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+})();
+```

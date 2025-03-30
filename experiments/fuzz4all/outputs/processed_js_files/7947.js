@@ -1,0 +1,64 @@
+ 
+
+ 
+const fetchData = async (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (id > 0) {
+                resolve({ id, name: `Item ${id}` });
+            } else {
+                reject('Invalid ID');
+            }
+        }, 1000);
+    });
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Accessing property: ${prop}`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const processData = async (ids) => {
+    const results = [];
+    
+    for (const id of ids) {
+        try {
+            const data = await fetchData(id);
+            results.push(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+     
+    const mappedResults = results.map(item => ({
+        ...item,
+        timestamp: Date.now()
+    }));
+    
+     
+    return new Proxy(mappedResults, handler);
+};
+
+(async () => {
+    const dataIds = [1, 2, 3, -1, 4];
+    
+    const processedData = await processData(dataIds);
+    
+     
+    print(processedData[0]);
+    
+     
+    processedData[0].additionalInfo = 'Extra Data';
+    
+    print(processedData);
+})();

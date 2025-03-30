@@ -1,0 +1,59 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+const complexFunction = async () => {
+   
+  const [first, second, ...rest] = ['apple', 'banana', 'cherry', 'date', 'fig'];
+  print(`First fruit: ${first}, Second fruit: ${second}`);
+  
+   
+  try {
+    const data = await fs.readFile('example.txt', 'utf8');
+    print('File content:', data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+  
+   
+  const numbers = [1, 2, 3, 4, 5];
+  const result = numbers
+    .map((n) => n * 2)
+    .filter((n) => n > 5)
+    .reduce((acc, curr) => acc + curr, 0);
+  
+  print('Result of complex array operation:', result);
+  
+   
+  const uniqueNumbers = [...new Set([1, 2, 2, 3, 4, 4, 5])];
+  print('Unique numbers using Set:', uniqueNumbers);
+  
+   
+  const tag = (strings, ...values) => {
+    return strings.reduce((result, str, i) => `${result}${str}${values[i] || ''}`, '');
+  };
+  
+  const name = 'Alice';
+  const greeting = tag`Hello, ${name}!`;
+  print(greeting);
+  
+   
+  const secretKey = Symbol('secret');
+  const obj = {
+    name: 'Object',
+    [secretKey]: 'This is secret'
+  };
+  
+  const secretValue = Reflect.get(obj, secretKey);
+  print('Secret value:', secretValue);
+  
+   
+  print('Starting delay...');
+  await delay(2000);
+  print('Delay completed.');
+};
+
+ 

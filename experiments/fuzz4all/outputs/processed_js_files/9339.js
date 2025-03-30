@@ -1,0 +1,37 @@
+ 
+const complexObject = {
+    data: [],
+    *generateData() {
+        for (let i = 0; i < 10; i++) {
+            yield i * 2;
+        }
+    }
+};
+
+const handler = {
+    get(target, property) {
+        if (property === 'asyncProcess') {
+            return async function() {
+                for await (let value of target.asyncIterator()) {
+                    target.data.push(value);
+                }
+                return target.data;
+            };
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+const proxy = new Proxy(complexObject, handler);
+
+proxy.asyncIterator = async function*() {
+    for (const value of proxy.generateData()) {
+         
+        await new Promise(resolve => setTimeout(resolve, 100));
+        yield value;
+    }
+};
+
+(async () => {
+    print(await proxy.asyncProcess());
+})();

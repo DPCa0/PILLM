@@ -1,0 +1,43 @@
+ 
+
+ 
+async function loadMathModule() {
+     
+    return import('./mathModule.js');
+}
+
+ 
+async function performComplexCalculations() {
+    try {
+        const { add, multiply } = await loadMathModule();
+
+        const a = 5;
+        const b = 10;
+        const c = 2;
+
+         
+        const sumPromise = new Promise(resolve => resolve(add(a, b)));
+        const productPromise = new Promise(resolve => resolve(multiply(a, c)));
+
+        const [sum, product] = await Promise.all([sumPromise, productPromise]);
+
+        print(`Sum of ${a} and ${b} is: ${sum}`);
+        print(`Product of ${a} and ${c} is: ${product}`);
+    } catch (error) {
+        console.error('Error during calculations:', error);
+    }
+}
+
+ 
+performComplexCalculations();
+
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+
+Note: For the dynamic import to work, make sure the `mathModule.js` file exists with the specified functions and use a bundler or runtime that supports ES modules.

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  const deferred = new Deferred();
+
+  const fetchPromise = fetch(url, { signal }).then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  });
+
+  const timeoutId = setTimeout(() => {
+    controller.abort();
+    deferred.reject(new Error('Request timed out'));
+  }, timeout);
+
+  fetchPromise.then(deferred.resolve).catch(deferred.reject);
+
+  deferred.promise.finally(() => clearTimeout(timeoutId));
+  
+  return deferred.promise;
+};
+
+ 
+(async () => {
+  try {
+    const data = await fetchWithTimeout('https://api.github.com/users/octocat');
+    console.log('User data:', data);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

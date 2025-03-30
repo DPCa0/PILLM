@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this.#generateSequence();
+  }
+
+   
+  #generateSequence() {
+    const sequence = [0, 1];
+    while (sequence[sequence.length - 1] + sequence[sequence.length - 2] < this.limit) {
+      sequence.push(sequence[sequence.length - 1] + sequence[sequence.length - 2]);
+    }
+    return sequence;
+  }
+
+  *[Symbol.iterator]() {
+    for (const num of this.sequence) {
+      yield num;
+    }
+  }
+
+  async printAsync() {
+    for await (const num of this) {
+      console.log(`Fibonacci: ${num}`);
+      await new Promise(resolve => setTimeout(resolve, 500));  
+    }
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci(100);
+  await fib.printAsync();
+})();
+```

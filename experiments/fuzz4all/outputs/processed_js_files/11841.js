@@ -1,0 +1,27 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve(['apple', 'banana', 'apple', 'orange', 'banana', 'grape']);
+  }, 1000);
+});
+
+ 
+const processFruits = async () => {
+  try {
+     
+    const fruits = await fetchData();
+
+     
+    const uniqueFruits = [...new Set(fruits)];
+
+     
+    uniqueFruits.map(fruit => print(fruit.toUpperCase()));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+processFruits();

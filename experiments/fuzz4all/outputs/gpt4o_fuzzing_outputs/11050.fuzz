@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+     
+    const data = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const mockResponse = { success: true, user: { id: 1, name: 'John Doe', age: 30 } };
+        resolve(mockResponse);
+      }, 1000);
+    });
+
+    if (!data.success) throw new Error('Data fetch failed');
+
+     
+    const { user: { id, name, age } } = data;
+
+     
+    const userCopy = { ...data.user, country: 'Unknown' };
+
+     
+    console.log(`Fetched User: ID=${id}, Name=${name}, Age=${age}`);
+    console.log('User Copy:', userCopy);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+fetchData('https://api.example.com/user');
+```

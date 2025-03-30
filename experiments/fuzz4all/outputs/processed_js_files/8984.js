@@ -1,0 +1,52 @@
+ 
+
+ 
+function fetchData(apiUrl) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (apiUrl === "https://api.example.com/data") {
+        resolve({ id: 1, value: 42 });
+      } else {
+        reject("Invalid API URL");
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function processData(apiUrl) {
+  try {
+    const { id, value } = await fetchData(apiUrl);
+    print(`Fetched data: ID = ${id}, Value = ${value}`);
+    return { id, value };
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+function* dataGenerator(apiUrl) {
+  while (true) {
+    yield processData(apiUrl);
+  }
+}
+
+ 
+const apiUrl = "https://api.example.com/data";
+const dataGen = dataGenerator(apiUrl);
+
+dataGen.next().value.then((result) => {
+  if (result) {
+    print("Processed Data 1:", result);
+    dataGen.next().value.then((result) => {
+      if (result) {
+        print("Processed Data 2:", result);
+        dataGen.next().value.then((result) => {
+          if (result) {
+            print("Processed Data 3:", result);
+          }
+        });
+      }
+    });
+  }
+});

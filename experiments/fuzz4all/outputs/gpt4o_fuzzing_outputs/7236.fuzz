@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+        await new Promise(resolve => setTimeout(resolve, 100));  
+    }
+}
+
+ 
+const fibonacciLogger = {
+    get: (target, prop) => {
+        console.log(`Getting property '${prop}'`);
+        return Reflect.get(target, prop);
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property '${prop}' to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const fibObj = new Proxy({ current: 0 }, fibonacciLogger);
+
+ 
+async function main() {
+    fibObj.current = 'Fibonacci sequence up to 100:';
+    console.log(fibObj.current);
+
+    for await (const num of fibonacci(100)) {
+        console.log(num);
+    }
+}
+
+ 
+main();
+```

@@ -1,0 +1,45 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const manipulatedData = data.map((item) => ({
+      ...item,
+      combinedValue: `${item.name}-${item.value}`,
+    }));
+    return manipulatedData;
+  } catch (error) {
+    console.error('Process error:', error);
+  }
+};
+
+const transformData = async (url) => {
+  const proxy = new Proxy({}, {
+    get: async (_, prop) => {
+      const data = await processData(url);
+      return data[prop];
+    },
+  });
+
+  try {
+    const firstItem = await proxy[0];
+    print('Transformed Data:', firstItem);
+  } catch (error) {
+    console.error('Transformation error:', error);
+  }
+};
+
+const url = 'https://api.example.com/data';
+transformData(url);
+
+ 

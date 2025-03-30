@@ -1,0 +1,61 @@
+(async () => {
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  class EventEmitter {
+    constructor() {
+      this.events = new Map();
+    }
+
+    on(event, listener) {
+      if (!this.events.has(event)) {
+        this.events.set(event, []);
+      }
+      this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+      if (this.events.has(event)) {
+        for (const listener of this.events.get(event)) {
+          listener(...args);
+        }
+      }
+    }
+  }
+
+  const emitter = new EventEmitter();
+
+  emitter.on('data', data => {
+    print('Data received:', data);
+  });
+
+  emitter.on('complete', () => {
+    print('All tasks complete.');
+  });
+
+   
+  const dataHandler = {
+    set(target, property, value) {
+      print(`Setting ${property} to ${value}`);
+      target[property] = value;
+      emitter.emit('data', { [property]: value });
+      return true;
+    }
+  };
+
+  const dataObject = new Proxy({}, dataHandler);
+
+   
+  const tasks = new Map([
+    [1, 'task 1'],
+    [2, 'task 2'],
+    [3, 'task 3']
+  ]);
+
+  for (const [id, task] of tasks) {
+    await delay(1000);  
+    dataObject[`Task ${id}`] = task;
+  }
+
+  emitter.emit('complete');
+})();

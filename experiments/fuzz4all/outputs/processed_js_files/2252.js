@@ -1,0 +1,37 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({
+            users: [
+                { id: 1, name: 'Alice', role: 'Admin' },
+                { id: 2, name: 'Bob', role: 'User' },
+                { id: 3, name: 'Charlie', role: 'Guest' }
+            ]
+        });
+    }, 1000);
+});
+
+ 
+const processUsers = async () => {
+    const { users } = await fetchData();
+    return users.map(({ id, name, role }) => ({ id, name: name.toUpperCase(), role }));
+};
+
+ 
+const main = async () => {
+    const processedUsers = await processUsers();
+
+    const logUserDetails = ({ id, name, role }) =>
+        print(`User ID: ${id}, Name: ${name}, Role: ${role}`);
+    
+    processedUsers.forEach(logUserDetails);
+
+    const [firstUser, ...restUsers] = processedUsers;
+    print(`First User: ${firstUser.name}`);
+    print(`Rest of the Users: ${restUsers.map(user => user.name).join(', ')}`);
+};
+
+ 
+main();

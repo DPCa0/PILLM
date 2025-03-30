@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const EventEmitter = require('events');
+
+ 
+async function fetchUserData(userId) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const users = {
+                1: { name: 'Alice', age: 30 },
+                2: { name: 'Bob', age: 25 }
+            };
+            users[userId] ? resolve(users[userId]) : reject('User not found');
+        }, 1000);
+    });
+}
+
+ 
+class UserEventEmitter extends EventEmitter {
+    constructor() {
+        super();
+    }
+
+    async getUserData(userId) {
+        try {
+            const userData = await fetchUserData(userId);
+            this.emit('userFetched', userData);
+        } catch (error) {
+            this.emit('error', error);
+        }
+    }
+}
+
+ 
+const userEvents = new UserEventEmitter();
+
+ 
+userEvents.on('userFetched', data => console.log('User fetched:', data));
+userEvents.on('error', error => console.error('Error:', error));
+
+ 
+(async () => {
+    await Promise.all([userEvents.getUserData(1), userEvents.getUserData(2), userEvents.getUserData(3)]);
+})();
+```

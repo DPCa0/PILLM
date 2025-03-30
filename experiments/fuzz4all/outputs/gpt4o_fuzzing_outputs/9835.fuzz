@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error: ', error);
+        throw error;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        return prop in target ? target[prop] : 'Property does not exist';
+    },
+    set: (target, prop, value) => {
+        if (prop === 'id' && typeof value !== 'number') {
+            throw new TypeError('The id must be a number');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+const targetObject = {
+    id: 1,
+    name: 'Advanced JavaScript'
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+     
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        console.log('Fetched data: ', data);
+    } catch (error) {
+        console.log('Error during fetch: ', error);
+    }
+
+     
+    console.log(proxy.name);  
+    console.log(proxy.nonExistentProp);  
+
+     
+    proxy.id = 2;
+    console.log(proxy.id);  
+
+     
+    try {
+        proxy.id = 'three';
+    } catch (e) {
+        console.error(e.message);  
+    }
+})();
+```

@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this._items = [];
+    this._resolvers = [];
+  }
+
+  enqueue(item) {
+    if (this._resolvers.length > 0) {
+      const resolver = this._resolvers.shift();
+      resolver({ done: false, value: item });
+    } else {
+      this._items.push(item);
+    }
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this._items.length > 0) {
+        yield { done: false, value: this._items.shift() };
+      } else {
+        yield await new Promise(resolve => this._resolvers.push(resolve));
+      }
+    }
+  }
+}
+
+(async () => {
+  const queue = new AsyncIterableQueue();
+
+  const producer = async () => {
+    for (let i = 0; i < 5; i++) {
+      console.log(`Producing: ${i}`);
+      queue.enqueue(i);
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+    }
+    queue.enqueue(null);  
+  };
+
+  const consumer = async () => {
+    for await (const { done, value } of queue) {
+      if (done || value === null) break;
+      console.log(`Consuming: ${value}`);
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+    }
+  };
+
+  await Promise.all([producer(), consumer()]);
+})();
+```

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint, { query = {}, headers = {} } = {}) {
+        try {
+            const queryString = new URLSearchParams(query).toString();
+            const url = `${this.apiUrl}/${endpoint}?${queryString}`;
+            const response = await fetch(url, { headers });
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+}
+
+(async () => {
+    const API_URL = 'https://jsonplaceholder.typicode.com';
+    const fetcher = new DataFetcher(API_URL);
+    
+    try {
+         
+        const { 0: { title } = {} } = await fetcher.fetchData('posts', { query: { _limit: 1 } });
+        console.log(`First post title: ${title}`);
+    } catch (error) {
+        console.error(`Failed to fetch data: ${error.message}`);
+    }
+
+     
+    const sum = (...numbers) => numbers.reduce((acc, curr) => acc + curr, 0);
+    console.log(`Sum: ${sum(...[1, 2, 3, 4, 5])}`);
+
+     
+    fetch(`${API_URL}/users`)
+        .then(response => response.json())
+        .then(users => console.log(`Fetched ${users.length} users.`))
+        .catch(error => console.error(`Error fetching users: ${error.message}`));
+})();
+```

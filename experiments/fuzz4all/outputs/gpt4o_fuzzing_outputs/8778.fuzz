@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+(async function advancedFeaturesDemo() {
+  try {
+     
+    const processData = ({ name, ...otherDetails }) => ({
+      name,
+      summary: `Processed data for ${name}`,
+      otherDetails
+    });
+
+     
+    const SECRET_KEY = Symbol('secret');
+    const data = {
+      id: 1,
+      name: 'John Doe',
+      age: 28,
+      [SECRET_KEY]: 'TopSecret'
+    };
+
+    const handler = {
+      get(target, prop) {
+        if (prop === SECRET_KEY) return 'Access Denied';
+        return target[prop];
+      }
+    };
+
+    const proxyData = new Proxy(data, handler);
+
+     
+    const dataChunks = [
+      { name: 'Alice', age: 30, city: 'New York' },
+      { name: 'Bob', age: 25, city: 'Los Angeles' },
+    ];
+
+    const processedData = [];
+    for await (const chunk of dataChunks) {
+      processedData.push(processData(chunk));
+    }
+
+     
+    const uniqueNames = new Set(processedData.map(d => d.name));
+    const metadataMap = new WeakMap();
+    metadataMap.set(proxyData, { processed: true });
+
+     
+    await fsPromises.writeFile('output.json', JSON.stringify(processedData, null, 2));
+    console.log('Data processed and saved to output.json');
+    console.log('Unique Names:', [...uniqueNames]);
+    console.log('Metadata:', metadataMap.get(proxyData));
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();
+```

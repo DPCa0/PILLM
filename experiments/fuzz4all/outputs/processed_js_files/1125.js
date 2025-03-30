@@ -1,0 +1,77 @@
+ 
+(async () => {
+  if (!globalThis.myModule) {
+    globalThis.myModule = await import('https://cdn.skypack.dev/lodash');
+  }
+
+  const _ = globalThis.myModule;
+
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        throw new Error(`Property ${prop} not found`);
+      }
+    }
+  };
+
+  const complexObject = new Proxy({
+    name: "JavaScript",
+    type: "Programming Language"
+  }, handler);
+
+   
+  async function* fetchAPI() {
+    const urls = [
+      'https://jsonplaceholder.typicode.com/posts/1',
+      'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+    for (let url of urls) {
+      const response = await fetch(url);
+      yield response.json();
+    }
+  }
+
+  const processData = async () => {
+    try {
+      for await (let data of fetchAPI()) {
+        print('Fetched Data:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  print('Lodash Version:', _.VERSION);
+  print('Accessing Complex Object:', complexObject.name);
+
+  processData();
+
+   
+  const map = new Map();
+  map.set('key1', {description: 'This is key 1'});
+  map.set('key2', {description: 'This is key 2'});
+
+  map.forEach((value, key) => {
+    print(`Key: ${key}, Description: ${value.description}`);
+  });
+
+   
+  const promises = [
+    Promise.resolve('First Promise Resolved'),
+    Promise.reject('Second Promise Rejected'),
+    Promise.resolve('Third Promise Resolved')
+  ];
+
+  Promise.allSettled(promises).then(results => {
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        print('Fulfilled:', result.value);
+      } else {
+        console.error('Rejected:', result.reason);
+      }
+    });
+  });
+})();

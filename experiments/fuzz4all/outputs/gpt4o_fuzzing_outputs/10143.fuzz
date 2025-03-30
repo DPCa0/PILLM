@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+  
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error fetching data from ${url}`);
+  return response.json();
+}
+
+function withMemoization(fn) {
+  const cache = new Map();
+  return async function (...args) {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      const result = await fn(...args);
+      cache.set(key, result);
+    }
+    return cache.get(key);
+  };
+}
+
+async function main() {
+  const emitter = new EventEmitter();
+  emitter.on('dataReceived', (data) => console.log('Data:', data));
+  
+  const memoizedFetch = withMemoization(fetchData);
+  
+  try {
+    const data1 = await memoizedFetch('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('dataReceived', data1);
+
+    const data2 = await memoizedFetch('https://jsonplaceholder.typicode.com/posts/2');
+    emitter.emit('dataReceived', data2);
+
+     
+    const cachedData1 = await memoizedFetch('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Cached Data:', cachedData1);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();
+```

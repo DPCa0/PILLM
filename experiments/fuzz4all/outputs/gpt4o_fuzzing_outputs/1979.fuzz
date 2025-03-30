@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  await delay(1000);  
+
+   
+  const mockResponse = [
+    { id: 1, name: 'Alice', skills: ['JavaScript', 'React'] },
+    { id: 2, name: 'Bob', skills: ['Java', 'Spring'] },
+    { id: 3, name: 'Charlie', skills: ['Python', 'Django'] },
+  ];
+
+  return mockResponse;
+}
+
+ 
+async function processData() {
+  const data = await fetchData();
+
+   
+  const result = data
+    .filter(({ skills }) => skills.includes('JavaScript'))
+    .map(({ name, skills }) => ({ name, primarySkill: skills[0] }))
+    .reduce((acc, curr) => {
+      acc[curr.name] = curr.primarySkill;
+      return acc;
+    }, {});
+
+  return result;
+}
+
+ 
+(async function main() {
+  try {
+    const processedData = await processData();
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

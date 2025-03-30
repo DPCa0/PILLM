@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class AsyncGenerator {
+  async *generateAsyncSequence() {
+    const items = ['foo', 'bar', 'baz'];
+    for (const item of items) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield item.toUpperCase();
+    }
+  }
+}
+
+const runAsyncGenerators = async () => {
+  const asyncGen = new AsyncGenerator();
+  const results = [];
+
+  for await (const item of asyncGen.generateAsyncSequence()) {
+    results.push(item);
+  }
+
+  return results;
+};
+
+(async () => {
+  try {
+    const results = await runAsyncGenerators();
+    const proxy = new Proxy(results, {
+      get(target, property) {
+        if (property === 'last') {
+          return target[target.length - 1];
+        }
+        return target[property];
+      }
+    });
+
+    console.log('Sequence:', ...proxy);
+    console.log('Last Element:', proxy.last);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms, value) => new Promise(resolve => setTimeout(() => resolve(value), ms));
+
+ 
+function* createAsyncOperations() {
+    yield delay(1000, 'First Value');
+    yield delay(500, 'Second Value');
+    yield delay(2000, 'Third Value');
+}
+
+ 
+async function handleAsyncOperations() {
+    const operations = [...createAsyncOperations()];
+    const results = [];
+
+    for (const op of operations) {
+        const result = await op;  
+        results.push(result);
+    }
+    
+    return results;
+}
+
+ 
+(async () => {
+    try {
+        const [first, second, third] = await handleAsyncOperations();  
+        console.log('Operation Results:', { first, second, third });  
+    } catch (error) {
+        console.error('Error handling async operations:', error);
+    }
+})();
+```

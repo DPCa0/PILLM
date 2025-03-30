@@ -1,0 +1,34 @@
+class FibonacciSequence {
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        for (;;) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+}
+
+const fibSequence = new FibonacciSequence();
+
+const fetchFibonacciUpTo = async (limit) => {
+    return new Promise((resolve, reject) => {
+        const fibNumbers = [];
+        for (const num of fibSequence) {
+            if (num > limit) break;
+            fibNumbers.push(num);
+        }
+        resolve(fibNumbers);
+    });
+};
+
+(async () => {
+    const limit = 1000;
+    print(`Fibonacci numbers up to ${limit}:`);
+
+    try {
+        const fibNumbers = await fetchFibonacciUpTo(limit);
+        print(fibNumbers);
+    } catch (error) {
+        console.error('Error fetching Fibonacci numbers:', error);
+    }
+})();

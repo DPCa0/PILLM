@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class Task {
+    constructor(name) {
+        this.name = name;
+        this.isCompleted = false;
+    }
+
+    complete() {
+        this.isCompleted = true;
+    }
+
+    describe() {
+        return `${this.name} is ${this.isCompleted ? "completed" : "not completed"}`;
+    }
+}
+
+class TaskList {
+    #tasks = new Map();
+
+    addTask(task) {
+        this.#tasks.set(task.name, task);
+    }
+
+    completeTask(name) {
+        if (this.#tasks.has(name)) {
+            this.#tasks.get(name).complete();
+        }
+    }
+
+    *[Symbol.iterator]() {
+        for (const task of this.#tasks.values()) {
+            yield task.describe();
+        }
+    }
+}
+
+ 
+const taskList = new Proxy(new TaskList(), {
+    get(target, prop, receiver) {
+        console.log(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+});
+
+const tasks = [new Task('Code review'), new Task('Write documentation'), new Task('Deploy to server')];
+
+tasks.forEach(task => taskList.addTask(task));
+taskList.completeTask('Code review');
+
+for (const taskDesc of taskList) {
+    console.log(taskDesc);
+}
+```

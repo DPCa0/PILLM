@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataHandler {
+    #dataCache = new Map();
+
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint) {
+        if (this.#dataCache.has(endpoint)) {
+            console.log('Fetching from cache');
+            return this.#dataCache.get(endpoint);
+        }
+
+        try {
+            const response = await fetch(`${this.apiUrl}/${endpoint}`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            this.#dataCache.set(endpoint, data);
+            return data;
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+            throw error;
+        }
+    }
+
+    async* fetchDataStream(endpoints) {
+        for (const endpoint of endpoints) {
+            yield this.fetchData(endpoint);
+        }
+    }
+}
+
+ 
+(async () => {
+    const handler = new DataHandler('https://jsonplaceholder.typicode.com');
+    const endpoints = ['posts', 'users', 'todos'];
+
+    try {
+        const stream = handler.fetchDataStream(endpoints);
+        for await (const dataPromise of stream) {
+            dataPromise.then(data => console.log(data.slice(0, 1)));
+        }
+    } catch (error) {
+        console.error('Error processing data stream:', error);
+    }
+})();
+```

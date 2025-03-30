@@ -1,0 +1,38 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncTask = (id, delay) => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve(`Task ${id} completed`);
+  }, delay);
+});
+
+(async function() {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('taskCompleted', (msg) => {
+    print(msg);
+  });
+
+  const tasks = [1, 2, 3, 4, 5].map((id) => asyncTask(id, Math.random() * 2000));
+
+  for await (let result of tasks) {
+    eventEmitter.emit('taskCompleted', result);
+  }
+
+  print('All tasks are done');
+})();

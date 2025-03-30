@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data from ${url}`), 1000);
+  });
+}
+
+ 
+function* dataGenerator(urls) {
+  for (let url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+async function getData(urls) {
+  const generator = dataGenerator(urls);
+  let result = generator.next();
+  while (!result.done) {
+    console.log(await result.value);
+    result = generator.next();
+  }
+}
+
+ 
+const target = { x: 1, y: 2 };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property ${prop} accessed`);
+    return prop in obj ? obj[prop] : undefined;
+  },
+};
+const proxy = new Proxy(target, handler);
+
+ 
+console.log(proxy.x);  
+console.log(proxy.y);  
+console.log(proxy.z);  
+
+ 
+getData(['url1', 'url2', 'url3']);
+```

@@ -1,0 +1,43 @@
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+
+ 
+async function readFilesInDirectory(dirPath) {
+  try {
+     
+    const directory = path.resolve(dirPath);
+
+     
+    const files = await fs.readdir(directory);
+
+     
+    const results = await Promise.all(files.map(async (file) => {
+      const filePath = path.join(directory, file);
+      const stats = await fs.stat(filePath);
+
+       
+      if (stats.isFile()) {
+        const content = await fs.readFile(filePath, 'utf8');
+        return { file, content };
+      }
+    }));
+
+     
+    return results.filter(Boolean).map(({ file, content }) => ({
+      file,
+      wordCount: content.split(/\s+/).filter(Boolean).length,
+    }));
+
+  } catch (error) {
+    console.error('Error reading directory:', error);
+  }
+}
+
+ 
+(async () => {
+   
+  const results = await readFilesInDirectory('./myFolder');
+  print(`File analysis completed. Details:`);
+  console.table(results);
+})();

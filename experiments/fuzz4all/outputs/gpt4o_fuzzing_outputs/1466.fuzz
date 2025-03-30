@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchDataWithDelay(data, ms) {
+    console.log(`Fetching data: ${data}`);
+    await delay(ms);
+    console.log(`Data fetched: ${data}`);
+    return `Processed ${data}`;
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const generator = idGenerator();
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        console.log(`Getting property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value, receiver) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const dataStore = {
+    data1: 42,
+    data2: "hello"
+};
+
+ 
+const proxyDataStore = new Proxy(dataStore, handler);
+
+ 
+(async function main() {
+    proxyDataStore.data1 = 100;
+    console.log(proxyDataStore.data2);
+    
+     
+    const results = await Promise.all([
+        fetchDataWithDelay("Item1", 1000),
+        fetchDataWithDelay("Item2", 500),
+        fetchDataWithDelay("Item3", 1500)
+    ]);
+
+    console.log(results);
+
+     
+    console.log(`Generated IDs: ${generator.next().value}, ${generator.next().value}, ${generator.next().value}`);
+})();
+```

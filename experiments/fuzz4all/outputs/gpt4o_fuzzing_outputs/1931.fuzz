@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+async function fetchData(urls) {
+    const results = [];
+    const generator = fetchDataGenerator(urls);
+    
+    for (let promise of generator) {
+        try {
+             
+            const data = await promise;
+            results.push(data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+    return results;
+}
+
+ 
+async function processData() {
+    const apiUrls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3'
+    ];
+
+    const [result1, result2, ...otherResults] = await fetchData(apiUrls);
+    
+    console.log('Result 1:', result1);
+    console.log('Result 2:', result2);
+    console.log('Other Results:', otherResults);
+}
+
+processData().catch(err => console.error("Processing error:", err));
+```

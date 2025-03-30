@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+const library = {
+  name: "City Library",
+  books: [
+    {
+      title: "1984",
+      author: "George Orwell",
+      year: 1949,
+    },
+    {
+      title: "To Kill a Mockingbird",
+      author: "Harper Lee",
+      year: 1960,
+    },
+    {
+      title: "The Great Gatsby",
+      author: "F. Scott Fitzgerald",
+      year: 1925,
+    },
+  ],
+  getBookTitles() {
+    return this.books.map(({ title }) => title);
+  },
+  findBooksByYear(year) {
+    return this.books.filter(({ year: y }) => y === year);
+  },
+};
+
+ 
+async function fetchBookData() {
+  const fakeApiCall = (book) => 
+    new Promise((resolve) => 
+      setTimeout(() => resolve({ ...book, availability: "In Stock" }), 1000)
+    );
+
+  try {
+    const bookPromises = library.books.map(fakeApiCall);
+    const updatedBooks = await Promise.all(bookPromises);
+    console.log("Updated Book Data: ", updatedBooks);
+  } catch (error) {
+    console.error("Failed to fetch book data: ", error);
+  }
+}
+
+ 
+const libraryProxy = new Proxy(library, {
+  get(target, prop) {
+    if (prop === 'books') {
+      return target.books.map(({ title }) => title);
+    }
+    return Reflect.get(target, prop);
+  },
+});
+
+ 
+function uniqueAuthors() {
+  const authors = library.books.map(({ author }) => author);
+  const uniqueAuthorSet = new Set(authors);
+  return [...uniqueAuthorSet];
+}
+
+ 
+function bookMessage(strings, titleExp, authorExp) {
+  return `${strings[0]}${titleExp}${strings[1]}${authorExp}${strings[2]}`;
+}
+
+console.log(library.getBookTitles());
+fetchBookData();
+console.log("Library Proxy: ", libraryProxy.books);
+console.log("Unique Authors: ", uniqueAuthors());
+
+const message = bookMessage`The book titled "${library.books[0].title}" was authored by "${library.books[0].author}".`;
+console.log(message);
+```

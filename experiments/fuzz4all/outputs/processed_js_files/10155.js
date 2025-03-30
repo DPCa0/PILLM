@@ -1,0 +1,52 @@
+ 
+
+class ComplexCalculator {
+    constructor() {
+        this.operations = {
+            add: (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide: (a, b) => a / b
+        };
+    }
+
+    calculate(operation, ...args) {
+        return new Promise((resolve, reject) => {
+            const op = this.operations[operation];
+            if (!op) return reject(new Error('Operation not supported'));
+            const result = op(...args);
+            resolve(result);
+        });
+    }
+}
+
+const calculatorHandler = {
+    get: (target, prop) => {
+        if (prop in target.operations) {
+            return target.calculate.bind(target, prop);
+        } else {
+            throw new Error(`No such operation: ${prop}`);
+        }
+    }
+};
+
+const asyncCalculate = async (operation, ...args) => {
+    try {
+        const calc = new Proxy(new ComplexCalculator(), calculatorHandler);
+        const result = await calc[operation](...args);
+        print(`Result of ${operation}:`, result);
+    } catch (error) {
+        console.error(error.message);
+    }
+};
+
+const operationsList = [
+    { operation: 'add', values: [10, 5] },
+    { operation: 'subtract', values: [20, 6] },
+    { operation: 'multiply', values: [7, 3] },
+    { operation: 'divide', values: [8, 2] }
+];
+
+operationsList.forEach(({ operation, values }) => {
+    asyncCalculate(operation, ...values);
+});

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+    
+    get(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+        let result = this.get(n - 1) + this.get(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const asyncIterator = {
+    async *[Symbol.asyncIterator]() {
+        let i = 0;
+        while (i < 10) {
+            yield new Promise(resolve => setTimeout(() => resolve(i++), 100));
+        }
+    }
+};
+
+(async () => {
+    const fib = new Fibonacci();
+    const results = [];
+    for await (const num of asyncIterator) {
+        const value = fib.get(num);
+        results.push(value);
+        console.log(`Fibonacci(${num}): ${value}`);
+    }
+    
+    const double = x => x * 2;
+    const doubledResults = results.map(double);
+    
+    console.log('Doubled Results:', doubledResults);
+
+    const [first, ...rest] = doubledResults;
+    console.log('First:', first, 'Rest:', rest);
+    
+    const obj = { a: 1, b: { c: 2, d: 3 }, e: 4 };
+    const {
+        a,
+        b: { c, ...restOfB },
+        ...restOfObj
+    } = obj;
+    
+    console.log('Destructured:', a, c, restOfB, restOfObj);
+})();
+```

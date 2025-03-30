@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+  
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(l => l !== listener));
+    }
+  }
+}
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    const events = new EventEmitter();
+    events.on('data', data => {
+      asyncIterable.queue.push(data);
+    });
+
+    asyncIterable.queue = [];
+
+    const intervalId = setInterval(() => {
+      events.emit('data', Math.random());
+    }, 1000);
+
+    try {
+      while (true) {
+        if (asyncIterable.queue.length > 0) {
+          yield asyncIterable.queue.shift();
+        } else {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+    } finally {
+      clearInterval(intervalId);
+    }
+  },
+  queue: [],
+};
+
+(async function() {
+  for await (const value of asyncIterable) {
+    console.log(`Received: ${value}`);
+    if (value > 0.9) break;  
+  }
+})();
+```

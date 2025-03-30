@@ -1,0 +1,63 @@
+ 
+class Fibonacci {
+  constructor(limit) {
+    this.limit = BigInt(limit);
+    this.memo = {};
+  }
+
+  *generate() {
+    let [a, b] = [0n, 1n];
+    while (a <= this.limit) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return Reflect.get(target, prop);
+    }
+    return `Property ${prop} doesn't exist`;
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+// Proxy to wrap the Fibonacci class
+const proxyFibonacci = new Proxy(new Fibonacci(1000), handler);
+
+function* advancedGenerator() {
+  let index = 0;
+  for (const num of proxyFibonacci.generate()) {
+    const prime = num + 1n; // Trivial example of operation
+    yield `Fibonacci number ${index++}: ${prime}`;
+  }
+}
+
+// Utilizing for-of loop with the advanced generator
+for (const msg of advancedGenerator()) {
+  print(msg);
+}
+
+// Demonstrating use of async/await with Promise
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  print('Fetched data:', data);
+}
+
+// Uncomment to use; requires a valid API endpoint
+// fetchData('https: 
+
+ 
+(async () => {
+  if (Math.random() > 0.5) {
+    const { log } = await import('console');
+    log?.('Dynamically imported console module') ?? print('Failed to import');
+  }
+})();

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+   
+  const fetchData = async (url) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          data: {
+            users: [
+              { id: 1, name: 'Alice', age: 28 },
+              { id: 2, name: 'Bob', age: 32 },
+              { id: 3, name: 'Charlie', age: 25 }
+            ]
+          }
+        });
+      }, 1000);
+    });
+  };
+
+  try {
+     
+    const { data: { users } } = await fetchData('https://api.example.com/users');
+
+     
+    const extendedUsers = users.map(user => ({
+      ...user,
+      role: 'user',
+      isActive: true
+    }));
+
+     
+    for (const { id, name, age, role, isActive } of extendedUsers) {
+      console.log(`ID: ${id}, Name: ${name}, Age: ${age}, Role: ${role}, Active: ${isActive}`);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

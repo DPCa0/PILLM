@@ -1,0 +1,44 @@
+ 
+
+ 
+const apiData = {
+    users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+    posts: [{ id: 1, title: 'Post 1', authorId: 1 }, { id: 2, title: 'Post 2', authorId: 2 }]
+};
+
+ 
+const fakeFetch = (endpoint) => new Promise((resolve) => {
+    setTimeout(() => resolve(apiData[endpoint]), 1000);
+});
+
+ 
+const apiHandler = {
+    get(target, prop) {
+        if (!(prop in target)) {
+            return async () => {
+                print(`Fetching ${prop}...`);
+                return await fakeFetch(prop);
+            }
+        }
+        return target[prop];
+    }
+};
+
+ 
+const api = new Proxy({}, apiHandler);
+
+ 
+async function displayData() {
+    try {
+        const users = await api.users();
+        print('Users:', users);
+        
+        const posts = await api.posts();
+        print('Posts:', posts);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+displayData();

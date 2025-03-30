@@ -1,0 +1,46 @@
+ 
+import fs from 'fs/promises';
+
+ 
+const readFileAsync = async (filePath) => {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    return data;
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+};
+
+ 
+const processFileData = async (filePath) => {
+   
+  const { data = '' } = await readFileAsync(filePath) || {};
+
+   
+  const dataLines = data.split('\n').filter(Boolean);  
+  const dataMap = new Map(dataLines.map((line, index) => [index, line]));
+
+   
+  const uniqueData = new Set(dataLines);
+
+   
+  function* uniqueDataGenerator() {
+    for (const item of uniqueData) {
+      yield item.toUpperCase();  
+    }
+  }
+
+   
+  const processedData = Array.from(uniqueDataGenerator());
+
+  print('Processed Data:', processedData);
+
+   
+  if (processedData.length > 0) {
+    const { default: chalk } = await import('chalk');
+    print(chalk.green('Unique items processed successfully!'));
+  }
+};
+
+ 
+processFileData('./test.txt');

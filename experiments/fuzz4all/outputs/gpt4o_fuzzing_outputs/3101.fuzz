@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncGenerator = async function* () {
+    for (let i = 0; i < 3; i++) {
+        await delay(1000);
+        yield `Value ${i}`;
+    }
+};
+
+const proxyHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Accessing property ${prop}`);
+            return target[prop];
+        } else {
+            return `Property ${prop} doesn't exist`;
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const obj = { a: 1, b: 2 };
+const proxiedObj = new Proxy(obj, proxyHandler);
+
+(async () => {
+    console.log("Starting async generator:");
+    for await (let value of asyncGenerator()) {
+        console.log(value);
+    }
+    
+    console.log("Using Proxy object:");
+    console.log(proxiedObj.a);
+    proxiedObj.c = 3;
+    console.log(proxiedObj.c);
+    console.log(proxiedObj.nonExistent);
+})();
+```

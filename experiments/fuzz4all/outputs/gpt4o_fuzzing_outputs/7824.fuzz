@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncFetch = url => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+             
+            const data = { msg: `Data from ${url}` };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+(async function() {
+    const emitter = new EventEmitter();
+    
+    emitter.on('dataReceived', data => {
+        console.log('Listener 1:', data);
+    });
+    
+    emitter.on('dataReceived', data => {
+        console.log('Listener 2:', data);
+    });
+
+    try {
+        const data1 = await asyncFetch('https://api.example1.com/data');
+        emitter.emit('dataReceived', data1);
+        
+        const data2 = await asyncFetch('https://api.example2.com/data');
+        emitter.emit('dataReceived', data2);
+    } catch (err) {
+        console.error('Fetch error:', err);
+    }
+})();
+```

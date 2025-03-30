@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+ 
+function processItems(...items) {
+    let [first, second, ...rest] = items;
+    console.log("First two items:", first, second);
+    console.log("Remaining items:", rest);
+    
+    let merged = {...first, ...second};
+    console.log("Merged object from first two items:", merged);
+}
+
+ 
+let handler = {
+    get: (target, prop) => {
+        return prop in target ? target[prop] : `Property ${prop} doesn't exist`;
+    },
+    set: (target, prop, value) => {
+        if (typeof value === "number") {
+            target[prop] = value;
+        } else {
+            console.log("Value must be a number");
+        }
+        return true;
+    }
+};
+
+let dynamicObject = new Proxy({}, handler);
+dynamicObject.a = 10;        // Sets a to 10
+console.log(dynamicObject.a); // 10
+dynamicObject.b = "string";  // Error: Value must be a number
+console.log(dynamicObject.b); // Property b doesn't exist
+
+ 
+(async () => {
+    console.log("Executing IIFE...");
+
+     
+    let data = await fetchData("https://jsonplaceholder.typicode.com/todos/1");
+    console.log("Fetched data:", data);
+
+    processItems(
+        { id: 1, value: "a" },
+        { id: 2, value: "b" },
+        { id: 3, value: "c" }
+    );
+})();
+```

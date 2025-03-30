@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const proxyHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessing property "${prop}": ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.log(`Property "${prop}" not found, returning default value.`);
+            return 'Default Value';
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property "${prop}" to "${value}"`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxiedConfig = new Proxy({ threshold: 5, verbose: true }, proxyHandler);
+
+async function main() {
+    const generator = numberGenerator();
+    
+    for (let i = 0; i < 3; i++) {
+        console.log(`Generator Value: ${generator.next().value}`);
+        if (proxiedConfig.verbose) {
+            console.log('Waiting for 1 second...');
+        }
+        await delay(1000);
+    }
+    
+    proxiedConfig.threshold = 10;
+    console.log(`Config threshold is now: ${proxiedConfig.threshold}`);
+    console.log(`Non-existent property: ${proxiedConfig.someUndefinedProperty}`);
+}
+
+main();
+```

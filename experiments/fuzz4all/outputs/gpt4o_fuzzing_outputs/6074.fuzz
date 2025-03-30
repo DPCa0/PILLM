@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class CurrencyConverter {
+  #exchangeRates = new Map();
+
+  constructor() {
+    this.#exchangeRates.set('USD', 1);
+    this.#exchangeRates.set('EUR', 0.85);
+    this.#exchangeRates.set('GBP', 0.75);
+  }
+
+  async fetchLatestRates() {
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await response.json();
+    Object.entries(data.rates).forEach(([currency, rate]) => {
+      this.#exchangeRates.set(currency, rate);
+    });
+  }
+
+  convert(amount, fromCurrency, toCurrency) {
+    if (!this.#exchangeRates.has(fromCurrency) || !this.#exchangeRates.has(toCurrency)) {
+      throw new Error('Currency not supported');
+    }
+    const fromRate = this.#exchangeRates.get(fromCurrency);
+    const toRate = this.#exchangeRates.get(toCurrency);
+    return (amount / fromRate) * toRate;
+  }
+}
+
+(async () => {
+  const converter = new CurrencyConverter();
+  await converter.fetchLatestRates();
+  try {
+    console.log(`100 USD to EUR: ${converter.convert(100, 'USD', 'EUR').toFixed(2)} EUR`);
+    console.log(`100 EUR to GBP: ${converter.convert(100, 'EUR', 'GBP').toFixed(2)} GBP`);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

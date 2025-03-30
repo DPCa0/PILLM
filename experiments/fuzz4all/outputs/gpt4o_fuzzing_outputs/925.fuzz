@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *generate(n) {
+    if (n < 1) throw new Error("Index should be a positive integer");
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  memoizeFib(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    let result = this.memoizeFib(n - 1) + this.memoizeFib(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const asyncFactorial = async (num) => {
+  if (num < 0) return Promise.reject("Negative numbers are not allowed");
+  if (num === 0 || num === 1) return Promise.resolve(1);
+
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      let fact = 1;
+      for (let i = 2; i <= num; i++) {
+        fact *= i;
+      }
+      resolve(fact);
+    }, 500);
+  });
+
+  return result;
+};
+
+(async () => {
+  const fib = new Fibonacci();
+  console.log("First 10 Fibonacci numbers:");
+  for (let num of fib.generate(10)) {
+    console.log(num);
+  }
+
+  console.log("\n10th Fibonacci (Memoized):");
+  console.log(fib.memoizeFib(10));
+
+  console.log("\nFactorial of 5 (Async):");
+  try {
+    const factorialOf5 = await asyncFactorial(5);
+    console.log(factorialOf5);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

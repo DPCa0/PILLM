@@ -1,0 +1,50 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+ 
+const loggingHandler = {
+    get: (target, prop) => {
+        print(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const state = new Proxy({
+    data: null,
+    error: null,
+}, loggingHandler);
+
+ 
+(async () => {
+    try {
+         
+        const dataPromise = fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        const modulePromise = import('./exampleModule.js');
+
+        const [data, { exampleFunction }] = await Promise.all([dataPromise, modulePromise]);
+
+        state.data = data;  
+        exampleFunction(state.data);  
+
+    } catch (error) {
+        state.error = error;  
+        console.error('Failed to fetch data:', error);
+    }
+})();
+
+ 
+function createCounter() {
+    let count = 0;
+    return function () {
+        return ++count;
+    };
+}
+
+const counter = createCounter();
+print(counter());  
+print(counter());  

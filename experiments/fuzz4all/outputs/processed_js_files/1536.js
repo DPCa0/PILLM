@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [1, 2, 3, 4, 5], status: 200 });
+    }, 1000);
+  });
+};
+
+ 
+const processData = async (url) => {
+  try {
+     
+    const { data, status } = await fetchData(url);
+    
+    if (status !== 200) {
+      throw new Error('Failed to fetch data');
+    }
+
+     
+    const [first, second, ...rest] = data;
+    
+    print(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+     
+    const transformedData = [...data].map(num => num * 2);
+
+    print('Transformed Data:', transformedData);
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+ 
+processData('https://api.example.com/data');

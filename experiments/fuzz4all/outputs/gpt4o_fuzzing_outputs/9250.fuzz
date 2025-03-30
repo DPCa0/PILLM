@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => {
+  const delay = Math.floor(Math.random() * 2000);
+  setTimeout(resolve, delay);
+});
+
+ 
+const fetchUserData = async () => {
+  await randomDelay();  
+  return { id: 1, name: 'Alice', age: 30, email: 'alice@example.com' };
+};
+
+ 
+const processUserData = async () => {
+  const { id, name, ...rest } = await fetchUserData();
+  console.log(`User ID: ${id}`);
+  console.log(`User Name: ${name}`);
+  console.log('Additional Info:', rest);
+};
+
+ 
+const createLoggingProxy = (target) => new Proxy(target, {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' accessed`);
+    return obj[prop];
+  }
+});
+
+ 
+const user = createLoggingProxy({ id: 42, username: 'jdoe', role: 'admin' });
+
+ 
+(async () => {
+  await processUserData();
+  console.log(`Username: ${user.username}, Role: ${user.role}`);
+})();
+```

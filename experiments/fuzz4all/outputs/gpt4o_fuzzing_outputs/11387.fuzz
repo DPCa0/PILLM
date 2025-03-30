@@ -1,0 +1,44 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program that utilizes advanced features such as async/await, Promises, destructuring, spread/rest operators, and ES6 modules:
+
+```javascript
+ 
+export const fetchData = () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { name: 'Alice', age: 30 }, tasks: ['task1', 'task2', 'task3'] });
+    }, 1000);
+  });
+
+export const processData = ({ user: { name, age }, tasks }) => {
+  console.log(`User: ${name}, Age: ${age}`);
+  console.log(`Tasks: ${tasks.join(', ')}`);
+};
+
+ 
+import { fetchData, processData } from './module.js';
+
+(async () => {
+  try {
+    const data = await fetchData();
+    processData(data);
+    
+    const taskSet = new Set(data.tasks);
+    console.log('Unique tasks using Set:', taskSet);
+    
+    const mergedArray = [...taskSet, 'task4', ...data.tasks];
+    console.log('Merged and extended tasks:', mergedArray);
+    
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();
+```
+
+This example involves:
+- An ES6 module that exports `fetchData` and `processData` functions.
+- `fetchData` returns a Promise which resolves to an object with user and tasks data.
+- `processData` uses destructuring to extract and log details.
+- `async/await` syntax for asynchronous code handling.
+- A `Set` to demonstrate collection of unique tasks.
+- The spread operator to merge arrays.

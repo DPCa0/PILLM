@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+}
+
+const processData = async (url) => {
+  const fetcher = new DataFetcher(url);
+  const data = await fetcher.fetchData();
+
+  if (data && data.results) {
+     
+    const [{ name: firstName }, { name: secondName }, ...others] = data.results;
+
+    console.log(`First Name: ${firstName}`);
+    console.log(`Second Name: ${secondName}`);
+    console.log("Other Results:", others);
+
+     
+    const resultsPromises = data.results.map(async ({ name }) => {
+      const nameResponse = await fetch(`https: 
+      return nameResponse.json();
+    });
+
+    try {
+      const details = await Promise.all(resultsPromises);
+      console.log("Fetched Details:", details);
+    } catch (error) {
+      console.error("Error fetching details:", error);
+    }
+  }
+};
+
+const myURL = "https://pokeapi.co/api/v2/pokemon";
+processData(myURL);
+```

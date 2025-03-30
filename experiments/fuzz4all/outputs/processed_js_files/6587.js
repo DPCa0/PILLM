@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchUserData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = [
+                { id: 1, name: 'Alice', age: 30 },
+                { id: 2, name: 'Bob', age: 25 },
+                { id: 3, name: 'Charlie', age: 35 }
+            ];
+            resolve(data);
+        }, 1000);
+    });
+};
+
+ 
+async function processUserData() {
+    try {
+        const users = await fetchUserData();
+        
+         
+        const userMap = new Map(users.map(user => [user.id, { ...user, ageGroup: user.age < 30 ? 'Young' : 'Mature' }]));
+
+         
+        userMap.forEach((value, key) => {
+            print(`User ID: ${key} - Name: ${value.name}, Age: ${value.age}, Age Group: ${value.ageGroup}`);
+        });
+
+         
+        const additionalUser = { id: 4, name: 'Diana', age: 28 };
+        const updatedUserList = [...userMap.values(), { ...additionalUser, ageGroup: 'Young' }];
+
+        print('Updated User List:', updatedUserList);
+
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+processUserData();

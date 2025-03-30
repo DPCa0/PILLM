@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFileSync } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+    const filePath = new URL('./data.json', import.meta.url);
+    const data = await readFileSync(filePath, 'utf8');
+    
+     
+    const jsonData = JSON.parse(data);
+    
+     
+    const dataMap = new Map(Object.entries(jsonData));
+    const uniqueValues = new Set([...dataMap.values()]);
+    const sym = Symbol('unique');
+
+     
+    const handler = {
+      get: (target, prop) => {
+        console.log(`Accessed property ${String(prop)}`);
+        return target[prop];
+      }
+    };
+    
+    const proxyMap = new Proxy(dataMap, handler);
+
+     
+    console.log('Original Data:', jsonData);
+    console.log('Map Data:', proxyMap);
+    console.log('Unique Values:', uniqueValues);
+    console.log('Symbol:', sym.toString());
+
+     
+    console.log('Author:', jsonData?.author ?? 'Unknown');
+
+     
+    const promise1 = Promise.resolve('First');
+    const promise2 = Promise.reject('Error');
+    const promise3 = Promise.resolve('Second');
+
+    const results = await Promise.allSettled([promise1, promise2, promise3]);
+
+    results.forEach((result, index) => {
+      console.log(`Promise ${index + 1}:`, result.status, result.value || result.reason);
+    });
+
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+})();
+```

@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class TaskManager {
+  #tasks = new Map();  
+
+  constructor() {
+    this.loadTasks();
+  }
+
+  async loadTasks() {
+    const storedTasks = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+      .then(response => response.json());
+    storedTasks.forEach(task => this.#tasks.set(task.id, { ...task, date: new Date() }));
+  }
+
+  *taskIterator() {
+    for (const [, task] of this.#tasks) {
+      yield task;
+    }
+  }
+
+  async addTask(title) {
+    const newTask = {
+      id: Math.max(...this.#tasks.keys()) + 1,
+      title,
+      completed: false,
+      date: new Date()
+    };
+    this.#tasks.set(newTask.id, newTask);
+    await this.saveTask(newTask);
+  }
+
+  async saveTask(task) {
+    await fetch('https://jsonplaceholder.typicode.com/todos', {
+      method: 'POST',
+      body: JSON.stringify(task),
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  get completedTasks() {
+    return Array.from(this.#tasks.values()).filter(task => task.completed);
+  }
+
+  async #logCompletion(taskId) {
+    const task = this.#tasks.get(taskId);
+    if (task) {
+      task.completed = true;
+      await this.saveTask(task);
+      console.log(`Task ${taskId} completed on ${task.date.toLocaleString()}`);
+    }
+  }
+
+  markComplete(taskId) {
+    this.#logCompletion(taskId);
+  }
+
+  static async delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+(async () => {
+  const manager = new TaskManager();
+  await TaskManager.delay(2000);
+  
+  for (const task of manager.taskIterator()) {
+    console.log(task);
+  }
+
+  manager.addTask('New complex task');
+
+  await TaskManager.delay(2000);
+  
+  manager.markComplete(1);
+})();
+```

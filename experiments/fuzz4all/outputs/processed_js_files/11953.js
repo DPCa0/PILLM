@@ -1,0 +1,63 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    const m = new Matrix(arr.length, arr[0].length);
+    m.map((_, i, j) => arr[i][j]);
+    return m;
+  }
+
+  static async randomize(rows, cols) {
+    const m = new Matrix(rows, cols);
+    await Promise.all(
+      m.data.map((row, i) =>
+        Promise.all(
+          row.map((_, j) =>
+            new Promise((resolve) =>
+              setTimeout(() => {
+                m.data[i][j] = Math.random() * 10;
+                resolve();
+              }, Math.random() * 100)
+            )
+          )
+        )
+      )
+    );
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+async function manipulateMatrix() {
+  const matrix = await Matrix.randomize(3, 3);
+  matrix.print();
+  const transformedMatrix = new Proxy(matrix, {
+    get(target, prop, receiver) {
+      if (typeof target[prop] === "function") {
+        return (...args) => {
+          print(`Calling ${prop} with arguments:`, args);
+          return Reflect.apply(target[prop], target, args);
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+  transformedMatrix
+    .map((val) => val * 2)
+    .print();
+}
+
+manipulateMatrix();

@@ -1,0 +1,47 @@
+class ApiService {
+    static async fetchData(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    }
+}
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    filterData(condition) {
+        return this.data.filter(condition);
+    }
+
+    transformData(transformer) {
+        return this.data.map(transformer);
+    }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+
+(async () => {
+    try {
+        const rawData = await ApiService.fetchData(url);
+        const processor = new DataProcessor(rawData);
+
+        const filteredData = processor.filterData(post => post.userId === 1);
+        const transformedData = processor.transformData(post => ({
+            title: post.title.toUpperCase(),
+            summary: post.body.substring(0, 50),
+        }));
+
+        print('Filtered and Transformed Data:', transformedData);
+
+        const [first, ...rest] = transformedData;
+        print('First Item:', first);
+        print('Rest of Items:', rest);
+
+        const postTitles = new Set(transformedData.map(post => post.title));
+        print('Unique Titles:', postTitles);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

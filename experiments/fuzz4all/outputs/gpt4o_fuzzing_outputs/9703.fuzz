@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class TaskQueue {
+    constructor(concurrency) {
+        this.concurrency = concurrency;
+        this.queue = [];
+        this.running = 0;
+    }
+
+    addTask(promiseFn) {
+        this.queue.push(promiseFn);
+        process.nextTick(this.runNext.bind(this));
+    }
+
+    runNext() {
+        while (this.running < this.concurrency && this.queue.length) {
+            const promiseFn = this.queue.shift();
+            promiseFn().then(() => {
+                this.running--;
+                process.nextTick(this.runNext.bind(this));
+            });
+            this.running++;
+        }
+    }
+}
+
+const delay = (ms, value) => new Promise(resolve => setTimeout(() => resolve(value), ms));
+
+const queue = new TaskQueue(2);
+
+const tasks = Array.from({ length: 5 }, (_, i) => () =>
+    delay(1000, i).then(value => console.log(`Task ${value} completed`))
+);
+
+tasks.forEach(task => queue.addTask(task));
+
+async function* asyncGenerator(max) {
+    let i = 0;
+    while (i < max) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 500));
+    }
+}
+
+(async () => {
+    for await (const value of asyncGenerator(5)) {
+        console.log(`Generated value: ${value}`);
+    }
+})();
+
+const compose = (...functions) => input =>
+    functions.reduceRight((chain, func) => chain.then(func), Promise.resolve(input));
+
+const addOne = x => Promise.resolve(x + 1);
+const double = x => Promise.resolve(x * 2);
+
+compose(double, addOne, double)(5).then(console.log);
+```

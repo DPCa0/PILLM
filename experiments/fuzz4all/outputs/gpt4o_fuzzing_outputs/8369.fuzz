@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueId = Symbol('id');
+
+ 
+const handler = {
+    get: function(target, property, receiver) {
+        if (property in target) {
+            return Reflect.get(...arguments);
+        } else {
+            return `Property "${property}" does not exist.`;
+        }
+    },
+    set: function(target, property, value, receiver) {
+        if (typeof value === 'number') {
+            return Reflect.set(target, property, value, receiver);
+        } else {
+            console.log(`Invalid type for property "${property}". Please use a number.`);
+            return false;
+        }
+    }
+};
+
+ 
+const target = {
+    [uniqueId]: 12345,
+    name: 'Advanced JS Object',
+    values: [1, 2, 3, 4]
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+function* valueGenerator(arr) {
+    for (let value of arr) {
+        yield value;
+    }
+}
+
+ 
+async function asyncFunction() {
+    let promise = new Promise((resolve, reject) => {
+        setTimeout(() => resolve("Hello from the Promise!"), 1000);
+    });
+    console.log(await promise);
+}
+
+ 
+(async () => {
+    console.log(proxy.name);             
+    console.log(proxy.nonexistent);      
+    
+    proxy.newValue = 'test';             
+    proxy.newValue = 42;                 
+    
+    console.log(proxy[uniqueId]);        
+
+    const generator = valueGenerator(proxy.values);
+    console.log(generator.next().value);  
+    console.log(generator.next().value);  
+
+    await asyncFunction();               
+})();
+```

@@ -1,0 +1,45 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class AsyncDataFetcher {
+  constructor(url) {
+    this.url = url;
+    this.cache = new WeakMap();
+  }
+
+  async fetchData(key) {
+    if (!this.cache.has(key)) {
+      const response = await fetch(`${this.url}/${key}`);
+      const data = await response.json();
+      this.cache.set(key, data);
+    }
+    return this.cache.get(key);
+  }
+}
+
+const eventEmitter = new EventEmitter();
+const dataFetcher = new AsyncDataFetcher('https://jsonplaceholder.typicode.com');
+
+eventEmitter.on('dataFetched', data => print('Fetched Data:', data));
+
+(async () => {
+  const userData = await dataFetcher.fetchData('users');
+  const postData = await dataFetcher.fetchData('posts');
+  eventEmitter.emit('dataFetched', { users: userData, posts: postData });
+})();

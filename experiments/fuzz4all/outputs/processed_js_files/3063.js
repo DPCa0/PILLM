@@ -1,0 +1,62 @@
+class AdvancedFeatures {
+  #privateProperty = 'This is a private property';
+
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+
+  get privateProperty() {
+    return this.#privateProperty;
+  }
+
+  transformData() {
+    return this.data.map(({ name, age }) => ({
+      name: name.toUpperCase(),
+      ageInDogYears: age * 7,
+    }));
+  }
+
+  async *asyncGenerator() {
+    for (let item of this.data) {
+      yield new Promise((resolve) =>
+        setTimeout(() => resolve(`Processed: ${item.name}`), 1000)
+      );
+    }
+  }
+
+  static #utilityMethod(value) {
+    return `Utility: ${value}`;
+  }
+
+  static getUtilityValue(value) {
+    return AdvancedFeatures.#utilityMethod(value);
+  }
+}
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await AdvancedFeatures.fetchData(url);
+    const af = new AdvancedFeatures(users);
+
+    print('Private property:', af.privateProperty);
+    print('Transformed data:', af.transformData());
+
+    for await (let message of af.asyncGenerator()) {
+      print(message);
+    }
+
+    console.log(
+      'Utility value:',
+      AdvancedFeatures.getUtilityValue('Hello, Utility!')
+    );
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

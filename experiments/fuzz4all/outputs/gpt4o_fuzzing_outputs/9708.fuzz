@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchData(url) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+        const response = await fetch(url, { signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+    } catch (error) {
+        if (signal.aborted) {
+            console.error("Fetch aborted due to timeout");
+        } else {
+            console.error("Fetch error:", error);
+        }
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+const fetchDataWithDebounce = debounce(async () => {
+    const deferred = new Deferred();
+    try {
+        const data = await fetchData('https://api.chucknorris.io/jokes/random');
+        deferred.resolve(data);
+    } catch (error) {
+        deferred.reject(error);
+    }
+    deferred.promise.then(data => console.log('Joke:', data.value)).catch(console.error);
+}, 300);
+
+document.querySelector('button').addEventListener('click', fetchDataWithDebounce);
+```

@@ -1,0 +1,45 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    throw error;
+  }
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const result = data.map(({ id, value }) => ({ id, doubledValue: value * 2 }));
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(result), 2000);
+    });
+  } catch (error) {
+    console.error('Process Error:', error);
+  }
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const data = await fetch(url, { signal: controller.signal });
+    if (!data.ok) throw new Error('Network response was not ok');
+    clearTimeout(timeoutId);
+
+    const processedData = await processData(url);
+    processedData.forEach(({ id, doubledValue }) => {
+      print(`ID: ${id}, Doubled Value: ${doubledValue}`);
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.error('Fetch aborted due to timeout');
+    } else {
+      console.error('Async Error:', error);
+    }
+  }
+})();

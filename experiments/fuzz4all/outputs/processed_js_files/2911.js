@@ -1,0 +1,52 @@
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      print(`Getting ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new Error(`Property ${prop} doesn't exist`);
+    }
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number' && value > 0) {
+      print(`Setting ${prop} to ${value}`);
+      return Reflect.set(target, prop, value);
+    } else {
+      throw new Error(`Value must be a positive number`);
+    }
+  }
+};
+
+const obj = new Proxy({}, handler);
+
+// Utilizing async/await with Promise and Set to handle asynchronous operations
+(async () => {
+  const randomTimeout = () => new Promise(resolve => setTimeout(() => resolve(Math.floor(Math.random() * 10)), 1000));
+  
+  const uniqueNumbers = new Set();
+  while (uniqueNumbers.size < 5) {
+    const num = await randomTimeout();
+    uniqueNumbers.add(num);
+  }
+  
+  print('Unique numbers:', Array.from(uniqueNumbers));
+
+  // Dynamic module import
+  import('./someModule.js')
+    .then(module => {
+      print('Module loaded:', module);
+    })
+    .catch(err => {
+      console.error('Error loading module:', err);
+    });
+
+   
+  try {
+    obj.age = 25;  
+    print(obj.age);
+    obj.age = -5;  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

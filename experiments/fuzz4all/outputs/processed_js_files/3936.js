@@ -1,0 +1,53 @@
+ 
+
+ 
+export class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  filterData(condition) {
+    return this.data.filter(item => condition(item));
+  }
+
+  processData(operation) {
+    return this.data.map(item => operation(item));
+  }
+}
+
+ 
+import { DataProcessor } from './myModule.js';
+
+ 
+async function fetchData() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve([...Array(10).keys()].map(i => ({ id: i, value: Math.random() * 100 })));
+    }, 1000);
+  });
+}
+
+async function main() {
+  try {
+    const data = await fetchData();
+    const processor = new DataProcessor(data);
+
+     
+    const filteredData = processor.filterData(({ value }) => value > 50);
+    
+     
+    const [first, second, ...rest] = filteredData;
+    
+     
+    const processedData = processor.processData(({ value }) => value.toFixed(2));
+    
+     
+    print('Filtered Data:', ...filteredData);
+    print('Processed Data:', ...processedData);
+    print('First:', first, 'Second:', second, 'Rest:', rest);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();

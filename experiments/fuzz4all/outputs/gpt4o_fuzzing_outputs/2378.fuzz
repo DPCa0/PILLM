@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+}
+
+const asyncOperation = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve('Async Operation Complete'), 1000);
+  });
+};
+
+(async () => {
+  const fib = new Fibonacci(10);
+  const fibNumbers = [...fib];
+  console.log('Fibonacci Sequence:', fibNumbers);
+
+  const obj = { a: 1, b: 2, c: 3 };
+  const { a, ...rest } = obj;
+  console.log('Destructured:', a, rest);
+
+  const asyncResult = await asyncOperation();
+  console.log(asyncResult);
+
+  const map = new Map();
+  map.set('key', { nested: 'value' });
+  console.log('Nested Value:', map.get('key')?.nested ?? 'No Value');
+
+  console.log('Optional Chaining:', obj?.d?.e ?? 'No Value');
+
+  try {
+    throw new Error('An error occurred');
+  } catch ({ message }) {
+    console.log('Caught Error:', message);
+  }
+})();
+```

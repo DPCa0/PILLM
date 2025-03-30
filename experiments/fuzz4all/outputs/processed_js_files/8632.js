@@ -1,0 +1,43 @@
+ 
+async function* fetchDataSimulator() {
+    const data = ["apple", "banana", "cherry"];
+    for (const item of data) {
+         
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            print(`Accessing property '${prop}': ${target[prop]}`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.warn(`Property '${prop}' does not exist`);
+            return undefined;
+        }
+    }
+};
+
+ 
+(async () => {
+    const fruits = {};
+    const proxyFruits = new Proxy(fruits, handler);
+
+     
+    const results = [];
+    for await (const fruit of fetchDataSimulator()) {
+        results.push(fruit);
+    }
+
+     
+    results.forEach((fruit, index) => proxyFruits[index] = fruit);
+
+     
+    print(proxyFruits[0]);  
+    print(proxyFruits[1]);  
+    print(proxyFruits[2]);  
+    print(proxyFruits[3]);  
+})();

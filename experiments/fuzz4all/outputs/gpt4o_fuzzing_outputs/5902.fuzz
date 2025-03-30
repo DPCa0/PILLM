@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  if (!globalThis.lodash) {
+    globalThis.lodash = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.min.js');
+  }
+
+   
+  let config = { server: 'localhost', port: 8_080 };
+  config.server ||= '127.0.0.1';
+  config.port ??= 3_000;
+
+   
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      }
+      console.warn(`Property ${prop} does not exist`);
+      return null;
+    },
+  };
+
+  const data = new Proxy({ name: 'Advanced JavaScript', level: 'high' }, handler);
+
+   
+  async function* fetchData() {
+    for (let i = 0; i < 3; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));  
+      yield { data: `Chunk ${i}` };
+    }
+  }
+
+  for await (const chunk of fetchData()) {
+    console.log(chunk.data);
+  }
+
+   
+  const users = [
+    { name: 'Alice', age: 25 },
+    { name: 'Bob', age: 30 },
+    { name: 'Charlie', age: 35 },
+  ];
+
+  const sortedUsers = lodash.orderBy(users, ['age'], ['desc']);
+  console.table(sortedUsers);
+
+   
+  const styled = (strings, ...values) => {
+    return strings.reduce((acc, str, i) => acc + str + (values[i] ? `<strong>${values[i]}</strong>` : ''), '');
+  };
+
+  const userName = data.name;
+  console.log(styled`Welcome to ${userName}, enjoy your stay!`);
+})();
+```

@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs');
+const crypto = require('crypto');
+
+ 
+(async function() {
+  try {
+     
+    const data = await fs.promises.readFile('data.txt', 'utf8');
+
+     
+    const words = data.split(/\W+/).filter(word => word.length > 3).map(word => word.toLowerCase());
+
+     
+    const uniqueWords = new Set(words);
+
+     
+    const wordArray = [...uniqueWords];
+
+     
+    const hash = crypto.createHash('sha256').update(wordArray.join('')).digest('hex');
+    
+     
+    console.log(`Unique words count: ${wordArray.length}`);
+    console.log(`SHA-256 Hash of unique words: ${hash}`);
+  } catch (error) {
+     
+    console.error('Error reading file:', error);
+  }
+})();
+```
+
+- This script reads from a file called `data.txt`, processes the data to extract unique words longer than three characters, and then computes a SHA-256 hash of these unique words. It demonstrates asynchronous file operations, use of built-in modules, higher-order array methods, template literals, and error handling.

@@ -1,0 +1,45 @@
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 1, message: "Hello, world!" };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+ 
+function* messageGenerator(data) {
+    yield `ID: ${data.id}`;
+    yield `Message: ${data.message}`;
+}
+
+ 
+async function processData() {
+    try {
+        const data = await fetchData();
+
+         
+        const handler = {
+            get: (target, prop) => {
+                print(`Accessed property: ${prop}`);
+                return target[prop];
+            }
+        };
+
+        const proxiedData = new Proxy(data, handler);
+
+         
+        const generator = messageGenerator(proxiedData);
+        for (let message of generator) {
+            print(message);
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+
+ 
+processData();

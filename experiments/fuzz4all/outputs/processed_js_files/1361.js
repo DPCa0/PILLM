@@ -1,0 +1,37 @@
+class Pipeline {
+  constructor(...fns) {
+    this.functions = fns;
+  }
+
+  async execute(input) {
+    let result = input;
+    for (const fn of this.functions) {
+      result = await fn(result);
+    }
+    return result;
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncUpperCase = async str => {
+  await delay(100);
+  return str.toUpperCase();
+};
+
+const asyncAddExclamation = async str => {
+  await delay(100);
+  return str + '!';
+};
+
+const asyncReverseString = async str => {
+  await delay(100);
+  return str.split('').reverse().join('');
+};
+
+const pipeline = new Pipeline(asyncUpperCase, asyncAddExclamation, asyncReverseString);
+
+(async () => {
+  const result = await pipeline.execute('Hello, world');
+  print(result);   
+})();

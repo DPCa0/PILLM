@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+    setTimeout(() => {
+        resolve([
+            { id: 1, name: 'Alice', age: 25 },
+            { id: 2, name: 'Bob', age: 30 },
+            { id: 3, name: 'Charlie', age: 35 }
+        ]);
+    }, 1000);
+});
+
+ 
+async function processData() {
+    try {
+         
+        const data = await fetchData();
+        
+         
+        const names = data.map(({ name, age }) => `${name} (${age})`);
+
+         
+        const content = `
+            <ul>
+                ${names.map(name => `<li>${name}</li>`).join('')}
+            </ul>
+        `;
+
+         
+        document.body.innerHTML = content;
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+ 
+processData();
+```

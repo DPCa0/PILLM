@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const randomTimeout = () => new Promise((resolve) => {
+  setTimeout(() => resolve("Resolved after random time"), Math.random() * 2000);
+});
+
+ 
+async function callWithTimeout() {
+  const result = await randomTimeout();
+  console.log(result);
+}
+
+ 
+function* numberGenerator(max) {
+  let num = 0;
+  while (num <= max) {
+    yield num++;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Getting property: ${prop}`);
+      return target[prop];
+    } else {
+      console.log(`Property not found: ${prop}`);
+      return undefined;
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting property: ${prop} to value: ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const targetObject = {
+  a: 1,
+  b: 2
+};
+
+ 
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+proxyObject.a;  
+proxyObject.b = 3;  
+proxyObject.c;  
+
+ 
+const gen = numberGenerator(5);
+for (let number of gen) {
+  console.log(number);
+}
+
+ 
+(async () => {
+  for (let i = 0; i < 3; i++) {
+    await callWithTimeout();
+  }
+})();
+```

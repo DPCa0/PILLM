@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    const { default: fetch } = await import('node-fetch');
+
+     
+    const dataHandler = {
+        get(target, property) {
+            console.log(`Getting value of ${property}`);
+            return target[property];
+        },
+        set(target, property, value) {
+            console.log(`Setting value of ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        }
+    };
+
+    let data = new Proxy({}, dataHandler);
+
+     
+    try {
+        let response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+        if (!response.ok) throw new Error(`Network response was not ok ${response.statusText}`);
+        
+        let todo = await response.json();
+
+         
+        const { id, title, completed } = todo;
+        data.id = id;
+        data.title = title;
+        data.completed = completed;
+
+         
+        console.log(`Todo:
+        ID: ${data.id}
+        Title: ${data.title}
+        Completed: ${data.completed}`);
+        
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();
+```

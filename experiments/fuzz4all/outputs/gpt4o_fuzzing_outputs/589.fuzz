@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class TaskManager {
+  #tasks = new WeakMap();
+
+  constructor() {
+    const taskList = [];
+    this.#tasks.set(this, taskList);
+  }
+
+  addTask(name, { deadline = new Date(Date.now() + 86400000), priority = 'Medium', completed = false } = {}) {
+    const task = { name, deadline, priority, completed };
+    this.#tasks.get(this).push(task);
+  }
+
+  removeTask(name) {
+    const tasks = this.#tasks.get(this);
+    const index = tasks.findIndex(task => task.name === name);
+    if (index !== -1) {
+      tasks.splice(index, 1);
+    }
+  }
+
+  async completeTask(name) {
+    const task = this.#tasks.get(this).find(task => task.name === name);
+    if (task) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      task.completed = true;
+    }
+  }
+
+  get pendingTasks() {
+    return this.#tasks.get(this).filter(task => !task.completed);
+  }
+
+  logTasks() {
+    console.table(this.#tasks.get(this).map(task => ({
+      ...task,
+      deadline: task.deadline.toLocaleString(),
+      completed: task.completed ? 'Yes' : 'No'
+    })));
+  }
+}
+
+(async () => {
+  const taskManager = new TaskManager();
+  taskManager.addTask('Task 1', { priority: 'High', deadline: new Date(Date.now() + 3600000) });
+  taskManager.addTask('Task 2', { priority: 'Low' });
+
+  console.log('Pending tasks before completion:');
+  taskManager.logTasks();
+
+  await taskManager.completeTask('Task 1');
+
+  console.log('Pending tasks after completion:');
+  taskManager.logTasks();
+})();
+```

@@ -1,0 +1,42 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function processFile(filePath) {
+  try {
+     
+    const data = await readFile(filePath, 'utf8');
+
+     
+    const wordCount = new Map();
+    const uniqueWords = new Set(data.match(/\b\w+\b/g));
+
+    uniqueWords.forEach(word => {
+       
+      const count = [...data.matchAll(new RegExp(`\\b${word}\\b`, 'gi'))].length;
+      wordCount.set(word, count);
+    });
+
+     
+    const sortedWords = [...wordCount.entries()].sort(([, a], [, b]) => b - a);
+
+     
+    print(`Word Count:\n${sortedWords.map(([word, count]) => `${word}: ${count}`).join('\n')}`);
+  } catch (error) {
+    console.error(`Error processing file: ${error.message}`);
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  return strings.raw.reduce((result, str, i) => `${result}${str}${values[i] || ''}`, '');
+}
+
+const filePath = tag`./textfiles/${'sample'}.txt`;
+
+ 
+(async () => {
+  if (filePath.endsWith('.txt')) {
+    await processFile(filePath);
+  }
+})();

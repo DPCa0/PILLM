@@ -1,0 +1,75 @@
+ 
+class AsyncIterable {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async *[Symbol.asyncIterator]() {
+        for (const item of this.data) {
+             
+            yield new Promise(resolve => setTimeout(() => resolve(item), 100));
+        }
+    }
+}
+
+const processItems = async () => {
+    const asyncIterable = new AsyncIterable([1, 2, 3, 4, 5]);
+
+     
+    for await (const item of asyncIterable) {
+        print(`Processing item: ${item}`);
+    }
+    
+     
+    const results = await Promise.all(
+        [1, 2, 3, 4, 5].map(async num => {
+            await new Promise(resolve => setTimeout(resolve, 200));
+            return num * 2;
+        })
+    );
+
+    print('Doubled results:', results);
+
+     
+    const { a, b = 10 } = { a: 5 };
+    print(`Destructured values - a: ${a}, b: ${b}`);
+};
+
+processItems();
+
+ 
+const validator = {
+    set: (obj, prop, value) => {
+        if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new TypeError('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, validator);
+
+try {
+    person.age = 25;
+    print('Age set successfully:', person.age);
+    person.age = -5;  
+} catch (error) {
+    console.error(error.message);
+}
+
+ 
+const privateField = Symbol('privateField');
+
+class MyClass {
+    constructor(value) {
+        this[privateField] = value;
+    }
+
+    getValue() {
+        return this[privateField];
+    }
+}
+
+const instance = new MyClass('secret');
+print('Private field value:', instance.getValue());

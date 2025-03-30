@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (delay, success = true) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (success) {
+                resolve({ data: `Fetched data after ${delay}ms` });
+            } else {
+                reject('Error fetching data');
+            }
+        }, delay);
+    });
+};
+
+ 
+const createLoggingProxy = (target) => {
+    return new Proxy(target, {
+        get: (obj, prop) => {
+            console.log(`Accessing property '${prop}': ${obj[prop]}`);
+            return obj[prop];
+        },
+        set: (obj, prop, value) => {
+            console.log(`Setting property '${prop}' to ${value}`);
+            obj[prop] = value;
+            return true;
+        }
+    });
+};
+
+ 
+const asyncFunction = async () => {
+    try {
+        let result1 = await fetchData(1000);
+        let result2 = await fetchData(500);
+        console.log('Results:', result1.data, result2.data);
+
+        const user = {
+            name: 'Alice',
+            age: 30
+        };
+
+        const userProxy = createLoggingProxy(user);
+        console.log(userProxy.name);  
+        userProxy.age = 31;  
+
+         
+        const arr = [1, 2, 3, 4];
+        const [first, , third] = arr;  
+        console.log(`Destructured array: first=${first}, third=${third}`);
+
+        const numbers = { ...arr };  
+        console.log('Spread object:', numbers);
+
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+asyncFunction();
+```

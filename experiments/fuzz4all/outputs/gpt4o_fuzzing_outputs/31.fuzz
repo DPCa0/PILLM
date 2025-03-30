@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+    return this;
+  }
+
+  async emit(event, ...args) {
+    const listeners = this.events.get(event) || [];
+    const promises = listeners.map(listener => listener(...args));
+    await Promise.all(promises);
+  }
+
+  once(event, listener) {
+    const onceWrapper = async (...args) => {
+      await listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+    return this;
+  }
+
+  off(event, listener) {
+    const listeners = this.events.get(event);
+    if (!listeners) return this;
+    this.events.set(event, listeners.filter(l => l !== listener));
+    return this;
+  }
+}
+
+ 
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (data) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  console.log(`Received: ${data}`);
+});
+
+emitter.once('data', async (data) => {
+  console.log(`First time processing: ${data}`);
+});
+
+(async () => {
+  await emitter.emit('data', 'Hello, world!');
+  await emitter.emit('data', 'Hello again!');
+})();
+```

@@ -1,0 +1,39 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      [prev, curr] = [curr, prev + curr];
+      yield prev;
+    }
+  }
+
+  calculate(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+(async function main() {
+  const fibonacci = new Fibonacci(10);
+  
+   
+  print("Fibonacci sequence using iterators:");
+  for (const num of fibonacci) {
+    print(num);
+  }
+
+   
+  print("\nFibonacci numbers using memoization:");
+  await Promise.all(Array.from({ length: 10 }, async (_, i) => {
+    print(`F(${i}) = ${fibonacci.calculate(i)}`);
+  }));
+})();

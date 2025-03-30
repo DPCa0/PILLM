@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      const data = {
+        status: 200,
+        result: {
+          user: { id: 1, name: 'John Doe', age: 30 },
+          tasks: [
+            { title: 'Learn JavaScript', completed: true },
+            { title: 'Build a project', completed: false }
+          ]
+        }
+      };
+      
+      if (data.status === 200) {
+        resolve(data.result);
+      } else {
+        reject(new Error('Failed to fetch data'));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processUserData = async (url) => {
+  try {
+    const { user, tasks } = await fetchData(url);
+    
+    const completedTasks = tasks.filter(task => task.completed);
+    const formattedUser = {
+      ...user,
+      fullName: user.name.toUpperCase(),
+      completedTasksCount: completedTasks.length
+    };
+
+     
+    const taskTitles = completedTasks.map(task => task.title);
+
+    console.log(`User: ${formattedUser.fullName}, Completed Tasks: ${formattedUser.completedTasksCount}`);
+    console.log('Completed Task Titles:', taskTitles);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+ 
+processUserData('https://api.example.com/userData');
+```

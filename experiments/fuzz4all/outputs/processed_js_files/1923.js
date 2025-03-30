@@ -1,0 +1,64 @@
+class ComplexProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+
+  processAndFilterData() {
+    return this.data
+      .map(item => ({
+        ...item,
+        score: this.calculateScore(item),
+      }))
+      .filter(item => item.score > 50)
+      .reduce((acc, item) => ({
+        ...acc,
+        [item.name]: item.score,
+      }), {});
+  }
+
+  calculateScore(item) {
+    const weights = {
+      attribute1: 0.4,
+      attribute2: 0.6,
+    };
+    return Object.entries(weights).reduce((score, [key, weight]) => 
+      score + (item[key] || 0) * weight, 0
+    );
+  }
+
+  static #privateMethod() {
+    print("This is a private method");
+  }
+
+  *generateDataSequence() {
+    for (let i = 0; i < this.data.length; i++) {
+      yield this.data[i];
+    }
+  }
+}
+
+ 
+(async () => {
+  const data = [
+    { name: 'Item1', attribute1: 30, attribute2: 40 },
+    { name: 'Item2', attribute1: 10, attribute2: 90 },
+    { name: 'Item3', attribute1: 50, attribute2: 20 },
+  ];
+
+  const processor = new ComplexProcessor(data);
+  const filteredData = processor.processAndFilterData();
+  print('Filtered Data:', filteredData);
+
+  const sequence = processor.generateDataSequence();
+  for (let item of sequence) {
+    print('Generated Item:', item);
+  }
+
+  const apiData = await ComplexProcessor.fetchData('https://jsonplaceholder.typicode.com/posts');
+  print('Fetched API Data:', apiData.slice(0, 3));  
+})();

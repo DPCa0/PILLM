@@ -1,0 +1,26 @@
+ 
+async function fetchDataAndProcess(url) {
+  try {
+     
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const { title, userId, body } = data;
+    
+     
+    const processData = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Processed Data: \nTitle: ${title}\nUser ID: ${userId}\nBody: ${body}`);
+      }, 1000);
+    });
+
+    const result = await processData;
+    print(result);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/posts/1');

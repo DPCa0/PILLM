@@ -1,0 +1,37 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+async function processData() {
+  try {
+    const urls = [
+      'https://jsonplaceholder.typicode.com/posts/1',
+      'https://jsonplaceholder.typicode.com/posts/2',
+      'https://jsonplaceholder.typicode.com/posts/3'
+    ];
+
+    const dataPromises = urls.map(url => fetchData(url));
+    
+     
+    const [data1, data2, data3] = await Promise.all(dataPromises);
+    
+     
+    const uniqueUserIds = [...new Set([data1.userId, data2.userId, data3.userId])];
+    
+    print('Fetched Data:', data1, data2, data3);
+    print('Unique User IDs:', uniqueUserIds);
+    
+     
+    const totalChars = [data1, data2, data3].reduce((total, { body }) => total + body.length, 0);
+    print('Total Number of Characters in Posts:', totalChars);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+processData();

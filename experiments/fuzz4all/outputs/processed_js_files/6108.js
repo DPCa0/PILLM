@@ -1,0 +1,43 @@
+class DataPipeline {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *dataGenerator() {
+    for (let item of this.data) {
+      yield new Promise(resolve => setTimeout(() => resolve(item), 1000));
+    }
+  }
+
+  async processPipeline() {
+    const results = [];
+    for await (let item of this.dataGenerator()) {
+      try {
+        const processed = await this.processItem(item);
+        results.push(processed);
+      } catch (error) {
+        console.error("Error processing item:", error);
+      }
+    }
+    return results;
+  }
+
+  async processItem(item) {
+    if (typeof item !== 'string') throw new Error('Invalid item type');
+    return item.split('').reverse().join('');
+  }
+}
+
+const complexData = [
+  'JavaScript',
+  'Generators',
+  'Async',
+  'Promises',
+  'ErrorHandling'
+];
+
+const pipeline = new DataPipeline(complexData);
+
+pipeline.processPipeline().then(results => {
+  print('Processed results:', results);
+});

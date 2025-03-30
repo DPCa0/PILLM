@@ -1,0 +1,40 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve('Data Received'), 2000));
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', data => {
+    print('Listener 1:', data);
+  });
+
+  eventEmitter.on('data', data => {
+    print('Listener 2:', data.toUpperCase());
+  });
+
+  const fetchData = async () => {
+    const data = await asyncOperation();
+    eventEmitter.emit('data', data);
+  };
+
+  const [result1, result2] = await Promise.all([fetchData(), fetchData()]);
+  print('Results:', result1, result2);
+})();

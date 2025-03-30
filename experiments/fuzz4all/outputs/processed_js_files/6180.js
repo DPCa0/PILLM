@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataFetched', (data) => {
+    print('Data:', data);
+  });
+
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const data = await fetchData(url);
+
+  if (data) {
+    eventEmitter.emit('dataFetched', data.slice(0, 3));
+  }
+
+  const dataHandler = new Proxy(data, {
+    get(target, prop) {
+      if (prop in target) {
+        return Reflect.get(target, prop);
+      } else {
+        console.warn(`Property ${prop} does not exist`);
+        return null;
+      }
+    }
+  });
+
+  print('First post title:', dataHandler[0]?.title || 'No title');
+})();

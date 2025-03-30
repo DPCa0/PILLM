@@ -1,0 +1,68 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, arr[0].length);
+        m.map((_, i, j) => arr[i][j]);
+        return m;
+    }
+
+    map(func) {
+        this.data = this.data.map((row, i) =>
+            row.map((val, j) => func(val, i, j, this.data))
+        );
+        return this;
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) throw new Error("Columns of A must match rows of B");
+        return new Matrix(a.rows, b.cols).map((_, i, j) =>
+            a.data[i].reduce((sum, val, n) => sum + val * b.data[n][j], 0)
+        );
+    }
+
+    [Symbol.iterator]() {
+        let idx = 0;
+        return {
+            next: () => {
+                let i = Math.floor(idx / this.cols);
+                let j = idx % this.cols;
+                idx++;
+                return idx <= this.rows * this.cols
+                    ? { value: this.data[i][j], done: false }
+                    : { done: true };
+            },
+        };
+    }
+
+    toString() {
+        return this.data.map(row => row.join(' ')).join('\n');
+    }
+}
+
+function asyncProcess(input) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(input.map(x => x * 2));
+        }, 1000);
+    });
+}
+
+(async () => {
+    const a = new Matrix(2, 3).map(() => Math.floor(Math.random() * 10));
+    const b = new Matrix(3, 2).map(() => Math.floor(Math.random() * 10));
+    print("Matrix A:\n" + a.toString());
+    print("Matrix B:\n" + b.toString());
+
+    const result = Matrix.multiply(a, b);
+    print("Matrix A * B:\n" + result.toString());
+
+    const flatResult = [...result];
+    print("Flattened Result: ", flatResult);
+
+    const processed = await asyncProcess(flatResult);
+    print("Processed Result: ", processed);

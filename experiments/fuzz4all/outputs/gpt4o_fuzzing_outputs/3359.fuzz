@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+(async function advancedFeatures() {
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+  class User {
+    #name;  
+    constructor(name) {
+      this.#name = name;
+    }
+    
+    get name() {
+      return this.#name;
+    }
+    
+    async greet() {
+      await delay(1000);
+      console.log(`Hello, ${this.#name}!`);
+    }
+  }
+
+  const createProxy = (target) => {
+    return new Proxy(target, {
+      get(obj, prop) {
+        if (prop in obj) {
+          return obj[prop];
+        }
+        throw new Error(`Property ${prop} does not exist`);
+      }
+    });
+  };
+
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  };
+
+  const handleData = async () => {
+    try {
+      const data = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+      const user = new User(data.name);
+      const proxiedUser = createProxy(user);
+      await proxiedUser.greet();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  handleData();
+})();
+```

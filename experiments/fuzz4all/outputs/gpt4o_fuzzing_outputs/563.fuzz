@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+function* numberTransformer(seed) {
+  let number = seed;
+  while (true) {
+    number += 2;
+    yield number ** 2;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const proxyObj = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  console.log('Fetched Data:', data);
+
+  const gen = numberTransformer(0);
+  console.log('Next Transformed Number:', gen.next().value);
+  console.log('Next Transformed Number:', gen.next().value);
+
+  console.log(proxyObj.a);  
+  proxyObj.a = 10;          
+  console.log(proxyObj.a);  
+})();
+```

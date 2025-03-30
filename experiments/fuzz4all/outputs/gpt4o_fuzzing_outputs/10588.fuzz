@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+const asyncTask = (task, time) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(`Task ${task} completed.`);
+      resolve(task);
+    }, time);
+  });
+};
+
+(async function executeTasks() {
+  const tasks = [
+    asyncTask('A', 1000),
+    asyncTask('B', 500),
+    asyncTask('C', 1200),
+  ];
+
+  console.log('Executing tasks...');
+  await Promise.all(tasks);
+  console.log('All tasks completed!');
+})();
+
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return Reflect.get(target, prop);
+    } else {
+      console.log(`Property ${prop} does not exist.`);
+      return undefined;
+    }
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj.existingProp = 'I exist!';
+
+console.log(obj.existingProp);  
+console.log(obj.nonExistingProp);  
+
+const uniqueSym1 = Symbol('unique');
+const uniqueSym2 = Symbol('unique');
+
+console.log(uniqueSym1 === uniqueSym2);  
+
+const symObj = {
+  [uniqueSym1]: 'Value for uniqueSym1',
+};
+
+console.log(symObj[uniqueSym1]);  
+console.log(symObj[uniqueSym2]);  
+```

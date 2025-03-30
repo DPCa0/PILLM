@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, fillFunction) {
+        this.data = Array.from({ length: rows }, (_, r) =>
+            Array.from({ length: cols }, (_, c) => fillFunction(r, c))
+        );
+    }
+
+    static multiply(m1, m2) {
+        if (m1.data[0].length !== m2.data.length) {
+            throw new Error('Matrices are not compatible for multiplication');
+        }
+
+        return new Matrix(m1.data.length, m2.data[0].length, (r, c) =>
+            m1.data[r].reduce((sum, _, i) => sum + m1.data[r][i] * m2.data[i][c], 0)
+        );
+    }
+
+    log() {
+        console.table(this.data);
+    }
+}
+
+const randomFill = () => Math.floor(Math.random() * 10);
+const matrixA = new Matrix(3, 2, randomFill);
+const matrixB = new Matrix(2, 3, randomFill);
+
+console.log('Matrix A:');
+matrixA.log();
+console.log('Matrix B:');
+matrixB.log();
+
+try {
+    const matrixC = Matrix.multiply(matrixA, matrixB);
+    console.log('Matrix C (A multiplied by B):');
+    matrixC.log();
+} catch (error) {
+    console.error(error.message);
+}
+```

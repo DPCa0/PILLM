@@ -1,0 +1,32 @@
+ 
+const fetchData = async (urls) => {
+  try {
+     
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+    
+     
+    const dataPromises = responses.map(async response => {
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json();
+    });
+    
+    const results = await Promise.all(dataPromises);
+    
+     
+    const [firstResult, ...otherResults] = results;
+    
+     
+    print(`First Result: ${JSON.stringify(firstResult)}`);
+    print(`Other Results: ${JSON.stringify(otherResults)}`);
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+  }
+};
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+fetchData([...urls]);

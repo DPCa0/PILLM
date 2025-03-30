@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: "Fetched Data" });
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Getting property '${prop}' with value: ${target[prop]}`);
+      return target[prop];
+    }
+    console.error(`Property '${prop}' not found.`);
+    return undefined;
+  },
+  set: (target, prop, value) => {
+    if (prop === "data" && typeof value !== "string") {
+      console.error("Data must be a string.");
+      return false;
+    }
+    console.log(`Setting property '${prop}' to value: ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const dataObject = { data: "Initial Data", timestamp: Date.now() };
+
+ 
+const proxiedData = new Proxy(dataObject, handler);
+
+ 
+async function processData() {
+  try {
+    console.log("Starting data processing...");
+     
+    const fetched = await fetchData();
+     
+    proxiedData.data = fetched.data;
+     
+    proxiedData.data = 123;  
+     
+    console.log(proxiedData.data);
+    console.log(proxiedData.timestamp);
+  } catch (error) {
+    console.error("Error in processing data:", error);
+  }
+}
+
+processData();
+```

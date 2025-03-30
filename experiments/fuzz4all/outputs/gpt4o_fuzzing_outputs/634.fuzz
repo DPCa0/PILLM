@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+  let i = 1;
+  while (true) {
+    yield i++;
+  }
+}
+
+ 
+async function fetchNumbers(generator, count) {
+  let numbers = [];
+  for (let i = 0; i < count; i++) {
+    numbers.push(generator.next().value);
+  }
+  return numbers;
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property === 'fetch') {
+      return async (count) => {
+        return target._fetchNumbers(count).then((numbers) => numbers.map(n => n * 2));
+      };
+    }
+    return target[property];
+  },
+};
+
+ 
+const proxy = new Proxy(
+  {
+    _fetchNumbers: (count) => fetchNumbers(numberGenerator(), count),
+  },
+  handler
+);
+
+ 
+(async function() {
+  const count = 5;
+  const numbers = await proxy.fetch(count);
+  console.log(`Fetched and doubled numbers: ${numbers}`);
+})();
+```

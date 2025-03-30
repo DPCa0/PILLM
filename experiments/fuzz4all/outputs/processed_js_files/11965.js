@@ -1,0 +1,39 @@
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const transformData = (data) => {
+  return data.map(({ id, name, details }) => ({
+    id,
+    name,
+    description: details ? details.description : 'No description available',
+  }));
+};
+
+const processAndDisplayData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const transformedData = transformData(data);
+
+    console.table(transformedData);
+
+    const totalItems = transformedData.length;
+    const getItemCountMessage = () => `Total items processed: ${totalItems}`;
+    
+    (() => print(getItemCountMessage()))();
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+};
+
+ 
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/users';
+processAndDisplayData(apiEndpoint);

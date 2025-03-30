@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueID = Symbol('id');
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Getting property ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { [uniqueID]: 42, name: 'Advanced JS' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function* fetchNumbers() {
+    const numbers = [1, 2, 3, 4, 5];
+    for (const num of numbers) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield num;
+    }
+}
+
+ 
+async function processNumbers() {
+    const numbers = [];
+    for await (const num of fetchNumbers()) {
+        numbers.push(num);
+    }
+    return numbers;
+}
+
+ 
+proxyObject.name = 'Updated JS';
+console.log(proxyObject.name);
+
+ 
+(async () => {
+    console.log('Fetching numbers...');
+    const numbers = await processNumbers();
+    console.log('Fetched numbers:', numbers);
+
+     
+    console.log(`Unique ID is: ${proxyObject[uniqueID]}`);
+})();
+```

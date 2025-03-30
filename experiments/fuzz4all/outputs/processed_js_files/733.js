@@ -1,0 +1,66 @@
+ 
+function* generateSequence(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i;
+    }
+}
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        return prop in target ? target[prop] : 'Property does not exist';
+    }
+};
+
+const data = { a: 1, b: 2, c: 3 };
+const proxyData = new Proxy(data, handler);
+
+ 
+class MathOperations {
+    #value;
+
+    constructor(value) {
+        this.#value = value;
+    }
+
+    get value() {
+        return this.#value;
+    }
+
+    static square(x) {
+        return x * x;
+    }
+
+    async fetchAndMultiply(url) {
+        const data = await fetchData(url);
+        return this.#value * data.number;
+    }
+}
+
+ 
+const logResults = (sequence, squaredValue, fetchedValue) => {
+    print(`Sequence: ${[...sequence].join(', ')}`);
+    print(`Squared Value: ${squaredValue}`);
+    print(`Fetched & Multiplied Value: ${fetchedValue}`);
+};
+
+ 
+(async () => {
+    const sequenceGenerator = generateSequence(1, 5);
+    const mathOp = new MathOperations(5);
+    
+    const squaredValue = MathOperations.square(4);
+    const fetchedValue = await mathOp.fetchAndMultiply('https://api.mocki.io/v1/b043df5a');
+
+    logResults(sequenceGenerator, squaredValue, fetchedValue);
+    print(`Proxy Access: ${proxyData.a}, ${proxyData.d}`);  
+})();

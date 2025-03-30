@@ -1,0 +1,37 @@
+ 
+class ApiService {
+  constructor() {
+    this.baseURL = 'https://jsonplaceholder.typicode.com';
+  }
+  
+  async getData(endpoint) {
+    const response = await fetch(`${this.baseURL}${endpoint}`);
+    if (!response.ok) throw new Error('Failed to fetch data');
+    return await response.json();
+  }
+}
+
+const fetchDataParallel = async (endpoints) => {
+  const apiService = new ApiService();
+  try {
+    const results = await Promise.all(
+      endpoints.map(endpoint => apiService.getData(endpoint))
+    );
+    return results;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+(async () => {
+  const endpoints = ['/posts/1', '/users/1', '/comments?postId=1'];
+  const [post, user, comments] = await fetchDataParallel(endpoints);
+
+  const postInfo = {
+    ...post,
+    author: user.name,
+    comments: comments.map(comment => comment.body)
+  };
+
+  print(postInfo);
+})();

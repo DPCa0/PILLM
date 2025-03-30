@@ -1,0 +1,30 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return await response.json();
+};
+
+const processData = (data) => {
+  return data
+    .filter(({ completed }) => completed)
+    .map(({ title, userId }) => ({ task: title.toUpperCase(), owner: userId }));
+};
+
+const main = async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/todos';
+    const data = await fetchData(url);
+    const processed = processData(data);
+    const groupedByOwner = processed.reduce((acc, { task, owner }) => {
+      if (!acc[owner]) acc[owner] = [];
+      acc[owner].push(task);
+      return acc;
+    }, {});
+
+    print(groupedByOwner);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+main();

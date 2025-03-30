@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+import { pipeline } from 'stream';
+import { createReadStream, createWriteStream } from 'fs';
+import { promisify } from 'util';
+import { Transform } from 'stream';
+
+ 
+const pipelineAsync = promisify(pipeline);
+
+ 
+(async () => {
+  try {
+     
+    const transformStream = new Transform({
+      transform(chunk, encoding, callback) {
+         
+        this.push(chunk.toString().split('').reverse().join(''));
+        callback();
+      }
+    });
+
+     
+    async function processFile(inputFilePath, outputFilePath) {
+      const readStream = createReadStream(inputFilePath);
+      const writeStream = createWriteStream(outputFilePath);
+
+       
+      for await (const chunk of readStream) {
+        writeStream.write(chunk.toString().toUpperCase());
+      }
+
+      writeStream.end();
+    }
+
+     
+    await pipelineAsync(
+      createReadStream('input.txt'),
+      transformStream,
+      createWriteStream('output.txt')
+    );
+
+     
+    processFile('input.txt', 'transformed.txt')
+      .then(() => console.log('File processing completed.'))
+      .catch(error => console.error(`Error in processing file: ${error}`));
+
+  } catch (error) {
+    console.error(`Pipeline failed: ${error}`);
+  }
+})();
+```

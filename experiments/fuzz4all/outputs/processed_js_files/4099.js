@@ -1,0 +1,75 @@
+ 
+const complexCalculation = async (input) => {
+  const multiply = (x) => new Promise((resolve) => setTimeout(() => resolve(x * 10), 500));
+  const divide = (x) => new Promise((resolve) => setTimeout(() => resolve(x / 2), 300));
+  const add = (x) => new Promise((resolve) => setTimeout(() => resolve(x + 5), 400));
+
+  try {
+    let result = await multiply(input);
+    print(`After multiplication: ${result}`);
+    result = await divide(result);
+    print(`After division: ${result}`);
+    result = await add(result);
+    print(`After addition: ${result}`);
+    return result;
+  } catch (error) {
+    console.error('Error in calculation:', error);
+  }
+};
+
+ 
+const handler = {
+  set(target, key, value) {
+    if (typeof value !== 'number') {
+      throw new TypeError('Property value must be a number');
+    }
+    target[key] = value;
+    return true;
+  }
+};
+
+const data = new Proxy({}, handler);
+
+try {
+  data.value = 42;  
+  print('Initial value set to:', data.value);
+  data.value = 'string';  
+} catch (error) {
+  console.error('Caught error:', error.message);
+}
+
+ 
+const counter = (() => {
+  let count = 0;
+  return {
+    increment() {
+      count++;
+      return count;
+    },
+    decrement() {
+      count--;
+      return count;
+    },
+    getCount() {
+      return count;
+    }
+  };
+})();
+
+print('Counter value:', counter.increment());
+print('Counter value:', counter.decrement());
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    return `${result}${str}<em>${values[i] || ''}</em>`;
+  }, '');
+}
+
+const name = 'world';
+print(highlight`Hello, ${name}! This is a ${'complex'} JavaScript program.`);
+
+ 
+complexCalculation(5).then(finalResult => {
+  print('Final result of complex calculation:', finalResult);
+});

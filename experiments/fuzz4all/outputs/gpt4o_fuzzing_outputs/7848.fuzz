@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+ 
+const _name = Symbol('name');
+const _status = Symbol('status');
+
+class Task {
+  constructor(name) {
+    this[_name] = name;
+    this[_status] = 'Pending';
+  }
+  
+  get name() {
+    return this[_name];
+  }
+  
+  get status() {
+    return this[_status];
+  }
+
+  markCompleted() {
+    this[_status] = 'Completed';
+  }
+
+  [Symbol.iterator]() {
+    let properties = Object.keys(this);
+    let count = 0;
+    const task = this;
+    return {
+      next() {
+        if (count < properties.length) {
+          return { value: task[properties[count++]], done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+ 
+const taskHandler = {
+  set(target, property, value) {
+    if (property === 'name' && value.length < 3) {
+      throw new Error('Task name must be at least 3 characters long.');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const tasks = new Proxy([], {
+  get(target, property, receiver) {
+    if (property === 'completed') {
+      return target.filter(task => task.status === 'Completed');
+    }
+    return Reflect.get(target, property, receiver);
+  }
+});
+
+ 
+try {
+  let task1 = new Task('Task One');
+  let task2 = new Task('Task Two');
+  
+  task2.markCompleted();
+
+  tasks.push(new Proxy(task1, taskHandler));
+  tasks.push(new Proxy(task2, taskHandler));
+
+   
+  for (const prop of task1) {
+    console.log(prop);
+  }
+
+  console.log('All Tasks:', tasks);
+  console.log('Completed Tasks:', tasks.completed);
+
+} catch (error) {
+  console.error(error.message);
+}
+```

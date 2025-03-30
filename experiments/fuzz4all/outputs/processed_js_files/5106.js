@@ -1,0 +1,41 @@
+class FetchDataError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "FetchDataError";
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new FetchDataError(`Failed to fetch data from ${url}`);
+  }
+  return response.json();
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    return data.map(({ id, value }) => ({ id, value: value * 2 }));
+  } catch (error) {
+    if (error instanceof FetchDataError) {
+      console.error(error.message);
+    } else {
+      console.error("An unexpected error occurred:", error);
+    }
+  }
+};
+
+(async () => {
+  const results = await processData("https://api.example.com/data");
+  print("Processed Data:", results);
+})();
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

@@ -1,0 +1,62 @@
+class EventEmitter {
+    #listeners = new Map();
+
+    on(event, listener) {
+        if (!this.#listeners.has(event)) {
+            this.#listeners.set(event, []);
+        }
+        this.#listeners.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#listeners.has(event)) {
+            for (const listener of this.#listeners.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    once(event, listener) {
+        const onceWrapper = (...args) => {
+            listener(...args);
+            this.off(event, onceWrapper);
+        };
+        this.on(event, onceWrapper);
+    }
+
+    off(event, listener) {
+        if (this.#listeners.has(event)) {
+            const listeners = this.#listeners.get(event);
+            const index = listeners.indexOf(listener);
+            if (index >= 0) {
+                listeners.splice(index, 1);
+            }
+        }
+    }
+}
+
+const asyncOperation = () => new Promise((resolve) => setTimeout(() => resolve("Operation Completed"), 1000));
+
+const logExecutionTime = async (fn) => {
+    console.time('Execution Time');
+    const result = await fn();
+    console.timeEnd('Execution Time');
+    return result;
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', (data) => {
+        print('Data received:', data);
+    });
+
+    eventEmitter.once('complete', (message) => {
+        print(message);
+    });
+
+    const data = await logExecutionTime(asyncOperation);
+    eventEmitter.emit('data', data);
+    eventEmitter.emit('complete', 'Processing Completed');
+    eventEmitter.emit('complete', 'This should not appear again');
+})();

@@ -1,0 +1,87 @@
+class Observable {
+    constructor() {
+        this.observers = [];
+    }
+    subscribe(observer) {
+        this.observers.push(observer);
+    }
+    unsubscribe(observer) {
+        this.observers = this.observers.filter(obs => obs !== observer);
+    }
+    notify(data) {
+        this.observers.forEach(observer => observer(data));
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* asyncGenerator() {
+    yield 'First';
+    await delay(1000);
+    yield 'Second';
+    await delay(1000);
+    yield 'Third';
+}
+
+const observable = new Observable();
+
+observable.subscribe(data => print('Observer 1:', data));
+observable.subscribe(data => print('Observer 2:', data));
+
+(async function run() {
+    for await (let value of asyncGenerator()) {
+        observable.notify(value);
+    }
+})();
+
+const fibMemo = (fn => {
+    const cache = {};
+    return (...args) => {
+        const n = args[0];
+        if (n in cache) {
+            return cache[n];
+        }
+        cache[n] = fn(n);
+        return cache[n];
+    };
+})(n => (n <= 1 ? n : fibMemo(n - 1) + fibMemo(n - 2)));
+
+print('Fibonacci of 10:', fibMemo(10));
+
+const user = {
+    name: 'Alice',
+    age: 25,
+    location: 'Wonderland'
+};
+
+const {name, ...rest} = user;
+print('Name:', name);
+print('Rest:', rest);
+
+const add = (a, b) => a + b;
+const memoize = fn => {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+const memoizedAdd = memoize(add);
+print('Memoized add:', memoizedAdd(1, 2));
+print('Memoized add again:', memoizedAdd(1, 2));
+
+const fetchData = async () => {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+    const data = await response.json();
+    print('Fetched data:', data);
+};
+
+fetchData();

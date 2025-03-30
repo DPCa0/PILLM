@@ -1,0 +1,39 @@
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      print(`Accessing property '${prop}'`);
+      return Reflect.get(...arguments);
+    } else {
+      console.warn(`Property '${prop}' does not exist.`);
+      return undefined;
+    }
+  }
+};
+
+const proxiedFetcher = new Proxy(new DataFetcher('https://jsonplaceholder.typicode.com/posts'), handler);
+
+(async () => {
+  const data = await proxiedFetcher.fetchData();
+  if (data) {
+    print('Fetched Data:', data.slice(0, 5));  
+  }
+})();

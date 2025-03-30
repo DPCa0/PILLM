@@ -1,0 +1,51 @@
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+}
+
+ 
+async function* dataGenerator() {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    if (data) {
+        for (const item of data) {
+            yield item;
+        }
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        print(`Getting property ${property}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+let user = { name: 'Alice', age: 25 };
+const proxyUser = new Proxy(user, handler);
+
+ 
+(async () => {
+    const iterator = dataGenerator();
+    const post1 = await iterator.next();
+    print('First post:', post1.value);
+
+     
+    print('Current user name:', proxyUser.name);
+    proxyUser.name = 'Bob';
+    print('Updated user name:', proxyUser.name);
+})();

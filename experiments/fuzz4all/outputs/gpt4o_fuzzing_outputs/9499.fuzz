@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+const { readFile } = require('fs').promises;
+
+ 
+async function displayFileContent(filePath) {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    console.log('File Content:', data);
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+}
+
+ 
+const targetObject = { message: 'Hello, world!' };
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(proxy.message);
+proxy.message = 'Hello, universe!';
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((result, string, i) => `${result}${string}${values[i] ? `<<${values[i]}>>` : ''}`, '');
+}
+
+const name = 'JavaScript';
+console.log(tag`Welcome to ${name}, a world of endless possibilities!`);
+
+ 
+const user = {
+  profile: {
+    name: 'Jane Doe',
+  }
+};
+
+console.log(user.profile?.name ?? 'Anonymous');
+console.log(user.profile?.age ?? 'Age not available');
+
+ 
+displayFileContent('example.txt');
+```

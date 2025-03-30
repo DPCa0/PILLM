@@ -1,0 +1,51 @@
+ 
+const fetch = require('node-fetch');
+
+ 
+const getUserData = (userId) =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve({ id: userId, name: 'John Doe', age: 30 }), 1000);
+  });
+
+const getUserPosts = (userId) =>
+  new Promise((resolve) => {
+    setTimeout(
+      () =>
+        resolve([
+          { userId, postId: 1, title: 'First Post' },
+          { userId, postId: 2, title: 'Second Post' },
+        ]),
+      1000
+    );
+  });
+
+const getPostComments = (postId) =>
+  new Promise((resolve) => {
+    setTimeout(() => resolve(['Great post!', 'Very informative!']), 1000);
+  });
+
+ 
+(async function main() {
+  try {
+    const userId = 1;
+
+     
+    const [userData, userPosts] = await Promise.all([
+      getUserData(userId),
+      getUserPosts(userId),
+    ]);
+
+    print(`User: ${userData.name}, Age: ${userData.age}`);
+
+     
+    const [{ postId }] = userPosts;
+
+     
+    const comments = await getPostComments(postId);
+
+    print(`Post Title: ${userPosts[0].title}`);
+    print('Comments:', comments);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

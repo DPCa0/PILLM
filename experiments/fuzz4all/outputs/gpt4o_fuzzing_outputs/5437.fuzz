@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+const multiply = (...args) => args.reduce((acc, num) => acc * num, 1);
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+function introducePerson({ name, age, city }) {
+  console.log(`Hello! My name is ${name}, I'm ${age} years old, and I live in ${city}.`);
+}
+
+// Class with getters, setters, static methods, and private fields
+class Rectangle {
+  #width;
+  #height;
+
+  constructor(width, height) {
+    this.#width = width;
+    this.#height = height;
+  }
+
+  get area() {
+    return this.#width * this.#height;
+  }
+
+  set dimensions({ width, height }) {
+    this.#width = width;
+    this.#height = height;
+  }
+
+  static isSquare(rect) {
+    return rect.#width === rect.#height;
+  }
+}
+
+// Using Proxy to log operations on an object
+const person = new Proxy({ name: 'Alice', age: 30 }, {
+  get(target, prop) {
+    console.log(`Getting ${prop}: ${target[prop]}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+// Invoking functions and class operations
+const nums = [2, 3, 4];
+console.log(`The product is: ${multiply(...nums)}`);
+
+fetchData('https: 
+  .then(data => console.log('Fetched data:', data));
+
+introducePerson({ name: 'John', age: 25, city: 'New York' });
+
+const rect = new Rectangle(10, 20);
+console.log(`Rectangle area: ${rect.area}`);
+rect.dimensions = { width: 15, height: 15 };
+console.log(`New Rectangle area: ${rect.area}`);
+console.log(`Is square: ${Rectangle.isSquare(rect)}`);
+
+person.name = 'Bob';
+console.log(person.age);
+```

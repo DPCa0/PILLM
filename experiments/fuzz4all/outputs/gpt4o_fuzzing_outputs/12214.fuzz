@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* asyncGenerator() {
+    yield new Promise((resolve) => setTimeout(() => resolve("Data 1"), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve("Data 2"), 2000));
+    yield new Promise((resolve) => setTimeout(() => resolve("Data 3"), 3000));
+}
+
+ 
+async function handleAsync(generator) {
+    for (let promise of generator) {
+        let result = await promise;
+        console.log(result);
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Getting property: ${prop}`);
+            return target[prop];
+        }
+        console.log(`Property ${prop} does not exist`);
+        return undefined;
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const dataStore = {};
+
+ 
+const proxyDataStore = new Proxy(dataStore, handler);
+
+ 
+proxyDataStore.name = "Advanced JS";
+console.log(proxyDataStore.name);
+console.log(proxyDataStore.nonExistentProperty);
+
+ 
+handleAsync(asyncGenerator());
+```

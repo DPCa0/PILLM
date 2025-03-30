@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr);
+  }
+
+  static identity(size) {
+    return new Matrix(Array.from({ length: size }, (_, i) => 
+      Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
+    ));
+  }
+
+  multiply(matrix) {
+    if (this.data[0].length !== matrix.data.length) {
+      throw new Error('Matrix dimensions must agree');
+    }
+    const result = this.data.map(row => 
+      matrix.data[0].map((_, j) => 
+        row.reduce((sum, elm, i) => sum + elm * matrix.data[i][j], 0)
+      )
+    );
+    return new Matrix(result);
+  }
+
+  async mapAsync(fn) {
+    const promises = this.data.map(row => 
+      Promise.all(row.map(async val => fn(val)))
+    );
+    const result = await Promise.all(promises);
+    return new Matrix(result);
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const data = this.data;
+    return {
+      next() {
+        if (row < data.length && col < data[row].length) {
+          const value = data[row][col];
+          col++;
+          if (col === data[row].length) {
+            col = 0;
+            row++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  const m1 = Matrix.fromArray([[1, 2], [3, 4]]);
+  const m2 = Matrix.identity(2);
+
+  const m3 = m1.multiply(m2);
+
+  console.log(m3.toString());
+
+  const squaredMatrix = await m3.mapAsync(async x => x ** 2);
+  
+  console.log('Squared matrix:');
+  console.log(squaredMatrix.toString());
+
+  console.log('Iterating over matrix:');
+  for (const value of squaredMatrix) {
+    console.log(value);
+  }
+})();
+```

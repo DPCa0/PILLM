@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+async function complexFunction() {
+    const data = await fetchData();
+    const processedData = processData(data);
+    
+    try {
+        const result = await computeResult(processedData);
+        console.log(`Final result: ${result}`);
+    } catch (error) {
+        console.error(`Error in computation: ${error}`);
+    }
+}
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([1, 2, 3, 4, 5]);
+        }, 1000);
+    });
+}
+
+ 
+function processData(data) {
+    return data.map(x => x * 2).filter(x => x > 5);
+}
+
+ 
+async function computeResult(data) {
+    const worker = new Worker(URL.createObjectURL(new Blob([`
+        onmessage = function(event) {
+            const result = event.data.reduce((sum, value) => sum + value, 0);
+            postMessage(result);
+        }
+    `], { type: 'application/javascript' })));
+
+    return new Promise((resolve, reject) => {
+        worker.onmessage = (e) => {
+            resolve(e.data);
+            worker.terminate();
+        };
+        worker.onerror = (e) => {
+            reject(e.message);
+            worker.terminate();
+        };
+        worker.postMessage(data);
+    });
+}
+
+complexFunction();
+```

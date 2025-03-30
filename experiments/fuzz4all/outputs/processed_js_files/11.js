@@ -1,0 +1,57 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, new Set());
+        }
+        this.#events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).delete(listener);
+        }
+    }
+}
+
+const asyncOperation = async (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+async function* asyncGenerator() {
+    let i = 0;
+    while (i < 3) {
+        await asyncOperation(1000);
+        yield i++;
+    }
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('tick', (message) => print(`Tick received: ${message}`));
+
+(async () => {
+    for await (let value of asyncGenerator()) {
+        emitter.emit('tick', `Value is ${value}`);
+    }
+})();
+
+ 
+const config = { timeout: 1000 };
+print(`Timeout: ${config?.timeout ?? 3000}`);
+
+const deepClone = (obj) => {
+    return structuredClone(obj);
+};
+
+const original = { nested: { number: 42 } };
+const clone = deepClone(original);
+original.nested.number = 24;
+print(`Original: ${original.nested.number}, Clone: ${clone.nested.number}`);

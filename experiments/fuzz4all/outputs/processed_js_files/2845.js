@@ -1,0 +1,40 @@
+class DataLoader {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+}
+
+const processData = async (data) => {
+  const filteredData = data.filter(item => item.isActive);
+  const mappedData = filteredData.map(({ id, name, email }) => ({ id, name, email }));
+  
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mappedData), 1000);  
+  });
+};
+
+const displayData = (data) => {
+  console.table(data);
+};
+
+const main = async () => {
+  const dataLoader = new DataLoader('https://jsonplaceholder.typicode.com/users');
+  
+  try {
+    const data = await dataLoader.fetchData();
+    const processedData = await processData(data);
+    displayData(processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+main();

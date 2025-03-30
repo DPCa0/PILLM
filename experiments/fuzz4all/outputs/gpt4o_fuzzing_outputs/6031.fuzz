@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: {
+                    id: 1,
+                    name: "Jane Doe",
+                    email: "jane.doe@example.com",
+                },
+                settings: {
+                    theme: "dark",
+                    notifications: true
+                }
+            });
+        }, 1000);
+    });
+};
+
+ 
+(async () => {
+    try {
+         
+        const { user, settings: { theme } } = await fetchData();
+
+         
+        console.log(`User Info:
+        - ID: ${user.id}
+        - Name: ${user.name}
+        - Email: ${user.email ?? 'No email provided'}
+        - Preferred Theme: ${theme}`);
+
+         
+        const [themeResult, notificationResult] = await Promise.all([
+            new Promise(resolve => setTimeout(() => resolve(`Theme applied: ${theme}`), 500)),
+            new Promise(resolve => setTimeout(() => resolve('Notifications turned ON'), 500))
+        ]);
+
+        console.log(themeResult);
+        console.log(notificationResult);
+
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();
+```

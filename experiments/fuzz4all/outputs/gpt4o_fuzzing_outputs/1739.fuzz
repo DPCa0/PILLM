@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(array) {
+    return new Matrix(array.map(row => [...row]));
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const data = this.data;
+    return {
+      next() {
+        if (row >= data.length) {
+          return { done: true };
+        }
+        const value = data[row][col];
+        col++;
+        if (col >= data[row].length) {
+          col = 0;
+          row++;
+        }
+        return { value, done: false };
+      }
+    };
+  }
+
+  get rows() {
+    return this.data.length;
+  }
+
+  get cols() {
+    return this.data[0].length;
+  }
+
+  *transpose() {
+    for (let i = 0; i < this.cols; i++) {
+      let newRow = [];
+      for (let j = 0; j < this.rows; j++) {
+        newRow.push(this.data[j][i]);
+      }
+      yield newRow;
+    }
+  }
+
+  map(callback) {
+    return Matrix.from(this.data.map((row, rowIndex) => 
+      row.map((val, colIndex) => callback(val, rowIndex, colIndex))
+    ));
+  }
+}
+
+ 
+const matrix = new Matrix([
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+]);
+
+const newMatrix = matrix.map((val, row, col) => val * 2);
+
+console.log("Original Matrix:");
+for (const value of matrix) {
+  process.stdout.write(value + " ");
+}
+console.log("\n\nTransposed Matrix:");
+for (const newRow of matrix.transpose()) {
+  console.log(newRow);
+}
+
+console.log("\nMapped Matrix:");
+for (const value of newMatrix) {
+  process.stdout.write(value + " ");
+}
+```

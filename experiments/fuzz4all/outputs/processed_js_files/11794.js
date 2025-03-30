@@ -1,0 +1,34 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (url === 'https://api.example.com/data') {
+      resolve({ data: { userId: 1, name: 'John Doe', isActive: true } });
+    } else {
+      reject(new Error('Invalid URL'));
+    }
+  }, 1000);
+});
+
+ 
+async function processData() {
+  try {
+     
+    const { data } = await fetchData('https://api.example.com/data');
+
+     
+    const { userId, name, isActive } = data;
+
+     
+    console.log(`User Info:
+      ID: ${userId}
+      Name: ${name}
+      Active: ${isActive ? 'Yes' : 'No'}`);
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+}
+
+ 
+processData();

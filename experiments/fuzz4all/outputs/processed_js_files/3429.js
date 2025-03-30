@@ -1,0 +1,63 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'asyncGreeting') {
+            return async () => {
+                await delay(1000);
+                return `Hello, ${Reflect.get(target, 'name', receiver)}!`;
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+     
+    class User {
+        constructor(name) {
+            this.name = name;
+            this[uniqueKey] = Math.random();
+        }
+        get [Symbol.toStringTag]() {
+            return 'UserInstance';
+        }
+    }
+
+     
+    const user = new User('Alice');
+
+     
+    const proxyUser = new Proxy(user, handler);
+
+     
+    const { name: userName, [uniqueKey]: id, ...rest } = proxyUser;
+
+     
+    const tag = (strs, ...values) => strs.reduce((acc, s, i) => `${acc}${s}<${values[i] || ''}>`, '');
+    const userInfo = tag`User Name: ${userName}, ID: ${id}`;
+
+    print(userInfo);
+    
+     
+    print(await proxyUser.asyncGreeting());
+
+     
+    const utilities = {
+        log(...args) {
+            args.forEach(arg => print(arg));
+        },
+        sum: (...nums) => nums.reduce((a, b) => a + b, 0)
+    };
+
+    utilities.log('Utilities:', `Sum: ${utilities.sum(1, 2, 3, 4)}`, rest);
+
+})();

@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+
+const getData = () =>
+  new Promise((resolve) => setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000));
+
+const processItem = (item) => new Promise((resolve) =>
+  setTimeout(() => resolve(item * 2), 500)
+);
+
+const runProgram = async () => {
+  console.log("Fetching data...");
+  const data = await getData();
+  
+  console.log("Processing data...");
+  const promises = data.map(async (item) => {
+    const result = await processItem(item);
+    return result;
+  });
+  
+  const processedData = await Promise.all(promises);
+  console.log("Processed Data:", ...processedData);
+
+   
+  const [first, second, ...rest] = processedData;
+  console.log(`First: ${first}, Second: ${second}, Rest: ${rest.join(", ")}`);
+};
+
+runProgram();
+```

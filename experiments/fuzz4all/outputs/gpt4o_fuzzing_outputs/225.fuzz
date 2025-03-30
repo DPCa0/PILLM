@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+ 
+function* fibonacciGenerator(limit) {
+  let a = 0, b = 1, count = 0;
+  while (count < limit) {
+    yield a;
+    [a, b] = [b, a + b];
+    count++;
+  }
+}
+
+ 
+const targetObject = { name: "CodeMaster", level: 42 };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property ${prop} accessed, value: ${obj[prop]}`);
+    return obj[prop];
+  }
+};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  try {
+    const fibonacciSequence = [...fibonacciGenerator(10)];
+    console.log("Fibonacci Sequence:", fibonacciSequence);
+
+    console.log("Accessing proxy object properties:");
+    console.log(proxy.name);
+    console.log(proxy.level);
+
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log("Fetched data:", data);
+  } catch (error) {
+    console.error("Error occurred:", error);
+  }
+})();
+```

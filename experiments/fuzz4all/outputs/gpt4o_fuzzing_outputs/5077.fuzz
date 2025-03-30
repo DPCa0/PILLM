@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncGenerator {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (this.current < this.max) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield this.current++;
+    }
+  }
+}
+
+function* primeGenerator(max) {
+  const sieve = [];
+  for (let number = 2; number <= max; number++) {
+    if (!sieve[number]) {
+      yield number;
+      for (let multiple = number * number; multiple <= max; multiple += number) {
+        sieve[multiple] = true;
+      }
+    }
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+(async () => {
+  try {
+    const asyncGen = new AsyncGenerator(10);
+    const primes = [...primeGenerator(30)];
+
+    for await (const num of asyncGen) {
+      console.log(`Async Number: ${num}`);
+    }
+
+    console.log('Primes up to 30:', primes);
+
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

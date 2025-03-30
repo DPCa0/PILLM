@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+const crypto = require('crypto');
+
+class Observer {
+    constructor() {
+        this.subscribers = [];
+    }
+    subscribe(fn) {
+        this.subscribers.push(fn);
+    }
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+class DataModel {
+    #data;
+    constructor() {
+        this.#data = {};
+        this.observer = new Observer();
+    }
+    set(key, value) {
+        this.#data[key] = value;
+        this.observer.notify({ key, value });
+    }
+    get(key) {
+        return this.#data[key];
+    }
+}
+
+class EncryptedDataModel extends DataModel {
+    set(key, value) {
+        const encrypted = crypto.createCipher('aes-128-cbc', 'mypassword').update(value, 'utf8', 'hex');
+        super.set(key, encrypted);
+    }
+    get(key) {
+        const encrypted = super.get(key);
+        const decrypted = crypto.createDecipher('aes-128-cbc', 'mypassword').update(encrypted, 'hex', 'utf8');
+        return decrypted;
+    }
+}
+
+function delayedExecution(fn, delay) {
+    return function(...args) {
+        setTimeout(() => fn(...args), delay);
+    };
+}
+
+const dataModel = new EncryptedDataModel();
+dataModel.observer.subscribe(data => console.log(`Data changed: ${data.key} -> ${data.value}`));
+
+const setData = delayedExecution((key, value) => dataModel.set(key, value), 2000);
+
+setData('greeting', 'Hello, world!');
+setTimeout(() => {
+    const greeting = dataModel.get('greeting');
+    console.log(`Decrypted greeting: ${greeting}`);
+}, 3000);
+```

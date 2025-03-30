@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    const matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B.');
+    }
+    return new Matrix(a.data.length, b.data[0].length).map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.data[0].length; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+
+  forEach(callback) {
+    this.data.forEach((row, i) =>
+      row.forEach((val, j) => callback(val, i, j))
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+(async () => {
+  const a = new Matrix(3, 2).map(() => Math.floor(Math.random() * 10));
+  const b = new Matrix(2, 3).map(() => Math.floor(Math.random() * 10));
+
+  console.log('Matrix A:\n' + a.toString());
+  console.log('Matrix B:\n' + b.toString());
+
+  const c = Matrix.multiply(a, b);
+  console.log('Matrix C (A * B):\n' + c.toString());
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

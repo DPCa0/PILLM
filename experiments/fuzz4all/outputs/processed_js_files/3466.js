@@ -1,0 +1,51 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+  
+  enqueue(asyncFunc) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ asyncFunc, resolve, reject });
+      this.process();
+    });
+  }
+
+  async process() {
+    if (this.processing || !this.queue.length) return;
+    
+    this.processing = true;
+    const { asyncFunc, resolve, reject } = this.queue.shift();
+
+    try {
+      const result = await asyncFunc();
+      resolve(result);
+    } catch (err) {
+      reject(err);
+    } finally {
+      this.processing = false;
+      this.process();
+    }
+  }
+}
+
+ 
+
+const asyncOperation = async (value, delay) => {
+  await new Promise(res => setTimeout(res, delay));
+  return `Processed ${value}`;
+};
+
+const queue = new AsyncQueue();
+
+(async () => {
+  const results = await Promise.all([
+    queue.enqueue(() => asyncOperation('A', 300)),
+    queue.enqueue(() => asyncOperation('B', 100)),
+    queue.enqueue(() => asyncOperation('C', 200))
+  ]);
+
+  print(results);
+})();
+
+ 

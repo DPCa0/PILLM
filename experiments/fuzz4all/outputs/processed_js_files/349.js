@@ -1,0 +1,33 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const asyncIterable = new Proxy({
+    _data: [10, 20, 30, 40],
+    _index: 0,
+    async next() {
+        if (this._index < this._data.length) {
+            await delay(100);  
+            return { value: this._data[this._index++], done: false };
+        }
+        return { done: true };
+    }
+}, {
+    get(target, prop) {
+         
+        if (prop === Symbol.asyncIterator) {
+            return () => target;
+        }
+        return target[prop];
+    }
+});
+
+ 
+(async () => {
+    for await (const num of asyncIterable) {
+        print(`Received number: ${num}`);
+    }
+    print('All numbers processed!');
+})();

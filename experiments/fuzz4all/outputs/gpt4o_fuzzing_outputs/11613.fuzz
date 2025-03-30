@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  if (typeof fetch === 'undefined') {
+    globalThis.fetch = (await import('node-fetch')).default;
+  }
+
+   
+  const reactive = (obj, onChange) => {
+    return new Proxy(obj, {
+      set(target, prop, value) {
+        target[prop] = value;
+        onChange(prop, value);
+        return true;
+      }
+    });
+  };
+
+  const data = reactive({ counter: 0 }, (prop, value) => {
+    console.log(`Property ${prop} changed to ${value}`);
+  });
+
+   
+  async function* fetchData(urls) {
+    for (const url of urls) {
+      const response = await fetch(url);
+      yield await response.json();
+    }
+  }
+
+   
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+  (async () => {
+    for await (const dataChunk of fetchData(urls)) {
+      console.log('Fetched Data:', dataChunk);
+      data.counter++;
+    }
+  })();
+
+   
+  function tag(strings, ...values) {
+    console.log('Tagged Literal:', strings.raw[0], values);
+  }
+
+  const name = 'World';
+  tag`Hello, ${name}!`;
+
+   
+  const map = new Map();
+  map.set('key1', 'value1').set('key2', 'value2');
+
+  for (let [key, value] of map) {
+    console.log(`Map Key: ${key}, Value: ${value}`);
+  }
+
+  const set = new Set([1, 2, 3, 4, 5]);
+  set.add(3);  
+
+  for (let item of set) {
+    console.log(`Set Item: ${item}`);
+  }
+})();
+```

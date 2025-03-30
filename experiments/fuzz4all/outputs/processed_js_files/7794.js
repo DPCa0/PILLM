@@ -1,0 +1,29 @@
+ 
+const fetchData = async (url) => {
+    try {
+         
+        const response = await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve({ data: { message: 'Success', items: [1, 2, 3, 4, 5] } });
+            }, 1000);
+        });
+
+        const { data: { message, items } } = response;  
+        print(`API Response: ${message}`);
+        
+        const processedItems = processItems(...items);  
+        processedItems.forEach(item => print(`Processed Item: ${item}`));
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+const processItems = (...items) => {
+    return items.map(item => item * 2);  
+};
+
+ 
+(async () => {
+    const apiUrl = 'https://api.example.com/data';
+    await fetchData(apiUrl);
+})();

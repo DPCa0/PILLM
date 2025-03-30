@@ -1,0 +1,43 @@
+class AsyncMath {
+  static async doubleAsync(n) {
+    return new Promise(resolve => setTimeout(() => resolve(n * 2), 100));
+  }
+  
+  static async addAsync(a, b) {
+    return new Promise(resolve => setTimeout(() => resolve(a + b), 100));
+  }
+}
+
+const numbers = [1, 2, 3, 4, 5];
+
+async function processNumbers(nums) {
+  const doubled = await Promise.all(nums.map(n => AsyncMath.doubleAsync(n)));
+
+  const results = await doubled.reduce(async (accP, n) => {
+    const acc = await accP;
+    const sum = await AsyncMath.addAsync(acc, n);
+    return sum;
+  }, Promise.resolve(0));
+
+  return results;
+}
+
+processNumbers(numbers).then(result => print(`Result: ${result}`));
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (typeof target[prop] === 'function') {
+      return (...args) => {
+        print(`Calling ${prop} with arguments: ${args}`);
+        return Reflect.apply(target[prop], receiver, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxiedMath = new Proxy(AsyncMath, handler);
+
+proxiedMath.doubleAsync(10).then(console.log);
+proxiedMath.addAsync(5, 15).then(console.log);

@@ -1,0 +1,68 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener.apply(this, args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+const myEmitter = new EventEmitter();
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ data: 'Hello, Async World!' }), 1000);
+    });
+};
+
+async function getDataAndEmit() {
+    const data = await fetchData();
+    myEmitter.emit('dataReceived', data);
+}
+
+ 
+const handler = {
+    set: (obj, prop, value) => {
+        if (typeof value !== 'string') {
+            throw new TypeError('Property value must be a string');
+        }
+        obj[prop] = value.toUpperCase();
+        return true;
+    }
+};
+
+const person = new Proxy({}, handler);
+
+ 
+myEmitter.on('dataReceived', (data) => {
+    print(data);
+});
+
+getDataAndEmit();
+
+try {
+    person.name = 'John Doe';
+    print(person.name);  
+    person.age = 30;  
+} catch (error) {
+    console.error(error.message);
+}

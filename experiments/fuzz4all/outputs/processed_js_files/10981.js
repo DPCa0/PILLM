@@ -1,0 +1,34 @@
+ 
+const fetchData = async (url) => {
+    const simulateNetworkDelay = ms => new Promise(res => setTimeout(res, ms));
+    
+    try {
+        await simulateNetworkDelay(1000);  
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+const processData = async () => {
+    const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+    
+    try {
+        const data = await fetchData(apiUrl);
+        if (data) {
+            const [firstPost, secondPost, ...restPosts] = data;
+            print('First Post:', firstPost);
+            print('Second Post:', secondPost);
+
+            const titles = restPosts.map(({ title }) => title);
+            print('Other Titles:', titles);
+        }
+    } catch (error) {
+        console.error('Processing error:', error);
+    }
+};
+
+processData();

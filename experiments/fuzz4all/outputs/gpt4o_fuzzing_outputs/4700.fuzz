@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+    try {
+         
+        const { username = 'Guest', email = 'guest@example.com' } = JSON.parse(await fs.readFile('user.json', 'utf8'));
+
+         
+        function highlight(strings, ...values) {
+            return strings.reduce((acc, str, i) => `${acc}${str}<strong>${values[i] || ''}</strong>`, '');
+        }
+        console.log(highlight`Welcome ${username}! Your email is ${email}.`);
+
+         
+        const numbers = [1, 2, 3, 4, 5];
+        const squaredNumbers = numbers.map(num => num ** 2);
+        console.log(`Squared Numbers: ${squaredNumbers.join(', ')}`);
+
+         
+        const uniqueNumbers = [...new Set([2, 3, 3, 4, 4, 5, 6])];
+        console.log(`Unique Numbers: ${uniqueNumbers.join(', ')}`);
+
+         
+        async function* asyncGenerator(arr) {
+            for (let item of arr) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                yield item;
+            }
+        }
+
+        for await (const num of asyncGenerator(numbers)) {
+            console.log(`Async Number: ${num}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            [a, b] = [b, a + b];
+            yield a;
+        }
+    }
+
+    calculate(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+
+        const value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+
+    static async parallelCalculate(numbers) {
+        return await Promise.all(numbers.map(num => {
+            return new Promise(resolve => {
+                resolve(Fibonacci.slowCalculation(num));
+            });
+        }));
+    }
+
+    static slowCalculation(n) {
+        let result = 0;
+        for (let i = 0; i < n * 100000; i++) {
+            result += Math.sin(i) * Math.cos(i);
+        }
+        return n;
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+    console.log([...fib]);   
+
+    console.log(fib.calculate(10));   
+
+    const result = await Fibonacci.parallelCalculate([5, 10, 15]);
+    console.log(result);   
+})();
+```

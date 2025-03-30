@@ -1,0 +1,43 @@
+ 
+const factorial = (n, acc = 1) => {
+  if (n <= 1) return Promise.resolve(acc);
+  return factorial(n - 1, n * acc);
+};
+
+ 
+async function complexComputation() {
+  try {
+    const results = await Promise.all([
+      factorial(5),
+      factorial(3),
+      factorial(7)
+    ]);
+
+     
+    const [fiveFactorial, threeFactorial, sevenFactorial] = results;
+    print(`5! = ${fiveFactorial}, 3! = ${threeFactorial}, 7! = ${sevenFactorial}`);
+
+     
+    const set = new Set([fiveFactorial, threeFactorial, sevenFactorial, sevenFactorial]);  
+    const map = new Map();
+    set.forEach((value, index) => map.set(`Factorial-${index}`, value));
+
+     
+    const mapHandler = {
+      get: (target, prop) => {
+        print(`Accessed ${prop}`);
+        return target[prop];
+      }
+    };
+
+    const proxiedMap = new Proxy(map, mapHandler);
+    proxiedMap.forEach((value, key) => {
+      print(`${key}: ${value}`);
+    });
+
+  } catch (error) {
+    console.error('An error occurred during the computation:', error);
+  }
+}
+
+complexComputation();

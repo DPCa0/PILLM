@@ -1,0 +1,61 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+ 
+const reactiveHandler = {
+    set(target, property, value) {
+        if (value !== target[property]) {
+            target[property] = value;
+            target.emitter.emit(property, value);
+        }
+        return true;
+    }
+};
+
+class ReactiveObject {
+    constructor(initialState) {
+        this.state = new Proxy({ ...initialState, emitter: new EventEmitter() }, reactiveHandler);
+    }
+
+    watch(property, callback) {
+        this.state.emitter.on(property, callback);
+    }
+}
+
+ 
+const state = new ReactiveObject({ count: 0 });
+
+ 
+state.watch('count', newValue => print(`Count updated to: ${newValue}`));
+
+ 
+state.state.count = 1;
+state.state.count = 2;
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve('Fetched Data!'), 1000);
+    });
+}
+
+(async () => {
+    const data = await fetchData();
+    print(data);
+})();

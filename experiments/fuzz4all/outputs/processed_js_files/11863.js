@@ -1,0 +1,47 @@
+class AsyncIterator {
+    constructor(data) {
+        this.data = data;
+    }
+    async *[Symbol.asyncIterator]() {
+        for (const item of this.data) {
+            await new Promise(resolve => setTimeout(resolve, 1000));  
+            yield item;
+        }
+    }
+}
+
+const processData = async (iterable) => {
+    const results = [];
+    for await (const item of iterable) {
+        const result = await fetchData(item);  
+        results.push(transformData(result));  
+    }
+    return results;
+};
+
+const fetchData = async (item) => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: `Processed ${item}` });
+        }, 500);
+    });
+};
+
+const transformData = (data) => {
+     
+    return new Proxy(data, {
+        get(target, prop) {
+            if (prop === 'data') {
+                return target[prop].toUpperCase();
+            }
+            return target[prop];
+        }
+    }).data;
+};
+
+(async () => {
+    const asyncIterable = new AsyncIterator(['apple', 'banana', 'cherry']);
+    const results = await processData(asyncIterable);
+    print(results);  
+})();

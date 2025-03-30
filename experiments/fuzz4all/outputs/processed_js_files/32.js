@@ -1,0 +1,74 @@
+ 
+class ComplexSystem {
+  #components;
+  #initialized = false;
+
+  constructor(components) {
+    this.#components = components;
+  }
+
+   
+  get components() {
+    return this.#components;
+  }
+
+   
+  async initialize() {
+    if (!this.#initialized) {
+      print("Initializing system...");
+      await this.#simulateNetworkDelay();
+      this.#initialized = true;
+      print("System initialized.");
+    }
+  }
+
+  async #simulateNetworkDelay() {
+    return new Promise((resolve) => setTimeout(resolve, 2000));
+  }
+
+   
+  *componentStatus() {
+    for (const component of this.#components) {
+      yield `${component} is online`;
+    }
+  }
+
+   
+  static processConfigurations(config, ...extraConfigs) {
+    return [config, ...extraConfigs].reduce((acc, curr) => {
+      return { ...acc, ...curr };
+    }, {});
+  }
+}
+
+ 
+const handler = {
+  get(target, propKey, receiver) {
+    const origMethod = target[propKey];
+    return function (...args) {
+      print(`Calling ${propKey} with arguments: ${args}`);
+      return origMethod.apply(this, args);
+    };
+  },
+};
+
+ 
+const components = ["Auth", "Database", "Cache"];
+const config1 = { maxConnections: 100 };
+const config2 = { cacheSize: 1024 };
+
+ 
+const system = new Proxy(new ComplexSystem(components), handler);
+
+(async () => {
+  await system.initialize();
+
+   
+  for (let status of system.componentStatus()) {
+    print(status);
+  }
+
+   
+  const finalConfig = ComplexSystem.processConfigurations(config1, config2);
+  print("Final Configuration:", finalConfig);
+})();

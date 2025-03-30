@@ -1,0 +1,50 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+ 
+const handler = {
+  set: (target, prop, value) => {
+    if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new TypeError('Age must be a non-negative number');
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+async function processData() {
+  try {
+     
+    const data = await fetchData('https://api.example.com/data');
+    
+     
+    const user = new Proxy({}, handler);
+    user.name = data.name;
+    user.age = data.age;
+    
+     
+    const { name, age, ...rest } = user;
+    
+     
+    const userBio = rest.bio?.substring(0, 50) ?? 'No bio available';
+    
+     
+    const hobbies = [...(rest.hobbies ?? []), 'Reading'];
+    
+     
+    print(`User: ${name}, Age: ${age}`);
+    print(`Bio: ${userBio}`);
+    print(`Hobbies: ${hobbies.join(', ')}`);
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+processData();

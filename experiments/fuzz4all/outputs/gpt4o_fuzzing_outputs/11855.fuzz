@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(['Alice', 'Bob', 'Charlie']), 1000);
+  });
+};
+
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    } else {
+      const result = fn(...args);
+      cache.set(key, result);
+      return result;
+    }
+  };
+};
+
+ 
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield item;
+  }
+}
+
+ 
+const logger = {
+  get(target, property) {
+    console.log(`Accessing property "${property}"`);
+    return Reflect.get(target, property);
+  },
+};
+
+ 
+(async () => {
+  const data = await fetchData();
+  const memoizedData = memoize(fetchData);
+  
+  const proxiedData = new Proxy(data, logger);
+  
+  console.log('Accessing data via proxy:');
+  proxiedData.forEach(item => console.log(item));
+  
+  console.log('\nMemoized function call:');
+  const result1 = await memoizedData();
+  const result2 = await memoizedData();  
+
+  console.log(result1, result2);
+
+  console.log('\nUsing generator to iterate over data:');
+  const generator = dataGenerator(data);
+  for (let item of generator) {
+    console.log(item);
+  }
+})();
+```

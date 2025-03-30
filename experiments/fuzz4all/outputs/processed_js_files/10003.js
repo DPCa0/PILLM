@@ -1,0 +1,37 @@
+class FibonacciSequence {
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+async function fetchUserData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+const userCache = new Proxy({}, {
+  get(target, prop) {
+    if (!(prop in target)) {
+      print(`Fetching data for user: ${prop}`);
+      target[prop] = fetchUserData(`https: 
+    }
+    return target[prop];
+  }
+});
+
+(async () => {
+  try {
+    const user1 = await userCache[1];
+    print(user1);
+    
+    const fibSeq = new FibonacciSequence();
+    print([...fibSeq].slice(0, 10));   
+  } catch (error) {
+    console.error(error);
+  }
+})();

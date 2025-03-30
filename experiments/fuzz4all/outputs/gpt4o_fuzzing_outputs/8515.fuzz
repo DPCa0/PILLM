@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+const complexOperation = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const num = Math.floor(Math.random() * 10);
+            num > 2 ? resolve(num) : reject('Number too low');
+        }, 1000);
+    });
+};
+
+ 
+(async function executeComplexOperation() {
+    try {
+         
+        const target = { value: 42 };
+        const handler = {
+            get: (obj, prop) => {
+                console.log(`Accessing property "${prop}"`);
+                return obj[prop];
+            }
+        };
+        const proxy = new Proxy(target, handler);
+        console.log(`Proxy value: ${proxy.value}`);
+
+         
+        const [first, second = 'Default'] = [await complexOperation()];
+        console.log(`Received numbers: ${first}, ${second}`);
+
+         
+        const customParser = (strings, ...values) => {
+            return strings.reduce((result, str, i) => {
+                return `${result}${str}<${values[i] || ''}>`;
+            }, '');
+        };
+        console.log(customParser`Parsed number: ${first}`);
+    } catch (error) {
+        console.error(`Error occurred: ${error}`);
+    }
+})();
+```

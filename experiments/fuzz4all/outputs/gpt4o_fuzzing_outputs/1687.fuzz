@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+ 
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      console.log('Fetching from cache:', key);
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  },
+};
+
+const reactiveObject = new Proxy({ message: "Hello" }, handler);
+
+ 
+async function main() {
+   
+  const factorial = memoize((n) => (n <= 1 ? 1 : n * factorial(n - 1)));
+
+  console.log('Factorial of 5:', factorial(5));
+  console.log('Factorial of 6:', factorial(6));
+
+   
+  reactiveObject.message = "Hello, world!";
+  console.log(reactiveObject.message);
+
+   
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+}
+
+main();
+```

@@ -1,0 +1,60 @@
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this._listeners = new Set();
+  }
+  
+  subscribe(listener) {
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  }
+  
+  notify() {
+    this._listeners.forEach(listener => listener(this._value));
+  }
+  
+  set value(newValue) {
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this.notify();
+    }
+  }
+  
+  get value() {
+    return this._value;
+  }
+}
+
+function autorun(fn) {
+  const runner = () => {
+    cleanup();
+    disposer = fn();
+  };
+  
+  let disposer = null;
+  
+  const cleanup = () => {
+    if (disposer) {
+      disposer();
+      disposer = null;
+    }
+  };
+
+  runner();
+  
+  return cleanup;
+}
+
+const observableObject = new Observable({ a: 1, b: 2 });
+
+const stopAutorun = autorun(() => {
+  const { a, b } = observableObject.value;
+  print(`Sum: ${a + b}`);
+  return observableObject.subscribe(() => runner());
+});
+
+observableObject.value = { a: 3, b: 4 };
+observableObject.value = { a: 5, b: 6 };
+
+ 
+stopAutorun();

@@ -1,0 +1,31 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('There has been a problem with your fetch operation:', error);
+    }
+};
+
+const processData = (data) => {
+    const result = data.map(({ id, value }) => ({ id, squaredValue: value ** 2 }));
+    return result.filter(item => item.squaredValue % 2 === 0);
+};
+
+(async () => {
+    const dataUrl = 'https://api.example.com/data';
+    const rawData = await fetchData(dataUrl);
+    if (rawData) {
+        const processedData = processData(rawData);
+        print('Processed Data:', processedData);
+
+        const summary = processedData.reduce((acc, item) => {
+            acc.count += 1;
+            acc.sum += item.squaredValue;
+            return acc;
+        }, { count: 0, sum: 0 });
+
+        print('Summary:', summary);
+    }
+})();

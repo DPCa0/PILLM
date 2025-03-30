@@ -1,0 +1,41 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      return Promise.all(this.events[event].map(listener => listener(...args)));
+    }
+    return Promise.resolve([]);
+  }
+}
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+(async () => {
+  const emitter = new AsyncEventEmitter();
+  emitter.on('data', async (data) => {
+    print('Listener 1:', await data);
+  });
+
+  emitter.on('data', async (data) => {
+    print('Listener 2:', await data);
+  });
+
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const dataPromise = fetchJson(url);
+
+  await emitter.emit('data', dataPromise);
+})();

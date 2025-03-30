@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+async function processData() {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+  ];
+
+  const dataGenerator = fetchDataGenerator(urls);
+  const results = [];
+
+  for await (const dataPromise of dataGenerator) {
+    try {
+      const { id, value } = await dataPromise;
+      results.push({ id, value });
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  }
+
+  return results;
+}
+
+(async () => {
+  const finalData = await processData();
+  const transformedData = finalData.map(({ id, value }) => ({ [id]: value * 2 }));
+  
+  console.log('Transformed Data:', transformedData);
+})();
+```

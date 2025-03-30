@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: "Important data", timestamp: new Date() });
+    }, 2000);
+  });
+};
+
+ 
+function createCounter() {
+  let count = 0;
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    getCount: () => count,
+  };
+}
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Accessed property: ${prop}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      console.log(`Modified property: ${prop} from ${obj[prop]} to ${value}`);
+      obj[prop] = value;
+      return true;
+    },
+  });
+};
+
+ 
+(async function main() {
+  const counter = createCounter();
+
+  console.log("Initial Count:", counter.getCount());
+  counter.increment();
+  console.log("Count after increment:", counter.getCount());
+  counter.decrement();
+  console.log("Count after decrement:", counter.getCount());
+
+  const logProxy = createLoggingProxy({ name: "Alice", age: 25 });
+  console.log("Name:", logProxy.name);
+  logProxy.age = 26;
+  console.log("New Age:", logProxy.age);
+
+  const data = await fetchData();
+  console.log("Fetched Data:", data);
+})();
+```

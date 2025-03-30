@@ -1,0 +1,59 @@
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    return property in target ? target[property] : `No such property: ${property}`;
+  }
+};
+
+const target = {
+  name: 'JavaScript',
+  type: 'Programming Language'
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+const uniqueItems = new Set([1, 2, 3, 4, 4, 5]);  
+const infoMap = new Map([
+  ['name', 'JavaScript'],
+  ['type', 'Programming Language']
+]);
+
+ 
+function* generateNumbers() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+ 
+async function runProgram() {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  print('Fetched Data:', data);
+
+  print('Proxy Access:', proxy.name, proxy.nonExistentProperty);
+
+  uniqueItems.add(6);
+  print('Unique Items:', [...uniqueItems]);
+
+  infoMap.set('year', 1995);
+  print('Map Info:', infoMap);
+
+  const numberGenerator = generateNumbers();
+  print('Generator Numbers:', numberGenerator.next().value, numberGenerator.next().value);
+}
+
+runProgram();

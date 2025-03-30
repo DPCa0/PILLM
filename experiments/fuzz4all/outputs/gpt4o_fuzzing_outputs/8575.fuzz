@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexOperations() {
+     
+    const person = { name: 'Alice', age: 30, job: 'Engineer' };
+    const { name, ...rest } = person;
+    console.log(`Name: ${name}`);
+    console.log(`Rest of the info:`, rest);
+
+     
+    function format(strings, ...values) {
+        return strings.reduce((result, str, i) => `${result}${str}<b>${values[i] || ''}</b>`, '');
+    }
+    console.log(format`Name: ${name}, Age: ${rest.age}`);
+
+     
+    async function* fetchData() {
+        yield await delay(1000).then(() => 'Data from API 1');
+        yield await delay(500).then(() => 'Data from API 2');
+    }
+
+     
+    for await (const data of fetchData()) {
+        console.log(`Fetched: ${data}`);
+    }
+
+     
+    const set = new Set([1, 2, 2, 3, 4]);
+    const map = new Map([['key1', 'value1'], ['key2', 'value2']]);
+    console.log(`Set has 2: ${set.has(2)}`);
+    console.log(`Map size: ${map.size}`);
+
+     
+    const handler = {
+        get: (target, prop) => prop in target ? target[prop] : 'Property does not exist',
+    };
+    const proxyPerson = new Proxy(person, handler);
+    console.log(`Proxy access to job: ${proxyPerson.job}`);
+    console.log(`Proxy access to non-existing property: ${proxyPerson.salary}`);
+}
+
+ 
+complexOperations();
+```

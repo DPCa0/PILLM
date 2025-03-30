@@ -1,0 +1,42 @@
+const fetchDataAndTransform = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const data = await response.json();
+        
+        return data.map(({ id, name, value }) => ({
+            [Symbol.toStringTag]: 'CustomObject',
+            id,
+            name,
+            value: value * 2,
+            greet: function() {
+                return `Hello, ${name}! Your value doubled is ${this.value}.`;
+            }
+        }));
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+const processTransformedData = async () => {
+    const transformedData = await fetchDataAndTransform('https://api.example.com/data');
+    
+    if (transformedData) {
+        const [firstItem] = transformedData;
+        
+        print(Object.prototype.toString.call(firstItem));   
+        print(firstItem.greet());
+        
+        const values = transformedData.reduce((acc, item) => acc + item.value, 0);
+        print(`Total sum of values: ${values}`);
+        
+        const filterByName = new Proxy(transformedData, {
+            get: (target, prop) => target.filter(item => item.name === prop)
+        });
+        
+        print(filterByName.John);  
+    }
+};
+
+processTransformedData();

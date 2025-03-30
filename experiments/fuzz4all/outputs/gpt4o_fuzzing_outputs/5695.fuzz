@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchJSON(urls) {
+    for (const url of urls) {
+        const response = await fetch(url);
+        yield response.json();
+    }
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Accessing ${property}`);
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+const targetObject = {
+    name: 'Advanced JavaScript',
+    type: 'Demo Program'
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+const uniqueSym = Symbol('unique');
+
+class AdvancedFeatureDemo {
+    constructor(name) {
+        this.name = name;
+        this[uniqueSym] = 'Secret Symbol Value';
+    }
+
+     
+    static description = 'An advanced JavaScript demonstration';
+
+     
+    #privateField = 'Private Value';
+
+    getPrivateField() {
+        return this.#privateField;
+    }
+
+    static [Symbol.hasInstance](instance) {
+        return instance instanceof AdvancedFeatureDemo && instance.name !== undefined;
+    }
+}
+
+(async () => {
+     
+    console.log(proxiedObject.name);
+    
+     
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+    for await (const json of fetchJSON(urls)) {
+        console.log(json);
+    }
+
+     
+    const demo = new AdvancedFeatureDemo('Demo Instance');
+    console.log(demo instanceof AdvancedFeatureDemo);  
+    console.log(AdvancedFeatureDemo.description);
+    console.log(demo.getPrivateField());
+    console.log(demo[uniqueSym]);  
+
+     
+    if (Math.random() > 0.5) {
+        const { version } = await import('./module.js');
+        console.log(`Module version: ${version}`);
+    } else {
+        console.log('Skipped dynamic import');
+    }
+})();
+```

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const modulePath = './exampleModule.js';
+  
+   
+  const module = await import(modulePath);
+
+  const originalData = {
+    user: 'John Doe',
+    email: 'john.doe@example.com',
+    roles: ['user', 'admin']
+  };
+
+  const handler = {
+    get(target, property) {
+      if (property === 'email') {
+        return target[property].replace(/.(?=.{2}@)/g, '*');  
+      }
+      return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+      if (property === 'roles' && Array.isArray(value)) {
+        value = value.filter(role => role !== 'banned');  
+      }
+      return Reflect.set(target, property, value);
+    }
+  };
+
+  const proxyData = new Proxy(originalData, handler);
+
+   
+  const fetchData = async () => {
+    try {
+      const response = await module.getData();  
+      console.log('Fetched Data:', response);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+   
+  proxyData.roles.push('banned', 'editor');
+  console.log(proxyData.email);  
+  console.log(proxyData.roles);  
+
+  await fetchData();  
+})();
+```
+
+Note: For this code to work properly, you should have a file named `exampleModule.js` containing a function named `getData` that returns a promise, simulating an asynchronous operation such as fetching data from an API.

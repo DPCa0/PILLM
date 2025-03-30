@@ -1,0 +1,44 @@
+class Person {
+  #name;
+  #age;
+  
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+  
+  getDetails() {
+    return `${this.#name}, Age: ${this.#age}`;
+  }
+}
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+const transform = (data) => ({
+  ...data,
+  fullName: `${data.firstName} ${data.lastName}`,
+  isAdult: data.age >= 18
+});
+
+const main = async () => {
+  const url = 'https://api.example.com/user';
+  const data = await fetchData(url);
+
+  if (data) {
+    const transformedData = transform(data);
+    const person = new Person(transformedData.fullName, transformedData.age);
+
+    print(person.getDetails());
+  }
+};
+
+main();

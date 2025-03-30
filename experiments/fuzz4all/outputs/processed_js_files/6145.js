@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { id: 1, name: 'Alice', email: 'alice@example.com' } });
+    }, 1000);
+  });
+}
+
+ 
+async function getUserData() {
+  try {
+    const { user: { id, name, email } } = await fetchData();  
+    return { id, name, email };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist.`);
+      return undefined;
+    }
+  }
+};
+
+ 
+(async () => {
+  const userData = await getUserData();
+  const userProxy = new Proxy(userData, handler);
+
+   
+  print(userProxy.name);   
+  print(userProxy.email);  
+  print(userProxy.age);    
+})();

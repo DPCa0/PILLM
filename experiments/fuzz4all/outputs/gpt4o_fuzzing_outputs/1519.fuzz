@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  async getUserDetails() {
+     
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({ name: this.name, age: this.age });
+      }, 1000);
+    });
+  }
+}
+
+async function processData(users) {
+  try {
+    const results = await Promise.all(users.map(user => user.getUserDetails()));
+    const adults = results.filter(user => user.age >= 18);
+    
+    const summary = adults.reduce((acc, user) => {
+      acc.names.push(user.name);
+      acc.totalAge += user.age;
+      return acc;
+    }, { names: [], totalAge: 0 });
+
+    console.log(`Adult users: ${summary.names.join(', ')}`);
+    console.log(`Total age of adult users: ${summary.totalAge}`);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+const users = [
+  new User('Alice', 25),
+  new User('Bob', 17),
+  new User('Charlie', 34),
+  new User('David', 15)
+];
+
+processData(users);
+```

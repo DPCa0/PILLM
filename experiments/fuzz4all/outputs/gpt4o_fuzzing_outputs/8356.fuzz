@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => setTimeout(() => resolve("Data fetched!"), 1000));
+};
+
+ 
+const processData = async () => {
+  console.log("Start processing...");
+
+   
+  const result = await fetchData();
+  console.log(result);
+
+  console.log("Processing complete!");
+};
+
+ 
+const createLoggingProxy = (obj) => {
+  return new Proxy(obj, {
+    get(target, property) {
+      console.log(`Getting property '${property}'`);
+      return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+      console.log(`Setting property '${property}' to '${value}'`);
+      return Reflect.set(target, property, value);
+    }
+  });
+};
+
+ 
+const uniqueValues = new Set([1, 2, 3, 3, 4]);
+
+ 
+const main = async () => {
+  const data = createLoggingProxy({ name: "Alice", age: 30 });
+
+   
+  console.log(data.name);
+  data.age = 31;
+
+   
+  uniqueValues.add(5);
+  uniqueValues.add(6);
+
+  console.log("Unique Values:", [...uniqueValues]);
+
+   
+  await processData();
+};
+
+ 
+main();
+```

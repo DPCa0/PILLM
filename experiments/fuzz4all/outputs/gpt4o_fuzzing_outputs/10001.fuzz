@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { id: 1, name: 'Alice', email: 'alice@example.com' }, status: 200 });
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}" with value "${target[prop]}"`);
+      return target[prop];
+    } else {
+      console.log(`Property "${prop}" does not exist`);
+      return undefined;
+    }
+  },
+};
+
+ 
+(async () => {
+  try {
+    const { user, status } = await fetchData();  
+    const proxyUser = new Proxy(user, handler);  
+
+    console.log(`Response status: ${status}`);
+    console.log(`User Name: ${proxyUser.name}`);  
+    console.log(`User Email: ${proxyUser.email}`);  
+    console.log(`User Age: ${proxyUser.age}`);  
+
+     
+    if (status === 200) {
+      const { default: greet } = await import('./greet.js');
+      greet(proxyUser.name);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```
+
+Contents of `greet.js`:
+```javascript
+ 
+export default (name) => {
+  console.log(`Welcome, ${name}!`);
+};
+```

@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) yield Symbol(`id_${id++}`);
+}
+
+const genId = idGenerator();
+
+ 
+class AdvancedSet {
+    #elements;
+    #id;
+    
+    constructor(iterable = []) {
+        this.#id = genId.next().value;
+        this.#elements = new Set(iterable);
+    }
+
+    add(element) {
+        this.#elements.add(element);
+    }
+
+    #removeIfExist(element) {
+        if (this.#elements.has(element)) {
+            this.#elements.delete(element);
+        }
+    }
+
+    remove(element) {
+        this.#removeIfExist(element);
+    }
+
+    get size() {
+        return this.#elements.size;
+    }
+
+    [Symbol.iterator]() {
+        return this.#elements.values();
+    }
+
+    toString() {
+        return `[AdvancedSet ${this.#id.toString()} with ${this.size} elements]`;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop === 'add' || prop === 'remove') {
+            return function (...args) {
+                console.log(`Action: ${prop}, Element: ${args[0]}`);
+                return Reflect.apply(target[prop], target, args);
+            };
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const advancedSet = new Proxy(new AdvancedSet([1, 2, 3]), handler);
+console.log(advancedSet.toString());  
+advancedSet.add(4);
+advancedSet.remove(2);
+console.log([...advancedSet]);  
+```

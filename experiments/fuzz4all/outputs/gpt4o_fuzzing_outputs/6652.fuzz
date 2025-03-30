@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Pipeline {
+    constructor(...functions) {
+        this.functions = functions;
+    }
+
+    execute(input) {
+        return this.functions.reduce((acc, fn) => fn(acc), input);
+    }
+}
+
+const asyncDouble = async num => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return num * 2;
+};
+
+const asyncSquare = async num => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return num * num;
+};
+
+const memoize = (fn) => {
+    const cache = new Map();
+    return async (...args) => {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = await fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+const doubleMemoized = memoize(asyncDouble);
+const squareMemoized = memoize(asyncSquare);
+
+const asyncPipeline = new Pipeline(doubleMemoized, squareMemoized);
+
+(async () => {
+    try {
+        const result1 = await asyncPipeline.execute(3);
+        console.log('Result 1:', result1);  
+
+        const result2 = await asyncPipeline.execute(3);
+        console.log('Result 2:', result2);  
+
+        const result3 = await asyncPipeline.execute(5);
+        console.log('Result 3:', result3);  
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

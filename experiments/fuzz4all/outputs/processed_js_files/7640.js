@@ -1,0 +1,49 @@
+ 
+
+ 
+const jsonData = JSON.stringify({
+  users: [
+    { id: 1, name: 'Alice', role: 'admin' },
+    { id: 2, name: 'Bob', role: 'user' },
+    { id: 3, name: 'Charlie', role: 'user' }
+  ]
+});
+
+ 
+const mockFetch = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (url === 'https://api.example.com/users') {
+      resolve(new Response(jsonData, { status: 200 }));
+    } else {
+      reject(new Error('Network Error'));
+    }
+  }, 1000);
+});
+
+ 
+const handleResponse = async (response) => {
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  return await response.json();
+};
+
+ 
+const fetchDataAndProcess = async () => {
+  try {
+    const response = await mockFetch('https://api.example.com/users');
+    const { users } = await handleResponse(response);
+
+     
+    const admins = users
+      .filter(({ role }) => role === 'admin')
+      .map(({ name }) => name);
+
+    print('Admin Users:', admins);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchDataAndProcess();

@@ -1,0 +1,53 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    on(event, listener) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    }
+}
+
+const emitter = new EventEmitter();
+emitter.on('dataLoaded', data => {
+    print('Data loaded:', data);
+});
+
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
+const logInput = debounce(event => {
+    print(`Input value: ${event.target.value}`);
+}, 300);
+
+document.getElementById('inputField').addEventListener('input', logInput);
+
+(async () => {
+    const data = await fetchData('https://api.example.com/data');
+    if (data) emitter.emit('dataLoaded', data);
+})();

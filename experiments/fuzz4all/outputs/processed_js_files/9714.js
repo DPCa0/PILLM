@@ -1,0 +1,28 @@
+ 
+
+ 
+async function fetchUserData(url) {
+  try {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+     
+    const data = await response.json();
+    
+     
+    const { name, username, email, address: { city } } = data;
+    
+     
+    return `Name: ${name}\nUsername: ${username}\nEmail: ${email}\nCity: ${city}`;
+  } catch (error) {
+    console.error('Failed to fetch user data:', error);
+  }
+}
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users/1';  
+  const userInfo = await fetchUserData(url);
+  if (userInfo) print(userInfo);
+})();

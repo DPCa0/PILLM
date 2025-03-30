@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+function* dataFetcher(urls) {
+  for (const url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+const handleData = async (urls) => {
+  const generator = dataFetcher(urls);
+  for await (const { data } of generator) {
+    console.log(data);
+  }
+};
+
+ 
+const logHandler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+ 
+const targetObject = { message: "Hello, Proxy!" };
+const proxyObject = new Proxy(targetObject, logHandler);
+
+ 
+const dynamicImportFunction = async () => {
+  if (Math.random() > 0.5) {
+    const { upperCase } = await import("lodash");
+    console.log(upperCase("Dynamic Import Successful"));
+  } else {
+    console.log("Skipped Import");
+  }
+};
+
+ 
+(async () => {
+  const urls = ["https://api.example.com/data1", "https://api.example.com/data2"];
+  
+   
+  await handleData(urls);
+
+   
+  console.log(proxyObject.message);
+  proxyObject.message = "Updated message through Proxy";
+
+   
+  await dynamicImportFunction();
+})();
+```

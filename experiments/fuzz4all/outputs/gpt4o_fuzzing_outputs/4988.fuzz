@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: 'Important data from API' });
+    }, 1000);
+  });
+};
+
+ 
+async function handleData() {
+  console.log('Fetching data...');
+  const { data } = await fetchData();
+  console.log('Data received:', data);
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idGenInstance = idGenerator();
+
+ 
+const objHandler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property '${prop}'`);
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    }
+    return `Property '${prop}' does not exist.`;
+  },
+};
+
+const user = {
+  name: 'Alice',
+  age: 25,
+  [Symbol.iterator]: function* () {
+    yield* Object.entries(this);
+  },
+};
+
+const proxyUser = new Proxy(user, objHandler);
+
+ 
+function main() {
+  console.log('--- Proxy Example ---');
+  console.log('Name:', proxyUser.name);
+  console.log('Age:', proxyUser.age);
+  console.log('Address:', proxyUser.address);  
+
+  console.log('--- ID Generator Example ---');
+  console.log('Generated ID:', idGenInstance.next().value);
+  console.log('Generated ID:', idGenInstance.next().value);
+
+  console.log('--- Handle Data ---');
+  handleData();
+
+  console.log('--- Iterating with Symbol.iterator ---');
+  for (let [key, value] of proxyUser) {
+    console.log(`${key}: ${value}`);
+  }
+}
+
+ 
+main();
+```

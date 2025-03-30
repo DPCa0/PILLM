@@ -1,0 +1,48 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+  }
+
+  enqueue(value) {
+    if (this.resolvers.length > 0) {
+      const resolve = this.resolvers.shift();
+      resolve({ value, done: false });
+    } else {
+      this.queue.push(value);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return this;
+  }
+
+  next() {
+    if (this.queue.length > 0) {
+      return Promise.resolve({ value: this.queue.shift(), done: false });
+    }
+    return new Promise(resolve => this.resolvers.push(resolve));
+  }
+
+  return() {
+    this.resolvers.forEach(resolve => resolve({ done: true }));
+    this.resolvers.length = 0;
+    return Promise.resolve({ done: true });
+  }
+}
+
+ 
+(async function() {
+  const stream = new AsyncIterableQueue();
+
+  setTimeout(() => stream.enqueue(1), 100);
+  setTimeout(() => stream.enqueue(2), 200);
+  setTimeout(() => stream.enqueue(3), 300);
+
+  for await (const value of stream) {
+    print(value);  
+    if (value === 3) break;
+  }
+
+  print('Done');
+})();

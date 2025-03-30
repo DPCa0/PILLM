@@ -1,0 +1,61 @@
+Certainly! Below is a JavaScript program that utilizes advanced features such as async/await, destructuring, template literals, and classes with inheritance. This code simulates fetching and displaying user data from a mock API.
+
+ 
+const fetchUserData = async (userId) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const users = {
+                1: { id: 1, name: 'Alice', age: 28 },
+                2: { id: 2, name: 'Bob', age: 34 },
+                3: { id: 3, name: 'Charlie', age: 22 }
+            };
+            resolve(users[userId] || null);
+        }, 1000);
+    });
+};
+
+ 
+class User {
+    constructor({ id, name, age }) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    getUserInfo() {
+        return `User Info: ID=${this.id}, Name=${this.name}, Age=${this.age}`;
+    }
+}
+
+ 
+class AdminUser extends User {
+    constructor(userData, adminLevel) {
+        super(userData);
+        this.adminLevel = adminLevel;
+    }
+
+    getAdminInfo() {
+        return `${this.getUserInfo()}, Admin Level=${this.adminLevel}`;
+    }
+}
+
+ 
+const displayUserData = async (userId) => {
+    try {
+        const userData = await fetchUserData(userId);
+        if (!userData) {
+            print('User not found');
+            return;
+        }
+        
+        const adminUser = new AdminUser(userData, 'Super');
+        print(adminUser.getAdminInfo());
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+};
+
+ 
+displayUserData(1);
+
+This program demonstrates complex aspects of JavaScript including asynchronous operations, class-based inheritance, and object destructuring. The mock API function simulates network latency with a timeout.

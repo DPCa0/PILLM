@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(`Fetch error: ${error}`);
+        }
+    }
+}
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    process() {
+        return new Promise((resolve) => {
+            const processed = this.data.map(({ id, name, email }) => ({
+                userId: id,
+                fullName: name.toUpperCase(),
+                contact: email.toLowerCase(),
+            }));
+            resolve(processed);
+        });
+    }
+}
+
+const run = async () => {
+    const fetcher = new DataFetcher('https://jsonplaceholder.typicode.com/users');
+    const rawData = await fetcher.fetchData();
+    
+    if (rawData) {
+        const processor = new DataProcessor(rawData);
+        const processedData = await processor.process();
+
+        processedData.forEach(({ userId, fullName, contact }) => {
+            console.log(`User ID: ${userId}, Name: ${fullName}, Contact: ${contact}`);
+        });
+    }
+};
+
+run();
+```

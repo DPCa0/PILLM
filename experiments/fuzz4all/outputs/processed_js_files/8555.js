@@ -1,0 +1,43 @@
+ 
+
+ 
+async function fetchData(url) {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+     
+    return { data: [{ id: 1, value: 'A' }, { id: 2, value: 'B' }] };
+}
+
+ 
+let dataMap = new Map();
+
+ 
+const dataKey = Symbol('dataKey');
+
+ 
+const handler = {
+    async get(target, prop) {
+        if (prop === 'getData') {
+            if (!dataMap.has(dataKey)) {
+                print("Fetching data...");
+                const data = await fetchData('https://api.mock.com/data');
+                dataMap.set(dataKey, data.data);
+            }
+            return dataMap.get(dataKey);
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const dataHandler = new Proxy({}, handler);
+
+(async () => {
+     
+    const data = await dataHandler.getData;
+    print('Data:', data);
+
+     
+    const cachedData = await dataHandler.getData;
+    print('Cached Data:', cachedData);
+})();

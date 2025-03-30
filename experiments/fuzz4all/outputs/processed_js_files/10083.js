@@ -1,0 +1,77 @@
+ 
+const EventEmitter = require('events');
+
+ 
+const logMethodCalls = (obj) => new Proxy(obj, {
+    get(target, property, receiver) {
+        const origMethod = target[property];
+        if (typeof origMethod === 'function') {
+            return function (...args) {
+                print(`Called ${property} with args: ${JSON.stringify(args)}`);
+                return origMethod.apply(this, args);
+            };
+        }
+        return Reflect.get(target, property, receiver);
+    }
+});
+
+ 
+class ComplexSystem extends EventEmitter {
+    constructor() {
+        super();
+        this.state = 'idle';
+        this.cache = new Map();
+    }
+
+     
+    async fetchData(apiUrl) {
+        if (this.cache.has(apiUrl)) {
+            return this.cache.get(apiUrl);
+        }
+        print(`Fetching data from ${apiUrl}...`);
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const data = { apiUrl, data: Math.random() };
+                this.cache.set(apiUrl, data);
+                resolve(data);
+            }, 1000);
+        });
+    }
+
+     
+    *generateSequence() {
+        let count = 0;
+        while (count < 3) {
+            yield count++;
+        }
+    }
+
+    processSequence() {
+        const sequence = this.generateSequence();
+        for (let value of sequence) {
+            print(`Generated value: ${value}`);
+        }
+    }
+}
+
+ 
+const system = logMethodCalls(new ComplexSystem());
+
+ 
+system.on('dataFetched', (data) => print(`Data fetched: ${JSON.stringify(data)}`));
+
+ 
+(async () => {
+    const apiUrl = 'https://api.example.com/data';
+
+     
+    await Promise.all([
+        (async () => {
+            const data = await system.fetchData(apiUrl);
+            system.emit('dataFetched', data);
+        })(),
+        system.processSequence()
+    ]);
+
+    print('All operations completed.');
+})();

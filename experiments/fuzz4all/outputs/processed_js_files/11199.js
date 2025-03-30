@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, data: `Data for ID ${id}` });
+    }, Math.random() * 1000);
+  });
+};
+
+ 
+const processMultipleData = async (...ids) => {
+  try {
+    const fetchPromises = ids.map((id) => fetchData(id));
+    
+     
+    const results = await Promise.all(fetchPromises);
+    
+     
+    results.forEach(({ id, data }) => {
+      print(`Processed ${data}`);
+    });
+    
+     
+    return `Successfully processed data for IDs: ${ids.join(', ')}`;
+  } catch (error) {
+    throw new Error(`Error processing data: ${error.message}`);
+  }
+};
+
+ 
+processMultipleData(1, 2, 3, 4, 5)
+  .then((message) => console.log(message))
+  .catch((error) => console.error(error));

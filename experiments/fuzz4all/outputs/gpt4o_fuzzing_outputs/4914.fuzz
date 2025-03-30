@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            id > 0 ? resolve({ id, name: `User${id}`, age: 25 + id }) : reject("Invalid User ID");
+        }, 1000);
+    });
+};
+
+ 
+async function getUserData(id) {
+    try {
+        const user = await fetchUserData(id);
+        console.log(`Fetched user: ${JSON.stringify(user)}`);
+        return user;
+    } catch (error) {
+        console.error(`Error fetching user data: ${error}`);
+    }
+}
+
+ 
+const userCache = new Map();
+const handler = {
+    get: (target, property) => {
+        if (!target.has(property)) {
+            console.log(`User ID: ${property} not found in cache. Fetching data...`);
+            getUserData(property).then(user => target.set(property, user));
+            return undefined;
+        }
+        return target.get(property);
+    }
+};
+
+ 
+const cacheProxy = new Proxy(userCache, handler);
+
+ 
+const userIds = [1, 2, 3, -1];
+const promises = userIds.map(id => {
+    const user = cacheProxy[id];
+    return user ? Promise.resolve(user) : fetchUserData(id);
+});
+
+ 
+Promise.allSettled(promises).then(results => {
+    results.forEach(result => {
+        if (result.status === 'fulfilled') {
+            console.log(`Resolved: ${JSON.stringify(result.value)}`);
+        } else {
+            console.warn(`Rejected: ${result.reason}`);
+        }
+    });
+});
+```

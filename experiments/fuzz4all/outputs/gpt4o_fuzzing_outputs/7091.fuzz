@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataService {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.apiEndpoint}/${endpoint}`);
+    if (!response.ok) throw new Error('Failed to fetch data');
+    const data = await response.json();
+    return data;
+  }
+}
+
+class DataProcessor {
+  processData({ users, posts }) {
+    return users.map(user => ({
+      ...user,
+      posts: posts.filter(post => post.userId === user.id),
+    }));
+  }
+}
+
+const runApp = async () => {
+  const API_ENDPOINT = 'https://jsonplaceholder.typicode.com';
+  const dataService = new DataService(API_ENDPOINT);
+  const dataProcessor = new DataProcessor();
+
+  try {
+    const [users, posts] = await Promise.all([
+      dataService.fetchData('users'),
+      dataService.fetchData('posts'),
+    ]);
+
+    const processedData = dataProcessor.processData({ users, posts });
+
+    console.log('Processed Data:', JSON.stringify(processedData, null, 2));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+runApp();
+```

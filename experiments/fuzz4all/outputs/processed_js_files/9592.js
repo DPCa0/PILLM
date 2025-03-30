@@ -1,0 +1,53 @@
+ 
+
+ 
+function asyncOperation(delay, value) {
+  return new Promise((resolve) => setTimeout(() => resolve(value), delay));
+}
+
+ 
+async function fetchData() {
+  const rawData = await asyncOperation(1000, [
+    { id: 1, name: 'Alice', tags: ['student', 'gamer'] },
+    { id: 2, name: 'Bob', tags: ['teacher', 'writer'] },
+    { id: 3, name: 'Charlie', tags: ['student', 'athlete'] }
+  ]);
+
+   
+  const dataMap = new Map();
+  rawData.forEach(item => dataMap.set(item.id, item));
+
+   
+  const uniqueTags = new Set(rawData.flatMap(item => item.tags));
+
+  return { dataMap, uniqueTags };
+}
+
+ 
+function createDataProxy(map) {
+  return new Proxy(map, {
+    get(target, prop) {
+      print(`Getting value for key: ${prop}`);
+      return target.get(prop);
+    },
+    set(target, prop, value) {
+      print(`Setting value for key: ${prop}`);
+      target.set(prop, value);
+      return true;
+    }
+  });
+}
+
+(async () => {
+  const { dataMap, uniqueTags } = await fetchData();
+  const proxyDataMap = createDataProxy(dataMap);
+
+   
+  print('Data for ID 1:', proxyDataMap.get(1));
+  proxyDataMap.set(4, { id: 4, name: 'David', tags: ['musician'] });
+
+  print('All unique tags:', [...uniqueTags]);
+
+   
+  print('Final data map:', [...proxyDataMap]);
+})();

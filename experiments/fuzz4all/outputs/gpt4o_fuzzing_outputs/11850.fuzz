@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const runAsyncTasks = async (urls) => {
+  try {
+    const results = await Promise.all(urls.map(async url => {
+      console.log(`Fetching data from ${url}`);
+      const data = await fetchData(url);
+      console.log(`Data fetched from ${url}: `, data);
+      await delay(1000);   
+      return data;
+    }));
+    return results;
+  } catch (error) {
+    console.error('Error during async tasks:', error);
+  }
+};
+
+const processData = (data) => {
+  const processed = data.map((item, index) => ({ id: index, value: item }));
+  console.log('Processed Data:', processed);
+  return processed;
+};
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  console.log('Starting async tasks...');
+  const data = await runAsyncTasks(urls);
+  const processedData = processData(data);
+  console.log('Final Output:', processedData);
+})();
+```

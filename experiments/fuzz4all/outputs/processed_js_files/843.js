@@ -1,0 +1,35 @@
+ 
+import { promises as fs } from 'fs';
+import { createServer } from 'http';
+import url from 'url';
+
+ 
+(async () => {
+  const dataFilePath = './data.json';
+  
+   
+  await fs.writeFile(dataFilePath, JSON.stringify({ message: 'Hello, Advanced World!' }, null, 2));
+  
+   
+  const server = createServer(async (req, res) => {
+    const queryObject = url.parse(req.url, true).query;
+
+    if (req.method === 'GET' && queryObject.greet) {
+       
+      const data = await fs.readFile(dataFilePath, 'utf8');
+      const jsonData = JSON.parse(data);
+
+       
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ greeting: `${jsonData.message} ${queryObject.greet}` }));
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+    }
+  });
+
+   
+  server.listen(3000, () => {
+    print('Server running at http://127.0.0.1:3000/');
+  });
+})();

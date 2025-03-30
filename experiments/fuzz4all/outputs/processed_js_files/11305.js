@@ -1,0 +1,55 @@
+ 
+class SuperCalculator {
+     
+    #result = 0;
+
+     
+    #validateNumber(num) {
+        if (typeof num !== 'number') {
+            throw new TypeError('Expected a number');
+        }
+    }
+
+     
+    add = (...nums) => {
+        nums.forEach(num => {
+            this.#validateNumber(num);
+            this.#result += num;
+        });
+        return this;
+    };
+
+     
+    async subtract(num) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        this.#validateNumber(num);
+        this.#result -= num;
+        return this;
+    }
+
+     
+    get ['value']() {
+        return this.#result;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'value') {
+            print(`The current result is: ${Reflect.get(target, prop, receiver)}`);
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const calculator = new Proxy(new SuperCalculator(), handler);
+
+ 
+(async () => {
+    calculator.add(10, 20, 30);
+    print(calculator.value);  
+    await calculator.subtract(15);
+    print(calculator.value);  
+})();

@@ -1,0 +1,47 @@
+ 
+async function fetchData(url) {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+     
+    let data = await response.json();
+    
+     
+    let { title, ...rest } = data;
+
+     
+    print(`Title: ${title}, Author: ${data.author?.name || 'Unknown'}`);
+
+     
+    let tags = new Set(data.tags);
+    let tagMap = new Map([...tags].map(tag => [tag, tag.length]));
+
+     
+    for (let [tag, length] of tagMap) {
+      print(`Tag: ${tag}, Length: ${length}`);
+    }
+
+  } catch (error) {
+     
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+fetchData('https://api.example.com/data');
+
+ 
+let handler = {
+  get: (obj, prop) => (prop in obj ? obj[prop] : 'Property not found'),
+  set: (obj, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    obj[prop] = value;
+  }
+};
+
+let dynamicObj = new Proxy({}, handler);
+dynamicObj.name = 'JavaScript';
+print(dynamicObj.name);  
+print(dynamicObj.nonexistentProp);  

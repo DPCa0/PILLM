@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(initialValue) {
+    this._value = initialValue;
+    this._subscribers = new Set();
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this._notify();
+    }
+  }
+
+  subscribe(callback) {
+    this._subscribers.add(callback);
+    return () => this._subscribers.delete(callback);
+  }
+
+  _notify() {
+    this._subscribers.forEach(callback => callback(this._value));
+  }
+}
+
+const delayedLogger = (delay) => (value) =>
+  new Promise(resolve => {
+    setTimeout(() => {
+      console.log(`Logged after ${delay}ms:`, value);
+      resolve();
+    }, delay);
+  });
+
+const randomValueGenerator = async (observable) => {
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    observable.value = Math.floor(Math.random() * 100);
+  }
+};
+
+const valueStream = new Observable(0);
+const logAndKeepLast = delayedLogger(2000);
+let lastLoggedValue = null;
+
+valueStream.subscribe(async (value) => {
+  lastLoggedValue = value;
+  await logAndKeepLast(value);
+  console.log(`Last logged value was: ${lastLoggedValue}`);
+});
+
+randomValueGenerator(valueStream);
+```

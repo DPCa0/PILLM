@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class AsyncStreamProcessor {
+  constructor(stream) {
+    this.stream = stream;
+  }
+  
+  async process() {
+    try {
+      const results = await Promise.all([...this.stream].map(async (item) => {
+        if (this.#isValid(item)) {
+          const transformed = await this.#transform(item);
+          return this.#aggregate(transformed);
+        }
+      }));
+      
+      return results.filter(result => result !== undefined);
+    } catch (error) {
+      console.error('Error processing stream:', error);
+    }
+  }
+  
+  #isValid(item) {
+    return item !== null && item !== undefined;
+  }
+  
+  #transform(item) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(item * 2);
+      }, Math.random() * 1000);
+    });
+  }
+  
+  #aggregate(item) {
+    return item + 10;
+  }
+}
+
+(async () => {
+  const inputArray = [1, 2, 3, 4, 5, null, 6, 7];
+  const asyncProcessor = new AsyncStreamProcessor(inputArray);
+  const results = await asyncProcessor.process();
+  console.log(results);  
+})();
+```

@@ -1,0 +1,37 @@
+ 
+const asyncIterable = {
+    [Symbol.asyncIterator]() {
+        let i = 0;
+        return {
+            next() {
+                if (i < 5) {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({ value: i++, done: false });
+                        }, 1000);
+                    });
+                }
+                return Promise.resolve({ done: true });
+            }
+        };
+    }
+};
+
+const handler = {
+    get: (target, prop, receiver) => {
+        if (prop === 'multiply') {
+            return (x, y) => x * y;
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxy = new Proxy({}, handler);
+
+(async () => {
+    for await (let value of asyncIterable) {
+        print(`Async Value: ${value}`);
+    }
+
+    print(`Proxy Multiply: ${proxy.multiply(6, 7)}`);
+})();

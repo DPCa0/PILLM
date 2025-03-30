@@ -1,0 +1,46 @@
+ 
+async function fetchData(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const { results } = await response.json();  
+        return results;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+}
+
+ 
+function processData(data) {
+     
+    return data.map(({ name, email }) => 
+        `<div class="user">
+            <h2>${name.first} ${name.last}</h2>
+            <p>Email: ${email}</p>
+        </div>`
+    ).join('');
+}
+
+ 
+(async function main() {
+     
+    const uniqueUrls = [...new Set([
+        'https://randomuser.me/api/?results=5',
+        'https://randomuser.me/api/?results=5',   
+    ])];
+
+     
+    const dataPromises = uniqueUrls.map(fetchData);
+    const dataResults = await Promise.all(dataPromises);
+
+     
+    const allData = dataResults.flat();
+    const processedHTML = processData(allData);
+
+     
+    document.body.innerHTML = `
+        <h1>User List</h1>
+        <div class="users">${processedHTML}</div>
+    `;
+})();

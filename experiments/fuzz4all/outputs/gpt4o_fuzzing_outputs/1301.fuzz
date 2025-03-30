@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fs = require('fs').promises;
+const path = require('path');
+
+ 
+(async () => {
+  try {
+     
+    const [file1 = 'default1.txt', file2 = 'default2.txt'] = process.argv.slice(2);
+
+     
+    const readFileContent = async (filename) => {
+      const filePath = path.join(__dirname, filename);
+      const content = await fs.readFile(filePath, 'utf-8');
+      return content;
+    };
+
+     
+    const [content1, content2] = await Promise.all([readFileContent(file1), readFileContent(file2)]);
+
+     
+    const styledLog = (strings, ...values) => {
+      console.log(strings[0] + values.map((v, i) => `%c${v}${strings[i + 1]}`).join(''), 'color: green;', 'color: blue;');
+    };
+
+    styledLog`Content of ${file1}: ${content1}`;
+    styledLog`Content of ${file2}: ${content2}`;
+
+     
+    const combinedContent = `${content1} ${content2}`;
+    const uniqueWords = new Set(combinedContent.split(/\s+/));
+
+    console.log('Unique Words:', [...uniqueWords].sort().join(', '));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+**Note:** This code assumes you're running it in a Node.js environment and have the required text files available. It uses advanced JavaScript concepts like async/await, Promises, destructuring, tagged template literals, and Sets to read content from two files, display their contents with styled logging, and list unique words.

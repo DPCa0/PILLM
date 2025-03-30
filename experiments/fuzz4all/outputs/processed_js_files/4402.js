@@ -1,0 +1,31 @@
+ 
+
+async function fetchAndProcessData(url) {
+   
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const data = await response.json();
+    
+     
+    const { results: [{ name: { first, last }, email }] } = data;
+    
+     
+    return `User: ${first} ${last}, Email: ${email}`;
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+}
+
+ 
+(async () => {
+  const url = 'https://randomuser.me/api/';
+  
+   
+  const promises = Array(5).fill().map(() => fetchAndProcessData(url));
+  const users = await Promise.all(promises);
+  
+   
+  print('Fetched Users:', ...users);
+})();

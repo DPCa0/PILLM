@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchData() {
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 1'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 2'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data 3'), 1000));
+}
+
+ 
+async function asyncFetcher(generator) {
+  const gen = generator();
+  for (let promise of gen) {
+    console.log(await promise);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      return `Property "${prop}" does not exist`;
+    }
+  },
+};
+
+ 
+const dataObject = new Proxy({ name: 'John Doe', age: 30 }, handler);
+
+ 
+async function process() {
+  console.log('Fetching Data...');
+  await asyncFetcher(fetchData);
+  
+  console.log('Accessing object properties through Proxy:');
+  console.log('Name:', dataObject.name);
+  console.log('Age:', dataObject.age);
+  console.log('Non-Existent Property:', dataObject.address);
+}
+
+ 
+process().then(() => console.log('Process Complete'));
+```

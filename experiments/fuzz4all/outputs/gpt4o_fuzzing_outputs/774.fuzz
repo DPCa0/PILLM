@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return response.json();
+}
+
+const processData = async () => {
+  try {
+    const { results: [firstResult] } = await fetchData('https://api.example.com/data');
+    const { id, name, attributes: { age, location } } = firstResult;
+
+    console.log(`User ID: ${id}`);
+    console.log(`Name: ${name}`);
+    console.log(`Age: ${age}`);
+    console.log(`Location: ${location}`);
+    
+     
+    const user = new Proxy(firstResult, {
+      get(target, prop) {
+        console.log(`Property '${prop}' accessed.`);
+        return target[prop];
+      }
+    });
+
+    console.log(user.name);   
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+};
+
+processData();
+```

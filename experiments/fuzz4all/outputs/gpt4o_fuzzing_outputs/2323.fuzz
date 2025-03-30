@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+class DataCache {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async getData(url) {
+    if (this.cache.has(url)) {
+      console.log('Fetching data from cache...');
+      return this.cache.get(url);
+    } else {
+      console.log('Fetching data from network...');
+      const data = await fetchData(url);
+      this.cache.set(url, data);
+      return data;
+    }
+  }
+}
+
+const processData = ({ id, name }) => `Processed Data - ID: ${id}, Name: ${name}`;
+
+const main = async () => {
+  const dataCache = new DataCache();
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await dataCache.getData(url);
+    
+    const processedUsers = users.map(user => processData(user));
+    const uniqueProcessedUsers = new Set(processedUsers);
+
+    for (const user of uniqueProcessedUsers) {
+      console.log(user);
+    }
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+};
+
+main();
+```

@@ -1,0 +1,35 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error(`Failed to fetch data from ${url}: ${error}`);
+  }
+};
+
+const processData = (data) => {
+  const { id, name, email, company: { name: companyName } } = data;
+  return `User ID: ${id}, Name: ${name}, Email: ${email}, Company: ${companyName}`;
+};
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/users/1',
+    'https://jsonplaceholder.typicode.com/users/2'
+  ];
+
+  try {
+    const dataPromises = urls.map(url => fetchData(url));
+    const results = await Promise.all(dataPromises);
+
+    results.forEach((result, index) => {
+      print(`User ${index + 1}:`);
+      print(processData(result));
+    });
+  } catch (error) {
+    console.error(`Error processing data: ${error}`);
+  }
+})();

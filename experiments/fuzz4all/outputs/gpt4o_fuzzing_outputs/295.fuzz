@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+    return this;
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event);
+      this.events.set(event, listeners.filter(l => l !== listener));
+    }
+    return this;
+  }
+
+  async emit(event, ...args) {
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event);
+      await Promise.all(listeners.map(async listener => {
+        await listener(...args);
+      }));
+    }
+  }
+}
+
+ 
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (message) => {
+  const processed = await new Promise(resolve => setTimeout(() => resolve(`Processed: ${message}`), 100));
+  console.log(processed);
+});
+
+emitter.on('data', async (message) => {
+  const transformed = await new Promise(resolve => setTimeout(() => resolve(message.toUpperCase()), 200));
+  console.log(transformed);
+});
+
+(async () => {
+  console.log('Emit start');
+  await emitter.emit('data', 'Hello, Async World!');
+  console.log('Emit end');
+})();
+```

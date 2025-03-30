@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+class Observable {
+    constructor(obj) {
+        this.observers = new Set();
+        return new Proxy(obj, {
+            set: (target, key, value) => {
+                if (value !== target[key]) {
+                    const prev = target[key];
+                    target[key] = value;
+                    this.notifyObservers({ key, value, prev });
+                }
+                return true;
+            }
+        });
+    }
+    addObserver(fn) {
+        this.observers.add(fn);
+    }
+    removeObserver(fn) {
+        this.observers.delete(fn);
+    }
+    notifyObservers(change) {
+        this.observers.forEach(observer => observer(change));
+    }
+}
+
+ 
+let data = { name: 'Alice', age: 30 };
+const observableData = new Observable(data);
+
+observableData.addObserver(({ key, value, prev }) => {
+    console.log(`Property "${key}" changed from ${prev} to ${value}`);
+});
+
+ 
+async function updateData() {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    data.name = 'Bob';
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    data.age = 31;
+}
+
+updateData();
+```

@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ id: 1, name: 'Alice', age: 30 }), 200)
+  );
+
+ 
+async function processUserData() {
+  const data = await fetchData();
+
+   
+  const hobbiesSet = new Set(['reading', 'cycling', 'coding']);
+
+   
+  const handler = {
+    get: (target, prop) => {
+      console.log(`Accessed property "${prop}"`);
+      return target[prop];
+    },
+    set: (target, prop, value) => {
+      if (prop === 'age' && typeof value !== 'number') {
+        throw new TypeError('Age must be a number');
+      }
+      console.log(`Updated property "${prop}" to "${value}"`);
+      target[prop] = value;
+      return true;
+    },
+  };
+
+  const userProxy = new Proxy(data, handler);
+
+   
+  const metadata = Symbol('metadata');
+  userProxy[metadata] = { lastLogin: new Date(), hobbies: Array.from(hobbiesSet) };
+
+   
+  userProxy.name = 'Bob';
+  userProxy.age = 35;
+
+   
+  console.log('User Info:', JSON.stringify(userProxy));  
+  console.log('User Metadata:', userProxy[metadata]);
+}
+
+ 
+processUserData().catch(console.error);
+```

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+class AsyncIterator {
+  constructor(limit) {
+    this.limit = limit;
+    this.current = 0;
+  }
+  
+  async next() {
+    if (this.current < this.limit) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      return { value: this.current++, done: false };
+    }
+    return { done: true };
+  }
+
+  [Symbol.asyncIterator]() {
+    return this;
+  }
+}
+
+class Processor {
+  static async process(limit) {
+    const asyncIterator = new AsyncIterator(limit);
+    for await (const { value } of asyncIterator) {
+      console.log(`Processing: ${value}`);
+    }
+  }
+}
+
+(async () => {
+  const tasks = Array.from({ length: 5 }, (_, i) => Processor.process(i + 3));
+  await Promise.all(tasks);
+
+   
+  const sum = (...args) => args.reduce((acc, val) => acc + val, 0);
+  const result = sum(1, 2, 3, 4, 5);
+  console.log(`Sum: ${result}`);
+})();
+```

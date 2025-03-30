@@ -1,0 +1,59 @@
+ 
+
+ 
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+class SecretKeeper {
+  #secret;
+  
+  constructor(secret) {
+    this.#secret = secret;
+  }
+  
+   
+  #revealSecret() {
+    return `The secret is: ${this.#secret}`;
+  }
+  
+   
+  revealIfMatch = (guess) => guess === this.#secret ? this.#revealSecret() : 'Nope, that is not the secret!';
+}
+
+ 
+const secureArrayHandler = {
+  get(target, prop) {
+    if (prop === 'revealAllSecrets') {
+      return function() {
+        return target.map(secretKeeper => secretKeeper.revealIfMatch(secretKeeper.#secret));
+      }
+    }
+    return target[prop];
+  }
+};
+
+ 
+function* secretCodeGenerator() {
+  let index = 0;
+  while (index < 100) {
+    yield `SECRET-${Math.floor(Math.random() * 1000)}`;
+    index++;
+  }
+}
+
+ 
+const secretCodes = [...secretCodeGenerator()].slice(0, 5);
+const secretKeepers = secretCodes.map(code => new SecretKeeper(code));
+
+ 
+const proxiedSecretKeepers = new Proxy(secretKeepers, secureArrayHandler);
+
+ 
+readline.question('Enter your guess for the secret: ', (guess) => {
+  print(secretKeepers[0].revealIfMatch(guess));
+  print('Revealing all secrets (cheat mode):', proxiedSecretKeepers.revealAllSecrets());
+  readline.close();
+});

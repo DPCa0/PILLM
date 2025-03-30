@@ -1,0 +1,40 @@
+class AsyncDataLoader {
+  static cache = new Map();
+
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    if (AsyncDataLoader.cache.has(this.url)) {
+      print('Returning cached data');
+      return Promise.resolve(AsyncDataLoader.cache.get(this.url));
+    }
+
+    print('Fetching new data');
+    const response = await fetch(this.url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const data = await response.json();
+    AsyncDataLoader.cache.set(this.url, data);
+    return data;
+  }
+}
+
+async function processUserData(userData) {
+  const userNames = userData.map(({ name }) => name);
+  print(`Processed User Names: ${userNames.join(', ')}`);
+  return userNames;
+}
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const loader = new AsyncDataLoader(url);
+  
+  try {
+    const userData = await loader.fetchData();
+    await processUserData(userData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

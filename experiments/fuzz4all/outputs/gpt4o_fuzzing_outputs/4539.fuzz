@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  const handler = {
+    get(target, prop, receiver) {
+      console.log(`Getting the property '${prop}'`);
+      return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+      console.log(`Setting the property '${prop}' to '${value}'`);
+      return Reflect.set(...arguments);
+    }
+  };
+
+  const data = { message: "Hello" };
+  const proxy = new Proxy(data, handler);
+  proxy.message = "Hello, Proxy!";
+  console.log(proxy.message);
+
+   
+  function* generatorFunction() {
+    yield 'First output';
+    yield* anotherGenerator();
+    yield 'Last output';
+  }
+
+  function* anotherGenerator() {
+    yield 'Nested output 1';
+    yield 'Nested output 2';
+  }
+
+  for (const value of generatorFunction()) {
+    console.log(value);
+  }
+
+   
+  async function fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+
+   
+  function tag(strings, ...values) {
+    console.log('Tag function called with:', strings, values);
+    return strings.reduce((result, str, i) => `${result}${str}${values[i] ? values[i] : ''}`, '');
+  }
+
+  const userName = 'Alice';
+  const userMessage = tag`Hello, ${userName}! Welcome to the advanced JavaScript example.`;
+
+   
+  (function display() {
+    console.log('This message is from an IIFE');
+  })();
+
+   
+  const settings = { theme: { color: 'dark' } };
+  const userColor = settings?.theme?.color ?? 'default-color';
+  console.log(`User color setting: ${userColor}`);
+
+   
+  fetchData('https://api.github.com/users/github');
+})();
+```

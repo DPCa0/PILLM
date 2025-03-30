@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => resolve(['apple', 'banana', 'cherry']), 1000);
+});
+
+ 
+function* dataGenerator(data) {
+    for (let item of data) {
+        yield `Fruit: ${item}`;
+    }
+}
+
+ 
+async function processData() {
+    try {
+        const data = await fetchData();  
+        const generator = dataGenerator(data);  
+
+        for (const fruit of generator) {
+            print(fruit);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const handler = {
+    apply: function (target, thisArg, argumentsList) {
+        print(`Called processData with args: ${argumentsList}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+const proxyProcessData = new Proxy(processData, handler);
+
+ 
+proxyProcessData();

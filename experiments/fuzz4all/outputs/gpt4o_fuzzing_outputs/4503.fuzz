@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+    yield Promise.resolve({ value: 10 });
+    yield Promise.resolve({ value: 20 });
+    yield Promise.resolve({ value: 30 });
+}
+
+ 
+async function processData(generator) {
+    let data;
+    while (!(data = generator.next()).done) {
+        const resolvedData = await data.value;
+        console.log(`Processing: ${resolvedData.value}`);
+    }
+}
+
+ 
+const target = {
+    value: 0,
+    increment(val) {
+        this.value += val;
+        return this.value;
+    }
+};
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'value') {
+            console.log(`Accessing value: ${Reflect.get(target, prop, receiver)}`);
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting value: ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+    console.log('Starting data processing...');
+    await processData(dataGenerator());
+    
+     
+    console.log(`Initial proxy value: ${proxy.value}`);
+    proxy.increment(5);
+    console.log(`After increment: ${proxy.value}`);
+})();
+```

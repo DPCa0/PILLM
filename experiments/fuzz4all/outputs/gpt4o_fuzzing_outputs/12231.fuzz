@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexSystem {
+  constructor(name) {
+    this.name = name;
+    this.data = [];
+  }
+
+  async fetchData() {
+     
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this.data = Array.from({ length: 5 }, (_, i) => ({ id: i, value: `Data${i}` }));
+        resolve(this.data);
+      }, 1000);
+    });
+  }
+
+  *dataIterator() {
+    for (let item of this.data) {
+      yield item;
+    }
+  }
+}
+
+ 
+async function processComplexSystem(system) {
+  await system.fetchData();
+
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        console.warn(`Property ${prop} does not exist`);
+        return null;
+      }
+    }
+  };
+
+  const proxiedSystem = new Proxy(system, handler);
+
+  for (let item of proxiedSystem.dataIterator()) {
+    console.log(`Processing: ${item.value}`);
+  }
+
+  console.log(`Access non-existent property: ${proxiedSystem.nonExistent}`);
+}
+
+(async () => {
+  const system = new ComplexSystem('AdvancedSystem');
+  await processComplexSystem(system);
+})();
+```

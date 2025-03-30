@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ data: 'Hello, advanced JavaScript!' }), Math.random() * 2000);
+    });
+};
+
+ 
+async function getData() {
+    console.log('Fetching data...');
+    const response = await fetchData();
+    console.log('Data received:', response.data);
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Getting property '${property}'`);
+        return Reflect.get(target, property);
+    },
+    set: (target, property, value) => {
+        console.log(`Setting property '${property}' to '${value}'`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+ 
+const targetObject = { message: 'Initial Message' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function manipulateObject(obj) {
+    console.log(obj.message);
+    obj.message = 'Updated via Proxy';
+    console.log(obj.message);
+}
+
+ 
+getData().then(() => {
+     
+    manipulateObject(proxyObject);
+});
+```

@@ -1,0 +1,57 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async function advancedFeaturesDemo() {
+     
+    const user = { name: 'Alice', preferences: { theme: 'dark' } };
+    const theme = user.preferences?.theme ?? 'default';
+    print(`User theme: ${theme}`);
+
+     
+    const readFiles = ['file1.txt', 'file2.txt'].map(file =>
+        fs.readFile(file, 'utf8').catch(err => err)
+    );
+    const results = await Promise.allSettled(readFiles);
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            print(`File ${index + 1} content: ${result.value}`);
+        } else {
+            console.error(`File ${index + 1} error: ${result.reason}`);
+        }
+    });
+
+     
+    const handler = {
+        set(target, property, value) {
+            if (property === 'age' && (typeof value !== 'number' || value <= 0)) {
+                throw new Error('Invalid age');
+            }
+            target[property] = value;
+            return true;
+        }
+    };
+    const person = new Proxy({}, handler);
+    person.name = 'Bob';
+    person.age = 25;
+
+    try {
+        person.age = -5;  
+    } catch (error) {
+        console.error(error.message);
+    }
+
+     
+    function* fibonacci(limit) {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < limit; i++) {
+            [prev, curr] = [curr, prev + curr];
+            yield prev;
+        }
+    }
+
+    print('Fibonacci sequence:');
+    for (const num of fibonacci(5)) {
+        print(num);
+    }
+})();

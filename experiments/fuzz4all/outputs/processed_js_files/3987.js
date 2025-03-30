@@ -1,0 +1,34 @@
+ 
+(async () => {
+    const fetchData = async () => {
+         
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve([
+                    { id: 1, name: 'Alice', score: 85 },
+                    { id: 2, name: 'Bob', score: 92 },
+                    { id: 3, name: 'Charlie', score: 87 },
+                    { id: 4, name: 'David', score: 76 },
+                    { id: 5, name: 'Eve', score: 95 }
+                ]);
+            }, 1000);
+        });
+    };
+
+    try {
+         
+        const data = await fetchData();
+
+         
+        const scoresAbove80 = data
+            .map(({ name, score }) => ({ name, score }))
+            .filter(({ score }) => score > 80);
+
+         
+        const output = scoresAbove80.map(({ name, score }) => `Name: ${name}, Score: ${score}`).join('\n');
+
+        print('Students with scores above 80:\n' + output);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

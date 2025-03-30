@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('uniqueKey');
+
+const complexObject = {
+  name: 'Complex Object',
+  [uniqueKey]: 'This is a unique symbol key',
+  methods: {
+    regularMethod() {
+      console.log(`Name is: ${this.name}`);
+    },
+    async asyncMethod() {
+      console.log('Starting async operation...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('Async operation completed!');
+    }
+  },
+  nestedObject: {
+    prop: 'I am nested',
+    showProp() {
+      console.log(this.prop);
+    }
+  }
+};
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property in target) {
+      return Reflect.get(target, property, receiver);
+    } else {
+      console.warn(`Property ${String(property)} does not exist`);
+      return undefined;
+    }
+  }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+function* dynamicRange(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+(async () => {
+  console.log(`Unique Key Access: ${proxiedObject[uniqueKey]}`);
+  console.log('Iterating over dynamic range:');
+  for await (let num of dynamicRange(1, 5)) {
+    console.log(num);
+  }
+
+  await proxiedObject.methods.asyncMethod();
+  proxiedObject.methods.regularMethod();
+  proxiedObject.nestedObject.showProp();
+})();
+
+ 
+const { name = 'Default Name', extraInfo = {}, ...rest } = complexObject;
+console.log(`Destructured Name: ${name}, Rest:`, rest);
+```

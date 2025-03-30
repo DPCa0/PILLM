@@ -1,0 +1,59 @@
+ 
+
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  mergeData(...additionalData) {
+    this.data = { ...this.data, ...additionalData.reduce((acc, item) => ({ ...acc, ...item }), {}) };
+  }
+
+   
+  static extractProperties({ name, age }) {
+    return { name, age };
+  }
+
+   
+  processData() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const processed = Object.entries(this.data).reduce((acc, [key, value]) => {
+            acc[key] = typeof value === 'string' ? value.toUpperCase() : value;
+            return acc;
+          }, {});
+          resolve(processed);
+        } catch (error) {
+          reject('Processing failed');
+        }
+      }, 1000);
+    });
+  }
+}
+
+ 
+async function handleData() {
+  const initialData = { name: 'John Doe', age: 30, occupation: 'Developer' };
+  const additionalData = [{ location: 'New York' }, { hobby: 'Chess' }];
+  
+  const processor = new DataProcessor(initialData);
+  processor.mergeData(...additionalData);
+
+  print('Merged Data:', processor.data);
+
+  const { name, age } = DataProcessor.extractProperties(processor.data);
+  print('Extracted Properties:', { name, age });
+
+  try {
+    const result = await processor.processData();
+    print('Processed Data:', result);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+handleData();

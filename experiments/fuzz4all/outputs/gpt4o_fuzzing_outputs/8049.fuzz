@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                id: 1,
+                name: 'Advanced JS',
+                features: ['Promises', 'Async/Await', 'Proxy', 'Generators']
+            });
+        }, 1000);
+    });
+};
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            console.log(`Getting property: ${property}`);
+            return target[property];
+        } else {
+            return `Property ${property} does not exist.`;
+        }
+    }
+};
+
+ 
+function* featureGenerator(features) {
+    for (let feature of features) {
+        yield feature;
+    }
+}
+
+(async () => {
+    try {
+         
+        const data = await fetchData();
+        const proxiedData = new Proxy(data, handler);
+
+        console.log(proxiedData.name);  
+
+         
+        const generator = featureGenerator(proxiedData.features);
+        for (let feature of generator) {
+            console.log(`Feature: ${feature}`);
+        }
+
+         
+        console.log(proxiedData.nonExistentProperty);  
+
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();
+```

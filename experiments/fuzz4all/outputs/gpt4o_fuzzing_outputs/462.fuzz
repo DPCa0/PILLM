@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) =>
+      row.map((value, j) => fn(value, i, j))
+    );
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length)
+      throw new Error('Columns of A must match rows of B');
+    return new Matrix(a.data.length, b.data[0].length).map(
+      (_, i, j) =>
+        a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+  }
+}
+
+const asyncOperation = () => 
+  new Promise(resolve => setTimeout(() => resolve('Async Result'), 1000));
+
+(async () => {
+  const matrixA = new Matrix(2, 3).map((_, i, j) => i + j + 1);
+  const matrixB = new Matrix(3, 2).map((_, i, j) => i * j + 1);
+  
+  console.log('Matrix A:', matrixA.data);
+  console.log('Matrix B:', matrixB.data);
+  
+  const matrixC = Matrix.multiply(matrixA, matrixB);
+  console.log('Result of A x B:', matrixC.data);
+  
+  const result = await asyncOperation();
+  console.log(result);
+})();
+```

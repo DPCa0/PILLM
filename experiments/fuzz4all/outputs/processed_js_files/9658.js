@@ -1,0 +1,54 @@
+class Complex {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  add(otherComplex) {
+    return new Complex(
+      this.real + otherComplex.real,
+      this.imaginary + otherComplex.imaginary
+    );
+  }
+
+  subtract(otherComplex) {
+    return new Complex(
+      this.real - otherComplex.real,
+      this.imaginary - otherComplex.imaginary
+    );
+  }
+
+  multiply(otherComplex) {
+    return new Complex(
+      this.real * otherComplex.real - this.imaginary * otherComplex.imaginary,
+      this.real * otherComplex.imaginary + this.imaginary * otherComplex.real
+    );
+  }
+
+  static *sequence(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield new Complex(i, i);
+    }
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+(async () => {
+  const complexNumbers = [...Complex.sequence(1, 5)];
+  const sum = complexNumbers.reduce(
+    (acc, complex) => acc.add(complex),
+    new Complex(0, 0)
+  );
+  
+  print('Sum:', sum.toString());
+
+  const promises = complexNumbers.map((complex) =>
+    Promise.resolve(complex.multiply(new Complex(2, 3)))
+  );
+
+  const results = await Promise.all(promises);
+  print('Results:', results.map((c) => c.toString()).join(', '));
+})();

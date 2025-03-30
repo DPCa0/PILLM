@@ -1,0 +1,47 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(size, fill = 0) {
+    return new Matrix(Array.from({ length: size }, () => Array(size).fill(fill)));
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield* row;
+    }
+  }
+
+  async mapAsync(callback) {
+    const promises = this.data.map((row, i) =>
+      Promise.all(row.map((val, j) => callback(val, i, j)))
+    );
+    const result = await Promise.all(promises);
+    return new Matrix(result);
+  }
+
+  transpose() {
+    const size = this.data.length;
+    return new Matrix(
+      Array.from({ length: size }, (_, i) => this.data.map(row => row[i]))
+    );
+  }
+}
+
+(async function() {
+  const randomMatrix = Matrix.from(3, 1);
+  print('Initial Matrix:');
+  console.table(randomMatrix.data);
+
+  const transformedMatrix = await randomMatrix.mapAsync(async (value, i, j) => {
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 100)); 
+    return value * (i + j + 1);
+  });
+
+  print('Transformed Matrix:');
+  console.table(transformedMatrix.data);
+
+  print('Transposed Matrix:');
+  console.table(transformedMatrix.transpose().data);
+})();

@@ -1,0 +1,67 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+}
+
+ 
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+const targetObject = { name: "JavaScript", type: "Programming Language" };
+const proxy = new Proxy(targetObject, {
+  get(target, property) {
+    print(`Accessing property "${property}"`);
+    return target[property];
+  }
+});
+
+ 
+const metadataMap = new Map();
+metadataMap.set('version', 'ES2023');
+metadataMap.set('features', ['async/await', 'generators', 'proxy', 'Map']);
+
+ 
+class Example {
+  #privateField = 42;
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  get #secret() {
+    return `The answer is ${this.#privateField}`;
+  }
+
+  revealSecret() {
+    return this.#secret;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', data);
+
+    const fib = fibonacciGenerator();
+    print('Fibonacci:', fib.next().value, fib.next().value, fib.next().value);
+
+    print(proxy.name);
+    print(proxy.type);
+
+    print('Metadata Map:', metadataMap);
+
+    const exampleInstance = new Example("Demo");
+    print(exampleInstance.revealSecret());
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

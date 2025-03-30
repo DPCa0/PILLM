@@ -1,0 +1,37 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+    return data.map(item => ({ 
+        ...item, 
+        processedDate: new Date(item.date).toISOString() 
+    }));
+};
+
+const visualizeData = (processedData) => {
+    print('Visualizing Data...');
+    processedData.forEach(item => {
+        print(`Item: ${item.name}, Processed Date: ${item.processedDate}`);
+    });
+};
+
+const app = async () => {
+    try {
+        const url = 'https://api.example.com/data';
+        const data = await fetchData(url);
+        const processedData = processData(data);
+        
+        if (processedData.length > 5) {
+            visualizeData(processedData);
+        } else {
+            throw new Error('Not enough data to visualize');
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+};
+
+app();

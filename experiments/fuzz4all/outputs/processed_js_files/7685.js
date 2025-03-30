@@ -1,0 +1,41 @@
+class AsyncCalculator {
+  constructor() {
+    this.operations = {
+      '+': (a, b) => a + b,
+      '-': (a, b) => a - b,
+      '*': (a, b) => a * b,
+      '/': (a, b) => b !== 0 ? a / b : Promise.reject('Divide by zero error'),
+    };
+  }
+
+  async calculate(expression) {
+    const [operand1, operator, operand2] = expression.split(' ');
+    const op1 = parseFloat(operand1);
+    const op2 = parseFloat(operand2);
+    
+    if (isNaN(op1) || isNaN(op2)) {
+      throw new Error('Invalid numbers');
+    }
+    
+    const operation = this.operations[operator];
+    if (!operation) {
+      throw new Error('Invalid operator');
+    }
+    
+    return await operation(op1, op2);
+  }
+}
+
+(async () => {
+  const calculator = new AsyncCalculator();
+  const expressions = ['3 + 4', '10 / 2', '6 * 7', '8 - 3'];
+
+  for (const expr of expressions) {
+    try {
+      const result = await calculator.calculate(expr);
+      print(`${expr} = ${result}`);
+    } catch (error) {
+      console.error(`Error calculating expression "${expr}": ${error}`);
+    }
+  }
+})();

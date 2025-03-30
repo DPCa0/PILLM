@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: {
+          id: 1,
+          name: 'John Doe',
+          email: 'john.doe@example.com'
+        },
+        posts: [
+          { id: 1, title: 'Advanced JavaScript', content: '...' },
+          { id: 2, title: 'Understanding ES6', content: '...' }
+        ]
+      });
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+     
+    const { user, posts } = await fetchData();
+
+     
+    const { id, name, email } = user;
+    print(`User Info: ID=${id}, Name=${name}, Email=${email}`);
+
+     
+    const postTitles = posts.map(({ title }) => title);
+
+     
+    print(`Posts: ${postTitles.join(', ')}`);
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();

@@ -1,0 +1,27 @@
+ 
+(async () => {
+   
+  const fetchData = () =>
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ user: { name: 'Alice', age: 30 }, hobbies: ['Reading', 'Traveling'] });
+      }, 1000);
+    });
+
+   
+  const { user, hobbies } = await fetchData();
+
+   
+  const userProxy = new Proxy(user, {
+    get(target, prop, receiver) {
+      print(`Accessing property ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+   
+  const message = `User ${userProxy.name} is ${userProxy.age} years old and enjoys ${hobbies.join(', ')}.`;
+
+   
+  print(message);
+})();

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: function(target, property) {
+    if (property in target) {
+      console.log(`Getting ${property}`);
+      return target[property];
+    } else {
+      console.log(`${property} does not exist, defaulting to 42`);
+      return 42;  
+    }
+  },
+  set: function(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+let target = {
+  name: "JavaScript",
+  version: "ES6"
+};
+
+ 
+let proxy = new Proxy(target, handler);
+
+ 
+async function asyncOperation() {
+  console.log("Starting async operation...");
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log("Async operation completed.");
+      resolve("Operation Result");
+    }, 2000);
+  });
+}
+
+ 
+const uniqueKey = Symbol('unique');
+
+(async function main() {
+   
+  console.log(proxy.name);
+  console.log(proxy.nonexistent);
+  proxy.version = "ESNext";
+  console.log(proxy.version);
+
+   
+  let result = await asyncOperation();
+  console.log(result);
+
+   
+  proxy[uniqueKey] = "Secret Information";
+  console.log("Unique Key Property:", proxy[uniqueKey]);
+})();
+```

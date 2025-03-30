@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  once(event, listener) {
+    const onceListener = (...args) => {
+      listener(...args);
+      this.off(event, onceListener);
+    };
+    this.on(event, onceListener);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(l => l !== listener));
+    }
+  }
+}
+
+const asyncOperation = (ms, result) => new Promise((resolve) => setTimeout(() => resolve(result), ms));
+
+async function* asyncGenerator() {
+  yield await asyncOperation(1000, 'Event 1 Completed');
+  yield await asyncOperation(500, 'Event 2 Completed');
+  yield await asyncOperation(200, 'Event 3 Completed');
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('log', console.log);
+  emitter.once('log', message => console.log('This will only log once: ' + message));
+
+  const asyncGen = asyncGenerator();
+  
+  for await (const event of asyncGen) {
+    emitter.emit('log', event);
+  }
+})();
+```

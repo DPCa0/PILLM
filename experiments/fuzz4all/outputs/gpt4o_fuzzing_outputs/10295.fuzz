@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+class AsyncDataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetching error:', error);
+        }
+    }
+}
+
+const processData = (data) => {
+    return data
+        .filter(item => item.active)
+        .map(({ id, value }) => ({ id, computedValue: value * 2 }))
+        .reduce((acc, curr) => ({ ...acc, [curr.id]: curr.computedValue }), {});
+};
+
+(async () => {
+    const fetcher = new AsyncDataFetcher('https://jsonplaceholder.typicode.com/todos');
+    const rawData = await fetcher.fetchData();
+    
+    if (rawData) {
+        const processedData = processData(rawData);
+        console.log('Processed Data:', processedData);
+    }
+})();
+```

@@ -1,0 +1,36 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    *sequence(limit) {
+        for (let i = 0; i < limit; i++) {
+            yield this.calculate(i);
+        }
+    }
+
+    calculate(n) {
+        if (n < 2) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+async function fetchFibonacci(limit) {
+    const fib = new Fibonacci();
+    const numbers = [...fib.sequence(limit)];
+    const result = await Promise.all(numbers.map(async (num) => await Promise.resolve(num)));
+    return result;
+}
+
+(async () => {
+    try {
+        const fibNumbers = await fetchFibonacci(10);
+        print(fibNumbers.join(', '));  
+    } catch (error) {
+        console.error('Error fetching Fibonacci sequence:', error);
+    }
+})();

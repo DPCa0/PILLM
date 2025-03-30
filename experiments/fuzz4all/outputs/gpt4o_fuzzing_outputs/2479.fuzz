@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+}
+
+ 
+const logHandler = {
+    get(target, property) {
+        console.log(`Getting property: ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting property: ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+function flattenArray(arr, depth = 1) {
+    return arr.reduce((acc, val) => Array.isArray(val) && depth > 1
+        ? acc.concat(flattenArray(val, depth - 1))
+        : acc.concat(val), []);
+}
+
+ 
+class Example {
+    #privateField = 'Private Data';
+
+    #privateMethod() {
+        console.log('This is a private method');
+    }
+
+    publicMethod() {
+        console.log('This is a public method');
+        console.log(this.#privateField);
+        this.#privateMethod();
+    }
+}
+
+ 
+function tag(strings, ...values) {
+    console.log(strings);
+    console.log(values);
+}
+
+const name = 'John';
+const age = 30;
+tag`Hello ${name}, you are ${age} years old.`;
+
+ 
+(async function main() {
+     
+    const data = await fetchData();
+    console.log('Fetched data:', data);
+
+     
+    const proxyObj = new Proxy({ a: 1, b: 2 }, logHandler);
+    proxyObj.a = 42;
+    console.log(proxyObj.b);
+
+     
+    const nestedArray = [1, [2, [3, [4]]]];
+    console.log('Flattened array:', flattenArray(nestedArray, Infinity));
+
+     
+    const example = new Example();
+    example.publicMethod();
+})();
+```

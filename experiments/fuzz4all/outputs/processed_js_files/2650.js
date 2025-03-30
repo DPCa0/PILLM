@@ -1,0 +1,50 @@
+ 
+class CustomError extends Error {
+  constructor(message, ...params) {
+    super(...params);
+    this.name = 'CustomError';
+    this.message = message;
+    this.date = new Date();
+  }
+}
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+const targetObject = {
+  greet: 'Hello',
+  farewell: 'Goodbye',
+};
+
+const handler = {
+  get: (target, property) => {
+    return property in target ? target[property] : `Property ${property} not found`;
+  },
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const runComplexLogic = async () => {
+  try {
+    print(proxy.greet);  
+
+    await delay(1000);
+    print('Executed after 1 second delay.');
+
+    const missingProperty = proxy.nonExistent;
+    print(missingProperty);  
+
+    throw new CustomError('This is a custom error for demonstration purposes.');
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`Custom Error Occurred: ${error.message} at ${error.date}`);
+    } else {
+      console.error(`An unexpected error occurred: ${error.message}`);
+    }
+  }
+};
+
+ 
+runComplexLogic();

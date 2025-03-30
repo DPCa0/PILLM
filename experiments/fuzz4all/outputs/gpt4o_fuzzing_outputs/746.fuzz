@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr.map(row => [...row]));
+  }
+
+  get(rows, cols) {
+    return this.data[rows][cols];
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, i) => row.map((value, j) => fn(value, i, j))));
+  }
+
+  static async multiply(m1, m2) {
+    if (m1.data[0].length !== m2.data.length) {
+      throw new Error('Incompatible matrices for multiplication');
+    }
+    const result = [];
+    for (let i = 0; i < m1.data.length; i++) {
+      result[i] = [];
+      for (let j = 0; j < m2.data[0].length; j++) {
+        let sum = 0;
+        for (let k = 0; k < m1.data[0].length; k++) {
+          sum += m1.data[i][k] * m2.data[k][j];
+        }
+        result[i][j] = sum;
+      }
+    }
+    return Matrix.fromArray(result);
+  }
+}
+
+ 
+(async () => {
+   
+  const { default: _ } = await import('lodash');
+  const matrix1 = new Matrix([
+    [1, 2, 3],
+    [4, 5, 6]
+  ]);
+  const matrix2 = new Matrix([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+  ]);
+
+  try {
+    const product = await Matrix.multiply(matrix1, matrix2);
+    console.log('Matrix product:', product.data);
+
+     
+    const cloned = _.cloneDeep(product);
+    cloned.map(value => value * 2);
+    console.log('Cloned and doubled:', cloned.data);
+
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

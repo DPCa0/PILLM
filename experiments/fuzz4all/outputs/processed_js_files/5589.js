@@ -1,0 +1,29 @@
+ 
+const delayedLog = (msg) => new Promise(resolve => setTimeout(() => resolve(msg), 1000));
+
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      console.warn(`Property ${String(prop)} does not exist`);
+      return 'undefined';
+    }
+  }
+};
+
+const symbols = {
+  logSymbol: Symbol('logSymbol')
+};
+
+const logger = new Proxy({
+  [symbols.logSymbol]: async (msg) => {
+    const response = await delayedLog(msg);
+    print(response);
+  }
+}, handler);
+
+(async () => {
+  await logger[symbols.logSymbol]('Hello, world!');
+  logger.nonExistentProp;   
+})();

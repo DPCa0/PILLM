@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+class TaskScheduler {
+  constructor() {
+    this.queue = [];
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+  }
+
+  async run() {
+    while (this.queue.length) {
+      const task = this.queue.shift();
+      await task();
+    }
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncTask = (name, duration) => async () => {
+  console.log(`Starting task: ${name}`);
+  await sleep(duration);
+  console.log(`Completed task: ${name}`);
+};
+
+const main = async () => {
+  const scheduler = new TaskScheduler();
+
+  scheduler.addTask(asyncTask('Task 1', 1000));
+  scheduler.addTask(asyncTask('Task 2', 500));
+  scheduler.addTask(asyncTask('Task 3', 2000));
+
+  console.log('Running task scheduler...');
+  await scheduler.run();
+  console.log('All tasks completed!');
+};
+
+main().catch(console.error);
+```

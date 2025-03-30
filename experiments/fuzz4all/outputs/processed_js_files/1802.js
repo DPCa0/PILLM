@@ -1,0 +1,52 @@
+ 
+class SecretBox {
+  #secret;
+  
+  constructor(secret) {
+    this.#secret = secret;
+  }
+  
+   
+  #encrypt(text) {
+    return [...text].map(char => String.fromCharCode(char.charCodeAt(0) + 1)).join('');
+  }
+  
+   
+  #decrypt(text) {
+    return [...text].map(char => String.fromCharCode(char.charCodeAt(0) - 1)).join('');
+  }
+
+  revealSecret(password) {
+    return password === 'opensesame' ? this.#decrypt(this.#secret) : 'Access Denied!';
+  }
+  
+   
+  async updateSecret(newSecret) {
+    const encrypted = await new Promise(resolve => {
+      setTimeout(() => {
+        resolve(this.#encrypt(newSecret));
+      }, 1000);
+    });
+    this.#secret = encrypted;
+    return 'Secret Updated!';
+  }
+}
+
+ 
+const logDetails = ({ secretBox }) => {
+  const entries = Object.entries(secretBox);
+  print(`Secret Box Details: ${[...entries].map(([key, value]) => `${key}: ${value}`).join(', ')}`);
+};
+
+ 
+(async () => {
+  const mySecretBox = new SecretBox('uvwxyz');
+  print(await mySecretBox.updateSecret('newSecret!'));
+
+  const attempts = ['password', 'opensesame'];
+  attempts.forEach(async attempt => {
+    print(`Attempt with "${attempt}": ${mySecretBox.revealSecret(attempt)}`);
+  });
+
+  logDetails({ secretBox: mySecretBox });
+})();

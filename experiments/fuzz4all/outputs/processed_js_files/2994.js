@@ -1,0 +1,49 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+        this[Symbol.iterator] = function* () {
+            let [prev, curr] = [0, 1];
+            for (let i = 0; i < this.limit; i++) {
+                yield prev;
+                [prev, curr] = [curr, prev + curr];
+            }
+        };
+    }
+    
+    *[Symbol.asyncIterator]() {
+        for (let i = 0; i < this.limit; i++) {
+            yield await this.asyncFib(i);
+        }
+    }
+
+    asyncFib(n) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.fib(n));
+            }, Math.random() * 100);
+        });
+    }
+
+    fib(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        const result = this.fib(n - 1) + this.fib(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const fibSeq = new Fibonacci(10);
+
+(async () => {
+    print("Synchronous Fibonacci:");
+    for (const num of fibSeq) {
+        print(num);
+    }
+
+    print("Asynchronous Fibonacci:");
+    for await (const num of fibSeq) {
+        print(num);
+    }
+})();

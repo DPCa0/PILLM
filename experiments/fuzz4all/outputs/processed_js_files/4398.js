@@ -1,0 +1,30 @@
+ 
+
+const fetchData = async (urls) => {
+   
+  const promises = urls.map(url => fetch(url).then(res => res.json()));
+  const data = await Promise.all(promises);
+
+   
+  return data.map(({ id, title, body }) => ({ id, title, body }));
+};
+
+const processData = async () => {
+   
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+  
+  try {
+    const results = await fetchData(urls);
+    results.forEach(({ id, title, body }) => {
+      print(`Post ${id}: ${title}\n${body}\n`);
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+processData();

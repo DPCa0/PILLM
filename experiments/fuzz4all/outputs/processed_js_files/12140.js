@@ -1,0 +1,36 @@
+class FibonacciSequence {
+  constructor() {
+    this.cache = new Map();
+    this.cache.set(0, 0);
+    this.cache.set(1, 1);
+  }
+
+  *generate(n) {
+    for (let i = 0; i <= n; i++) {
+      yield this.fib(i);
+    }
+  }
+
+  fib(n) {
+    if (this.cache.has(n)) {
+      return this.cache.get(n);
+    }
+    const result = this.fib(n - 1) + this.fib(n - 2);
+    this.cache.set(n, result);
+    return result;
+  }
+}
+
+const fibonacci = new FibonacciSequence();
+
+(async () => {
+  const num = 10;
+  print(`First ${num} Fibonacci numbers:`);
+  const fibIterator = fibonacci.generate(num);
+  
+   
+  for await (const value of fibIterator) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    print(value);
+  }
+})();

@@ -1,0 +1,40 @@
+ 
+
+ 
+import { add } from './math.js';
+
+ 
+function simulateAsyncOperation(value, delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(value), delay);
+  });
+}
+
+ 
+async function complexOperation(x, y) {
+  try {
+    const [res1, res2] = await Promise.all([
+      simulateAsyncOperation(x, 1000),
+      simulateAsyncOperation(y, 500),
+    ]);
+
+    const sum = add(res1, res2);
+    print(`The sum of ${res1} and ${res2} is ${sum}`);
+
+     
+    print(`Async operation complete: Result is ${sum}`);
+  } catch (error) {
+    console.error(`Operation failed: ${error}`);
+  }
+}
+
+ 
+const inputs = { x: 7, y: 3 };
+complexOperation(inputs.x, inputs.y);
+
+In a separate file named `math.js`:
+export function add(a, b) {
+  return a + b;
+}
+
+To run this code, make sure both JavaScript files (`main.js` and `math.js`) are in the same directory, and use a module-supporting environment (like a modern browser or Node.js with ES module support).

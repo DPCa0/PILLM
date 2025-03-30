@@ -1,0 +1,54 @@
+(async () => {
+  const timeout = ms => new Promise(res => setTimeout(res, ms));
+
+  class AdvancedFeatureExample {
+    #privateVar = 'Secret Data';
+
+    static *fibonacci(n) {
+      let [a, b] = [0, 1];
+      for (let i = 0; i < n; i++) {
+        [a, b] = [b, a + b];
+        yield a;
+      }
+    }
+
+    async processWithTimeout(data, processFunc) {
+      await timeout(1000);
+      return processFunc(data);
+    }
+
+    get privateInfo() {
+      return this.#privateVar;
+    }
+
+    set privateInfo(value) {
+      this.#privateVar = value;
+    }
+  }
+
+  const proxyHandler = {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        return Reflect.get(target, prop, receiver);
+      } else {
+        throw new Error(`Property ${prop} does not exist`);
+      }
+    },
+  };
+
+  const example = new Proxy(new AdvancedFeatureExample(), proxyHandler);
+
+  try {
+    example.nonExistent;  
+  } catch (e) {
+    print(e.message);
+  }
+
+  print('Fibonacci Sequence: ', [...AdvancedFeatureExample.fibonacci(10)]);
+
+  example.privateInfo = 'Updated Secret';
+  print('Private Info:', example.privateInfo);
+
+  const result = await example.processWithTimeout([1, 2, 3], data => data.map(x => x * 2));
+  print('Processed Data:', result);
+})();

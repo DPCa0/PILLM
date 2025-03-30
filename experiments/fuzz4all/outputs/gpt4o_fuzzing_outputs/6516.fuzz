@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const simulateAsyncOp = (time, value) => new Promise(resolve => setTimeout(() => resolve(value), time));
+
+ 
+function* fetchDataGenerator() {
+    yield simulateAsyncOp(1000, 'First Data');
+    yield simulateAsyncOp(1000, 'Second Data');
+    yield simulateAsyncOp(1000, 'Third Data');
+}
+
+ 
+async function handleDataFetching() {
+    const dataGen = fetchDataGenerator();
+    let result = dataGen.next();
+    while (!result.done) {
+        console.log('Fetching...');
+        const data = await result.value;
+        console.log(data);
+        result = dataGen.next();
+    }
+}
+
+ 
+const dataProxy = new Proxy({}, {
+    set(target, property, value) {
+        console.log(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    },
+    get(target, property) {
+        console.log(`Getting property '${property}'`);
+        return target[property] || 'Not Found';
+    }
+});
+
+ 
+dataProxy.name = 'Advanced JS';
+console.log(dataProxy.name);
+console.log(dataProxy.nonExistent);
+
+ 
+handleDataFetching();
+```

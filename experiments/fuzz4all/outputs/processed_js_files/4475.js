@@ -1,0 +1,41 @@
+ 
+const fetchData = async (url) => {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const data = await response.json();
+        
+         
+        const processedData = new Map();
+        data.forEach(item => {
+            const { id, name, value } = item;
+            processedData.set(id, { name, value });
+        });
+
+         
+        const transformedData = [...processedData.values()]
+            .filter(item => item.value > 10)
+            .map(item => ({ ...item, value: item.value * 2 }));
+
+         
+        print(transformedData?.[0]?.name ?? 'No name available');
+
+         
+        const idGenerator = function*() {
+            let id = 1;
+            while (true) yield Symbol(`id-${id++}`);
+        };
+
+        const idGen = idGenerator();
+        print(idGen.next().value.toString());  
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+fetchData('https://api.example.com/data');

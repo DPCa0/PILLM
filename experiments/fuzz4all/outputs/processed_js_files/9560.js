@@ -1,0 +1,56 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+class Observer {
+  constructor() {
+    this.observers = [];
+  }
+
+  subscribe(fn) {
+    this.observers.push(fn);
+  }
+
+  notify(data) {
+    this.observers.forEach(fn => fn(data));
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+};
+
+(async () => {
+  const cachedFetch = memoize(fetchData);
+  const observer = new Observer();
+
+  observer.subscribe(data => print('Data received:', data));
+
+  const handleInputChange = debounce(async (url) => {
+    try {
+      const data = await cachedFetch(url);
+      observer.notify(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }, 300);
+
+  handleInputChange('https://api.example.com/data');  
+})();

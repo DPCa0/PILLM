@@ -1,0 +1,43 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const runFibonacciEmitter = async (eventEmitter, n) => {
+  for await (const num of fibonacciGenerator(n)) {
+    eventEmitter.emit('fibonacci', num);
+    await asyncOperation(500);  
+  }
+  eventEmitter.emit('complete');
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('fibonacci', num => print(`Fibonacci number: ${num}`));
+eventEmitter.on('complete', () => print('Fibonacci sequence complete.'));
+
+runFibonacciEmitter(eventEmitter, 10);

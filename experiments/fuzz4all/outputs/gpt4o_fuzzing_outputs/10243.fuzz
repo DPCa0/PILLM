@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncOperation = (value, delay) => new Promise(resolve => setTimeout(() => resolve(value), delay));
+
+ 
+function* fetchDataGenerator() {
+  yield asyncOperation('Data from Source 1', 1000);
+  yield asyncOperation('Data from Source 2', 2000);
+  yield asyncOperation('Data from Source 3', 1500);
+}
+
+ 
+async function handleData() {
+  const dataGen = fetchDataGenerator();
+  for (const promise of dataGen) {
+    console.log('Fetching...', await promise);
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property: ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+proxiedObject.a = 10;
+console.log(proxiedObject.b);
+
+ 
+handleData().then(() => console.log('All data fetched.'));
+```

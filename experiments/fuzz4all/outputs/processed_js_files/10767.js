@@ -1,0 +1,36 @@
+ 
+
+ 
+export const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({
+        name: "Advanced JavaScript",
+        type: "Programming Language",
+        year: 1995,
+        features: ["Closures", "Promises", "Async/Await", "Modules"]
+      });
+    }, 1000);
+  });
+};
+
+ 
+import { fetchData } from './api.js';
+
+const processFeatures = ({ name, type, year, features }) => {
+  return `
+    ${name} is a ${type} introduced in ${year}.
+    Some of its advanced features include:
+    ${features.map((feature, index) => `${index + 1}. ${feature}`).join('\n')}
+  `;
+};
+
+(async () => {
+  try {
+    const data = await fetchData();
+    const processedData = processFeatures(data);
+    print(processedData);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();

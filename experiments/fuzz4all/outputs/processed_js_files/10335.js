@@ -1,0 +1,45 @@
+ 
+
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+   
+  const displayUserData = async () => {
+    try {
+      const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+      const users = await fetchData(apiUrl);
+
+       
+      const userData = users.map(({ name, email, address: { city } }) => ({ name, email, city }));
+
+       
+      console.log(
+        userData
+          .map(user => `Name: ${user.name}, Email: ${user.email}, City: ${user.city}`)
+          .join('\n')
+      );
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+   
+  const simulateProcessing = (data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        print('Data processed:', data);
+        resolve(data);
+      }, 2000);
+    });
+  };
+
+   
+  displayUserData()
+    .then(() => simulateProcessing('Sample Data'))
+    .catch((error) => console.error('Error:', error));
+})();

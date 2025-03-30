@@ -1,0 +1,30 @@
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+const processData = ({ id, name, ...rest }) => {
+  print(`ID: ${id}`);
+  print(`Name: ${name}`);
+  print(`Additional Info:`, rest);
+};
+
+const aggregateData = async (...urls) => {
+  try {
+    const results = await Promise.all(urls.map(url => fetchData(url)));
+    results.forEach(data => processData(data));
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+};
+
+ 
+const apiEndpoints = [
+  'https://jsonplaceholder.typicode.com/users/1',
+  'https://jsonplaceholder.typicode.com/users/2',
+];
+
+aggregateData(...apiEndpoints);

@@ -1,0 +1,43 @@
+ 
+
+ 
+function* fibonacciGen(n) {
+    let [prev, current] = [0, 1];
+    while (n-- > 0) {
+        yield current;
+        [prev, current] = [current, prev + current];
+    }
+}
+
+ 
+async function fetchFibonacciNumbers(n) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([...fibonacciGen(n)]);
+        }, 1000);
+    });
+}
+
+ 
+const fibonacciHandler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            print(`Accessing property "${prop}"`);
+            return obj[prop];
+        } else {
+            console.warn(`Property "${prop}" not found`);
+        }
+    }
+};
+
+ 
+async function main() {
+    const fibSequence = await fetchFibonacciNumbers(10);
+    const proxy = new Proxy({ sequence: fibSequence, description: "Fibonacci sequence" }, fibonacciHandler);
+    
+    print("Generated Fibonacci Sequence:", proxy.sequence);
+    print("Description:", proxy.description);
+    print("Trying to access a non-existent property:", proxy.nonExistent);
+}
+
+main();

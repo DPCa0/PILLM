@@ -1,0 +1,51 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchData(url) {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error("Network response was not ok");
+    return await response.json();
+}
+
+function* dataGenerator(urls) {
+    for (let url of urls) {
+        yield fetchData(url);
+    }
+}
+
+async function fetchDataFromMultipleSources(urls) {
+    const dataGen = dataGenerator(urls);
+    let results = [];
+
+    for (let dataPromise of dataGen) {
+        try {
+            const data = await dataPromise;
+            results.push(data);
+        } catch (error) {
+            console.error(`Error fetching data: ${error}`);
+        }
+    }
+    return results;
+}
+
+(async () => {
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3',
+    ];
+
+    try {
+        const results = await fetchDataFromMultipleSources(urls);
+        print('Fetched Data:', results);
+    } catch (error) {
+        console.error('Failed to fetch all data:', error);
+    }
+})();

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+  for (let i = 0; i < 5; i++) {
+    yield i;
+  }
+}
+
+ 
+async function asyncTask(value) {
+  return new Promise(resolve => setTimeout(() => {
+    console.log(`Processing value: ${value}`);
+    resolve(value * 2);
+  }, 1000));
+}
+
+ 
+const targetObject = {
+  process: async function* () {
+    const generator = numberGenerator();
+    for (const num of generator) {
+      yield await asyncTask(num);
+    }
+  }
+};
+
+ 
+const handler = {
+  get: function(obj, prop) {
+    if (prop === 'process') {
+      return async function* () {
+        const gen = obj.process();
+        for await (const value of gen) {
+          if (value % 4 === 0) {  
+            console.log(`Special handling for value: ${value}`);
+          }
+          yield value;
+        }
+      };
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  for await (const result of proxy.process()) {
+    console.log(`Result: ${result}`);
+  }
+})();
+```

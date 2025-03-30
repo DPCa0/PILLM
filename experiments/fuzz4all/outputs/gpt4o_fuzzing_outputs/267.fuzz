@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+class FibonacciGenerator {
+  #memo = new Map([[0, 0], [1, 1]]);
+
+  fibonacci(n) {
+    if (this.#memo.has(n)) return this.#memo.get(n);
+    const value = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+    this.#memo.set(n, value);
+    return value;
+  }
+
+  *[Symbol.iterator]() {
+    let i = 0;
+    while (true) {
+      yield this.fibonacci(i++);
+    }
+  }
+}
+
+const fibGen = new FibonacciGenerator();
+const it = fibGen[Symbol.iterator]();
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+(async function generateFibonacci() {
+  for await (const num of it) {
+    console.log(num);
+    if (num > 100) break;  
+    await delay(500);  
+  }
+})();
+```

@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(l => l !== listener));
+    }
+  }
+}
+
+class EnhancedArray extends Array {
+  get last() {
+    return this[this.length - 1];
+  }
+
+  shuffle() {
+    for (let i = this.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this[i], this[j]] = [this[j], this[i]];
+    }
+  }
+}
+
+async function asyncOperation(value) {
+  return new Promise(resolve => setTimeout(() => resolve(value * 2), 1000));
+}
+
+async function runAsync() {
+  try {
+    const results = await Promise.all([1, 2, 3].map(asyncOperation));
+    console.log('Async Results:', results);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+const emitter = new EventEmitter();
+emitter.on('event1', data => console.log('Event 1 received:', data));
+emitter.once('event2', data => console.log('Event 2 received once:', data));
+
+emitter.emit('event1', { message: 'Hello' });
+emitter.emit('event2', { message: 'World' });
+emitter.emit('event2', { message: 'Again' });
+
+const numbers = new EnhancedArray(1, 2, 3, 4, 5);
+console.log('Last Element:', numbers.last);
+numbers.shuffle();
+console.log('Shuffled:', numbers);
+
+runAsync();
+```

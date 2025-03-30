@@ -1,0 +1,38 @@
+ 
+class Fibonacci {
+    constructor() {
+        this.a = 0;
+        this.b = 1;
+    }
+
+    next() {
+        [this.a, this.b] = [this.b, this.a + this.b];
+        return this.a;
+    }
+}
+
+async function* fibonacciGenerator(limit) {
+    const fib = new Fibonacci();
+    for (let i = 0; i < limit; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(fib.next()), 500));
+    }
+}
+
+const handler = {
+    get: (target, prop, receiver) => {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        }
+        return `Property ${String(prop)} doesn't exist`;
+    }
+};
+
+const fibonacciProxy = new Proxy({ limit: 10 }, handler);
+
+(async () => {
+    print(`Fibonacci series up to limit ${fibonacciProxy.limit}:`);
+    for await (const num of fibonacciGenerator(fibonacciProxy.limit)) {
+        print(num);
+    }
+    print(fibonacciProxy.nonExistentProperty);
+})();

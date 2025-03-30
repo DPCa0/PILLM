@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { user: 'John Doe', id: 12345 };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+ 
+async function displayData() {
+    console.log('Fetching data...');
+    try {
+        const data = await fetchData();
+        console.log('Data received:', data);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+ 
+function* dataGenerator() {
+    yield { item: 'apple', quantity: 5 };
+    yield { item: 'banana', quantity: 10 };
+    yield { item: 'cherry', quantity: 15 };
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property: ${prop}`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxiedData = new Proxy({}, handler);
+
+ 
+async function start() {
+    await displayData();
+
+    console.log('\nIterating over generated data:');
+    const generator = dataGenerator();
+    for (const data of generator) {
+        console.log(data);
+    }
+
+    console.log('\nInteracting with proxied data:');
+    proxiedData.name = 'Sample Object';
+    console.log(proxiedData.name);
+}
+
+start();
+```

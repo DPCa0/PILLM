@@ -1,0 +1,45 @@
+ 
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.count = 0;
+        this.a = 0;
+        this.b = 1;
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            next: () => {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        if (this.count++ < this.limit) {
+                            [this.a, this.b] = [this.b, this.a + this.b];
+                            resolve({ value: this.a, done: false });
+                        } else {
+                            resolve({ done: true });
+                        }
+                    }, 100);  
+                });
+            }
+        };
+    }
+}
+
+ 
+async function processFibonacci() {
+    const fibonacci = new Fibonacci(10);
+    const results = [];
+
+    for await (let num of fibonacci) {
+        results.push(Promise.resolve(num));
+    }
+
+    const processedResults = await Promise.allSettled(results);
+    const values = processedResults
+        .filter(result => result.status === "fulfilled")
+        .map(result => result?.value);
+
+    print('Fibonacci Sequence:', values);
+}
+
+processFibonacci();

@@ -1,0 +1,43 @@
+ 
+async function* fetchDogPictures() {
+  const apiUrl = 'https://dog.ceo/api/breeds/image/random';
+  while (true) {
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      yield data.message;  
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+ 
+const cache = new Map();
+const handler = {
+  get(target, prop) {
+    if (!cache.has(prop)) {
+      const value = target[prop];
+      cache.set(prop, value);
+    }
+    return cache.get(prop);
+  },
+  set(target, prop, value) {
+    cache.set(prop, value);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const dogPicturesGenerator = fetchDogPictures();
+const proxiedGenerator = new Proxy(dogPicturesGenerator, handler);
+
+ 
+(async () => {
+  for await (const picUrl of proxiedGenerator) {
+    print(`Here is a random dog picture: ${picUrl}`);
+     
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+})();

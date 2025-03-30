@@ -1,0 +1,40 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+    return () => this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+const userAction = new Observable();
+
+const logAction = debounce(action => print(`User performed: ${action}`), 300);
+
+const unsubscribe = userAction.subscribe(logAction);
+
+ 
+userAction.notify('click');
+setTimeout(() => userAction.notify('scroll'), 100);
+setTimeout(() => userAction.notify('hover'), 200);
+setTimeout(() => userAction.notify('type'), 400);
+
+ 
+setTimeout(() => {
+  unsubscribe();
+  userAction.notify('click again');
+}, 500);

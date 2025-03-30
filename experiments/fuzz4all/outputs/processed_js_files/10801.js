@@ -1,0 +1,61 @@
+ 
+(async function() {
+  const fs = await import('fs/promises');
+
+   
+  async function readJSONFile(filePath) {
+    try {
+      const data = await fs.readFile(filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error(`Failed to read or parse the file: ${error}`);
+    }
+  }
+
+   
+  const processData = (data) => {
+    const usersSet = new Set(data.users.map(user => user.name));
+    const scoresMap = new Map();
+    data.scores.forEach(score => scoresMap.set(score.userId, score.value));
+    
+    return [...usersSet].map(name => {
+      const userId = data.users.find(user => user.name === name).id;
+      return { name, score: scoresMap.get(userId) || 0 };
+    });
+  };
+
+   
+  const logResults = (results) => {
+    for (const { name, score } of results) {
+      print(`User: ${name}, Score: ${score}`);
+    }
+  };
+
+   
+  const filePath = './data.json';
+
+   
+  (async () => {
+    const data = await readJSONFile(filePath);
+    if (data) {
+      const results = processData(data);
+      logResults(results);
+    }
+  })();
+
+})();
+
+Note: Ensure you have a `data.json` file with appropriate JSON structure, like:
+
+{
+  "users": [
+    { "id": 1, "name": "Alice" },
+    { "id": 2, "name": "Bob" }
+  ],
+  "scores": [
+    { "userId": 1, "value": 42 },
+    { "userId": 2, "value": 36 }
+  ]
+}
+
+This script demonstrates advanced JavaScript features such as dynamic imports, async/await with Promises, sets, maps, and more, using a Node.js environment.

@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: {
+                    id: 1,
+                    name: "Alice",
+                    email: "alice@example.com",
+                },
+                posts: [
+                    { id: 1, title: "Post One", content: "Content One" },
+                    { id: 2, title: "Post Two", content: "Content Two" },
+                ],
+            });
+        }, 1000);
+    });
+};
+
+class User {
+    constructor({ id, name, email }) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    printInfo() {
+        console.log(`User ID: ${this.id}, Name: ${this.name}, Email: ${this.email}`);
+    }
+}
+
+class Post {
+    constructor({ id, title, content }) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+    }
+
+    printPost() {
+        console.log(`Post ID: ${this.id}, Title: ${this.title}, Content: ${this.content}`);
+    }
+}
+
+(async () => {
+    try {
+        const { user, posts } = await fetchData();
+        
+        const currentUser = new User(user);
+        currentUser.printInfo();
+
+        const allPosts = posts.map(post => new Post(post));
+        allPosts.forEach(post => post.printPost());
+
+        const morePosts = [
+            { id: 3, title: "Post Three", content: "Content Three" },
+            { id: 4, title: "Post Four", content: "Content Four" }
+        ];
+
+        const combinedPosts = [...allPosts, ...morePosts.map(post => new Post(post))];
+        combinedPosts.forEach(post => post.printPost());
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+})();
+```

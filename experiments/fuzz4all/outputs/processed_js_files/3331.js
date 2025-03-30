@@ -1,0 +1,77 @@
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      return `${prop.toString()} is not a valid property!`;
+    }
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number' && value > 0) {
+      return Reflect.set(target, prop, value);
+    } else {
+      throw new Error(`Invalid value for ${prop.toString()}`);
+    }
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  for (;;) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const asyncIterable = {
+  [Symbol.asyncIterator]() {
+    let i = 0;
+    return {
+      next() {
+        if (i < 5) {
+          return Promise.resolve({ value: i++, done: false });
+        } else {
+          return Promise.resolve({ done: true });
+        }
+      }
+    };
+  }
+};
+
+ 
+async function main() {
+  print('Proxy Example:');
+  print(proxyObject.a);  
+  print(proxyObject.c);  
+  proxyObject.b = 3;
+  print(proxyObject.b);  
+  try {
+    proxyObject.b = -1;  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  print('\nFibonacci Sequence:');
+  const fibGen = fibonacci();
+  print([...Array(5)].map(() => fibGen.next().value));
+
+  print('\nFetch Example:');
+  await fetchData('https: 

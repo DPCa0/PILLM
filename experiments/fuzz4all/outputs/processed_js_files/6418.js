@@ -1,0 +1,41 @@
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  static fromString(complexStr) {
+    const [real, imaginary] = complexStr.split(/(?=[+-])/).map(Number);
+    return new ComplexNumber(real, imaginary);
+  }
+
+  add({#real, #imaginary}) {
+    return new ComplexNumber(this.#real + #real, this.#imaginary + #imaginary);
+  }
+
+  toString() {
+    const sign = this.#imaginary < 0 ? '-' : '+';
+    return `${this.#real} ${sign} ${Math.abs(this.#imaginary)}i`;
+  }
+}
+
+async function* complexSequence(start, increment, count) {
+  let current = start;
+  for (let i = 0; i < count; i++) {
+    yield current;
+    current = current.add(increment);
+  }
+}
+
+(async () => {
+  const start = ComplexNumber.fromString("1+1i");
+  const increment = ComplexNumber.fromString("0+1i");
+  const generator = complexSequence(start, increment, 5);
+
+  for await (const number of generator) {
+    print(number.toString());
+  }
+})();

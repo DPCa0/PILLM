@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (delay, data) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (data) {
+      resolve({ data, status: 'success' });
+    } else {
+      reject({ error: 'No data', status: 'failure' });
+    }
+  }, delay);
+});
+
+ 
+async function getData() {
+  try {
+    const { data, status } = await fetchData(2000, { message: 'Hello, advanced JavaScript!' });
+    console.log(`Status: ${status}, Message: ${data.message}`);
+  } catch ({ error, status }) {
+    console.error(`Status: ${status}, Error: ${error}`);
+  }
+}
+
+ 
+(async () => {
+  console.log('Fetching data...');
+  await getData();
+  console.log('Done!');
+})();
+```

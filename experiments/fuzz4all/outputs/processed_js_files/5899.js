@@ -1,0 +1,57 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) {
+                resolve({ data: `Data from ${url}` });
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* urlGenerator(urls) {
+    for (let url of urls) {
+        yield url;
+    }
+}
+
+ 
+async function fetchAllData(generator) {
+    for (let url of generator) {
+        try {
+            const result = await fetchData(url);
+            print(result.data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Property accessed: ${prop}`);
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+const dataObject = new Proxy({ name: 'John', age: 30 }, handler);
+
+ 
+print(dataObject.name);
+print(dataObject.age);
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', null];
+
+ 
+const urlGen = urlGenerator(urls);
+
+ 
+fetchAllData(urlGen);

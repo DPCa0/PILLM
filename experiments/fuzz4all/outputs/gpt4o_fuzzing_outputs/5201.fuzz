@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const uniqueSymbol = Symbol('unique');
+
+ 
+const targetObject = { name: 'JavaScript' };
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Getting property ${String(prop)}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property ${String(prop)} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function asyncProcess() {
+    proxy.name = 'ECMAScript';
+    console.log(proxy.name);
+
+    proxy[uniqueSymbol] = 'Special Value';
+    console.log(proxy[uniqueSymbol]);
+
+    console.log('Starting asynchronous operation...');
+    await delay(1000);
+    console.log('Operation complete after 1 second delay.');
+}
+
+asyncProcess();
+```

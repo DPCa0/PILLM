@@ -1,0 +1,34 @@
+class Maze {
+  constructor(size) {
+    this.size = size;
+    this.maze = Array.from({ length: size }, () => Array(size).fill(false));
+    this.directions = [
+      [-1, 0], [1, 0], [0, -1], [0, 1],  
+    ];
+  }
+
+  *traverse(x = 0, y = 0) {
+    if (x < 0 || x >= this.size || y < 0 || y >= this.size || this.maze[x][y]) return;
+    this.maze[x][y] = true;
+    yield { x, y };
+
+    for (const [dx, dy] of this.directions.sort(() => Math.random() - 0.5)) {
+      yield* this.traverse(x + dx, y + dy);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    const iterator = this.traverse();
+    return {
+      next: () => new Promise(resolve => setTimeout(() => resolve(iterator.next()), 100)),
+    };
+  }
+}
+
+(async () => {
+  const maze = new Maze(5);
+
+  for await (const cell of maze) {
+    print(`Visiting cell at (${cell.x}, ${cell.y})`);
+  }
+})();

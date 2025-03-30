@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const data = {
+    name: 'Advanced JS',
+    value: 42
+};
+
+const proxy = new Proxy(data, handler);
+
+ 
+function* generatorFunction() {
+    yield 'First yield';
+    yield 'Second yield';
+    return 'Finished';
+}
+
+const gen = generatorFunction();
+
+ 
+async function asyncTask() {
+    for (let value of gen) {
+        console.log(value);
+    }
+    proxy.name = 'Proxies are fun!';
+    console.log(`Proxy name is now: ${proxy.name}`);
+
+     
+    const result = await new Promise(resolve => {
+        setTimeout(() => resolve('Async/Await with Proxy'), 1000);
+    });
+
+    console.log(result);
+}
+
+ 
+asyncTask();
+```

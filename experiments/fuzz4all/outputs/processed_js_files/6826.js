@@ -1,0 +1,40 @@
+ 
+
+ 
+const fetchUserData = (userId) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const users = {
+        1: { name: 'Alice', age: 28 },
+        2: { name: 'Bob', age: 34 },
+        3: { name: 'Charlie', age: 22 }
+      };
+      resolve(users[userId]);
+    }, 1000);
+  });
+};
+
+ 
+const fetchMultipleUsers = async (userIds) => {
+  const userPromises = userIds.map(id => fetchUserData(id));
+  return Promise.all(userPromises);
+};
+
+ 
+(async () => {
+  try {
+    const userIds = [1, 2, 3];
+    
+     
+    const users = await fetchMultipleUsers(userIds);
+    
+     
+    const userInfo = users.map(({ name, age }) => ({ name, isAdult: age >= 18 }));
+    const adultCount = userInfo.reduce((count, user) => user.isAdult ? count + 1 : count, 0);
+
+    print('User Info:', userInfo);
+    print('Number of Adults:', adultCount);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+})();

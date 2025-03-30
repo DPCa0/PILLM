@@ -1,0 +1,70 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => fill));
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, 1);
+    m.map((_, i, j) => arr[i]);
+    return m;
+  }
+
+  toArray() {
+    let arr = [];
+    this.map((val, i) => arr.push(val));
+    return arr;
+  }
+
+  static mapFunc(matrix, func) {
+    let result = new Matrix(matrix.rows, matrix.cols);
+    result.data = result.data.map((row, i) =>
+      row.map((_, j) => func(matrix.data[i][j], i, j))
+    );
+    return result;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  static transpose(matrix) {
+    let result = new Matrix(matrix.cols, matrix.rows);
+    result.map((_, i, j) => matrix.data[j][i]);
+    return result;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      console.error('Columns of A must match rows of B.');
+      return undefined;
+    }
+    let result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => 
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+    return result;
+  }
+
+  add(n) {
+    this.map((val, i, j) => val + (n instanceof Matrix ? n.data[i][j] : n));
+    return this;
+  }
+
+  static subtract(a, b) {
+    return Matrix.mapFunc(a, (val, i, j) => val - b.data[i][j]);
+  }
+
+  static fromFunction(rows, cols, func) {
+    let result = new Matrix(rows, cols);
+    result.map((_, i, j) => func(i, j));
+    return result;
+  }
+}
+
+ 
+
+let a = Matrix.fromFunction(3, 3, (i, j) => i + j);
+let b = Matrix.fromFunction(3, 3, (i,

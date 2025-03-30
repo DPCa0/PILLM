@@ -1,0 +1,40 @@
+class Fetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    return response.json();
+  }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) =>
+  Promise.race([
+    fetch(url).then(response => response.json()),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), timeout)
+    ),
+  ]);
+
+const processData = async () => {
+  const fetcher = new Fetcher('https://jsonplaceholder.typicode.com/posts');
+  try {
+    let data = await fetcher.fetchData();
+    data = data.map(({ id, title }) => ({ id, title }));
+    
+    const dataWithTimeout = await fetchWithTimeout('https://jsonplaceholder.typicode.com/users');
+    const userNames = dataWithTimeout.map(user => user.name);
+
+    const mergedData = data.map((post, index) => ({
+      ...post,
+      user: userNames[index % userNames.length],
+    }));
+    
+    console.table(mergedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+processData();

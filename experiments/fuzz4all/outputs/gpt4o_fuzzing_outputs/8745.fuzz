@@ -1,0 +1,86 @@
+print('Hello, world!');
+```javascript
+class AsyncEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    async emit(event, data) {
+        if (this.events[event]) {
+            for (const listener of this.events[event]) {
+                await listener(data);
+            }
+        }
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+
+    off(event, listener) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(l => l !== listener);
+        }
+    }
+}
+
+ 
+const handler = {
+    set(target, prop, value) {
+        console.log(`Property ${prop} set to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxyObject = new Proxy({}, handler);
+
+ 
+const iterableObject = {
+    data: [1, 2, 3, 4, 5],
+    [Symbol.iterator]() {
+        let index = 0;
+        return {
+            next: () => ({
+                value: this.data[index++],
+                done: index > this.data.length
+            })
+        };
+    }
+};
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function executeTasks() {
+    const emitter = new AsyncEmitter();
+    
+     
+    emitter.on('event1', async (data) => {
+        console.log(`Event1 received with data: ${data}`);
+        await delay(1000);
+        console.log('Event1 processing completed.');
+    });
+
+    emitter.on('event2', async (data) => {
+        console.log(`Event2 received with data: ${data}`);
+        await delay(500);
+        console.log('Event2 processing completed.');
+    });
+
+    proxyObject.testProp = 'Test value';
+
+    for (const value of iterableObject) {
+        console.log(`Iterated value: ${value}`);
+    }
+    
+     
+    await emitter.emit('event1', { payload: 'data1' });
+    await emitter.emit('event2', { payload: 'data2' });
+}
+
+executeTasks();
+```

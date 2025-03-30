@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+const cache = new WeakMap();
+
+function createCache(handler) {
+    return new Proxy(handler, {
+        get(target, prop, receiver) {
+            if (cache.has(prop)) {
+                return Promise.resolve(cache.get(prop));
+            }
+            const result = Reflect.get(target, prop, receiver);
+            cache.set(prop, result);
+            return Promise.resolve(result);
+        }
+    });
+}
+
+async function* asyncGenerator() {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    for (let i = 1; i <= 5; i++) {
+        await delay(1000);
+        yield `Async Data ${i}`;
+    }
+}
+
+async function run() {
+    const dataHandler = {
+        async getData() {
+            let data = [];
+            for await (const item of asyncGenerator()) {
+                data.push(item);
+            }
+            return data;
+        }
+    };
+
+    const cachedDataHandler = createCache(dataHandler);
+
+    try {
+        const data = await cachedDataHandler.getData();
+        console.log(data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
+     
+    const newData = await cachedDataHandler.getData();
+    console.log('Fetched from cache:', newData);
+}
+
+run();
+```

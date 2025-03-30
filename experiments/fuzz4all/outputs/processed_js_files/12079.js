@@ -1,0 +1,62 @@
+ 
+const uniqueKey = Symbol('myUniqueKey');
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property === uniqueKey) {
+      return 'Accessed using a symbol';
+    }
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    print(`Setting property '${property}' to '${value}'`);
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+
+ 
+const obj = new Proxy({}, handler);
+
+ 
+const set = new Set([1, 2, 3, 4]);
+const map = new Map([
+  ['name', 'Alice'],
+  ['age', 30]
+]);
+
+set.add(5);
+map.set('country', 'Wonderland');
+
+ 
+const promise1 = Promise.resolve(42);
+const promise2 = new Promise(resolve => setTimeout(() => resolve('Hello'), 1000));
+
+Promise.all([promise1, promise2])
+  .then(([result1, result2]) => {
+    print(`Promise results: ${result1}, ${result2}`);
+  });
+
+ 
+(async () => {
+  if (set.has(5)) {
+    const module = await import('./fake-module.js');
+    module.doSomething();
+  }
+})();
+
+ 
+obj[uniqueKey] = 'Trying to set a Symbol key';
+print(obj[uniqueKey]);   
+
+ 
+obj.message = 'Hello, world!';
+print(obj.message);
+
+ 
+function tag(strings, ...values) {
+  return strings.raw[0] + values.map((v, i) => `${v}${strings.raw[i + 1]}`).join('');
+}
+
+const language = 'JavaScript';
+print(tag`I love coding in ${language}!`);

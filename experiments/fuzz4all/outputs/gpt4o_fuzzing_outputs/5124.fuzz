@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* generateNumbers() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+async function asyncOperation(num) {
+    return new Promise(resolve => setTimeout(() => resolve(num * 2), 1000));
+}
+
+async function processData() {
+    const results = [];
+    const numbers = generateNumbers();
+
+    for (let i = 0; i < 5; i++) {
+        const { value: number } = numbers.next();
+        const result = await asyncOperation(number);
+        results.push(result);
+        console.log(`Processed number: ${number}, Result: ${result}`);
+    }
+
+    return results;
+}
+
+(async () => {
+    try {
+        const finalResults = await processData();
+        console.log('Final Results:', finalResults);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();
+```

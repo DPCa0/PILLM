@@ -1,0 +1,53 @@
+(async () => {
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+  const processData = ({ data }) => {
+    return data.map(({ id, name, tags }) => ({
+      id,
+      name,
+      tags: tags.filter(tag => tag.startsWith('a')).sort(),
+    }));
+  };
+
+  const logResult = (result) => {
+    console.table(result);
+  };
+
+  try {
+    const apiUrl = 'https://api.example.com/data';
+    const rawData = await fetchData(apiUrl);
+    const processedData = processData(rawData);
+    logResult(processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+   
+  const targetObj = { message: 'Hello' };
+  const handler = {
+    set(obj, prop, value) {
+      print(`Property ${prop} set to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  };
+
+  const proxyObj = new Proxy(targetObj, handler);
+  proxyObj.message = 'Hello, World!';
+
+   
+  function* numberGenerator(limit) {
+    let count = 0;
+    while (count < limit) {
+      yield count++;
+    }
+  }
+
+  for (const num of numberGenerator(5)) {
+    print(num);
+  }
+})();

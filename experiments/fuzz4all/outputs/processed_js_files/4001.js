@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject('404 Not Found');
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const response = await fetchData('https://api.example.com/data');
+    const { data } = response;
+
+     
+    const newData = [...data, 6, 7, 8];
+    print('Processed Data:', newData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();

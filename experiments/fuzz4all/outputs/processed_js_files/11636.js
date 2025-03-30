@@ -1,0 +1,56 @@
+Certainly! Below is a JavaScript program that demonstrates the use of advanced features such as Promises, async/await, destructuring, spread/rest operators, and classes.
+
+class AsyncCalculator {
+  constructor(...numbers) {
+    this.numbers = numbers;
+  }
+
+  async calculateSum() {
+    const sum = await this._performOperation('sum');
+    return sum;
+  }
+
+  async calculateProduct() {
+    const product = await this._performOperation('product');
+    return product;
+  }
+
+  _performOperation(type) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const { numbers } = this;
+        let result;
+
+        if (type === 'sum') {
+          result = numbers.reduce((acc, val) => acc + val, 0);
+        } else if (type === 'product') {
+          result = numbers.reduce((acc, val) => acc * val, 1);
+        } else {
+          reject(new Error('Invalid operation type'));
+        }
+
+        resolve(result);
+      }, 1000);
+    });
+  }
+}
+
+async function main() {
+  const calculator = new AsyncCalculator(1, 2, 3, 4, 5);
+
+  try {
+    const [sum, product] = await Promise.all([
+      calculator.calculateSum(),
+      calculator.calculateProduct(),
+    ]);
+
+    print(`Sum: ${sum}`);
+    print(`Product: ${product}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+main();
+
+This code defines an `AsyncCalculator` class that can calculate the sum and product of a set of numbers asynchronously. The `main` function demonstrates the use of async/await along with Promise.all to perform both calculations concurrently.

@@ -1,0 +1,64 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { message: "Data fetched successfully!" };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get: function (target, prop, receiver) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new ReferenceError(`Property ${prop} does not exist.`);
+    }
+  },
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+class DataProcessor {
+  #processedData = [];
+
+  *processData(data) {
+    for (let item of data) {
+      this.#processedData.push(item + "_processed");
+      yield item + "_processed";
+    }
+  }
+
+  get processedData() {
+    return this.#processedData;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processor = new DataProcessor();
+    
+     
+    dataProxy[uniqueKey] = [...Object.values(data)];
+    
+    print("Original Data: ", dataProxy[uniqueKey]);
+    
+    const generator = processor.processData(dataProxy[uniqueKey]);
+    for (let value of generator) {
+      print("Processing: ", value);
+    }
+    
+    print("Processed Data: ", processor.processedData);
+  } catch (error) {
+    console.error("Error occurred: ", error.message);
+  }
+})();

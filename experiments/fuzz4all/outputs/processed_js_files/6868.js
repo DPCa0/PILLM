@@ -1,0 +1,62 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* randomNumberGenerator() {
+    while (true) {
+        yield Math.floor(Math.random() * 100);
+    }
+}
+
+ 
+async function fetchRandomNumbers(generator, count) {
+    const numbers = [];
+    for (let i = 0; i < count; i++) {
+        await delay(500);  
+        numbers.push(generator.next().value);
+    }
+    return numbers;
+}
+
+ 
+const arrayHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} does not exist`);
+        }
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number' && value >= 0 && value <= 100) {
+            target[prop] = value;
+            return true;
+        } else {
+            throw new Error('Value must be a number between 0 and 100');
+        }
+    }
+};
+
+ 
+(async function main() {
+    const generator = randomNumberGenerator();
+    const randomNumbers = await fetchRandomNumbers(generator, 5);
+    
+    const proxyArray = new Proxy(randomNumbers, arrayHandler);
+
+    print('Initial random numbers:', proxyArray);
+
+    try {
+        proxyArray[1] = 42;  
+        print('Updated array:', proxyArray);
+
+        proxyArray[5] = 75;  
+        print('Extended array:', proxyArray);
+        
+        proxyArray[2] = 150;  
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();

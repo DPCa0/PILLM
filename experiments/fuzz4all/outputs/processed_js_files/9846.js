@@ -1,0 +1,40 @@
+ 
+
+ 
+const simulateAsyncOperation = (value, delay) => new Promise((resolve) => {
+    setTimeout(() => resolve(value * 2), delay);
+});
+
+ 
+async function processValues(values) {
+    let results = [];
+    for (let value of values) {
+         
+        const result = await simulateAsyncOperation(value, 1000);
+        results.push(result);
+    }
+    return results;
+}
+
+ 
+const handler = {
+    apply: async function(target, thisArg, argumentsList) {
+        print(`Processing values: ${argumentsList}`);
+        const result = await target.apply(thisArg, argumentsList);
+        print(`Processed results: ${result}`);
+        return result;
+    }
+};
+
+const proxiedProcessValues = new Proxy(processValues, handler);
+
+ 
+(async () => {
+    try {
+        const numbers = [1, 2, 3, 4, 5];
+        const results = await proxiedProcessValues(numbers);
+        print('Final results:', results);
+    } catch (error) {
+        console.error('Error processing values:', error);
+    }
+})();

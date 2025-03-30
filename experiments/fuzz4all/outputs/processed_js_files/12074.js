@@ -1,0 +1,54 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  let response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+function* fibonacci(n) {
+  let [a, b] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('dataFetched', (data) => {
+    print('Data fetched:', data);
+  });
+
+  eventEmitter.on('error', (err) => {
+    console.error('Error:', err.message);
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    eventEmitter.emit('dataFetched', data.slice(0, 5));
+  } catch (err) {
+    eventEmitter.emit('error', err);
+  }
+
+  print('Fibonacci series:');
+  for (let num of fibonacci(10)) {
+    print(num);
+  }
+})();

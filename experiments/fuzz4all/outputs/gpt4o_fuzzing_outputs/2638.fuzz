@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {
+                resolve(`Fetched data from ${url}`);
+            } else {
+                reject('Fetch error!');
+            }
+        }, 1000);
+    });
+}
+
+async function* fetchGenerator(urls) {
+    for (const url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield data;
+        } catch (error) {
+            yield `Error: ${error}`;
+        }
+    }
+}
+
+const urlHandler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'list') {
+            return `Currently tracking URLs: ${target.map((url, index) => `[${index}]: ${url}`).join(', ')}`;
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+const urlList = new Proxy(['http://example.com', 'http://anotherdomain.com'], urlHandler);
+
+(async () => {
+    console.log(urlList.list);
+
+    const urls = fetchGenerator(urlList);
+    for await (const message of urls) {
+        console.log(message);
+    }
+})();
+```

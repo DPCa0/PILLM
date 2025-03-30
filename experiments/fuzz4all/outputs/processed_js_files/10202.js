@@ -1,0 +1,58 @@
+ 
+
+const complexObject = {
+    user: {
+        id: 1,
+        name: 'John Doe',
+        preferences: {
+            theme: 'dark',
+            language: 'en'
+        }
+    }
+};
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop === 'preferences') {
+            print('Accessing preferences');
+        }
+        return target[prop];
+    }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+const { user: { name, preferences: { theme = 'light', language = 'en' } = {} } } = proxiedObject;
+print(`User ${name} prefers ${theme} theme and ${language} language.`);
+
+ 
+const fetchData = async () => {
+     
+    const dataPromise = new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ newFeature: 'notifications', active: true });
+        }, 1000);
+    });
+
+     
+    const { newFeature, active } = await dataPromise;
+    print(`Feature ${newFeature} is ${active ? 'active' : 'inactive'}.`);
+};
+
+fetchData();
+
+ 
+const additionalInfo = { age: 30, location: 'USA' };
+const completeUserInfo = { ...complexObject.user, ...additionalInfo };
+
+print('Complete User Info:', completeUserInfo);
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const processedNumbers = numbers
+    .map(num => num * 2)
+    .filter(num => num > 5);
+
+print('Processed Numbers:', processedNumbers);

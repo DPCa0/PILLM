@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return response.json();
+    } catch (error) {
+        console.error(`Fetch error: ${error}`);
+        throw error;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Property '${prop}' accessed`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Property '${prop}' set to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const user = new Proxy({ name: 'Alice', age: 25 }, handler);
+
+ 
+let primeSet = new Set([2, 3, 5, 7]);
+primeSet.add(11);
+primeSet.delete(5);
+
+const printSet = set => [...set].join(', ');
+console.log(`Prime numbers set: ${printSet(primeSet)}`);
+
+(async () => {
+    const dataUrl = 'https://jsonplaceholder.typicode.com/todos/1';
+    try {
+        const data = await fetchData(dataUrl);
+        console.log(`Fetched Data:`, data);
+
+        user.name = 'Bob';  
+        console.log(user.name);  
+    } catch (error) {
+        console.error('Error handling in main block:', error);
+    }
+})();
+```

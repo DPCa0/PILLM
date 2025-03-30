@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(listener => listener !== listenerToRemove));
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    console.log(`Getting ${property}`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    console.log(`Setting ${property} to ${value}`);
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+Promise.all(urls.map(fetchData))
+  .then(data => console.log('All data fetched:', data))
+  .catch(error => console.error('Error fetching data:', error));
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const generateId = idGenerator();
+
+ 
+const emitter = new EventEmitter();
+
+emitter.on('message', msg => console.log(`Received: ${msg}`));
+emitter.emit('message', 'Hello, world!');
+
+console.log('Generated ID:', generateId.next().value);
+proxy.a = 3;
+console.log('Proxy a:', proxy.a);
+```

@@ -1,0 +1,60 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.pendingPromise = null;
+  }
+
+  async enqueue(item) {
+    if (this.pendingPromise) {
+      this.pendingPromise(item);
+      this.pendingPromise = null;
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      queue: this.queue,
+      pendingPromise: this.pendingPromise,
+      next() {
+        if (this.queue.length > 0) {
+          return Promise.resolve({ value: this.queue.shift(), done: false });
+        } else {
+          return new Promise(resolve => {
+            this.pendingPromise = value => resolve({ value, done: false });
+          });
+        }
+      }
+    };
+  }
+}
+
+async function* fetchUrls(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+async function processData(queue) {
+  for await (const item of queue) {
+    print('Processing:', item);
+  }
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/todos/1',
+  'https://jsonplaceholder.typicode.com/todos/2',
+  'https://jsonplaceholder.typicode.com/todos/3'
+];
+
+const queue = new AsyncIterableQueue();
+processData(queue);
+
+(async () => {
+  for await (const data of fetchUrls(urls)) {
+    queue.enqueue(data);
+  }
+})();

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+    
+    subscribe(observer) {
+        this._subscribe(observer);
+    }
+    
+    pipe(...operators) {
+        return operators.reduce((source, operator) => operator(source), this);
+    }
+}
+
+const map = transformFn => source =>
+    new Observable(observer =>
+        source.subscribe({
+            next: value => observer.next(transformFn(value)),
+            error: err => observer.error(err),
+            complete: () => observer.complete()
+        })
+    );
+
+const filter = predicate => source =>
+    new Observable(observer =>
+        source.subscribe({
+            next: value => predicate(value) && observer.next(value),
+            error: err => observer.error(err),
+            complete: () => observer.complete()
+        })
+    );
+
+const fromArray = array =>
+    new Observable(observer => {
+        array.forEach(value => observer.next(value));
+        observer.complete();
+    });
+
+const toArray = source => {
+    const result = [];
+    return new Promise((resolve, reject) => {
+        source.subscribe({
+            next: value => result.push(value),
+            error: err => reject(err),
+            complete: () => resolve(result)
+        });
+    });
+};
+
+const asyncProcessData = async () => {
+    const numbers = fromArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    const processed = numbers.pipe(
+        filter(x => x % 2 === 0),
+        map(x => x * x)
+    );
+
+    try {
+        const result = await toArray(processed);
+        console.log(result);  
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+asyncProcessData();
+```

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+(async function() {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class FibonacciSequence {
+    #sequence = [0, 1];
+
+    *[Symbol.iterator]() {
+      let [prev, curr] = this.#sequence;
+      while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+      }
+    }
+  }
+
+  async function fetchAndLog(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      console.log('Fetched data:', data);
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+
+  const fibonacci = new FibonacciSequence();
+  const fibGen = fibonacci[Symbol.iterator]();
+  
+  const promises = [...Array(5)].map(async (_, index) => {
+    console.log(`Fibonacci(${index + 1}):`, fibGen.next().value);
+    await delay(1000);
+    await fetchAndLog(`https: 
+  });
+
+  await Promise.all(promises);
+})();
+```

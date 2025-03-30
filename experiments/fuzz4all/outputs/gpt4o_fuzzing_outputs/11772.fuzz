@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  const data = await delay(1000).then(() => ({ user: 'Alice', age: 30, location: 'Wonderland' }));
+  const { user, age, location } = data;
+  console.log(`User: ${user}, Age: ${age}, Location: ${location}`);
+}
+
+ 
+function* dataGenerator() {
+  yield 'Data 1';
+  yield 'Data 2';
+  yield 'Data 3';
+}
+
+ 
+const dataHandler = {
+  get: (obj, prop) => {
+    console.log(`Accessing property: ${prop}`);
+    return obj[prop];
+  }
+};
+
+const data = {
+  prop1: 'Hello',
+  prop2: 'World'
+};
+
+const proxiedData = new Proxy(data, dataHandler);
+
+ 
+function processData() {
+  const gen = dataGenerator();
+  for (let value of gen) {
+    console.log(value);
+  }
+  console.log(proxiedData.prop1);
+  console.log(proxiedData.prop2);
+}
+
+ 
+fetchData().then(processData);
+```

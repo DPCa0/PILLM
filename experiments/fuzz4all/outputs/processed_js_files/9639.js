@@ -1,0 +1,40 @@
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+
+ 
+async function* generateRandomNumbers(count) {
+    for (let i = 0; i < count; i++) {
+        await randomDelay();
+        yield Math.floor(Math.random() * 100);
+    }
+}
+
+ 
+(async function displayNumbers() {
+    const numbers = [];
+    for await (let number of generateRandomNumbers(5)) {
+        print(`Generated number: ${number}`);
+        numbers.push(number);
+    }
+
+     
+    const [max, min, sum] = [
+        Math.max(...numbers),
+        Math.min(...numbers),
+        numbers.reduce((a, b) => a + b, 0)
+    ];
+    print(`Max: ${max}, Min: ${min}, Sum: ${sum}`);
+
+     
+    const stats = {
+        max,
+        min,
+        sum,
+        average() {
+            return sum / numbers.length;
+        }
+    };
+
+     
+    print(`Statistics: Max = ${stats.max}, Min = ${stats.min}, Sum = ${stats.sum}, Avg = ${stats.average().toFixed(2)}`);
+})();

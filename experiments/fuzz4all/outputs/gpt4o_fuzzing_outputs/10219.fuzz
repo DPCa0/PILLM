@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+class FetchService {
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  #privateFilterMethod(callback) {
+    return this.data.filter(callback);
+  }
+
+  processAndSortData(key) {
+    return this.#privateFilterMethod(item => item[key] !== undefined)
+               .sort((a, b) => a[key] > b[key] ? 1 : -1);
+  }
+}
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const rawData = await FetchService.fetchData(url);
+    
+    const processor = new DataProcessor(rawData);
+    const processedData = processor.processAndSortData('title');
+    
+    console.log(processedData.map(item => item.title));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

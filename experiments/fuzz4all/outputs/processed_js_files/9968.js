@@ -1,0 +1,40 @@
+Certainly! Here's a JavaScript program that utilizes several advanced features:
+
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) => setTimeout(() => resolve({ a: 1, b: 2, c: 3 }), 1000));
+
+ 
+const defaultHandler = {
+  get: (target, property) => (property in target ? target[property] : `Missing: ${property}`)
+};
+
+ 
+async function processData() {
+  const data = await fetchData();
+  const { a, b, ...rest } = data;
+
+  const enhancedData = {
+    ...rest,
+    sum: a + b
+  };
+
+   
+  const proxiedData = new Proxy(enhancedData, defaultHandler);
+
+  print(proxiedData.a);  
+  print(proxiedData.sum);  
+  print(proxiedData.c);  
+  print(proxiedData.d);  
+}
+
+processData();
+
+This program includes several advanced JavaScript features:
+
+- **Promises** and **async/await** for handling asynchronous operations.
+- **Object destructuring** to extract variables from objects.
+- **Spread syntax** to clone objects and manipulate data.
+- **Proxy** to intercept and define custom behavior for basic operations (like property access).

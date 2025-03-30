@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async () => {
+   
+  return new Promise((resolve) => 
+    setTimeout(() => 
+      resolve([{ id: 1, value: 10 }, { id: 2, value: 20 }, { id: 3, value: 30 }]), 1000)
+  );
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData();
+
+     
+    const results = data
+      .map(({ id, value }) => ({ id, value: value * 2 }))  
+      .filter(({ value }) => value > 20)  
+      .reduce((acc, { id, value }) => {
+        acc[id] = value;
+        return acc;
+      }, {});  
+
+     
+    console.log(`Processed Results: ${JSON.stringify(results, null, 2)}`);
+  } catch (error) {
+    console.error(`Error processing data: ${error.message}`);
+  }
+};
+
+ 
+(() => {
+  console.log("Starting data processing...");
+  processData();
+})();
+```

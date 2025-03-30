@@ -1,0 +1,41 @@
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+    this.results = new Map();
+  }
+
+  async processData() {
+    try {
+       
+      const processedData = await Promise.all(this.data.map(async (item) => {
+        return await this.processItem(item);
+      }));
+
+       
+      for (let [key, value] of processedData.entries()) {
+        this.results.set(key, value);
+      }
+
+      print('All data processed:', this.results);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async processItem(item) {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const result = item * 2;  
+        resolve([item, result]);
+      }, Math.random() * 1000);
+    });
+  }
+}
+
+(async () => {
+  const dataProcessor = new DataProcessor([1, 2, 3, 4, 5]);
+  await dataProcessor.processData();
+})();

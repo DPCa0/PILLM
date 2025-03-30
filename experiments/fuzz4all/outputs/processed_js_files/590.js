@@ -1,0 +1,43 @@
+class AsyncHandler {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    const results = await Promise.all(this.data.map(async item => {
+      return await this.complexCalculation(item);
+    }));
+    return results;
+  }
+
+  complexCalculation(item) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(item ** 2 + Math.random() * 10);
+      }, Math.random() * 1000);
+    });
+  }
+
+  *generateReport(results) {
+    for (let result of results) {
+      yield `Processed result: ${result.toFixed(2)}`;
+    }
+  }
+
+  static logAsync(generator) {
+    const gen = generator();
+    (function iterate({ done, value }) {
+      if (done) return;
+      print(value);
+      iterate(gen.next());
+    })(gen.next());
+  }
+}
+
+const data = [1, 2, 3, 4, 5];
+const handler = new AsyncHandler(data);
+
+handler.processData().then(results => {
+  const reportGen = handler.generateReport(results);
+  AsyncHandler.logAsync(() => reportGen);
+});

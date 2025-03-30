@@ -1,0 +1,34 @@
+class Fibonacci {
+  *generate(n) {
+    let a = 0, b = 1, current = 0;
+    while (current < n) {
+      yield a;
+      [a, b] = [b, a + b];
+      current++;
+    }
+  }
+}
+
+const fib = new Fibonacci();
+const result = Array.from(fib.generate(10));
+
+const asyncOperation = (num) => 
+  new Promise(resolve => setTimeout(() => resolve(num * 2), 100));
+
+const processArrayAsync = async (arr) => {
+  const results = await Promise.all(arr.map(async num => {
+    const doubled = await asyncOperation(num);
+    return doubled;
+  }));
+  return results;
+};
+
+(async () => {
+  try {
+    const processed = await processArrayAsync(result);
+    print('Processed Fibonacci:', processed);
+    print('Unique Values:', new Set(processed));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,31 @@
+class AsyncOperation {
+    async *fibonacciSequence(limit) {
+        let [prev, curr] = [0, 1];
+        while (curr <= limit) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    async calculateFibonacciSum(limit) {
+        let sum = 0;
+        for await (let num of this.fibonacciSequence(limit)) {
+            sum += num;
+        }
+        return sum;
+    }
+}
+
+const promiseWithTimeout = (promise, ms) => {
+    const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Timed out")), ms)
+    );
+    return Promise.race([promise, timeout]);
+}
+
+const asyncOp = new AsyncOperation();
+const limit = 1000;
+
+promiseWithTimeout(asyncOp.calculateFibonacciSum(limit), 1000)
+    .then(sum => console.log(`The sum of Fibonacci numbers up to ${limit} is ${sum}`))
+    .catch(err => console.error('Error:', err));

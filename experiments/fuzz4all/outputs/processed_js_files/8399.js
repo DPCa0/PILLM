@@ -1,0 +1,44 @@
+const fetchData = async (url) => {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+};
+
+const processData = (data) => {
+     
+    const result = data.map(({ id, value }) => ({
+        id,
+        value: value * 2,
+        timestamp: new Date().toISOString()
+    }));
+    return result;
+};
+
+const cacheData = new Proxy({}, {
+     
+    set(target, key, value) {
+        print(`Caching data for ${key}`);
+        target[key] = value;
+        return true;
+    }
+});
+
+const main = async () => {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/posts';
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+        cacheData[url] = processedData;   
+
+        print('Processed Data:', processedData);
+        print('Cached Data:', cacheData[url]);
+    } catch (error) {
+        console.error('Error occurred:', error.message);
+    }
+};
+
+ 
+(async () => {
+    await main();
+})();

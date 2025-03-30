@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+(async function() {
+     
+    const fetchData = async (url) => {
+        try {
+            let response = await fetch(url);
+            if (!response.ok) throw new Error("Network response was not ok");
+            return await response.json();
+        } catch (error) {
+            console.error("Fetch error:", error);
+            throw error;
+        }
+    };
+
+     
+    const processData = (data) => {
+        const uniqueItems = new Set(data);
+        return Array.from(uniqueItems).map(item => ({
+            item: item,
+            length: item.length,
+            timestamp: new Date()
+        }));
+    };
+
+     
+    const displayData = (processedData) => {
+        processedData.forEach(({ item, length, timestamp }) => {
+            console.log(`Item: ${item}, Length: ${length}, Timestamp: ${timestamp}`);
+        });
+    };
+
+     
+    const dataValidator = (data) => {
+        return new Proxy(data, {
+            set(target, key, value) {
+                if (typeof value !== 'string') {
+                    throw new TypeError('Only string values are allowed');
+                }
+                target[key] = value;
+                return true;
+            }
+        });
+    };
+
+    try {
+        let url = 'https://jsonplaceholder.typicode.com/users';
+        const data = await fetchData(url);
+        const names = data.map(user => user.name);
+        let validatedData = dataValidator(names);
+        validatedData.push("New User");  
+         
+
+        const processedData = processData(validatedData);
+        displayData(processedData);
+    } catch (error) {
+        console.error("Error in processing data:", error);
+    }
+})();
+```

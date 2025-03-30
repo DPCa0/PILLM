@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice', age: 25 },
+        posts: [
+          { id: 101, title: 'Hello World', content: 'My first post' },
+          { id: 102, title: 'JavaScript', content: 'Learning JS' }
+        ]
+      });
+    }, 1000);
+  });
+};
+
+ 
+function* dataProcessor() {
+  const { user, posts } = yield fetchData();
+  
+  print(`User: ${user.name}, Age: ${user.age}`);
+
+  for (let { title, content } of posts) {
+    print(`Title: ${title}`);
+    print(`Content: ${content}`);
+  }
+}
+
+ 
+async function run(generator) {
+  const iterator = generator();
+  const { value, done } = iterator.next();
+
+  if (!done && value instanceof Promise) {
+    const data = await value;
+    iterator.next(data);
+  }
+}
+
+ 
+run(dataProcessor);

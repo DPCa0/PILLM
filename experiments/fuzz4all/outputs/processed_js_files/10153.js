@@ -1,0 +1,33 @@
+class AsyncOperation {
+  constructor() {
+    this.value = 0;
+  }
+  
+  async increment() {
+    this.value += await new Promise(resolve => setTimeout(() => resolve(1), 1000));
+    return this;
+  }
+  
+  async double() {
+    this.value *= await new Promise(resolve => setTimeout(() => resolve(2), 1000));
+    return this;
+  }
+  
+  async triple() {
+    this.value *= await new Promise(resolve => setTimeout(() => resolve(3), 1000));
+    return this;
+  }
+  
+  logValue() {
+    print(`Current Value: ${this.value}`);
+  }
+}
+
+(async () => {
+  const operation = new AsyncOperation();
+  
+   
+  await Promise.all([operation.increment(), operation.double(), operation.triple()]);
+
+  operation.logValue();   
+})();

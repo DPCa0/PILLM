@@ -1,0 +1,50 @@
+ 
+const apiSimulator = (endpoint) => {
+  const data = {
+    '/data': [1, 2, 3, 4, 5],
+    '/info': { name: 'example', version: '1.0.0' }
+  };
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      data[endpoint] ? resolve(data[endpoint]) : reject('404 Not Found');
+    }, 1000);
+  });
+};
+
+ 
+function* fetchDataGenerator(endpoints) {
+  for (let endpoint of endpoints) {
+    yield apiSimulator(endpoint);
+  }
+}
+
+ 
+const logHandler = {
+  get(target, prop) {
+    print(`Accessing ${prop} on API data.`);
+    return target[prop];
+  }
+};
+
+(async function () {
+  const endpoints = ['/data', '/info'];
+  const generator = fetchDataGenerator(endpoints);
+  let result;
+
+  while (!(result = generator.next()).done) {
+    try {
+      let data = await result.value;
+      let proxyData = new Proxy(data, logHandler);
+      
+       
+      if (Array.isArray(proxyData)) {
+        print('Data:', proxyData.map(x => x * 2));  
+      } else {
+        print('Info:', `${proxyData.name} v${proxyData.version}`);
+      }
+      
+    } catch (error) {
+      console.error(error);
+    }
+  }
+})();

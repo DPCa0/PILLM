@@ -1,0 +1,54 @@
+class Scheduler {
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  schedule(name, fn, interval) {
+    if (this.tasks.has(name)) throw new Error('Task already scheduled');
+    const taskId = setInterval(fn, interval);
+    this.tasks.set(name, taskId);
+  }
+
+  cancel(name) {
+    const taskId = this.tasks.get(name);
+    if (!taskId) throw new Error('Task not found');
+    clearInterval(taskId);
+    this.tasks.delete(name);
+  }
+
+  list() {
+    return [...this.tasks.keys()];
+  }
+}
+
+(async () => {
+   
+  const scheduler = new Proxy(new Scheduler(), {
+    get(target, property) {
+      if (typeof target[property] === 'function') {
+        return function (...args) {
+          print(`Calling ${property} with arguments: ${JSON.stringify(args)}`);
+          return target[property].apply(this, args);
+        }
+      }
+      return target[property];
+    }
+  });
+
+   
+  function* taskGenerator() {
+    yield () => print('Task 1 executed');
+    yield () => print('Task 2 executed');
+    yield () => print('Task 3 executed');
+  }
+
+  const tasks = taskGenerator();
+
+  scheduler.schedule('task1', tasks.next().value, 1000);
+
+   
+  await new Promise(resolve => setTimeout(resolve, 3500));
+
+  scheduler.cancel('task1');
+  print('Scheduled tasks:', scheduler.list());
+})();

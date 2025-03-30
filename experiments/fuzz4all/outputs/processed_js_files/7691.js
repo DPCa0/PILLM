@@ -1,0 +1,41 @@
+ 
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this._observers = new Set();
+  }
+
+  subscribe(observer) {
+    this._observers.add(observer);
+    observer(this._value);
+    return () => this._observers.delete(observer);
+  }
+
+  set value(newValue) {
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this._notify();
+    }
+  }
+
+  _notify() {
+    this._observers.forEach(observer => observer(this._value));
+  }
+}
+
+const observeConsole = new Observable('Initial value');
+
+const unsubscribeLog = observeConsole.subscribe(value => 
+  console.log(`Console Log: ${value}`)
+);
+
+const asyncValueChange = async (observable, newValue, delay) => {
+  await new Promise(resolve => setTimeout(resolve, delay));
+  observable.value = newValue;
+};
+
+asyncValueChange(observeConsole, 'Updated after 1 second', 1000);
+asyncValueChange(observeConsole, 'Updated after 3 seconds', 3000);
+
+ 
+setTimeout(unsubscribeLog, 2000);

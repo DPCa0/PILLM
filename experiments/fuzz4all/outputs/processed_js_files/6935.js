@@ -1,0 +1,38 @@
+class AdvancedExample {
+  #privateData = 'Secret Data';
+
+  static async *fetchDataGenerator(urls) {
+    for (const url of urls) {
+      const response = await fetch(url);
+      const data = await response.json();
+      yield data;
+    }
+  }
+
+  constructor() {
+    this.data = new Map();
+  }
+
+  async loadData(urls) {
+    for await (const data of AdvancedExample.fetchDataGenerator(urls)) {
+      this.data.set(data.id, data);
+    }
+  }
+
+  get privateData() {
+    return this.#privateData;
+  }
+
+  processData() {
+    return [...this.data.values()].reduce((acc, { value }) => acc + value, 0);
+  }
+}
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const example = new AdvancedExample();
+  await example.loadData(urls);
+  print('Processed data:', example.processData());
+  print('Accessing private data:', example.privateData);
+})();

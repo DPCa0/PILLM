@@ -1,0 +1,48 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  const processedData = new Map();
+  
+  data.forEach(({ id, name, value }) => {
+    if (!processedData.has(name)) {
+      processedData.set(name, new Set());
+    }
+    processedData.get(name).add({ id, value });
+  });
+
+  return processedData;
+};
+
+const displayData = (dataMap) => {
+  for (const [key, valueSet] of dataMap.entries()) {
+    print(`Category: ${key}`);
+    for (const { id, value } of valueSet) {
+      print(`  ID: ${id}, Value: ${value}`);
+    }
+  }
+};
+
+const main = async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+  
+  if (data) {
+    const { items } = data;   
+    const processedData = processData(items);
+    displayData(processedData);
+  }
+};
+
+main();

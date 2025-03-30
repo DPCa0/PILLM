@@ -1,0 +1,87 @@
+ 
+function readonly(target, key, descriptor) {
+  descriptor.writable = false;
+  return descriptor;
+}
+
+class Person {
+  #privateField = "Secret";
+
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  get privateField() {
+    return this.#privateField;
+  }
+
+  @readonly
+  introduce() {
+    return `Hello, my name is ${this.name} and I am ${this.age} years old.`;
+  }
+
+  static fromJSON(json) {
+    const data = JSON.parse(json);
+    return new Person(data.name, data.age);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Accessed property: ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    print(`Set property: ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const person = new Proxy(new Person('Alice', 30), handler);
+print(person.introduce());
+person.name = 'Bob';
+print(person.name);
+
+ 
+function* fibonacci(n) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const fib = fibonacci(5);
+for (const num of fib) {
+  print(num);
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    print(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+ 
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? `<span>${values[i]}</span>` : '';
+    return result + string + value;
+  }, '');
+}
+
+const language = 'JavaScript';
+console.log(highlight`Learning ${

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexTask {
+  constructor(taskName) {
+    this.taskName = taskName;
+  }
+  
+  async perform() {
+    console.log(`Starting task: ${this.taskName}`);
+    try {
+      const result = await ComplexTask.simulateAsyncOperation();
+      const { message, data } = result;
+      console.log(`Task completed: ${message}`);
+      console.log('Data:', ...data);
+    } catch (error) {
+      console.error('Error during task:', error);
+    }
+  }
+
+  static simulateAsyncOperation() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const success = Math.random() > 0.2;
+        if (success) {
+          resolve({
+            message: 'Operation successful!',
+            data: [42, 'foo', { a: 1 }]
+          });
+        } else {
+          reject('Operation failed due to unforeseen circumstances.');
+        }
+      }, 1000);
+    });
+  }
+}
+
+(async function main() {
+  const task = new ComplexTask('MyComplexTask');
+  await task.perform();
+})();
+```

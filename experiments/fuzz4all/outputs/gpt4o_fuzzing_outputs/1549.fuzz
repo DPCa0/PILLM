@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import { writeFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+function LogMethod(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    console.log(`Calling ${propertyKey} with`, args);
+    return originalMethod.apply(this, args);
+  };
+  return descriptor;
+}
+
+ 
+const _privateData = Symbol('privateData');
+
+class ComplexClass extends EventEmitter {
+  constructor(initialData) {
+    super();
+    this[_privateData] = initialData;
+  }
+
+  @LogMethod
+  processData(input) {
+     
+    const processed = this.taggedString`Processing: ${input}`;
+    this.emit('processed', processed);
+    return processed;
+  }
+
+  taggedString(strings, value) {
+    return `${strings[0]}${value.toUpperCase()}`;
+  }
+
+  get data() {
+    return this[_privateData];
+  }
+
+  async saveDataToFile(filename) {
+    try {
+      await writeFile(filename, JSON.stringify(this[_privateData]));
+      console.log('Data saved to file');
+    } catch (error) {
+      console.error('Error writing file', error);
+    }
+  }
+}
+
+ 
+const complexInstance = new ComplexClass({ key: 'value' });
+
+complexInstance.on('processed', (data) => {
+  console.log('Processed Event:', data);
+});
+
+const data = complexInstance.processData('test input');
+complexInstance.saveDataToFile('output.json');
+console.log('Private Data:', complexInstance.data);
+```

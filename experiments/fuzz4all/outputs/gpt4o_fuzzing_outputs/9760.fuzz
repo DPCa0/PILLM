@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+    yield new Promise(resolve => setTimeout(() => resolve('Data 1'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Data 2'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Data 3'), 1000));
+}
+
+ 
+async function processData(generator) {
+    const dataResults = [];
+    for (const dataPromise of generator) {
+        const data = await dataPromise;
+        dataResults.push(data);
+    }
+    return dataResults;
+}
+
+ 
+const loggerHandler = {
+    get(target, propKey, receiver) {
+        const origMethod = target[propKey];
+        return function (...args) {
+            console.log(`Called ${propKey} with args: ${JSON.stringify(args)}`);
+            return origMethod.apply(this, args);
+        };
+    }
+};
+
+ 
+const exampleObject = {
+    async displayData() {
+        const generator = fetchDataGenerator();
+        const data = await processData(generator);
+        console.log('Processed Data:', data);
+    }
+};
+
+const proxyObject = new Proxy(exampleObject, loggerHandler);
+
+ 
+proxyObject.displayData();
+```

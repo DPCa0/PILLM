@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, fillFunc = () => 0) {
+        this.data = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, fillFunc)
+        );
+    }
+
+    static fromArray(array) {
+        const rows = array.length;
+        const cols = array[0].length;
+        const matrix = new Matrix(rows, cols);
+        matrix.data = array;
+        return matrix;
+    }
+
+    map(func) {
+        this.data = this.data.map((row, i) =>
+            row.map((value, j) => func(value, i, j))
+        );
+        return this;
+    }
+
+    multiply(other) {
+        if (other instanceof Matrix) {
+            const result = new Matrix(this.data.length, other.data[0].length);
+            return result.map((_, i, j) =>
+                this.data[i].reduce(
+                    (sum, elm, k) => sum + elm * other.data[k][j],
+                    0
+                )
+            );
+        }
+        return this.map(value => value * other);
+    }
+
+    log() {
+        console.table(this.data);
+        return this;
+    }
+}
+
+ 
+const fetchWithTimeout = async (url, ms) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), ms);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        return response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+ 
+(async () => {
+     
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts', 3000);
+    if (!data) return;
+
+     
+    const matrixA = new Matrix(2, 3, () => Math.floor(Math.random() * 10));
+    const matrixB = new Matrix(3, 2, () => Math.floor(Math.random() * 10));
+
+     
+    console.log('Matrix A:');
+    matrixA.log();
+    console.log('Matrix B:');
+    matrixB.log();
+
+     
+    const resultMatrix = matrixA.multiply(matrixB);
+    console.log('Result Matrix:');
+    resultMatrix.log();
+})();
+```

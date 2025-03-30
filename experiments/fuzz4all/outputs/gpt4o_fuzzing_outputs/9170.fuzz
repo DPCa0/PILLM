@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Task {
+  #title;
+  constructor(title) {
+    this.#title = title;
+    this.created = new Date();
+  }
+
+  getTitle() {
+    return this.#title;
+  }
+}
+
+function* taskGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const taskIds = taskGenerator();
+const taskMap = new Map();
+const taskProxyHandler = {
+  get(target, prop) {
+    if (prop === 'size') {
+      return target.size;
+    }
+    return target.get(prop);
+  },
+  set(target, prop, value) {
+    if (value instanceof Task) {
+      target.set(prop, value);
+      return true;
+    }
+    throw new Error("Value must be a Task");
+  }
+};
+const proxyTaskMap = new Proxy(taskMap, taskProxyHandler);
+
+async function addTask(title) {
+  const id = taskIds.next().value;
+  const task = new Task(title);
+  proxyTaskMap[id] = task;
+  return `Task [${id}] "${title}" added.`;
+}
+
+async function listTasks() {
+  return [...proxyTaskMap.entries()].map(([id, task]) => ({
+    id,
+    title: task.getTitle(),
+    created: task.created
+  }));
+}
+
+ 
+(async function() {
+  console.log(await addTask('Read JavaScript book'));
+  console.log(await addTask('Write blog post'));
+  console.table(await listTasks());
+})();
+```

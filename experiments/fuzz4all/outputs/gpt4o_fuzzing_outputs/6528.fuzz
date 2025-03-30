@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+ 
+class UserProfile {
+  #data;
+  
+  constructor(userData) {
+    this.#data = userData;
+  }
+  
+   
+  get profile() {
+    return { ...this.#data };
+  }
+  
+   
+  set profile(newData) {
+    this.#data = { ...this.#data, ...newData };
+  }
+}
+
+ 
+const logger = {
+  get(target, property) {
+    console.log(`Accessing ${property} property`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} property to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users/1';
+    const data = await fetchData(url);
+    const user = new UserProfile(data);
+    
+     
+    const proxiedUser = new Proxy(user, logger);
+    
+     
+    console.log(proxiedUser.profile);
+    proxiedUser.profile = { name: 'Updated Name' };
+    console.log(proxiedUser.profile);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+async function* numberGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 100));  
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Getting property: ${property}`);
+      return target[property];
+    } else {
+      return `Property ${property} does not exist`;
+    }
+  },
+  set(target, property, value) {
+    console.log(`Setting property: ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxyObject = new Proxy({}, handler);
+
+ 
+class Example {
+  #privateField = 'I am private';
+
+  constructor(value) {
+    this.publicField = value;
+  }
+
+  getPrivateField() {
+    return this.#privateField;
+  }
+
+  *fieldGenerator() {
+    yield* Object.entries(this);
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((result, str, i) => `${result}${str}<${values[i] || ''}>`, '');
+}
+
+ 
+(async () => {
+  console.log(tag`Starting execution with a tagged template`);
+
+  const example = new Example('Hello World');
+  proxyObject.exampleField = 'Proxy Interception';
+
+  for (const [key, value] of example.fieldGenerator()) {
+    console.log(`Field: ${key}, Value: ${value}`);
+  }
+
+  const sequence = numberGenerator(5);
+  for await (const number of sequence) {
+    console.log(`Generated number: ${number}`);
+  }
+
+  console.log(`Private Field Access: ${example.getPrivateField()}`);
+})();
+```

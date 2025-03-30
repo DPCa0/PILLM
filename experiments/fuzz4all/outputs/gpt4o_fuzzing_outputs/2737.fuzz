@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const emitter = new EventEmitter();
+  const idGen = idGenerator();
+
+  emitter.on('data', (id, data) => {
+    console.log(`Received data with id ${id}:`, data);
+  });
+
+  for (let i = 0; i < 5; i++) {
+    await delay(1000);
+    const id = idGen.next().value;
+    const data = { value: Math.random() * 100 };
+    emitter.emit('data', id, data);
+  }
+})();
+```

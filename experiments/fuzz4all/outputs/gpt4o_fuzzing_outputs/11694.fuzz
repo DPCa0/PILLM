@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (message, delay) => 
+  new Promise(resolve => setTimeout(() => resolve(message), delay));
+
+ 
+(async () => {
+  try {
+    console.log('Starting async operations...');
+
+     
+    const [result1, result2] = await Promise.all([
+      asyncOperation('First operation complete', 1000),
+      asyncOperation('Second operation complete', 1500),
+    ]);
+
+    console.log(result1);
+    console.log(result2);
+
+     
+    const target = { a: 1, b: 2, c: 3 };
+    const handler = {
+      get: (obj, prop) => {
+        console.log(`Property '${prop}' accessed, value: ${obj[prop]}`);
+        return obj[prop];
+      }
+    };
+
+    const proxy = new Proxy(target, handler);
+    console.log(proxy.a);   
+    console.log(proxy.b);
+
+     
+    const { x = 10, y = 20 } = { y: 5 };
+    console.log(`Destructured x: ${x}, y: ${y}`);
+
+     
+    const { sqrt } = await import('mathjs');   
+    console.log(`Square root of 16 is: ${sqrt(16)}`);
+
+    console.log('All operations complete!');
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

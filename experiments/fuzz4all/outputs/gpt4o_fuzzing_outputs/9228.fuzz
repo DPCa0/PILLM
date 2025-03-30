@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+};
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Accessing property: ${property}`);
+    return target[property];
+  }
+};
+
+ 
+const data = {
+  name: 'John Doe',
+  age: 30,
+  location: 'Unknown'
+};
+
+ 
+const proxyData = new Proxy(data, handler);
+
+ 
+(async () => {
+  try {
+     
+    const [userData, postsData] = await Promise.all([
+      fetchData('https://jsonplaceholder.typicode.com/users/1'),
+      fetchData('https://jsonplaceholder.typicode.com/posts?userId=1')
+    ]);
+
+     
+    console.log(`Name: ${proxyData.name}`);
+    console.log(`Age: ${proxyData.age}`);
+
+     
+    const { name, email } = userData;
+    console.log(`Fetched User: ${name}, Email: ${email}`);
+    console.log(`Total Posts Fetched: ${postsData.length}`);
+
+     
+    const postTitles = postsData.map(post => post.title);
+    const allTitles = [...postTitles];
+    console.log('Post Titles:', allTitles);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

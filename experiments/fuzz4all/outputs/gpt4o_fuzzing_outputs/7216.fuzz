@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['Alice', 'Bob', 'Charlie', 'Dana']);
+    }, 1000);
+  });
+};
+
+ 
+function* dataGenerator(data) {
+  for (const item of data) {
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Accessing element ${prop}: ${target[prop]}`);
+      return target[prop];
+    }
+    return undefined;
+  }
+};
+
+ 
+(async () => {
+  const names = await fetchData();
+
+   
+  const proxiedNames = new Proxy(names, handler);
+
+   
+  const [first, ...rest] = proxiedNames;
+
+  console.log(`First name: ${first}`);
+  console.log(`Other names: ${rest.join(', ')}`);
+
+   
+  console.log('Iterating over names using generator:');
+  const generator = dataGenerator(proxiedNames);
+  for (const name of generator) {
+    console.log(name);
+  }
+
+   
+  const nonexistent = proxiedNames[10]?.toUpperCase() ?? 'Not found';
+  console.log(`Attempting to access a nonexistent element: ${nonexistent}`);
+})();
+```

@@ -1,0 +1,61 @@
+ 
+
+ 
+function* dataGenerator() {
+    yield 'Fetching data...';
+    yield 'Processing data...';
+    yield 'Finalizing data...';
+}
+
+ 
+const target = {
+    message: "Hello, Proxy!"
+};
+
+const handler = {
+    get(target, property, receiver) {
+        if (property in target) {
+            return Reflect.get(target, property, receiver);
+        } else {
+            return `No such property: ${property}`;
+        }
+    },
+    set(target, property, value, receiver) {
+        print(`Setting value ${value} to ${property}`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function complexOperation() {
+    const dataGen = dataGenerator();
+    for (const step of dataGen) {
+        print(step);
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve("Data loaded successfully!");
+        }, 2000);
+    });
+}
+
+ 
+(async function() {
+    try {
+        print(proxy.message);  
+        proxy.newProperty = "This is a new property!";  
+        
+        const result = await complexOperation();
+        print(result);
+
+        print(proxy.newProperty);  
+        
+        print(proxy.nonExistent);  
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();

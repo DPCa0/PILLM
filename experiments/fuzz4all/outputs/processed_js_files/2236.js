@@ -1,0 +1,45 @@
+ 
+
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+const handler = {
+  get: (target, prop) => {
+    if (typeof prop === 'string' && !isNaN(prop)) {
+      const index = parseInt(prop, 10);
+      return target(index);
+    }
+    return target[prop];
+  }
+};
+
+const numberProxy = new Proxy((index) => {
+  let gen = numberGenerator();
+  let value;
+  for (let i = 0; i <= index; i++) {
+    value = gen.next().value;
+  }
+  return value;
+}, handler);
+
+async function asyncNumFetcher(index) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(numberProxy[index]);
+    }, 1000);
+  });
+}
+
+async function main() {
+  print('Fetching numbers asynchronously...');
+  for (let i = 0; i < 5; i++) {
+    const number = await asyncNumFetcher(i);
+    print(`Fetched number: ${number}`);
+  }
+}
+
+main();

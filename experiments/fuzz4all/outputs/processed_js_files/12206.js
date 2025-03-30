@@ -1,0 +1,50 @@
+ 
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Could not fetch data: ${error}`);
+  }
+}
+
+ 
+function processUserData(users) {
+  const userMap = new Map();
+  
+  users.forEach(user => {
+    const { id, name, email, address: { city } } = user;
+    userMap.set(id, { name, email, city });
+  });
+
+  const cities = [...new Set(users.map(user => user.address.city))];
+
+  return { userMap, cities };
+}
+
+ 
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+
+  try {
+    const users = await fetchData(apiUrl);
+    if (!users) throw new Error('User data is not available');
+    
+    const { userMap, cities } = processUserData(users);
+
+    print('User Details:');
+    userMap.forEach((value, key) => {
+      print(`ID: ${key}, Name: ${value.name}, Email: ${value.email}, City: ${value.city}`);
+    });
+
+    print('\nUnique Cities:');
+    print(cities.join(', '));
+
+  } catch (error) {
+    console.error(`Error processing users: ${error}`);
+  }
+})();

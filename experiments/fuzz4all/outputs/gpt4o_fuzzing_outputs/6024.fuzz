@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncOperation = (value, delay) => new Promise((resolve) => setTimeout(() => resolve(value), delay));
+
+ 
+const targetObject = {
+  name: "Alice",
+  age: 30
+};
+
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Getting property ${property}: ${target[property]}`);
+      return target[property];
+    }
+    console.log(`Property ${property} does not exist`);
+  },
+  set: (target, property, value) => {
+    if (property in target) {
+      console.log(`Setting property ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+    console.log(`Property ${property} does not exist`);
+    return false;
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+async function complexTask() {
+   
+  try {
+    console.log("Starting complex task...");
+
+     
+    let name = proxy.name;  
+    proxy.age = 31;  
+
+    let operation1 = await asyncOperation("Step 1 Complete", 1000);
+    console.log(operation1);
+
+    let operation2 = await asyncOperation("Step 2 Complete", 2000);
+    console.log(operation2);
+
+    Reflect.set(proxy, 'name', 'Bob');
+    console.log(`Updated name: ${Reflect.get(proxy, 'name')}`);
+
+    let operation3 = await asyncOperation("Step 3 Complete", 1000);
+    console.log(operation3);
+
+    console.log("Complex task finished.");
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+ 
+complexTask();
+```

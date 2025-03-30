@@ -1,0 +1,64 @@
+ 
+import fetch from 'node-fetch';
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+async function fetchGitHubUsers(usernames) {
+  const requests = usernames.map(username => 
+    fetch(`https: 
+      .then(response => response.json())
+      .catch(error => ({ error: `Failed to fetch: ${error.message}` }))
+  );
+  
+  const results = await Promise.allSettled(requests);
+  return results.map(result => result.status === 'fulfilled' ? result.value : { error: result.reason });
+}
+
+ 
+function* fibonacciSequence(maxTerms) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < maxTerms; i++) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+class UserEventEmitter extends EventEmitter {
+  @logMethod
+  emitUserEvent(user) {
+    this.emit('userEvent', user);
+  }
+}
+
+function logMethod(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    print(`Calling ${key} with`, args);
+    return originalMethod.apply(this, args);
+  };
+  return descriptor;
+}
+
+(async () => {
+   
+  const data = await readFile('usernames.txt', 'utf8');
+  const usernames = data.split('\n').filter(Boolean);
+
+   
+  const userData = await fetchGitHubUsers(usernames);
+  print('User Data:', userData);
+
+   
+  const userEmitter = new UserEventEmitter();
+  userEmitter.on('userEvent', user => print('User Event:', user));
+  
+  for (const user of userData) {
+    userEmitter.emitUserEvent(user);
+  }
+
+   
+  const fibGenerator = fibonacciSequence(10);
+  print('Fibonacci Sequence:', [...fibGenerator]);
+})();

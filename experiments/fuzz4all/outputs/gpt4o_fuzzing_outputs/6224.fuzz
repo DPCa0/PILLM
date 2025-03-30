@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class TaskManager {
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  addTask(name, func, delay) {
+    const task = async () => {
+      await new Promise(resolve => setTimeout(resolve, delay));
+      func();
+    };
+    this.tasks.set(name, task);
+  }
+
+  runTask(name) {
+    const task = this.tasks.get(name);
+    if (task) {
+      task().catch(err => console.error(`Error running task "${name}":`, err));
+    }
+  }
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+const taskManager = new TaskManager();
+
+taskManager.addTask('greet', debounce(() => {
+  console.log('Hello, advanced JavaScript!');
+}, 500), 1000);
+
+taskManager.addTask('farewell', () => {
+  console.log('Goodbye, see you soon!');
+}, 2000);
+
+taskManager.runTask('greet');
+taskManager.runTask('farewell');
+```

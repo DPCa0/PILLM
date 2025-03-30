@@ -1,0 +1,63 @@
+ 
+const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: 'Hello from async!' });
+    }, 1000);
+  });
+};
+
+ 
+const mapExample = new Map();
+mapExample.set('key1', 'value1').set('key2', 'value2');
+
+const setExample = new Set(['a', 'b', 'c']);
+
+ 
+const processData = async ({ data = 'No data' } = {}) => {
+  const text = `${data} - Processed!`;
+  print(text);
+};
+
+ 
+const combineArrays = (...arrays) => arrays.flat();
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const { data } = await fetchData();
+    await processData({ data });
+
+    const combinedArray = combineArrays([1, 2], [3, 4], [5, 6]);
+    print('Combined Array:', combinedArray);
+
+    print('Map Values:', Array.from(mapExample.values()));
+    setExample.add('d').delete('a');
+    print('Modified Set:', Array.from(setExample));
+
+    const generator = idGenerator();
+    print('Generated IDs:', generator.next().value, generator.next().value, generator.next().value);
+
+     
+    const target = { message: 'Hello' };
+    const handler = {
+      get(target, prop) {
+        return prop in target ? target[prop] : `Property ${prop} not found`;
+      }
+    };
+    const proxy = new Proxy(target, handler);
+    print(proxy.message);   
+    print(proxy.nonExistentProp);   
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,67 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+  
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+        return () => this.off(event, listener);
+    }
+  
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.set(event, this.events.get(event).filter(l => l !== listener));
+        }
+    }
+  
+    async emit(event, ...args) {
+        if (this.events.has(event)) {
+            const listeners = [...this.events.get(event)];
+            await Promise.all(listeners.map(listener => listener(...args)));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class DataProcessor {
+    constructor(emitter) {
+        this.emitter = emitter;
+        this.data = [];
+    }
+
+    async process(dataChunk) {
+        this.data.push(...dataChunk);
+        print(`Processing chunk: ${dataChunk}`);
+        await delay(1000);  
+        await this.emitter.emit('chunkProcessed', dataChunk);
+    }
+
+    async processDataChunks(chunks) {
+        for (const chunk of chunks) {
+            await this.process(chunk);
+        }
+        await this.emitter.emit('allDataProcessed', this.data);
+    }
+}
+
+const emitter = new AsyncEventEmitter();
+const processor = new DataProcessor(emitter);
+
+emitter.on('chunkProcessed', chunk => {
+    print(`Chunk processed: ${chunk}`);
+});
+
+emitter.on('allDataProcessed', async allData => {
+    print('All data processed:', allData);
+    await delay(500);
+    print('Processing complete.');
+});
+
+(async () => {
+    const dataChunks = [[1, 2], [3, 4], [5, 6]];
+    await processor.processDataChunks(dataChunks);
+})();

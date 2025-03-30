@@ -1,0 +1,74 @@
+class DeferredPromise {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function getDataWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const fetchPromise = fetch(url, { signal }).then(response => response.json());
+    const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), timeout)
+    );
+
+    return Promise.race([fetchPromise, timeoutPromise]).catch(error => {
+        controller.abort();
+        throw error;
+    });
+}
+
+function* fibonacciSequence(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr < limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+function debounce(fn, delay) {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+}
+
+function* asyncIterableWrapper(iterable) {
+    for (const item of iterable) {
+        yield new Promise(resolve => setTimeout(() => resolve(item), 100));
+    }
+}
+
+(async function main() {
+    try {
+        const url = 'https://api.github.com/users/octocat';
+        const data = await getDataWithTimeout(url);
+        print('User Data:', data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
+    print('Fibonacci Sequence:');
+    for (const num of fibonacciSequence(100)) {
+        print(num);
+    }
+
+    const log = debounce(console.log, 300);
+    log('Debounced:', 1);
+    log('Debounced:', 2);
+    log('Debounced:', 3);
+
+    print('Async Iterable:');
+    for await (const value of asyncIterableWrapper([10, 20, 30, 40])) {
+        print(value);
+    }
+
+    const deferred = new DeferredPromise();
+    deferred.promise.then(console.log).catch(console.error);
+    setTimeout(() => deferred.resolve('Deferred Promise Resolved!'), 2000);
+})();

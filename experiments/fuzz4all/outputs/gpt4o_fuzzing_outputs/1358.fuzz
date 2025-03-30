@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+  return response.json();
+};
+
+const processData = (data) => {
+   
+  return data.map(item => ({
+    ...item,
+    processedTimestamp: new Date().toISOString(),
+  }));
+};
+
+(async () => {
+  try {
+    const urls = [
+      'https://jsonplaceholder.typicode.com/posts',
+      'https://jsonplaceholder.typicode.com/comments',
+    ];
+
+    const dataPromises = urls.map(url => fetchJson(url));
+
+     
+    const [posts, comments] = await Promise.all(dataPromises);
+
+    const processedPosts = processData(posts);
+    const processedComments = processData(comments);
+
+     
+    const combinedData = [...processedPosts, ...processedComments];
+
+     
+    const summary = combinedData.reduce((acc, item) => {
+      const { processedTimestamp } = item;
+      acc[processedTimestamp] = (acc[processedTimestamp] || 0) + 1;
+      return acc;
+    }, {});
+
+    console.log('Data Processing Summary:', summary);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

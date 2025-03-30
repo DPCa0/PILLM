@@ -1,0 +1,29 @@
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+async function processUrls(urls) {
+  const results = [];
+  const dataGenerator = fetchDataGenerator(urls);
+  for await (const dataPromise of dataGenerator) {
+    results.push(dataPromise);
+  }
+  return results;
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+];
+
+processUrls(urls).then(results => {
+  const [first, second] = results;  
+  const { title: title1, body: body1 } = first;
+  const { title: title2, body: body2 } = second;
+
+  print(`First Post - Title: ${title1}, Body: ${body1}`);
+  print(`Second Post - Title: ${title2}, Body: ${body2}`);
+}).catch(console.error);

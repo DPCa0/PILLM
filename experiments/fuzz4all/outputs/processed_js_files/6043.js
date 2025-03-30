@@ -1,0 +1,31 @@
+ 
+
+ 
+async function* asyncDataGenerator() {
+  const data = [1, 2, 3, 4, 5];
+  for (const value of data) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield value * 2;
+  }
+}
+
+ 
+async function processGenerator() {
+  const results = [];
+  for await (const val of asyncDataGenerator()) {
+    const [doubledValue] = [val];  
+    results.push(doubledValue);
+  }
+  return results;
+}
+
+ 
+(async () => {
+  try {
+    const dataPromise = processGenerator();
+    const [result1, result2, ...others] = await dataPromise;  
+    print(`First: ${result1}, Second: ${result2}, Others: ${others.join(", ")}`);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();

@@ -1,0 +1,68 @@
+ 
+
+ 
+async function* asyncNumberGenerator() {
+    for (let i = 1; i <= 5; i++) {
+        yield await new Promise(resolve => setTimeout(() => resolve(i), 500));
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            print(`Getting property ${prop}: ${target[prop]}`);
+            return Reflect.get(...arguments);
+        } else {
+            print(`Property ${prop} does not exist`);
+        }
+    },
+    set: function(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+const proxiedObject = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+proxiedObject.a;
+proxiedObject.c = 3;
+
+ 
+class CustomIterable {
+    constructor(data) {
+        this.data = data;
+    }
+
+    [Symbol.iterator]() {
+        let index = 0;
+        let data = this.data;
+
+        return {
+            next: function() {
+                if (index < data.length) {
+                    return { value: data[index++], done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
+ 
+const iterableInstance = new CustomIterable([10, 20, 30]);
+
+ 
+for (const value of iterableInstance) {
+    print(`CustomIterable value: ${value}`);
+}
+
+ 
+(async () => {
+    for await (const number of asyncNumberGenerator()) {
+        print(`Async number: ${number}`);
+    }
+})();

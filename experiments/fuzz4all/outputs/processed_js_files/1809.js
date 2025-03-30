@@ -1,0 +1,49 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ data: 'Advanced JavaScript!' });
+    }, 1000);
+});
+
+ 
+async function loadAndProcessData() {
+    try {
+        const response = await fetchData();
+        print(`Fetched data: ${response.data}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.warn(`Property ${prop} does not exist`);
+            return 'Unknown Property';
+        }
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'string') {
+            target[prop] = value.toUpperCase();
+        } else {
+            throw new TypeError('Values must be strings');
+        }
+        return true;
+    }
+};
+
+const targetObject = {};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.greeting = 'hello, world';
+print(proxy.greeting);   
+print(proxy.nonExistentProp);   
+
+ 
+loadAndProcessData();

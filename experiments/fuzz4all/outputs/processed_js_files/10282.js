@@ -1,0 +1,69 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.data = arr;
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+  
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.data[0].length !== other.data.length) {
+        throw new Error('Columns of A must match rows of B');
+      }
+      return new Matrix(this.data.length, other.data[0].length)
+        .map((_, i, j) => 
+          this.data[i].reduce((sum, element, k) => 
+            sum + element * other.data[k][j], 0));
+    } else {
+      return this.map(e => e * other);
+    }
+  }
+  
+  static identity(size) {
+    return new Matrix(size, size).map((_, i, j) => i === j ? 1 : 0);
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+ 
+async function randomizeMatrix(matrix, delay) {
+  const timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
+  
+  await timeout(delay);
+  matrix.map(() => Math.random());
+  return matrix;
+}
+
+(async function main() {
+  try {
+    let identity = Matrix.identity(3);
+    print("Identity Matrix:");
+    identity.print();
+
+    let matA = await randomizeMatrix(new Matrix(3, 3), 500);
+    print("Randomized Matrix A:");
+    matA.print();
+
+    let matB = await randomizeMatrix(new Matrix(3, 3), 500);
+    print("Randomized Matrix B:");
+    matB.print();
+
+    let result = matA.multiply(matB);
+    print("Result of A multiplied by B:");
+    result.print();
+  } catch (error) {
+    console.error(error);
+  }
+})();

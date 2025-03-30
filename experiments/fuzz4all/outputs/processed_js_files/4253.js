@@ -1,0 +1,53 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  static fromEvent(element, event) {
+    return new Observable(observer => {
+      const handler = e => observer.next(e);
+      element.addEventListener(event, handler);
+      return {
+        unsubscribe() {
+          element.removeEventListener(event, handler);
+        }
+      };
+    });
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+};
+
+const log = msg => print(`[${new Date().toISOString()}] ${msg}`);
+
+const searchInput = document.querySelector('#search');
+const searchObservable = Observable.fromEvent(searchInput, 'input');
+
+const debouncedLog = debounce(event => log(`Search: ${event.target.value}`), 300);
+
+const subscription = searchObservable.subscribe({
+  next: debouncedLog
+});
+
+ 
+setTimeout(() => {
+  const event = new Event('input', { bubbles: true, cancelable: true });
+  searchInput.value = 'Observable';
+  searchInput.dispatchEvent(event);
+}, 1000);
+
+ 
+setTimeout(() => {
+  subscription.unsubscribe();
+  print('Unsubscribed from search events');
+}, 5000);

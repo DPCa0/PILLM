@@ -1,0 +1,53 @@
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const fibonacci = memoize((n) => {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+ 
+(async () => {
+   
+  print('Fibonacci(40):', fibonacci(40));  
+
+   
+  await fetchData('https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits');
+
+   
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+  try {
+    const results = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
+    print('Batch fetch results:', results);
+  } catch (error) {
+    console.error('Batch fetching failed:', error);
+  }
+})();

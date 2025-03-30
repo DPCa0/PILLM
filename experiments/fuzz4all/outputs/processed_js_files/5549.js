@@ -1,0 +1,51 @@
+ 
+class ComplexCalculator {
+     
+    #result = 0;
+
+     
+    static create() {
+        return new ComplexCalculator();
+    }
+
+     
+    add(...numbers) {
+        this.#result += numbers.reduce((acc, num) => acc + num, 0);
+        return this;
+    }
+
+    subtract(...numbers) {
+        this.#result -= numbers.reduce((acc, num) => acc + num, 0);
+        return this;
+    }
+
+     
+    get result() {
+        return this.#result;
+    }
+
+    set result(value) {
+        if (typeof value === 'number') {
+            this.#result = value;
+        }
+    }
+
+     
+    async *logResults() {
+        for (let i = 0; i < 5; i++) {
+            yield new Promise((resolve) => 
+                setTimeout(() => resolve(`Result after ${i + 1} seconds: ${this.result}`), 1000)
+            );
+        }
+    }
+}
+
+ 
+(async function() {
+    const calculator = ComplexCalculator.create();
+    calculator.add(10, 5, 3).subtract(8, 2);
+
+    for await (let log of calculator.logResults()) {
+        print(log);
+    }
+})();

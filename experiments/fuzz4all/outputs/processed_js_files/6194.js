@@ -1,0 +1,52 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    for (const listener of this.events.get(event)) listener(...args);
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processComplexData = (data) => {
+  return data.filter((item) => item.active).map((item) => ({
+    ...item,
+    computedValue: Math.random() * item.value,
+  }));
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  eventEmitter.on('dataProcessed', (data) => {
+    print('Data has been processed:', data);
+  });
+
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processComplexData(data);
+
+    eventEmitter.emit('dataProcessed', processedData);
+
+    const groupedData = processedData.reduce((acc, curr) => {
+      acc[curr.type] = acc[curr.type] || [];
+      acc[curr.type].push(curr);
+      return acc;
+    }, {});
+
+    print('Grouped Data:', groupedData);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

@@ -1,0 +1,39 @@
+ 
+
+ 
+const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+
+ 
+const processData = async (data) => {
+  return data.map(post => ({
+    ...post,
+    title: post.title.toUpperCase(),  
+    description: post.body.length > 50 ? post.body.substring(0, 50) + '...' : post.body  
+  }));
+};
+
+ 
+const fetchAndProcessData = async () => {
+  try {
+     
+    const response = await fetch(apiEndpoint);
+    if (!response.ok) throw new Error('Failed to fetch data');
+
+     
+    const data = await response.json();
+
+     
+    const processedData = await processData(data);
+
+     
+    processedData.forEach(post => {
+      print(`ID: ${post.id}\nTitle: ${post.title}\nDescription: ${post.description}\n`);
+    });
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+fetchAndProcessData();

@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+    yield fetch('https://jsonplaceholder.typicode.com/posts/1').then(res => res.json());
+    yield fetch('https://jsonplaceholder.typicode.com/posts/2').then(res => res.json());
+    yield fetch('https://jsonplaceholder.typicode.com/posts/3').then(res => res.json());
+}
+
+ 
+async function processData() {
+    const iterator = fetchDataGenerator();
+    for (let result = iterator.next(); !result.done; result = iterator.next()) {
+        try {
+            const data = await result.value;  
+            console.log(data);
+        } catch (error) {
+            console.error('Failed to fetch:', error);
+        }
+    }
+}
+
+ 
+(async () => {
+    await processData();
+})();
+
+ 
+const targetObject = {
+    message: "Hello, world!",
+    greet() {
+        console.log(this.message);
+    }
+};
+
+const handler = {
+    get(target, property) {
+        if (property === 'message') {
+            return target[property].toUpperCase();
+        }
+        return target[property];
+    },
+    set(target, property, value) {
+        if (property === 'message' && typeof value === 'string') {
+            target[property] = value.trim();
+        }
+    }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+proxiedObject.greet();          
+proxiedObject.message = " Hi ";
+console.log(proxiedObject.message);  
+```

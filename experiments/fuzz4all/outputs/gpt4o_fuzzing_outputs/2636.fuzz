@@ -1,0 +1,52 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that makes use of advanced features like promises, async/await, classes, destructuring, and higher-order functions:
+
+```javascript
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async processData() {
+        try {
+            const { transformedData, sum } = await this._transformAndSumData();
+            return this._formatResult(transformedData, sum);
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    }
+
+    async _transformAndSumData() {
+        const transformedData = await new Promise((resolve) => {
+            setTimeout(() => {
+                const transformed = this.data.map(({ value }) => value * 2);
+                resolve(transformed);
+            }, 500);
+        });
+
+        const sum = transformedData.reduce((acc, curr) => acc + curr, 0);
+        return { transformedData, sum };
+    }
+
+    _formatResult(data, sum) {
+        return {
+            data: data.map((value, index) => ({ id: index, value })),
+            sum,
+        };
+    }
+}
+
+(async () => {
+    const initialData = [
+        { id: 1, value: 10 },
+        { id: 2, value: 20 },
+        { id: 3, value: 30 },
+    ];
+
+    const processor = new DataProcessor(initialData);
+    const result = await processor.processData();
+    console.log(result);
+})();
+```
+
+This program creates a `DataProcessor` class that processes data using asynchronous operations and various modern JavaScript features.

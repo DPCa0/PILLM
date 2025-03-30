@@ -1,0 +1,42 @@
+class ComplexCalculator {
+  constructor() {
+    this.operations = [];
+  }
+
+  addOperation(operation) {
+    this.operations.push(operation);
+  }
+
+  execute(value) {
+    return this.operations.reduce((acc, operation) => operation(acc), value);
+  }
+}
+
+ 
+const fetchRandomNumber = async () => {
+  const response = await fetch('https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain&rnd=new');
+  return response.text().then(Number);
+};
+
+ 
+const operationLogger = (operations) => new Proxy(operations, {
+  apply: (target, thisArg, args) => {
+    print(`Applying operation: ${target.name} with args: ${args}`);
+    return Reflect.apply(target, thisArg, args);
+  }
+});
+
+ 
+(async () => {
+  const randomNum = await fetchRandomNumber();
+
+  const calculator = new ComplexCalculator();
+  const operations = operationLogger([
+    (x) => x + randomNum,
+    (x) => x * 10,
+    (x) => Math.sqrt(x)
+  ]);
+
+  operations.forEach(op => calculator.addOperation(op));
+  print(`Result: ${calculator.execute(5)}`);
+})();

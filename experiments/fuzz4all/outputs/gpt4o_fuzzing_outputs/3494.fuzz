@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexProcessor {
+  #secretKey;
+  
+  constructor(key) {
+    this.#secretKey = key;
+  }
+
+  static async #delayedCompute(x) {
+    return new Promise(resolve => setTimeout(() => resolve(x * x), 1000));
+  }
+
+  async compute(value) {
+    const computed = await ComplexProcessor.#delayedCompute(value);
+    return `${computed}-${this.#secretKey}`;
+  }
+}
+
+ 
+const handler = {
+  get: function(obj, prop) {
+    if (prop === 'compute') {
+      console.log('Method access intercepted!');
+    }
+    return obj[prop];
+  }
+};
+
+ 
+const map = new Map();
+const weakMap = new WeakMap();
+map.set('processor', new ComplexProcessor('XYZ123'));
+
+ 
+const proxiedProcessor = new Proxy(map.get('processor'), handler);
+
+ 
+async function* asyncGenerator() {
+  yield await proxiedProcessor.compute(3);
+  yield await proxiedProcessor.compute(5);
+}
+
+(async () => {
+  for await (let result of asyncGenerator()) {
+    console.log('Computed:', result);
+  }
+})();
+```

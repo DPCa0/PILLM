@@ -1,0 +1,50 @@
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error: ', error);
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const logData = debounce(data => {
+  print('Fetched data:', data);
+}, 300);
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataFetched', logData);
+
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  eventEmitter.emit('dataFetched', data);
+})();

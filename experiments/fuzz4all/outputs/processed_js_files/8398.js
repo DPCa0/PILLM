@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 28 },
+        { id: 2, name: 'Bob', age: 23 },
+        { id: 3, name: 'Charlie', age: 32 }
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const data = await fetchData();
+    
+     
+    const processedData = data.map(({ id, name, age }) => ({
+      id,
+      fullName: `User: ${name}`,
+      ageCategory: age < 30 ? 'Young' : 'Old'
+    }));
+    
+    print(processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processData();

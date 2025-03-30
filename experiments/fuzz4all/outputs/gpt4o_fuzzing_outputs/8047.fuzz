@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class AsyncIterable {
+  constructor(max) {
+    this.max = max;
+  }
+
+  [Symbol.asyncIterator]() {
+    let count = 0;
+    return {
+      next: () => {
+        if (count < this.max) {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve({ value: count++, done: false });
+            }, Math.random() * 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+}
+
+async function* transform(asyncIterable) {
+  for await (let value of asyncIterable) {
+    yield value * 2;
+  }
+}
+
+(async () => {
+  const iterable = new AsyncIterable(5);
+  const transformed = transform(iterable);
+  const results = [];
+
+   
+  for await (const value of transformed) {
+    results.push(value);
+  }
+
+   
+  const handler = {
+    get: (target, prop, receiver) => {
+      console.log(`Accessing property ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  const proxyResults = new Proxy(results, handler);
+
+   
+  const sum = (...values) => values.reduce((acc, val) => acc + val, 0);
+  console.log('Transformed values:', ...proxyResults);
+  console.log('Sum:', sum(...proxyResults));
+})();
+```

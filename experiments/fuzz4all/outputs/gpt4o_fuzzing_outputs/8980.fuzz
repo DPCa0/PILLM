@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+
+ 
+const processFile = async (filePath) => {
+  try {
+     
+    const fileData = await readFile(filePath, 'utf-8');
+    
+     
+    const dataLines = fileData.split('\n').map(line => line.trim()).filter(Boolean);
+    
+     
+    const uniqueWords = new Set(dataLines.flatMap(line => line.split(' ')));
+    
+     
+    const wordCount = uniqueWords?.size ?? 0;
+    
+    console.log(`Unique word count in file "${filePath}": ${wordCount}`);
+  } catch (err) {
+    console.error(`Error processing file: ${err?.message ?? 'Unknown error'}`);
+  }
+};
+
+ 
+(async () => {
+   
+  const [, , ...args] = process.argv;
+  if (args.length < 1) {
+    console.error('Please provide a file path as an argument');
+    process.exit(1);
+  }
+
+   
+  for (const filePath of args) {
+    await processFile(filePath);
+  }
+})();
+```

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+async function getData(urls) {
+  const dataGenerator = fetchDataGenerator(urls);
+  
+  for await (const dataPromise of dataGenerator) {
+    const data = await dataPromise;
+    console.log(data);
+  }
+}
+
+ 
+const target = { message: "Hello, Proxy World!" };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' accessed on target.`);
+    return obj[prop];
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+const urls = [
+  "https://jsonplaceholder.typicode.com/posts/1",
+  "https://jsonplaceholder.typicode.com/posts/2"
+];
+
+ 
+getData(urls);
+
+ 
+console.log(proxy.message);
+```

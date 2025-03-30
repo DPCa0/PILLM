@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+class AsyncSequence {
+    constructor(iterable) {
+        this.iterable = iterable;
+    }
+  
+    async *[Symbol.asyncIterator]() {
+        for await (const item of this.iterable) {
+            yield await new Promise(resolve => setTimeout(() => resolve(item), 500));
+        }
+    }
+}
+
+async function* randomGenerator(limit) {
+    for (let i = 0; i < limit; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(Math.random()), Math.random() * 1000));
+    }
+}
+
+const limit = 5;
+const asyncSeq = new AsyncSequence(randomGenerator(limit));
+
+(async () => {
+    let count = 0;
+    for await (const num of asyncSeq) {
+        console.log(`Generated number ${++count}: ${num.toFixed(3)}`);
+    }
+    console.log('Done generating random numbers!');
+})();
+```

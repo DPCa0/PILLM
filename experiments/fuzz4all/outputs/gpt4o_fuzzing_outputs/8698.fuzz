@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+         
+        yield new Promise((resolve) =>
+            setTimeout(() => resolve(`Data from ${url}`), Math.random() * 2000)
+        );
+    }
+}
+
+ 
+const dataHandler = {
+    set: (obj, prop, value) => {
+        if (typeof value !== 'string') {
+            throw new TypeError('Data should be a string');
+        }
+        obj[prop] = value.toUpperCase();  
+        return true;
+    }
+};
+
+async function run() {
+    const urls = ['api/service1', 'api/service2', 'api/service3'];
+    const dataProxy = new Proxy({}, dataHandler);
+
+    for await (const promise of fetchData(urls)) {
+        try {
+            const data = await promise;
+            dataProxy[data] = data;  
+            console.log(`Processed: ${dataProxy[data]}`);
+        } catch (error) {
+            console.error(`Error processing data: ${error.message}`);
+        }
+    }
+}
+
+run().catch(console.error);
+```

@@ -1,0 +1,53 @@
+(async () => {
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const processData = ({ id, title, body }) => {
+    print(`\nPost ID: ${id}\nTitle: ${title}\nContent: ${body}`);
+  };
+
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+
+   
+  const postsData = await Promise.all([...new Set([fetchData(url), fetchData(url)])]);
+
+   
+  postsData.flatMap(postArray => postArray.slice(0, 5)).forEach(processData);
+
+   
+  const validator = {
+    set: function (obj, prop, value) {
+      if (prop === 'title' && value.length < 10) {
+        throw new Error('Title is too short.');
+      }
+      obj[prop] = value;
+      return true;
+    }
+  };
+
+  const post = new Proxy({}, validator);
+  post.title = 'This is a valid title';  
+  print(post.title);  
+
+  try {
+    post.title = 'Short';  
+  } catch (error) {
+    console.error(error.message);  
+  }
+
+   
+  const postMap = new Map();
+  const uniqueId = Symbol('id');
+  postMap.set(uniqueId, postsData[0][0]);  
+
+  const uniquePost = postMap.get(uniqueId);
+  print(`Unique Post ID: ${uniquePost.id} \nTitle: ${uniquePost.title}`);
+})();

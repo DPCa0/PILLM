@@ -1,0 +1,47 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = (msg) => new Promise((resolve) => {
+  setTimeout(() => resolve(`Operation completed: ${msg}`), Math.random() * 2000);
+});
+
+async function main() {
+  const emitter = new EventEmitter();
+
+  emitter.on('done', (result) => {
+    print(result);
+  });
+
+  emitter.on('error', (err) => {
+    console.error('Error:', err);
+  });
+
+  const operations = [
+    asyncOperation('Task 1'),
+    asyncOperation('Task 2'),
+    asyncOperation('Task 3')
+  ];
+
+  for await (const promise of operations) {
+    promise.then(result => emitter.emit('done', result))
+           .catch(err => emitter.emit('error', err));
+  }
+}
+
+main();

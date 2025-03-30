@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretMessage {
+  #message;
+  
+  constructor(message) {
+    this.#message = message;
+  }
+
+   
+  static #staticSecret = "STATIC_SECRET";
+
+   
+  static #decryptStaticSecret(key) {
+    return `${SecretMessage.#staticSecret}_${key}`;
+  }
+
+   
+  async *decrypt(key) {
+    for (let i = 0; i < this.#message.length; i++) {
+      yield new Promise(resolve => {
+        setTimeout(() => resolve(String.fromCharCode(this.#message.charCodeAt(i) ^ key)), 100);
+      });
+    }
+  }
+
+   
+  async getDecryptedMessage(key) {
+    const decryptedChars = [];
+    for await (const char of this.decrypt(key)) {
+      decryptedChars.push(char);
+    }
+    return decryptedChars.join('');
+  }
+
+   
+  getStaticDecryption(key) {
+    return SecretMessage.#decryptStaticSecret(key);
+  }
+}
+
+ 
+(async () => {
+  const secret = new SecretMessage("Khoor, Zruog!");  
+  const decrypted = await secret.getDecryptedMessage(3);
+  console.log("Decrypted message:", decrypted);
+
+  const staticDecryption = secret.getStaticDecryption("KEY123");
+  console.log("Static decryption:", staticDecryption);
+})();
+```

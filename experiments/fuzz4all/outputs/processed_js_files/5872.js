@@ -1,0 +1,57 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(size, fillFn = () => 0) {
+    return new Matrix(
+      Array.from({ length: size }, (_, i) =>
+        Array.from({ length: size }, (_, j) => fillFn(i, j))
+      )
+    );
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => fn(val, i, j))));
+  }
+
+  multiply(matrix) {
+    const size = this.data.length;
+    return new Matrix(
+      Array.from({ length: size }, (_, i) =>
+        Array.from({ length: size }, (_, j) =>
+          this.data[i].reduce((sum, _, n) => sum + this.data[i][n] * matrix.data[n][j], 0)
+        )
+      )
+    );
+  }
+
+  [Symbol.iterator]() {
+    return this.data.values();
+  }
+
+  static identity(size) {
+    return Matrix.from(size, (i, j) => (i === j ? 1 : 0));
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+function transformAndLogMatrix() {
+  const size = 3;
+  const initialMatrix = Matrix.from(size, () => Math.floor(Math.random() * 10));
+  print('Initial Matrix:\n' + initialMatrix.toString());
+
+  const squaredMatrix = initialMatrix.map(x => x ** 2);
+  print('Squared Matrix:\n' + squaredMatrix.toString());
+
+  const identity = Matrix.identity(size);
+  print('Identity Matrix:\n' + identity.toString());
+
+  const multipliedMatrix = initialMatrix.multiply(identity);
+  print('Multiplied with Identity:\n' + multipliedMatrix.toString());
+}
+
+transformAndLogMatrix();

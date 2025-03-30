@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch Error:', error);
+      return null;
+    }
+  }
+}
+
+const processUserData = async (url) => {
+  const fetcher = new DataFetcher(url);
+  const userData = await fetcher.fetchData();
+
+  if (userData) {
+     
+    const { name, email, ...rest } = userData;
+    console.log(`Name: ${name}, Email: ${email}`);
+
+     
+    const values = Object.values(rest);
+    const total = values.reduce((acc, curr) => acc + (typeof curr === 'number' ? curr : 0), 0);
+
+    console.log(`Total of numeric fields: ${total}`);
+
+     
+    console.log(`Processed data for user: ${name} with total: ${total}`);
+  }
+};
+
+const url = 'https://jsonplaceholder.typicode.com/users/1';
+processUserData(url);
+```

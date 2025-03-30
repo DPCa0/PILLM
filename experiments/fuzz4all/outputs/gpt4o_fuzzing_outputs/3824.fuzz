@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+   
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+const dataProxyHandler = {
+  get(target, property) {
+    console.log(`Accessing property "${property}"`);
+    return Reflect.get(target, property);
+  }
+};
+
+ 
+class DataLoader {
+  #url;
+
+  constructor(url) {
+    this.#url = url;
+  }
+
+  async loadData() {
+    const rawData = await fetchData(this.#url);
+     
+    return new Proxy(rawData, dataProxyHandler);
+  }
+}
+
+ 
+async function init() {
+  const url = "https://jsonplaceholder.typicode.com/posts";
+  const loader = new DataLoader(url);
+
+  const data = await loader.loadData();
+   
+  console.log(data[0]);
+
+  if (data.length > 0) {
+    const { specificFunction } = await import('./module.js');
+    specificFunction(data);
+  }
+}
+
+init();
+```
+
+Note: Make sure you have a file named `module.js` in the same directory that exports a function called `specificFunction` if you want to test the dynamic import part.

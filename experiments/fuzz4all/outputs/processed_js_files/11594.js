@@ -1,0 +1,42 @@
+class FibonacciSequence {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    *generate(n) {
+        for (let i = 0; i < n; i++) {
+            yield this.fibonacci(i);
+        }
+    }
+
+    fibonacci(n) {
+        if (n < 2) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        const result = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+        this.memo.set(n, result);
+
+        return result;
+    }
+}
+
+(async function() {
+    const fibSeq = new FibonacciSequence();
+    const numTerms = 10;
+
+    const sequence = [...fibSeq.generate(numTerms)];
+    const fetchPromises = sequence.map(num => fetch(`https: 
+
+    const results = await Promise.allSettled(fetchPromises);
+
+    const enrichedSequence = sequence.map((num, index) => {
+        const fetchResult = results[index];
+        if (fetchResult.status === "fulfilled") {
+            return { number: num, info: fetchResult.value };
+        } else {
+            return { number: num, info: 'Fetching failed' };
+        }
+    });
+
+    print(enrichedSequence);
+})();

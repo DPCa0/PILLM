@@ -1,0 +1,36 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+  }
+
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+}
+
+const asyncFunction = async (x) => {
+  const double = (n) => new Promise(resolve => setTimeout(() => resolve(n * 2), 100));
+  return await double(x);
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  const handler = async (msg) => {
+    print(msg);
+    const result = await asyncFunction(10);
+    print(`Async Result: ${result}`);
+  };
+
+  eventEmitter.on('greet', handler);
+
+  const values = [1, 2, 3];
+  const mappedValues = values.map(x => x * 2);
+  print(`Mapped Values: ${JSON.stringify(mappedValues)}`);
+
+  eventEmitter.emit('greet', 'Hello, world!');
+})();

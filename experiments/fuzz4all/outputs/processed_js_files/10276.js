@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.1) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject(`Failed to fetch from ${url}`);
+      }
+    }, Math.random() * 2000);
+  });
+};
+
+ 
+function* urlGenerator() {
+  yield 'https://api.example.com/data1';
+  yield 'https://api.example.com/data2';
+  yield 'https://api.example.com/data3';
+}
+
+ 
+const fetchAllData = async () => {
+  const urlGen = urlGenerator();
+  const urls = [...urlGen];
+  const dataMap = new Map();
+
+  try {
+     
+    const results = await Promise.all(urls.map(fetchData));
+    
+     
+    urls.forEach((url, index) => {
+      dataMap.set(url, results[index]);
+    });
+
+    print('Fetched Data:', dataMap);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  await fetchAllData();
+})();

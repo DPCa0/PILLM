@@ -1,0 +1,42 @@
+ 
+
+class WeatherFetcher {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.apiURL = 'https://api.openweathermap.org/data/2.5/weather';
+  }
+
+  async fetchWeather(city) {
+    try {
+      const response = await fetch(`${this.apiURL}?q=${city}&appid=${this.apiKey}`);
+      if (!response.ok) throw new Error('City not found');
+      const data = await response.json();
+      const { weather, main: { temp, humidity } } = data;  
+      return { weather: weather[0].description, temp, humidity };
+    } catch (error) {
+      throw new Error(`Fetching weather failed: ${error.message}`);
+    }
+  }
+}
+
+const apiKey = 'YOUR_API_KEY_HERE';
+const cities = ['New York', 'London', 'Tokyo'];
+
+const weatherApp = new WeatherFetcher(apiKey);
+
+(async () => {
+  const weatherPromises = cities.map(city => weatherApp.fetchWeather(city));  
+  try {
+    const results = await Promise.all(weatherPromises);  
+    results.forEach(({ weather, temp, humidity }, index) => {
+      print(`City: ${cities[index]}`);
+      print(`Weather: ${weather}`);
+      print(`Temperature: ${temp}K`);
+      print(`Humidity: ${humidity}%\n`);
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+
+Replace `'YOUR_API_KEY_HERE'` with a valid API key from OpenWeatherMap to make the program functional.

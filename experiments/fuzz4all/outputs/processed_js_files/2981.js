@@ -1,0 +1,59 @@
+const fetchUserData = async (userId) => {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const users = {
+        1: { name: "Alice", age: 25 },
+        2: { name: "Bob", age: 30 },
+        3: { name: "Charlie", age: 35 }
+      };
+      users[userId] ? resolve(users[userId]) : reject("User not found");
+    }, 1000);
+  });
+};
+
+const calculateAverageAge = (...ages) => {
+  const total = ages.reduce((sum, age) => sum + age, 0);
+  return total / ages.length;
+};
+
+(async () => {
+  try {
+    const userIds = [1, 2, 3];
+    const userPromises = userIds.map(id => fetchUserData(id));
+    const users = await Promise.all(userPromises);
+    
+    const userMap = new Map();
+    users.forEach(user => {
+      userMap.set(user.name, user.age);
+    });
+
+    for (const [name, age] of userMap) {
+      print(`${name} is ${age} years old.`);
+    }
+
+    const averageAge = calculateAverageAge(...userMap.values());
+    print(`The average age is ${averageAge}.`);
+    
+    const newUser = {
+      id: 4,
+      name: 'Dave',
+      age: 40
+    };
+
+    const addNewUser = (userMap, user) => {
+      const existingNames = new Set(userMap.keys());
+      if (!existingNames.has(user.name)) {
+        userMap.set(user.name, user.age);
+        print(`Added new user: ${user.name}`);
+      } else {
+        print(`User ${user.name} already exists.`);
+      }
+    };
+
+    addNewUser(userMap, newUser);
+
+  } catch (error) {
+    console.error(error);
+  }
+})();

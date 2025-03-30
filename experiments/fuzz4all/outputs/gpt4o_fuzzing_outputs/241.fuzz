@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['apples', 'bananas', 'grapes']);
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (const item of dataArray) {
+        yield item;
+    }
+}
+
+ 
+async function processData() {
+    const data = await fetchData();
+    const generator = dataGenerator(data);
+
+    for (const value of generator) {
+        console.log(`Processing: ${value}`);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Getting property: ${prop}`);
+        return prop in target ? target[prop] : null;
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const dataObject = new Proxy({ fruits: [] }, handler);
+
+ 
+(async () => {
+    await processData();
+
+    dataObject.fruits = ['kiwi', 'mango'];
+    console.log(`Current fruits: ${dataObject.fruits.join(', ')}`);
+    console.log(`Getting non-existing property: ${dataObject.nonExistent}`);
+})();
+```

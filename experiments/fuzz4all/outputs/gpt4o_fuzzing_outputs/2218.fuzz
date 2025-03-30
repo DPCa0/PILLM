@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+     
+    return response.json();
+}
+
+ 
+function processUserData(users) {
+     
+    return users.map(({ name: fullName, age, ...rest }) => ({
+        fullName,
+        age,
+        ...rest,
+        isAdult: age >= 18
+    }));
+}
+
+ 
+class User {
+    #name;
+    #age;
+
+    constructor(name, age) {
+        this.#name = name;
+        this.#age = age;
+    }
+
+     
+    #isAdult() {
+        return this.#age >= 18;
+    }
+
+    get details() {
+        return `${this.#name} is ${this.#isAdult() ? 'an adult' : 'not an adult'}`;
+    }
+
+    static createUser({ name, age }) {
+        return new User(name, age);
+    }
+}
+
+ 
+(async () => {
+    try {
+         
+        const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+        const processedData = processUserData(data);
+
+         
+        const users = processedData.map(User.createUser);
+        
+         
+        users.forEach(user => console.log(user.details));
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+})();
+```

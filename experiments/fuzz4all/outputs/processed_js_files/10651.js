@@ -1,0 +1,48 @@
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        const response = await fetch(this.url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+    }
+}
+
+async function processData(url) {
+    const request = new NetworkRequest(url);
+    try {
+        const data = await request.fetchData();
+        print(`Data fetched: ${JSON.stringify(data)}`);
+        return data.map(item => ({ ...item, processed: true }));
+    } catch (error) {
+        console.error(`Error fetching data: ${error.message}`);
+    }
+}
+
+(async () => {
+    const endpoint = 'https://jsonplaceholder.typicode.com/posts';
+    const data = await processData(endpoint);
+
+    if (data) {
+        const filteredData = data.filter(({ processed }) => processed).slice(0, 5);
+        const capitalizedTitles = filteredData.map(({ title }) =>
+            title
+                .split(' ')
+                .map(word => word[0].toUpperCase() + word.slice(1))
+                .join(' ')
+        );
+
+        console.table(
+            filteredData.map((item, index) => ({
+                ...item,
+                title: capitalizedTitles[index],
+            }))
+        );
+
+        const titlesSet = new Set(capitalizedTitles);
+        const uniqueTitles = Array.from(titlesSet);
+        print('Unique Titles:', uniqueTitles);
+    }
+})();

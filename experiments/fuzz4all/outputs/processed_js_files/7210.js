@@ -1,0 +1,51 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+  
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        for (const listener of this.events.get(event)) {
+            listener.apply(this, args);
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchWithRetry = async (url, options = {}, retries = 3) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error('Fetch error');
+            return await response.json();
+        } catch (err) {
+            if (i === retries - 1) throw err;
+            await delay(1000);
+        }
+    }
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => {
+        print('Data received:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('Error occurred:', error);
+    });
+
+    try {
+        const data = await fetchWithRetry('https://api.example.com/data');
+        emitter.emit('data', data);
+    } catch (err) {
+        emitter.emit('error', err.message);
+    }
+})();

@@ -1,0 +1,67 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static identity(n) {
+        return new Matrix(n, n).map((_, i, j) => (i === j ? 1 : 0));
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    multiply(other) {
+        if (other instanceof Matrix) {
+            if (this.cols !== other.rows)
+                throw new Error('Columns of A must match rows of B.');
+
+            return new Matrix(this.rows, other.cols).map((_, i, j) =>
+                this.data[i].reduce((sum, val, k) => sum + val * other.data[k][j], 0)
+            );
+        } else {
+            return this.map(val => val * other);
+        }
+    }
+
+    static random(rows, cols, min = 0, max = 1) {
+        return new Matrix(rows, cols).map(() =>
+            Math.random() * (max - min) + min
+        );
+    }
+
+    static transpose(matrix) {
+        return new Matrix(matrix.cols, matrix.rows).map((_, i, j) => matrix.data[j][i]);
+    }
+
+    [Symbol.iterator]() {
+        let i = 0, j = 0;
+        return {
+            next: () => {
+                if (i >= this.rows) return { done: true };
+                const value = this.data[i][j];
+                if (++j >= this.cols) (j = 0, i++);
+                return { value, done: false };
+            }
+        };
+    }
+}
+
+ 
+const A = Matrix.random(3, 3);
+const B = Matrix.identity(3);
+const C = A.multiply(B);
+print("Matrix A:");
+console.table(A.data);
+print("Matrix B:");
+console.table(B.data);
+print("Matrix C (A * B):");
+console.table(C.data);
+
+print("Iterating over Matrix A:");
+for (const value of A) {
+    print(value);
+}

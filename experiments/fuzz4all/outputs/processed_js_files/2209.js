@@ -1,0 +1,50 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr.length, 1, arr).map((e, i) => arr[i]);
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  print() {
+    console.table(this.data);
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      console.error('Columns of A must match rows of B.');
+      return;
+    }
+    return new Matrix(a.rows, b.cols).map((_, i, j) => 
+      a.data[i].reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+    );
+  }
+}
+
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const matA = new Matrix(2, 2).map(() => Math.random());
+  const matB = new Matrix(2, 3).map(() => Math.random());
+
+  print('Matrix A:');
+  matA.print();
+
+  print('Matrix B:');
+  matB.print();
+
+  await delay(1000);
+
+  print('A x B:');
+  const result = Matrix.multiply(matA, matB);
+  result.print();
+})();

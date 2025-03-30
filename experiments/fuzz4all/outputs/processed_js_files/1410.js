@@ -1,0 +1,41 @@
+ 
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Accessing property '${prop}'`);
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+const config = new Proxy({
+    url: "https://api.example.com/data",
+    method: "GET",
+    headers: { "Content-Type": "application/json" }
+}, handler);
+
+ 
+function fetchData(config) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Fetched data from ${config.url} using method ${config.method}`);
+        }, 1000);
+    });
+}
+
+ 
+async function* dataPipeline(config) {
+    print("Starting data pipeline...");
+    yield await fetchData(config);
+    yield "Processing data...";
+    yield "Data processed.";
+}
+
+ 
+(async () => {
+    const pipeline = dataPipeline(config);
+    for await (const step of pipeline) {
+        print(step);
+    }
+})();

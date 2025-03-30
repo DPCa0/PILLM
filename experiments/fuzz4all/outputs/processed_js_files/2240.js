@@ -1,0 +1,48 @@
+class ComplexSystem {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromJSON(json) {
+    return new ComplexSystem(JSON.parse(json));
+  }
+
+  *generateKeys() {
+    for (const key of Object.keys(this.data)) {
+      yield key;
+    }
+  }
+
+  processData(callback) {
+    const promises = Object.entries(this.data).map(async ([key, value]) => {
+      const result = await callback(key, value);
+      return { [key]: result };
+    });
+
+    return Promise.all(promises).then(results =>
+      results.reduce((acc, obj) => ({ ...acc, ...obj }), {})
+    );
+  }
+}
+
+(async () => {
+  const jsonData = '{"a": 1, "b": 2, "c": 3}';
+  const system = ComplexSystem.fromJSON(jsonData);
+
+  print('Keys:');
+  for (const key of system.generateKeys()) {
+    print(key);
+  }
+
+  const processedData = await system.processData(async (key, value) => {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    return value * 2;
+  });
+
+  print('Processed Data:', processedData);
+
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  print('Starting delay...');
+  await delay(500);
+  print('Delay complete.');
+})();

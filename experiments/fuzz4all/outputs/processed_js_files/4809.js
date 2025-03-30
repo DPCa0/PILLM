@@ -1,0 +1,63 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function readFileAsync(path) {
+    try {
+        const data = await fs.readFile(path, 'utf-8');
+        print(`File content:\n${data}`);
+    } catch (error) {
+        console.error(`Error reading file: ${error}`);
+    }
+}
+
+ 
+const user = { name: 'Alice', age: 30, city: 'Wonderland' };
+const { name, age, city } = user;
+print(`Name: ${name}, Age: ${age}, City: ${city}`);
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        print('Fetched data:', data);
+    } catch (error) {
+        console.error(`Fetch error: ${error}`);
+    }
+}
+
+ 
+const validator = {
+    set: function(obj, prop, value) {
+        if (prop === 'age') {
+            if (typeof value !== 'number' || value <= 0) {
+                throw new Error('Age must be a positive number');
+            }
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, validator);
+person.age = 25;  
+print(`Valid age set: ${person.age}`);
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+print(`Generated ID: ${gen.next().value}`);
+
+ 
+(async () => {
+    await readFileAsync('./sample.txt');
+    await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+})();

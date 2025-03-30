@@ -1,0 +1,43 @@
+class Fibonacci {
+  #memo = new Map();
+  
+  constructor() {
+    this.#memo.set(0, 0);
+    this.#memo.set(1, 1);
+  }
+  
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    yield prev;
+    yield curr;
+    while (true) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+  
+  calculate(n) {
+    if (this.#memo.has(n)) return this.#memo.get(n);
+    let result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.#memo.set(n, result);
+    return result;
+  }
+}
+
+const asyncPrintFibonacci = async function*(fibSeq) {
+  for (let value of fibSeq) {
+    yield new Promise(resolve => setTimeout(() => resolve(value), 500));
+  }
+};
+
+(async () => {
+  const fib = new Fibonacci();
+  const fibIter = asyncPrintFibonacci(fib);
+  
+  for await (let num of fibIter) {
+    print(num);
+    if (num > 50) break;
+  }
+  
+  print(`The 10th Fibonacci number is ${fib.calculate(10)}`);
+})();

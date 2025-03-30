@@ -1,0 +1,37 @@
+class Fibonacci {
+    constructor(maxTerms) {
+        this.maxTerms = maxTerms;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let i = 0;
+        while (i < this.maxTerms) {
+            yield this.calculate(i++);
+        }
+    }
+
+    calculate(n) {
+        if (n < 2) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        
+        let result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+async function processFibonacci(maxTerms) {
+    let fibSequence = new Fibonacci(maxTerms);
+    
+    const promises = [...fibSequence].map((num, idx) => 
+        new Promise(resolve => setTimeout(() => {
+            print(`Term ${idx + 1}: ${num}`);
+            resolve(num);
+        }, 100 * idx))
+    );
+    
+    return Promise.all(promises);
+}
+
+processFibonacci(10).then(() => print('Fibonacci sequence processed.'));

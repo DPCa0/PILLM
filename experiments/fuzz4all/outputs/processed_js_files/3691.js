@@ -1,0 +1,37 @@
+ 
+async function* fetchData() {
+  const dataChunks = [
+    { id: 1, value: 'First' },
+    { id: 2, value: 'Second' },
+    { id: 3, value: 'Third' },
+  ];
+  for (const chunk of dataChunks) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    yield chunk;
+  }
+}
+
+ 
+async function processChunks() {
+  const chunks = [];
+  for await (const chunk of fetchData()) {
+    chunks.push(chunk);
+  }
+
+   
+  const processed = await Promise.allSettled(chunks.map(async ({ id, value }) => {
+    const upperCasedValue = value.toUpperCase();
+    return { id, upperCasedValue };
+  }));
+
+  const result = processed.reduce((acc, { status, value }) => {
+    if (status === 'fulfilled') {
+      acc.push(value);
+    }
+    return acc;
+  }, []);
+
+  print(result);
+}
+
+processChunks();

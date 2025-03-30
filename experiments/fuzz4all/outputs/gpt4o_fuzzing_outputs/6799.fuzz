@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+    return this;
+  }
+  
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener.apply(this, args));
+  }
+}
+
+const asyncOperation = async () => {
+  return new Promise((resolve) => setTimeout(() => resolve('Data fetched!'), 2000));
+};
+
+(async function main() {
+  const eventEmitter = new EventEmitter();
+
+  const dataPromise = asyncOperation();
+
+  eventEmitter.on('dataReceived', data => {
+    console.log(`Event Listener 1: ${data}`);
+  });
+
+  eventEmitter.on('dataReceived', data => {
+    console.log(`Event Listener 2: ${data}`);
+  });
+
+   
+  const [data] = await Promise.all([dataPromise]);
+
+   
+  eventEmitter.emit('dataReceived', data);
+})();
+```

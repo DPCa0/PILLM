@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class ComplexMath {
+    static memoization = new Map();
+
+    static fibonacci(n) {
+        if (n <= 1) return n;
+        if (this.memoization.has(n)) return this.memoization.get(n);
+        let result = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+        this.memoization.set(n, result);
+        return result;
+    }
+
+    static *primeGenerator(limit) {
+        function isPrime(num) {
+            for (let i = 2, sqrt = Math.sqrt(num); i <= sqrt; i++) {
+                if (num % i === 0) return false;
+            }
+            return num > 1;
+        }
+        
+        let count = 0, num = 2;
+        while (count < limit) {
+            if (isPrime(num)) {
+                yield num;
+                count++;
+            }
+            num++;
+        }
+    }
+
+    static async performAsyncCalculations() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const result = [...this.primeGenerator(10)].map(prime => ({
+                    prime,
+                    fibonacci: this.fibonacci(prime)
+                }));
+                resolve(result);
+            }, 2000);
+        });
+    }
+}
+
+(async () => {
+    const results = await ComplexMath.performAsyncCalculations();
+    results.forEach(({ prime, fibonacci }) => {
+        console.log(`Prime: ${prime}, Fibonacci: ${fibonacci}`);
+    });
+})();
+```

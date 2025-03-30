@@ -1,0 +1,59 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    for (let i = 0; i < 3; i++) {
+      yield new Promise(resolve => setTimeout(() => resolve(`Value: ${i}`), 1000));
+    }
+  }
+};
+
+(async function() {
+  for await (const value of asyncIterable) {
+    print(value);
+  }
+})();
+
+const fetchData = async () => {
+  try {
+    const data = await fetch('https://api.example.com/data')
+      .then(response => response.json());
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+};
+
+const events = new EventEmitter();
+events.on('fetch', fetchData);
+events.emit('fetch');
+
+ 
+const targetObj = { a: 1, b: 2 };
+const handler = {
+  get: (target, property) => {
+    print(`Accessing property: ${property}`);
+    return target[property];
+  }
+};
+
+const proxy = new Proxy(targetObj, handler);
+print(proxy.a);
+print(proxy.b);

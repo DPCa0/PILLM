@@ -1,0 +1,49 @@
+class DataProcessor {
+  #rawData = [];
+  static instanceCount = 0;
+  
+  constructor(data = []) {
+    this.#rawData = data;
+    this.filteredData = [];
+    DataProcessor.instanceCount++;
+  }
+
+  set rawData(data) {
+    if (Array.isArray(data)) {
+      this.#rawData = data;
+      this.filterData();
+    }
+  }
+
+  get rawData() {
+    return [...this.#rawData];
+  }
+
+  filterData(callback = x => x) {
+    this.filteredData = this.#rawData.filter(callback);
+  }
+
+  async processData(asyncCallback) {
+    return await Promise.all(this.filteredData.map(asyncCallback));
+  }
+
+  static getInstanceCount() {
+    return DataProcessor.instanceCount;
+  }
+}
+
+(async () => {
+  const dataProcessor = new DataProcessor([1, 2, 3, 4, 5, 6]);
+  
+  dataProcessor.filterData(x => x % 2 === 0);
+
+  const results = await dataProcessor.processData(async (item) => {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(item * item), 100);
+    });
+  });
+
+  print('Filtered and processed data:', results);
+  print('Total instances:', DataProcessor.getInstanceCount());
+})();
+

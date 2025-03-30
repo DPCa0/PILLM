@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+async function* fetchAndTransform(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield { url, data: transformData(data) };
+  }
+}
+
+ 
+function transformData(data) {
+  return Object.entries(data)
+    .map(([key, value]) => ({ [key.toUpperCase()]: value }))
+    .reduce((acc, cur) => ({ ...acc, ...cur }), {});
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Accessing property: ${prop}`);
+    return target[prop];
+  }
+};
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+(async function main() {
+  for await (const { url, data } of fetchAndTransform(urls)) {
+    const proxiedData = new Proxy(data, handler);
+    const { TITLE, BODY } = proxiedData;
+    console.log(`Data from ${url}:`);
+    console.log(`Title: ${TITLE}`);
+    console.log(`Body: ${BODY}`);
+  }
+})();
+```

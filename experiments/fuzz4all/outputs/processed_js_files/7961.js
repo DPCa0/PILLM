@@ -1,0 +1,42 @@
+ 
+
+ 
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function fetchData(num) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Fetched data for number: ${num}`);
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    async get(target, prop, receiver) {
+        if (typeof target[prop] === 'function') {
+            const result = await Reflect.apply(target[prop], receiver, Array.from(arguments).slice(3));
+            print(result);
+            return result;
+        } else {
+            return Reflect.get(target, prop, receiver);
+        }
+    }
+};
+
+const dataFetcher = new Proxy({ fetchData }, handler);
+
+ 
+(async function main() {
+    const gen = numberGenerator();
+    for (let i = 0; i < 3; i++) {
+        const num = gen.next().value;
+        await dataFetcher.fetchData(num);
+    }
+})();

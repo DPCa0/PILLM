@@ -1,0 +1,66 @@
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+   
+  static addComplexNumbers(...numbers) {
+    return numbers.reduce(
+      (acc, num) =>
+        new ComplexNumber(acc.#real + num.#real, acc.#imaginary + num.#imaginary),
+      new ComplexNumber(0, 0)
+    );
+  }
+
+   
+  [Symbol('conjugate')]() {
+    return new ComplexNumber(this.#real, -this.#imaginary);
+  }
+
+   
+  async multiplyWithRealAsync(realNumber) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const result = new ComplexNumber(this.#real * realNumber, this.#imaginary * realNumber);
+        resolve(result);
+      }, 1000);
+    });
+  }
+
+   
+  get formatted() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'conjugate') {
+      return target[Symbol.for('conjugate')]();
+    }
+    return Reflect.get(...arguments);
+  },
+};
+
+async function demonstrateComplexFeatures() {
+  const number1 = new ComplexNumber(2, 3);
+  const number2 = new ComplexNumber(4, -5);
+  const proxyNumber = new Proxy(number1, handler);
+
+  const sum = ComplexNumber.addComplexNumbers(number1, number2);
+  print(`Sum: ${sum.formatted}`);
+
+  const product = await number1.multiplyWithRealAsync(3);
+  print(`Product: ${product.formatted}`);
+
+  const conjugate = proxyNumber.conjugate;
+  print(`Conjugate: ${conjugate.formatted}`);
+}
+
+demonstrateComplexFeatures();

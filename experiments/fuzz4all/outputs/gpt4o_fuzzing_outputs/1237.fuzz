@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { user: "Alice", age: 30, city: "Wonderland" };
+      Math.random() > 0.2 ? resolve(data) : reject("Fetch error");
+    }, 1000);
+  });
+
+ 
+async function processData(url) {
+  try {
+    const { user, ...rest } = await fetchData(url);
+    console.log(`User: ${user}, Details:`, rest);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+const logMultipleMessages = (...messages) => {
+  console.log("Logging multiple messages:");
+  messages.forEach((message, index) => console.log(`${index + 1}: ${message}`));
+};
+
+ 
+(async function main() {
+  console.log("Starting Process...");
+  
+  await processData("https://example.com/api/data");
+  
+  const messages = ["Hello", "world", "this", "is", "JavaScript"];
+  logMultipleMessages(...messages);
+
+  console.log("Process Finished.");
+})();
+```

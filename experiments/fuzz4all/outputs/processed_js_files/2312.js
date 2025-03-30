@@ -1,0 +1,53 @@
+ 
+import fetch from 'node-fetch';
+
+ 
+async function getData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const { title, body } = data;
+    return { title, body };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const dataHandler = (function() {
+  const cache = new Map();
+
+  return function(url) {
+    if (cache.has(url)) {
+      print('Fetching from cache:', url);
+      return Promise.resolve(cache.get(url));
+    }
+
+    return getData(url).then(data => {
+      cache.set(url, data);
+      return data;
+    });
+  };
+})();
+
+ 
+const formatData = ({ title, body, ...rest }) => {
+  return `
+    Title: ${title}
+    Body: ${body}
+    Additional Info: ${JSON.stringify(rest)}
+  `;
+};
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  const data = await dataHandler(url);
+  print(formatData(data));
+
+   
+  const cachedData = await dataHandler(url);
+  print(formatData(cachedData));
+})();

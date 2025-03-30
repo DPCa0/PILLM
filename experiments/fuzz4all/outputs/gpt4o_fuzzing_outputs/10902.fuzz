@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve(Math.random()), 100));
+
+ 
+(async function manageData() {
+  const dataPoints = await Promise.all([fetchData(), fetchData(), fetchData()]);
+  
+   
+  const uniqueData = [...new Set(dataPoints)];
+  const total = uniqueData.reduce((acc, val) => acc + val, 0);
+  const average = total / uniqueData.length;
+  
+  console.log(`Fetched data points: ${uniqueData}`);
+  console.log(`Total: ${total.toFixed(2)}`);
+  console.log(`Average: ${average.toFixed(2)}`);
+  
+   
+  const config = {
+    threshold: 0.5
+  };
+  
+  const configProxy = new Proxy(config, {
+    set(target, property, value) {
+      console.log(`Config change: Setting ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+  });
+
+   
+  configProxy.threshold = 0.7;
+
+   
+  const aboveThreshold = uniqueData.filter(value => value > configProxy.threshold);
+  console.log(`Data points above threshold (${configProxy.threshold}): ${aboveThreshold}`);
+})();
+```

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    calculate(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+function* fibonacciGenerator(limit) {
+    const fib = new Fibonacci();
+    let i = 0;
+    while (i <= limit) {
+        yield fib.calculate(i);
+        i++;
+    }
+}
+
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            console.log(`Property ${prop} does not exist`);
+            return undefined;
+        }
+    }
+};
+
+const sequence = new Proxy({}, handler);
+sequence.length = 10;
+
+async function displayFibonacci() {
+    const gen = fibonacciGenerator(sequence.length);
+
+    for await (const num of gen) {
+        console.log(num);
+    }
+}
+
+displayFibonacci();
+```

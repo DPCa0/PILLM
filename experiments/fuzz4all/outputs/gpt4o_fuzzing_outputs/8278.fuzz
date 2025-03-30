@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+             
+            const data = { name: "John Doe", age: 30, city: "New York" };
+            Math.random() > 0.5 ? resolve(data) : reject("Failed to fetch data");
+        }, 1000);
+    });
+}
+
+async function processUserData(url) {
+    try {
+        const userData = await fetchData(url);
+        const { name, age, city } = userData;  
+        console.log(`User ${name} is ${age} years old and lives in ${city}.`);
+
+         
+        const userWithExtraInfo = { ...userData, occupation: "Software Engineer" };
+        console.log(userWithExtraInfo);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const userHandler = {
+    get: (target, property) => {
+        console.log(`Getting property "${property}"`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting property "${property}" to "${value}"`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const userProxy = new Proxy({ name: "Jane Doe", age: 25 }, userHandler);
+userProxy.name = "Emily Clark";
+console.log(userProxy.name);
+
+processUserData("https://api.example.com/user");
+```

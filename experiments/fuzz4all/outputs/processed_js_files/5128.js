@@ -1,0 +1,56 @@
+ 
+
+function* generateNumbers() {
+    let number = 1;
+    while (true) {
+        yield number++;
+    }
+}
+
+const delayedLog = async (message, delay) => {
+    return new Promise(resolve => setTimeout(() => {
+        print(message);
+        resolve();
+    }, delay));
+}
+
+const createAsyncGenerator = (gen) => {
+    const iterator = gen();
+    return {
+        async next() {
+            const result = iterator.next();
+            if (result.done) {
+                return { done: true };
+            }
+            await delayedLog(`Number: ${result.value}`, 1000);
+            return { value: result.value, done: false };
+        }
+    };
+}
+
+const asyncGenerator = createAsyncGenerator(generateNumbers);
+
+async function logNumbers() {
+    for (let i = 0; i < 5; i++) {
+        await asyncGenerator.next();
+    }
+}
+
+ 
+const target = {
+    message: 'Hello, Proxy!',
+};
+
+const handler = {
+    get: (obj, prop) => {
+        print(`Accessing property: ${prop}`);
+        return obj[prop];
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+(async () => {
+    print(proxy.message);  
+    await logNumbers();  
+})();

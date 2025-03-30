@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+};
+
+ 
+function* asyncGenerator(urls) {
+    for (let url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const runAsyncGenerator = async (generator) => {
+    for (let promise of generator) {
+        try {
+            const data = await promise;
+            console.log('Fetched data:', data);
+        } catch (error) {
+            console.error('Error in generator:', error);
+        }
+    }
+};
+
+ 
+const urls = [
+    'https://api.github.com/users/github',
+    'https://api.github.com/users/microsoft',
+    'https://api.github.com/users/google'
+];
+
+ 
+const urlGenerator = asyncGenerator(urls);
+
+ 
+runAsyncGenerator(urlGenerator);
+```

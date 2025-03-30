@@ -1,0 +1,35 @@
+class Fibonacci {
+    #cache = new Map();
+
+    constructor() {
+        this.#cache.set(0, 0);
+        this.#cache.set(1, 1);
+    }
+
+    calculate(n) {
+        if (this.#cache.has(n)) return this.#cache.get(n);
+        const value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.#cache.set(n, value);
+        return value;
+    }
+}
+
+async function fetchFibonacciSequence(length) {
+    const fibonacci = new Fibonacci();
+    const sequence = Array.from({ length }, (_, i) => fibonacci.calculate(i));
+    
+    return new Promise(resolve => {
+        setTimeout(() => resolve(sequence), 1000);
+    });
+}
+
+const run = async () => {
+    try {
+        const sequence = await fetchFibonacciSequence(10);
+        print("Fibonacci Sequence:", sequence);
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
+
+run();

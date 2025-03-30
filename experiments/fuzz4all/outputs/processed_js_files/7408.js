@@ -1,0 +1,50 @@
+class TaskManager {
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  addTask(task, delay) {
+    const id = Symbol(task);
+    this.tasks.set(
+      id,
+      setTimeout(() => {
+        print(`Executing task: ${task}`);
+        this.tasks.delete(id);
+      }, delay)
+    );
+  }
+
+  cancelTask(taskSymbol) {
+    clearTimeout(this.tasks.get(taskSymbol));
+    this.tasks.delete(taskSymbol);
+  }
+
+  *taskIterator() {
+    for (let [id, task] of this.tasks.entries()) {
+      yield { id, task };
+    }
+  }
+}
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const manager = new TaskManager();
+
+  manager.addTask('Task 1', 1000);
+  manager.addTask('Task 2', 2000);
+
+  print('Added two tasks.');
+
+  await wait(500);
+
+  for (const { id } of manager.taskIterator()) {
+    manager.cancelTask(id);
+    print(`Cancelled a task.`);
+  }
+
+  print('All tasks cancelled.');
+
+  await wait(3000);
+  print('Done');
+})();

@@ -1,0 +1,63 @@
+class EventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, new Set());
+        }
+        this.listeners.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.listeners.has(event)) return;
+        this.listeners.get(event).forEach(listener => listener(...args));
+    }
+}
+
+const taskQueue = (function* () {
+    while (true) {
+        const task = yield;
+        try {
+            task();
+        } catch (error) {
+            console.error('Task execution error:', error);
+        }
+    }
+})();
+
+taskQueue.next();  
+
+async function delayedTask(message, delay) {
+    return new Promise(resolve => setTimeout(() => {
+        print(message);
+        resolve();
+    }, delay));
+}
+
+class ComplexApp {
+    #secret = 42;
+    
+    constructor() {
+        this.eventEmitter = new EventEmitter();
+    }
+
+    async executeTasks() {
+        this.eventEmitter.on('task', task => taskQueue.next().value(task));
+
+        for (let i = 1; i <= 5; i++) {
+            this.eventEmitter.emit('task', () => delayedTask(`Task ${i} done`, i * 500));
+        }
+    }
+
+    revealSecret() {
+        print(`The secret is: ${this.#secret}`);
+    }
+}
+
+(async function main() {
+    const app = new ComplexApp();
+    await app.executeTasks();
+    app.revealSecret();
+})();

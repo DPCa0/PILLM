@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: `Data from ${url}` });
+        }, 1000);
+    });
+}
+
+ 
+function* urlGenerator() {
+    yield 'https://api.example.com/endpoint1';
+    yield 'https://api.example.com/endpoint2';
+    yield 'https://api.example.com/endpoint3';
+}
+
+ 
+const loggingHandler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property} from target`);
+        return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value} in target`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+ 
+const dataStore = new Proxy({}, loggingHandler);
+
+ 
+async function processUrls(generator) {
+    for (const url of generator) {
+        const response = await fetchData(url);
+        const key = url.split('/').pop();
+        dataStore[key] = response.data;
+    }
+}
+
+ 
+(async function main() {
+    const urls = urlGenerator();
+    await processUrls(urls);
+    console.log('Final data store:', dataStore);
+})();
+```

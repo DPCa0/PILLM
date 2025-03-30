@@ -1,0 +1,43 @@
+ 
+
+ 
+async function* dataStream() {
+    const data = [1, 2, 3, 4, 5];
+    for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        yield item * 2;  
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            return `Property ${prop}: ${Reflect.get(target, prop, receiver)}`;
+        }
+        return `Property ${prop} not found!`;
+    },
+    set: function(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const proxyObject = new Proxy({a: 1, b: 2}, handler);
+
+ 
+async function processData() {
+    print(proxyObject.a);
+    print(proxyObject.c);  
+
+    proxyObject.c = 3;  
+
+    print(proxyObject.c);
+
+    for await (const value of dataStream()) {
+        print(`Received: ${value}`);
+    }
+}
+
+ 
+processData();

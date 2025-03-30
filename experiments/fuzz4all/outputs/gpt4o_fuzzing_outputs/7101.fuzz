@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map();
+    this.memo.set(0, 0);
+    this.memo.set(1, 1);
+  }
+
+  getFibonacci(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const result = this.getFibonacci(n - 1) + this.getFibonacci(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const sequence = new FibonacciSequence();
+
+async function* asyncFibonacciGenerator(count) {
+  for (let i = 0; i < count; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 50));  
+    yield sequence.getFibonacci(i);
+  }
+}
+
+(async () => {
+  const generator = asyncFibonacciGenerator(10);
+
+  for await (let num of generator) {
+    console.log(`Fibonacci: ${num}`);
+  }
+})();
+```

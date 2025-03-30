@@ -1,0 +1,44 @@
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok.');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const complexCalculation = memoize((num) => {
+  print(`Calculating for ${num}`);
+  return num ** 2 * Math.sqrt(num) / Math.log(num);
+});
+
+async function main() {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const dataFetcher = new DataFetcher(url);
+
+  const data = await dataFetcher.fetchData();
+  print('Fetched data:', data);
+
+  const results = [4, 8, 12, 8, 4].map(complexCalculation);
+  print('Calculation results:', results);
+}
+
+main();

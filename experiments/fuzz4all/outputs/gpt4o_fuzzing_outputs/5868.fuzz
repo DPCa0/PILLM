@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const fs = await import('fs').then(module => module.promises);
+
+   
+  async function readFiles(files) {
+    try {
+      const contents = await Promise.all(files.map(file => fs.readFile(file, 'utf-8')));
+      return contents;
+    } catch (err) {
+      console.error('Error reading files:', err);
+    }
+  }
+
+   
+  const loggerHandler = {
+    get(target, prop, receiver) {
+      console.log(`Accessing property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  const data = {
+    name: 'Advanced JavaScript',
+    version: 'ES2023',
+    features: ['dynamic import', 'async/await', 'Proxy', 'Promise.all', 'Reflect']
+  };
+
+  const loggedData = new Proxy(data, loggerHandler);
+
+   
+  const { name, version = 'ES2022', features, ...rest } = loggedData;
+  
+   
+  const [firstFeature, secondFeature, thirdFeature = 'defaultFeature'] = features;
+
+  console.log(`Name: ${name}, Version: ${version}`);
+  console.log(`First Feature: ${firstFeature}, Second Feature: ${secondFeature}, Third Feature: ${thirdFeature}`);
+  
+   
+  const files = ['./file1.txt', './file2.txt'];
+  const fileContents = await readFiles(files);
+  console.log('File Contents:', fileContents);
+})();
+```
+
+Note: This code requires Node.js and the creation of files `file1.txt` and `file2.txt` with some text content for the asynchronous file reading part to function correctly.

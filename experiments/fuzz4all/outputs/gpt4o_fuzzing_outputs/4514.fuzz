@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+async function delayedMessage(delay, message) {
+    return new Promise(resolve => setTimeout(() => resolve(message), delay));
+}
+
+ 
+async function complexExample() {
+     
+    const numSet = new Set([1, 2, 3, 4, 5]);
+    const numMap = new Map([...numSet].map(num => [num, num * num]));
+
+    console.log('Map of numbers and their squares:', numMap);
+
+     
+    const [first, ...rest] = [...numSet];
+    console.log(`First: ${first}, Rest: ${rest}`);
+
+     
+    const user = { name: "Alice", age: 25 };
+    const contact = { email: "alice@example.com" };
+    const fullProfile = { ...user, ...contact };
+
+    console.log('Full User Profile:', fullProfile);
+
+     
+    console.log('Fetching delayed message...');
+    const message = await delayedMessage(1000, 'Hello, world!');
+    console.log(message);
+}
+
+ 
+const handler = {
+    get: function(target, property) {
+        if (property in target) {
+            return target[property];
+        } else {
+            return `Property "${property}" is not available.`;
+        }
+    }
+};
+
+const person = new Proxy({ name: 'John', age: 30 }, handler);
+console.log('Proxy Example:', person.name);
+console.log('Proxy Example:', person.location);
+
+ 
+complexExample().then(() => console.log('Complex Example Execution Complete.'));
+```

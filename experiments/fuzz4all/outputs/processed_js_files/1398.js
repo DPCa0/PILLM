@@ -1,0 +1,30 @@
+ 
+
+ 
+function* dataGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve({ name: "Alice" }), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve({ age: 30 }), 500));
+  yield new Promise((resolve) => setTimeout(() => resolve({ country: "Wonderland" }), 200));
+}
+
+ 
+async function fetchData(gen) {
+  let results = {};
+  for (let promise of gen) {
+    const data = await promise;
+    results = { ...results, ...data };
+  }
+  return results;
+}
+
+ 
+(async () => {
+  const generator = dataGenerator();
+  const person = await fetchData(generator);
+
+   
+  const { name, age, country } = person;
+
+   
+  print(`Name: ${name}, Age: ${age}, Country: ${country}`);
+})();

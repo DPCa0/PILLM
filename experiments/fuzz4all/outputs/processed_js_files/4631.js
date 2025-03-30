@@ -1,0 +1,42 @@
+ 
+const fetch = require('node-fetch');
+
+function* fibonacci(n) {
+  let a = 0, b = 1, current = 0;
+  while (n-- > 0) {
+    current = a;
+    a = b;
+    b = a + current;
+    yield current;
+  }
+}
+
+async function getData(url) {
+  const response = await fetch(url);
+  return await response.json();
+}
+
+async function main() {
+  try {
+    const fibNumbers = [];
+    for (let num of fibonacci(5)) {
+      fibNumbers.push(num);
+    }
+    print('First 5 Fibonacci numbers:', fibNumbers);
+
+    const data = await getData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', data);
+
+    const enhancedData = {
+      ...data,
+      fibNumbers
+    };
+
+    print('Enhanced Data:', enhancedData);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+main();

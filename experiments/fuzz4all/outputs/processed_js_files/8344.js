@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch data: ${error}`);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  const filtered = data.filter(({ active }) => active);
+  return filtered.map(({ id, name }) => ({ id, name }));
+};
+
+const displayData = async (url) => {
+  const data = await fetchData(url);
+  if (!data) return;
+
+  const processedData = processData(data);
+  const formattedData = processedData
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .reduce(
+      (acc, { id, name }) => ({ ...acc, [id]: name }),
+      {}
+    );
+
+  const entries = Object.entries(formattedData);
+
+  console.table(entries);
+};
+
+ 
+displayData('https://jsonplaceholder.typicode.com/users');

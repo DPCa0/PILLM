@@ -1,0 +1,46 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const transformedData = await this.transformData(this.data);
+      const validatedData = this.validateData(transformedData);
+      return this.finalizeData(validatedData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  transformData(data) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Array.isArray(data)) {
+          resolve(data.map(item => item * 2));
+        } else {
+          reject(new Error('Data must be an array'));
+        }
+      }, 1000);
+    });
+  }
+
+  validateData(data) {
+    if (data.every(item => item > 0)) {
+      return data;
+    } else {
+      throw new Error('Validation failed: all items must be greater than 0');
+    }
+  }
+
+  finalizeData(data) {
+    return data.reduce((acc, item) => acc + item, 0);
+  }
+}
+
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new AsyncProcessor(data);
+  const result = await processor.processData();
+  print('Processed Data Result:', result);
+})();

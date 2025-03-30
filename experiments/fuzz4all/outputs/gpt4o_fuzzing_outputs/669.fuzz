@@ -1,0 +1,91 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const target = {
+    name: "Advanced JavaScript",
+    level: "Complex"
+};
+
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting ${prop}`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve("Data fetched!");
+        }, 1000);
+    });
+}
+
+async function asyncOperation() {
+    const data = await fetchData();
+    console.log(data);
+}
+
+ 
+class Example {
+    constructor(param) {
+        this.param = param;
+    }
+    display() {
+        console.log(`Example parameter: ${this.param}`);
+    }
+}
+
+const instance = Reflect.construct(Example, ["Reflective"]);
+instance.display();
+
+ 
+const advancedFeature = "Proxy, Promises, Reflect";
+console.log(`Exploring advanced features: ${advancedFeature}`);
+
+ 
+const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2']
+]);
+
+map.forEach((value, key) => console.log(`${key}: ${value}`));
+
+ 
+const config = {
+    settings: {
+        theme: null
+    }
+};
+
+const theme = config.settings?.theme ?? 'default';
+console.log(`Theme: ${theme}`);
+
+ 
+function* generator() {
+    yield 'First value';
+    yield 'Second value';
+}
+
+const gen = generator();
+console.log(gen.next().value);
+console.log(gen.next().value);
+
+ 
+asyncOperation();
+
+ 
+console.log(proxy.name);
+proxy.level = "Intermediate";
+console.log(proxy.level);
+```

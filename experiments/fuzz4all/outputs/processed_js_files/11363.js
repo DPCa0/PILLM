@@ -1,0 +1,43 @@
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), 1000);
+    });
+}
+
+ 
+async function* dataGenerator(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const cache = new Map();
+const handler = {
+    async apply(target, thisArg, args) {
+        const url = args[0];
+        if (cache.has(url)) {
+            return `Cached: ${cache.get(url)}`;
+        }
+        const result = await target.apply(thisArg, args);
+        cache.set(url, result);
+        return result;
+    }
+};
+
+const proxiedFetchData = new Proxy(fetchData, handler);
+
+ 
+(async () => {
+    const urls = ["https://api.example.com/1", "https://api.example.com/2"];
+    const generator = dataGenerator(urls);
+
+    for await (const dataPromise of generator) {
+        const data = await proxiedFetchData(dataPromise);
+        print(data);
+    }
+    
+     
+    print(await proxiedFetchData("https://api.example.com/1"));
+})();

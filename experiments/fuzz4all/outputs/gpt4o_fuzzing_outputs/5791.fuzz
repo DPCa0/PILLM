@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOp = async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await delay(1000);
+  return Math.random() > 0.5 ? 'Success' : new Error('Failure');
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('success', message => console.log(`Success: ${message}`));
+  eventEmitter.on('error', error => console.error(`Error: ${error.message}`));
+
+  try {
+    const result = await asyncOp();
+    if (result instanceof Error) throw result;
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+})();
+
+const multiply = (a, b) => a * b;
+const numbers = [1, 2, 3, 4, 5];
+const product = numbers.reduce((acc, num) => multiply(acc, num), 1);
+console.log(`The product of numbers is ${product}`);
+
+const add = (x, y) => new Promise(resolve => resolve(x + y));
+const square = x => new Promise(resolve => resolve(x * x));
+
+(async function pipeAsyncFunctions() {
+  const res = await add(3, 4)
+    .then(square)
+    .then(add.bind(null, 10))
+    .catch(err => console.error('Error in pipeline:', err));
+  console.log(`Result from piped functions: ${res}`);
+})();
+```

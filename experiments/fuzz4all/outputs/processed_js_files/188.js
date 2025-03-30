@@ -1,0 +1,57 @@
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.resolve = null;
+    }
+    [Symbol.asyncIterator]() {
+        return {
+            next: () => this.next()
+        };
+    }
+    enqueue(item) {
+        if (this.resolve) {
+            this.resolve({ value: item, done: false });
+            this.resolve = null;
+        } else {
+            this.queue.push(item);
+        }
+    }
+    next() {
+        if (this.queue.length > 0) {
+            return Promise.resolve({ value: this.queue.shift(), done: false });
+        }
+        return new Promise(resolve => (this.resolve = resolve));
+    }
+}
+
+async function* fetchData(urls) {
+    const results = urls.map(url => fetch(url).then(response => response.json()));
+    for (const resultPromise of results) {
+        const result = await resultPromise;
+        yield result;
+    }
+}
+
+async function processUrls(urls) {
+    const queue = new AsyncIterableQueue();
+    
+    (async () => {
+        for await (const data of fetchData(urls)) {
+            queue.enqueue(data);
+        }
+        queue.enqueue(null);  
+    })();
+
+    for await (const item of queue) {
+        if (item === null) break;
+        print(item);
+    }
+}
+
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+processUrls(urls);

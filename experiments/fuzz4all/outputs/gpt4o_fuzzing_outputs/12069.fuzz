@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() {
+    return `Hello, ${this.name}!`;
+  }
+}
+
+const delayedUpperCase = (str) =>
+  new Promise((resolve) => setTimeout(() => resolve(str.toUpperCase()), 1000));
+
+async function asyncGreet(user) {
+  const message = user.greet();
+  const loudMessage = await delayedUpperCase(message);
+  console.log(loudMessage);
+}
+
+ 
+const userHandler = {
+  get(target, prop, receiver) {
+    console.log(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property: ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  },
+};
+
+const user = new Proxy(new User("Alice"), userHandler);
+
+asyncGreet(user);
+
+user.name = "Bob";  
+console.log(user.name);  
+```

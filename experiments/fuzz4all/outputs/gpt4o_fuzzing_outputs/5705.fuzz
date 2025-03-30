@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id: 1, name: "Sample Data" };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+ 
+const dataHandler = {
+    get(target, property) {
+        console.log(`Getting ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const uniqueId = Symbol("id");
+
+ 
+(async () => {
+    try {
+        console.log("Fetching data...");
+        const data = await fetchData();
+        
+         
+        const { id, name } = data;
+
+         
+        const proxiedData = new Proxy(data, dataHandler);
+
+         
+        console.log("Fetched Data ID:", proxiedData.id);  
+        proxiedData.name = "Updated Data";  
+        console.log("Updated Data Name:", proxiedData.name);  
+
+         
+        proxiedData[uniqueId] = `Unique-${id}`;
+
+        console.log("Data with unique ID:", proxiedData);
+
+         
+        console.log("Iterating over data:");
+        for (const [key, value] of Object.entries(proxiedData)) {
+            console.log(`${key}: ${value}`);
+        }
+
+        console.log(`Unique Identifier: ${proxiedData[uniqueId]}`);
+
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();
+```

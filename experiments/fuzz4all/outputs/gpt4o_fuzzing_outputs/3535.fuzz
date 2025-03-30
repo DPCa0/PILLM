@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) listeners.forEach(listener => listener(...args));
+    }
+}
+
+const fetchWithTimeout = async (url, ms) => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), ms);
+
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        return response.json();
+    } catch (error) {
+        throw new Error('Fetch timed out');
+    } finally {
+        clearTimeout(timeout);
+    }
+};
+
+async function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+const eventBus = new EventEmitter();
+
+eventBus.on('data', async (url) => {
+    try {
+        const data = await fetchWithTimeout(url, 5000);
+        console.log('Data fetched:', data);
+    } catch (error) {
+        console.error('Failed to fetch data:', error.message);
+    }
+});
+
+eventBus.on('fib', async (limit) => {
+    const fibGen = fibonacciGenerator(limit);
+    for await (const num of fibGen) {
+        console.log('Fibonacci:', num);
+    }
+});
+
+eventBus.emit('data', 'https://jsonplaceholder.typicode.com/posts/1');
+eventBus.emit('fib', 1000);
+```

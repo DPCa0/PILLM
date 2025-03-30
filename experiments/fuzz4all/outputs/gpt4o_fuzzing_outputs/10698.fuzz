@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const SymbolIterator = Symbol.iterator;
+function* createIdGenerator() {
+  let id = 1;
+  while (true) yield id++;
+}
+
+const idGen = createIdGenerator();
+console.log(idGen.next().value);  
+console.log(idGen.next().value);  
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value, receiver) => {
+    console.log(`Setting property "${prop}" to "${value}"`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const user = { name: 'John', age: 30 };
+const proxiedUser = new Proxy(user, handler);
+
+console.log(proxiedUser.name);  
+proxiedUser.age = 31;  
+
+ 
+const complexData = {
+  id: 1,
+  details: {
+    name: 'Jane',
+    hobbies: ['reading', 'travelling']
+  }
+};
+
+const {
+  details: { name, hobbies: [hobby1] }
+} = complexData;
+
+console.log(name);  
+console.log(hobby1);  
+
+ 
+const map = new Map([
+  ['key1', 'value1'],
+  ['key2', 'value2']
+]);
+
+const set = new Set([1, 2, 3, 4, 4, 5]);
+
+console

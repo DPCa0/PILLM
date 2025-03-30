@@ -1,0 +1,85 @@
+ 
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+ 
+function* dataProcessor(data) {
+  for (const item of data) {
+    yield processData(item);
+  }
+}
+
+ 
+function processData(item) {
+   
+  return {
+    id: item.id,
+    description: item.title.toUpperCase(),
+    isActive: item.completed
+  };
+}
+
+ 
+const asyncIterable = {
+  [Symbol.asyncIterator]() {
+    let i = 0;
+    return {
+      next() {
+        if (i < 3) {
+          return Promise.resolve({ value: `asyncValue${i++}`, done: false });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+};
+
+async function main() {
+  const url = 'https://jsonplaceholder.typicode.com/todos';
+  const data = await fetchData(url);
+
+  const processedData = [];
+  for (let result of dataProcessor(data)) {
+    processedData.push(result);
+  }
+  print('Processed Data:', processedData);
+
+  print('Async Iterable Values:');
+  for await (const value of asyncIterable) {
+    print(value);
+  }
+}
+
+ 
+const user = {
+  name: 'John Doe',
+  age: 25
+};
+
+const handler = {
+  set(target, property, value) {
+    if (property === 'age') {
+      if (!Number.isInteger(value)) {
+        throw new TypeError('Age must be an integer');
+      }
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxyUser = new Proxy(user, handler);
+proxyUser.age = 30;  
+ 
+
+main();

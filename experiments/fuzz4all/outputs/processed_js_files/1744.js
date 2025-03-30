@@ -1,0 +1,55 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+const asyncOperation = async (number) => {
+  const delay = Math.floor(Math.random() * 3000) + 1000;
+  return new Promise((resolve) => setTimeout(() => resolve(number * 2), delay));
+};
+
+const performOperations = async (numbers) => {
+  return Promise.all(numbers.map(async number => await asyncOperation(number)));
+};
+
+const main = async () => {
+  const numbers = [1, 2, 3, 4, 5];
+  const emitter = new EventEmitter();
+
+  emitter.on('operationCompleted', (result) => {
+    print('Operations completed with result:', result);
+  });
+
+  emitter.on('operationFailed', (error) => {
+    console.error('Operation failed:', error);
+  });
+
+  try {
+    const results = await performOperations(numbers);
+    emitter.emit('operationCompleted', results);
+  } catch (error) {
+    emitter.emit('operationFailed', error);
+  }
+};
+
+main();

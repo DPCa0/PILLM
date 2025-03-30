@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, elements = []) {
+        this.rows = rows;
+        this.cols = cols;
+        this.elements = elements.length ? elements : Array(rows * cols).fill(0);
+    }
+
+    static identity(size) {
+        return new Matrix(size, size, 
+            Array.from({length: size*size}, (_, i) => i % (size+1) === 0 ? 1 : 0));
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) throw new Error("Incompatible matrices for multiplication.");
+        let result = new Matrix(a.rows, b.cols);
+        for (let i = 0; i < a.rows; i++) {
+            for (let j = 0; j < b.cols; j++) {
+                let sum = 0;
+                for (let k = 0; k < a.cols; k++) {
+                    sum += a.elements[i * a.cols + k] * b.elements[k * b.cols + j];
+                }
+                result.elements[i * b.cols + j] = sum;
+            }
+        }
+        return result;
+    }
+
+    *[Symbol.iterator]() {
+        for (let i = 0; i < this.rows; i++) {
+            yield this.elements.slice(i * this.cols, (i + 1) * this.cols);
+        }
+    }
+
+    toString() {
+        return [...this].map(row => row.join('\t')).join('\n');
+    }
+}
+
+ 
+const A = new Matrix(2, 3, [1, 2, 3, 4, 5, 6]);
+const B = new Matrix(3, 2, [7, 8, 9, 10, 11, 12]);
+const C = Matrix.multiply(A, B);
+
+console.log('Matrix A:\n' + A.toString());
+console.log('Matrix B:\n' + B.toString());
+console.log('Matrix C (A * B):\n' + C.toString());
+console.log('Identity Matrix of size 3:\n' + Matrix.identity(3).toString());
+```

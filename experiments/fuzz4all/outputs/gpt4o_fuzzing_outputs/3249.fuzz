@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+     
+    const uniqueKey = Symbol("unique");
+
+    const handler = {
+        get: (obj, prop) => {
+            if (prop === uniqueKey) {
+                return `Accessed unique property with value: ${obj[prop]}`;
+            }
+            return `Property ${prop} is not available`;
+        },
+        set: (obj, prop, value) => {
+            console.log(`Setting value ${value} to property ${prop}`);
+            obj[prop] = value;
+            return true;
+        }
+    };
+
+    let obj = new Proxy({}, handler);
+    obj[uniqueKey] = "secretValue";
+
+    console.log(obj[uniqueKey]);  
+
+     
+    const map = new Map();
+    const set = new Set();
+
+    map.set('key1', 'value1');
+    map.set('key2', 'value2');
+    set.add(1);
+    set.add(2);
+
+    for (let [key, value] of map) {
+        console.log(`Map entry: ${key} = ${value}`);
+    }
+
+    for (let value of set) {
+        console.log(`Set entry: ${value}`);
+    }
+
+     
+    const asyncIterable = {
+        [Symbol.asyncIterator]: async function* () {
+            for (let i = 0; i < 3; i++) {
+                await delay(1000);  
+                yield fetch(`https: 
+                    .then(response => response.json());
+            }
+        }
+    };
+
+    console.log('Fetching data asynchronously:');
+    for await (let data of asyncIterable) {
+        console.log(`Fetched post: ${data.title}`);
+    }
+
+     
+    function complexFunction({x = 0, y = 0, z = 0} = {}) {
+        return (x + y + z) ** 2;
+    }
+
+    console.log(complexFunction({x: 2, y: 3}));  
+})();
+```

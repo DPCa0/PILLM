@@ -1,0 +1,41 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { message: 'Hello, world!' };
+      Math.random() > 0.1 ? resolve(data) : reject('Fetch error');
+    }, 1000);
+  });
+}
+
+ 
+async function displayMessage() {
+  try {
+     
+    const { message } = await fetchData('https://example.com/data');
+    print(message);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+(async () => {
+   
+  function* idGenerator() {
+    let id = 1;
+    while (true) {
+      yield id++;
+    }
+  }
+
+   
+  const generateId = idGenerator();
+
+   
+  for (let i = 0; i < 5; i++) {
+    print(`Unique ID: ${generateId.next().value}`);
+  }
+  
+  await displayMessage();
+})();

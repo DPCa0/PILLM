@@ -1,0 +1,44 @@
+class AsyncDataProcessor {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async *fetchData() {
+    for (const url of this.urls) {
+      yield fetch(url)
+        .then(response => response.json())
+        .catch(error => ({ error: `Failed to fetch ${url}: ${error.message}` }));
+    }
+  }
+
+  async process() {
+    let result = [];
+    for await (const data of this.fetchData()) {
+      if (data.error) {
+        console.error(data.error);
+        continue;
+      }
+      result = result.concat(this.transformData(data));
+    }
+    return result;
+  }
+
+  transformData(data) {
+    return data.map(item => ({
+      id: item.id,
+      name: item.name.toUpperCase(),
+      isActive: !!item.active
+    }));
+  }
+}
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2'
+];
+
+(async () => {
+  const processor = new AsyncDataProcessor(urls);
+  const processedData = await processor.process();
+  print('Processed Data:', processedData);
+})();

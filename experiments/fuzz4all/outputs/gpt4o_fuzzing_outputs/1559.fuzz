@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fakeApi = (endpoint) => new Promise((resolve) => {
+  setTimeout(() => {
+    const data = {
+      '/user': { id: 1, name: 'John Doe' },
+      '/posts': [{ id: 1, title: 'Hello World' }, { id: 2, title: 'Advanced JS' }],
+      '/comments': [{ postId: 1, text: 'Great post!' }, { postId: 2, text: 'Very informative!' }]
+    };
+    resolve(data[endpoint]);
+  }, Math.random() * 1000);
+});
+
+ 
+function* apiSequence() {
+  yield fakeApi('/user');
+  yield fakeApi('/posts');
+  yield fakeApi('/comments');
+}
+
+ 
+const fetchData = async (sequence) => {
+  for (let request of sequence) {
+    const data = await request;
+    console.log(data);
+  }
+};
+
+ 
+(async () => {
+  const gen = apiSequence();
+  const [user, posts, comments] = await Promise.all(Array.from({length: 3}, () => gen.next().value));
+  
+   
+  const { name } = user;
+  console.log(`User: ${name}`);
+  console.log('Posts:');
+  posts.forEach(({ title }) => console.log(`- ${title}`));
+  console.log('Comments:');
+  comments.forEach(({ text }) => console.log(`* ${text}`));
+  
+   
+  console.log('\nFetching Data Sequentially:');
+  await fetchData(apiSequence());
+})();
+```

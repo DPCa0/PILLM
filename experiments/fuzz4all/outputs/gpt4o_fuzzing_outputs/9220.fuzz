@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+    const { timeout = 8000 } = options;
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(resource, {
+        ...options,
+        signal: controller.signal  
+    });
+    clearTimeout(id);
+    return response;
+}
+
+async function* paginatedFetch(url, pageSize = 5) {
+    let page = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+        const response = await fetchWithTimeout(`${url}?page=${page}&size=${pageSize}`);
+        const data = await response.json();
+        yield data.items;
+
+        hasMore = data.hasMore;
+        page++;
+    }
+}
+
+(async () => {
+    const baseUrl = 'https://api.example.com/data';
+    for await (const items of paginatedFetch(baseUrl, 3)) {
+        console.log('Fetched items:', items);
+    }
+})();
+
+const deferred = new Deferred();
+deferred.promise.then(() => console.log('Deferred resolved!'));
+setTimeout(() => deferred.resolve(), 2000);
+```

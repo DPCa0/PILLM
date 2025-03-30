@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const target = {
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 30,
+};
+
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'fullName') {
+      return `${obj.firstName} ${obj.lastName}`;
+    }
+    return prop in obj ? obj[prop] : `Property "${prop}" does not exist`;
+  },
+  set: (obj, prop, value) => {
+    if (prop === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    obj[prop] = value;
+    return true;
+  },
+};
+
+const personProxy = new Proxy(target, handler);
+
+ 
+function* propertyIterator(obj) {
+  for (const key of Object.keys(obj)) {
+    yield `${key}: ${obj[key]}`;
+  }
+}
+
+ 
+async function fetchData() {
+  const dataPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ success: true, data: personProxy });
+    }, 1000);
+  });
+
+  const { success, data } = await dataPromise;
+  if (success) {
+    console.log('Data fetched successfully:');
+    for (const entry of propertyIterator(data)) {
+      console.log(entry);
+    }
+  }
+}
+
+ 
+console.log(personProxy.fullName);
+try {
+  personProxy.age = 'thirty';  
+} catch (e) {
+  console.error(e.message);
+}
+
+ 
+fetchData();
+```

@@ -1,0 +1,45 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+    try {
+         
+        const [filePath, searchTerm] = process.argv.slice(2);
+        
+         
+        const highlight = (strings, ...values) => {
+            return strings.reduce((prev, curr, i) => prev + curr + (values[i] ? `\x1b[31m${values[i]}\x1b[0m` : ''), '');
+        };
+        
+         
+        const data = await fs.readFile(filePath, 'utf8');
+        
+         
+        let matches = data.match(new RegExp(searchTerm, 'gi'))?.length ||= 0;
+        
+         
+        let result = matches ? `${matches} occurrences found.` : 'No occurrences found.';
+
+         
+        const lines = data.split('\n').filter(line => line.includes(searchTerm));
+        
+         
+        function* lineGenerator(lines) {
+            for (const line of lines) {
+                yield line;
+            }
+        }
+        
+         
+        for (const line of lineGenerator(lines)) {
+            print(highlight`${line}`);
+        }
+        
+        print(result);
+
+    } catch (error) {
+         
+        console.error('Error occurred:', error?.message ?? 'Unknown error');
+    }
+})();

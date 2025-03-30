@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+
+  async execute() {
+    console.log(`Executing task: ${this.name}`);
+    return new Promise(resolve => setTimeout(() => {
+      console.log(`Completed task: ${this.name}`);
+      resolve(this.name);
+    }, this.duration));
+  }
+}
+
+async function* taskGenerator(tasks) {
+  for (const task of tasks) {
+    yield await task.execute();
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const tasks = [
+  new Task('Task 1', 1000),
+  new Task('Task 2', 2000),
+  new Task('Task 3', 1500),
+];
+
+const runTasks = async () => {
+  console.log('Starting Task Execution:');
+  const taskGen = taskGenerator(tasks);
+
+  for await (const taskName of taskGen) {
+    console.log(`Yielded task: ${taskName}`);
+    await delay(500);  
+  }
+
+  console.log('All tasks have been executed.');
+};
+
+runTasks().catch(console.error);
+```

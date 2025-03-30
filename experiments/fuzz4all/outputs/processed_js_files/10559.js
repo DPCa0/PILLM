@@ -1,0 +1,43 @@
+ 
+
+class WeatherService {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseURL = 'https://api.openweathermap.org/data/2.5/';
+  }
+
+  async fetchWeather(city) {
+    try {
+      const response = await fetch(`${this.baseURL}weather?q=${city}&appid=${this.apiKey}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetching weather data failed:', error);
+    }
+  }
+}
+
+class WeatherApp {
+  constructor(apiKey) {
+    this.weatherService = new WeatherService(apiKey);
+  }
+
+  async getCityWeather(city) {
+    const weatherData = await this.weatherService.fetchWeather(city);
+    if (weatherData) this.displayWeather(weatherData);
+  }
+
+  displayWeather({ name, main: { temp }, weather: [{ description }] }) {
+    print(`Weather in ${name}:`);
+    print(`Temperature: ${(temp - 273.15).toFixed(2)}°C`);
+    print(`Description: ${description.charAt(0).toUpperCase() + description.slice(1)}`);
+  }
+}
+
+const apiKey = 'your_openweather_api_key_here';  
+const app = new WeatherApp(apiKey);
+
+const cities = ['New York', 'London', 'Tokyo'];
+cities.forEach(city => app.getCityWeather(city));
+Make sure to replace `'your_openweather_api_key_here'` with an actual OpenWeather API key for the code to work correctly.

@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOp = (msg, delay) => 
+  new Promise(resolve => setTimeout(() => resolve(`Resolved: ${msg}`), delay));
+
+ 
+async function* asyncGenerator() {
+  yield await asyncOp('First operation', 1000);
+  yield await asyncOp('Second operation', 2000);
+  yield await asyncOp('Third operation', 1500);
+}
+
+ 
+(async () => {
+  for await (const result of asyncGenerator()) {
+    console.log(result);
+  }
+})();
+
+ 
+const target = { value: 42 };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Getting ${prop}`);
+    return prop in obj ? obj[prop] : 'Property does not exist';
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+console.log(proxy.value);  
+proxy.value = 100;  
+console.log(proxy.newProp);  
+
+ 
+const map = new Map();
+const set = new Set();
+const sym = Symbol('uniqueKey');
+
+map.set(sym, 'Value for Symbol Key');
+set.add(sym);
+
+console.log(map.get(sym));  
+console.log(set.has(sym));  
+
+ 
+const [a, b, ...rest] = [1, 2, 3, 4, 5];
+console.log(a, b);  
+console.log(rest);  
+
+const obj = { x: 10, y: 20, z: 30 };
+const { x, ...remaining } = obj;
+console.log(x);  
+console.log(remaining);  
+
+ 
+class MyClass {
+  static staticMethod() {
+    return 'Static method called';
+  }
+}
+
+console.log(MyClass.staticMethod());  
+
+ 
+function tag(strings, ...values) {
+  console.log(strings.raw[0]);  

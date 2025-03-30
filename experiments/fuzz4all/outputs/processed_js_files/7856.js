@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = (id) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (id > 0) {
+            resolve({id, data: `Data for ID: ${id}`});
+        } else {
+            reject('Invalid ID');
+        }
+    }, 1000);
+});
+
+ 
+async function* dataGenerator(ids) {
+    for (const id of ids) {
+        try {
+            const data = await fetchData(id);
+            yield data;
+        } catch (error) {
+            yield { id, error };
+        }
+    }
+}
+
+ 
+const loggingHandler = {
+    get(target, property) {
+        print(`Property '${property}' accessed with value: ${target[property]}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Property '${property}' set from ${target[property]} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+let userPreferences = {
+    theme: 'dark',
+    notifications: true
+};
+
+const proxiedPreferences = new Proxy(userPreferences, loggingHandler);
+
+ 
+(async () => {
+    const ids = [1, 2, -1, 4];  
+    const generator = dataGenerator(ids);
+    
+    for await (const result of generator) {
+        print(result);
+    }
+    
+     
+    print('Current Theme:', proxiedPreferences.theme);
+    proxiedPreferences.notifications = false;
+    print('Notifications:', proxiedPreferences.notifications);
+})();

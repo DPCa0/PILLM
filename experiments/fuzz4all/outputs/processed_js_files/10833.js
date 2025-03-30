@@ -1,0 +1,44 @@
+class Logger {
+    static log = [];
+
+    static add(message) {
+        this.log.push({
+            message,
+            timestamp: new Date().toISOString()
+        });
+    }
+
+    static display() {
+        console.table(this.log);
+    }
+}
+
+const fibonacci = (function* (max = 1000) {
+    let [prev, curr] = [0, 1];
+    while (curr < max) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+})();
+
+const asyncCalculate = async () => {
+    for await (let num of fibonacci) {
+        Logger.add(`Calculated Fibonacci number: ${num}`);
+        if (num % 5 === 0) {
+            Logger.add(`Special number found: ${num}`);
+            break;
+        }
+    }
+};
+
+(async () => {
+    const result = await Promise.all([
+        asyncCalculate(),
+        new Promise(resolve => setTimeout(() => {
+            Logger.add("Timeout reached");
+            resolve();
+        }, 2000))
+    ]);
+
+    Logger.display();
+})();

@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events.has(event)) return;
+        const newListeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+        this.events.set(event, newListeners);
+    }
+}
+
+class User {
+    #email;
+    #username;
+
+    constructor(email, username) {
+        this.#email = email;
+        this.#username = username;
+    }
+
+    get email() {
+        return this.#email;
+    }
+
+    get username() {
+        return this.#username;
+    }
+}
+
+async function fetchUserData(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (id !== 0) {
+                resolve(new User(`user${id}@example.com`, `user${id}`));
+            } else {
+                reject(new Error('User not found.'));
+            }
+        }, 1000);
+    });
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('userFetched', (user) => {
+        console.log(`User fetched: ${user.username}`);
+    });
+
+    eventEmitter.on('error', (err) => {
+        console.error(`Error: ${err.message}`);
+    });
+
+    try {
+        const user = await fetchUserData(1);
+        eventEmitter.emit('userFetched', user);
+    } catch (err) {
+        eventEmitter.emit('error', err);
+    }
+})();
+```

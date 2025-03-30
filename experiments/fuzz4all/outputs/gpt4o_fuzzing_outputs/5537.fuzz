@@ -1,0 +1,48 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that demonstrates the use of advanced features such as promises, async/await, destructuring, and the spread operator in a complex manner:
+
+```javascript
+class DataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async fetchData() {
+    const fetchPromises = this.urls.map(async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+      return await response.json();
+    });
+
+    try {
+      return await Promise.all(fetchPromises);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+class DataProcessor {
+  static process(data) {
+    return data.map(item => {
+      const { id, name, ...rest } = item;
+      return { id, name, details: { ...rest } };
+    });
+  }
+}
+
+(async () => {
+  const urls = [
+    'https: 
+    'https://jsonplaceholder.typicode.com/users/2',
+  ];
+
+  const fetcher = new DataFetcher(urls);
+  const rawData = await fetcher.fetchData();
+  const processedData = DataProcessor.process(rawData);
+
+  console.log(processedData);
+})();
+```
+
+This code defines a `DataFetcher` class that handles asynchronous data fetching from provided URLs using `async/await`. It then processes the data by leveraging ES6 destructuring and the spread operator within the `DataProcessor` class to transform the data into a desired format. Finally, it executes the data fetching and processing using an IIFE (Immediately Invoked Function Expression).

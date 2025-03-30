@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const data = await readFile(new URL('./data.json', import.meta.url), 'utf8');
+
+     
+    const parsedData = JSON.parse(data);
+
+     
+    const { name, values } = parsedData;
+
+     
+    const uniqueValues = [...new Set(values)];
+
+     
+    const mappedValues = uniqueValues.map(value => value * 2);
+
+     
+    const sum = mappedValues.reduce((acc, val) => acc + val, 0);
+
+     
+    console.log(`Hello, ${name}! The sum of doubled unique values is ${sum}.`);
+  } catch (error) {
+     
+    console.error(error?.message ?? 'An unknown error occurred');
+  }
+})();
+```
+
+Note: This JavaScript program assumes the existence of a `data.json` file in the same directory with a JSON structure like:
+```json
+{
+  "name": "Alice",
+  "values": [1, 2, 2, 3, 4]
+}
+```

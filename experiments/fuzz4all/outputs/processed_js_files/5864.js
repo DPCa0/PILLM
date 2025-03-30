@@ -1,0 +1,46 @@
+ 
+import { EventEmitter } from 'events';
+
+ 
+async function fetchData(url) {
+    print(`Fetching data from ${url}...`);
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Sample Data from ' + url });
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(urls) {
+    for (let url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const dataEventEmitter = new EventEmitter();
+
+ 
+dataEventEmitter.on('dataFetched', (data) => {
+    print('Data received:', data);
+});
+
+ 
+async function processUrls(urls) {
+    const generator = dataGenerator(urls);
+    for (let promise of generator) {
+        const result = await promise;
+        dataEventEmitter.emit('dataFetched', result.data);
+    }
+}
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+ 
+(async () => {
+    print('Starting data processing...');
+    await processUrls(urls);
+    print('Data processing completed.');
+})();

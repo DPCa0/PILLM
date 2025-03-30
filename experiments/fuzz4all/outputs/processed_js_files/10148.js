@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchUserData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ name: 'John Doe', age: 30, location: { city: 'New York', country: 'USA' } });
+    }, 1000);
+});
+
+ 
+class User {
+     
+    #name;
+    
+    constructor({ name, age, location }) {
+        this.#name = name;
+        this.age = age;
+        this.location = location;
+    }
+    
+     
+    getDetails() {
+        const { city, country } = this.location;
+        return `Name: ${this.#name}, Age: ${this.age}, Location: ${city}, ${country}`;
+    }
+    
+     
+    static async createUser() {
+        const userData = await fetchUserData();
+        return new User(userData);
+    }
+}
+
+ 
+(async () => {
+    const user = await User.createUser();
+    print(user.getDetails());
+})();

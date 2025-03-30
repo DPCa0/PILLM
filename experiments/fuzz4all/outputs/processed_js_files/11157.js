@@ -1,0 +1,42 @@
+const fetch = require('node-fetch');
+
+ 
+(async () => {
+  try {
+    const apiUrl = 'https://api.coindesk.com/v1/bpi/currentprice.json';
+
+     
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+     
+    const { bpi: { USD: { rate: usdRate }, GBP: { rate: gbpRate }, EUR: { rate: eurRate } } } = data;
+
+     
+    const formatCurrency = (strings, rate, currency) => 
+      `${strings[0]}${parseFloat(rate.replace(',', '')).toFixed(2)} ${currency}`;
+      
+    print(formatCurrency`Bitcoin Price: ${usdRate} USD`);
+    print(formatCurrency`Bitcoin Price: ${gbpRate} GBP`);
+    print(formatCurrency`Bitcoin Price: ${eurRate} EUR`);
+    
+     
+    const currencyMap = new Map([
+      ['USD', usdRate],
+      ['GBP', gbpRate],
+      ['EUR', eurRate],
+    ]);
+
+     
+    const convertCurrency = (fromRate, toRate, amount) => (amount / parseFloat(fromRate.replace(',', ''))) * parseFloat(toRate.replace(',', ''));
+
+     
+    const usdAmount = 100;
+    const eurAmount = convertCurrency(currencyMap.get('USD'), currencyMap.get('EUR'), usdAmount);
+
+    print(`${usdAmount} USD is approximately ${eurAmount.toFixed(2)} EUR`);
+
+  } catch (error) {
+    console.error('Error fetching Bitcoin price:', error);
+  }
+})();

@@ -1,0 +1,55 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  compute(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.compute(n - 1) + this.compute(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function* asyncGenerator(n) {
+  const fib = new Fibonacci();
+  for (let i = 0; i <= n; i++) {
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve(fib.compute(i)), 100)
+    );
+  }
+}
+
+const aggregateResults = async () => {
+  const results = [];
+  for await (const value of asyncGenerator(10)) {
+    results.push(value);
+  }
+  return results;
+};
+
+const fetchData = (url) =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ data: `Data from ${url}` }), 500)
+  );
+
+const processData = async () => {
+  try {
+    const [results, apiData] = await Promise.all([
+      aggregateResults(),
+      fetchData('https://api.example.com/data'),
+    ]);
+
+    print('Fibonacci Sequence:', results);
+    print('Fetched Data:', apiData.data);
+
+    if (apiData.data.includes('example')) {
+      throw new Error('Example error for demonstration.');
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+processData();

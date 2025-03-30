@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = async (url) => {
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
+  await delay(1000);  
+  
+   
+  const response = {
+    data: [
+      { id: 1, name: 'Alice', score: 85 },
+      { id: 2, name: 'Bob', score: 92 },
+      { id: 3, name: 'Charlie', score: 87 }
+    ]
+  };
+  
+  return response;
+};
+
+ 
+const processAndPrintData = async () => {
+  const url = 'https://api.example.com/data';
+  const { data } = await fetchData(url);  
+
+  data.forEach(({ id, name, score }) => {  
+    const result = score >= 90 ? 'passed' : 'failed';  
+    print(`Student ${name} (ID: ${id}) has ${result} with a score of ${score}.`);
+  });
+};
+
+processAndPrintData();

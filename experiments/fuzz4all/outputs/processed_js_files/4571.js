@@ -1,0 +1,69 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Getting ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const dataStore = new Proxy({}, handler);
+
+ 
+const idGen = idGenerator();
+
+ 
+const measureExecutionTime = (fn) => (...args) => {
+  console.time('Execution Time');
+  const result = fn(...args);
+  console.timeEnd('Execution Time');
+  return result;
+};
+
+ 
+const computeFactorial = measureExecutionTime(function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+});
+
+ 
+(async () => {
+  try {
+    print('Fetching data...');
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    print('Data fetched:', data);
+
+     
+    dataStore.title = data.title;
+    print(dataStore.title);
+
+     
+    print('Generated ID:', idGen.next().value);
+    print('Generated ID:', idGen.next().value);
+
+     
+    print('Factorial:', computeFactorial(5));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

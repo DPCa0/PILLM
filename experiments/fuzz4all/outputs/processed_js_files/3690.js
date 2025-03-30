@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = async (id) => {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { id, name: `Item ${id}`, value: Math.floor(Math.random() * 100) };
+};
+
+ 
+class DataManager {
+    constructor() {
+        this.items = [];
+    }
+
+     
+    addItems(...newItems) {
+        this.items = [...this.items, ...newItems];
+    }
+
+     
+    async updateItems(ids) {
+        const promises = ids.map(id => fetchData(id));
+        const results = await Promise.all(promises);
+        this.addItems(...results);
+    }
+
+     
+    displayItems() {
+        this.items.forEach(({ id, name, value }) => {
+            print(`ID: ${id}, Name: ${name}, Value: ${value}`);
+        });
+    }
+}
+
+ 
+(async () => {
+    const dataManager = new DataManager();
+    await dataManager.updateItems([1, 2, 3]);
+    dataManager.displayItems();
+})();

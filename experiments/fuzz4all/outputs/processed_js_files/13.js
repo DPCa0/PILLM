@@ -1,0 +1,66 @@
+ 
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+async function fetchData(filePath) {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+    throw error;
+  }
+}
+
+ 
+class DataEmitter extends EventEmitter {
+  constructor(data) {
+    super();
+    this.data = data;
+  }
+  
+  processData() {
+    setTimeout(() => {
+      for (const item of this.data) {
+        this.emit('data', item);
+      }
+      this.emit('end');
+    }, 1000);
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      throw new Error(`Property ${property} does not exist`);
+    }
+  }
+};
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('data.json');
+    const emitter = new DataEmitter(data);
+
+     
+    const proxyEmitter = new Proxy(emitter, handler);
+
+    proxyEmitter.on('data', (item) => {
+      print('Data received:', item);
+    });
+
+    proxyEmitter.on('end', () => {
+      print('All data processed.');
+    });
+
+    proxyEmitter.processData();
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

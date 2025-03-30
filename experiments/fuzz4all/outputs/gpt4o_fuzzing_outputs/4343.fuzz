@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  add({ real, imaginary }) {
+    return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+  }
+
+  multiply({ real, imaginary }) {
+    return new ComplexNumber(
+      this.real * real - this.imaginary * imaginary,
+      this.real * imaginary + this.imaginary * real
+    );
+  }
+
+  static *fibonacciSequence(n) {
+    let [a, b] = [new ComplexNumber(0, 0), new ComplexNumber(1, 0)];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a.add(b)];
+    }
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  for (const num of ComplexNumber.fibonacciSequence(10)) {
+    console.log(num.toString());
+    await delay(500);
+  }
+})();
+```

@@ -1,0 +1,43 @@
+ 
+
+ 
+function* fibonacciSequence(limit) {
+  let [prev, curr] = [0, 1];
+  while (limit-- > 0) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+async function processFibonacciSequence(limit) {
+  const sequence = createAsyncFibonacciIterable(fibonacciSequence(limit));
+  for await (const number of sequence) {
+    print(number);
+  }
+}
+
+ 
+function createAsyncFibonacciIterable(syncIterable) {
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+      for (const value of syncIterable) {
+         
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        yield value;
+      }
+    },
+  };
+
+  return new Proxy(asyncIterable, {
+    get(target, prop) {
+      if (prop === Symbol.asyncIterator) {
+        print('Accessing async iterator...');
+      }
+      return Reflect.get(target, prop);
+    },
+  });
+}
+
+ 
+processFibonacciSequence(10);

@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+     
+    getName() {
+        return this.name;
+    }
+
+     
+    getAge() {
+        return this.age;
+    }
+}
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+ 
+const personHandler = {
+    set: (obj, prop, value) => {
+        if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+            throw new Error('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+ 
+const greet = (...names) => names.map(name => `Hello, ${name}!`).join(' ');
+
+ 
+const person = new Proxy(new Person('Alice', 30), personHandler);
+
+console.log(greet('Alice', 'Bob'));
+
+ 
+(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        console.log(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();
+
+ 
+const userMap = new Map();
+userMap.set(person.getName(), person.getAge());
+console.log(userMap);
+
+ 
+(async () => {
+    if (someCondition) {
+        const { someFunction } = await import('./someModule.js');
+        someFunction();
+    }
+})();
+```

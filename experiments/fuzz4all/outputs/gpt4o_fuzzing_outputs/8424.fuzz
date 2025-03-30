@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* asyncNumberGenerator() {
+    for (let i = 1; i <= 5; i++) {
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        yield i;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property '${prop}'`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const simpleObject = { message: "Hello, Proxy!" };
+const proxy = new Proxy(simpleObject, handler);
+
+ 
+(async () => {
+    console.log(proxy.message);
+    
+     
+    proxy.message = "Proxy Updated!";
+    
+    console.log(proxy.message);
+    
+    for await (let num of asyncNumberGenerator()) {
+        console.log(num);
+    }
+    
+     
+    console.log(proxy?.nonExistentProp ?? "Default Value");
+})();
+```

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => fill));
+  }
+
+  static identity(n) {
+    return new Matrix(n, n).map((_, i, j) => (i === j ? 1 : 0));
+  }
+
+  map(fn) {
+    return this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+  }
+
+  forEach(fn) {
+    this.data.forEach((row, i) => row.forEach((val, j) => fn(val, i, j)));
+  }
+
+  multiply(other) {
+    if (this.data[0].length !== other.data.length) throw new Error('Incompatible matrices');
+    return new Matrix(this.data.length, other.data[0].length).map(
+      (_, i, j) => this.data[i].reduce((sum, val, k) => sum + val * other.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+const fibMatrix = new Matrix(2, 2).map((_, i, j) => (i === 1 && j === 0) ? 1 : (i === j) ? 1 : 0);
+
+function fibonacci(n) {
+  if (n === 0) return 0;
+  const result = Array.from({ length: Math.floor(Math.log2(n)) + 1 }, (_, i) => i)
+    .reduce((power, _, i) => {
+      if ((n >> i) & 1) return power.multiply(fibMatrix);
+      fibMatrix.data = fibMatrix.multiply(fibMatrix).data;
+      return power;
+    }, Matrix.identity(2));
+
+  return result.data[0][1];
+}
+
+console.log(fibonacci(10));  
+```

@@ -1,0 +1,49 @@
+ 
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  on(event, listener) {
+    if (typeof this.events[event] !== 'object') {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+  emit(event, ...args) {
+    if (typeof this.events[event] === 'object') {
+      [...this.events[event]].forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+const countdownHandler = {
+  set(target, property, value) {
+    target[property] = value;
+    if (property === 'time' && value === 0) {
+      target.emitter.emit('end');
+    }
+    return true;
+  }
+};
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function startCountdown(seconds) {
+  const emitter = new EventEmitter();
+  const state = new Proxy({ time: seconds, emitter }, countdownHandler);
+  
+  emitter.on('end', () => {
+    print('Countdown finished!');
+  });
+
+  while (state.time > 0) {
+    print(`Time left: ${state.time} seconds`);
+    state.time -= 1;
+    await sleep(1000);
+  }
+}
+
+startCountdown(5);

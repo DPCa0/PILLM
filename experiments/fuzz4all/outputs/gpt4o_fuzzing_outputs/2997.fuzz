@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function asyncOperation(duration) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.1) {
+        resolve(`Completed after ${duration}ms`);
+      } else {
+        reject('Random failure');
+      }
+    }, duration);
+  });
+}
+
+ 
+function* promiseGenerator() {
+  yield asyncOperation(1000);
+  yield asyncOperation(1500);
+  yield asyncOperation(500);
+}
+
+ 
+async function handleGenerator(gen) {
+  for (let promise of gen) {
+    try {
+      const result = await promise;
+      console.log(result);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2 };
+const handler = {
+  get(target, prop) {
+    console.log(`Getting ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+proxyObject.a;  
+proxyObject.b = 3;  
+
+ 
+const gen = promiseGenerator();
+handleGenerator(gen);
+```

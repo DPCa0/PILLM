@@ -1,0 +1,61 @@
+class FetchWithTimeout {
+  constructor(timeout) {
+    this.timeout = timeout;
+  }
+
+  async fetchWithTimeout(resource, options = {}) {
+    const { timeout = this.timeout } = options;
+
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    });
+
+    clearTimeout(id);
+    return response;
+  }
+}
+
+async function fetchData() {
+  const fetcher = new FetchWithTimeout(5000);
+  
+  try {
+    const urls = [
+      'https://api.github.com/users/octocat',
+      'https://api.github.com/users/defunkt'
+    ];
+
+    const responses = await Promise.all(urls.map(url => fetcher.fetchWithTimeout(url)));
+    const dataPromises = responses.map(res => res.json());
+    const usersData = await Promise.all(dataPromises);
+
+    const userInfo = usersData.map(({ login, id }) => ({ login, id }));
+
+    const proxy = new Proxy(userInfo, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          throw new Error(`Property "${prop}" does not exist on target.`);
+        }
+      },
+      set() {
+        throw new Error('Modification is not allowed');
+      }
+    });
+
+    print(proxy[0]);  
+    print(proxy[1]);  
+
+     
+     
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+fetchData();

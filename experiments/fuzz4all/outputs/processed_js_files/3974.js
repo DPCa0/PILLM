@@ -1,0 +1,60 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, 1);
+        m.map((_, i, j) => arr[i]);
+        return m;
+    }
+
+    toArray() {
+        let arr = [];
+        this.map((val) => arr.push(val));
+        return arr;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) =>
+            row.map((val, j) => fn(val, i, j))
+        );
+        return this;  
+    }
+
+    multiply(n) {
+        if (n instanceof Matrix) {
+            if (this.cols !== n.rows) {
+                console.error('Columns of A must match rows of B.');
+                return;
+            }
+            return new Matrix(this.rows, n.cols).map((_, i, j) =>
+                this.data[i].reduce((sum, elm, k) => sum + elm * n.data[k][j], 0)
+            );
+        } else {
+            return this.map((val) => val * n);
+        }
+    }
+
+    static transpose(m) {
+        return new Matrix(m.cols, m.rows).map((_, i, j) => m.data[j][i]);
+    }
+
+    print() {
+        console.table(this.data);
+        return this;  
+    }
+}
+
+ 
+let a = new Matrix(2, 3).map(() => Math.floor(Math.random() * 10));
+let b = new Matrix(3, 2).map(() => Math.floor(Math.random() * 10));
+
+print('Matrix A:');
+a.print();
+print('Matrix B:');
+b.print();
+print('A multiplied by B:');
+a.multiply(b).print();

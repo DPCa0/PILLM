@@ -1,0 +1,57 @@
+ 
+function* range(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Getting property ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const [first, ...rest] = [proxy.a, proxy.b, 3, 4, 5];
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+}
+
+ 
+async function getMultipleData(urls) {
+    try {
+        const promises = urls.map(url => fetchData(url));
+        const results = await Promise.all(promises);
+        print(results);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const { a, b, c = 3 } = proxy;
+
+ 
+(async () => {
+    print('Begin fetching data...');
+    await getMultipleData(['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2']);
+    print('Data fetching complete.');
+
+     
+    const numbers = [...new Set([...range(1, 5), ...range(3, 7)])];
+    print('Unique numbers:', numbers);
+})();

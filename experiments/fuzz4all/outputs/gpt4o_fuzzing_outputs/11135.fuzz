@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData() {
+  const urls = [
+    "https://jsonplaceholder.typicode.com/posts/1",
+    "https://jsonplaceholder.typicode.com/posts/2",
+    "https://jsonplaceholder.typicode.com/posts/3"
+  ];
+
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield await response.json();
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Accessing property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  }
+};
+
+ 
+(async () => {
+  const dataGenerator = fetchData();
+
+  for await (const data of dataGenerator) {
+     
+    const proxiedData = new Proxy(data, handler);
+
+    try {
+      console.log(proxiedData.title);  
+      console.log(proxiedData.nonExistentProperty);  
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+})();
+```

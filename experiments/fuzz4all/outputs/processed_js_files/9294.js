@@ -1,0 +1,43 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.resolveNext = null;
+  }
+
+  enqueue(item) {
+    this.queue.push(item);
+    if (this.resolveNext) {
+      this.resolveNext();
+      this.resolveNext = null;
+    }
+  }
+
+  async dequeue() {
+    while (this.queue.length === 0) {
+      await new Promise(resolve => this.resolveNext = resolve);
+    }
+    return this.queue.shift();
+  }
+}
+
+(async () => {
+  const queue = new AsyncQueue();
+  
+  const producer = async () => {
+    for (let i = 1; i <= 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+      print(`Produced: ${i}`);
+      queue.enqueue(i);
+    }
+  };
+
+  const consumer = async () => {
+    for (let i = 1; i <= 5; i++) {
+      const item = await queue.dequeue();
+      print(`Consumed: ${item}`);
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+    }
+  };
+
+  await Promise.all([producer(), consumer()]);
+})();

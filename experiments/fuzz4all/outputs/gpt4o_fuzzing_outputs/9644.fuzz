@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Weather {
+    constructor(city) {
+        this.apiKey = 'your_api_key_here';  
+        this.city = city;
+    }
+
+    async getWeather() {
+        const response = await fetch(`https: 
+        const data = await response.json();
+        return data;
+    }
+}
+
+const handleWeather = async (city) => {
+    const weather = new Weather(city);
+    try {
+        const { location: { name }, current: { temp_c, condition: { text } } } = await weather.getWeather();
+        console.log(`The current weather in ${name} is ${temp_c}°C with ${text}.`);
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+    }
+};
+
+(async () => {
+     
+    await handleWeather('London');
+})();
+```
+
+Make sure to replace `'your_api_key_here'` with a valid API key from a weather data provider.

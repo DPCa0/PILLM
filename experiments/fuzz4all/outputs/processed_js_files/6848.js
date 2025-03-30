@@ -1,0 +1,46 @@
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+class DataProcessor {
+  static #transformData(data) {
+    return data.map(item => ({
+      ...item,
+      processed: true,
+      timestamp: new Date().toISOString(),
+    }));
+  }
+
+  static async processAndLogData(url) {
+    let rawData = await fetchData(url);
+    if (!rawData) return;
+    
+    let transformedData = this.#transformData(rawData);
+    transformedData.forEach(item => print(item));
+  }
+}
+
+const debounce = (func, delay) => {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const throttledLog = (message) => {
+  print('Throttled:', message);
+};
+
+const debouncedThrottledLog = debounce(() => throttledLog('Executing'), 2000);
+
+window.addEventListener('resize', debouncedThrottledLog);
+
+DataProcessor.processAndLogData('https://jsonplaceholder.typicode.com/posts');

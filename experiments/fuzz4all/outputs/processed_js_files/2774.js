@@ -1,0 +1,56 @@
+class Weather {
+  constructor(location) {
+    this.location = location;
+  }
+
+  static async fetchWeather(location) {
+    const apiKey = 'your_api_key_here';  
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data.current;
+  }
+
+  async getCurrentWeather() {
+    const weatherData = await Weather.fetchWeather(this.location);
+    return weatherData;
+  }
+
+  [Symbol.iterator]() {
+    let step = 0;
+    const weatherDetails = [
+      `Temperature: ${this.weatherData.temp_c}°C`,
+      `Condition: ${this.weatherData.condition.text}`,
+      `Humidity: ${this.weatherData.humidity}%`,
+    ];
+
+    return {
+      next: () => {
+        if (step < weatherDetails.length) {
+          return { value: weatherDetails[step++], done: false };
+        } else {
+          return { done: true };
+        }
+      },
+    };
+  }
+
+  async displayWeather() {
+    try {
+      this.weatherData = await this.getCurrentWeather();
+      for (const detail of this) {
+        print(detail);
+      }
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
+  }
+}
+
+ 
+(async () => {
+  const weather = new Weather('New York');
+  await weather.displayWeather();
+})();
+
+**Note:** Replace `'your_api_key_here'` with an actual API key from a weather service like WeatherAPI to run this code.

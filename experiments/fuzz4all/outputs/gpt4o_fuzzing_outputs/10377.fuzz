@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    let data = await response.json();
+
+     
+    const { userId, title } = data;
+
+     
+    console.log(`User ID: ${userId}, Title: ${title}`);
+
+     
+    const simulatedAsyncWork = new Promise((resolve) =>
+      setTimeout(() => resolve("Simulated async work done"), 1000)
+    );
+
+    let result = await simulatedAsyncWork;
+    console.log(result);
+
+  } catch (error) {
+    console.error('Fetch error: ', error);
+  }
+};
+
+ 
+const target = {};
+const handler = {
+  set: (obj, prop, value) => {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    obj[prop] = value;
+    return true;
+  },
+  get: (obj, prop) => {
+    console.log(`Getting property '${prop}'`);
+    return prop in obj ? obj[prop] : undefined;
+  },
+};
+
+const proxy = new Proxy(target, handler);
+proxy.exampleProperty = "Proxy example";
+console.log(proxy.exampleProperty);
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+```

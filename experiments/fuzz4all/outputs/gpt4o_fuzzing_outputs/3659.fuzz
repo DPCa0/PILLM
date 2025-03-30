@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DelayedOperation {
+    constructor(time) {
+        this.time = time;
+    }
+
+    async performOperation() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(`Operation completed after ${this.time}ms`);
+            }, this.time);
+        });
+    }
+}
+
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'performOperation') {
+            return function() {
+                console.log(`Intercepting operation: ${prop}`);
+                const start = Date.now();
+                return Reflect.apply(target[prop], receiver, arguments).then(result => {
+                    const end = Date.now();
+                    console.log(`Operation took ${end - start}ms`);
+                    return result;
+                });
+            }
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+(async () => {
+    const operation = new DelayedOperation(2000);
+    const proxy = new Proxy(operation, handler);
+
+    try {
+        const result = await proxy.performOperation();
+        console.log(result);
+    } catch (error) {
+        console.error('Operation failed:', error);
+    }
+})();
+```

@@ -1,0 +1,40 @@
+class AdvancedCalculator {
+  constructor() {
+    this.history = [];
+  }
+
+  async calculate(expression) {
+    try {
+      let result = Function(`"use strict"; return (${expression})`)();
+      this.history.push({ expression, result });
+      return Promise.resolve(result);
+    } catch (error) {
+      return Promise.reject("Invalid expression");
+    }
+  }
+
+  getHistory() {
+    return this.history.map(
+      ({ expression, result }) => `${expression} = ${result}`
+    );
+  }
+}
+
+const advancedMath = async () => {
+  const calculator = new AdvancedCalculator();
+  const expressions = ["5 + 7 * 2", "Math.sqrt(16)", "Math.max(5, 10, 15)", "a + b"];
+
+  for (let expr of expressions) {
+    try {
+      let result = await calculator.calculate(expr);
+      print(`Result of '${expr}' is ${result}`);
+    } catch (error) {
+      console.error(`Error with expression '${expr}': ${error}`);
+    }
+  }
+
+  print("Calculation History:");
+  calculator.getHistory().forEach((entry) => print(entry));
+};
+
+advancedMath();

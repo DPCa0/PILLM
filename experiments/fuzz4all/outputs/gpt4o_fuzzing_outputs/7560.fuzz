@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EnhancedArray extends Array {
+   
+  sum() {
+    return this.reduce((acc, val) => acc + (typeof val === 'number' ? val : 0), 0);
+  }
+}
+
+const performAsyncCalculation = async () => {
+   
+  const results = await Promise.all([
+    Promise.resolve(10),
+    Promise.resolve(20),
+    Promise.resolve(30),
+  ]);
+  return new EnhancedArray(...results).sum();
+};
+
+const mapWithAsyncFunction = async (arr, asyncCallback) => {
+   
+  return Promise.all(arr.map(asyncCallback));
+};
+
+const processAndOutput = async () => {
+  try {
+    const asyncSum = await performAsyncCalculation();
+    console.log(`Sum of async numbers: ${asyncSum}`);
+
+    const data = [1, 2, 3, 4, 5];
+    const processedData = await mapWithAsyncFunction(data, async (num) => {
+       
+      return new Promise((resolve) => setTimeout(() => resolve(num * 2), 100));
+    });
+
+    console.log(`Processed Data: ${processedData.join(', ')}`);
+
+    const numbers = new EnhancedArray(1, 2, 'three', 4, 'five');
+    console.log(`Enhanced Array Sum: ${numbers.sum()}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+processAndOutput();
+```

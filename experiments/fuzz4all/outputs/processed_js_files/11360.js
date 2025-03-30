@@ -1,0 +1,57 @@
+ 
+
+ 
+function fetchData(api) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (api === 'users') {
+        resolve([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]);
+      } else {
+        reject('API not found');
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* dataFlow() {
+  try {
+    const data = yield fetchData('users');
+    yield data.map(user => `User: ${user.name}`).join(', ');
+  } catch (error) {
+    yield `Error: ${error}`;
+  }
+}
+
+ 
+async function handleData() {
+  const iterator = dataFlow();
+  const { value: usersPromise } = iterator.next();
+  
+  try {
+    const users = await usersPromise;
+    const { value: userStrings } = iterator.next(users);
+    print(userStrings);
+  } catch (error) {
+    const { value: errorMsg } = iterator.throw(error);
+    console.error(errorMsg);
+  }
+}
+
+ 
+const apiHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    console.warn(`${prop} is not a valid API`);
+    return () => Promise.reject('Invalid API');
+  }
+};
+
+const apiProxy = new Proxy({
+  fetchData: handleData
+}, apiHandler);
+
+ 
+apiProxy.fetchData();  

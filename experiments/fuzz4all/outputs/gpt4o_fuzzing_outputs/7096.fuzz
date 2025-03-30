@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+   
+  const _ = await import('https://cdn.skypack.dev/lodash');
+
+   
+  class Person {
+    #name;  
+
+    constructor(name) {
+      this.#name = name;
+    }
+
+    getName() {
+      return this.#name;
+    }
+
+    static createPeople(names) {
+      return names.map(name => new Person(name));
+    }
+  }
+
+   
+  async function* fetchData() {
+    const data = [1, 2, 3, 4, 5];
+    for (const num of data) {
+      await new Promise(resolve => setTimeout(resolve, 500));  
+      yield num * num;  
+    }
+  }
+
+   
+  const handler = {
+    get(target, property) {
+      console.log(`Getting property '${property}'`);
+      return target[property];
+    },
+    set(target, property, value) {
+      console.log(`Setting property '${property}' to '${value}'`);
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const targetObject = { a: 1, b: 2 };
+  const proxyObject = new Proxy(targetObject, handler);
+
+   
+  const names = ['Alice', 'Bob', 'Charlie'];
+  const people = Person.createPeople(names);
+
+  const capitalizedNames = _.map(names, _.capitalize);
+
+   
+  console.log('Async generated data:');
+  for await (const num of fetchData()) {
+    console.log(num);
+  }
+
+   
+  proxyObject.a;
+  proxyObject.b = 3;
+  proxyObject.c = 4;
+
+   
+  console.log('People:', people.map(p => p.getName()));
+  console.log('Capitalized Names:', capitalizedNames);
+})();
+```

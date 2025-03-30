@@ -1,0 +1,86 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const newListeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+    if (newListeners.length > 0) {
+      this.events.set(event, newListeners);
+    } else {
+      this.events.delete(event);
+    }
+  }
+}
+
+class Singleton {
+  constructor() {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+    this.state = {};
+    Singleton.instance = this;
+  }
+
+  set(key, value) {
+    this.state[key] = value;
+  }
+
+  get(key) {
+    return this.state[key];
+  }
+}
+
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+  const singleton = new Singleton();
+
+  emitter.on('data', data => {
+    console.log(`Received data: ${data}`);
+  });
+
+  emitter.on('error', err => {
+    console.error(`Error occurred: ${err.message}`);
+  });
+
+  try {
+    singleton.set('key1', 'value1');
+    console.log(`Singleton value for key1: ${singleton.get('key1')}`);
+    
+    const fibGen = fibonacci();
+    for (let i = 0; i < 5; i++) {
+      console.log(`Fibonacci #${i + 1}: ${fibGen.next().value}`);
+    }
+
+    emitter.emit('data', 'Some important data');
+  } catch (err) {
+    emitter.emit('error', err);
+  }
+})();
+```

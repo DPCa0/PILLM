@@ -1,0 +1,47 @@
+ 
+
+ 
+async function fetchData(apiEndpoint) {
+  try {
+    let response = await fetch(apiEndpoint);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error: ', error);
+  }
+}
+
+ 
+function* dataPager(dataArray, pageSize) {
+  for (let i = 0; i < dataArray.length; i += pageSize) {
+    yield dataArray.slice(i, i + pageSize);
+  }
+}
+
+ 
+const dataLogger = {
+  get(target, property) {
+    print(`Accessing property "${property}"`);
+    return target[property];
+  },
+};
+
+ 
+(async function () {
+  const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+  let allData = await fetchData(apiEndpoint);
+
+   
+  const proxiedData = new Proxy(allData, dataLogger);
+
+   
+  const pager = dataPager(proxiedData, 5);
+  let page = pager.next();
+  while (!page.done) {
+    print('Page:', page.value);
+    page = pager.next();
+  }
+})();

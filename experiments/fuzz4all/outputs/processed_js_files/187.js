@@ -1,0 +1,43 @@
+ 
+
+ 
+(async () => {
+  const { readFile } = await import('fs/promises');
+
+  try {
+     
+    const data = await readFile('./data.json', 'utf-8');
+    const parsedData = JSON.parse(data);
+
+     
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : 'Property not found'),
+    };
+    
+    const proxyData = new Proxy(parsedData, handler);
+
+     
+    class Processor {
+      #data;
+      
+      constructor(data) {
+        this.#data = data;
+      }
+      
+      #processData() {
+         
+        return this.#data.map(item => item.value).reduce((acc, val) => acc + val, 0);
+      }
+
+      getProcessedResult() {
+        return this.#processData();
+      }
+    }
+
+     
+    const processor = new Processor(proxyData.items || []);
+    print(`Processed Result: ${processor.getProcessedResult()}`);
+  } catch (err) {
+    console.error('Error:', err.message);
+  }
+})();

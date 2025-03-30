@@ -1,0 +1,50 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => (typeof fill === 'function' ? fill() : fill))
+        );
+    }
+
+    static multiply(A, B) {
+        if (A.data[0].length !== B.data.length)
+            throw new Error('Columns of A must match rows of B');
+
+        return new Matrix(A.data.length, B.data[0].length, () => {
+            return A.data.map((row, i) => 
+                B.data[0].map((_, j) => 
+                    row.reduce((sum, _, n) => sum + A.data[i][n] * B.data[n][j], 0)
+                )
+            );
+        });
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+
+    static from2DArray(arr) {
+        const rows = arr.length;
+        const cols = arr[0].length;
+        const matrix = new Matrix(rows, cols);
+        matrix.data = arr;
+        return matrix;
+    }
+}
+
+async function getRandomMatrix(rows, cols) {
+    return new Matrix(rows, cols, () => Math.random());
+}
+
+(async () => {
+    const A = Matrix.from2DArray([[1, 2, 3], [4, 5, 6]]);
+    const B = await getRandomMatrix(3, 2);
+
+    print('Matrix A:');
+    print(A.toString());
+    print('\nMatrix B:');
+    print(B.toString());
+
+    const C = Matrix.multiply(A, B);
+    print('\nMatrix C (A x B):');
+    print(C.toString());
+})();

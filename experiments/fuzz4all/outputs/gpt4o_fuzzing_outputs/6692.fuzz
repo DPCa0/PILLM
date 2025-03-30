@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = () => new Promise((resolve) => {
+  const delay = Math.floor(Math.random() * 1000);
+  setTimeout(() => resolve(`Completed in ${delay}ms`), delay);
+});
+
+ 
+async function handleAsyncOperations() {
+  const operations = Array.from({ length: 5 }, asyncOperation);
+  
+  try {
+    const results = await Promise.all(operations);
+    console.log('All operations completed:');
+    results.forEach((result, index) => console.log(`Operation ${index + 1}: ${result}`));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+function complexDestructuring({ a, b: { c, ...restB }, ...restA }) {
+  console.log('a:', a);
+  console.log('c:', c);
+  console.log('rest of b:', restB);
+  console.log('rest of a:', restA);
+}
+
+ 
+const createCounter = (initialValue = 0) => {
+  let count = initialValue;
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    getCount: () => count,
+  };
+};
+
+ 
+(async () => {
+  console.log('--- Start of Advanced JavaScript Program ---');
+
+  await handleAsyncOperations();
+
+  console.log('\nDemonstrating complex destructuring:');
+  const complexObject = { a: 1, b: { c: 2, d: 3, e: 4 }, f: 5, g: 6 };
+  complexDestructuring(complexObject);
+
+  console.log('\nUsing a counter created with closures:');
+  const counter = createCounter();
+  console.log('Initial count:', counter.getCount());
+  console.log('After increment:', counter.increment());
+  console.log('After another increment:', counter.increment());
+  console.log('After decrement:', counter.decrement());
+
+  console.log('--- End of Advanced JavaScript Program ---');
+})();
+```

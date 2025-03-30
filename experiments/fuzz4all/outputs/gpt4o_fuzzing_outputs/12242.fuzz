@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Complex {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({real, imaginary}) {
+        return new Complex(this.real + real, this.imaginary + imaginary);
+    }
+
+    multiply({real, imaginary}) {
+        const r = this.real * real - this.imaginary * imaginary;
+        const i = this.real * imaginary + this.imaginary * real;
+        return new Complex(r, i);
+    }
+
+    toString() {
+        const realPart = `${this.real}`;
+        const imaginaryPart = `${this.imaginary < 0 ? '-' : '+'} ${Math.abs(this.imaginary)}i`;
+        return `${realPart} ${imaginaryPart}`;
+    }
+}
+
+const complexArray = [
+    new Complex(3, 2), 
+    new Complex(1, 7), 
+    new Complex(-4, 0)
+];
+
+const summedComplex = complexArray.reduce((acc, c) => acc.add(c), new Complex(0, 0));
+console.log(`Sum: ${summedComplex.toString()}`);
+
+const multipliedComplex = complexArray.reduce((acc, c) => acc.multiply(c), new Complex(1, 0));
+console.log(`Product: ${multipliedComplex.toString()}`);
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            console.log(`Accessing ${property}`);
+            return target[property];
+        } else {
+            throw new ReferenceError(`Property ${property} does not exist.`);
+        }
+    }
+};
+
+const proxiedComplex = new Proxy(new Complex(5, -3), handler);
+console.log(proxiedComplex.real);
+console.log(proxiedComplex.imaginary);
+```

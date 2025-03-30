@@ -1,0 +1,36 @@
+ 
+
+async function* fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+const loggingHandler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            print(`Accessed property: ${prop}`);
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        print(`Set property: ${prop} to value: ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const settings = new Proxy({
+    theme: 'dark',
+    notifications: true,
+}, loggingHandler);
+
+(async () => {
+    const fibGen = fibonacci();
+    const [first, second, third] = [await fibGen.next(), await fibGen.next(), await fibGen.next()];
+    print(`Fibonacci sequence: ${first.value}, ${second.value}, ${third.value}`);
+
+    settings.theme = 'light';  
+    print(`Current theme: ${settings.theme}`);
+})();

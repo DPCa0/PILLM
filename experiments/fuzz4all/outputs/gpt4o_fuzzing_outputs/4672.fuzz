@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class ComplexCalculator {
+    constructor() {
+        this.operations = [];
+    }
+
+    addOperation(name, func) {
+        this.operations[name] = func;
+    }
+
+    calculate(operation, ...args) {
+        if (operation in this.operations) {
+            return this.operations[operation](...args);
+        } else {
+            throw new Error(`Operation "${operation}" not found`);
+        }
+    }
+}
+
+ 
+const validator = {
+    set: function(obj, prop, value) {
+        if (prop === 'value' && (typeof value !== 'number' || isNaN(value))) {
+            throw new TypeError('Value must be a valid number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+class AdvancedCalculator {
+    constructor() {
+        this.complex = new Proxy(new ComplexCalculator(), validator);
+    }
+
+    async initOperations() {
+        const operations = {
+            add: (a, b) => a + b,
+            subtract: (a, b) => a - b,
+            multiply: (a, b) => a * b,
+            divide: (a, b) => {
+                if (b === 0) throw new Error("Division by zero");
+                return a / b;
+            }
+        };
+
+        for (const [name, func] of Object.entries(operations)) {
+            this.complex.addOperation(name, func);
+        }
+    }
+
+    async performCalculation(operation, a, b) {
+        try {
+            const result = await this.complex.calculate(operation, a, b);
+            console.log(`Result of ${operation}:`, result);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+}
+
+(async () => {
+    const calc = new AdvancedCalculator();
+    await calc.initOperations();
+
+     
+    await calc.performCalculation('add', 10, 5);
+    await calc.performCalculation('subtract', 10, 5);
+    await calc.performCalculation('multiply', 10, 5);
+    await calc.performCalculation('divide', 10, 5);
+    await calc.performCalculation('divide', 10, 0);  
+})();
+```

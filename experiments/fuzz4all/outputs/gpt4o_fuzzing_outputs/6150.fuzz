@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncFunction = () => new Promise((resolve) => setTimeout(() => resolve('Data loaded'), 2000));
+
+(async function complexExample() {
+  const emitter = new EventEmitter();
+  
+  emitter.on('dataLoaded', (data) => {
+    console.log(`Received: ${data}`);
+  });
+  
+  const data = await asyncFunction();
+  emitter.emit('dataLoaded', data);
+
+  const arr = [1, 2, 3, 4, 5];
+  const doubled = arr.map(num => num * 2);
+  
+  const { x, y, ...rest } = { x: 1, y: 2, z: 3, a: 4 };
+  
+  const doubledAgain = doubled.reduce((acc, num) => {
+    return [...acc, num * 2];
+  }, []);
+  
+  console.log(`Doubled array: ${doubled}`);
+  console.log(`Rest parameter:`, rest);
+  console.log(`Doubled again: ${doubledAgain}`);
+})();
+```

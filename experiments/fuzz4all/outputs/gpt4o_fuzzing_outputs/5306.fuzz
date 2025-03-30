@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+export function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield prev;
+  }
+}
+
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+import { fibonacci, delay } from './utils.js';
+
+async function displayFibonacci() {
+  const limit = 10;
+  const gen = fibonacci(limit);
+
+  for (let value of gen) {
+    console.log(value);
+    await delay(500);  
+  }
+}
+
+ 
+(async () => {
+  console.log('Starting Fibonacci Sequence:');
+  await displayFibonacci();
+  console.log('Finished Fibonacci Sequence');
+})();
+```

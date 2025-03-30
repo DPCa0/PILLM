@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+class Utility {
+    constructor() {
+        this.data = [1, 2, 3, 4, 5];
+    }
+
+     
+    getEvenNumbers() {
+        return this.data.filter(num => num % 2 === 0);
+    }
+}
+
+ 
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve([6, 7, 8, 9, 10]), 1000);
+    });
+}
+
+ 
+async function processNumbers() {
+    const utility = new Utility();
+    let evenNumbers = utility.getEvenNumbers();
+    
+    console.log("Initial Even Numbers:", ...evenNumbers);  
+
+    try {
+        const [a, b, c, ...rest] = await fetchData();  
+        console.log("Fetched Data First Three:", a, b, c);
+
+         
+        const combined = [...evenNumbers, a, b, c, ...rest];
+        console.log("Combined Numbers:", combined);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+ 
+processNumbers();
+```

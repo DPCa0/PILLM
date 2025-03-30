@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* asyncCounter(max) {
+    for (let i = 0; i <= max; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield i;
+    }
+}
+
+ 
+const resultsMap = new Map();
+
+ 
+const handler = {
+    set(target, key, value) {
+        console.log(`Setting ${key} = ${value}`);
+        return Reflect.set(target, key, value);  
+    },
+    get(target, key) {
+        console.log(`Getting the value of ${key}`);
+        return Reflect.get(target, key);
+    }
+};
+
+const proxyMap = new Proxy(resultsMap, handler);
+
+ 
+async function main() {
+    console.log('Starting async iteration...');
+    const asyncGen = asyncCounter(5);
+
+    for await (const num of asyncGen) {
+        proxyMap.set(num, `Value ${num * 2}`);  
+    }
+
+     
+    console.log('Retrieving values...');
+    for (let i = 0; i <= 5; i++) {
+        console.log(proxyMap.get(i));  
+    }
+}
+
+main().catch(console.error);
+```

@@ -1,0 +1,64 @@
+ 
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Getting property '${prop}':`, Reflect.get(target, prop));
+            return Reflect.get(target, prop);
+        } else {
+            throw new ReferenceError(`Property '${prop}' does not exist.`);
+        }
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number' && value >= 0) {
+            print(`Setting property '${prop}' to:`, value);
+            Reflect.set(target, prop, value);
+            return true;
+        } else {
+            throw new TypeError('Value must be a non-negative number.');
+        }
+    }
+};
+
+ 
+const targetObj = {
+    a: 1,
+    b: 2
+};
+
+ 
+const proxy = new Proxy(targetObj, handler);
+
+ 
+async function asyncOperation() {
+    try {
+         
+        const result = await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const value = 42;  
+                resolve(value);
+            }, 1000);
+        });
+        
+        print('Async operation completed with result:', result);
+        proxy.c = result;  
+    } catch (error) {
+        console.error('Error during async operation:', error);
+    }
+}
+
+ 
+(async () => {
+    try {
+        print('Initial value of a:', proxy.a);
+        proxy.a = 5;
+        print('Modified value of a:', proxy.a);
+
+        await asyncOperation();  
+
+        print('Value of c set by async operation:', proxy.c);
+    } catch (error) {
+        console.error('Caught error:', error);
+    }
+})();

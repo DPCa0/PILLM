@@ -1,0 +1,67 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+};
+
+ 
+function* fetchDataGenerator(url) {
+  const response = yield fetch(url);
+  const data = yield response.json();
+  return data;
+}
+
+const asyncFetch = async (url) => {
+  const iterator = fetchDataGenerator(url);
+  let result = iterator.next();
+
+  while (!result.done) {
+    result = iterator.next(await result.value);
+  }
+  return result.value;
+};
+
+ 
+const targetObj = { x: 42, y: 99 };
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop}' accessed.`);
+    return Reflect.get(...arguments);
+  }
+};
+const proxiedObj = new Proxy(targetObj, handler);
+
+ 
+const highlight = (strings, ...values) => {
+  return strings.reduce((acc, str, i) => `${acc}${str}<span>${values[i] || ''}</span>`, '');
+};
+const a = 20, b = 22;
+const message = highlight`Values are ${a} and ${b}.`;
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await asyncFetch(url);
+  print('Fetched data:', data);
+
+   
+  print('x:', proxiedObj.x);
+  print('y:', proxiedObj.y);
+
+   
+  print('Message:', message);
+
+   
+  const debouncedFunc = debounce(() => print('Button clicked!'), 2000);
+  debouncedFunc();
+  debouncedFunc();
+  debouncedFunc();
+  await delay(3000);  
+})();

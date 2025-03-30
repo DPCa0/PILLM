@@ -1,0 +1,46 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      print(`Getting ${prop}`);
+      return obj[prop];
+    } else {
+      console.error(`Property ${prop} doesn't exist`);
+    }
+  },
+  set: (obj, prop, value) => {
+    if (typeof value === 'string') {
+      print(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    } else {
+      console.error(`Invalid value type for ${prop}`);
+      return false;
+    }
+  }
+};
+
+const exampleURL = 'https: 
+
+(async () => {
+  const data = await fetchData(exampleURL);
+  if (data) {
+    const { userId, id, title, completed } = data;
+    print(`Fetched data: userId=${userId}, id=${id}, title=${title}, completed=${completed}`);
+
+    const proxyData = new Proxy(data, handler);
+    print(proxyData.title);   
+    proxyData.completed = "true";   
+  }
+})();

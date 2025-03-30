@@ -1,0 +1,74 @@
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* generateSequence() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+ 
+const customSymbol = Symbol('uniqueKey');
+
+ 
+async function complexFunction() {
+    const obj = {
+        a: 10,
+        b: 20,
+        nested: {
+            c: 30,
+            [customSymbol]: 'symbolValue'
+        }
+    };
+
+     
+    const { a, nested: { c, [customSymbol]: symbolValue } } = obj;
+    
+     
+    const generator = generateSequence();
+    for (let value of generator) {
+        print(`Generated value: ${value}`);
+    }
+    
+    print(`Destructured values: a = ${a}, c = ${c}, symbolValue = ${symbolValue}`);
+    
+    await delay(1000);  
+    print('Finished waiting.');
+}
+
+complexFunction().catch(console.error);
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.warn(`Property ${prop} does not exist on target.`);
+            return 42;  
+        }
+    }
+};
+
+const targetObject = { key: 'value' };
+const proxy = new Proxy(targetObject, handler);
+
+print(`Proxy access: key = ${proxy.key}, nonExistentKey = ${proxy.nonExistentKey}`);
+
+ 
+const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+        for (let i = 0; i < 3; i++) {
+            await delay(500);
+            yield i;
+        }
+    }
+};
+
+ 
+(async function() {
+    for await (const num of asyncIterable) {
+        print(`Async Iterated: ${num}`);
+    }
+})();

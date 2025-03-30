@@ -1,0 +1,45 @@
+ 
+
+async function* asyncGenerator() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  for (const url of urls) {
+     
+    const response = await new Promise((resolve) =>
+      setTimeout(async () => resolve(fetch(url)), Math.random() * 2000)
+    );
+    const data = await response.json();
+    yield data;
+  }
+}
+
+(async function() {
+  try {
+    const fetchData = asyncGenerator();
+    
+     
+    for await (const data of fetchData) {
+      print(data.title);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+
+ 
+const target = { message: 'Hello, Proxy!' };
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'message') {
+      return obj[prop].toUpperCase();
+    }
+    return obj[prop];
+  },
+};
+
+const proxy = new Proxy(target, handler);
+print(proxy.message);

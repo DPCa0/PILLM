@@ -1,0 +1,31 @@
+ 
+class DataFetcher {
+  constructor() {
+    this.apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiEndpoint);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+      const { title, body } = this.extractData(data[0]);
+
+      print(this.formatMessage(title, body));
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  }
+
+  extractData({ title, body }) {
+    return { title, body };
+  }
+
+  formatMessage(title, body) {
+    return `Title: ${title}\nContent: ${body}`;
+  }
+}
+
+const fetcher = new DataFetcher();
+fetcher.fetchData();

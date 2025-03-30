@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class NetworkRequest {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+function debounce(fn, delay) {
+  let timeoutId;
+  return function(...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+function* generateID() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idGenerator = generateID();
+const getNextID = () => idGenerator.next().value;
+
+const debounceLog = debounce((message) => {
+  console.log(`Log (debounced): ${message} - ID: ${getNextID()}`);
+}, 1000);
+
+const request = new NetworkRequest('https://jsonplaceholder.typicode.com/posts');
+request.fetchData().then(data => {
+  console.log('Fetched data:', data);
+  for (let i = 0; i < 5; i++) {
+    debounceLog('This is a test message');
+  }
+});
+```

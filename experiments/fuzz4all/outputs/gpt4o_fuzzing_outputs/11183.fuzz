@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { promisify } from 'util';
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Accessed property '${prop}'`);
+    return prop in target ? target[prop] : 42;  
+  }
+};
+
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+ 
+async function readAndProcessFile(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    const uppercaseData = data.toUpperCase();
+    await fs.writeFile('output.txt', uppercaseData);
+    console.log('File processed successfully.');
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+ 
+(async () => {
+  console.log('Starting file operation...');
+  await readAndProcessFile('input.txt');
+
+   
+  console.log(proxy.a);  
+  console.log(proxy.c);  
+})();
+
+ 
+async function fetchMultipleDataSources(urls) {
+  try {
+    const fetchData = promisify((url, callback) => {
+      setTimeout(() => {
+        callback(null, `Data from ${url}`);
+      }, 1000);
+    });
+
+    const promises = urls.map(url => fetchData(url));
+    const results = await Promise.all(promises);
+    console.log('Fetched data:', results);
+  } catch (err) {
+    console.error('Error fetching data:', err);
+  }
+}
+
+fetchMultipleDataSources(['http://api1.com', 'http://api2.com', 'http://api3.com']);
+```

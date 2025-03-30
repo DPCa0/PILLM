@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  #data;
+  constructor(rows, cols, fill = 0) {
+    this.#data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => (typeof fill === 'function' ? fill() : fill))
+    );
+  }
+  
+  static fromArray(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.#data = array.map(row => [...row]);
+    return matrix;
+  }
+  
+  get rows() {
+    return this.#data.length;
+  }
+
+  get cols() {
+    return this.#data[0].length;
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row < this.rows) {
+          const value = this.#data[row][col];
+          if (col < this.cols - 1) {
+            col++;
+          } else {
+            col = 0;
+            row++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  map(callback) {
+    return Matrix.fromArray(
+      this.#data.map((row, i) => row.map((val, j) => callback(val, i, j)))
+    );
+  }
+
+  static async createRandomAsync(rows, cols) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);
+    return new Matrix(rows, cols, () => Math.random());
+  }
+
+  toString() {
+    return this.#data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  console.log('Generating random matrix asynchronously...');
+  const matrix = await Matrix.createRandomAsync(3, 3);
+  console.log('Random Matrix:\n' + matrix.toString());
+
+  console.log('Incrementing each element by 1...');
+  const incrementedMatrix = matrix.map(val => val + 1);
+  console.log('Incremented Matrix:\n' + incrementedMatrix.toString());
+
+  console.log('Iterating over matrix values:');
+  for (let value of matrix) {
+    console.log(value);
+  }
+})();
+```

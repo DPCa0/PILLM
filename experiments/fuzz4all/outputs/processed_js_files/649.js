@@ -1,0 +1,61 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+};
+
+const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+};
+
+const throttle = (func, limit) => {
+    let inThrottle;
+    return (...args) => {
+        if (!inThrottle) {
+            func.apply(this, args);
+            inThrottle = true;
+            setTimeout(() => inThrottle = false, limit);
+        }
+    };
+};
+
+ 
+const eventEmitter = new EventEmitter();
+eventEmitter.on('data', (data) => print('Data received:', data));
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+const debouncedFetchData = debounce(() => {
+    fetchData(url)
+        .then(data => eventEmitter.emit('data', data))
+        .catch(error => console.error('Fetch error:', error));
+}, 300);
+
+const throttledConsoleLog = throttle((message) => {
+    print('Throttled log:', message);
+}, 1000);
+
+debouncedFetchData();
+throttledConsoleLog('Hello, world!');

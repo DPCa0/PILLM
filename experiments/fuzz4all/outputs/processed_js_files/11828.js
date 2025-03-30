@@ -1,0 +1,54 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        Math.random() > 0.2 ? resolve(`Data from ${url}`) : reject('Network Error');
+    }, 1000);
+});
+
+ 
+async function asyncFetch(url) {
+    try {
+        let data = await fetchData(url);
+        print(data);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Accessing property "${prop}"`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+        print(`Setting property "${prop}" to "${value}"`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+let targetObject = { name: "John Doe", age: 30 };
+let proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.name;  
+proxy.age = 31;  
+
+ 
+function* dataSequence(urls) {
+    for (let url of urls) {
+        yield asyncFetch(url);
+    }
+}
+
+ 
+const urls = ["https://api.example.com/data1", "https://api.example.com/data2"];
+const gen = dataSequence(urls);
+
+ 
+for (let promise of gen) {
+    promise.then(() => print('Fetch complete.'));
+}

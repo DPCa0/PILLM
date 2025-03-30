@@ -1,0 +1,49 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, []);
+        }
+        this.#events.get(event).push(listener);
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.set(event, this.#events.get(event).filter(l => l !== listener));
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const myEmitter = new EventEmitter();
+
+function asyncTaskWithEmitter() {
+    return new Promise((resolve, reject) => {
+        myEmitter.on('done', resolve);
+        myEmitter.on('error', reject);
+        setTimeout(() => {
+             
+            Math.random() > 0.5 ? myEmitter.emit('done', 'Task completed successfully!') : myEmitter.emit('error', new Error('Task failed'));
+        }, 1000);
+    });
+}
+
+async function run() {
+    try {
+        const result = await asyncTaskWithEmitter();
+        print(result);
+    } catch (error) {
+        console.error(error.message);
+    } finally {
+        myEmitter.off('done', () => {});
+        myEmitter.off('error', () => {});
+    }
+}
+
+run();

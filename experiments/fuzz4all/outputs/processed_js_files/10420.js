@@ -1,0 +1,36 @@
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      let response = await fetch(`${this.apiUrl}${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetching data failed:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  static processData(data) {
+    return data.map(item => ({ ...item, processedAt: new Date() }));
+  }
+
+  static findMax(data, key) {
+    return data.reduce((max, item) => (item[key] > max[key] ? item : max), data[0]);
+  }
+}
+
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com';
+  const dataFetcher = new DataFetcher(apiUrl);
+  
+  const rawData = await dataFetcher.fetchData('/posts');
+  const processedData = DataProcessor.processData(rawData);
+
+  print('Processed Data:', processedData);
+  print('Max ID Post:', DataProcessor.findMax(processedData, 'id'));
+})();

@@ -1,0 +1,64 @@
+class Matrix {
+  #data;
+  
+  constructor(rows, cols, fill = 0) {
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static identity(size) {
+    const matrix = new Matrix(size, size);
+    for (let i = 0; i < size; i++) {
+      matrix.#data[i][i] = 1;
+    }
+    return matrix;
+  }
+
+  *[Symbol.iterator]() {
+    for (const row of this.#data) {
+      for (const value of row) {
+        yield value;
+      }
+    }
+  }
+  
+  map(callback) {
+    return this.#data.map((row, i) =>
+      row.map((value, j) => callback(value, i, j, this.#data))
+    );
+  }
+
+  static async fetchAndTransform(url, transformFunc) {
+    const response = await fetch(url);
+    const json = await response.json();
+    return transformFunc(json);
+  }
+
+  toString() {
+    return this.#data.map(row => row.join(', ')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  const matrix = new Matrix(3, 3);
+  print('Matrix:\n', matrix.toString());
+  
+  const identity = Matrix.identity(3);
+  print('Identity Matrix:\n', identity.toString());
+
+  for (const value of matrix) {
+    print('Iterated value:', value);
+  }
+
+  const transformedMatrix = matrix.map(value => value + 1);
+  print('Transformed Matrix:\n', transformedMatrix.map(row => row.join(', ')).join('\n'));
+
+   
+  try {
+    const url = 'https://api.example.com/data';  
+    const transformedData = await Matrix.fetchAndTransform(url, data => data.map(item => item * 2));
+    print('Fetched and Transformed Data:', transformedData);
+  } catch (error) {
+    console.error('Failed to fetch and transform data:', error);
+  }
+})();

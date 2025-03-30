@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  fib(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = this.fib(n - 1) + this.fib(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+(async () => {
+  const fibInstance = new Fibonacci();
+  
+   
+  const asyncFib = n => new Promise(resolve => setTimeout(() => resolve(fibInstance.fib(n)), 100));
+  
+  const fib10 = await asyncFib(10);
+  console.log(`Fibonacci(10): ${fib10}`);
+
+   
+  const fibProxy = new Proxy(fibInstance, {
+    get(target, prop, receiver) {
+      console.log(`Accessing property ${String(prop)}`);
+      return Reflect.get(target, prop, receiver);
+    },
+    apply(target, thisArg, argumentsList) {
+      console.log(`Calling function with arguments ${argumentsList}`);
+      return Reflect.apply(target, thisArg, argumentsList);
+    }
+  });
+
+  console.log(`Memoized Fibonacci(10): ${fibProxy.memo.get(10)}`);
+
+   
+  const fibIter = fibInstance[Symbol.iterator]();
+  console.log('First 5 Fibonacci numbers:');
+  for (let i = 0; i < 5; i++) {
+    console.log(fibIter.next().value);
+  }
+})();
+```

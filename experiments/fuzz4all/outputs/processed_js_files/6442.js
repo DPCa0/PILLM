@@ -1,0 +1,43 @@
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+    this.index = 0;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        if (this.index < this.data.length) {
+          return Promise.resolve({ value: this.data[this.index++], done: false });
+        } else {
+          return Promise.resolve({ done: true });
+        }
+      }
+    };
+  }
+}
+
+function* fibonacci(n) {
+  let a = 0, b = 1;
+  while (n--) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+(async () => {
+  const fibIterator = new AsyncIterator([...fibonacci(10)]);
+  
+   
+  const fibResults = await Promise.allSettled([...fibIterator].map(promise => promise.next().then(res => res.value)));
+
+  print('Fibonacci Sequence:', fibResults.map(result => result.value).filter(v => v !== undefined));
+
+   
+  if (Math.random() > 0.5) {
+    const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.default.js');
+    print('Random Lodash Chunk:', _.chunk([1, 2, 3, 4, 5, 6], 2));
+  }
+})();
+
+print('Hello, world!');

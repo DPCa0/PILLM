@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+class NetworkRequest {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Error fetching data: ${error.message}`);
+    }
+  }
+}
+
+const processData = async ({ users, posts }) => {
+  const combinedData = users.map(user => {
+    const userPosts = posts.filter(post => post.userId === user.id);
+    return { ...user, posts: userPosts };
+  });
+  return combinedData;
+};
+
+(async () => {
+  const userReq = new NetworkRequest('https://jsonplaceholder.typicode.com/users');
+  const postsReq = new NetworkRequest('https://jsonplaceholder.typicode.com/posts');
+
+  const [users, posts] = await Promise.all([userReq.fetchData(), postsReq.fetchData()]);
+  if (!users || !posts) return;
+
+  const result = await processData({ users, posts });
+  console.log(result);
+})();
+```

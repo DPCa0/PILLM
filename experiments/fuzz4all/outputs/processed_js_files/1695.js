@@ -1,0 +1,43 @@
+class AsyncSequence {
+  constructor(actions) {
+    this.actions = actions;
+  }
+  
+  async execute() {
+    for (const action of this.actions) {
+      await action();
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const logWithTimestamp = (msg) => {
+  print(`${new Date().toISOString()}: ${msg}`);
+}
+
+const actions = [
+  async () => {
+    logWithTimestamp('Action 1 starting');
+    await delay(1000);
+    logWithTimestamp('Action 1 completed');
+  },
+  async () => {
+    logWithTimestamp('Action 2 starting');
+    await delay(2000);
+    logWithTimestamp('Action 2 completed');
+  },
+  async () => {
+    logWithTimestamp('Action 3 starting');
+    await delay(1500);
+    logWithTimestamp('Action 3 completed');
+  }
+];
+
+(async () => {
+  const sequence = new AsyncSequence(actions);
+  await sequence.execute();
+  logWithTimestamp('All actions completed');
+})();

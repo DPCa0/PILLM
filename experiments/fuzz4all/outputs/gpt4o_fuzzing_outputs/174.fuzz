@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async () => {
+   
+  const fetchPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: {
+          id: 1,
+          name: 'John Doe',
+          email: 'john.doe@example.com'
+        },
+        posts: [
+          { id: 1, title: 'Hello World', content: 'This is my first post.' },
+          { id: 2, title: 'Advanced JavaScript', content: 'Exploring ES6+' }
+        ]
+      });
+    }, 1000);
+  });
+
+  try {
+    const { user, posts } = await fetchPromise;
+    
+    console.log(`User Details:
+    ID: ${user.id}
+    Name: ${user.name}
+    Email: ${user.email}`);
+
+    console.log(`Posts:`);
+    posts.forEach(({ id, title, content }) => {
+      console.log(`
+      Post ID: ${id}
+      Title: ${title}
+      Content: ${content}`);
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  await fetchData();
+})();
+```

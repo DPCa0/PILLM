@@ -1,0 +1,43 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  try {
+     
+    print("Fetching data...");
+    await delay(2000);
+     
+    const data = [
+      { id: 1, name: "Alice", score: 85 },
+      { id: 2, name: "Bob", score: 91 },
+      { id: 3, name: "Charlie", score: 78 }
+    ];
+    
+     
+    const processedData = data.map(({ id, name, score }) => ({
+      studentId: id,
+      studentName: name.toUpperCase(),
+      hasPassed: score >= 80
+    }));
+    
+    print("Data processed:", processedData);
+
+     
+    const summary = processedData.reduce((acc, { studentName, hasPassed }) => 
+      acc + `${studentName}: ${hasPassed ? "Passed" : "Failed"}\n`, 
+    "Summary:\n");
+
+    print(summary);
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+(async () => {
+  await fetchData();
+})();

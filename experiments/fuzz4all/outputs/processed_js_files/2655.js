@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [1, 2, 3, 4, 5] });
+    }, 1000);
+  });
+};
+
+ 
+async function* asyncGenerator() {
+  const data = await fetchData();
+  for (let item of data.data) {
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      return Reflect.get(target, property);
+    } else {
+      return `Property "${property}" does not exist.`;
+    }
+  },
+};
+
+ 
+const main = async () => {
+  const iterator = asyncGenerator();
+  const proxiedIterator = new Proxy(iterator, handler);
+
+  for await (let value of proxiedIterator) {
+    print(`Value: ${value}`);
+  }
+
+   
+  print(proxiedIterator.nonExistingProperty);
+};
+
+main();

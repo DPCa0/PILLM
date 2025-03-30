@@ -1,0 +1,43 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+async function* numberGenerator() {
+  let i = 0;
+  while (i < 5) {
+    yield await new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+  }
+}
+
+const emitter = new EventEmitter();
+emitter.on('data', (data) => print(`Received: ${data}`));
+
+(async () => {
+  for await (const num of numberGenerator()) {
+    emitter.emit('data', num);
+  }
+
+  const data = await fetchJson('https://jsonplaceholder.typicode.com/posts/1');
+  emitter.emit('data', JSON.stringify(data, null, 2));
+})().catch(error => console.error('Error:', error));

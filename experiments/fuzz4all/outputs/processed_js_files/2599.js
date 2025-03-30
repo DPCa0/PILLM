@@ -1,0 +1,43 @@
+class Animal {
+  constructor(name, sound) {
+    this.name = name;
+    this.sound = sound;
+  }
+
+  speak() {
+    print(`${this.name} says ${this.sound}`);
+  }
+}
+
+const withLogging = (BaseClass) =>
+  class extends BaseClass {
+    constructor(...args) {
+      super(...args);
+      print(`Creating an instance of ${BaseClass.name}`);
+    }
+
+    speak() {
+      print('Calling speak method...');
+      super.speak();
+    }
+  };
+
+class Dog extends withLogging(Animal) {
+  constructor(name) {
+    super(name, 'Woof!');
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const getRandomDogName = async () => {
+  const names = ['Buddy', 'Charlie', 'Max', 'Bella', 'Luna'];
+  await delay(1000);  
+  return names[Math.floor(Math.random() * names.length)];
+};
+
+(async () => {
+  const dogName = await getRandomDogName();
+  const myDog = new Dog(dogName);
+  myDog.speak();
+})();

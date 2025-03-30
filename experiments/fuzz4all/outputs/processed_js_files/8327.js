@@ -1,0 +1,44 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const fetchWithMemoization = memoize(fetchData);
+
+(async () => {
+  const deferred = new Deferred();
+  
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+
+  const dataFetch1 = fetchWithMemoization(url);
+  const dataFetch2 = fetchWithMemoization(url);
+
+  const [result1, result2] = await Promise.all([dataFetch1, dataFetch2]);
+  
+  print('Results are equal:', result1 === result2);
+
+  deferred.resolve();
+  await deferred.promise;
+})();

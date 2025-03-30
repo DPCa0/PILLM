@@ -1,0 +1,32 @@
+Certainly! Here's a JavaScript program that demonstrates advanced features such as Promises, async/await, destructuring, arrow functions, and modules.
+
+// utility.js - Module to perform utility tasks
+export const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// api.js - Module to simulate API calls
+export const fetchData = async () => {
+  await delay(1000); // Simulate network delay
+  return {
+    user: { name: 'Alice', age: 30 },
+    settings: { theme: 'dark', notifications: true },
+  };
+};
+
+// app.js - Main application logic
+import { fetchData } from './api.js';
+
+const initApp = async () => {
+  print('Initializing application...');
+
+  // Destructure returned data
+  const { user: { name, age }, settings: { theme, notifications } } = await fetchData();
+
+  // Log the user and settings data
+  print(`User: ${name}, Age: ${age}`);
+  print(`Theme: ${theme}, Notifications: ${notifications ? 'Enabled' : 'Disabled'}`);
+};
+
+// Execute the app
+initApp().then(() => print('Application initialized successfully.'));
+
+This code defines a simple application divided into modules. It uses asynchronous operations to fetch data and applies destructuring to handle the response. The arrow functions and template literals provide modern syntax features, while the `async/await` pattern simplifies the handling of asynchronous code.

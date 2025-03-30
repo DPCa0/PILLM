@@ -1,0 +1,33 @@
+ 
+async function fetchData(url) {
+     
+    const response = await fetch(url);
+     
+    const data = await response.json();
+
+    return new Promise((resolve, reject) => {
+         
+        setTimeout(() => {
+            if (data) {
+                resolve(data);
+            } else {
+                reject("Failed to fetch data");
+            }
+        }, 1000);
+    });
+}
+
+ 
+(async () => {
+    try {
+         
+        const url = 'https://jsonplaceholder.typicode.com/todos/1';
+         
+        const { userId, title, completed } = await fetchData(url);
+         
+        print(`User ID: ${userId}\nTitle: ${title}\nCompleted: ${completed}`);
+    } catch (error) {
+         
+        console.error('Error:', error);
+    }
+})();

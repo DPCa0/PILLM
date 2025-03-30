@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+class DataFetcher {
+    constructor(urls) {
+        this.urls = urls;
+    }
+
+    async fetchData() {
+        try {
+            const fetchPromises = this.urls.map(url => fetch(url).then(response => response.json()));
+            const results = await Promise.all(fetchPromises);
+            return results.map(({ data }) => data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+}
+
+const processData = async (urls) => {
+    const dataFetcher = new DataFetcher(urls);
+    const data = await dataFetcher.fetchData();
+
+    if (data) {
+        const combinedData = data.flat();
+        const uniqueData = [...new Set(combinedData)];
+        console.log(uniqueData);
+    }
+};
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts',
+    'https://jsonplaceholder.typicode.com/comments'
+];
+
+processData(urls);
+```

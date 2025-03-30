@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  await new Promise(resolve => setTimeout(resolve, 1000));  
+  return `Data from ${url}`;
+};
+
+ 
+function* urlGenerator() {
+  yield 'https://api.example.com/data1';
+  yield 'https://api.example.com/data2';
+  yield 'https://api.example.com/data3';
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === Symbol.iterator) {
+      return function*() {
+        for (const url of Reflect.get(target, prop, receiver)()) {
+          yield url + '?proxy=true';  
+        }
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxiedGenerator = new Proxy(urlGenerator(), handler);
+
+const main = async () => {
+  const results = [];
+
+   
+  for (const url of proxiedGenerator) {
+    results.push(await fetchData(url));
+  }
+
+  print('Fetched Results:', results);
+};
+
+ 
+main();

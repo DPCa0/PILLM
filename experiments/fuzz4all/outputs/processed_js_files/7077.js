@@ -1,0 +1,39 @@
+ 
+
+ 
+function* numberGenerator(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+function fetchNumberDetails(number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ number, isEven: number % 2 === 0 });
+    }, 100 * number);
+  });
+}
+
+ 
+async function processNumbers(start, end) {
+  const gen = numberGenerator(start, end);
+  const results = [];
+
+  for (const num of gen) {
+    const result = await fetchNumberDetails(num);
+    const { number, isEven } = result;
+    results.push(`Number: ${number}, Is Even: ${isEven}`);
+  }
+
+  return results;
+}
+
+ 
+processNumbers(1, 5)
+  .then((results) => {
+    print('Processed Results:');
+    results.forEach((res) => print(res));
+  })
+  .catch((err) => console.error(`Error: ${err.message}`));

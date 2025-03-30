@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (url === 'https://api.example.com/data') {
+      resolve({ data: 'Sample Data', timestamp: Date.now() });
+    } else {
+      reject(new Error('Invalid URL'));
+    }
+  }, 1000);
+});
+
+ 
+const handler = {
+  set(target, property, value) {
+    print(`Property '${property}' changed from '${target[property]}' to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const manipulateData = async () => {
+  try {
+     
+    const data = await fetchData('https://api.example.com/data');
+
+     
+    const observedData = new Proxy(data, handler);
+
+     
+    print('Initial Data:', observedData);
+
+     
+    setTimeout(() => {
+      observedData.data = 'Updated Sample Data';
+    }, 2000);
+
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+};
+
+ 
+manipulateData();

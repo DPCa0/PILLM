@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const fetchUserData = async (userId) => {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        id: userId,
+        name: 'John Doe',
+        address: { street: '123 Elm St', city: 'Somewhere', zip: '12345' },
+        hobbies: ['reading', 'gaming', 'hiking']
+      };
+      Math.random() > 0.1 ? resolve(data) : reject('Failed to fetch data');
+    }, 1000);
+  });
+};
+
+const displayUserData = async (userId) => {
+  try {
+     
+    const { name, address: { street, city }, hobbies } = await fetchUserData(userId);
+    
+     
+    console.log(`User Data:
+    Name: ${name}
+    Address: ${street}, ${city}
+    Hobbies: ${hobbies.join(', ')}
+    Additional Hobbies: ${[...hobbies, 'swimming'].join(', ')}`);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+const userId = 1;
+displayUserData(userId);
+```

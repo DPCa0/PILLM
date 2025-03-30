@@ -1,0 +1,54 @@
+class EventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) this.#events.set(event, []);
+    this.#events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.#events.has(event)) return;
+    this.#events.get(event).forEach(listener => listener(...args));
+  }
+}
+
+const asyncOperation = async () => {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return Math.random() > 0.5 ? 'Success' : 'Failure';
+};
+
+const runTask = async () => {
+  try {
+    const result = await asyncOperation();
+    return Promise.resolve(result);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('taskCompleted', result => {
+  print(`Task completed with result: ${result}`);
+});
+
+eventEmitter.on('taskFailed', error => {
+  console.error(`Task failed with error: ${error}`);
+});
+
+(async () => {
+  try {
+    const result = await runTask();
+    eventEmitter.emit('taskCompleted', result);
+  } catch (error) {
+    eventEmitter.emit('taskFailed', error);
+  }
+})();
+
+(async function* fibonacci(n) {
+  let [a, b] = [0, 1];
+  while (n--) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+})(10).forEach(num => print(num));

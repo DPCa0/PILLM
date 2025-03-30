@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+  #firstName;
+  #lastName;
+  #age;
+
+  constructor(firstName, lastName, age) {
+    this.#firstName = firstName;
+    this.#lastName = lastName;
+    this.#age = age;
+  }
+
+   
+  #getFullName() {
+    return `${this.#firstName} ${this.#lastName}`;
+  }
+
+   
+  getInfo() {
+    return `${this.#getFullName()}, Age: ${this.#age}`;
+  }
+
+   
+  static #isValidPerson(person) {
+    return person instanceof Person;
+  }
+
+  static compareAges(person1, person2) {
+    if (!this.#isValidPerson(person1) || !this.#isValidPerson(person2)) {
+      throw new Error("Both arguments must be instances of Person.");
+    }
+    return person1.#age - person2.#age;
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    let data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      return target[property];
+    } else {
+      console.warn(`Property ${property} does not exist.`);
+      return undefined;
+    }
+  },
+  set: (target, property, value) => {
+    if (property === 'age' && typeof value !== 'number') {
+      throw new TypeError("Age must be a number.");
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const personProxy = new Proxy(new Person('John', 'Doe', 30), handler);
+
+ 
+console.log(personProxy.getInfo());
+personProxy.age = 31;  
+console.log(personProxy.getInfo());
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+```

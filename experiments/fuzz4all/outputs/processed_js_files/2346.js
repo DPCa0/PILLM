@@ -1,0 +1,43 @@
+ 
+(async () => {
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+   
+  class DataFetcher {
+    #url;
+    #cache = new Map();
+
+    constructor(url) {
+      this.#url = url;
+    }
+
+    async #fetchData() {
+      if (this.#cache.has(this.#url)) {
+        print('Returning cached data...');
+        return this.#cache.get(this.#url);
+      }
+      
+      print('Fetching new data...');
+      const response = await axios.get(this.#url);
+      this.#cache.set(this.#url, response.data);
+      return response.data;
+    }
+
+    async getData() {
+      try {
+        const data = await this.#fetchData();
+        print('Data:', data);
+        return data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+      }
+    }
+  }
+
+   
+  const fetcher = new DataFetcher('https://jsonplaceholder.typicode.com/posts/1');
+  fetcher.getData()
+    .then(data => console.log('Title:', data?.title ?? 'No title found'))
+    .catch(error => console.error('Failed to fetch data:', error));
+})();

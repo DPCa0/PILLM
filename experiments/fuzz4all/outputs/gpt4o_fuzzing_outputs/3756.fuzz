@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs';
+import { promisify } from 'util';
+
+ 
+const readFileAsync = promisify(fs.readFile);
+
+ 
+async function readJson(filePath) {
+  try {
+    const data = await readFileAsync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading JSON file:', error);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property, receiver) {
+    console.log(`Accessing property "${property}"`);
+    return Reflect.get(target, property, receiver);
+  }
+};
+
+const dataProxy = new Proxy({ name: "JavaScript", type: "Programming Language" }, handler);
+
+ 
+(async () => {
+  console.log(`Data Proxy: Name - ${dataProxy.name}, Type - ${dataProxy.type}`);
+  
+   
+  const { name, type } = dataProxy;
+  console.log(`The ${name} is a ${type}.`);
+
+   
+  if (name === "JavaScript") {
+    const { default: chalk } = await import('chalk');
+    console.log(chalk.green('JavaScript module loaded dynamically!'));
+  }
+  
+   
+  const jsonData = await readJson('./data.json');
+  if (jsonData) {
+    console.log('JSON Data:', jsonData);
+  }
+})();
+```

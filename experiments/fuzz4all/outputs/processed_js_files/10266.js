@@ -1,0 +1,32 @@
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+  await delay(1000);  
+  return { data: 'Sample Data' };
+}
+
+const handler = {
+  get: (target, prop) => prop in target ? target[prop] : `Property ${prop} not found`,
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const dataProxy = new Proxy({}, handler);
+
+(async function main() {
+  try {
+    const result = await fetchData();
+    print(result.data);
+
+     
+    dataProxy.data = result.data;
+    print(dataProxy.data);  
+    print(dataProxy.undefinedProp);  
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

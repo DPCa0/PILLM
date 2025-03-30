@@ -1,0 +1,77 @@
+ 
+class EventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, callback) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(callback);
+    }
+
+    emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            for (const listener of this.listeners.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+}
+
+class TaskQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    enqueue(promiseFunc) {
+        this.queue.push(promiseFunc);
+        this.process();
+    }
+
+    async process() {
+        if (this.processing) return;
+        this.processing = true;
+        while (this.queue.length) {
+            const currentTask = this.queue.shift();
+            try {
+                await currentTask();
+            } catch (error) {
+                console.error(`Task failed: ${error}`);
+            }
+        }
+        this.processing = false;
+    }
+}
+
+async function fetchWithTimeout(url, ms) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), ms);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        return await response.json();
+    } finally {
+        clearTimeout(id);
+    }
+}
+
+ 
+
+const eventEmitter = new EventEmitter();
+const taskQueue = new TaskQueue();
+
+eventEmitter.on('data', (data) => {
+    print('Received data:', data);
+});
+
+taskQueue.enqueue(async () => {
+    const data = await fetchWithTimeout('https://api.spacexdata.com/v4/launches/latest', 3000);
+    eventEmitter.emit('data', data);
+});
+
+taskQueue.enqueue(async () => {
+    const data = await fetchWithTimeout('https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits', 3000);
+    eventEmitter.emit('data', data);
+});

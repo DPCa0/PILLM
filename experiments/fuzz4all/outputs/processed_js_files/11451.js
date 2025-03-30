@@ -1,0 +1,44 @@
+class AsyncLogger {
+  constructor() {
+    this.logQueue = [];
+    this.isLogging = false;
+  }
+
+  async enqueueLog(message) {
+    this.logQueue.push(message);
+    if (!this.isLogging) {
+      this.isLogging = true;
+      while (this.logQueue.length > 0) {
+        const msg = this.logQueue.shift();
+        await this.logToServer(msg);
+      }
+      this.isLogging = false;
+    }
+  }
+
+  async logToServer(message) {
+     
+    return new Promise(resolve => {
+      setTimeout(() => {
+        print(`Logged to server: ${message}`);
+        resolve();
+      }, 1000);
+    });
+  }
+}
+
+const logger = new AsyncLogger();
+
+async function* generateData() {
+  let count = 0;
+  while (count < 5) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    yield `Data ${++count}`;
+  }
+}
+
+(async () => {
+  for await (const data of generateData()) {
+    logger.enqueueLog(data);
+  }
+})();

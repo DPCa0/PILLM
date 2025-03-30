@@ -1,0 +1,61 @@
+ 
+class AdvancedFeature {
+   
+  #privateField;
+
+   
+  static staticField = "I'm static";
+
+   
+  constructor(value) {
+    this.#privateField = value;
+  }
+
+   
+  #privateMethod() {
+    return `Accessed private method with value: ${this.#privateField}`;
+  }
+
+   
+  async *publicMethod() {
+    yield `Starting async operations for ${this.#privateField}`;
+    for (let i = 0; i < 3; i++) {
+      yield await new Promise(resolve =>
+        setTimeout(() => resolve(`Async step ${i + 1} completed`), 1000)
+      );
+    }
+    yield this.#privateMethod();  
+  }
+
+   
+  static staticMethod() {
+    return `Accessing static field: ${AdvancedFeature.staticField}`;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === 'secret') {
+      return `Intercepted access to secret field: ${target.#privateField}`;
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const instance = new AdvancedFeature("Hidden Value");
+const proxiedInstance = new Proxy(instance, handler);
+
+ 
+(async () => {
+  for await (const message of proxiedInstance.publicMethod()) {
+    print(message);
+  }
+  
+   
+  print(AdvancedFeature.staticMethod());
+
+   
+  print(proxiedInstance.secret);
+})();

@@ -1,0 +1,44 @@
+ 
+(async () => {
+    const fetchData = async (url) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (url === "https://api.example.com/data") {
+                    resolve({ data: { value1: 42, value2: "Hello" } });
+                } else {
+                    reject(new Error("Invalid URL"));
+                }
+            }, 1000);
+        });
+    };
+
+    const processData = ({ data: { value1, value2 } }) => {
+        return `Value1 is ${value1} and Value2 is ${value2}`;
+    };
+
+    try {
+        const result = await fetchData("https://api.example.com/data");
+        print(processData(result));
+    } catch (error) {
+        console.error(error.message);
+    }
+
+     
+    const targetObject = { name: "Alice", age: 25 };
+
+    const handler = {
+        get: (target, property) => {
+            if (property === 'name') {
+                return `User: ${target[property]}`;
+            }
+            if (property === 'age') {
+                return `${target[property]} years old`;
+            }
+            return target[property];
+        }
+    };
+
+    const proxy = new Proxy(targetObject, handler);
+    print(proxy.name);  
+    print(proxy.age);   
+})();

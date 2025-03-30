@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+
+     
+    class Fibonacci {
+        #cache = [0, 1];
+
+        constructor(n) {
+            if (n < 0) throw new Error("Negative index not allowed.");
+            this.n = n;
+        }
+
+         
+        *sequence() {
+            let [a, b] = this.#cache;
+            for (let i = 0; i <= this.n; i++) {
+                yield a;
+                [a, b] = [b, a + b];
+                this.#cache[i] = a;
+            }
+        }
+
+         
+        static async getNthValue(n) {
+            return await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    try {
+                        const fib = new Fibonacci(n);
+                        resolve([...fib.sequence()][n]);
+                    } catch (error) {
+                        reject(error);
+                    }
+                }, 100);
+            });
+        }
+    }
+
+     
+    try {
+        const nth = 10;  
+        const value = await Fibonacci.getNthValue(nth);
+        console.log(`The ${nth}th Fibonacci number is: ${value}`);
+    } catch (error) {
+        console.error("An error occurred:", error.message);
+    }
+})();
+```

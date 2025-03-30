@@ -1,0 +1,41 @@
+class Task {
+  constructor(name, deadline) {
+    this.name = name;
+    this.deadline = deadline;
+    this.completed = false;
+  }
+
+  complete() {
+    this.completed = true;
+    print(`Task "${this.name}" completed!`);
+  }
+}
+
+const taskList = new Proxy([], {
+  get(target, prop) {
+    if (prop === 'pending') {
+      return target.filter(task => !task.completed);
+    } else if (prop === 'completed') {
+      return target.filter(task => task.completed);
+    }
+    return target[prop];
+  }
+});
+
+const addTask = (name, daysUntilDeadline) => {
+  const deadline = new Date(Date.now() + daysUntilDeadline * 24 * 60 * 60 * 1000);
+  taskList.push(new Task(name, deadline));
+};
+
+addTask('Learn Proxy in JavaScript', 3);
+addTask('Practice async/await', 2);
+
+taskList[0].complete();
+
+(async () => {
+  for (const task of taskList.pending) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    task.complete();
+  }
+  print('All tasks completed:', taskList.completed.map(t => t.name));
+})();

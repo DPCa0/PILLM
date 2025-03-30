@@ -1,0 +1,40 @@
+class Complex {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static add(c1, c2) {
+        return new Complex(c1.real + c2.real, c1.imaginary + c2.imaginary);
+    }
+
+    static multiply(c1, c2) {
+        const real = c1.real * c2.real - c1.imaginary * c2.imaginary;
+        const imaginary = c1.real * c2.imaginary + c1.imaginary * c2.real;
+        return new Complex(real, imaginary);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property === 'magnitude') {
+            return Math.sqrt(target.real ** 2 + target.imaginary ** 2);
+        }
+        return target[property];
+    }
+};
+
+const complex1 = new Proxy(new Complex(3, 4), handler);
+const complex2 = new Proxy(new Complex(1, 2), handler);
+
+const sum = Complex.add(complex1, complex2);
+const product = Complex.multiply(complex1, complex2);
+
+print(`Sum: ${sum.toString()}`);
+print(`Product: ${product.toString()}`);
+print(`Magnitude of complex1: ${complex1.magnitude}`);

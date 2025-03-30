@@ -1,0 +1,50 @@
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: { id: 1, name: "Alice", age: 30 },
+                settings: { theme: "dark", notifications: true }
+            });
+        }, 1000);
+    });
+};
+
+ 
+const createLoggingProxy = (obj) => {
+    return new Proxy(obj, {
+        get(target, prop) {
+            print(`Accessing property "${prop}"`);
+            return target[prop];
+        }
+    });
+};
+
+ 
+(async () => {
+    try {
+        const { user, settings } = await fetchData();
+        
+         
+        const { id, name, age = 18 } = user;
+        const { theme = "light", notifications = false } = settings;
+
+         
+        const userProxy = createLoggingProxy(user);
+        const settingsProxy = createLoggingProxy(settings);
+
+         
+        console.log(`User Info: 
+        ID: ${userProxy.id}
+        Name: ${userProxy.name}
+        Age: ${userProxy.age}`);
+
+        console.log(`Settings: 
+        Theme: ${settingsProxy.theme}
+        Notifications Enabled: ${settingsProxy.notifications}`);
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();

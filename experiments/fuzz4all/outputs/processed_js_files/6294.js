@@ -1,0 +1,61 @@
+class WeatherStation {
+  #observers = new Set();
+  #temperature = 20;
+
+  subscribe(observer) {
+    this.#observers.add(observer);
+  }
+
+  unsubscribe(observer) {
+    this.#observers.delete(observer);
+  }
+
+  setTemperature(temp) {
+    this.#temperature = temp;
+    this.#notifyObservers();
+  }
+
+  #notifyObservers() {
+    this.#observers.forEach(observer => observer.update(this.#temperature));
+  }
+}
+
+class Display {
+  constructor(station) {
+    this.station = station;
+  }
+
+  update(temp) {
+    print(`Display: Current temperature is ${temp}°C`);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function simulateWeather() {
+  const station = new WeatherStation();
+  const display1 = new Display(station);
+  const display2 = new Display(station);
+
+  station.subscribe(display1);
+  station.subscribe(display2);
+
+  for (let i = 1; i <= 5; i++) {
+    const newTemp = Math.floor(Math.random() * 35);
+    print(`\nNew temperature reading: ${newTemp}°C`);
+    station.setTemperature(newTemp);
+    await delay(2000);
+  }
+
+  station.unsubscribe(display2);
+  print("\nDisplay2 unsubscribed.\n");
+
+  for (let i = 1; i <= 3; i++) {
+    const newTemp = Math.floor(Math.random() * 35);
+    print(`\nNew temperature reading: ${newTemp}°C`);
+    station.setTemperature(newTemp);
+    await delay(2000);
+  }
+}
+
+simulateWeather();

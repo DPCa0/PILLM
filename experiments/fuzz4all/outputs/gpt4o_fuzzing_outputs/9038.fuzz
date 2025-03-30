@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+    constructor(max) {
+        this.max = max;
+        this.memo = new Map();
+    }
+    
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        while (curr <= this.max) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    get(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        
+        const value = this.get(n - 1) + this.get(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const asyncFibonacciHandler = async (max) => {
+    const sequence = new FibonacciSequence(max);
+
+    console.log("Iterating over Fibonacci Sequence:");
+    for (const num of sequence) {
+        console.log(num);
+    }
+
+    console.log("\nGetting specific Fibonacci numbers with memoization:");
+    const tasks = [5, 7, 10, 15].map(async (n) => {
+        const value = sequence.get(n);
+        console.log(`Fibonacci(${n}) = ${value}`);
+    });
+
+    await Promise.all(tasks);
+};
+
+(async () => {
+    await asyncFibonacciHandler(50);
+})();
+```

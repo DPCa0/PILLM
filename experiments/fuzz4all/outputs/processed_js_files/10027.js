@@ -1,0 +1,64 @@
+ 
+class ComplexFeature {
+  #secretNumber;
+  
+  constructor() {
+    this.#secretNumber = this.#generateSecret();
+  }
+
+  #generateSecret() {
+    return Math.floor(Math.random() * 100);
+  }
+
+  getSecretNumber() {
+    return this.#secretNumber;
+  }
+}
+
+ 
+async function simulateApiCall() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve("Data from simulated API"), 2000);
+  });
+}
+
+ 
+async function handleApiCall() {
+  try {
+    const results = await Promise.allSettled([
+      simulateApiCall(),
+      simulateApiCall(),
+      simulateApiCall()
+    ]);
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        print(`Call ${index + 1}: Success, ${result.value}`);
+      } else {
+        print(`Call ${index + 1}: Failed, ${result.reason}`);
+      }
+    });
+  } catch (error) {
+    console.error("Error handling API calls:", error);
+  }
+}
+
+ 
+function manipulateArraysAndObjects() {
+  const numbers = [1, 2, 3, 4, 5];
+  const [first, ...rest] = numbers;
+  print(`First: ${first}, Rest: ${rest}`);
+
+  const person = { name: "Alice", age: 25, country: "Wonderland" };
+  const { name, ...otherDetails } = person;
+  print(`Name: ${name}, Other Details: ${JSON.stringify(otherDetails)}`);
+}
+
+ 
+(async () => {
+  const feature = new ComplexFeature();
+  print(`Secret Number: ${feature.getSecretNumber()}`);
+
+  await handleApiCall();
+  manipulateArraysAndObjects();
+})();

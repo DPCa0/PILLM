@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 28 },
+        { id: 2, name: 'Bob', age: 24 },
+        { id: 3, name: 'Charlie', age: 30 }
+      ]);
+    }, 2000);
+  });
+};
+
+ 
+function* userGenerator(users) {
+  for (const user of users) {
+    yield user;
+  }
+}
+
+ 
+async function processData() {
+  try {
+    const users = await fetchData();
+    console.log('Data fetched:', users);
+    
+     
+    const [{ name: firstName }, , { age: lastUserAge }] = users;
+    console.log(`First user's name: ${firstName}`);
+    console.log(`Last user's age: ${lastUserAge}`);
+    
+     
+    const userGen = userGenerator(users);
+    let nextUser;
+
+    console.log('Iterating through users using generator:');
+    while (!(nextUser = userGen.next()).done) {
+       
+      const userWithStatus = { ...nextUser.value, status: 'active' };
+      console.log(userWithStatus);
+    }
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+processData();
+```

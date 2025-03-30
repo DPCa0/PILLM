@@ -1,0 +1,48 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+    
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        while (true) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    memoized(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+        const value = this.memoized(n - 1) + this.memoized(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+
+    nth(n) {
+        return [...this].slice(0, n + 1).pop();
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci();
+    print(`10th Fibonacci (iterator): ${fib.nth(10)}`);
+    print(`10th Fibonacci (memoized): ${fib.memoized(10)}`);
+
+    const results = await Promise.all([
+        fib.memoized(15), 
+        fib.memoized(20), 
+        fib.memoized(25)
+    ]);
+
+    print(`Async memoized results: ${results.join(', ')}`);
+
+    const range = [...Array(10).keys()];
+    const [odds, evens] = range.reduce(([odds, evens], n) => {
+        (n % 2 === 0 ? evens : odds).push(n);
+        return [odds, evens];
+    }, [[], []]);
+
+    print(`Odds: ${odds.join(', ')}`);
+    print(`Evens: ${evens.join(', ')}`);
+})();

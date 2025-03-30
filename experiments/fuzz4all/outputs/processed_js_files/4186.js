@@ -1,0 +1,47 @@
+ 
+
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async process() {
+    const processedData = await Promise.all(
+      this.data.map(async (item, index) => {
+        await this.delay(100 * index);
+        return item * 2;
+      })
+    );
+    return processedData;
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      console.warn(`Property "${prop}" does not exist on target object.`);
+      return undefined;
+    }
+  }
+};
+
+const data = [1, 2, 3, 4, 5];
+const processorProxy = new Proxy(new AsyncProcessor(data), handler);
+
+(async () => {
+  try {
+    const result = await processorProxy.process();
+    print('Processed Data:', result);
+
+     
+    print('Non-existing Property:', processorProxy.nonExistingProperty);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();

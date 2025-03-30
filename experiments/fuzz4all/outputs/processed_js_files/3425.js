@@ -1,0 +1,31 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { name: 'Alice', score: 50 },
+        { name: 'Bob', score: 70 },
+        { name: 'Charlie', score: 90 },
+      ]);
+    }, 1000);
+  });
+
+(async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const averageHighScore = data
+      .filter((student) => student.score >= 60)
+      .map((student) => student.score)
+      .reduce((acc, score, _, arr) => acc + score / arr.length, 0);
+
+     
+    print(`Average high score: ${averageHighScore}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.reduce((acc, item) => {
+    const key = item.category || 'unknown';
+    acc[key] = acc[key] || [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+};
+
+const renderData = (processedData) => {
+  Object.entries(processedData).forEach(([category, items]) => {
+    print(`Category: ${category}`);
+    items.forEach(item => print(` - ${item.name}`));
+  });
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const rawData = await fetchData(url);
+  if (rawData) {
+    const processedData = processData(rawData);
+    renderData(processedData);
+  }
+})();

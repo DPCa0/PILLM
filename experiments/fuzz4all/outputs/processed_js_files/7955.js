@@ -1,0 +1,48 @@
+ 
+const fetchData = async () => {
+    return new Promise(resolve => setTimeout(() => resolve({ data: 'Mock Data' }), 1000));
+};
+
+ 
+const withErrorHandling = asyncFn => async (...args) => {
+    try {
+        return await asyncFn(...args);
+    } catch (error) {
+        console.error('Error:', error);
+        return null;
+    }
+};
+
+ 
+const dataHandler = {
+    get: (target, property) => {
+        print(`Getting ${property}: ${target[property]}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const main = async () => {
+    const safeFetchData = withErrorHandling(fetchData);
+    const responseData = await safeFetchData();
+
+    if (responseData) {
+         
+        const dataProxy = new Proxy(responseData, dataHandler);
+
+         
+        print('Data before modification:', dataProxy.data);
+
+         
+        dataProxy.data = 'Updated Mock Data';
+        print('Data after modification:', dataProxy.data);
+    }
+};
+
+ 
+main();

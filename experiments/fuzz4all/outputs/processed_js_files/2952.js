@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: { id: 1, name: 'Complex JS', details: { language: 'JavaScript', level: 'Advanced' } } });
+        }, 1000);
+    });
+};
+
+ 
+const createSafeObject = (target) => {
+    return new Proxy(target, {
+        get: (obj, prop) => {
+            return prop in obj ? obj[prop] : `Property "${prop}" does not exist`;
+        }
+    });
+};
+
+ 
+(async function main() {
+    try {
+         
+        const { data } = await fetchData();
+
+         
+        const { id, name, details: { language, level } } = createSafeObject(data);
+
+         
+        print(`ID: ${id}, Name: ${name}, Language: ${language}, Level: ${level}`);
+
+         
+        print(`Unknown Property: ${data.unknownProperty}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

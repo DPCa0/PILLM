@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Person {
+  #privateAge;
+  
+  constructor(name, age) {
+    this.name = name;
+    this.#privateAge = age;
+  }
+  
+  get age() {
+    return this.#privateAge;
+  }
+  
+  set age(newAge) {
+    if (newAge > 0) {
+      this.#privateAge = newAge;
+    } else {
+      console.log("Age must be positive");
+    }
+  }
+  
+  greet() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Hello, my name is ${this.name} and I am ${this.#privateAge} years old.`);
+      }, 1000);
+    });
+  }
+}
+
+async function showGreeting() {
+  const person = new Person("Alice", 30);
+  console.log(`Initial: ${await person.greet()}`);
+  
+  person.age = -5;  
+  person.age = 31;  
+  
+  console.log(`Updated: ${await person.greet()}`);
+  
+  const calculate = (x, y) => x ** y;  
+  
+   
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        return Reflect.get(...arguments);
+      } else {
+        console.log(`${prop} doesn't exist on target`);
+        return undefined;
+      }
+    }
+  };
+  
+  const proxyPerson = new Proxy(person, handler);
+  console.log(proxyPerson.name); // Alice
+  console.log(proxyPerson.nonExistentProp); // Logs: nonExistentProp doesn't exist on target
+
+   
+  const uniqueKey = Symbol("unique");
+  proxyPerson[uniqueKey] = "Unique Value";
+  console.log(proxyPerson[uniqueKey]);
+}
+
+showGreeting();
+```

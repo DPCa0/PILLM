@@ -1,0 +1,51 @@
+ 
+import { readFile } from 'fs/promises';
+import { createInterface } from 'readline';
+import { pipeline } from 'stream/promises';
+import { Transform } from 'stream';
+import { setTimeout } from 'timers/promises';
+
+ 
+class UpperCaseTransform extends Transform {
+  constructor() {
+    super({ readableObjectMode: true, writableObjectMode: true });
+  }
+
+  async _transform(chunk, encoding, callback) {
+    await setTimeout(100);  
+    callback(null, chunk.toUpperCase());
+  }
+}
+
+ 
+async function processFile(filePath) {
+   
+  const fileStream = await readFile(filePath, 'utf-8');
+
+   
+  const rl = createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+
+   
+  await pipeline(
+    rl,
+    new UpperCaseTransform(),
+    async function* (source) {
+      for await (const chunk of source) {
+        yield chunk.split('').reverse().join('');  
+      }
+    },
+    async function* (source) {
+      for await (const transformedChunk of source) {
+        print(transformedChunk);  
+      }
+    }
+  );
+}
+
+ 
+processFile('example.txt').catch(console.error);
+
+This code uses advanced JavaScript features like async iterators, streams, ES module syntax, and asynchronous operations with the `pipeline` method to process a file, transform its contents to uppercase, and reverse each line before printing them.

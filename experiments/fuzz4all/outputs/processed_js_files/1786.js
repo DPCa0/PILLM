@@ -1,0 +1,29 @@
+class AsyncCalculator {
+  static async *fibonacciGenerator(limit) {
+    let [prev, current] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+      yield current;
+      [prev, current] = [current, prev + current];
+    }
+  }
+
+  static async calculateSum(limit) {
+    let sum = 0;
+    for await (const num of this.fibonacciGenerator(limit)) {
+      sum += num;
+    }
+    return sum;
+  }
+
+  static async logSum(limit) {
+    try {
+      const sum = await this.calculateSum(limit);
+      print(`Sum of first ${limit} Fibonacci numbers: ${sum}`);
+    } catch (error) {
+      console.error("An error occurred: ", error);
+    }
+  }
+}
+
+const limit = 10;
+AsyncCalculator.logSum(limit);

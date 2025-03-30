@@ -1,0 +1,38 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+    }
+
+    async enqueue(task) {
+        this.queue.push(task);
+        if (!this.isProcessing) {
+            this.isProcessing = true;
+            while (this.queue.length) {
+                const nextTask = this.queue.shift();
+                try {
+                    await nextTask();
+                } catch (error) {
+                    console.error("Error processing task:", error);
+                }
+            }
+            this.isProcessing = false;
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+    const queue = new AsyncQueue();
+
+    const taskFactory = (id) => async () => {
+        print(`Starting task ${id}`);
+        await delay(Math.random() * 2000);
+        print(`Finished task ${id}`);
+    };
+
+    for (let i = 0; i < 5; i++) {
+        queue.enqueue(taskFactory(i));
+    }
+})();

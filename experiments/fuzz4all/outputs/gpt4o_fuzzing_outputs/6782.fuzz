@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class AsyncIterable {
+  constructor(data) {
+    this.data = data;
+  }
+  [Symbol.asyncIterator]() {
+    let index = 0;
+    let data = this.data;
+    return {
+      async next() {
+        if (index < data.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));  
+          return { value: data[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number' && value > 0) {
+      target[prop] = value;
+      return true;
+    } else {
+      throw new Error('Only positive numbers are allowed');
+    }
+  }
+};
+
+const dataProxy = new Proxy({ first: 1, second: 2 }, proxyHandler);
+
+async function processData() {
+  try {
+    for await (let num of new AsyncIterable([1, 2, 3, 4, 5])) {
+      dataProxy[`value_${num}`] = num;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+(async () => {
+  try {
+    await processData();
+    console.log(dataProxy);
+  } catch (err) {
+    console.error('An error occurred:', err);
+  }
+})();
+```

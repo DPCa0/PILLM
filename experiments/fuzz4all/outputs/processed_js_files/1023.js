@@ -1,0 +1,54 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+
+    const filteredListeners = this.events
+      .get(event)
+      .filter(listener => listener !== listenerToRemove);
+
+    if (filteredListeners.length) {
+      this.events.set(event, filteredListeners);
+    } else {
+      this.events.delete(event);
+    }
+  }
+}
+
+const asyncTimeout = (time) =>
+  new Promise(resolve => setTimeout(resolve, time));
+
+const greet = async (name) => {
+  await asyncTimeout(1000);
+  print(`Hello, ${name}!`);
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('greet', greet);
+
+  const names = ['Alice', 'Bob', 'Charlie'];
+  for (const name of names) {
+    await asyncTimeout(500);
+    eventEmitter.emit('greet', name);
+  }
+
+  eventEmitter.off('greet', greet);
+})();

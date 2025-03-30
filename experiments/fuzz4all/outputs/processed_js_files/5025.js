@@ -1,0 +1,47 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, new Set());
+        }
+        this.#events.get(event).add(listener);
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).delete(listener);
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const withTiming = (fn) => async (...args) => {
+    console.time(fn.name);
+    const result = await fn(...args);
+    console.timeEnd(fn.name);
+    return result;
+};
+
+const asyncOperation = async (num) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(num * 2);
+        }, 1000);
+    });
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    const asyncOpWithTiming = withTiming(asyncOperation);
+
+    eventEmitter.on('result', console.log);
+
+    const results = await Promise.all([1, 2, 3, 4].map(num => asyncOpWithTiming(num)));
+    results.forEach(result => eventEmitter.emit('result', result));
+})();

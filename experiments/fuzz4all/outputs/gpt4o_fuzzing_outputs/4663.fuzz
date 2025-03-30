@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchDataAndCompute() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts',
+    'https://jsonplaceholder.typicode.com/comments',
+    'https://jsonplaceholder.typicode.com/albums'
+  ];
+
+  try {
+    const [computeModule, ...responses] = await Promise.all([
+      import('./compute.js'),  
+      ...urls.map(url => fetch(url).then(res => res.json()))
+    ]);
+
+    const [posts, comments, albums] = responses;
+
+     
+    const handler = {
+      get: (target, prop) => prop in target ? target[prop] : 'N/A'
+    };
+    
+    const proxyPosts = posts.map(post => new Proxy(post, handler));
+    
+     
+    const uniqueUserIds = new Set(posts.map(post => post.userId));
+    const userAlbumsMap = new Map();
+
+    uniqueUserIds.forEach(userId => {
+      userAlbumsMap.set(userId, albums.filter(album => album.userId === userId));
+    });
+
+     
+    const totalWordCount = computeModule.computeWordCount(posts.map(post => post.body).join(' '));
+    
+    console.log('Total Word Count in Posts:', totalWordCount);
+    console.log('User Albums Map:', userAlbumsMap);
+    console.log('First Post through Proxy:', proxyPosts[0]);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+ 
+ 
+ 
+
+ 
+fetchDataAndCompute();
+```

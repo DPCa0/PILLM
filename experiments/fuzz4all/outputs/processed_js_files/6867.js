@@ -1,0 +1,45 @@
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    greet() {
+        return `Hello, my name is ${this.name} and I am ${this.age} years old.`;
+    }
+}
+
+const asyncFetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+};
+
+(async function () {
+    let url = 'https://jsonplaceholder.typicode.com/users';
+    let users = await asyncFetchData(url);
+
+    if (users) {
+        let userInstances = users.map(({ name, age }) => new Person(name, age || Math.floor(Math.random() * 50) + 20));
+
+        userInstances.forEach(user => {
+            print(user.greet());
+        });
+
+        let personProxy = new Proxy(userInstances[0], {
+            get(target, prop, receiver) {
+                if (prop === 'age') {
+                    return `This is a protected property. Actual age is ${Reflect.get(...arguments)}`;
+                }
+                return Reflect.get(...arguments);
+            }
+        });
+
+        print(personProxy.age);
+    }
+})();

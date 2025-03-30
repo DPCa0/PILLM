@@ -1,0 +1,60 @@
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  #validateNumber(number) {
+    return typeof number === 'number' && !isNaN(number);
+  }
+
+  *numberGenerator() {
+    for (let number of this.data) {
+      if (this.#validateNumber(number)) {
+        yield number;
+      }
+    }
+  }
+
+  async #fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  async processData(url) {
+    try {
+      const externalData = await this.#fetchData(url);
+      const combinedData = [...this.data, ...externalData];
+
+      const validNumbers = combinedData.filter(number => this.#validateNumber(number));
+      const avg = validNumbers.reduce((sum, num) => sum + num, 0) / validNumbers.length;
+      
+      print(`Average: ${avg.toFixed(2)}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  static parseDataFromString(str) {
+    try {
+      return JSON.parse(str);
+    } catch {
+      return [];
+    }
+  }
+}
+
+(async () => {
+  const rawData = '[1, 2, 3, 4, "not a number", 5]';
+  const data = DataProcessor.parseDataFromString(rawData);
+  const processor = new DataProcessor(data);
+
+  for (let num of processor.numberGenerator()) {
+    print(`Valid number: ${num}`);
+  }
+
+  const dataUrl = 'https://api.mocki.io/v1/abcdef';  
+  await processor.processData(dataUrl);
+})();

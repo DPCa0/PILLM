@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class AsyncCache {
+    constructor(fetchFunction) {
+        this.fetchFunction = fetchFunction;
+        this.cache = new Map();
+    }
+
+    async get(key) {
+        if (!this.cache.has(key)) {
+            const promise = this.fetchFunction(key);
+            this.cache.set(key, promise);
+        }
+        return this.cache.get(key);
+    }
+}
+
+const simulateFetch = async (url) => {
+    console.log(`Fetching: ${url}`);
+    return new Promise((resolve) => setTimeout(() => resolve(`Data from ${url}`), 1000));
+};
+
+const cache = new AsyncCache(simulateFetch);
+
+(async () => {
+    const urls = ['http://example.com/1', 'http://example.com/2', 'http://example.com/1'];
+    
+    const dataPromises = urls.map(async url => {
+        const data = await cache.get(url);
+        console.log(`Received: ${data}`);
+    });
+    
+    await Promise.all(dataPromises);
+})();
+```

@@ -1,0 +1,45 @@
+class ComplexCalculator {
+  constructor(value) {
+    this.value = value;
+  }
+  
+  add(amt) {
+    this.value += amt;
+    return this;
+  }
+  
+  multiply(factor) {
+    this.value *= factor;
+    return this;
+  }
+  
+  power(exp) {
+    this.value = Math.pow(this.value, exp);
+    return this;
+  }
+  
+  getResult() {
+    return this.value;
+  }
+
+  static async fetchAndProcess(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return new ComplexCalculator(data.value)
+      .add(data.increment)
+      .multiply(data.multiplier)
+      .power(data.exponent)
+      .getResult();
+  }
+}
+
+ 
+(async () => {
+  try {
+    const url = 'https://api.example.com/calculate';  
+    const result = await ComplexCalculator.fetchAndProcess(url);
+    print(`Final result: ${result}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

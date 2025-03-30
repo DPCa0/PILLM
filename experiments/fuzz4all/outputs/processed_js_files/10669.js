@@ -1,0 +1,38 @@
+const fetch = require('node-fetch');
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const processData = (data) => {
+  return data
+    .filter(item => item.isActive)  
+    .map(item => ({ ...item, fullName: `${item.firstName} ${item.lastName}` }))  
+    .reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});  
+};
+
+ 
+const logData = (data) => {
+  for (const [id, { fullName, email }] of Object.entries(data)) {
+    print(`ID: ${id}, Name: ${fullName}, Email: ${email}`);
+  }
+};
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const rawData = await fetchData(url);
+  const processedData = processData(rawData);
+  logData(processedData);
+})();

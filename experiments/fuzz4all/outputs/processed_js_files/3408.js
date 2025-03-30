@@ -1,0 +1,30 @@
+ 
+import { readFile } from 'fs/promises';
+import { createServer } from 'http';
+
+ 
+(async () => {
+  try {
+    const data = await readFile(new URL('./data.json', import.meta.url), 'utf8');
+    const jsonData = JSON.parse(data);
+
+     
+    const server = createServer((req, res) => {
+      if (req.method === 'GET' && req.url === '/data') {
+         
+        const { message, value } = jsonData;
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: `${message} - Current Value: ${value}` }));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('Not Found');
+      }
+    });
+
+     
+    server.listen(3000).on('listening', () => print('Server running on http://localhost:3000'));
+
+  } catch (error) {
+    console.error('Error reading the file:', error);
+  }
+})();

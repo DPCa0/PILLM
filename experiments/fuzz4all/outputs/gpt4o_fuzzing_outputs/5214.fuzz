@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+(async function() {
+   
+  const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { name: 'Advanced JS', version: 'ES2023' };
+      resolve(data);
+    }, 1000);
+  });
+
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    
+     
+    const { name, version } = data;
+    
+     
+    console.log(`Fetched Data: ${name}, Version: ${version}`);
+
+     
+    const process = data => ({ ...data, processed: true });
+
+     
+    const processedData = process({ ...data, timestamp: new Date().toISOString() });
+    console.log(`Processed Data:`, processedData);
+    
+     
+    const handler = {
+      get: function(target, prop, receiver) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          throw new Error(`Property ${prop} doesn't exist`);
+        }
+      }
+    };
+    
+    const proxyData = new Proxy(processedData, handler);
+    console.log(`Accessing name via Proxy: ${proxyData.name}`);
+    // console.log(proxyData.nonExistent); // Uncomment to see the error
+    
+    // Using Map as a data structure
+    const dataMap = new Map();
+    dataMap.set('original', data);
+    dataMap.set('processed', processedData);
+    
+    // Iterating with for...of
+    for (const [key, value] of dataMap) {
+      console.log(`Map entry: ${key} =`, value);
+    }
+
+    // Using Symbols
+    const sym = Symbol('uniqueId');
+    proxyData[sym] = 'hiddenValue';
+    console.log(`Symbol value: ${proxyData[sym]}`);
+
+    // Using Classes with static properties
+    class Utility {
+      static identifier = sym;
+      static getIdentifier(data) {
+        return data[this.identifier];
+      }
+    }
+
+    console.log(`Symbol accessed via Utility class: ${Utility.getIdentifier(proxyData)}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

@@ -1,0 +1,47 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function complexCalculation(input) {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);
+    return input ** 2;
+}
+
+function* generateSequence(max) {
+    for (let i = 0; i < max; i++) {
+        yield i;
+    }
+}
+
+const asyncIterator = {
+    [Symbol.asyncIterator]: function() {
+        const sequence = generateSequence(5);
+        return {
+            next: async () => {
+                const result = sequence.next();
+                if (result.done) {
+                    return { done: true };
+                }
+                const value = await complexCalculation(result.value);
+                return { value, done: false };
+            }
+        }
+    }
+};
+
+(async () => {
+    print('Starting complex asynchronous calculations...');
+    for await (const num of asyncIterator) {
+        print(`Calculated: ${num}`);
+    }
+    const deferred = new Deferred();
+    setTimeout(() => deferred.resolve('Deferred execution complete!'), 2000);
+    const deferredResult = await deferred.promise;
+    print(deferredResult);
+})();

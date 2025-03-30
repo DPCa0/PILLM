@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* dataGenerator() {
+    yield await fetchData(1);
+    yield await fetchData(2);
+    yield await fetchData(3);
+}
+
+ 
+async function fetchData(id) {
+    await delay(1000);  
+    return { id, data: `Data for ID: ${id}` };
+}
+
+ 
+(async function main() {
+    console.log('Starting data fetch process...');
+    
+     
+    const dataMap = new Map([
+        [0, { id: 0, data: 'Initial data' }]
+    ]);
+
+    for await (const data of dataGenerator()) {
+        console.log(`Fetched: ${data.data}`);
+        dataMap.set(data.id, data);
+    }
+
+     
+    const newData = [...dataMap].map(([key, { id, data }]) => ({ key, id, data }));
+
+    console.log('All Data:', newData);
+    console.log('Data fetch process completed.');
+})();
+```

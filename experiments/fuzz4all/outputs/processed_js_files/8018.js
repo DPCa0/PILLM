@@ -1,0 +1,62 @@
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return response.json();
+};
+
+ 
+const createLoggingProxy = (obj) => {
+  return new Proxy(obj, {
+    get(target, property, receiver) {
+      print(`Property accessed: ${property}`);
+      return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+      print(`Property set: ${property} = ${value}`);
+      return Reflect.set(target, property, value, receiver);
+    }
+  });
+};
+
+ 
+async function* dataGenerator(url) {
+  const data = await fetchData(url);
+  for (const item of data) {
+    yield item;
+  }
+}
+
+ 
+const runApp = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const dataStream = dataGenerator(url);
+  const logs = [];
+
+   
+  for await (const data of dataStream) {
+    const loggingProxy = createLoggingProxy(data);
+    print(`Title: ${loggingProxy.title}`);
+    logs.push(`Fetched: ${loggingProxy.title}`);
+
+     
+    if (logs.length === 5) break;
+  }
+
+   
+  const logString = logs.join('\n');
+  await fsPromises.writeFile('logs.txt', logString);
+  print('Logs saved to logs.txt');
+};
+
+ 
+(async () => {
+  try {
+    await runApp();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+})();

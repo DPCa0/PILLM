@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const fetchData = async () => {
+    await delay(1000);
+    return { user: { name: 'Alice', age: 30 }, location: { city: 'Wonderland', country: 'Fiction' } };
+};
+
+const cache = new Map();
+
+const dataHandler = {
+    get: (target, property) => {
+        if (cache.has(property)) {
+            console.log(`Cache hit for ${property}`);
+            return cache.get(property);
+        } else {
+            console.log(`Cache miss for ${property}`);
+            if (property in target) {
+                const value = target[property];
+                cache.set(property, value);
+                return value;
+            }
+        }
+    }
+};
+
+(async () => {
+    const { user: { name, age }, location: { city, country } } = await fetchData();
+    const proxiedData = new Proxy({ name, age, city, country }, dataHandler);
+
+    console.log(`Name: ${proxiedData.name}`);
+    console.log(`Age: ${proxiedData.age}`);
+    console.log(`City: ${proxiedData.city}`);
+    console.log(`Country: ${proxiedData.country}`);
+
+     
+    console.log(`Accessing cached name: ${proxiedData.name}`);
+})();
+```

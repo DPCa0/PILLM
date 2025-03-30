@@ -1,0 +1,60 @@
+class AsyncMath {
+   
+  #calculateSymbol = Symbol();
+
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async fetchComplexCalculation(input) {
+     
+    const module = await import('./mathOperations.js');
+    return this.#cachedCompute(input, module.complexOperation);
+  }
+
+  async #cachedCompute(input, operation) {
+    if (this.cache.has(input)) {
+      print('Using cached result');
+      return this.cache.get(input);
+    }
+    print('Computing result');
+    const result = await operation(input);
+    this.cache.set(input, result);
+    return result;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        print(`Called method: ${prop} with args: ${JSON.stringify(args)}`);
+        return Reflect.get(target, prop, receiver).apply(this, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+(async () => {
+  const asyncMath = new AsyncMath();
+  const proxiedMath = new Proxy(asyncMath, handler);
+
+  try {
+    const result1 = await proxiedMath.fetchComplexCalculation(5);
+    print(`Result: ${result1}`);
+    const result2 = await proxiedMath.fetchComplexCalculation(5);
+    print(`Result: ${result2}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+This code demonstrates advanced JavaScript features such as:
+
+- Private class fields and methods using the `#` syntax.
+- Dynamic imports for loading modules asynchronously.
+- Caching using `Map`.
+- A Proxy object to intercept and log method calls.

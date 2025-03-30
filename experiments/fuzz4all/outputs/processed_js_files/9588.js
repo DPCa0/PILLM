@@ -1,0 +1,50 @@
+class Fibonacci {
+    #memo = new Map();
+
+    constructor(n) {
+        this.n = n;
+    }
+
+    calculate() {
+        return this.#fib(this.n);
+    }
+
+    #fib(n) {
+        if (this.#memo.has(n)) return this.#memo.get(n);
+        if (n <= 1) return n;
+        let result = this.#fib(n - 1) + this.#fib(n - 2);
+        this.#memo.set(n, result);
+        return result;
+    }
+}
+
+const asyncCalculateFibonacci = async (num) => {
+    const fibonacci = new Fibonacci(num);
+    return await new Promise((resolve) => {
+        setTimeout(() => resolve(fibonacci.calculate()), 1000);
+    });
+};
+
+(async () => {
+    const nums = [5, 10, 15, 20];
+    const results = await Promise.all(nums.map(num => asyncCalculateFibonacci(num)));
+
+    const resultSet = new Set(results);
+    print([...resultSet]);
+
+     
+    const handler = {
+        get: (target, prop, receiver) => {
+            print(`Accessing ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        },
+        set: (target, prop, value, receiver) => {
+            print(`Setting ${prop} to ${value}`);
+            return Reflect.set(target, prop, value, receiver);
+        }
+    };
+
+    const tracedObject = new Proxy({ nums, results }, handler);
+    print(tracedObject.results);
+    tracedObject.newValue = 42;
+})();

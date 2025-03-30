@@ -1,0 +1,52 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+function processData({ data, key }) {
+  return data.reduce((result, item) => {
+    const { [key]: value, ...rest } = item;
+    if (value) {
+      result.push({ [key]: value, ...rest });
+    }
+    return result;
+  }, []);
+}
+
+async function main() {
+  try {
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchData(url);
+
+    const key = 'importantKey';
+    const processedData = processData({ data: rawData, key });
+
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+function fakeFetch(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const fakeData = [
+        { importantKey: 'value1', otherKey: 'data1' },
+        { importantKey: 'value2', otherKey: 'data2' },
+        { otherKey: 'data3' }
+      ];
+      resolve({ ok: true, json: () => fakeData });
+    }, 1000);
+  });
+}
+
+ 
+window.fetch = fakeFetch;
+
+main();

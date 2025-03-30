@@ -1,0 +1,51 @@
+ 
+(async () => {
+  const _ = await import('lodash');
+  
+   
+  const validator = {
+    set(target, key, value) {
+      if (key === 'age' && (typeof value !== 'number' || value <= 0)) {
+        throw new Error('Age must be a positive number');
+      }
+      target[key] = value;
+      return true;
+    }
+  };
+
+  const person = new Proxy({}, validator);
+
+   
+  Reflect.set(person, 'name', 'Alice');
+  Reflect.set(person, 'age', 25);
+
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+  };
+
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+  const results = await Promise.allSettled(urls.map(fetchData));
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      print(`Data from URL ${index + 1}:`, result.value);
+    } else {
+      print(`Failed to fetch data from URL ${index + 1}:`, result.reason);
+    }
+  });
+
+   
+  const ages = _.range(20, 30);
+  print('Generated ages using lodash:', ages);
+
+   
+  print('Person object:', person);
+
+  try {
+    person.age = -5;  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

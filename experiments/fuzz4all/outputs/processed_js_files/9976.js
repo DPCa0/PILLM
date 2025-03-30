@@ -1,0 +1,48 @@
+(async () => {
+   
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  class MagicNumberGenerator {
+    #seed;
+    #factor = 2654435761;  
+
+    constructor(seed) {
+      this.#seed = seed;
+    }
+
+    #mangle() {
+       
+      this.#seed = (this.#seed * this.#factor + 1) & 0xFFFFFFFF;
+      return this.#seed >>> 0;
+    }
+
+    nextNumber() {
+      return this.#mangle() / (0xFFFFFFFF >>> 0);
+    }
+  }
+
+   
+  const generator = new MagicNumberGenerator(Date.now());
+
+   
+  const numbers = await Promise.all([
+    delay(500).then(() => generator.nextNumber()),
+    delay(1000).then(() => generator.nextNumber()),
+    delay(1500).then(() => generator.nextNumber())
+  ]);
+
+   
+  const [first, ...rest] = numbers;
+
+  print(`First magic number: ${first}`);
+  print(`Remaining magic numbers: ${rest.join(', ')}`);
+
+   
+  if (Math.random() > 0.5) {
+    const { square } = await import('./mathUtils.js');
+    print(`Square of first: ${square?.(first)}`);
+  } else {
+    print('Dynamic import skipped.');
+  }
+})();

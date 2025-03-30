@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const createAsyncIterable = (async function* () {
+  const data = ['Hello', 'from', 'an', 'async', 'generator'];
+  for (const item of data) {
+    await delay(500);
+    yield item;
+  }
+})();
+
+const logWithProxy = new Proxy(console, {
+  get(target, prop) {
+    if (prop === 'log') {
+      return function(...args) {
+        const time = new Date().toISOString();
+        target[prop](`${time}:`, ...args);
+      };
+    }
+    return target[prop];
+  }
+});
+
+const UNIQUE_LOG_KEY = Symbol('unique_log_key');
+
+const logSymbolData = data => {
+  logWithProxy.log({ [UNIQUE_LOG_KEY]: data });
+};
+
+async function processAsyncIterable(iterable) {
+  for await (const item of iterable) {
+    logSymbolData(item);
+  }
+}
+
+(async () => {
+  await processAsyncIterable(createAsyncIterable);
+})();
+```

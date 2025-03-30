@@ -1,0 +1,68 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Accessed property: ${property}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, property, value) {
+    print(`Setting property: ${property} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const targetObj = {
+  name: 'Advanced JS',
+  version: 'ES2023'
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+async function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        resolve('Data fetched successfully');
+      } else {
+        reject('Fetch failed');
+      }
+    }, 1000);
+  });
+}
+
+async function main() {
+  const emitter = new EventEmitter();
+  emitter.on('fetchSuccess', (message) => print(`Success: ${message}`));
+  emitter.on('fetchError', (error) => console.error(`Error: ${error}`));
+
+  proxyObj.name = 'JavaScript Mastery';
+  print(proxyObj.name);
+
+  try {
+    const message = await fetchData();
+    emitter.emit('fetchSuccess', message);
+  } catch (error) {
+    emitter.emit('fetchError', error);
+  }
+}
+
+main();

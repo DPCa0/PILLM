@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+    return data
+        .filter(item => item.isActive)
+        .map(item => ({
+            name: item.name.toUpperCase(),
+            age: item.age,
+            city: item.address.city
+        }))
+        .reduce((acc, curr) => {
+            acc[curr.city] = acc[curr.city] || [];
+            acc[curr.city].push({ name: curr.name, age: curr.age });
+            return acc;
+        }, {});
+};
+
+const displayData = (data) => {
+    Object.entries(data).forEach(([city, people]) => {
+        console.log(`City: ${city}`);
+        people.forEach(person => console.log(`  Name: ${person.name}, Age: ${person.age}`));
+    });
+};
+
+(async () => {
+    try {
+        const data = await fetchData('https://example.com/api/users');
+        const processedData = processData(data);
+        displayData(processedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

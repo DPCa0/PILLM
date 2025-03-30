@@ -1,0 +1,58 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program that uses advanced features such as Promises, async/await, and ES6+ syntax.
+
+```javascript
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const data = await fetchData();
+    console.log('Fetched Data:', data);
+
+    const processedData = data.map((fruit, index) => ({
+      id: index + 1,
+      name: fruit.toUpperCase(),
+    }));
+
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+(async () => {
+  console.log('Starting data processing...');
+  await processData();
+  console.log('Data processing complete.');
+})();
+
+ 
+const advancedArrayManipulation = ([first, second, ...rest]) => {
+  console.log(`First element: ${first}`);
+  console.log(`Second element: ${second}`);
+  console.log('Rest of the elements:', rest);
+};
+
+ 
+advancedArrayManipulation([10, 20, 30, 40, 50]);
+
+ 
+const uniqueValues = (array) => {
+  const uniqueSet = new Set(array);
+  return [...uniqueSet];
+};
+
+ 
+console.log('Unique Values:', uniqueValues([1, 2, 3, 1, 2, 4, 5, 6]));
+```
+
+This code snippet demonstrates several advanced JavaScript features and modern syntax practices.

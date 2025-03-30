@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+    throw error;
+  }
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const processAndStoreData = async (data) => {
+  const processedData = data.map((item) => ({
+    id: item.id,
+    name: item.name.toUpperCase(),
+    details: item.details.trim(),
+  }));
+
+  localStorage.setItem('processedData', JSON.stringify(processedData));
+  return processedData;
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    console.time('Fetch and Process Time');
+    
+    const data = await fetchData(url);
+    const processedData = await processAndStoreData(data);
+
+    await delay(2000);  
+
+    console.table(processedData);
+    console.timeEnd('Fetch and Process Time');
+  } catch (error) {
+    console.error('Error in processing:', error);
+  }
+})();
+```

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexFlow() {
+    console.log('Starting complex flow...');
+    
+     
+    const target = { data: 'Initial data' };
+    
+    const handler = {
+        get: (obj, prop) => {
+            console.log(`Getting property: ${prop}`);
+            return Reflect.get(obj, prop);
+        },
+        set: (obj, prop, value) => {
+            console.log(`Setting property: ${prop} to ${value}`);
+            return Reflect.set(obj, prop, value);
+        }
+    };
+    
+    const proxy = new Proxy(target, handler);
+
+     
+    console.log(proxy.data);
+    proxy.data = 'Updated data';
+    console.log(proxy.data);
+
+     
+    await delay(2000);
+    console.log('API request completed');
+
+     
+    const nums = [1, 2, 3];
+    const asyncDouble = async num => num * 2;
+    const doubledNums = await Promise.all(nums.map(asyncDouble));
+
+    console.log('Doubled numbers:', doubledNums);
+    
+    console.log('Complex flow finished.');
+}
+
+ 
+complexFlow();
+```

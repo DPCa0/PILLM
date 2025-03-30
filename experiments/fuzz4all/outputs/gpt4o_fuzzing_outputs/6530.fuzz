@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => fill));
+  }
+
+  static random(rows, cols) {
+    return new Matrix(rows, cols).map(() => Math.random());
+  }
+
+  map(fn) {
+    this.data = this.data.map(row => row.map(fn));
+    return this;
+  }
+
+  multiply(matrix) {
+    if (this.data[0].length !== matrix.data.length) throw new Error('Matrices are not compatible for multiplication.');
+    return new Matrix(this.data.length, matrix.data[0].length).map((_, i, j) => {
+      return this.data[i].reduce((sum, el, k) => sum + el * matrix.data[k][j], 0);
+    });
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncMatrixComputation() {
+  const a = Matrix.random(2, 3);
+  const b = Matrix.random(3, 2);
+
+  console.log('Matrix A:');
+  a.print();
+  
+  console.log('Matrix B:');
+  b.print();
+
+  console.log('Calculating A x B...');
+  await delay(1000);
+  
+  const c = a.multiply(b);
+  console.log('Result Matrix C:');
+  c.print();
+}
+
+asyncMatrixComputation();
+```

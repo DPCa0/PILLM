@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            listeners.forEach(listener => listener(...args));
+        }
+    }
+}
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchJoke() {
+    try {
+        const response = await fetch('https://official-joke-api.appspot.com/jokes/random');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const joke = await response.json();
+        return `${joke.setup} - ${joke.punchline}`;
+    } catch (error) {
+        console.error('Error fetching the joke:', error);
+    }
+}
+
+ 
+const proxyHandler = {
+    get: (target, property) => {
+        if (property in target) {
+            console.log(`Accessing property '${property}': ${target[property]}`);
+            return target[property];
+        } else {
+            console.error(`Property '${property}' does not exist.`);
+        }
+    }
+};
+
+ 
+(async function() {
+    const emitter = new EventEmitter();
+    const jokes = {
+        joke1: "Why don't scientists trust atoms? Because they make up everything!"
+    };
+
+     
+    const proxiedJokes = new Proxy(jokes, proxyHandler);
+
+     
+    emitter.on('newJoke', joke => console.log(`Here's a new joke: ${joke}`));
+    emitter.on('jokeError', error => console.error(`Error: ${error}`));
+
+    // Fetch and emit a new joke with delay
+    const newJoke = await fetchJoke();
+    if (newJoke) {
+        emitter.emit('newJoke', newJoke);
+    } else {
+        emitter.emit('jokeError', 'Failed to retrieve a new joke.');
+    }
+    
+     
+    console.log(proxiedJokes.joke1);
+    console.log(proxiedJokes.joke

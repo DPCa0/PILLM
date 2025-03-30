@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+const asyncOperation = () =>
+  new Promise((resolve, reject) => setTimeout(() => resolve('Data Loaded'), 1000));
+
+const observable = (obj) => {
+  return new Proxy(obj, {
+    get(target, prop) {
+      if (prop in target) {
+        console.log(`Getting value of ${prop}: ${target[prop]}`);
+        return Reflect.get(target, prop);
+      }
+      return undefined;
+    },
+    set(target, prop, value) {
+      console.log(`Setting value of ${prop} to ${value}`);
+      return Reflect.set(target, prop, value);
+    },
+  });
+};
+
+(async function () {
+  const obj = observable({ key: 'initial value' });
+  console.log(obj.key);
+  obj.key = 'new value';
+  
+  console.log('Starting async operation...');
+  const result = await asyncOperation();
+  console.log(result);
+
+  const arr = [1, 2, 3, 4];
+  const sum = arr.reduce((acc, num) => acc + num);
+  console.log('Sum of array:', sum);
+
+  const generator = (function* () {
+    yield* [5, 6, 7, 8];
+  })();
+
+  for (const value of generator) {
+    console.log('Generator value:', value);
+  }
+
+  const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2'],
+  ]);
+
+  map.set('key3', 'value3');
+  console.log('Map values:');
+  for (const [key, value] of map) {
+    console.log(`${key}: ${value}`);
+  }
+})();
+```

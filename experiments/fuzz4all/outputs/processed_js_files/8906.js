@@ -1,0 +1,37 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  *generate() {
+    let [a, b] = [0, 1];
+    while (a <= this.limit) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  static memoize(fn) {
+    const cache = new Map();
+    return function(n) {
+      if (cache.has(n)) return cache.get(n);
+      const result = fn(n);
+      cache.set(n, result);
+      return result;
+    };
+  }
+
+  static fibonacciRecursive(n) {
+    if (n <= 1) return n;
+    return Fibonacci.memoized(n - 1) + Fibonacci.memoized(n - 2);
+  }
+}
+
+Fibonacci.memoized = Fibonacci.memoize(Fibonacci.fibonacciRecursive);
+
+const fib = new Fibonacci(1000);
+const sequence = [...fib.generate()];
+print('Generated Fibonacci:', sequence);
+
+print('Memoized Fibonacci:', Fibonacci.memoized(10));
+print('Memoized Fibonacci:', Fibonacci.memoized(15));

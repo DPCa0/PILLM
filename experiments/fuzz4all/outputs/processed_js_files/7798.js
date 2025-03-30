@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}`, timestamp: new Date() });
+    }, 1000);
+  });
+}
+
+ 
+async function getData(urls) {
+  const results = new Map();
+  
+  for (const url of urls) {
+    const data = await fetchData(url);
+    results.set(url, data);
+  }
+
+  return results;
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+getData(urls)
+  .then(data => {
+     
+    const proxiedData = new Proxy(data, handler);
+
+     
+    print(proxiedData.get('https://api.example.com/data1'));
+    print(proxiedData.get('https://api.example.com/data2'));
+  })
+  .catch(err => console.error('Error fetching data:', err));

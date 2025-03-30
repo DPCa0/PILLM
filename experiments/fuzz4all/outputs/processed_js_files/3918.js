@@ -1,0 +1,34 @@
+ 
+
+ 
+async function fetchData(url) {
+  const response = await new Promise((resolve) => {
+    setTimeout(() => resolve({ data: { user: 'John Doe', age: 30, location: 'Unknown' } }), 1000);
+  });
+  return response;
+}
+
+ 
+const logHandler = {
+  get(target, property) {
+    print(`Property '${property}' accessed.`);
+    return target[property];
+  }
+};
+
+ 
+(async () => {
+   
+  const { user: name = 'Guest', age = 0 } = await fetchData('https://api.example.com/user');
+
+   
+  const user = new Proxy({ name, age, location: 'Earth' }, logHandler);
+
+   
+  const userDetails = { ...user, isVerified: true };
+
+   
+  const greeting = `Hello, ${userDetails.name}! You are ${userDetails.age} years old, located at ${userDetails.location}.`;
+
+  print(greeting);
+})();

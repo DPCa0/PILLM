@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+    
+    off(event, listenerToRemove) {
+        if (this.events.has(event)) {
+            this.events.set(event, this.events.get(event).filter(listener => listener !== listenerToRemove));
+        }
+    }
+}
+
+const debounce = (fn, delay) => {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+};
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+};
+
+const dataCache = new WeakMap();
+
+async function getCachedData(url) {
+    if (dataCache.has(url)) {
+        console.log('Serving from cache');
+        return dataCache.get(url);
+    }
+    const data = await fetchData(url);
+    dataCache.set(url, data);
+    return data;
+}
+
+const deepClone = obj => {
+    if (obj === null || typeof obj !== "object") return obj;
+    if (obj instanceof Date) return new Date(obj);
+    if (obj instanceof Array) return obj.map(item => deepClone(item));
+    
+    const clonedObj = Object.create(Object.getPrototypeOf(obj));
+    Object.getOwnPropertyNames(obj).forEach(prop => {
+        Object.defineProperty(clonedObj, prop, Object.getOwnPropertyDescriptor(obj, prop));
+    });
+    return clonedObj;
+};
+
+ 
+const emitter = new EventEmitter();
+emitter.on('data', debounce(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    const data = await getCachedData(url);
+    console.log('Data received:', data);
+}, 2000));
+
+emitter.emit('data');
+emitter.emit('data');
+
+setTimeout(() => emitter.emit('data'), 3000);
+
+let original = { name: "John", date: new Date(), details: { age: 30 }, hobbies: ["reading", "gaming"] };
+let clone = deepClone(original);
+console.log(clone);
+``

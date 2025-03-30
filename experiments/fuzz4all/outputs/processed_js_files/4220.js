@@ -1,0 +1,58 @@
+class Calculator {
+    #history = [];
+  
+    constructor() {
+        this.operations = {
+            '+': (a, b) => a + b,
+            '-': (a, b) => a - b,
+            '*': (a, b) => a * b,
+            '/': (a, b) => b !== 0 ? a / b : 'Infinity'
+        };
+    }
+  
+    operate(op, a, b) {
+        if (this.operations[op]) {
+            const result = this.operations[op](a, b);
+            this.#history.push({ op, a, b, result });
+            return result;
+        } else {
+            throw new Error('Operation not supported');
+        }
+    }
+
+    *getHistory() {
+        for (let entry of this.#history) {
+            yield `Operation: ${entry.op}, Operands: ${entry.a}, ${entry.b}, Result: ${entry.result}`;
+        }
+    }
+
+    clearHistory() {
+        this.#history = [];
+    }
+}
+
+(async () => {
+    const calc = new Calculator();
+
+     
+    const delayedOperation = (op, a, b, delay) => new Promise(resolve => {
+        setTimeout(() => resolve(calc.operate(op, a, b)), delay);
+    });
+
+    try {
+        print(await delayedOperation('+', 10, 5, 500));
+        print(await delayedOperation('-', 10, 5, 300));
+        print(await delayedOperation('*', 10, 5, 200));
+        print(await delayedOperation('/', 10, 2, 100));
+
+        print('History:');
+        for (let entry of calc.getHistory()) {
+            print(entry);
+        }
+
+        calc.clearHistory();
+        print('History cleared.');
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

@@ -1,0 +1,46 @@
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+function* dataGenerator(dataArray) {
+  for (const data of dataArray) {
+    yield data;
+  }
+}
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+  
+  try {
+     
+    const dataPromises = urls.map(url => fetchData(url));
+    const dataResponses = await Promise.all(dataPromises);
+    
+     
+    const extractedData = dataResponses.map(({ userId, id, title, body }) => ({
+      userId,
+      id,
+      title,
+      body
+    }));
+
+     
+    const generator = dataGenerator(extractedData);
+    for (const data of generator) {
+      print(`Post ID: ${data.id}\nTitle: ${data.title}\nBody: ${data.body}\n`);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

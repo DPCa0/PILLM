@@ -1,0 +1,36 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Proxy({}, {
+      get: (target, name) => {
+        if (!(name in target)) {
+          target[name] = name < 2 ? 1 : this.memo[name - 1] + this.memo[name - 2];
+        }
+        return target[name];
+      }
+    });
+  }
+  
+  *[Symbol.iterator]() {
+    let n = 0;
+    while (true) {
+      yield this.memo[n++];
+    }
+  }
+}
+
+const delayedLog = (message, delay) => new Promise(resolve => {
+  setTimeout(() => {
+    print(message);
+    resolve();
+  }, delay);
+});
+
+(async () => {
+  const fib = new Fibonacci();
+  let i = 0;
+
+  for (const num of fib) {
+    await delayedLog(`Fib(${i}) = ${num}`, 500);
+    if (i++ === 10) break;
+  }
+})();

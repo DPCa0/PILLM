@@ -1,0 +1,51 @@
+class Observable {
+  constructor() {
+    this.observers = new Map();
+  }
+
+  subscribe(label, callback) {
+    if (!this.observers.has(label)) {
+      this.observers.set(label, []);
+    }
+    this.observers.get(label).push(callback);
+  }
+
+  unsubscribe(label, callback) {
+    const callbacks = this.observers.get(label) || [];
+    this.observers.set(label, callbacks.filter(cb => cb !== callback));
+  }
+
+  notify(label, ...args) {
+    const callbacks = this.observers.get(label) || [];
+    callbacks.forEach(callback => callback(...args));
+  }
+}
+
+const observable = new Observable();
+
+const withLogger = (func, label) => {
+  return function(...args) {
+    print(`[${label}]`, ...args);
+    return func(...args);
+  };
+};
+
+const complexComputation = withLogger((x, y) => {
+  return x ** y + Math.sqrt(x * y);
+}, 'ComplexComputation');
+
+observable.subscribe('compute', result => print(`Result computed: ${result}`));
+
+const proxyHandler = {
+  apply(target, thisArg, args) {
+    const result = Reflect.apply(target, thisArg, args);
+    observable.notify('compute', result);
+    return result;
+  }
+};
+
+const proxiedComputation = new Proxy(complexComputation, proxyHandler);
+
+const data = [1, 2, 3, 4, 5];
+const results = data.flatMap(x => data.map(y => proxiedComputation(x, y)));
+print('All Computations Complete:', results);

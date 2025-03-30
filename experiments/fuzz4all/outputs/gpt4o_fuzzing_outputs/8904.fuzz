@@ -1,0 +1,81 @@
+print('Hello, world!');
+```javascript
+ 
+class Observable {
+    constructor() {
+        this.observers = new Set();
+    }
+    subscribe(observer) {
+        this.observers.add(observer);
+    }
+    unsubscribe(observer) {
+        this.observers.delete(observer);
+    }
+    notify(data) {
+        this.observers.forEach(observer => observer.update(data));
+    }
+}
+
+class Observer {
+    constructor(name) {
+        this.name = name;
+    }
+    update(data) {
+        console.log(`${this.name} received data: ${data}`);
+    }
+}
+
+const observable = new Observable();
+const observer1 = new Observer("Observer 1");
+const observer2 = new Observer("Observer 2");
+
+observable.subscribe(observer1);
+observable.subscribe(observer2);
+
+function* dataGenerator() {
+    let data = 0;
+    while (true) {
+        yield data++;
+    }
+}
+
+const dataGen = dataGenerator();
+
+async function emitData(interval) {
+    for await (let value of asyncIterable(interval)) {
+        observable.notify(value);
+    }
+}
+
+function asyncIterable(interval) {
+    return {
+        [Symbol.asyncIterator]: () => {
+            return {
+                async next() {
+                    await new Promise(resolve => setTimeout(resolve, interval));
+                    return { value: dataGen.next().value, done: false };
+                }
+            };
+        }
+    };
+}
+
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'observersCount') {
+            return target.observers.size;
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+const proxiedObservable = new Proxy(observable, handler);
+
+console.log(`Initial observers count: ${proxiedObservable.observersCount}`);
+emitData(1000);
+
+setTimeout(() => {
+    observable.unsubscribe(observer1);
+    console.log(`Observers count after unsubscribing one: ${proxiedObservable.observersCount}`);
+}, 5000);
+```

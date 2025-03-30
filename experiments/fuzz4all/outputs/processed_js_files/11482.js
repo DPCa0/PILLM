@@ -1,0 +1,43 @@
+class AsyncDataProcessor {
+  constructor(url) {
+    this.url = url;
+  }
+  
+  async fetchData() {
+    const response = await fetch(this.url);
+    return await response.json();
+  }
+  
+  static *processData(data) {
+    for (const item of data) {
+      yield { ...item, processed: true };
+    }
+  }
+
+  async execute() {
+    try {
+      const rawData = await this.fetchData();
+      const processedData = [...AsyncDataProcessor.processData(rawData)];
+      processedData.forEach(item => print(item));
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const fetchDataWithDebounce = debounce(() => {
+  const processor = new AsyncDataProcessor('https://jsonplaceholder.typicode.com/posts');
+  processor.execute();
+}, 300);
+
+document.addEventListener('click', fetchDataWithDebounce);

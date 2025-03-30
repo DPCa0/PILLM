@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ApiSimulator {
+  constructor(data) {
+    this.data = data;
+  }
+
+  fetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data);
+      }, 1000);
+    });
+  }
+}
+
+const fetchHandler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(...arguments);
+    } else {
+      console.warn(`Property ${prop.toString()} does not exist on the target object.`);
+      return null;
+    }
+  }
+};
+
+const processDataSymbol = Symbol('processData');
+
+class DataProcessor {
+  constructor(apiSimulator) {
+    this.apiSimulator = new Proxy(apiSimulator, fetchHandler);
+  }
+
+  async fetchAndProcessData() {
+    try {
+      const data = await this.apiSimulator.fetchData();
+      return this[processDataSymbol](data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  [processDataSymbol](data) {
+    return data.map(item => item.toUpperCase());
+  }
+}
+
+ 
+const apiSimulator = new ApiSimulator(['apple', 'banana', 'cherry']);
+const dataProcessor = new DataProcessor(apiSimulator);
+
+dataProcessor.fetchAndProcessData().then(processedData => {
+  console.log('Processed Data:', processedData);
+});
+```

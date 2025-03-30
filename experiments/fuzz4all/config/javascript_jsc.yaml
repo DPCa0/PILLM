@@ -1,0 +1,46 @@
+# config/javascript_jsc.yaml
+
+# Configuration of the overall fuzzing setup
+fuzzing:
+  # Output directory for the results (relative to where you are calling fuzz.py)
+  output_folder: outputs/fuzzing_outputs/jsc_run
+  # Total fuzzing time in hours
+  total_time: 24  # Run for 24 hours
+  # Logging level: 1 = INFO, 2 = TRACE, 3 = VERBOSE
+  log_level: 3
+  # Enable on-the-fly validation
+  otf: true
+  # Start a new fuzzing run
+  resume: false
+  # Do not evaluate the fuzzing results immediately
+  evaluate: false
+  # Do not use a hand-written prompt
+  use_hand_written_prompt: false
+  # Use only trigger_to_generate_input and input_hint
+  no_input_prompt: true
+  # Prompt strategy: 0 = generate new code using separator
+  prompt_strategy: 0
+
+# Configuration of the target system
+target:
+  # Language to fuzz
+  language: javascript
+  # Path to JavaScript documentation (if any)
+  path_documentation: config/documentation/javascript/ECMAScript.md
+  # Path to example JavaScript code (if any)
+  path_example_code:
+  # Prompt to generate JavaScript input
+  trigger_to_generate_input: "// Please write a short JavaScript program that uses advanced features in a complex way, and only give the code here."
+  # Hint for the LLM to generate JavaScript input
+  input_hint: "print('Hello, world!');"
+  # Path to a hand-written prompt (if any)
+  path_hand_written_prompt:
+  # String to check if the generated input is valid
+  target_string: ""
+
+# Configuration of the language model
+llm:
+  model_name: "gpt-4o"  # Using the specified model 'gpt-4o'
+  device: "api"         # Device is not applicable for API usage
+  batch_size: 1         # OpenAI API processes one prompt at a time
+  max_length: 512       # Adjust as needed

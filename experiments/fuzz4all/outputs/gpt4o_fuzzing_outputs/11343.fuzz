@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ApiService {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData(endpoint) {
+        try {
+            const response = await fetch(`${this.url}${endpoint}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+}
+
+const processData = async ({ name, age, location }) => {
+    console.log(`Name: ${name}, Age: ${age}, Location: ${location}`);
+    return Promise.resolve(`Processed data for ${name}`);
+};
+
+const main = async () => {
+    const apiService = new ApiService('https://mockapi.io/data');
+    try {
+        const data = await apiService.fetchData('/user');
+        const result = await processData(data);
+        console.log(result);
+    } catch (error) {
+        console.error('Error in main:', error);
+    }
+};
+
+main();
+
+ 
+ 
+ 
+ 
+ 
+ 
+```

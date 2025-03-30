@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = { url, content: "Sample Data from " + url };
+        resolve(data);
+    }, 1000);
+});
+
+const processData = async (urls) => {
+    try {
+         
+        const results = await Promise.all(urls.map(async url => {
+            const { content } = await fetchData(url);
+            return content.toUpperCase();  
+        }));
+        
+         
+        const summary = results
+            .map(content => ({ length: content.length, snippet: content.slice(0, 15) }))
+            .reduce((acc, { length, snippet }) => {
+                acc.totalLength += length;
+                acc.snippets.push(snippet);
+                return acc;
+            }, { totalLength: 0, snippets: [] });
+
+        console.log("Processed Data Summary:", summary);
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+};
+
+ 
+const urls = ['http://api.example.com/data1', 'http://api.example.com/data2'];
+
+ 
+processData(urls);
+```

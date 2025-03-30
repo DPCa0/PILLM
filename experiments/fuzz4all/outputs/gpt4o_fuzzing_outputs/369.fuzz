@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchUserData(userId) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: `User${userId}`, age: Math.floor(Math.random() * 100) });
+    }, 2000);
+  });
+}
+
+ 
+function* userDataProcessor(userIds) {
+  for (let id of userIds) {
+    console.log(`Fetching data for user ${id}`);
+    const data = yield fetchUserData(id);
+    console.log(`Processed data: ${JSON.stringify(data)}`);
+  }
+}
+
+ 
+async function processUserDataAsync(generator, userIds) {
+  const iterator = generator(userIds);
+  let result = iterator.next();
+
+  while (!result.done) {
+    result = iterator.next(await result.value);
+  }
+}
+
+ 
+const userActionsHandler = {
+  get(target, prop) {
+    console.log(`Getting property ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const userData = { active: false };
+const userProxy = new Proxy(userData, userActionsHandler);
+
+ 
+userProxy.active = true;
+console.log(userProxy.active);
+
+ 
+processUserDataAsync(userDataProcessor, [1, 2, 3]);
+
+console.log('Operation started, awaiting user data...');
+```

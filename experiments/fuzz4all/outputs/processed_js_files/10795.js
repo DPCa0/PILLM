@@ -1,0 +1,57 @@
+class Matrix {
+  #data;
+  constructor(rows, cols, fill = 0) {
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static identity(size) {
+    return new Matrix(size, size).map((_, i, j) => (i === j ? 1 : 0));
+  }
+
+  map(callback) {
+    return this.#data.map((row, i) => row.map((val, j) => callback(val, i, j)));
+  }
+
+  forEach(callback) {
+    this.#data.forEach((row, i) => row.forEach((val, j) => callback(val, i, j)));
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.#data) {
+      yield* row;
+    }
+  }
+
+  get rows() {
+    return this.#data.length;
+  }
+
+  get cols() {
+    return this.#data[0].length;
+  }
+
+  toString() {
+    return this.#data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const loggingHandler = {
+  get(target, prop) {
+    print(`Accessing property '${prop}'`);
+    return Reflect.get(target, prop);
+  },
+  apply(target, thisArg, argumentsList) {
+    print(`Calling function with args: ${argumentsList}`);
+    return Reflect.apply(target, thisArg, argumentsList);
+  }
+};
+
+const matrixProxy = new Proxy(Matrix, loggingHandler);
+
+ 
+const matrix = new matrixProxy(3, 3, 5);
+matrix.forEach((val, i, j) => print(`Value at (${i}, ${j}): ${val}`));
+
+const identityMatrix = matrixProxy.identity(3);
+print(identityMatrix.toString());

@@ -1,0 +1,45 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolve = null;
+  }
+
+  enqueue(value) {
+    if (this.resolve) {
+      this.resolve({ done: false, value });
+      this.resolve = null;
+    } else {
+      this.queue.push(value);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        if (this.queue.length) {
+          return Promise.resolve({ done: false, value: this.queue.shift() });
+        }
+        return new Promise((resolve) => (this.resolve = resolve));
+      }
+    };
+  }
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const complexAsyncGenerator = async function* (queue) {
+  for (let i = 1; i <= 3; i++) {
+    queue.enqueue(`Data-${i}`);
+    await sleep(500);
+  }
+  yield* queue;
+};
+
+(async () => {
+  const queue = new AsyncIterableQueue();
+  const asyncGen = complexAsyncGenerator(queue);
+  
+  for await (const item of asyncGen) {
+    print('Received:', item);
+  }
+})();

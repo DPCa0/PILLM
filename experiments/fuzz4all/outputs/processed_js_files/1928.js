@@ -1,0 +1,49 @@
+class AsyncCache {
+  constructor(fetchFunction) {
+    this.cache = new Map();
+    this.fetchFunction = fetchFunction;
+  }
+
+  async get(key) {
+    if (!this.cache.has(key)) {
+      this.cache.set(key, this.fetchFunction(key).catch(err => {
+        this.cache.delete(key);  
+        throw err;
+      }));
+    }
+    return this.cache.get(key);
+  }
+}
+
+function memoizedFetch(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => resolve(data))
+        .catch(error => reject(error));
+    }, Math.random() * 1000);  
+  });
+}
+
+(async () => {
+  const asyncCache = new AsyncCache(memoizedFetch);
+  
+  const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2',
+    'https://jsonplaceholder.typicode.com/todos/3'
+  ];
+  
+  const promises = urls.map(url => asyncCache.get(url));
+  
+  try {
+    const results = await Promise.all(promises);
+    print(results);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

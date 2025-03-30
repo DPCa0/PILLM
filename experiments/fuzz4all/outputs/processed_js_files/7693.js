@@ -1,0 +1,49 @@
+class AsyncResourceLoader {
+  constructor(resources) {
+    this.resources = resources;
+  }
+
+  async loadResources() {
+    const results = await Promise.all(this.resources.map(this.loadResource));
+    return results.filter(Boolean);
+  }
+
+  loadResource(resource) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        print(`Resource ${resource} loaded`);
+        resolve(resource);
+      }, Math.random() * 2000);
+    });
+  }
+}
+
+const fetchUserData = async (userId) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: 'John Doe', age: 25 });
+    }, 1000);
+  });
+};
+
+const logUserData = async (userId) => {
+  try {
+    const user = await fetchUserData(userId);
+    print(`User Info: ${user.name}, Age: ${user.age}`);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+const main = async () => {
+  print('Starting resource load');
+  const resources = ['image1.jpg', 'file2.json', 'data3.csv'];
+  const loader = new AsyncResourceLoader(resources);
+  const loadedResources = await loader.loadResources();
+  print('Loaded resources:', loadedResources);
+
+  print('Fetching and logging user data');
+  await logUserData(101);
+};
+
+main();

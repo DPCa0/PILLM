@@ -1,0 +1,39 @@
+class DataProcessor {
+    #data;
+  
+    constructor(data) {
+        this.#data = data;
+    }
+
+    *[Symbol.iterator]() {
+        for (const item of this.#data) {
+            yield this.#processItem(item);
+        }
+    }
+
+    #processItem(item) {
+        const processed = item.trim().toUpperCase();
+        return processed.split('').reverse().join('');
+    }
+
+    static async fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
+        }
+    }
+}
+
+(async () => {
+    const rawData = await DataProcessor.fetchData('https://jsonplaceholder.typicode.com/posts');
+    if (!rawData) return;
+
+    const dataProcessor = new DataProcessor(rawData.map(item => item.title));
+    const processedResults = [...dataProcessor];
+
+    print('Processed Data:', processedResults);
+})();

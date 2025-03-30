@@ -1,0 +1,26 @@
+ 
+(async () => {
+    const handler = {
+        get: (target, property) => {
+            if (property in target) {
+                return target[property];
+            } else {
+                throw new ReferenceError(`Property "${property}" does not exist.`);
+            }
+        }
+    };
+
+    const data = new Proxy({ firstName: 'Alice', lastName: 'Smith' }, handler);
+
+    const fetchData = () => new Promise((resolve) => {
+        setTimeout(() => resolve(data.firstName + ' ' + data.lastName), 1000);
+    });
+
+    try {
+        const result = await fetchData();
+        print(result);   
+        print(data.middleName);  
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new CustomError(`Failed to fetch data from ${url}`);
+  }
+  return response.json();
+}
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield ++id;
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+const expensiveComputation = memoize((num) => {
+  let result = 0;
+  for (let i = 0; i < num * 1000000; i++) {
+    result += i;
+  }
+  return result;
+});
+
+(async () => {
+  const idGen = idGenerator();
+  console.log(`Generated ID: ${idGen.next().value}`);
+  
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
+    }
+  }
+
+  console.time('Expensive Computation');
+  console.log('Computation Result:', expensiveComputation(10));
+  console.timeEnd('Expensive Computation');
+})();
+```

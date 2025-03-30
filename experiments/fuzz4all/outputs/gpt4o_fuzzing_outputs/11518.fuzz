@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (url === 'https://api.example.com/data') {
+      resolve({ data: 'Example Data', success: true });
+    } else {
+      reject(new Error('Invalid URL'));
+    }
+  }, 1000);
+});
+
+function* dataGenerator(url) {
+  try {
+    const response = yield fetchData(url);
+    if (response.success) {
+      yield `Data received: ${response.data}`;
+    } else {
+      yield 'Failed to fetch data';
+    }
+  } catch (error) {
+    yield `Error: ${error.message}`;
+  }
+}
+
+const asyncRunner = (generator, ...args) => {
+  const iterator = generator(...args);
+
+  const process = (result) => {
+    if (result.done) return Promise.resolve(result.value);
+    return Promise.resolve(result.value).then(
+      (res) => process(iterator.next(res)),
+      (err) => process(iterator.throw(err))
+    );
+  };
+
+  return process(iterator.next());
+};
+
+ 
+asyncRunner(dataGenerator, 'https://api.example.com/data').then(console.log, console.error);
+```

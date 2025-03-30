@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+const userModule = (() => {
+   
+  const privateData = new WeakMap();
+
+  class User {
+    constructor(name, age, role) {
+      const _data = { name, age, role, token: this.#generateToken() };
+      privateData.set(this, _data);
+    }
+
+    #generateToken() {
+      return `token-${Math.random().toString(36).substr(2)}`;
+    }
+
+    getUserInfo() {
+      const { name, age, role } = privateData.get(this);
+      return { name, age, role };
+    }
+
+    async validateUser() {
+       
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const { token } = privateData.get(this);
+          resolve(token.startsWith('token'));
+        }, 1000);
+      });
+    }
+  }
+
+  const proxyHandler = {
+    get(target, prop) {
+      if (prop === 'role') {
+        return `Role is confidential`;
+      }
+      return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+      if (prop === 'age' && value < 0) {
+        throw new Error('Age cannot be negative');
+      }
+      return Reflect.set(...arguments);
+    }
+  };
+
+   
+  const createUser = ({ name, age, role }) => {
+    const user = new User(name, age, role);
+    return new Proxy(user, proxyHandler);
+  };
+
+  return {
+    createUser
+  };
+})();
+
+ 
+const user1 = userModule.createUser({ name: 'Alice', age: 30, role: 'admin' });
+
+(async () => {
+  console.log(user1.getUserInfo());  
+  console.log(`Validation: ${await user1.validateUser()}`);  
+  try {
+    user1.age = -5;
+  } catch (error) {
+    console.error(error.message);  
+  }
+  console.log(user1.role);  
+})();
+```

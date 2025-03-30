@@ -1,0 +1,47 @@
+class ComplexSystem {
+  constructor() {
+    this.data = Array.from({ length: 10 }, (_, i) => i + 1);
+  }
+
+  async processData() {
+    const results = await Promise.all(
+      this.data.map(async (num) => {
+        const squared = await this.square(num);
+        return this.factorial(squared);
+      })
+    );
+    return results.reduce((acc, curr) => acc + curr, 0);
+  }
+
+  square(num) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(num * num), 100);
+    });
+  }
+
+  factorial(n) {
+    if (n <= 1) return 1;
+    return n * this.factorial(n - 1);
+  }
+
+  static *generateFibonacci(limit) {
+    let a = 0, b = 1;
+    while (limit--) {
+      [a, b] = [b, a + b];
+      yield a;
+    }
+  }
+
+  async execute() {
+    const fibGen = ComplexSystem.generateFibonacci(5);
+    for (let num of fibGen) {
+      print(`Fibonacci Number: ${num}`);
+    }
+
+    const totalSum = await this.processData();
+    print(`Total Sum of Processed Data: ${totalSum}`);
+  }
+}
+
+const system = new ComplexSystem();
+system.execute();

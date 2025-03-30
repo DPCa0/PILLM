@@ -1,0 +1,37 @@
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fetchData(urls) {
+    for (const url of urls) {
+        await delay(1000);
+        yield fetch(url).then(res => res.json());
+    }
+}
+
+(async () => {
+    const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+    const results = [];
+
+    for await (const data of fetchData(urls)) {
+        results.push(data);
+    }
+
+    const transformedResults = results.flatMap(({ title, body }) =>
+        [...title.split(' '), ...body.split(' ')]
+        .filter((word, index, arr) => arr.indexOf(word) === index)
+        .map(word => word.toUpperCase())
+    );
+
+    const uniqueWordSet = new Set(transformedResults);
+    print(uniqueWordSet);
+
+    const proxy = new Proxy(uniqueWordSet, {
+        get(target, prop) {
+            if (prop === 'has') {
+                return val => target.has(val.toUpperCase());
+            }
+            return Reflect.get(target, prop);
+        }
+    });
+
+    print(proxy.has('LOREM'));   
+})();

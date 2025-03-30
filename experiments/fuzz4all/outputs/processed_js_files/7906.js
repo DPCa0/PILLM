@@ -1,0 +1,51 @@
+class Matrix {
+  constructor(rows, cols, fillFunction) {
+    this.grid = Array.from({ length: rows }, (_, i) =>
+      Array.from({ length: cols }, (_, j) => fillFunction(i, j))
+    );
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const { grid } = this;
+    return {
+      next() {
+        if (row >= grid.length) return { done: true };
+        const value = grid[row][col];
+        col++;
+        if (col >= grid[row].length) {
+          col = 0;
+          row++;
+        }
+        return { value, done: false };
+      },
+    };
+  }
+
+  static async mapAsync(matrix, asyncFn) {
+    return Promise.all(
+      matrix.grid.map(row => Promise.all(row.map(asyncFn)))
+    ).then(result => new Matrix(result.length, result[0].length, (i, j) => result[i][j]));
+  }
+
+  log() {
+    print(this.grid.map(row => row.join('\t')).join('\n'));
+  }
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const myMatrix = new Matrix(3, 3, (i, j) => i * 3 + j + 1);
+  print("Original Matrix:");
+  myMatrix.log();
+
+  const transformedMatrix = await Matrix.mapAsync(myMatrix, async (x) => {
+    await sleep(100);
+    return x * 2;
+  });
+
+  print("\nTransformed Matrix:");
+  transformedMatrix.log();
+})();

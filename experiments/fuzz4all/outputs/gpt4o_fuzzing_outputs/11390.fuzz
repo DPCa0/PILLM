@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(arr) {
+  for (const item of arr) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    yield item * 2;
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const asyncOperation = async () => {
+  const data = [1, 2, 3, 4, 5];
+  const transformedData = [];
+  
+  for await (const val of asyncGenerator(data)) {
+    transformedData.push(val);
+  }
+  return transformedData;
+};
+
+const main = async () => {
+  const debouncedPrint = debounce(console.log, 500);
+
+  const deferred = new Deferred();
+  
+  deferred.promise
+    .then(data => {
+      debouncedPrint('Data received:', data);
+    })
+    .catch(error => {
+      debouncedPrint('Error:', error);
+    });
+  
+  try {
+    const data = await asyncOperation();
+    deferred.resolve(data);
+  } catch (error) {
+    deferred.reject(error);
+  }
+};
+
+main();
+```

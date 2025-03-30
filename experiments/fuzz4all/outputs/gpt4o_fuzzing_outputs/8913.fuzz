@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener(...args));
+    }
+  }
+
+  removeListener(event, listenerToRemove) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      this.events.set(event, listeners.filter(listener => listener !== listenerToRemove));
+    }
+  }
+}
+
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve('Operation complete'), 1000));
+
+async function* asyncGeneratorFunction() {
+  let count = 0;
+  while (count < 3) {
+    yield new Promise(resolve => setTimeout(() => resolve(`Yielding value ${++count}`), 500));
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', async (data) => {
+    const asyncResult = await asyncOperation();
+    console.log(`Data event received with data: ${data}, async result: ${asyncResult}`);
+  });
+
+  emitter.on('end', () => console.log('End event received, stopping processing.'));
+
+  for await (let value of asyncGeneratorFunction()) {
+    emitter.emit('data', value);
+  }
+
+  emitter.emit('end');
+})();
+```

@@ -1,0 +1,47 @@
+ 
+
+ 
+const CalculatorModule = (() => {
+   
+  const _history = [];
+
+   
+  return {
+    add(a, b) {
+      const result = a + b;
+      _history.push(`Added ${a} to ${b} got ${result}`);
+      return result;
+    },
+    subtract(a, b) {
+      const result = a - b;
+      _history.push(`Subtracted ${b} from ${a} got ${result}`);
+      return result;
+    },
+    getHistory() {
+      return [..._history];
+    },
+  };
+})();
+
+ 
+async function complexOperation(a, b) {
+   
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+   
+  const { add: addition, subtract } = CalculatorModule;
+  const additionResult = addition(a, b);
+  const subtractionResult = subtract(a, b);
+  return { additionResult, subtractionResult };
+}
+
+ 
+(async () => {
+  try {
+    const { additionResult, subtractionResult } = await complexOperation(10, 5);
+    print(`Addition Result: ${additionResult}`);
+    print(`Subtraction Result: ${subtractionResult}`);
+    print(`Operation History: ${CalculatorModule.getHistory().join(', ')}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

@@ -1,0 +1,45 @@
+ 
+
+ 
+const mockApiCall = (endpoint) => {
+  return new Promise((resolve) => {
+    const data = {
+      '/user': { id: 1, name: 'Alice', age: 30 },
+      '/posts': [
+        { id: 1, title: 'Post 1', content: 'Content of post 1' },
+        { id: 2, title: 'Post 2', content: 'Content of post 2' }
+      ]
+    };
+    setTimeout(() => resolve(data[endpoint]), Math.random() * 2000);
+  });
+};
+
+ 
+async function getUserAndPosts() {
+  try {
+     
+    const [user, posts] = await Promise.all([
+      mockApiCall('/user'),
+      mockApiCall('/posts')
+    ]);
+
+     
+    const { name, age } = user;
+    print(`User: ${name}, Age: ${age}`);
+
+     
+    const postsInfo = posts.map(({ title, content }) =>
+      `Title: ${title}\nContent: ${content}`
+    ).join('\n\n');
+
+    print('Posts:\n', postsInfo);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+(async () => {
+  print('Fetching user and posts...');
+  await getUserAndPosts();
+})();

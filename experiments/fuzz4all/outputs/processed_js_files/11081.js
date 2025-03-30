@@ -1,0 +1,60 @@
+class API {
+  #apiKey;
+  constructor(apiKey) {
+    this.#apiKey = apiKey;
+    this.cachedResults = new Map();
+  }
+
+  async fetchData(url) {
+    if (this.cachedResults.has(url)) {
+      return this.cachedResults.get(url);
+    }
+    
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${this.#apiKey}`
+      }
+    });
+    const data = await response.json();
+    this.cachedResults.set(url, data);
+    return data;
+  }
+}
+
+const createProxyHandler = {
+  get(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      throw new Error(`Property ${property} does not exist`);
+    }
+  }
+};
+
+const sampleData = {
+  user: {
+    name: 'Alice',
+    age: 30
+  }
+};
+
+const proxy = new Proxy(sampleData, createProxyHandler);
+
+(async () => {
+  try {
+    print(proxy.user.name);
+    print(proxy.user.address);  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  const api = new API('your-api-key');
+  const apiUrl = 'https://api.example.com/data';
+
+  try {
+    const data = await api.fetchData(apiUrl);
+    print(data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async ({ endpoint, params = {}, method = 'GET' } = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const url = `${endpoint}?${query}`;
+
+     
+    const response = await fetch(url, {
+        method,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.API_TOKEN ?? ''}`  
+        }
+    });
+
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+
+     
+    const data = await response.json();
+    const results = await Promise.all(data.items.map(async item => {
+        const detailResponse = await fetch(item.detailUrl);
+        return await detailResponse.json();
+    }));
+
+    return results;
+};
+
+ 
+(async () => {
+    try {
+        const data = await fetchData({
+            endpoint: 'https://api.example.com/data',
+            params: { limit: 10, sort: 'desc' }
+        });
+
+         
+        const [firstItem, ...otherItems] = data;
+        console.log('First Item:', firstItem);
+        console.log('Other Items:', otherItems);
+
+    } catch (error) {
+         
+        console.error(`An error occurred: ${error?.message ?? 'Unknown error'}`);
+    }
+})();
+```

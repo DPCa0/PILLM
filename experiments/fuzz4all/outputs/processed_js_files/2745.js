@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) {
+            resolve({ data: `Data from ${url}` });
+        } else {
+            reject(new Error("Invalid URL"));
+        }
+    }, 1000);
+});
+
+ 
+const loadData = async () => {
+    try {
+        const urls = [
+            "https://api.example.com/data1",
+            "https://api.example.com/data2",
+            "https://api.example.com/data3"
+        ];
+        
+         
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        
+         
+        const formattedData = results.map(({ data }) => `Received: ${data}`);
+        
+         
+        print(...formattedData);
+        
+    } catch (error) {
+        console.error(`Error fetching data: ${error.message}`);
+    }
+};
+
+ 
+const main = (action = loadData, ...args) => {
+    print("Starting the process...");
+    action(...args);
+};
+
+ 
+main();

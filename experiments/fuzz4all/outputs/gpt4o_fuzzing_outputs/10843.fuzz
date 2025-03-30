@@ -1,0 +1,83 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const UNIQUE_KEY = Symbol('uniqueKey');
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'secret') return `The secret is ${obj[UNIQUE_KEY]}`;
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    if (prop === 'secret') {
+      console.log('Secret value cannot be set directly');
+      return false;
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+ 
+class Complex {
+  #privateField;
+
+  constructor(value) {
+    this[UNIQUE_KEY] = value;
+    this.#privateField = 'Private Value';
+    return new Proxy(this, handler);
+  }
+
+   
+  static createInstance(value) {
+    return new Complex(value);
+  }
+
+  getPrivate() {
+    return this.#privateField;
+  }
+}
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Fetched Data');
+    }, 1000);
+  });
+}
+
+ 
+(async () => {
+  const instance = Complex.createInstance('Super Secret');
+  console.log(instance.secret);  
+  console.log(instance.getPrivate());
+
+  const data = await fetchData();
+  console.log(data);
+
+   
+  const uniqueSet = new Set([1, 2, 3, 2, 1]);
+  console.log(uniqueSet);
+
+  const map = new Map();
+  map.set('key1', 'value1');
+  map.set('key2', 'value2');
+  console.log(map);
+
+   
+  function* numberGenerator() {
+    let num = 0;
+    while (true) {
+      yield num++;
+    }
+  }
+
+  const gen = numberGenerator();
+  console.log(gen.next().value);  
+  console.log(gen.next().value);  
+})();
+```

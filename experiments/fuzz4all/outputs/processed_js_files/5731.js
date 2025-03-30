@@ -1,0 +1,34 @@
+ 
+
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        user: { id: 1, name: 'John Doe' },
+        settings: { theme: 'dark', notifications: true },
+        preferences: ['sports', 'music', 'movies'],
+      };
+      Math.random() > 0.1 ? resolve(data) : reject('Error: Data fetch failed');
+    }, 1000);
+  });
+
+const processUserData = async () => {
+  try {
+    const { user: { name }, settings: { theme }, preferences } = await fetchData();
+    
+     
+    const preferencesInUpperCase = preferences.map(preference => preference.toUpperCase());
+    
+     
+    const [firstPreference, ...otherPreferences] = preferencesInUpperCase;
+
+    print(`User: ${name}`);
+    print(`Theme: ${theme}`);
+    print(`Primary Preference: ${firstPreference}`);
+    print(`Other Preferences: ${otherPreferences.join(', ')}`);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+processUserData();

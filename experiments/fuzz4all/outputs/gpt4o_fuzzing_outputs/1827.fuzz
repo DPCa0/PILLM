@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(endpoints) {
+  for (let endpoint of endpoints) {
+    const response = await fetch(endpoint);
+    if (response.ok) {
+      yield await response.json();
+    } else {
+      yield { error: `Error fetching ${endpoint}` };
+    }
+  }
+}
+
+const handler = {
+  get: function(target, prop) {
+    return prop in target ? target[prop] : `Property ${prop} doesn't exist`;
+  }
+};
+
+const processApiData = async () => {
+  const apiEndpoints = ['https: 
+  const dataProxy = new Proxy({}, handler);
+
+  for await (let data of fetchData(apiEndpoints)) {
+    let { userId = 'unknown', title = 'No Title' } = dataProxy;
+    ({ userId, title } = new Proxy(data, handler));
+    console.log(`User: ${userId}, Title: ${title}`);
+  }
+};
+
+processApiData();
+```

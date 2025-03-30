@@ -1,0 +1,60 @@
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve(`Fetched data from ${url}`);
+            } else {
+                reject('Network Error');
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function getData(urls) {
+    try {
+        const results = await Promise.all(urls.map(async (url) => {
+            try {
+                const data = await fetchData(url);
+                return { status: 'fulfilled', value: data };
+            } catch (error) {
+                return { status: 'rejected', reason: error };
+            }
+        }));
+        
+        const successfulFetches = results.filter(result => result.status === 'fulfilled');
+        const errors = results.filter(result => result.status === 'rejected');
+
+        print('Successful Fetches:', successfulFetches.map(result => result.value));
+        print('Errors:', errors.map(result => result.reason));
+    } catch (error) {
+        console.error('Unexpected error:', error);
+    }
+}
+
+ 
+function* urlGenerator(base, count) {
+    for (let i = 1; i <= count; i++) {
+        yield `${base}/resource-${i}`;
+    }
+}
+
+ 
+const urls = Array.from(urlGenerator('https://api.example.com', 5));
+getData(urls);
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        print(`Property accessed: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const apiConfig = new Proxy({
+    endpoint: 'https://api.example.com',
+    timeout: 5000
+}, handler);
+
+print(apiConfig.endpoint);   

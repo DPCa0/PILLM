@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci(n) {
+  let [prev, curr] = [0, 1];
+  while (n-- > 0) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+async function fetchData(url) {
+  let response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  let data = await response.json();
+  return data;
+}
+
+ 
+(async () => {
+  try {
+    let [apiData, fibonacciSeq] = await Promise.all([
+      fetchData('https://api.example.com/data'),
+      Promise.resolve([...fibonacci(10)])
+    ]);
+
+    console.log('Fetched Data:', apiData);
+    console.log('Fibonacci Sequence:', fibonacciSeq);
+
+     
+    let processedData = apiData.map(item => ({
+      ...item,
+      value: item.value * 2
+    })).filter(item => item.value > 10);
+
+    console.log('Processed Data:', processedData);
+
+     
+    let handler = {
+      get(target, prop, receiver) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          console.warn(`Property "${prop}" not found!`);
+          return null;
+        }
+      }
+    };
+
+    let dataProxy = new Proxy(processedData, handler);
+    console.log('Proxy Access:', dataProxy.someProperty);  
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

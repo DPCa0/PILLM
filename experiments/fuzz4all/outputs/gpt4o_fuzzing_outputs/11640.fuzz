@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class LazyComputation {
+  constructor(computeFn) {
+    this.computeFn = computeFn;
+    this.result = null;
+    this.computed = false;
+  }
+  
+  evaluate() {
+    if (!this.computed) {
+      this.result = this.computeFn();
+      this.computed = true;
+    }
+    return this.result;
+  }
+}
+
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const asyncLogger = async function*() {
+  const messages = ["Starting", "Processing", "Done"];
+  for (const msg of messages) {
+    yield new Promise(resolve => setTimeout(() => resolve(msg), 1000));
+  }
+};
+
+(async () => {
+  const fibonacciGen = fibonacci();
+  const fibLazy = new LazyComputation(() => {
+    let result = [];
+    for (let i = 0; i < 10; i++) {
+      result.push(fibonacciGen.next().value);
+    }
+    return result;
+  });
+
+  const memoizedFactorial = memoize(n => n <= 1 ? 1 : n * memoizedFactorial(n - 1));
+
+  console.log("Fibonacci (Lazy Computation):", fibLazy.evaluate());
+  console.log("Factorial of 5 (Memoized):", memoizedFactorial(5));
+
+  for await (const message of asyncLogger()) {
+    console.log(message);
+  }
+})();
+```

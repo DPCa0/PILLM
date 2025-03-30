@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const complexAsyncFunction = async () => {
+     
+    try {
+        console.log('Starting complex async operations...');
+        
+         
+        await delay(1000);
+        console.log('1 second delay completed.');
+
+         
+        const complexObject = {
+            name: 'Complex Object',
+            numbers: [1, 2, 3, 4, 5],
+            multiply(factor) {
+                return this.numbers.map(num => num * factor);
+            }
+        };
+
+         
+        const { name, multiply } = complexObject;
+        console.log(`Operating on: ${name}`);
+
+         
+        const numbersSum = complexObject.numbers.reduce((acc, num) => acc + num, 0);
+        console.log(`Sum of numbers: ${numbersSum}`);
+
+         
+        const multipliedNumbers = multiply(2);
+        console.log(`Numbers multiplied by 2: [${multipliedNumbers.join(', ')}]`);
+
+         
+        const numbersWithDuplicates = [...multipliedNumbers, 2, 4, 6];
+        const uniqueNumbers = [...new Set(numbersWithDuplicates)];
+        console.log(`Unique numbers: [${uniqueNumbers.join(', ')}]`);
+
+         
+        await delay(500);
+        console.log('Finished all operations.');
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
+ 
+complexAsyncFunction();
+```

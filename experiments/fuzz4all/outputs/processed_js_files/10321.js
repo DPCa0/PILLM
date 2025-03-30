@@ -1,0 +1,61 @@
+ 
+import fs from 'fs/promises';
+import { setTimeout } from 'timers/promises';
+
+ 
+async function readFileAsync(filePath) {
+  try {
+     
+    const data = await fs.readFile(filePath, 'utf-8')?.trim() ?? 'No data found';
+    print('File data:', data);
+  } catch (error) {
+    console.error('Error reading file:', error.message);
+  }
+}
+
+ 
+const targetObject = { language: 'JavaScript', version: 'ES2020' };
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return `Property value: ${target[prop]}`;
+    } else {
+      return `Property ${prop} not found`;
+    }
+  },
+};
+
+const proxy = new Proxy(targetObject, handler);
+print(proxy.language);  
+print(proxy.compiler);  
+
+ 
+function* fibonacci(n) {
+  let [prev, curr] = [0, 1];
+  while (n-- > 0) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+print([...fibonacci(6)]);  
+
+ 
+(async () => {
+  print('Starting delay...');
+  await setTimeout(2000);
+  print('2 seconds later...');
+})();
+
+ 
+const bigNum1 = BigInt('123456789012345678901234567890');
+const bigNum2 = BigInt('987654321098765432109876543210');
+print('BigInt Sum:', bigNum1 + bigNum2);
+
+ 
+function html(strings, ...values) {
+  return strings.reduce((acc, str, i) => acc + str + (values[i] ? `<b>${values[i]}</b>` : ''), '');
+}
+
+const userName = 'Alice';
+print(html`Hello, ${userName}! Welcome to the platform.`);

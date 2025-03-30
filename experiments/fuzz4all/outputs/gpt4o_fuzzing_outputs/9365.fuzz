@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+  }
+
+  async addTask(task, delay) {
+    const delayPromise = new Promise((resolve) => setTimeout(resolve, delay));
+    await delayPromise;
+    this.tasks.push(task);
+    console.log(`Task added: ${task.name}`);
+  }
+
+  async executeTasks() {
+    while (this.tasks.length) {
+      const task = this.tasks.shift();
+      await task();
+    }
+  }
+}
+
+class RandomTask {
+  constructor(name, executionTime) {
+    this.name = name;
+    this.executionTime = executionTime;
+  }
+
+  execute() {
+    return new Promise((resolve) => {
+      console.log(`Executing ${this.name}`);
+      setTimeout(() => {
+        console.log(`${this.name} finished`);
+        resolve();
+      }, this.executionTime);
+    });
+  }
+}
+
+ 
+const createRandomTasks = (...names) => {
+  const tasks = names.map((name) => {
+    const executionTime = Math.floor(Math.random() * 5000);
+    return new RandomTask(name, executionTime);
+  });
+  return tasks;
+};
+
+(async () => {
+  const scheduler = new Scheduler();
+  const taskNames = ['Task1', 'Task2', 'Task3', 'Task4'];
+
+   
+  const tasks = createRandomTasks(...taskNames);
+  const taskPromises = tasks.map((task, index) => {
+     
+    return scheduler.addTask(() => task.execute(), index * 1000);
+  });
+
+  await Promise.all(taskPromises);
+  await scheduler.executeTasks();
+})();
+```

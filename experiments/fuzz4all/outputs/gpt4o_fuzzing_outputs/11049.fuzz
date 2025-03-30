@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ user: 'John Doe', age: 30 });
+        }, 1000);
+    });
+};
+
+ 
+function* dataGenerator() {
+    yield fetchData();
+    yield fetchData();
+}
+
+ 
+const runGenerator = async (gen) => {
+    const iterator = gen();
+    for (let promise of iterator) {
+        const result = await promise;
+        console.log('Data fetched:', result);
+    }
+};
+
+ 
+const dataHandler = {
+    get: (target, property) => {
+        console.log(`Getting ${property}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const userData = new Proxy({ name: 'Anonymous', age: 0 }, dataHandler);
+userData.name = 'Alice';   
+console.log(userData.name);   
+
+runGenerator(dataGenerator);
+```

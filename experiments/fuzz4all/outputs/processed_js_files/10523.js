@@ -1,0 +1,51 @@
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+    
+    async *processData() {
+        for (let item of this.data) {
+            yield await this.enrichData(item);
+        }
+    }
+
+    async enrichData(item) {
+        return new Promise(resolve => setTimeout(() => {
+            resolve({...item, enriched: true});
+        }, 100));
+    }
+
+    static async processDataWithConcurrency(data, concurrency) {
+        const processor = new DataProcessor(data);
+        const iterator = processor.processData();
+        const result = [];
+        const executing = [];
+
+        const enqueue = async () => {
+            if (result.length >= data.length) return;
+            const { value, done } = await iterator.next();
+            if (!done) {
+                const p = Promise.resolve(value).then(v => {
+                    result.push(v);
+                    executing.splice(executing.indexOf(p), 1);
+                });
+                executing.push(p);
+                const next = enqueue();
+                if (executing.length >= concurrency) {
+                    await Promise.race(executing);
+                }
+                await next;
+            }
+        };
+
+        await enqueue();
+        await Promise.all(executing);
+        return result;
+    }
+}
+
+(async () => {
+    const data = Array.from({ length: 10 }, (_, i) => ({ id: i }));
+    const processedData = await DataProcessor.processDataWithConcurrency(data, 3);
+    print(processedData);
+})();

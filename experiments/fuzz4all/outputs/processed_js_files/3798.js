@@ -1,0 +1,72 @@
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    get details() {
+        return `${this.name}, Age: ${this.age}`;
+    }
+
+    static compareByAge(userA, userB) {
+        return userA.age - userB.age;
+    }
+}
+
+function* generateIDs() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const idGenerator = generateIDs();
+const users = [
+    new User('Alice', 30),
+    new User('Bob', 25),
+    new User('Charlie', 35)
+];
+
+ 
+const usersWithID = users.map(user => ({ ...user, id: idGenerator.next().value }));
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Property '${prop}' accessed: ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.warn(`Property '${prop}' not found.`);
+        }
+    }
+};
+
+const proxyUser = new Proxy(usersWithID[0], handler);
+
+ 
+const { name, ...rest } = proxyUser;
+print(`Name: ${name}`, rest);
+
+ 
+async function fetchUserData(id) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(`User data for ID: ${id}`);
+        }, 1000);
+    });
+}
+
+async function run() {
+    const sortedUsers = usersWithID.sort(User.compareByAge);
+    print('Sorted Users:', sortedUsers.map(user => user.details));
+
+    try {
+        const data = await fetchUserData(sortedUsers[0].id);
+        print(data);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+run();

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class AsyncGenerator {
+  constructor(end = 10) {
+    this.end = end;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = 0; i <= this.end; i++) {
+       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield i;
+    }
+  }
+}
+
+function fetchData(url) {
+  return new Proxy({}, {
+    get(target, property) {
+      return fetch(`${url}/${property}`)
+        .then(response => response.json())
+        .catch(() => `Error fetching ${property}`);
+    }
+  });
+}
+
+(async function main() {
+  try {
+    const data = fetchData('https://jsonplaceholder.typicode.com');
+
+    const user = await data.users;
+    console.log('User:', user[0]);
+
+    console.log('Numbers from async generator:');
+    for await (const num of new AsyncGenerator(5)) {
+      console.log(num);
+    }
+
+    const numbers = [1, 2, 3, 4, 5];
+    const doubled = numbers.map(num => num * 2);
+    console.log('Doubled numbers:', doubled);
+
+    const sum = numbers.reduce((acc, curr) => acc + curr, 0);
+    console.log('Sum of numbers:', sum);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

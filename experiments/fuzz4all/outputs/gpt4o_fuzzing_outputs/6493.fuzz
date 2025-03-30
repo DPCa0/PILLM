@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+class DataProcessor {
+    #data;
+    constructor(data) {
+        this.#data = data;
+    }
+
+    *[Symbol.iterator]() {
+        for (const item of this.#data) {
+            if (item.value > 10) yield item;
+        }
+    }
+
+    static async create(url) {
+        const data = await fetchData(url);
+        return new DataProcessor(data);
+    }
+}
+
+(async () => {
+    const dataUrl = 'https://api.example.com/data';
+    const processor = await DataProcessor.create(dataUrl);
+
+    const processData = (function* () {
+        for (const item of processor) {
+            console.log(`Processing item with value: ${item.value}`);
+            yield item.value * 2;
+        }
+    })();
+
+    for (const processedValue of processData) {
+        console.log(`Processed value: ${processedValue}`);
+    }
+})();
+```

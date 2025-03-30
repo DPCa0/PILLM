@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* numberGenerator(limit) {
+    for (let i = 0; i <= limit; i++) {
+        yield i;
+    }
+}
+
+ 
+async function displayNumbers(limit) {
+    const gen = numberGenerator(limit);
+    for (let num of gen) {
+        await delay(500);  
+        console.log(num);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value, receiver) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const person = new Proxy({ name: "Alice", age: 25 }, handler);
+
+ 
+console.log(person.name);
+person.age = 26;
+
+ 
+const squareMap = new Map([[1, 1], [2, 4], [3, 9]]);
+const resultArray = Array.from(squareMap, ([key, value]) => `${key}: ${value}`);
+
+console.log(resultArray);
+
+ 
+(async () => {
+    console.log("Starting number display...");
+    await displayNumbers(5);
+    console.log("Finished!");
+})();
+```

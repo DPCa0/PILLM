@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function complexAsyncOperation() {
+  console.log('Starting complex operation...');
+
+   
+  const data = { x: 10, y: 20, z: 30 };
+  const { x, ...rest } = data;
+
+  console.log(`Extracted x: ${x}, Remaining: ${JSON.stringify(rest)}`);
+
+   
+  const proxyHandler = {
+    get(target, prop) {
+      console.log(`Accessing property '${prop}'`);
+      return target[prop];
+    },
+  };
+
+  const proxiedData = new Proxy(data, proxyHandler);
+  console.log(`z value from proxy: ${proxiedData.z}`);
+
+   
+  const mathModule = await import('./math.js');  
+  console.log(`Dynamic Import: Square of 4 is ${mathModule.square(4)}`);
+
+   
+  await wait(2000);
+  console.log('Operation complete after waiting for 2 seconds');
+}
+
+ 
+export function square(n) {
+  return n * n;
+}
+
+ 
+complexAsyncOperation().catch(console.error);
+```
+
+Please note: For the dynamic import to work as shown, `math.js` should be a separate module exporting a `square` function in the same directory. If running in an environment that doesn't support ES modules, adjustments may be necessary.

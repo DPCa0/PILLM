@@ -1,0 +1,48 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        for (const listener of this.events.get(event)) {
+            listener(...args);
+        }
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+        const items = ['first', 'second', 'third'];
+        for (const item of items) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            yield item;
+        }
+    }
+};
+
+(async function complexOperation() {
+    try {
+        const emitter = new EventEmitter();
+        emitter.on('process', data => print(`Processing: ${data}`));
+
+        for await (const item of asyncIterable) {
+            emitter.emit('process', item);
+        }
+
+        const mappedData = ['a', 'b', 'c'].map(async char => {
+            return await new Promise(resolve => setTimeout(() => resolve(char.toUpperCase()), 500));
+        });
+
+        const result = await Promise.all(mappedData);
+        print('Mapped Result:', result.join(', '));
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

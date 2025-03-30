@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Getting value of ${prop}`);
+      return target[prop];
+    } else {
+      throw new ReferenceError(`Property ${prop} not found.`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting value of ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const data = new Proxy({ name: "Alice", age: 30 }, handler);
+
+ 
+const updateData = ({ name, age, ...rest }) => ({
+  name,
+  age: age + 1,
+  ...rest
+});
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+ 
+async function fetchData() {
+  const id = gen.next().value;
+  console.log(`Fetching data for ID: ${id}`);
+   
+  return new Promise((resolve) =>
+    setTimeout(() => resolve({ id, data: "Sample data" }), 1000)
+  );
+}
+
+async function main() {
+  try {
+    console.log('Initial Data:', data.name, data.age);
+    data.name = "Bob";
+    data.age = 35;
+    
+    const newData = updateData(data);
+    console.log('Updated Data:', newData);
+
+    const fetchedData = await fetchData();
+    console.log('Fetched Data:', fetchedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();
+```

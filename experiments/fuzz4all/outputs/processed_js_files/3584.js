@@ -1,0 +1,62 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+  
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    Math.random() > 0.5 ? resolve('Success') : reject('Error');
+  }, 1000);
+});
+
+const handleSuccess = async message => {
+  print(`Handled: ${await Promise.resolve(message)}`);
+};
+
+const handleError = async error => {
+  console.error(`Caught: ${await Promise.reject(error).catch(e => e)}`);
+};
+
+const main = async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('success', handleSuccess);
+  eventEmitter.on('error', handleError);
+  
+  try {
+    const result = await asyncOperation();
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+  
+   
+  const weakMap = new WeakMap();
+  let obj = {};
+  weakMap.set(obj, 'some value');
+  print(weakMap.get(obj));
+  obj = null;
+   
+};
+
+main();

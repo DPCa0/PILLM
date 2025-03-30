@@ -1,0 +1,45 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    static fromPolar(magnitude, angle) {
+        return new ComplexNumber(
+            magnitude * Math.cos(angle),
+            magnitude * Math.sin(angle)
+        );
+    }
+
+    [Symbol.toPrimitive](hint) {
+        if (hint === 'string') {
+            return `${this.real} + ${this.imaginary}i`;
+        }
+        return this.magnitude();
+    }
+
+    add({ real, imaginary }) {
+        return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+    }
+
+    magnitude() {
+        return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+    }
+
+    *[Symbol.iterator]() {
+        yield this.real;
+        yield this.imaginary;
+    }
+}
+
+ 
+const complex1 = new ComplexNumber(3, 4);
+const complex2 = ComplexNumber.fromPolar(5, Math.PI / 4);
+
+const sum = complex1.add(complex2);
+print(`Sum: ${sum}`);  
+
+print(`Magnitude of sum: ${+sum}`);  
+
+const [realPart, imaginaryPart] = sum;
+print(`Real: ${realPart}, Imaginary: ${imaginaryPart}`);  

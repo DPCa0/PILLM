@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Fetching error:', error);
+        }
+    }
+}
+
+const cacheProxy = new Proxy({}, {
+    get(target, prop) {
+        if (!target[prop]) {
+            target[prop] = new NetworkRequest(prop).fetchData();
+        }
+        return target[prop];
+    }
+});
+
+async function handleMultipleRequests(urls) {
+    const results = await Promise.all(urls.map(url => cacheProxy[url]));
+    return results;
+}
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://jsonplaceholder.typicode.com/todos/2',
+        'https://jsonplaceholder.typicode.com/todos/3'
+    ];
+    const results = await handleMultipleRequests(urls);
+    results.forEach(data => console.log(data));
+})();
+```

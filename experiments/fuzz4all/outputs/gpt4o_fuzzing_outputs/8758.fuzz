@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value, receiver) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const data = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+async function fetchData() {
+    console.log('Fetching data...');
+    return new Promise(resolve => setTimeout(() => resolve({ info: 'Some data from server' }), 1000));
+}
+
+(async function() {
+    const response = await fetchData();
+    console.log(response.info);
+})();
+
+ 
+const config = { host: 'localhost', port: 8080, path: '/api' };
+const { host, ...rest } = config;
+console.log(host, rest);
+
+ 
+function* idGenerator() {
+    let id = 0;
+    while(true) {
+        yield ++id;
+    }
+}
+
+const gen = idGenerator();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+    speak() {
+        console.log(`${this.name} makes a sound`);
+    }
+}
+
+class Dog extends Animal {
+    speak() {
+        super.speak();
+        console.log(`${this.name} barks`);
+    }
+}
+
+const d = new Dog('Rover');
+d.speak();  
+            
+
+ 
+function tag(strings, ...values) {
+    console.log(strings, values);
+}
+
+const person = 'John';
+const action = 'coding';
+tag`${person} is ${action}`;
+```

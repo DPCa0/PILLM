@@ -1,0 +1,36 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async () => {
+  await delay(1000);  
+  return { message: "Hello, world!", timestamp: new Date().toISOString() };
+};
+
+ 
+const observer = (target, property, value) => {
+  print(`Property ${property} changed to ${value}`);
+};
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Getting ${property}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, property, value, receiver) {
+    observer(target, property, value);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+let data = new Proxy({}, handler);
+
+(async () => {
+  const result = await fetchData();
+  Object.keys(result).forEach(key => data[key] = result[key]);  
+  print(data.message);  
+})();

@@ -1,0 +1,56 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class DataProcessor {
+  #data;
+  constructor(data) {
+    this.#data = data;
+  }
+
+  filterData(criteria) {
+    return this.#data.filter(criteria);
+  }
+
+  async processDataAsync(callback) {
+    const processedData = await Promise.all(this.#data.map(callback));
+    return processedData;
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const rawData = await fetchData(url);
+    const processor = new DataProcessor(rawData);
+    
+    const filteredData = processor.filterData(post => post.userId === 1);
+    print('Filtered Data:', filteredData);
+    
+    const processedAsyncData = await processor.processDataAsync(async post => {
+      const userData = await fetchData(`https: 
+      return { ...post, user: userData };
+    });
+    print('Processed Async Data:', processedAsyncData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+
+const handleInput = debounce((value) => {
+  print('Debounced input value:', value);
+}, 300);
+
+document.getElementById('input').addEventListener('input', (e) => handleInput(e.target.value));
+
+Note: This script includes asynchronous operations, ES6 classes with private fields, and a debounce function. It also uses fetch to get data and processes it in complex ways. You will need an HTML page with an `<input id="input" />` element to see the debouncing effect.

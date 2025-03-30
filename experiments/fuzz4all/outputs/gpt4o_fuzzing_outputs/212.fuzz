@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor(max = 100) {
+    this.max = max;
+    this.cache = new Map();
+    this[Symbol.iterator] = this.generator.bind(this);
+  }
+  
+  *generator() {
+    let [a, b] = [0, 1];
+    yield a;
+    yield b;
+    while (b <= this.max) {
+      [a, b] = [b, a + b];
+      this.cache.set(a, true);
+      yield a;
+    }
+  }
+
+  isFibonacci(num) {
+    return this.cache.has(num);
+  }
+}
+
+const fibonacci = new FibonacciSequence(500);
+
+for (const num of fibonacci) {
+  console.log(`Fibonacci: ${num}`);
+}
+
+console.log(`Is 144 a Fibonacci number? ${fibonacci.isFibonacci(144)}`);
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log(`Fetched Data:`, data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+}
+
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+ 
+const targetObject = { name: 'Alice', age: 25 };
+const handler = {
+  get(target, property) {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+console.log(proxy.name);  
+proxy.age = 26;  
+console.log(proxy.age);  
+
+ 
+const promises = [
+  Promise.resolve(42),
+  Promise.reject('Error occurred'),
+  Promise.resolve('Hello')
+];
+
+Promise.allSettled(promises).then(results =>
+  results.forEach(result => console.log(result))
+);
+```

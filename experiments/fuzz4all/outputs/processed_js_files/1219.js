@@ -1,0 +1,47 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const api = {
+  async getUser(id) {
+    await delay(1000);  
+    return { id, name: `User${id}` };
+  },
+  async getPosts(userId) {
+    await delay(1000);  
+    return [
+      { userId, title: `Post 1 by User${userId}` },
+      { userId, title: `Post 2 by User${userId}` }
+    ];
+  }
+};
+
+ 
+function* dataGenerator(userId) {
+  yield api.getUser(userId);
+  yield api.getPosts(userId);
+}
+
+ 
+async function fetchUserData(userId) {
+  const generator = dataGenerator(userId);
+  const userPromise = generator.next().value;
+  const postsPromise = generator.next().value;
+
+   
+  const [user, posts] = await Promise.all([userPromise, postsPromise]);
+
+  print(`Fetched data for ${user.name}:`);
+  posts.forEach(({ title }) => print(`- ${title}`));
+}
+
+ 
+(async () => {
+  try {
+    await fetchUserData(1);
+  } catch (error) {
+    console.error("An error occurred while fetching data:", error);
+  }
+})();

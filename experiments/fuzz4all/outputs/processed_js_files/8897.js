@@ -1,0 +1,29 @@
+ 
+async function* fetchData(urls) {
+    for (let url of urls) {
+        const response = await fetch(url);
+        yield await response.json();
+    }
+}
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            print(`Accessing property: ${prop}`);
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} does not exist.`);
+        }
+    }
+};
+
+const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+
+(async () => {
+    const generator = fetchData(urls);
+    const proxiedGenerator = new Proxy(generator, handler);
+
+    for await (let data of proxiedGenerator) {
+        print(data.title);   
+    }
+})();

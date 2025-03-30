@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+const displayData = ({ name, height, birth_year }) => {
+  console.log(`Name: ${name}, Height: ${height}, Birth Year: ${birth_year}`);
+};
+
+ 
+async function getStarWarsCharacters() {
+  const urls = [
+    'https://swapi.dev/api/people/1/',  
+    'https://swapi.dev/api/people/2/',  
+    'https://swapi.dev/api/people/3/'   
+  ];
+
+   
+  const results = await Promise.all(urls.map(url => fetchData(url)));
+  
+   
+  results.forEach(displayData);
+}
+
+ 
+(async () => {
+  try {
+    await getStarWarsCharacters();
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

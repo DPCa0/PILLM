@@ -1,0 +1,76 @@
+ 
+const multiply = (a) => (b) => a * b;
+
+ 
+const uniqueId = Symbol('id');
+
+ 
+const handler = {
+    set(target, prop, value) {
+        if (prop === 'age') {
+            if (!Number.isInteger(value) || value <= 0) {
+                throw new Error('Age must be a positive integer');
+            }
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const constants = Object.freeze({
+    MAX_AGE: 120,
+    MIN_AGE: 0
+});
+
+ 
+const privateData = new WeakMap();
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        privateData.set(this, { age });
+        this[uniqueId] = Math.random().toString(36).substr(2, 9);
+    }
+
+    get age() {
+        return privateData.get(this).age;
+    }
+
+    set age(age) {
+        if (age >= constants.MIN_AGE && age <= constants.MAX_AGE) {
+            privateData.set(this, { age });
+        } else {
+            console.error(`Age must be between ${constants.MIN_AGE} and ${constants.MAX_AGE}`);
+        }
+    }
+
+    greet() {
+        print(`Hello, my name is ${this.name} and I am ${this.age} years old.`);
+    }
+
+    get id() {
+        return this[uniqueId];
+    }
+}
+
+ 
+async function* fetchData() {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const data = await response.json();
+    yield data;
+}
+
+ 
+(async () => {
+    const person = new Proxy(new Person('Alice', 30), handler);
+    person.greet();
+    print(`Person's unique ID: ${person.id}`);
+
+    // Using map and Set
+    const numbers = [1, 2, 3, 4, 5];
+    const doubled = new Set(numbers.map(multiply(2)));
+    print('Doubled Numbers:', [...doubled]);
+
+    // Fetch and process data
+    for await (let data of fetchData()) {
+        console.log('Fetched Data:', data

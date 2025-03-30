@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncProcess = async (emitter) => {
+  console.log("Process started");
+  emitter.emit('start');
+
+  await delay(1000);
+  console.log("Step 1 complete");
+  emitter.emit('step', 1);
+
+  await delay(1000);
+  console.log("Step 2 complete");
+  emitter.emit('step', 2);
+
+  await delay(1000);
+  console.log("Process completed");
+  emitter.emit('end');
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('start', () => console.log('Event: Process Started'));
+emitter.on('step', step => console.log(`Event: Step ${step} Completed`));
+emitter.on('end', () => console.log('Event: Process Ended'));
+
+asyncProcess(emitter);
+```

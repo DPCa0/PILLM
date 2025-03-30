@@ -1,0 +1,20 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return await response.json();
+};
+
+const processData = ({ results: [firstItem] }) => {
+  const { name: { first, last }, location: { city, country } } = firstItem;
+  return `Name: ${first} ${last}, Location: ${city}, ${country}`;
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://randomuser.me/api/');
+    print(processData(data));
+  } catch (error) {
+    console.error(`Error fetching data: ${error.message}`);
+  }
+})();

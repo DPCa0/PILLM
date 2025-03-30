@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+async function* asyncNumberGenerator(start, end) {
+    for (let i = start; i <= end; i++) {
+         
+        await new Promise(resolve => setTimeout(resolve, 500));
+        yield i;
+    }
+}
+
+ 
+async function processAsyncGenerator() {
+    const numbers = asyncNumberGenerator(1, 5);
+    for await (const num of numbers) {
+        console.log(`Processing number: ${num}`);
+    }
+}
+
+ 
+const complexObject = (() => {
+    let hiddenValue = 0;
+
+    return new Proxy({
+        get value() {
+            return hiddenValue;
+        },
+        set value(val) {
+            if (typeof val === 'number' && val >= 0) {
+                hiddenValue = val;
+            } else {
+                console.warn("Invalid value. Must be a non-negative number.");
+            }
+        }
+    }, {
+        get(target, prop) {
+            console.log(`Accessing property: ${prop}`);
+            return Reflect.get(target, prop);
+        },
+        set(target, prop, value) {
+            console.log(`Setting property: ${prop} to ${value}`);
+            return Reflect.set(target, prop, value);
+        }
+    });
+})();
+
+ 
+function logger(strings, ...values) {
+    const result = strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+    console.log(`LOG: ${result}`);
+}
+
+const username = "John Doe";
+logger`User ${username} has logged in at ${new Date().toLocaleTimeString()}`;
+
+ 
+processAsyncGenerator();
+
+ 
+complexObject.value = 42;
+console.log(`The current value is: ${complexObject.value}`);
+complexObject.value = -5;  
+```

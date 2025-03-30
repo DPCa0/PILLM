@@ -1,0 +1,52 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({
+          status: 200,
+          json: () => Promise.resolve({ id: 1, name: "Example", details: { score: 95, level: 'advanced' } })
+        });
+      } else {
+        reject(new Error("404 Not Found"));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async (url) => {
+  try {
+    const response = await fetchData(url);
+    if (response.status === 200) {
+      const data = await response.json();
+      
+       
+      const { id, name, details: { score, level } } = data;
+      
+      print(`ID: ${id}`);
+      print(`Name: ${name}`);
+      print(`Score: ${score}`);
+      print(`Level: ${level}`);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+};
+
+ 
+const handler = {
+  get: (target, property) => {
+    print(`Accessing property "${property}" with value "${target[property]}"`);
+    return target[property];
+  }
+};
+
+const userData = { id: 1, name: "John Doe" };
+const proxyUserData = new Proxy(userData, handler);
+
+ 
+processData("https://api.example.com/data");
+print(proxyUserData.name);  

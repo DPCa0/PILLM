@@ -1,0 +1,44 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(observer) {
+    this.subscribers.add(observer);
+    return () => this.subscribers.delete(observer);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(observer => observer(data));
+  }
+}
+
+const asyncTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+    await asyncTimeout(100);
+    yield i;
+  }
+}
+
+const numberObservable = new Observable();
+
+const asyncIterableProcessor = async (asyncIterable) => {
+  for await (const value of asyncIterable) {
+    numberObservable.notify(value);
+  }
+};
+
+const unsubscribe = numberObservable.subscribe((value) => {
+  print(`Received value: ${value}`);
+  if (value === 4) {
+    print('Unsubscribing...');
+    unsubscribe();
+  }
+});
+
+(async () => {
+  const generator = asyncGenerator(10);
+  await asyncIterableProcessor(generator);
+})();

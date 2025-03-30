@@ -1,0 +1,54 @@
+class AsyncIterable {
+    constructor(items) {
+        this.items = items;
+    }
+
+    [Symbol.asyncIterator]() {
+        let i = 0;
+        const items = this.items;
+        return {
+            async next() {
+                if (i < items.length) {
+                     
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    return { value: items[i++], done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
+const pipeline = async (iterable) => {
+    const results = [];
+    for await (const item of iterable) {
+        results.push(
+            await new Promise(resolve => 
+                setTimeout(() => resolve(item * 2), 50))
+        );
+    }
+    return results;
+};
+
+const process = async () => {
+    const iterable = new AsyncIterable([1, 2, 3, 4, 5]);
+    const transformedResults = await pipeline(iterable);
+    print("Transformed Results:", transformedResults);
+    
+    const resultsMap = new Map(
+        transformedResults.map((result, index) => [index, result])
+    );
+    
+    const resultsSet = new Set(transformedResults);
+
+    const finalResult = {
+        map: resultsMap,
+        set: resultsSet,
+        entries: [...resultsMap.entries()],
+    };
+
+    print("Final Result Object:", JSON.stringify(finalResult, null, 2));
+};
+
+process();

@@ -1,0 +1,45 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+async function runFibonacci(emitter) {
+    const fibGen = fibonacci();
+    for await (const num of fibGen) {
+        if (num > 100) break;
+        emitter.emit('fibonacci', num);
+        await delay(500);
+    }
+}
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('fibonacci', num => {
+    print(`Fibonacci number: ${num}`);
+});
+
+runFibonacci(eventEmitter);

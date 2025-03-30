@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class NetworkRequest {
+    #url;
+    #retryCount;
+    #cache = new Map();
+
+    constructor(url, retryCount = 3) {
+        this.#url = url;
+        this.#retryCount = retryCount;
+    }
+
+    async fetchWithRetry() {
+        for (let attempt = 0; attempt < this.#retryCount; attempt++) {
+            try {
+                if (this.#cache.has(this.#url)) {
+                    return Promise.resolve(this.#cache.get(this.#url));
+                }
+                const response = await fetch(this.#url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                this.#cache.set(this.#url, data);
+                return data;
+            } catch (error) {
+                if (attempt === this.#retryCount - 1) {
+                    throw new Error('Maximum retry attempts reached');
+                }
+            }
+        }
+    }
+}
+
+(async () => {
+    const url = 'https://api.example.com/data';
+    const networkRequest = new NetworkRequest(url);
+    
+    try {
+        const data = await networkRequest.fetchWithRetry();
+        const processedData = data.map(({ id, value }) => ({ id, value: value * 2 }));
+        console.table(processedData);
+    } catch (error) {
+        console.error('Fetching data failed:', error);
+    }
+})();
+```

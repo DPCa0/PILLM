@@ -1,0 +1,32 @@
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+async function processUrls(urls) {
+  const dataIterator = fetchData(urls);
+  const results = [];
+
+  for await (const dataPromise of dataIterator) {
+    const data = await dataPromise;
+    results.push(data);
+  }
+  
+  return results;
+}
+
+function advancedFeatureDemo() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+  processUrls(urls)
+    .then(results => console.log("Fetched Data:", results))
+    .catch(err => console.error("Error fetching data:", err));
+}
+
+advancedFeatureDemo();

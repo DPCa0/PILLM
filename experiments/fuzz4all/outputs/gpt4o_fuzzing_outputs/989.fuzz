@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexDataHandler {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data.map(item => item * 2));
+      }, 1000);
+    });
+  }
+}
+
+const handlerProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      if (prop === 'data') {
+        console.log('Accessing data property');
+      }
+      return obj[prop];
+    }
+  });
+};
+
+(async () => {
+  const dataHandler = new ComplexDataHandler([1, 2, 3, 4, 5]);
+  const proxiedHandler = handlerProxy(dataHandler);
+
+  console.log('Original data:', proxiedHandler.data);
+  
+  const result = await proxiedHandler.processData();
+  console.log('Processed data:', result);
+})();
+```

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator(max) {
+    let num = 1;
+    while (num <= max) {
+        yield new Promise(resolve => setTimeout(() => resolve(num++), 100));
+    }
+}
+
+ 
+async function handleGenerator(gen) {
+    for await (let number of gen) {
+        console.log(`Generated number: ${number}`);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessed property "${prop}"`);
+        return target[prop];
+    }
+};
+
+const array = new Proxy([10, 20, 30], handler);
+
+ 
+async function main() {
+    console.log('Starting generator...');
+    await handleGenerator(numberGenerator(5));
+
+    console.log('Accessing array elements...');
+    console.log(`Element 0: ${array[0]}`);
+    console.log(`Element 1: ${array[1]}`);
+    console.log(`Element 2: ${array[2]}`);
+}
+
+main().catch(console.error);
+```

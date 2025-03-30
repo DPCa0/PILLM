@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+function* createDelays() {
+    yield delay(1000);
+    yield delay(2000);
+    yield delay(1500);
+}
+
+ 
+async function processDelays() {
+    const delays = createDelays();
+    for (let promise of delays) {
+        await promise;
+        console.log(`Processed delay at ${new Date().toLocaleTimeString()}`);
+    }
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Property '${property}' accessed at ${new Date().toLocaleTimeString()}`);
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+const obj = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+console.log(obj.a);
+console.log(obj.b);
+
+ 
+processDelays();
+```

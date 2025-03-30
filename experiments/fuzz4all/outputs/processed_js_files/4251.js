@@ -1,0 +1,54 @@
+ 
+const asyncIterable = {
+  async *[Symbol.asyncIterator]() {
+    for (let i = 0; i < 3; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      yield i;
+    }
+  }
+};
+
+(async () => {
+   
+  const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.min.js');
+  
+  const nestedObject = { a: { b: { c: 42 } } };
+  const value = _.get(nestedObject, 'a.b.c', 0);  
+  print('Value from nested object:', value);
+
+   
+  const result = nestedObject.a?.b?.c ?? 'default';
+  print('Result with nullish coalescing:', result);
+
+   
+  print('Starting async iteration:');
+  for await (let num of asyncIterable) {
+    print('Number from async iterable:', num);
+  }
+
+   
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+
+   
+  function tag(strings, ...values) {
+    return strings.raw.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+  }
+  const language = 'JavaScript';
+  print(tag`Hello, \u0048\u0065\u006C\u006C\u006F \u0077\u006F\u0072\u006C\u0064! Welcome to \x48\x65\x6C\x6C\x6F ${language}.`);
+
+   
+  const handler = {
+    get: (target, prop) => {
+      print(`Property '${prop}' accessed`);
+      return target[prop];
+    }
+  };
+
+  const targetObject = { foo: 'bar

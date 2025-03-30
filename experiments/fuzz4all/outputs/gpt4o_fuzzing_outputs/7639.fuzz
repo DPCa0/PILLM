@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchAndProcessData(urls) {
+     
+    const dataPromises = urls.map(url => fetch(url).then(res => res.json()));
+
+    try {
+         
+        const dataArray = await Promise.all(dataPromises);
+
+         
+        const processedData = dataArray.map(({ id, value }) => ({ id, transformedValue: transformValue(value) }));
+
+         
+        const finalResult = processedData.reduce((acc, { transformedValue }) => acc + transformedValue, 0);
+
+        return finalResult;
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+ 
+function transformValue(value) {
+     
+    return Math.sqrt(value) * Math.log(value + 1);
+}
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+fetchAndProcessData(urls).then(result => console.log('Final Result:', result));
+
+ 
+if (typeof fetch === "undefined") {
+    require('node-fetch');
+}
+```

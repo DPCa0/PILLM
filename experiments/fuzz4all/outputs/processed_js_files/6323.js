@@ -1,0 +1,38 @@
+ 
+(async function () {
+     
+    const fetchUserData = () => new Promise(resolve => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', roles: ['admin', 'editor'] },
+                { id: 2, name: 'Bob', roles: ['viewer'] },
+                { id: 3, name: 'Charlie', roles: ['editor', 'viewer'] },
+            ]);
+        }, 1000);
+    });
+
+     
+    const processUserData = async () => {
+        const users = await fetchUserData();
+
+        const roleSummary = users.reduce((acc, { name, roles }) => {
+            roles.forEach(role => {
+                if (!acc[role]) acc[role] = [];
+                acc[role].push(name);
+            });
+            return acc;
+        }, {});
+
+        return roleSummary;
+    };
+
+    try {
+        const summary = await processUserData();
+         
+        Object.entries(summary).forEach(([role, names]) => {
+            print(`Role: ${role}\nMembers: ${names.join(', ')}\n`);
+        });
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+})();

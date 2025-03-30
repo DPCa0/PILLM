@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(urls) {
+    try {
+         
+        const fetchPromises = urls.map(url => fetch(url).then(response => response.json()));
+        
+         
+        const results = await Promise.all(fetchPromises);
+
+         
+        const [firstResult, ...otherResults] = results;
+        
+         
+        console.log(firstResult?.data ?? 'No data for first result');
+        console.log(otherResults?.length ?? 'No other results');
+        
+         
+        const uniqueDataSet = new Set(results.flatMap(result => result.data || []));
+
+        return [...uniqueDataSet];  
+    } catch (error) {
+         
+        const { logError } = await import('./errorHandler.js');
+        logError(error);
+        return [];
+    }
+}
+
+ 
+fetchData(['https://api.example.com/data1', 'https://api.example.com/data2'])
+    .then(data => console.log('Unique data:', data))
+    .catch(console.error);
+```

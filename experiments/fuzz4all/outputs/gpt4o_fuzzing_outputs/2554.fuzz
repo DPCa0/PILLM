@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const _balance = Symbol('balance');
+class BankAccount {
+    constructor(owner, balance = 0) {
+        this.owner = owner;
+        this[_balance] = balance;
+    }
+
+    deposit(amount) {
+        if (amount > 0) {
+            this[_balance] += amount;
+            console.log(`Deposited: $${amount}. New balance: $${this[_balance]}`);
+        }
+    }
+
+    withdraw(amount) {
+        if (amount > 0 && this[_balance] >= amount) {
+            this[_balance] -= amount;
+            console.log(`Withdrew: $${amount}. New balance: $${this[_balance]}`);
+        } else {
+            console.log('Insufficient funds.');
+        }
+    }
+
+    get balance() {
+        return this[_balance];
+    }
+}
+
+ 
+const accountHandler = {
+    get: function(target, prop) {
+        if (prop === 'balance') {
+            console.log(`Accessing balance`);
+        }
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+const myAccount = new Proxy(new BankAccount('Alice'), accountHandler);
+
+ 
+async function performBankOperations() {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    myAccount.deposit(1000);
+    myAccount.withdraw(500);
+
+    const { balance } = myAccount;   
+    console.log(`Final balance for ${myAccount.owner}: $${balance}`);
+}
+
+performBankOperations();
+```

@@ -1,0 +1,58 @@
+class AsyncProcessor {
+    #tasks = [];
+
+    constructor(iterable = []) {
+        this.#tasks = [...iterable];
+    }
+
+    static async *taskGenerator(tasks) {
+        for (const task of tasks) {
+            yield await task();
+        }
+    }
+
+    addTask(task) {
+        if (typeof task !== 'function') {
+            throw new Error('Task must be a function');
+        }
+        this.#tasks.push(task);
+    }
+
+    async executeAll() {
+        const results = [];
+        for await (const result of AsyncProcessor.taskGenerator(this.#tasks)) {
+            results.push(result);
+        }
+        return results;
+    }
+}
+
+ 
+const processorProxy = new Proxy(new AsyncProcessor(), {
+    get(target, prop) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Calling method: ${prop}`);
+                return target[prop](...args);
+            };
+        }
+        return target[prop];
+    },
+});
+
+ 
+processorProxy.addTask(async () => {
+    return new Promise((resolve) => setTimeout(() => resolve('Task 1 Complete'), 1000));
+});
+processorProxy.addTask(async () => {
+    return new Promise((resolve) => setTimeout(() => resolve('Task 2 Complete'), 2000));
+});
+processorProxy.addTask(async () => {
+    return new Promise((resolve) => setTimeout(() => resolve('Task 3 Complete'), 500));
+});
+
+ 
+(async () => {
+    const results = await processorProxy.executeAll();
+    print(results);
+})();

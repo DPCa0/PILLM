@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchUserData(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, name: `User${id}`, age: 25 + id });
+        }, 1000);
+    });
+}
+
+ 
+function createLoggingProxy(target) {
+    return new Proxy(target, {
+        get(obj, prop) {
+            console.log(`Getting property '${prop}'`);
+            return Reflect.get(obj, prop);
+        },
+        set(obj, prop, value) {
+            console.log(`Setting property '${prop}' to '${value}'`);
+            return Reflect.set(obj, prop, value);
+        }
+    });
+}
+
+ 
+async function getUserData(id) {
+    try {
+        console.log(`Fetching data for user ID: ${id}`);
+        const userData = await fetchUserData(id);
+        const proxyUserData = createLoggingProxy(userData);
+        
+        console.log('User data retrieved:', proxyUserData);
+        console.log(`Name of the user is: ${proxyUserData.name}`);
+        console.log(`Age of the user is: ${proxyUserData.age}`);
+        
+         
+        proxyUserData.age += 1;
+        console.log(`Updated age is now: ${proxyUserData.age}`);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+getUserData(5);
+```

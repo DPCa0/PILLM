@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+function* logGenerator() {
+    yield 'Log 1';
+    yield 'Log 2';
+    yield 'Log 3';
+}
+
+ 
+async function asyncLog(gen) {
+    for (let value of gen) {
+        console.log(value);
+        await delay(1000);  
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: function(target, prop, value, receiver) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const targetObject = { foo: 'bar' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+(async function main() {
+    console.log('Starting logs with delay using async/await and generator...');
+    await asyncLog(logGenerator());
+
+    console.log('\nUsing Proxy to monitor object access and changes...');
+    console.log(proxyObject.foo);  
+    proxyObject.foo = 'baz';  
+    console.log(proxyObject.foo);  
+})();
+```

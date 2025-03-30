@@ -1,0 +1,34 @@
+ 
+
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield await fetch(url).then(response => response.json());
+    }
+}
+
+function processData(data) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const processed = data.map(item => ({ ...item, processed: true }));
+            resolve(processed);
+        }, 1000);
+    });
+}
+
+async function main(urls) {
+    const results = [];
+    for await (const data of fetchData(urls)) {
+        results.push(...data);
+    }
+    print('Fetched Data:', results);
+    const processedData = await processData(results);
+    print('Processed Data:', processedData);
+}
+
+ 
+const mockUrls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+main(mockUrls);

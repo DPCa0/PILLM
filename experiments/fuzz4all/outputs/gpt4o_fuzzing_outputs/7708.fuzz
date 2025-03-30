@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        user: {
+          name: 'Alice',
+          age: 30,
+          hobbies: ['reading', 'gardening', 'coding']
+        },
+        status: 'success'
+      };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+async function processUserData(url) {
+  try {
+    const { user: { name, age, hobbies }, status } = await fetchData(url);
+
+    if (status === 'success') {
+      console.log(`Name: ${name}`);
+      console.log(`Age: ${age}`);
+      console.log('Hobbies:', ...hobbies);
+
+      const updatedHobbies = [...hobbies, 'blogging'];
+      console.log('Updated Hobbies:', ...updatedHobbies);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+processUserData('https://api.example.com/user');
+```

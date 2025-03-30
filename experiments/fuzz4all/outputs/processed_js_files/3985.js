@@ -1,0 +1,78 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  get rows() {
+    return this.data.length;
+  }
+
+  get cols() {
+    return this.data[0].length;
+  }
+
+  map(fn) {
+    return new Matrix(this.rows, this.cols).fill((row, col) => fn(this.data[row][col], row, col));
+  }
+
+  fill(fn) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        this.data[i][j] = fn(i, j);
+      }
+    }
+    return this;
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row >= this.rows) return { done: true };
+        const value = this.data[row][col];
+        col++;
+        if (col >= this.cols) {
+          col = 0;
+          row++;
+        }
+        return { value, done: false };
+      }
+    };
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+async function* asyncIterator(matrix) {
+  for (let i = 0; i < matrix.rows; i++) {
+    for (let j = 0; j < matrix.cols; j++) {
+      await new Promise(resolve => setTimeout(resolve, 10));  
+      yield matrix.data[i][j];
+    }
+  }
+}
+
+(async () => {
+  const matrix = new Matrix(3, 3).fill((i, j) => i * j);
+  print('Synchronous Iteration:');
+  for (const value of matrix) {
+    print(value);
+  }
+
+  print('Asynchronous Iteration:');
+  for await (const value of asyncIterator(matrix)) {
+    print(value);
+  }
+
+  print('Transformed Matrix:');
+  const transformedMatrix = matrix.map((value) => value * 2);
+  print(transformedMatrix.toString());
+})();

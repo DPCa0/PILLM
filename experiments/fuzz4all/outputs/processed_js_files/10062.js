@@ -1,0 +1,57 @@
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+function* dataProcessor(data) {
+    for (let item of data) {
+        yield processItem(item);
+    }
+}
+
+ 
+const processedDataMap = new Map();
+
+function processItem(item) {
+     
+    return {
+        id: item.id,
+        processedValue: item.value * 2,
+    };
+}
+
+ 
+function processAndStoreData(data) {
+    for (let { id, processedValue } of dataProcessor(data)) {
+        processedDataMap.set(id, { ...processedDataMap.get(id), processedValue });
+    }
+}
+
+ 
+async function main() {
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3',
+    ];
+
+    const allData = await Promise.all(urls.map(fetchData));
+    
+    allData.flat().forEach((data) => {
+        processAndStoreData(data);
+    });
+
+    print('Processed Data Map:', Array.from(processedDataMap.entries()));
+}
+
+main();

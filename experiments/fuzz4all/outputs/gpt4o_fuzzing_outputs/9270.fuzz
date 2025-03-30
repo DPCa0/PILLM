@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+    yield delay(1000).then(() => 'First result');
+    yield delay(2000).then(() => 'Second result');
+    yield delay(3000).then(() => 'Third result');
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Accessed property "${property}"`);
+        return target[property];
+    }
+};
+
+ 
+const data = new Proxy({
+    info: 'Some data',
+    numbers: [1, 2, 3]
+}, handler);
+
+ 
+async function asyncProcess(gen, dataProxy) {
+    const iterator = gen();
+    for await (const result of iterator) {
+        console.log(result);
+        console.log(`Data Info: ${dataProxy.info}`);
+        console.log(`Numbers: ${dataProxy.numbers.join(', ')}`);
+    }
+}
+
+ 
+asyncProcess(asyncGenerator, data);
+```

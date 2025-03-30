@@ -1,0 +1,36 @@
+ 
+const axios = require('axios');   
+
+ 
+(async function fetchDataAndProcess() {
+    try {
+        const { data } = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        
+         
+        const processedData = data
+            .filter(post => post.userId === 1)           
+            .map(post => ({ ...post, title: post.title.toUpperCase() }))   
+            .reduce((acc, curr) => {                    
+                const firstLetter = curr.title[0];
+                acc[firstLetter] = acc[firstLetter] || [];
+                acc[firstLetter].push(curr);
+                return acc;
+            }, {});
+
+         
+        function* keyGenerator(obj) {
+            for (let key of Object.keys(obj)) {
+                yield key;
+            }
+        }
+
+        const keyGen = keyGenerator(processedData);
+        let result;
+        while (!(result = keyGen.next()).done) {
+            print(`Group ${result.value}: `, processedData[result.value]);
+        }
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

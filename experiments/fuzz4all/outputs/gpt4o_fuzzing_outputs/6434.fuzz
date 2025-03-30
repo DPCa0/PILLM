@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+const dataProcessor = {
+  multiplier: 2,
+  data: [1, 2, 3, 4, 5],
+  process: function() {
+     
+    const multiplyAndFilter = ([...nums], multiplier) => 
+      nums.map(num => num * multiplier).filter(num => num % 3 !== 0);
+    
+    return new Promise((resolve, reject) => {
+      const result = multiplyAndFilter(this.data, this.multiplier);
+      result.length ? resolve(result) : reject(new Error("No valid data"));
+    });
+  },
+  async logProcessedData() {
+    try {
+      const result = await this.process();
+       
+      result.forEach(value => console.log(`Processed value: ${value}`));
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+    }
+  }
+};
+
+ 
+const handler = {
+  get: function(target, prop) {
+    return prop in target ? target[prop] : 'Property does not exist';
+  }
+};
+
+const proxyDataProcessor = new Proxy(dataProcessor, handler);
+
+ 
+(async () => {
+  console.log(`Multiplier: ${proxyDataProcessor.multiplier ?? 'No multiplier set'}`);
+  await proxyDataProcessor.logProcessedData();
+})();
+```

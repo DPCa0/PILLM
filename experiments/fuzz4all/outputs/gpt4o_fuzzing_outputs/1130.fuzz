@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function timing(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = async function (...args) {
+    const start = performance.now();
+    const result = await originalMethod.apply(this, args);
+    const end = performance.now();
+    console.log(`Execution time for ${propertyKey}: ${(end - start).toFixed(2)} ms`);
+    return result;
+  };
+  return descriptor;
+}
+
+ 
+const logHandler = {
+  get(target, prop) {
+    console.log(`Accessed property: ${prop}`);
+    return target[prop];
+  },
+};
+
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+class DataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  @timing
+  async fetchAll() {
+    const results = [];
+    const proxyGenerator = new Proxy(fetchDataGenerator(this.urls), logHandler);
+
+    for await (const data of proxyGenerator) {
+      results.push(data);
+    }
+    return results;
+  }
+}
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+  ];
+  const dataFetcher = new DataFetcher(urls);
+  const results = await dataFetcher.fetchAll();
+  console.log('Fetched Data:', results);
+})();
+```

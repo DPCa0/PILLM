@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id: 1, name: 'John Doe', age: 30 });
+        }, 2000);
+    });
+}
+
+ 
+async function processData() {
+    try {
+        const data = await fetchData();
+        console.log(`Data fetched: ${JSON.stringify(data)}`);
+        
+         
+        const handler = {
+            get(target, property) {
+                if (property in target) {
+                    console.log(`Accessing ${property}: ${target[property]}`);
+                    return target[property];
+                } else {
+                    throw new ReferenceError(`Property "${property}" not found.`);
+                }
+            }
+        };
+        
+        const proxy = new Proxy(data, handler);
+        console.log(`User name is: ${proxy.name}`);
+        console.log(`User age is: ${proxy.age}`);
+        
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+processData();
+```

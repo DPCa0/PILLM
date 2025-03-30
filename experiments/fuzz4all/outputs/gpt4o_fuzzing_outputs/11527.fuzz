@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+   
+  #name;
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+  getName() {
+    return this.#name;
+  }
+
+  static greet() {
+    return "Hello!";
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    if (property === 'greet') {
+      return function() {
+        return `${target.greet()} Nice to meet you.`;
+      };
+    }
+    return target[property];
+  }
+};
+
+ 
+const EnhancedPerson = new Proxy(Person, handler);
+
+ 
+const personInstance = new EnhancedPerson('John Doe');
+
+ 
+const { getName } = personInstance;
+console.log(getName.apply(personInstance));  
+
+ 
+console.log(EnhancedPerson.greet());  
+
+ 
+(async () => {
+  const delayedHello = new Promise((resolve) => {
+    setTimeout(() => resolve("Hello after 1 second!"), 1000);
+  });
+
+  const message = await delayedHello;
+  console.log(message);  
+})();
+```

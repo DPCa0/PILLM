@@ -1,0 +1,57 @@
+class AsyncGenerator {
+    constructor(max) {
+        this.max = max;
+        this.current = 0;
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            next: () => {
+                if (this.current < this.max) {
+                    return new Promise(resolve =>
+                        setTimeout(() => resolve({ value: this.current++, done: false }), 1000)
+                    );
+                } else {
+                    return Promise.resolve({ done: true });
+                }
+            }
+        };
+    }
+}
+
+async function main() {
+    const gen = new AsyncGenerator(5);
+    for await (const num of gen) {
+        print(`Async number: ${num}`);
+    }
+
+    const map = new Map([['name', 'Alice'], ['age', 30]]);
+    const proxy = new Proxy(map, {
+        get(target, prop, receiver) {
+            if (prop === 'toString') {
+                return () => {
+                    let str = '';
+                    target.forEach((value, key) => {
+                        str += `${key}: ${value}, `;
+                    });
+                    return str.slice(0, -2);
+                };
+            }
+            return Reflect.get(target, prop, receiver);
+        }
+    });
+
+    print(`Proxy map: ${proxy.toString()}`);
+
+    try {
+        await Promise.all([
+            Promise.resolve('Task 1').then(value => console.log(value)),
+            Promise.resolve('Task 2').then(value => console.log(value)),
+            Promise.reject('Task 3 error').catch(error => console.error(error))
+        ]);
+    } finally {
+        print('All tasks attempted');
+    }
+}
+
+main();

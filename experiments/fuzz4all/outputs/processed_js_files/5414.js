@@ -1,0 +1,63 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+ 
+const handler = {
+    get(target, property) {
+        print(`Property '${property}' was accessed.`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const person = new Proxy({ name: "John Doe", age: 30 }, handler);
+
+ 
+const personInfo = { ...person, profession: 'Developer' };
+const { name, age, profession } = personInfo;
+
+print(`Name: ${name}, Age: ${age}, Profession: ${profession}`);
+
+ 
+const printAddress = (address) => {
+    const street = address?.street ?? 'No street provided';
+    const city = address?.city ?? 'No city provided';
+    print(`Street: ${street}, City: ${city}`);
+};
+
+ 
+printAddress({ street: '123 Main St', city: 'Anytown' });
+
+ 
+const uniqueID = Symbol('id');
+const objWithSymbol = {
+    [uniqueID]: 12345,
+    displayID() {
+        print(`Unique ID: ${this[uniqueID]}`);
+    }
+};
+
+ 
+objWithSymbol.displayID();
+
+ 
+function tag(strings, ...expressions) {
+    return strings.reduce((acc, str, i) => `${acc}${str}${expressions[i] || ''}`, '');
+}
+
+const taggedMessage = tag`The name is ${name} and the profession is ${profession}`;
+print(taggedMessage);
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1')
+    .then(data => console.log('Fetched Data:', data))
+    .catch(error => console.error('Error fetching data:', error));

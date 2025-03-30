@@ -1,0 +1,64 @@
+class Matrix {
+    #matrix;
+
+    constructor(rows, cols) {
+        this.#matrix = Array.from({ length: rows }, () => Array(cols).fill(0));
+    }
+
+    static #randomValue() {
+        return Math.floor(Math.random() * 10);
+    }
+
+    static fromArray(array) {
+        const rows = array.length;
+        const cols = array[0].length;
+        const matrix = new Matrix(rows, cols);
+        matrix.#matrix = array;
+        return matrix;
+    }
+
+    fillRandom() {
+        this.#matrix = this.#matrix.map(row => row.map(() => Matrix.#randomValue()));
+        return this;
+    }
+
+    *[Symbol.iterator]() {
+        for (let row of this.#matrix) {
+            yield* row;
+        }
+    }
+
+    async forEachAsync(callback) {
+        for (let i = 0; i < this.#matrix.length; i++) {
+            for (let j = 0; j < this.#matrix[i].length; j++) {
+                await callback(this.#matrix[i][j], i, j, this.#matrix);
+            }
+        }
+    }
+
+    toString() {
+        return this.#matrix.map(row => row.join(' ')).join('\n');
+    }
+}
+
+ 
+(async () => {
+    const matrix = new Matrix(3, 3).fillRandom();
+
+    print('Initial Matrix:');
+    print(matrix.toString());
+
+    print('\nMatrix Values:');
+    for (const value of matrix) {
+        print(value);
+    }
+
+    print('\nAsync Processed Matrix:');
+    await matrix.forEachAsync(async (value, i, j, matrix) => {
+        matrix[i][j] = value * 2;
+         
+        await new Promise(resolve => setTimeout(resolve, 100));
+    });
+
+    print(matrix.toString());
+})();

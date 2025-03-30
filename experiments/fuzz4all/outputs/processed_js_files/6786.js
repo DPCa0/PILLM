@@ -1,0 +1,70 @@
+ 
+class ComplexFeatures {
+  static #count = 0;  
+  
+  static get count() {
+    return this.#count;
+  }
+
+  static incrementCount() {
+    this.#count++;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  }
+  
+  constructor(data) {
+    this.data = data;
+    ComplexFeatures.incrementCount();
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property ${String(prop)} accessed.`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    print(`Property ${String(prop)} set to ${value}.`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+const complexData = new ComplexFeatures({ name: "JavaScript", type: "Programming Language" });
+const proxiedData = new Proxy(complexData, handler);
+
+ 
+function* objectEntries(obj) {
+  for (let key of Object.keys(obj)) {
+    yield [key, obj[key]];
+  }
+}
+
+ 
+for (const [key, value] of objectEntries(proxiedData.data)) {
+  print(`${key}: ${value}`);
+}
+
+ 
+(async () => {
+  if (ComplexFeatures.count > 0) {
+    const { default: _ } = await import('lodash');
+    const sortedKeys = _.sortBy(Object.keys(proxiedData.data));
+    print('Sorted Keys:', sortedKeys);
+  }
+})();
+
+ 
+(async function run() {
+  try {
+    const data = await ComplexFeatures.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+})();

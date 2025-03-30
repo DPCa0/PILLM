@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fetchDataGenerator(urls) {
+    const pending = new Map();
+
+    for (const url of urls) {
+        const deferred = new Deferred();
+        pending.set(url, deferred);
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => deferred.resolve(data))
+            .catch(error => deferred.reject(error));
+    }
+
+    while (pending.size > 0) {
+        const completed = await Promise.race([...pending.values()].map(d => d.promise.then(() => d)));
+
+        for (const [url, deferred] of pending.entries()) {
+            if (completed === deferred) {
+                yield [url, await deferred.promise];
+                pending.delete(url);
+                break;
+            }
+        }
+    }
+}
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2',
+        'https://jsonplaceholder.typicode.com/posts/3'
+    ];
+
+    for await (const [url, data] of fetchDataGenerator(urls)) {
+        console.log(`Data from ${url}:`, data);
+    }
+})();
+```

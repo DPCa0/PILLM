@@ -1,0 +1,38 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = (ms, value) => new Promise(resolve => setTimeout(() => resolve(value), ms));
+
+async function* asyncGenerator() {
+  yield await asyncOperation(1000, 'Hello');
+  yield await asyncOperation(1000, 'Async');
+  yield await asyncOperation(1000, 'World');
+}
+
+async function main() {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', console.log);
+
+  for await (const data of asyncGenerator()) {
+    emitter.emit('data', data);
+  }
+}
+
+main();

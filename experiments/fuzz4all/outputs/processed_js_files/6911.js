@@ -1,0 +1,45 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+  for (let i = 0; i < 3; i++) {
+    await delay(1000);
+    yield i;
+  }
+}
+
+async function process() {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('start', () => print('Process started'));
+  eventEmitter.on('data', data => print('Data received:', data));
+  eventEmitter.on('end', () => print('Process ended'));
+
+  eventEmitter.emit('start');
+
+  for await (let value of asyncGenerator()) {
+    eventEmitter.emit('data', value);
+  }
+
+  eventEmitter.emit('end');
+}
+
+process();

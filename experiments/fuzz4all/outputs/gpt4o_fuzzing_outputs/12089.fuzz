@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ name: 'Alice', age: 25 }), 1000);
+  });
+}
+
+ 
+const logger = (fn) => async (...args) => {
+  console.log('Arguments:', ...args);
+  const result = await fn(...args);
+  console.log('Result:', result);
+  return result;
+};
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      console.log(`Getting property '${prop}'`);
+      return obj[prop];
+    } else {
+      console.log(`Property '${prop}' does not exist`);
+      return undefined;
+    }
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting property '${prop}' to ${value}`);
+    obj[prop] = value;
+    return true;
+  },
+};
+
+(async function main() {
+   
+  const fetchDataWithLogging = logger(fetchData);
+  const data = await fetchDataWithLogging();
+
+   
+  const person = new Proxy(data, handler);
+
+   
+  console.log(person.name);  
+  person.name = 'Bob';       
+  console.log(person.gender);  
+})();
+```

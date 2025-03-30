@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+class DataProcessor {
+  #data;  
+
+  constructor(data) {
+    this.#data = data;
+  }
+
+  async #simulateAsyncOperation(data) {
+    return new Promise((resolve) => setTimeout(() => resolve(data.map((x) => x * 2)), 1000));
+  }
+
+  async process() {
+    try {
+      const result = await this.#simulateAsyncOperation(this.#data);
+      return result.reduce((acc, value) => acc + value, 0);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  static fromArray(arr) {
+    return new DataProcessor(arr);
+  }
+}
+
+ 
+(async () => {
+  const processors = [
+    DataProcessor.fromArray([1, 2, 3]),
+    DataProcessor.fromArray([4, 5, 6]),
+    DataProcessor.fromArray([7, 8, 9]),
+  ];
+
+  const results = await Promise.all(processors.map((processor) => processor.process()));
+  console.log('Results:', results);
+})();
+
+ 
+const config = {
+  theme: {
+    color: 'blue',
+  },
+};
+
+const themeColor = config.theme?.color ?? 'defaultColor';
+console.log('Theme color:', themeColor);
+```

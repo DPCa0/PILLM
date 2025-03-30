@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async calculate(expression) {
+    if (this.cache.has(expression)) {
+      console.log(`Fetching from cache: ${expression}`);
+      return this.cache.get(expression);
+    }
+
+    console.log(`Calculating: ${expression}`);
+    const result = await this.#evalExpression(expression);
+    this.cache.set(expression, result);
+    return result;
+  }
+
+  #evalExpression(expression) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const fn = new Function(`return ${expression}`);
+          resolve(fn());
+        } catch (err) {
+          reject(new Error('Invalid expression'));
+        }
+      }, 500);
+    });
+  }
+}
+
+ 
+(async () => {
+  const calculator = new AsyncCalculator();
+
+  try {
+    console.log(await calculator.calculate("5 + 5"));
+    console.log(await calculator.calculate("10 * 2"));
+    console.log(await calculator.calculate("5 + 5"));  
+    console.log(await calculator.calculate("invalid expression"));
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

@@ -1,0 +1,48 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+    return () => this.off(event, listener);
+  }
+
+  off(event, listener) {
+    if (!this.events[event]) return;
+    this.events[event] = this.events[event].filter(l => l !== listener);
+  }
+
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+  let i = 0;
+  while (i < 3) {
+    await delay(1000);
+    yield i++;
+  }
+}
+
+const pipeline = async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', data => {
+    print(`Received data: ${data}`);
+    if (data === 2) emitter.emit('complete');
+  });
+
+  emitter.on('complete', () => {
+    print('Process complete!');
+  });
+
+  for await (const value of asyncGenerator()) {
+    emitter.emit('data', value);
+  }
+};
+
+pipeline();

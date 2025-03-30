@@ -1,0 +1,84 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+async function getUserData(userId) {
+    try {
+        const user = await fetchData(`https: 
+        print('User Data:', user);
+    } catch (error) {
+        console.error('Fetching user data failed:', error);
+    }
+}
+
+const emitter = new EventEmitter();
+const printUserData = (id) => getUserData(id);
+
+emitter.on('fetch', printUserData);
+emitter.emit('fetch', 1);
+
+const proxyHandler = {
+    get(target, property) {
+        if (property in target) {
+            return target[property];
+        }
+        return 'Property does not exist';
+    }
+};
+
+const userSettings = new Proxy({ theme: 'dark', notifications: true }, proxyHandler);
+print(userSettings.theme);  
+print(userSettings.language);  
+
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+const fib = fibonacci();
+print(fib.next().value);  
+print(fib.next().value);  
+print(fib.next().value);  
+print(fib.next().value);  
+
+const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+        for (let i = 1; i <= 5; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1000));  
+            yield i;
+        }
+    }
+};
+
+(async function() {
+    for await (const num of asyncIterable

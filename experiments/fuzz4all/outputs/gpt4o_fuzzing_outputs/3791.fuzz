@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const reactiveHandler = {
+  get(target, property, receiver) {
+    console.log(`Getting ${property}`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    if (typeof target.__react__ === 'function') {
+      target.__react__(property, value);
+    }
+    return true;
+  }
+};
+
+function reactive(obj, callback) {
+  obj.__react__ = callback;
+  return new Proxy(obj, reactiveHandler);
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const uniqueValues = new Set([1, 2, 3, 3, 4, 5]);
+const keyValueStore = new Map();
+keyValueStore.set('name', 'John Doe').set('age', 30);
+
+ 
+function* numberGenerator() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+ 
+async function logNumbers() {
+  for await (const num of numberGenerator()) {
+    console.log(num);
+    if (num >= 5) break;
+  }
+}
+
+(async () => {
+  const reactiveObject = reactive({ count: 0 }, (prop, value) => {
+    console.log(`Reactive: ${prop} changed to ${value}`);
+  });
+
+  reactiveObject.count++;
+  reactiveObject.count++;
+
+  const apiData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  console.log('Fetched Data:', apiData);
+
+  console.log('Unique Values:', [...uniqueValues]);
+  console.log('Key-Value Store:', [...keyValueStore.entries()]);
+
+  console.log('Generated Numbers:');
+  await logNumbers();
+})();
+```

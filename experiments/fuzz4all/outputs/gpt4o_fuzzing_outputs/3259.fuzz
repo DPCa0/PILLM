@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(apiEndpoint) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (apiEndpoint === 'validEndpoint') {
+                resolve({ data: 'Hello, world!', timestamp: new Date() });
+            } else {
+                reject('Invalid API Endpoint');
+            }
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessing ${prop} property`);
+            return target[prop];
+        } else {
+            return `Property ${prop} does not exist`;
+        }
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+(async function main() {
+    try {
+        const apiEndpoint = 'validEndpoint';
+        const response = await fetchData(apiEndpoint);
+
+         
+        const responseProxy = new Proxy(response, handler);
+
+         
+        console.log(responseProxy.data);
+        console.log(responseProxy.timestamp);
+
+         
+        responseProxy.data = 'Hello, universe!';
+
+         
+        console.log(responseProxy.data);
+
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+})();
+```

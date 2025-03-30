@@ -1,0 +1,48 @@
+ 
+
+ 
+const fetchData = async (url) => {
+    const data = {
+        'https://api.example.com/user/1': { id: 1, name: 'John Doe' },
+        'https://api.example.com/user/2': { id: 2, name: 'Jane Smith' }
+    };
+    return new Promise((resolve) => setTimeout(() => resolve(data[url]), 1000));
+};
+
+ 
+const FETCH = Symbol('fetch');
+
+ 
+const handler = {
+    get: (target, property, receiver) => {
+        print(`GET property: ${String(property)}`);
+        if (property === FETCH) {
+            return async (url) => {
+                const result = await Reflect.apply(target[property], target, [url]);
+                return result;
+            };
+        }
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+ 
+const api = {
+    [FETCH]: fetchData
+};
+
+ 
+const apiProxy = new Proxy(api, handler);
+
+ 
+(async () => {
+    try {
+        const user1 = await apiProxy[FETCH]('https://api.example.com/user/1');
+        print('User 1:', user1);
+
+        const user2 = await apiProxy[FETCH]('https://api.example.com/user/2');
+        print('User 2:', user2);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

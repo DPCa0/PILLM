@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* asyncGenerator() {
+  yield fetch('https://jsonplaceholder.typicode.com/posts/1').then(res => res.json());
+  yield new Promise(resolve => setTimeout(() => resolve('Async operation completed after 2s'), 2000));
+  yield 'Final value';
+}
+
+ 
+async function runAsyncGenerator(gen) {
+  const generator = gen();
+  for await (const value of generator) {
+    console.log(value);
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2 };
+const proxyHandler = {
+  get: (target, prop, receiver) => {
+    console.log(`Getting ${String(prop)}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value, receiver) => {
+    console.log(`Setting ${String(prop)} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const proxyObject = new Proxy(targetObject, proxyHandler);
+
+ 
+(async () => {
+   
+  await runAsyncGenerator(asyncGenerator);
+
+   
+  console.log(proxyObject.a);    
+  proxyObject.b = 42;            
+  console.log(proxyObject.b);    
+})();
+```

@@ -1,0 +1,49 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+ 
+(async () => {
+  try {
+     
+    const [module1, module2] = await Promise.all([
+      import('./module1.js'),
+      import('./module2.js')
+    ]);
+
+     
+    const { processData } = module1;
+    const { visualizeData } = module2;
+
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchData(url);
+
+    const processedData = processData(...rawData);  
+    visualizeData(processedData);
+
+     
+    const handler = {
+      get: (obj, prop) => {
+        if (prop in obj) {
+          print(`Accessing property: ${prop}`);
+          return obj[prop];
+        }
+        throw new Error(`Property ${prop} does not exist.`);
+      }
+    };
+
+    const proxyData = new Proxy(processedData, handler);
+    print(proxyData.someKey);
+
+     
+    const dataItems = new Set(rawData.map(item => item.id));
+    print(`Unique item IDs: ${[...dataItems].join(', ')}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

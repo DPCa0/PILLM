@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) this.#events.set(event, []);
+        this.#events.get(event).push(listener);
+        return this;
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fetchUserData(ids) {
+    for (const id of ids) {
+        await delay(500);  
+        yield { id, name: `User${id}` };
+    }
+}
+
+async function main() {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => {
+        console.log('Received:', data);
+    });
+
+    const ids = [1, 2, 3, 4, 5];
+    for await (const user of fetchUserData(ids)) {
+        emitter.emit('data', user);
+    }
+
+    console.log('All users fetched!');
+}
+
+main();
+```

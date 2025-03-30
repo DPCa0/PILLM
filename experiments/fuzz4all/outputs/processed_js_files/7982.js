@@ -1,0 +1,41 @@
+ 
+async function complexFeatureDemo() {
+     
+    const fetchData = (url) => new Promise((resolve) => setTimeout(() => resolve(`Data from ${url}`), Math.random() * 2000));
+
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+    
+     
+    const [data1, data2, data3] = await Promise.all(urls.map(fetchData));
+
+     
+    const config = {
+        settings: {
+            theme: null
+        }
+    };
+    const theme = config.settings?.theme ?? 'default';
+
+    print(`Fetched Data 1: ${data1}`);
+    print(`Fetched Data 2: ${data2}`);
+    print(`Fetched Data 3: ${data3}`);
+    print(`Using theme: ${theme}`);
+
+     
+    const uniqueData = new Set([data1, data2, data3]);
+    const dataMap = new Map();
+
+    uniqueData.forEach((item, index) => {
+        dataMap.set(`key${index}`, item);
+    });
+
+     
+    const resultString = [...dataMap.entries()]
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('; ');
+
+    return resultString;
+}
+
+ 
+complexFeatureDemo().then(console.log).catch(console.error);

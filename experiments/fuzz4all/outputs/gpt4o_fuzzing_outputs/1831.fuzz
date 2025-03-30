@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (msg, delay) => new Promise(resolve => setTimeout(() => resolve(msg), delay));
+
+ 
+async function* asyncGenerator() {
+    yield await asyncOperation('First async operation', 1000);
+    yield await asyncOperation('Second async operation', 2000);
+    yield await asyncOperation('Third async operation', 1500);
+}
+
+ 
+async function runAsyncOperations() {
+    const results = [];
+    for await (let result of asyncGenerator()) {
+        results.push(result);
+    }
+    return results;
+}
+
+ 
+const createObjectWithLogging = (obj) => {
+    return new Proxy(obj, {
+        get(target, prop) {
+            console.log(`Getting property ${prop}`);
+            return Reflect.get(target, prop);
+        },
+        set(target, prop, value) {
+            console.log(`Setting property ${prop} to ${value}`);
+            return Reflect.set(target, prop, value);
+        }
+    });
+};
+
+ 
+const obj1 = { a: 1, b: 2 };
+const obj2 = { b: 3, c: 4 };
+const combinedObj = { ...obj1, ...obj2 };
+
+const array1 = [1, 2, 3];
+const array2 = [4, 5, 6];
+const combinedArray = [...array1, ...array2];
+
+ 
+(async () => {
+    const loggingObject = createObjectWithLogging({ x: 10, y: 20 });
+    loggingObject.x = 30;
+    console.log(`Logging object x: ${loggingObject.x}`);
+    
+    console.log('Combined object:', combinedObj);
+    console.log('Combined array:', combinedArray);
+
+    const asyncResults = await runAsyncOperations();
+    console.log('Async operations results:', asyncResults);
+
+    const map = new Map([
+        ['a', 1],
+        ['b', 2]
+    ]);
+
+    map.set('c', 3);
+    for (let [key, value] of map) {
+        console.log(`Map Key: ${key}, Value: ${value}`);
+    }
+})();
+```

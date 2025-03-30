@@ -1,0 +1,51 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (!this.listeners.has(event)) return;
+        await Promise.all(this.listeners.get(event).map(listener => listener(...args)));
+    }
+
+    off(event, listener) {
+        if (!this.listeners.has(event)) return;
+        const idx = this.listeners.get(event).indexOf(listener);
+        if (idx !== -1) this.listeners.get(event).splice(idx, 1);
+    }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
+    return response.json();
+}
+
+const eventBus = new AsyncEventEmitter();
+
+eventBus.on('dataFetched', async (data) => {
+    print('Processing data:', data);
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    print('Data processed');
+});
+
+async function main() {
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts');
+        print('Data fetched successfully');
+        await eventBus.emit('dataFetched', data);
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+    }
+}
+
+main();

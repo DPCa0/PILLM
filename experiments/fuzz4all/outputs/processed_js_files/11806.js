@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                name: 'John Doe',
+                age: 30,
+                skills: ['JavaScript', 'React', 'Node.js']
+            };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+ 
+async function processUserData(url) {
+    try {
+         
+        const { name, age, skills } = await fetchData(url);
+
+         
+        const enhancedSkills = new Map(skills.map(skill => [skill, skill.length]));
+        
+         
+        print(`User: ${name}, Age: ${age}, Skills: ${Array.from(enhancedSkills).map(([skill, length]) => `${skill} (${length})`).join(', ')}`);
+        
+         
+        const [firstSkill] = skills;
+        print(`Top Skill: ${firstSkill}`);
+        
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+processUserData('https://api.example.com/user');

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataService {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.url}/${endpoint}`);
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+async function processData() {
+  const api = new DataService('https://api.example.com');
+
+  const [userData, postData] = await Promise.all([
+    api.fetchData('users'),
+    api.fetchData('posts'),
+  ]);
+
+  const topUsers = userData.filter(user => user.rank > 4);
+  const recentPosts = postData.slice(0, 10);
+
+  const mergedData = topUsers.map(user => {
+    const { id, name, ...rest } = user;
+    const posts = recentPosts.filter(post => post.userId === id);
+    return { id, name, posts, ...rest };
+  });
+
+  return mergedData;
+}
+
+processData().then(result => console.log(result));
+```

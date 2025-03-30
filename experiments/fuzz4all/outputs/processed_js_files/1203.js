@@ -1,0 +1,44 @@
+ 
+async function* fetchInBatches(apiUrl, batchSize = 5) {
+    let offset = 0;
+    while (true) {
+        const response = await fetch(`${apiUrl}?offset=${offset}&limit=${batchSize}`);
+        const data = await response.json();
+        if (data.length === 0) break;
+        yield data;
+        offset += batchSize;
+    }
+}
+
+ 
+const handler = {
+    set(target, key, value) {
+        if (key === 'email') {
+            if (!/^\S+@\S+\.\S+$/.test(value)) {
+                throw new Error('Invalid email format');
+            }
+        }
+        print(`Setting property ${key} to ${value}`);
+        target[key] = value;
+        return true;
+    }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+(async () => {
+    const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+    for await (const batch of fetchInBatches(apiUrl)) {
+        print('Batch fetched:', batch);
+    }
+
+     
+    try {
+        user.name = 'John Doe';
+        user.email = 'john.doe@example.com';
+        print('User details:', user);
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+const mapAsync = async (fn, array) => Promise.all(array.map(fn));
+
+ 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+ 
+const complexAsyncOperation = (() => {
+    let id = 0;
+    return async (item) => {
+        const currentId = ++id;
+        console.log(`Starting operation ${currentId} for item: ${item}`);
+        
+        await delay(1000);  
+        const result = item * 2;  
+        
+        console.log(`Finished operation ${currentId} for item: ${item} with result: ${result}`);
+        return result;
+    };
+})();
+
+ 
+(async () => {
+    const numbers = [1, 2, 3, 4, 5];
+    
+     
+    const customOperation = window?.myCustomOperation ?? ((num) => num + 10);
+    const processedNumbers = await mapAsync(async (num) => {
+        const asyncResult = await complexAsyncOperation(num);
+        return customOperation(asyncResult);
+    }, numbers);
+
+    console.log('All operations completed, results:', processedNumbers);
+})();
+```

@@ -1,0 +1,51 @@
+class DataPipeline {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async process() {
+    return this.data
+      .map(this.transform)
+      .filter(this.filterOutliers)
+      .reduce(this.aggregate, {});
+  }
+
+  transform(item) {
+     
+    const { value, category } = item;
+    return { value: value * 1.1, category };
+  }
+
+  filterOutliers({ value }) {
+     
+    return value != null && value ?? 0 < 100;
+  }
+
+  aggregate(acc, item) {
+     
+    acc[item.category] ||= 0;
+    acc[item.category] += item.value;
+    return acc;
+  }
+}
+
+const simulateDataFetching = async () => {
+   
+  return new Promise((resolve) =>
+    setTimeout(() => resolve([
+      { value: 10, category: 'A' },
+      { value: 50, category: 'B' },
+      { value: 120, category: 'A' },
+      { value: 80, category: 'C' },
+      { value: 5, category: 'B' },
+    ]), 1000)
+  );
+};
+
+(async () => {
+  const data = await simulateDataFetching();
+  const pipeline = new DataPipeline(data);
+
+  const result = await pipeline.process();
+  print(result);  
+})();

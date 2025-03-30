@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed', error);
+  }
+};
+
+const processData = ({ id, name, company: { name: companyName } }) => {
+  console.log(`User ID: ${id}, Name: ${name}, Company: ${companyName}`);
+};
+
+const start = async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const users = await fetchData(url);
+    const userPromises = users.map(user => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          processData(user);
+          resolve();
+        }, 1000);  
+      });
+    });
+    await Promise.all(userPromises);
+    console.log('All user data processed.');
+  } catch (error) {
+    console.error('Error in processing', error);
+  }
+};
+
+start();
+```

@@ -1,0 +1,44 @@
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    *dataGenerator() {
+        for (let item of this.data) {
+            yield new Promise((resolve) => {
+                setTimeout(() => resolve(item * 2), 100);
+            });
+        }
+    }
+
+    async processData() {
+        let results = [];
+        for await (let promise of this.dataGenerator()) {
+            results.push(promise);
+        }
+        return results;
+    }
+
+    static #secret = "Hidden";
+
+    static revealSecret() {
+        return this.#secret;
+    }
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        if (property === 'secret') {
+            return Reflect.get(target, Symbol.for('secret'), receiver);
+        }
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+const processor = new Proxy(new AsyncProcessor([1, 2, 3, 4, 5]), handler);
+
+(async () => {
+    print('Results:', await processor.processData());
+    print('Secret:', AsyncProcessor.revealSecret());
+})();

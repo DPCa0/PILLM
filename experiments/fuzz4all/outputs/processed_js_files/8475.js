@@ -1,0 +1,43 @@
+ 
+async function complexFeatureDemo() {
+  const simulateAsyncOperation = (msg, delay) =>
+    new Promise((resolve) => setTimeout(() => resolve(msg), delay));
+
+  const operations = [
+    simulateAsyncOperation("Operation 1 complete", 1000),
+    simulateAsyncOperation("Operation 2 complete", 2000),
+    simulateAsyncOperation("Operation 3 complete", 500),
+  ];
+
+  const resolvedOperations = await Promise.all(operations);
+
+   
+  const [op1, op2, ...restOps] = resolvedOperations;
+
+  print(op1);  
+  print(op2);  
+  print(...restOps);  
+
+  const additionalOp = simulateAsyncOperation("Additional operation", 700);
+
+  const allOps = [...resolvedOperations, await additionalOp];
+
+  const logMessages = (...messages) => {
+    for (const message of messages) {
+      print(`Log: ${message}`);
+    }
+  };
+
+   
+  logMessages(...allOps);
+
+   
+  const bold = (strings, ...values) => {
+    return strings.reduce((result, str, i) => 
+      `${result}${str}<b>${values[i] || ''}</b>`, '');
+  };
+  
+  print(bold`Status: ${"Complete"}`);
+}
+
+complexFeatureDemo();

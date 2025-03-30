@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  #privateData = new WeakMap();
+
+  constructor(data) {
+    this.#privateData.set(this, data);
+  }
+
+  async *processData() {
+    const data = this.#privateData.get(this);
+    for (let item of data) {
+      if (this.#isValid(item)) {
+        yield await this.#processItem(item);
+      }
+    }
+  }
+
+  #isValid(item) {
+    return typeof item === 'number' && item > 0;
+  }
+
+  #processItem(item) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(item * item), 1000);
+    });
+  }
+}
+
+const sampleData = [1, 2, -3, 4, 5];
+const processor = new DataProcessor(sampleData);
+
+(async () => {
+  for await (const result of processor.processData()) {
+    console.log(`Processed result: ${result}`);
+  }
+})();
+```

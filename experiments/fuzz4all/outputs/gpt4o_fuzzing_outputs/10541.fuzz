@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchDataSimulator() {
+    const data = ['apple', 'banana', 'cherry'];
+    for (let item of data) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (typeof target[prop] === 'function') {
+            return function(...args) {
+                console.log(`Calling function ${prop}`);
+                return target[prop].apply(this, args);
+            };
+        }
+        console.log(`Accessing property ${prop}`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+class FruitBasket {
+    constructor() {
+        this.basket = [];
+    }
+    async addFruit() {
+        const proxy = new Proxy(this, handler);
+        const fetchData = fetchDataSimulator();
+        for await (const fruit of fetchData) {
+            proxy.basket.push(fruit);
+            console.log(`Added ${fruit} to the basket.`);
+        }
+    }
+    getBasket() {
+        return this.basket;
+    }
+}
+
+ 
+(async function() {
+    const basket = new FruitBasket();
+    await basket.addFruit();
+    console.log('Final Basket:', basket.getBasket());
+})();
+```

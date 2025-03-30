@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+
+  async execute() {
+    console.log(`Starting task: ${this.name}`);
+    await this.delay(this.duration);
+    console.log(`Completed task: ${this.name}`);
+    return this.name;
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+const runTasks = async (tasks) => {
+  const taskResults = await Promise.all(tasks.map(task => task.execute()));
+  console.log(`All tasks completed: ${taskResults.join(', ')}`);
+};
+
+const taskList = [
+  new Task('Task 1', 1000),
+  new Task('Task 2', 2000),
+  new Task('Task 3', 1500)
+];
+
+runTasks(taskList);
+
+const processData = async () => {
+  const fetchData = () => Promise.resolve({ data: [1, 2, 3, 4, 5] });
+
+  try {
+    const { data } = await fetchData();
+    const [first, second, ...rest] = data;
+    console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+  } catch (error) {
+    console.error('Error processing data', error);
+  }
+};
+
+processData();
+```

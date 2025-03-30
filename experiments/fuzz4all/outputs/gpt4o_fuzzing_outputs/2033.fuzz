@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Property '${prop}' was accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const data = new Proxy({
+  config: {
+    user: {
+      name: 'Alice',
+      age: 30
+    },
+    settings: {
+      theme: 'dark',
+      notifications: true
+    }
+  }
+}, handler);
+
+ 
+async function main() {
+   
+  const userName = data.config?.user?.name ?? 'Guest';
+  console.log(`User: ${userName}`);
+
+   
+  const settingsSummary = `Theme: ${data.config.settings.theme}, Notifications: ${data.config.settings.notifications ? 'On' : 'Off'}`;
+  console.log(`Settings Summary: ${settingsSummary}`);
+
+   
+  await fs.writeFile('data.json', JSON.stringify(data, null, 2), 'utf-8');
+  const fileContents = await fs.readFile('data.json', 'utf-8');
+
+   
+  const [parsedData] = await Promise.all([
+    JSON.parse(fileContents)
+  ]);
+
+   
+  const { user: { name, age }, ...restConfig } = parsedData.config;
+  console.log(`Parsed Data: Name - ${name}, Age - ${age}`);
+
+  console.log('Remaining Config:', restConfig);
+}
+
+ 
+(async () => {
+  try {
+    await main();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

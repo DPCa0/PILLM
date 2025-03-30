@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+class AdvancedCalculator {
+     
+    #history = [];
+
+     
+    static #operate(a, b, operation) {
+        switch (operation) {
+            case 'add': return a + b;
+            case 'subtract': return a - b;
+            case 'multiply': return a * b;
+            case 'divide': return b !== 0 ? a / b : 'Error: Division by zero';
+            default: throw new Error('Unknown operation');
+        }
+    }
+
+     
+    async calculate(a, b, operation) {
+        return new Promise((resolve) => {
+            const result = AdvancedCalculator.#operate(a, b, operation);
+            this.#history.push({ a, b, operation, result });
+            resolve(result);
+        });
+    }
+
+     
+    get history() {
+        return [...this.#history];
+    }
+}
+
+ 
+const calculatorProxy = new Proxy(new AdvancedCalculator(), {
+    get(target, prop) {
+        if (prop === 'history') {
+            console.log('Accessing calculation history...');
+        }
+        return target[prop];
+    }
+});
+
+ 
+(async () => {
+     
+    console.log(await calculatorProxy.calculate(10, 5, 'add'));
+    console.log(await calculatorProxy.calculate(15, 3, 'subtract'));
+    console.log(await calculatorProxy.calculate(4, 7, 'multiply'));
+
+     
+    console.log(calculatorProxy.history);
+
+     
+    const { format } = await import('util');
+    console.log(format('Formatted output: %j', calculatorProxy.history));
+})();
+```

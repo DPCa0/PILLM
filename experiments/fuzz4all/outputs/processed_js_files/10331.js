@@ -1,0 +1,47 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function asyncTask(value) {
+  return new Promise((resolve) => setTimeout(() => resolve(value), 1000));
+}
+
+async function* asyncGenerator() {
+  yield await asyncTask('First value');
+  yield await asyncTask('Second value');
+  yield await asyncTask('Third value');
+}
+
+async function processGenerator(gen) {
+  for await (const value of gen) {
+    print('Yielded:', value);
+  }
+}
+
+const deferred = new Deferred();
+
+deferred.promise
+  .then((msg) => console.log('Resolved with:', msg))
+  .catch((err) => console.error('Rejected with:', err));
+
+const obj = {
+  dynamicMethod: async function () {
+    try {
+      print('Starting async generator processing...');
+      await processGenerator(asyncGenerator());
+      print('Finished processing.');
+      this.printMessage?.('Hello from optional chaining!');
+      deferred.resolve('Success!');
+    } catch (err) {
+      deferred.reject(err);
+    }
+  },
+  printMessage: (msg) => console.log(msg)
+};
+
+obj.dynamicMethod();

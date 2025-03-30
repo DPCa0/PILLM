@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Scheduler {
+  constructor() {
+    this.queue = [];
+  }
+
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async add(task, ms) {
+    this.queue.push(async () => {
+      await this.delay(ms);
+      return task();
+    });
+  }
+
+  async execute() {
+    for (const task of this.queue) {
+      console.log(await task());
+    }
+  }
+}
+
+const fibMemo = (function () {
+  const cache = new Map();
+  return function fib(n) {
+    if (n <= 1) return n;
+    if (!cache.has(n)) {
+      cache.set(n, fib(n - 1) + fib(n - 2));
+    }
+    return cache.get(n);
+  };
+})();
+
+const taskScheduler = new Scheduler();
+
+taskScheduler.add(() => `Hello, world!`, 500);
+taskScheduler.add(() => `Current timestamp: ${Date.now()}`, 1000);
+taskScheduler.add(() => `Fibonacci of 10 is ${fibMemo(10)}`, 1500);
+
+(async () => {
+  await taskScheduler.execute();
+})();
+```

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  console.log('Fetching data...');
+  await delay(1000);  
+  return { data: [1, 2, 3, 4, 5] };
+}
+
+ 
+function* processData(data) {
+  for (const item of data) {
+    yield item * 2;
+  }
+}
+
+ 
+async function* asyncDataProcessor(data) {
+  const generator = processData(data);
+  for (let value of generator) {
+    await delay(500);  
+    yield value;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const { data } = await fetchData();
+    console.log('Original data:', data);
+
+    const processedData = [];
+    for await (let item of asyncDataProcessor(data)) {
+      console.log('Processing item:', item);
+      processedData.push(item);
+    }
+
+    console.log('Processed data:', processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

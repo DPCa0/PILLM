@@ -1,0 +1,32 @@
+class Fibonacci {
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+}
+
+const fib = new Fibonacci();
+const sequence = [...fib].slice(0, 10);  
+
+const asyncOperation = (number) =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve(number ** 2), Math.random() * 1000)
+  );
+
+(async () => {
+  try {
+    const results = await Promise.all(
+      sequence.map(async (num) => {
+        const squared = await asyncOperation(num);
+        print(`Square of ${num} is ${squared}`);
+        return squared;
+      })
+    );
+    print("Final squared sequence:", results);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* generateNumbers() {
+    for (let i = 0; i < 5; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(i), 500));
+    }
+}
+
+async function consumeGenerator(gen) {
+    const results = [];
+    for await (let numPromise of gen) {
+        const num = await numPromise;
+        console.log(`Generated number: ${num}`);
+        results.push(num);
+    }
+    return results;
+}
+
+async function main() {
+    const numGen = generateNumbers();
+    const results = await consumeGenerator(numGen);
+    console.log('All numbers:', results);
+
+     
+    const squared = results.map(num => num ** 2);
+    const sum = squared.reduce((acc, num) => acc + num, 0);
+    console.log('Sum of squares:', sum);
+
+     
+    const handler = {
+        get: (target, prop) => {
+            console.log(`Accessing property "${prop}"`);
+            return target[prop];
+        }
+    };
+
+    const proxyObj = new Proxy({ sumOfSquares: sum, numbers: results }, handler);
+    console.log('Sum via Proxy:', proxyObj.sumOfSquares);
+}
+
+main().catch(console.error);
+```

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacciGenerator(limit) {
+  let [prev, current] = [0, 1];
+  while (limit--) {
+    await delay(500);  
+    yield current;
+    [prev, current] = [current, prev + current];
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+  
+  emitter.on('data', (value) => {
+    console.log(`Fibonacci: ${value}`);
+  });
+
+  const fibGen = fibonacciGenerator(10);
+  for await (const num of fibGen) {
+    emitter.emit('data', num);
+  }
+})();
+```

@@ -1,0 +1,46 @@
+ 
+const { promises: fs, constants } = require('fs');
+const { promisify } = require('util');
+
+ 
+const readAndProcessFiles = async (dir, files = []) => {
+    const dirents = await fs.readdir(dir, { withFileTypes: true });
+    for (const dirent of dirents) {
+        const res = `${dir}/${dirent.name}`;
+        if (dirent.isDirectory()) {
+            files = await readAndProcessFiles(res, files);
+        } else {
+            files.push(res);
+        }
+    }
+    return files;
+};
+
+ 
+(async () => {
+    try {
+        const directoryPath = './myDirectory';
+        const files = await readAndProcessFiles(directoryPath);
+
+         
+        const fileReadPromises = files
+            .filter(file => file.endsWith('.txt'))
+            .map(file => fs.readFile(file, 'utf8'));
+        
+        const fileContents = await Promise.all(fileReadPromises);
+
+         
+        const formatOutput = (strings, ...values) => {
+            return strings.reduce((acc, str, idx) => {
+                return `${acc}${str}<${values[idx] || ''}>`;
+            }, '');
+        };
+        
+        fileContents.forEach((content, idx) => {
+            print(formatOutput`Content of file ${files[idx]}: ${content}`);
+        });
+
+    } catch (err) {
+        console.error('Error processing files:', err);
+    }
+})();

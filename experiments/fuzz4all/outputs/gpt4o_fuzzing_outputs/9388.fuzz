@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+class Shape {
+    constructor(name) {
+        this.name = name;
+    }
+
+    area() {
+        throw new Error("Method 'area()' must be implemented.");
+    }
+}
+
+class Circle extends Shape {
+    #radius;
+
+    constructor(radius) {
+        super('Circle');
+        this.#radius = radius;
+    }
+
+    area() {
+        return Math.PI * this.#radius ** 2;
+    }
+
+    static createRandomCircles(count) {
+        return Array.from({ length: count }, () => new Circle(Math.random() * 10));
+    }
+}
+
+class Rectangle extends Shape {
+    #width;
+    #height;
+
+    constructor(width, height) {
+        super('Rectangle');
+        this.#width = width;
+        this.#height = height;
+    }
+
+    area() {
+        return this.#width * this.#height;
+    }
+
+    static create(width, height) {
+        return new Proxy(new Rectangle(width, height), {
+            get(target, prop) {
+                if (prop === 'perimeter') {
+                    return 2 * (target.#width + target.#height);
+                }
+                return target[prop];
+            }
+        });
+    }
+}
+
+const shapes = [
+    ...Circle.createRandomCircles(3),
+    Rectangle.create(5, 10),
+    Rectangle.create(3, 8)
+];
+
+const totalArea = shapes.reduce((acc, shape) => acc + shape.area(), 0);
+const shapeDetails = shapes.map(({ name, area }) => ({
+    name,
+    area: area(),
+}));
+
+console.log('Shape Details:', shapeDetails);
+console.log('Total Area:', totalArea);
+```

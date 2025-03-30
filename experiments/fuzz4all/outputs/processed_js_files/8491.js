@@ -1,0 +1,47 @@
+ 
+
+ 
+async function fetchUserData(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, name: `User${id}`, email: `user${id}@example.com` });
+        }, 1000);
+    });
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        print(`Property '${prop}' accessed`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async function main() {
+    const idGen = idGenerator();
+
+    for (let i = 0; i < 3; i++) {
+        const { value: id } = idGen.next();
+        
+         
+        const userData = await fetchUserData(id);
+        
+         
+        const { name, email } = userData;
+
+         
+        const proxiedUserData = new Proxy({ name, email }, handler);
+        
+         
+        print(`Name: ${proxiedUserData.name}, Email: ${proxiedUserData.email}`);
+    }
+})();

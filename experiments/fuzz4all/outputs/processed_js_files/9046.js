@@ -1,0 +1,49 @@
+ 
+async function processData() {
+   
+  const fetchData = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([1, 2, 3, 4, 5]);
+    }, 1000);
+  });
+
+  try {
+     
+    const data = await fetchData;
+    
+     
+    const processedData = data.map((num, idx, arr) => {
+      const [first, ...rest] = arr;
+      return {
+        index: idx,
+        value: num * 2,
+        isFirst: num === first,
+        restValues: [...rest]
+      };
+    });
+
+     
+    const uniqueValues = new Set(processedData.map(({ value }) => value));
+
+     
+    function* valueGenerator(uniqueSet) {
+      for (let val of uniqueSet) {
+        yield `Unique Value: ${val}`;
+      }
+    }
+
+     
+    const generator = valueGenerator(uniqueValues);
+    for (const value of generator) {
+      print(value);
+    }
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+(async () => {
+  await processData();
+})();

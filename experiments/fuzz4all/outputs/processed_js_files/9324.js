@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const processData = (data) => {
+   
+  return data.map(({ id, name, info: { type, details } }) => ({
+    id,
+    name,
+    type,
+    details,
+  }));
+};
+
+const displayData = (items) => {
+   
+  for (const { id, name, type, details } of items) {
+    print(`ID: ${id}\nName: ${name}\nType: ${type}\nDetails: ${details}\n`);
+  }
+};
+
+const filterByType = (items, type) => {
+   
+  return items.filter((item) => item.type === type);
+};
+
+(async () => {
+  try {
+     
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+    const filteredData = filterByType(processedData, 'desiredType');
+    displayData(filteredData);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

@@ -1,0 +1,43 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const person = { name: "Alice", age: 30, occupation: "Engineer" };
+    const { name, age, occupation } = person;
+    print(`Name: ${name}, Age: ${age}, Occupation: ${occupation}`);
+
+     
+    const people = new Map([
+      ['Alice', { age: 30, occupation: 'Engineer' }],
+      ['Bob', { age: 24, occupation: 'Designer' }],
+    ]);
+    const occupations = new Set(['Engineer', 'Designer', 'Artist']);
+
+     
+    const filenames = ['file1.txt', 'file2.txt'];
+    const fileReadPromises = filenames.map(filename => fs.readFile(filename, 'utf-8'));
+    const fileContents = await Promise.all(fileReadPromises);
+
+     
+    const combinedContent = fileContents.flatMap(content => content.split('\n'));
+    print(combinedContent);
+
+     
+    function* peopleGenerator(map) {
+      for (const [name, info] of map) {
+        yield { name, ...info };
+      }
+    }
+
+     
+    for (const person of peopleGenerator(people)) {
+      print(`${person.name} is a(n) ${person.occupation}, and ${occupations.has(person.occupation) ? 'their occupation is common.' : 'their occupation is unique.'}`);
+    }
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

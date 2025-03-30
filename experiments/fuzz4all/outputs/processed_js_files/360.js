@@ -1,0 +1,47 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events.has(event)) return;
+        const newListeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+        this.events.set(event, newListeners);
+    }
+}
+
+const asyncFunction = () => new Promise(resolve => setTimeout(() => resolve('Hello, Async World!'), 1000));
+
+(async () => {
+    const emitter = new EventEmitter();
+    
+    emitter.on('greet', async (name) => {
+        print(`Hello, ${name}!`);
+        const asyncMessage = await asyncFunction();
+        print(asyncMessage);
+    });
+
+    const toBeRemoved = name => print(`Goodbye, ${name}.`);
+    
+    emitter.on('greet', toBeRemoved);
+    
+    emitter.emit('greet', 'World');
+    
+    emitter.off('greet', toBeRemoved);
+    
+    emitter.emit('greet', 'JavaScript');
+
+})();

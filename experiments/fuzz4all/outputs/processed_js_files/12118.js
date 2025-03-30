@@ -1,0 +1,47 @@
+class Fibonacci {
+  constructor(max) {
+    this.max = max;
+    this[Symbol.iterator] = function* () {
+      let [prev, curr] = [0, 1];
+      for (let i = 0; i < this.max; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+      }
+    };
+  }
+
+  static fromArray(arr) {
+    return new Fibonacci(arr.length);
+  }
+
+  async *asyncSequence() {
+    for (const num of this) {
+      await new Promise((resolve) => setTimeout(resolve, 100));  
+      yield num;
+    }
+  }
+}
+
+(async () => {
+  try {
+    const fibInstance = Fibonacci.fromArray([1, 1, 2, 3, 5, 8, 13, 21, 34]);
+    
+    print("Synchronous Fibonacci:");
+    for (const num of fibInstance) {
+      print(num);
+    }
+    
+    print("\nAsynchronous Fibonacci:");
+    for await (const num of fibInstance.asyncSequence()) {
+      print(num);
+    }
+    
+    const uniqueFibs = new Set([...fibInstance]);
+    const squaredFibs = [...uniqueFibs].map((x) => x ** 2);
+    
+    print("\nSquared unique Fibonacci numbers:");
+    print(squaredFibs);
+  } catch (error) {
+    console.error("Error in Fibonacci processing:", error);
+  }
+})();

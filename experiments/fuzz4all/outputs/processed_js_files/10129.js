@@ -1,0 +1,44 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+const processData = data => 
+  new Promise(resolve => setTimeout(() => resolve(data.map(d => d.value * 2)), 1000));
+
+(async function() {
+  try {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('dataFetched', data => print('Data Fetched:', data));
+    eventEmitter.on('dataProcessed', data => print('Processed Data:', data));
+
+    const data = await fetchData('https://api.example.com/data');
+    eventEmitter.emit('dataFetched', data);
+
+    const processedData = await processData(data);
+    eventEmitter.emit('dataProcessed', processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

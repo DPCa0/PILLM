@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(['apple', 'banana', 'cherry']), 1000);
+    });
+};
+
+ 
+function* dataGenerator(dataArray) {
+    for (const item of dataArray) {
+        yield item;
+    }
+}
+
+ 
+const createLoggingProxy = (generatorInstance) => {
+    return new Proxy(generatorInstance, {
+        get(target, prop, receiver) {
+            if (prop === 'next') {
+                console.log('Accessing next item...');
+            }
+            return Reflect.get(...arguments);
+        }
+    });
+};
+
+ 
+const main = async () => {
+    console.log('Fetching data...');
+    const dataArray = await fetchData();
+    console.log('Data fetched:', dataArray);
+
+    const dataGen = dataGenerator(dataArray);
+    const proxiedDataGen = createLoggingProxy(dataGen);
+
+    let result = proxiedDataGen.next();
+    while (!result.done) {
+        console.log('Processing:', result.value);
+        result = proxiedDataGen.next();
+    }
+};
+
+ 
+main().catch(console.error);
+```

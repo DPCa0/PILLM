@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  const nestedProperty = data?.complex?.nested?.property ?? 'defaultValue';
+  return Object.entries(data)
+    .filter(([key, value]) => typeof value === 'number')
+    .map(([key, value]) => ({ [key]: value * 2 }));
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+
+    const doubleValues = processData(data);
+    const uniqueId = Symbol('uniqueId');
+    
+    const complexObject = {
+      [uniqueId]: 'Unique Value',
+      meta: {
+        date: new Date().toISOString(),
+        tags: new Set(['javascript', 'async', 'fetch']),
+      },
+      data: doubleValues,
+    };
+
+    print(complexObject);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

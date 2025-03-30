@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const randomDelay = (min, max) => new Promise(resolve => {
+  const delay = Math.floor(Math.random() * (max - min + 1) + min);
+  setTimeout(() => resolve(`Resolved after ${delay} ms`), delay);
+});
+
+ 
+async function executeSequentially(promises) {
+  const results = [];
+  for (const promise of promises) {
+    const result = await promise();
+    results.push(result);
+    console.log(result);
+  }
+  return results;
+}
+
+ 
+const arrayHandler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Accessing element ${property}: ${target[property]}`);
+      return target[property];
+    } else {
+      console.log(`Property ${property} not found`);
+      return undefined;
+    }
+  }
+};
+
+ 
+(async () => {
+  const delays = [() => randomDelay(100, 500), () => randomDelay(200, 600), () => randomDelay(300, 700)];
+  const results = await executeSequentially(delays);
+
+  const proxiedResults = new Proxy(results, arrayHandler);
+
+   
+  console.log(proxiedResults[0]);
+  console.log(proxiedResults[1]);
+  console.log(proxiedResults[3]);  
+})();
+```

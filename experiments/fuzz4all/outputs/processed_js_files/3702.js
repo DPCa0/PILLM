@@ -1,0 +1,58 @@
+class DataFetcher {
+    #apiKey = 'your_api_key_here';
+
+    async fetchData(url) {
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${this.#apiKey}` }
+        });
+        if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+        return response.json();
+    }
+}
+
+class DataProcessor {
+    static transformData(data) {
+        return data.map(({ id, name, attributes }) => ({
+            id,
+            name,
+            attributes: Object.entries(attributes).reduce((acc, [key, value]) => {
+                acc[key] = typeof value === 'string' ? value.toUpperCase() : value;
+                return acc;
+            }, {})
+        }));
+    }
+}
+
+class UIHandler {
+    static render(data) {
+        const container = document.getElementById('dataContainer');
+        container.innerHTML = data.map(({ id, name, attributes }) => `
+            <div class="data-item" id="item-${id}">
+                <h2>${name}</h2>
+                <pre>${JSON.stringify(attributes, null, 2)}</pre>
+            </div>
+        `).join('');
+    }
+}
+
+(async () => {
+    const apiURL = 'https://api.example.com/data';
+    const fetcher = new DataFetcher();
+
+    try {
+        const rawData = await fetcher.fetchData(apiURL);
+        const processedData = DataProcessor.transformData(rawData);
+        UIHandler.render(processedData);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const style = document.createElement('style');
+    style.textContent = `
+        .data-item { margin: 1em 0; padding: 1em; border: 1px solid #ccc; border-radius: 5px; }
+        pre { background-color: #f5f5f5; padding: 1em; }
+    `;
+    document.head.append(style);
+});

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const handler = {
+        get(target, property) {
+            if (property in target) {
+                console.log(`Getting property '${property}': ${target[property]}`);
+                return target[property];
+            }
+            return `No such property: ${property}`;
+        },
+        set(target, property, value) {
+            console.log(`Setting property '${property}' to '${value}'`);
+            target[property] = value;
+            return true;
+        }
+    };
+    const reactiveObject = new Proxy({ name: 'Advanced JS' }, handler);
+
+     
+    function* idGenerator() {
+        let id = 1;
+        while (true) {
+            yield id++;
+        }
+    }
+    const generateId = idGenerator();
+
+     
+    const fetchData = async () => {
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        console.log("Fetching data...");
+        await delay(1000);  
+        return { data: 'Fetched Data', id: generateId.next().value };
+    };
+
+     
+    const { data, id } = await fetchData();
+    console.log(`Received ${data} with ID: ${id}`);
+    
+     
+    reactiveObject.name = "Modern JavaScript";
+    console.log(reactiveObject.name);
+    console.log(reactiveObject.nonExistent);
+})();
+```

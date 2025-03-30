@@ -1,0 +1,49 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.5) {
+                resolve({ data: `Fetched data from ${url}` });
+            } else {
+                reject(new Error('Failed to fetch data.'));
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function getData(url) {
+    try {
+        const response = await fetchData(url);
+        print(response.data);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+ 
+function* urlGenerator() {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+    for (const url of urls) {
+        yield url;
+    }
+}
+
+ 
+const urlHandler = {
+    get: (target, prop) => {
+        print(`Accessing URL index: ${prop}`);
+        return target[prop];
+    }
+};
+
+const urls = new Proxy([...urlGenerator()], urlHandler);
+
+ 
+(async function () {
+    for (let i = 0; i < urls.length; i++) {
+        await getData(urls[i]);
+    }
+})();

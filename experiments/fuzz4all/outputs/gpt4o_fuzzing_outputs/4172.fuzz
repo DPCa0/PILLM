@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+const { EventEmitter } = require('events');
+
+ 
+class Calculator {
+  static add(a, b) {
+    return a + b;
+  }
+
+  static subtract(a, b) {
+    return a - b;
+  }
+
+  static multiply(a, b) {
+    return a * b;
+  }
+
+  static divide(a, b) {
+    if (b === 0) throw new Error('Cannot divide by zero');
+    return a / b;
+  }
+}
+
+ 
+async function asyncOperation(value) {
+  return new Promise((resolve) => setTimeout(() => resolve(value * 10), 1000));
+}
+
+ 
+async function calculateAsync() {
+  try {
+    const value = await asyncOperation(5);
+    console.log(`Async Operation Result: ${value}`);
+    console.log(`Sum: ${Calculator.add(value, 10)}`);
+    console.log(`Difference: ${Calculator.subtract(value, 10)}`);
+    console.log(`Product: ${Calculator.multiply(value, 2)}`);
+    console.log(`Quotient: ${Calculator.divide(value, 5)}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const handler = {
+  apply: (target, thisArg, argumentsList) => {
+    console.log(`Method ${target.name} called with arguments: ${argumentsList}`);
+    return target(...argumentsList);
+  }
+};
+
+const proxiedCalculator = new Proxy(Calculator, {
+  get: (target, prop) => {
+    if (typeof target[prop] === 'function') {
+      return new Proxy(target[prop], handler);
+    }
+    return target[prop];
+  }
+});
+
+ 
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('calculate', async () => {
+  await calculateAsync();
+  console.log('Calculation complete.');
+});
+
+ 
+eventEmitter.emit('calculate');
+```

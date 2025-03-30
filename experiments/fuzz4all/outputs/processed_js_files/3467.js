@@ -1,0 +1,51 @@
+ 
+
+ 
+const fetchUserData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: 'Jane Doe',
+                age: 28,
+                email: 'jane.doe@example.com',
+            });
+        }, 1000);
+    });
+};
+
+ 
+async function getUserData() {
+    try {
+        const data = await fetchUserData();
+        const { name, age, email } = data;
+        print(`Name: ${name}, Age: ${age}, Email: ${email}`);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+const user = {};
+const handler = {
+    set(target, property, value) {
+        if (property === 'age' && (value < 0 || value > 120)) {
+            console.error('Invalid age');
+            return false;
+        }
+        target[property] = value;
+        return true;
+    }
+};
+
+const userProxy = new Proxy(user, handler);
+userProxy.name = 'John Doe';
+userProxy.age = 35;
+userProxy.email = 'john.doe@example.com';
+
+print(userProxy);
+
+ 
+getUserData();
+
+ 
+userProxy.age = 150;

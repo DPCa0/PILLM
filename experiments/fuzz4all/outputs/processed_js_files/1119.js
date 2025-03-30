@@ -1,0 +1,54 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+function cacheDecorator(fn, hashFn) {
+  const cache = new Map();
+  return function (...args) {
+    const key = hashFn(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args).catch(e => {
+        cache.delete(key);
+        throw e;
+      }));
+    }
+    return cache.get(key);
+  };
+}
+
+const hashArgs = args => JSON.stringify(args);
+const cachedFetchData = cacheDecorator(fetchData, hashArgs);
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const data = await cachedFetchData(url);
+    print('Fetched Data:', data.slice(0, 5));
+    
+    const asyncIterable = {
+      [Symbol.asyncIterator]: async function* () {
+        for (const post of data.slice(0, 5)) {
+          await new Promise(r => setTimeout(r, 500));  
+          yield post.title;
+        }
+      }
+    };
+    
+    for await (const title of asyncIterable) {
+      print('Post Title:', title);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

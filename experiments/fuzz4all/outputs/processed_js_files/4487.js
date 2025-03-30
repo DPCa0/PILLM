@@ -1,0 +1,58 @@
+class Matrix {
+  constructor(rows, cols, elements = []) {
+    this.rows = rows;
+    this.cols = cols;
+    this.elements = elements.length ? elements : Array.from({ length: rows * cols }, () => Math.random());
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) {
+      yield this.elements.slice(i * this.cols, (i + 1) * this.cols);
+    }
+  }
+
+  static async multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Matrices cannot be multiplied");
+
+    const result = new Matrix(a.rows, b.cols);
+
+    await Promise.all(
+      Array.from({ length: a.rows }).map((_, i) =>
+        Promise.all(
+          Array.from({ length: b.cols }).map((_, j) => {
+            result.elements[i * b.cols + j] = Array.from({ length: a.cols }).reduce(
+              (sum, _, k) => sum + a.elements[i * a.cols + k] * b.elements[k * b.cols + j],
+              0
+            );
+          })
+        )
+      )
+    );
+
+    return result;
+  }
+
+  print() {
+    for (let row of this) {
+      print(row.map(x => x.toFixed(2)).join(" "));
+    }
+  }
+}
+
+(async () => {
+  const matrixA = new Matrix(3, 2);
+  const matrixB = new Matrix(2, 3);
+
+  print("Matrix A:");
+  matrixA.print();
+  print("\nMatrix B:");
+  matrixB.print();
+
+  try {
+    const product = await Matrix.multiply(matrixA, matrixB);
+    print("\nProduct of A and B:");
+    product.print();
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

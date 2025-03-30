@@ -1,0 +1,55 @@
+ 
+async function advancedFeatureDemo() {
+     
+    const moduleURLs = [
+        './mathOperations.js',  
+        './stringUtilities.js'
+    ];
+
+     
+    const modulePromises = moduleURLs.map(url => import(url));
+    const results = await Promise.allSettled(modulePromises);
+
+     
+    const importedModules = results.reduce((modules, result, index) => {
+        if (result.status === 'fulfilled') {
+             
+            const moduleName = moduleURLs[index]?.split('/').pop()?.split('.')[0];
+            modules[moduleName] = result.value.default;
+        } else {
+            console.error(`Failed to import ${moduleURLs[index]}: ${result.reason}`);
+        }
+        return modules;
+    }, {});
+
+     
+    const { mathOperations, stringUtilities } = importedModules;
+
+     
+    class ComplexCalculator {
+        #value;
+        
+        constructor(initialValue = 0) {
+            this.#value = initialValue;
+        }
+        
+        async #performOperations() {
+            if (mathOperations && stringUtilities) {
+                this.#value = mathOperations.add(this.#value, 10);
+                print(stringUtilities.reverse('Hello World!'));
+            }
+        }
+
+        async calculate() {
+            await this.#performOperations();
+            print(`Final value: ${this.#value}`);
+        }
+    }
+
+     
+    const calculator = new ComplexCalculator(5);
+    await calculator.calculate();
+}
+
+ 
+advancedFeatureDemo();

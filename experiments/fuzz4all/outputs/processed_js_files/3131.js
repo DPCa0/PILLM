@@ -1,0 +1,56 @@
+class FetchWithTimeout {
+    constructor(url, options = {}, timeout = 5000) {
+        this.url = url;
+        this.options = options;
+        this.timeout = timeout;
+    }
+
+    fetchWithTimeout() {
+        return Promise.race([
+            fetch(this.url, this.options),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timed out')), this.timeout)
+            )
+        ]);
+    }
+}
+
+async function processData(url) {
+    const fetcher = new FetchWithTimeout(url, { method: 'GET' }, 3000);
+    
+    try {
+        const response = await fetcher.fetchWithTimeout();
+        const data = await response.json();
+        
+        const transformedData = Object.entries(data)
+            .reduce((acc, [key, value]) => {
+                acc[key.toUpperCase()] = value;
+                return acc;
+            }, {});
+
+        print(transformedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+async function* urlProcessor(urls) {
+    for (const url of urls) {
+        await processData(url);
+        yield `Processed: ${url}`;
+    }
+}
+
+(async function execute() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+
+    const urlIterator = urlProcessor(urls);
+
+    for await (const message of urlIterator) {
+        print(message);
+    }
+})();

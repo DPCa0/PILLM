@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchDataAndProcess(urls) {
+    for (const url of urls) {
+        const response = await fetch(url);
+        const data = await response.json();
+        yield processComplexData(data);
+    }
+}
+
+ 
+function processComplexData(data) {
+    const { id, attributes } = data;
+    return {
+        id,
+        attributes: attributes.map(attr => attr.toUpperCase())
+    };
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'random') {
+            return () => target[Math.floor(Math.random() * target.length)];
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+const dataCollection = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
+const proxy = new Proxy(dataCollection, handler);
+
+ 
+async function main() {
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3'
+    ];
+
+     
+    const results = [];
+    for await (const processedData of fetchDataAndProcess(urls)) {
+        results.push(processedData);
+    }
+
+     
+    console.log('Random item from data collection:', proxy.random());
+
+     
+    const allSettledResults = await Promise.allSettled(
+        urls.map(url => fetch(url).then(resp => resp.json()))
+    );
+    console.log('AllSettled Results:', allSettledResults);
+}
+
+ 
+main().catch(console.error);
+```

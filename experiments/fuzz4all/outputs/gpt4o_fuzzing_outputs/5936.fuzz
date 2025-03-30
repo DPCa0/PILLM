@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretVault {
+  #secret;  
+  constructor(secret) {
+    this.#secret = secret;  
+  }
+
+   
+  #revealSecret() {
+    return `The secret is: ${this.#secret}`;
+  }
+
+   
+  getSecret() {
+    const handler = {
+      get: (target, prop) => {
+        if (prop === 'secret') {
+          return Reflect.apply(target[prop], this, []);
+        }
+        return undefined;
+      }
+    };
+
+    const proxy = new Proxy(this, handler);
+    return proxy.revealSecret;
+  }
+
+   
+  static async fetchData() {
+    return new Promise((resolve) => setTimeout(() => resolve('Data fetched!'), 1000));
+  }
+}
+
+ 
+function getVaultMessage(vault) {
+  const message = vault?.getSecret()?.() ?? 'No secret available';
+  console.log(message);
+}
+
+ 
+const myVault = new SecretVault('1234-5678-SECRET');
+
+ 
+getVaultMessage(myVault);
+
+ 
+(async () => {
+  const data = await SecretVault.fetchData();
+  console.log(data);
+})();
+```

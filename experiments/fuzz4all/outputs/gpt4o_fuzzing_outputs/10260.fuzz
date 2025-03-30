@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, defaultValue = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+    }
+
+    static identity(n) {
+        return new Matrix(n, n).map((_, i, j) => (i === j ? 1 : 0));
+    }
+
+    map(fn) {
+        return new Matrix(this.data.length, this.data[0].length).update((v, i, j) => fn(this.data[i][j], i, j));
+    }
+
+    update(fn) {
+        this.data = this.data.map((row, i) => row.map((v, j) => fn(v, i, j)));
+        return this;
+    }
+
+    multiply(other) {
+        if (this.data[0].length !== other.data.length) throw new Error('Incompatible matrix sizes.');
+        return new Matrix(this.data.length, other.data[0].length).update((_, i, j) =>
+            this.data[i].reduce((sum, value, k) => sum + value * other.data[k][j], 0)
+        );
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+ 
+(async () => {
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    async function main() {
+        console.log('Matrix multiplication example with async/await and closures:');
+        const A = new Matrix(3, 2).update((_, i, j) => i + j + 1);
+        const B = new Matrix(2, 3).update((_, i, j) => (i === j ? 1 : i + j));
+
+        await sleep(500);  
+
+        const C = A.multiply(B);
+        console.log('Matrix A:');
+        console.log(A.toString());
+        console.log('Matrix B:');
+        console.log(B.toString());
+        console.log('Matrix C (A * B):');
+        console.log(C.toString());
+    }
+
+    await main();
+})();
+```

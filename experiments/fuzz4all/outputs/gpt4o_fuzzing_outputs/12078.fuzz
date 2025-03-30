@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchConfig() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ theme: 'dark', lang: 'en', showNotifications: true });
+    }, 1000);
+  });
+}
+
+ 
+function* logGenerator() {
+  yield 'Fetching configuration...';
+  yield 'Configuration fetched successfully!';
+  yield 'All operations completed!';
+}
+
+const logger = logGenerator();
+console.log(logger.next().value);
+
+ 
+(async () => {
+   
+  const config = await fetchConfig();
+  console.log(logger.next().value);
+
+   
+  const handler = {
+    set(target, property, value) {
+      console.log(`Setting '${property}' to '${value}'`);
+      return Reflect.set(target, property, value);
+    }
+  };
+
+   
+  const proxyConfig = new Proxy(config, handler);
+
+   
+  proxyConfig.theme = 'light';
+  proxyConfig.lang = 'fr';
+
+  console.log('Current Configuration:', proxyConfig);
+
+  console.log(logger.next().value);
+})();
+```

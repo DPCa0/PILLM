@@ -1,0 +1,48 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.pending = null;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this.queue.length > 0) {
+        yield this.queue.shift();
+      } else {
+        this.pending = new Promise(resolve => this._resolve = resolve);
+        await this.pending;
+      }
+    }
+  }
+
+  enqueue(value) {
+    this.queue.push(value);
+    if (this.pending) {
+      this._resolve();
+      this.pending = null;
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function main() {
+  const queue = new AsyncIterableQueue();
+
+  const produce = async () => {
+    for (let i = 1; i <= 5; i++) {
+      await delay(1000);
+      queue.enqueue(`Message ${i}`);
+      print(`Produced: Message ${i}`);
+    }
+  };
+
+  const consume = async () => {
+    for await (const message of queue) {
+      print(`Consumed: ${message}`);
+      if (message.includes('5')) break;
+    }
+  };
+
+  await Promise.all([produce(), consume()]);
+})();

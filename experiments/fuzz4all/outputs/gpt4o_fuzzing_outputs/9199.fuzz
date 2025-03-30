@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* taskGenerator(tasks) {
+  for (const task of tasks) {
+    yield task();
+  }
+}
+
+ 
+async function runTasks(taskGen) {
+  for (const task of taskGen) {
+    console.log(`Starting task at ${new Date().toISOString()}`);
+    await task;
+    console.log(`Finished task at ${new Date().toISOString()}`);
+  }
+}
+
+ 
+const tasks = [
+  async () => { await delay(1000); console.log('Task 1 completed'); },
+  async () => { await delay(2000); console.log('Task 2 completed'); },
+  async () => { await delay(1500); console.log('Task 3 completed'); },
+];
+
+ 
+const taskSequence = taskGenerator(tasks);
+runTasks(taskSequence);
+
+ 
+class DataHandler {
+  constructor(data) {
+    this.data = data;
+    return new Proxy(this, {
+      get(target, prop) {
+        console.log(`Getting property '${prop}'`);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+      }
+    });
+  }
+
+  updateData(newData) {
+    Object.assign(this.data, newData);
+  }
+}
+
+ 
+const handler = new DataHandler({ name: 'Alice', age: 30 });
+console.log(handler.data.name);  
+handler.updateData({ age: 31 });
+console.log(handler.data.age);   
+handler.data.name = 'Bob';       
+```

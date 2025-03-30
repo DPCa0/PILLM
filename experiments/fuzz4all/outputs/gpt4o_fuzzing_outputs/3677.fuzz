@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+    let num = 1;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+async function fetchData(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Data for ID: ${id}`);
+        }, Math.random() * 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property '${prop}'`);
+        return target[prop];
+    }
+};
+
+const proxyObj = new Proxy({ url: "http://example.com", method: "GET" }, handler);
+
+ 
+async function processGeneratorData() {
+    const gen = numberGenerator();
+
+    for (let i = 0; i < 5; i++) {
+        const { value } = gen.next();
+        console.log(`Processing value: ${value}`);
+
+         
+        const data = await fetchData(value);
+        console.log(data);
+
+         
+        console.log(`Fetching from ${proxyObj.url} with method ${proxyObj.method}`);
+    }
+}
+
+ 
+processGeneratorData().then(() => {
+    console.log('Processing complete');
+});
+```

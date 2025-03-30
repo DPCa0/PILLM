@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+const loggingHandler = {
+  get(target, prop) {
+    console.log(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    console.log(`Setting property "${prop}" to "${value}"`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+async function fetchDataSimulation() {
+  return new Promise(resolve => setTimeout(() => resolve("Fetched data"), 1000));
+}
+
+ 
+const cache = new Map();
+
+async function getCachedData(key) {
+  if (cache.has(key)) {
+    console.log("Returning cached data");
+    return cache.get(key);
+  }
+  const data = await fetchDataSimulation();
+  cache.set(key, data);
+  console.log("Data fetched and cached");
+  return data;
+}
+
+ 
+const dataObject = new Proxy({}, loggingHandler);
+
+ 
+(async () => {
+  console.log("Starting complex JavaScript program...");
+
+   
+  dataObject.exampleProp = "Test value";
+  console.log(dataObject.exampleProp);
+
+   
+  const data1 = await getCachedData("key1");
+  console.log(data1);
+  const data2 = await getCachedData("key1");
+  console.log(data2);
+
+   
+  const fib = fibonacci();
+  console.log(`Fibonacci: ${fib.next().value}, ${fib.next().value}, ${fib.next().value}`);
+})();
+```

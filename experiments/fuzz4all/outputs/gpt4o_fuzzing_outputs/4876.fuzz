@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+const asyncFunction = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve("Data fetched!");
+    }, 1000);
+  });
+};
+
+const fetchData = async () => {
+  try {
+    const data = await asyncFunction();
+    console.log(data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+ 
+const user = {
+  name: "Alice",
+  age: 30,
+  job: "Engineer"
+};
+
+const { name, job } = user;
+console.log(`User Name: ${name}, Job: ${job}`);
+
+ 
+const targetObject = { prop1: 42, prop2: "Hello" };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessing property ${prop}`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting property ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(proxy.prop1);
+console.log(proxy.prop2);
+
+ 
+proxy.prop1 = 100;
+proxy.prop2 = "World";
+
+ 
+const gen = numberGenerator();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+fetchData();
+```

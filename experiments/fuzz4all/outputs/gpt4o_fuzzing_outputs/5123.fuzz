@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataSimulator() {
+  let dataCount = 0;
+  while (dataCount < 5) {
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve(`Data ${++dataCount} fetched`), 1000)
+    );
+  }
+}
+
+ 
+async function processFetchedData() {
+  const generator = fetchDataSimulator();
+
+  for await (let data of generator) {
+    console.log(data);
+  }
+
+  return "All data processed successfully!";
+}
+
+ 
+async function main() {
+  try {
+    const result = await processFetchedData();
+    console.log(result);
+  } catch (error) {
+    console.error("Error processing data:", error);
+  }
+}
+
+main();
+```

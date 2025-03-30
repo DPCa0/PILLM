@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 30 },
+        { id: 2, name: 'Bob', age: 25 },
+        { id: 3, name: 'Charlie', age: 35 }
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+const processUsers = async () => {
+   
+  const users = await fetchData();
+
+   
+  const userSet = new Set(users.map(({ id, ...rest }) => ({ id, ...rest })));
+
+   
+  const userMap = new Map([...userSet].map(user => [user.id, user]));
+
+   
+  const updatedUsers = [...userMap.values()].map(({ id, ...rest }) => ({
+    id,
+    ...rest,
+    isActive: rest.age > 28
+  }));
+
+   
+  updatedUsers.forEach(user => {
+    print(`User: ${user.name}, Age: ${user.age}, Active: ${user.isActive}`);
+  });
+};
+
+ 
+processUsers();

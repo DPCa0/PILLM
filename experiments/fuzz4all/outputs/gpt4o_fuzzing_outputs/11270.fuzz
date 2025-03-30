@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Property '${prop}' has been accessed.`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting value ${value} to property '${prop}'.`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const targetObject = { 
+    name: 'Advanced JS', 
+    features: ['Proxy', 'Map', 'Generator', 'Async/Await'] 
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const map = new Map();
+map.set(proxy, 'Proxy Example');
+
+function* featureGenerator() {
+    yield* proxy.features;
+}
+
+ 
+async function printFeatures() {
+    for await (let feature of featureGenerator()) {
+        console.log(`Feature: ${feature}`);
+    }
+}
+
+ 
+(async () => {
+    console.log(map.get(proxy));
+    proxy.name = 'Modified JS';
+    console.log(proxy.name);
+    await printFeatures();
+})();
+```

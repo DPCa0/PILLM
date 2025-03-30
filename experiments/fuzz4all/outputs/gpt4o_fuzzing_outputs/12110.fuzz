@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.2 ? resolve('Operation Successful') : reject('Operation Failed');
+    }, 1000);
+  });
+
+ 
+const performAsyncTasks = async () => {
+  try {
+    const result = await asyncOperation();
+    console.log(result);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+ 
+const target = {
+  message: "Hello, Proxy!"
+};
+
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessing ${prop}: ${obj[prop]}`);
+    return obj[prop];
+  }
+};
+
+const proxy = new Proxy(target, handler);
+console.log(proxy.message);
+
+ 
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+const gen = numberGenerator();
+console.log(gen.next().value);
+console.log(gen.next().value);
+console.log(gen.next().value);
+
+ 
+(() => {
+  const { PI, random } = Math;
+  const radius = random() * 10;
+  console.log(`Circle with radius ${radius.toFixed(2)} has area ${(PI * radius * radius).toFixed(2)}`);
+})();
+
+ 
+const person = { name: "Alice", age: 30 };
+const newPerson = { ...person, location: "Wonderland" };
+console.log(newPerson);
+
+ 
+(async () => {
+  await performAsyncTasks();
+  await performAsyncTasks();
+  await performAsyncTasks();
+
+  const results = await Promise.allSettled([
+    asyncOperation(),
+    asyncOperation(),
+    asyncOperation()
+  ]);
+  console.log(results);
+})();
+```

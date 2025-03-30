@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+  enqueue(asyncFunction) {
+    this.queue.push(asyncFunction);
+    this.processQueue();
+  }
+
+  async processQueue() {
+    if (this.running) return;
+    this.running = true;
+
+    while (this.queue.length) {
+      const asyncFunction = this.queue.shift();
+      await asyncFunction();
+    }
+    this.running = false;
+  }
+}
+
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const eventEmitter = new EventEmitter();
+const asyncQueue = new AsyncQueue();
+
+eventEmitter.on('task', async (taskId) => {
+  await asyncQueue.enqueue(async () => {
+    console.log(`Starting task ${taskId}`);
+    await delay(1000);
+    console.log(`Finished task ${taskId}`);
+  });
+});
+
+for (let i = 1; i <= 5; i++) {
+  eventEmitter.emit('task', i);
+}
+```

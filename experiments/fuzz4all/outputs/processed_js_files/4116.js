@@ -1,0 +1,47 @@
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    const matrix = new Matrix(arr.length, arr[0].length);
+    matrix.data = arr;
+    return matrix;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  log() {
+    console.table(this.data);
+    return this;
+  }
+
+  async animate(fn, delayMs = 500) {
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        this.data[i][j] = await fn(this.data[i][j], i, j);
+        console.clear();
+        this.log();
+        await delay(delayMs);
+      }
+    }
+  }
+}
+
+(async () => {
+  const matrix = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]);
+
+  await matrix.animate(async (value) => {
+    await delay(200);
+    return value + 1;
+  });
+})();

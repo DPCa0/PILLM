@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchUserData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', age: 28 },
+                { id: 2, name: 'Bob', age: 35 },
+                { id: 3, name: 'Charlie', age: 32 }
+            ]);
+        }, 1000);
+    });
+};
+
+ 
+const processUserData = async () => {
+    try {
+        const data = await fetchUserData();
+        
+         
+        const namesOver30 = data
+            .filter(({ age }) => age > 30)
+            .map(({ name }) => name);
+        
+        print('Users over 30:', namesOver30.join(', '));
+        
+         
+        const uniqueAges = [...new Set(data.map(({ age }) => age))];
+        print('Unique ages:', uniqueAges);
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+};
+
+ 
+(async () => {
+    await processUserData();
+})();

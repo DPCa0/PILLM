@@ -1,0 +1,66 @@
+ 
+
+class ReactiveComponent {
+    constructor(initialState = {}) {
+        this.state = new Proxy(initialState, {
+            set: (target, property, value) => {
+                target[property] = value;
+                this.render();
+                return true;
+            }
+        });
+        this.effects = [];
+    }
+
+    addEffect(effectFn) {
+        const effect = () => {
+            try {
+                effectFn();
+            } catch (e) {
+                console.error("Effect error:", e);
+            }
+        };
+        this.effects.push(effect);
+    }
+
+    render() {
+        this.effects.forEach(effect => effect());
+    }
+}
+
+ 
+const createCard = ({ title, content, ...styles }) => `
+    <div style="${Object.entries(styles).map(([key, value]) => `${key}: ${value}`).join('; ')}">
+        <h2>${title}</h2>
+        <p>${content}</p>
+    </div>
+`;
+
+const appState = {
+    title: "Welcome",
+    content: "This is a dynamically generated card!",
+    styles: {
+        backgroundColor: "lightblue",
+        color: "darkblue",
+        padding: "20px",
+        borderRadius: "8px"
+    }
+};
+
+const app = new ReactiveComponent(appState);
+app.addEffect(() => {
+    document.body.innerHTML = createCard({ 
+        title: app.state.title, 
+        content: app.state.content, 
+        ...app.state.styles 
+    });
+});
+
+ 
+setTimeout(() => {
+    app.state.title = "Hello, World!";
+}, 2000);
+
+setTimeout(() => {
+    app.state.content = "The content has been updated with reactive programming!";
+}, 4000);

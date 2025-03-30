@@ -1,0 +1,28 @@
+ 
+
+(async function() {
+    const fetchData = async (url) => {
+         
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({ data: { user: { name: "Alice", age: 30 }, active: true } });
+            }, 1000);
+        });
+    };
+
+    const processUserData = async (url) => {
+        try {
+            const { data: { user: { name, age }, active } } = await fetchData(url);  
+            const closureExample = () => {
+                 
+                return `User ${name} is ${age} years old and is currently ${active ? 'active' : 'inactive'}.`;
+            };
+            return closureExample();
+        } catch (error) {
+            throw new Error("Failed to process user data");
+        }
+    };
+
+    const url = "https://example.com/user";  
+    print(await processUserData(url));
+})();

@@ -1,0 +1,45 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    enqueue(promiseFn) {
+        this.queue.push(promiseFn);
+        if (!this.processing) {
+            this.process();
+        }
+    }
+
+    async process() {
+        this.processing = true;
+        while (this.queue.length) {
+            const current = this.queue.shift();
+            try {
+                print(await current());
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        this.processing = false;
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+function fetchData(id) {
+    return async () => {
+        await delay(1000);  
+        if (Math.random() < 0.2) throw new Error(`Failed to fetch data for ID: ${id}`);
+        return `Data for ID: ${id}`;
+    };
+}
+
+const queue = new AsyncQueue();
+
+for (let i = 0; i < 5; i++) {
+    queue.enqueue(fetchData(i));
+}
+
+ 
+setTimeout(() => queue.enqueue(fetchData(99)), 2000);

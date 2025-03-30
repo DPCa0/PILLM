@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Fetcher {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async get(endpoint) {
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+}
+
+const processData = async () => {
+  const fetcher = new Fetcher('https://jsonplaceholder.typicode.com');
+  const userDataPromise = fetcher.get('/users');
+  const postDataPromise = fetcher.get('/posts');
+
+  try {
+    const [users, posts] = await Promise.all([userDataPromise, postDataPromise]);
+
+    const enrichedData = users.map(user => {
+      return {
+        ...user,
+        posts: posts.filter(post => post.userId === user.id)
+      };
+    });
+
+    console.log('Enriched Data:', JSON.stringify(enrichedData, null, 2));
+  } catch (error) {
+    console.error('Data processing error:', error);
+  }
+};
+
+processData();
+```

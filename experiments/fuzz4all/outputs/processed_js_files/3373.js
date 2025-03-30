@@ -1,0 +1,33 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.reduce((acc, item) => {
+    const { id, name, price } = item;
+    acc[name] = { id, price };
+    return acc;
+  }, {});
+};
+
+const displayData = (dataMap) => {
+  const entries = Object.entries(dataMap);
+  entries.forEach(([name, { id, price }]) => {
+    print(`Product: ${name}, ID: ${id}, Price: $${price}`);
+  });
+};
+
+(async () => {
+  const url = 'https://api.example.com/products';
+  const rawData = await fetchData(url);
+  if (rawData) {
+    const processedData = processData(rawData);
+    displayData(processedData);
+  }
+})();

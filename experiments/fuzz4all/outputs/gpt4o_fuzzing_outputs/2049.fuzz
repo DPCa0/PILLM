@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ user: 'John Doe', id: 123 }), 1000);
+    });
+};
+
+ 
+function* dataGenerator() {
+    console.log('Fetching data...');
+    yield fetchData();
+    console.log('Data fetched');
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const run = async () => {
+    const gen = dataGenerator();
+    const { value } = gen.next();
+    const data = await value;
+    const proxyData = new Proxy(data, handler);
+
+    console.log('User:', proxyData.user);
+    console.log('ID:', proxyData.id);
+};
+
+run().catch(console.error);
+```

@@ -1,0 +1,52 @@
+ 
+
+async function fetchData(url) {
+     
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ data: [1, 2, 3, 4, 5] });
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+}
+
+function* processData(data) {
+     
+    for (const item of data) {
+        yield item * 2;
+    }
+}
+
+const handler = {
+    get: (obj, prop) => {
+         
+        if (prop in obj) {
+            print(`Accessing property "${prop}"`);
+            return obj[prop];
+        } else {
+            throw new Error(`Property "${prop}" does not exist`);
+        }
+    }
+};
+
+(async function main() {
+    try {
+        const dataProxy = new Proxy({}, handler);
+        const response = await fetchData("https://api.example.com/data");
+        
+         
+        dataProxy["numbers"] = response.data;
+
+        const processed = processData(dataProxy.numbers);
+
+        print("Processed Data:");
+        for (const value of processed) {
+            print(value);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+})();

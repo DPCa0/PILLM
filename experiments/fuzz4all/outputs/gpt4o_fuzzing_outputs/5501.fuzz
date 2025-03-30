@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function* readFileLines(filePath) {
+    const data = await fs.readFile(filePath, 'utf8');
+    for (const line of data.split('\n')) {
+        yield line;
+    }
+}
+
+ 
+async function main() {
+    try {
+        const filePath = 'example.txt';
+        
+         
+        const dataToWrite = `Line 1: ${"Hello"}, Line 2: ${"World"}\n`;
+        await fs.writeFile(filePath, dataToWrite);
+
+         
+        const lineFrequency = new Map();
+
+         
+        for await (const line of readFileLines(filePath)) {
+            lineFrequency.set(line, (lineFrequency.get(line) || 0) + 1);
+        }
+
+         
+        lineFrequency.forEach((frequency, line) => {
+            console.log(`"${line}" appears ${frequency} time(s)`);
+        });
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+main();
+```

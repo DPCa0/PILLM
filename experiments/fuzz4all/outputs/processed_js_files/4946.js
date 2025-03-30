@@ -1,0 +1,45 @@
+class FibonacciSequence {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+  
+  *[Symbol.iterator]() {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  get nth(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const value = this.nth(n - 1) + this.nth(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+const calculateFibonacci = async (n) => {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(`The ${n}th Fibonacci number is ${sequence.nth(n)}`), 1000);
+  });
+};
+
+(async () => {
+  const sequence = new FibonacciSequence(10);
+
+  print('Fibonacci Sequence:');
+  for (const num of sequence) {
+    print(num);
+  }
+
+  try {
+    const result = await calculateFibonacci(9);
+    print(result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

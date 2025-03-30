@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+ 
+export class MathUtils {
+  static async complexCalculation(a, b) {
+     
+    const result = await new Promise((resolve) => {
+      setTimeout(() => resolve(a ** b + b ** a), 1000);
+    });
+    return result;
+  }
+}
+
+ 
+ 
+import { MathUtils } from './mathUtils.js';
+
+async function executeComplexLogic() {
+  try {
+    console.log('Starting complex calculation...');
+    const result = await MathUtils.complexCalculation(2, 3);
+    console.log(`Result of complex calculation: ${result}`);
+  } catch (error) {
+    console.error('Error during calculation:', error);
+  }
+}
+
+executeComplexLogic();
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'sensitiveData') {
+      console.warn('Access to sensitive data detected!');
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const sensitiveObject = new Proxy({ sensitiveData: 'Secret123' }, handler);
+
+ 
+console.log(sensitiveObject.sensitiveData);
+
+ 
+function* fibonacciSequence(limit) {
+  let [prev, current] = [0, 1];
+  while (current <= limit) {
+    yield current;
+    [prev, current] = [current, prev + current];
+  }
+}
+
+ 
+console.log('Fibonacci sequence up to 21:');
+for (let num of fibonacciSequence(21)) {
+  console.log(num);
+}
+```
+
+This code snippet demonstrates the use of JavaScript features such as modules, classes, async/await, Promises, Proxy, and generators, combining them to form a sophisticated program. Note: This example assumes module usage and file separation, which may require additional setup in certain environments.

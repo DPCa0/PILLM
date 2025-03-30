@@ -1,0 +1,69 @@
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+const database = {
+    1: { name: "Alice", score: 92 },
+    2: { name: "Bob", score: 85 }
+};
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`No record found for ID ${prop}`);
+        }
+    },
+    set: (target, prop, value) => {
+        target[prop] = value;
+        print(`Record updated: ID ${prop}, Value ${JSON.stringify(value)}`);
+        return true;
+    }
+};
+
+const dbProxy = new Proxy(database, handler);
+
+function getRecord(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            try {
+                resolve(dbProxy[id]);
+            } catch (error) {
+                reject(error);
+            }
+        }, 1000);
+    });
+}
+
+async function main() {
+    try {
+        print("Fetching record ID 1");
+        const record1 = await getRecord(1);
+        print(`Record 1: ${JSON.stringify(record1)}`);
+        
+        print("Fetching record ID 3");
+        const record3 = await getRecord(3);
+        print(`Record 3: ${JSON.stringify(record3)}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    const newID = gen.next().value;
+    dbProxy[newID] = { name: "Charlie", score: 89 };
+    
+    print("Fetching new record ID 3");
+    try {
+        const newRecord = await getRecord(newID);
+        print(`Record 3: ${JSON.stringify(newRecord)}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+main();

@@ -1,0 +1,40 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *dataGenerator() {
+    for (let item of this.data) {
+      yield new Promise((resolve) =>
+        setTimeout(() => resolve(item * 2), Math.random() * 1000)
+      );
+    }
+  }
+
+  async processData() {
+    const results = [];
+    const generator = this.dataGenerator();
+
+    for await (let processedItem of generator) {
+      results.push(processedItem);
+    }
+
+    return results;
+  }
+}
+
+async function run() {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new AsyncProcessor(data);
+  
+  const processedData = await processor.processData();
+  const summary = processedData.reduce(
+    (acc, val) => ({ sum: acc.sum + val, count: acc.count + 1 }),
+    { sum: 0, count: 0 }
+  );
+
+  print(`Processed Data: ${processedData}`);
+  print(`Summary: Avg = ${summary.sum / summary.count}, Sum = ${summary.sum}`);
+}
+
+run();

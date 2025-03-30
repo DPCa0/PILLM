@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+function* generateSequence() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+ 
+async function processSequence(generator) {
+  for (let value of generator) {
+    console.log(`Processing value: ${value}`);
+    await delay(1000);  
+  }
+  console.log("Sequence processing complete.");
+}
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Accessed property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function main() {
+  console.log("Starting main function...");
+  
+   
+  console.log(`Property a: ${proxy.a}`);
+  console.log(`Property b: ${proxy.b}`);
+
+   
+  const sequence = generateSequence();
+  await processSequence(sequence);
+
+  console.log("Main function complete.");
+}
+
+ 
+main();
+```

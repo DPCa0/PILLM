@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  try {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+    const data = await response.json();
+
+     
+    const { name, height, mass } = data;
+
+     
+    const filteredCharacters = data.films.map(film => film.title).filter(title => title.includes('Star'));
+
+     
+    const uniqueFilms = new Set(filteredCharacters);
+
+     
+    const filmList = [...uniqueFilms].reduce((acc, film, index) => `${acc}${index + 1}. ${film}\n`, '');
+
+     
+    console.log(`Character: ${name}
+Height: ${height}
+Mass: ${mass}
+Films: 
+${filmList}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+fetchData('https://swapi.dev/api/people/1/');
+
+ 
+const target = { message: "Hello, advanced JavaScript!" };
+const handler = {
+  get: (obj, prop) => {
+    print(`Property '${prop}' accessed`);
+    return Reflect.get(obj, prop);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+print(proxy.message);

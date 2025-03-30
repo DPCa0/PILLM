@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+import { EventEmitter } from 'events';
+
+ 
+class FibonacciSequence {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (curr <= this.limit) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+ 
+const emitter = new EventEmitter();
+
+ 
+async function processFibonacci(limit) {
+  try {
+    const fibSequence = new FibonacciSequence(limit);
+
+    const processing = [...fibSequence].map(async (num) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const result = num * num;   
+          emitter.emit('processed', result);
+          resolve(result);
+        }, 100 * num);   
+      });
+    });
+
+    const results = await Promise.all(processing);
+    console.log('All Fibonacci numbers processed:', results);
+  } catch (error) {
+    console.error('Error processing Fibonacci numbers:', error);
+  }
+}
+
+ 
+emitter.on('processed', (result) => {
+  console.log('Processed result:', result);
+});
+
+ 
+processFibonacci(21);
+```

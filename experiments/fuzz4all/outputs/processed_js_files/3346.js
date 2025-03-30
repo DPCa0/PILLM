@@ -1,0 +1,36 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* fetchDataGen() {
+    yield delay(1000).then(() => "Data Part 1");
+    yield delay(2000).then(() => "Data Part 2");
+    yield delay(1500).then(() => "Data Part 3");
+}
+
+ 
+async function fetchData() {
+    const dataGen = fetchDataGen();
+    for (let part of dataGen) {
+        print(await part);
+    }
+}
+
+ 
+const dataHandler = {
+    get: (target, prop) => {
+        return prop in target ? target[prop] : `No such property: ${prop}`;
+    }
+};
+
+ 
+const dataProxy = new Proxy({ name: 'Async Data Fetcher', version: '1.0' }, dataHandler);
+
+ 
+(async () => {
+    print(`Starting ${dataProxy.name} v${dataProxy.version}`);
+    await fetchData();
+    print(`Finished ${dataProxy.name}`);
+})();

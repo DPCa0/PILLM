@@ -1,0 +1,27 @@
+ 
+function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield prev;
+  }
+}
+
+async function asyncFibonacci(n) {
+  const fibGen = fibonacci(n);
+  const results = [];
+  
+  for (let num of fibGen) {
+    results.push(await Promise.resolve(num));
+  }
+  return results;
+}
+
+(async function main() {
+  try {
+    const fibonacciSeries = await asyncFibonacci(10);
+    print('Fibonacci Series:', fibonacciSeries);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

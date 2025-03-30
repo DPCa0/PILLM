@@ -1,0 +1,55 @@
+ 
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = [
+        { id: 1, value: 'foo' },
+        { id: 2, value: 'bar' },
+        { id: 3, value: 'baz' }
+      ];
+      resolve(data);
+    }, 1000);
+  });
+};
+
+ 
+const processItem = async (item) => {
+   
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  return { ...item, processed: true };
+};
+
+ 
+const main = async () => {
+  try {
+     
+    const data = await fetchData();
+    
+     
+    const processedDataPromises = data.map((item) => processItem(item));
+    const processedData = await Promise.all(processedDataPromises);
+    
+     
+    const [first, ...rest] = processedData;
+    print('First Processed Item:', first);
+    print('Rest of Processed Items:', rest);
+    
+     
+    const finalResult = rest.reduce((acc, item) => {
+      if (item.processed) {
+        acc.push(item.value.toUpperCase());
+      }
+      return acc;
+    }, []);
+    
+    print('Final Result:', finalResult);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+main();

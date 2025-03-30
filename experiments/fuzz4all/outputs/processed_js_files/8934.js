@@ -1,0 +1,46 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      const data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  }
+
+  processData(data) {
+     
+    return data.map(({ id, name, username }) => `ID: ${id}, Name: ${name}, Username: ${username}`).join('\n');
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+const fetcher = new DataFetcher(url);
+
+fetcher.fetchData().then(result => {
+  if (result) {
+    print('Fetched Data:\n', result);
+  }
+});
+
+ 
+(async () => {
+  const module = await import('./some-module.js');
+  await module.doSomethingAdvanced();
+})();
+
+ 
+const uniqueKey = Symbol('unique');
+const obj = {
+  [uniqueKey]: 'This is a unique value'
+};
+
+print(obj[uniqueKey]);

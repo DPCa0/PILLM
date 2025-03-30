@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchData() {
+  yield new Promise((resolve) => setTimeout(() => resolve("Data part 1"), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve("Data part 2"), 2000));
+  return "All data fetched";
+}
+
+ 
+async function handleGenerator(gen) {
+  let result = { done: false };
+
+  while (!result.done) {
+    result = gen.next();
+    if (result.value instanceof Promise) {
+      console.log(await result.value);
+    }
+  }
+  console.log(result.value);  
+}
+
+ 
+const target = { data1: "Info 1", data2: "Info 2" };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessing property: ${prop}`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting property: ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+  console.log("Starting data fetch using generators and async/await...");
+  await handleGenerator(fetchData());
+
+  console.log("\nUsing Proxy to monitor object access:");
+  console.log(proxy.data1);
+  proxy.data2 = "Updated Info 2";
+  console.log(proxy.data2);
+})();
+```

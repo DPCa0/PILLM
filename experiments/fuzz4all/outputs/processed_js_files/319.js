@@ -1,0 +1,56 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener(...args));
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+        this.events.set(event, listeners);
+    }
+}
+
+const debounce = (func, delay) => {
+    let debounceTimer;
+    return function(...args) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+const asyncOperation = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve("Async operation completed!"), 1000);
+    });
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    const printMessage = debounce((message) => {
+        print(message);
+    }, 500);
+
+    emitter.on('data', printMessage);
+
+    emitter.emit('data', 'Hello, world!');
+    emitter.emit('data', 'Debouncing...');
+    await asyncOperation();
+
+    emitter.emit('data', 'This message will be printed after async operation!');
+    emitter.off('data', printMessage);
+
+    emitter.emit('data', 'This message will not appear!');
+})();

@@ -1,0 +1,33 @@
+const { from, interval, merge } = require('rxjs');
+const { map, filter, debounceTime, switchMap, takeUntil } = require('rxjs/operators');
+
+ 
+const asyncGreet = (name) => new Promise(resolve => {
+    setTimeout(() => resolve(`Hello, ${name}!`), Math.random() * 1000);
+});
+
+ 
+const userActions$ = from(['Alice', 'Bob', 'Charlie', 'Deborah']);
+
+ 
+const stopInteraction$ = interval(3000);
+
+ 
+const greetings$ = userActions$.pipe(
+    map(name => name.toLowerCase()),
+    filter(name => name.length > 2),
+    debounceTime(500),
+    switchMap(name => asyncGreet(name)),
+    takeUntil(stopInteraction$)
+);
+
+ 
+const additionalActions$ = interval(1000).pipe(map(x => `Generated-${x}`));
+const mergedStreams$ = merge(greetings$, additionalActions$);
+
+ 
+mergedStreams$.subscribe({
+    next: console.log,
+    error: console.error,
+    complete: () => console.log('Done!')
+});

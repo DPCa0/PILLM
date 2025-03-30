@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: "Fetched Data", timestamp: Date.now() });
+    }, 2000);
+  });
+};
+
+const processSymbol = Symbol("process");
+
+const processData = {
+  [processSymbol]: (data) => {
+    console.log(`Processing: ${data}`);
+    return `Processed: ${data.toUpperCase()}`;
+  },
+};
+
+const dataHandler = {
+  get: (target, prop, receiver) => {
+    if (typeof target[prop] === "function") {
+      return function (...args) {
+        console.log(`Called ${prop.toString()} with`, args);
+        return Reflect.apply(target[prop], target, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+const processProxy = new Proxy(processData, dataHandler);
+
+const main = async () => {
+  console.log("Starting data fetch...");
+  const rawData = await fetchData();
+  console.log("Data fetched:", rawData);
+
+  const result = processProxy[processSymbol](rawData.data);
+  console.log("Result:", result);
+};
+
+main();
+```

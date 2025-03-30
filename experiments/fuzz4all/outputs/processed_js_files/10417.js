@@ -1,0 +1,45 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+   
+  await delay(1000);
+  return ['apple', 'banana', 'cherry'];
+}
+
+ 
+function* processItems(items) {
+  for (const item of items) {
+    yield item.toUpperCase();
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (typeof target[prop] === 'function') {
+      return (...args) => {
+        print(`Calling ${prop} with arguments: ${args}`);
+        return target[prop].apply(receiver, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+(async function main() {
+   
+  const data = await fetchData();
+  const processedData = [...processItems(data)];
+
+   
+  const tracedArray = new Proxy(processedData, handler);
+  
+   
+  tracedArray.push('date');
+  tracedArray.forEach(item => print(item));
+})();

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+(async function advancedFeaturesDemo() {
+   
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  async function fetchData() {
+    console.log('Fetching data...');
+    await delay(1000);
+    return {
+      user: { id: 1, name: 'John Doe' },
+      posts: [
+        { id: 101, title: 'JavaScript Async/Await' },
+        { id: 102, title: 'Understanding Promises' }
+      ]
+    };
+  }
+
+  try {
+     
+    const { user, posts } = await fetchData();
+
+     
+    console.log(`User: ${user.name} (ID: ${user.id})`);
+    console.log('Posts:');
+    posts.forEach(post => {
+      console.log(`- [${post.id}] ${post.title}`);
+    });
+
+     
+    const dataMap = new Map();
+    dataMap.set('user', user);
+    dataMap.set('posts', posts);
+
+    for (let [key, value] of dataMap) {
+      console.log(`Key: ${key}, Value:`, value);
+    }
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

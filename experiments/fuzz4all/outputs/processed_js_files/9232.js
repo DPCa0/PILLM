@@ -1,0 +1,34 @@
+ 
+
+const handler = {
+    get(target, prop, receiver) {
+        if (typeof prop === 'string' && !isNaN(prop)) {
+            prop = parseInt(prop);
+        }
+        if (prop === 'message') {
+            return async () => {
+                let msg = await target[0];
+                return `Processed Message: ${msg}`;
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const createAsyncMessage = async (msg) => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Hello, ${msg}!`);
+        }, 1000);
+    });
+};
+
+(async () => {
+    const proxyTarget = [createAsyncMessage("world")];
+    const proxy = new Proxy(proxyTarget, handler);
+
+     
+    const reflectMethod = Reflect.get(proxy, 'message');
+    print(await reflectMethod());  
+})();

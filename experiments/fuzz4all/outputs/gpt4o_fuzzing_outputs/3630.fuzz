@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(observer) {
+        this.subscribers.add(observer);
+    }
+
+    unsubscribe(observer) {
+        this.subscribers.delete(observer);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(observer => observer(data));
+    }
+}
+
+class AppState extends Observable {
+    #state;
+    constructor(initialState) {
+        super();
+        this.#state = new Proxy(initialState, {
+            set: (target, prop, value) => {
+                target[prop] = value;
+                this.notify({ [prop]: value });
+                return true;
+            }
+        });
+    }
+
+    getState() {
+        return this.#state;
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fetchDataSimulator() {
+    const data = ['apple', 'banana', 'cherry'];
+    for (const item of data) {
+        await delay(1000);
+        yield item;
+    }
+}
+
+(async () => {
+    const appState = new AppState({ fruit: '' });
+    
+    appState.subscribe(update => console.log('State updated:', update));
+    
+    const dataStream = fetchDataSimulator();
+    
+    for await (const fruit of dataStream) {
+        appState.getState().fruit = fruit;
+    }
+})();
+```

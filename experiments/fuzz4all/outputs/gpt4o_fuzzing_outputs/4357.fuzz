@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+}
+
+ 
+function* dataGenerator(urls) {
+  for (let url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop === 'get' || prop === 'set') {
+      return (...args) => {
+        console.log(`Called ${prop} with arguments:`, args);
+        return Map.prototype[prop].apply(target, args);
+      };
+    }
+    return target[prop];
+  }
+};
+
+ 
+async function processUrls(urls) {
+  const urlMap = new Proxy(new Map(), handler);
+  const generator = dataGenerator(urls);
+
+  for (let promise of generator) {
+    const result = await promise;
+    urlMap.set(result.split(' ')[2], result);
+  }
+
+  return urlMap;
+}
+
+ 
+const urls = ['http://example.com', 'http://another.com', 'http://site.com'];
+
+processUrls(urls).then((map) => {
+  console.log('Processed URL Data:');
+  for (let [key, value] of map.entries()) {
+    console.log(`${key} -> ${value}`);
+  }
+});
+```

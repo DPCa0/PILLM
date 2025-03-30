@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+     
+    const userData = await new Promise(resolve => 
+      setTimeout(() => resolve({ id, name: `User ${id}` }), 1000)
+    );
+    yield userData;
+  }
+}
+
+ 
+const defaultUser = { id: 0, name: 'Anonymous' };
+const userHandler = {
+  get: (target, property) => property in target ? target[property] : defaultUser[property]
+};
+
+ 
+(async function() {
+  const userIds = [1, 2, 3];
+  const fetchedUsers = [];
+  
+  for await (const user of fetchUserData(userIds)) {
+    const proxyUser = new Proxy(user, userHandler);
+    fetchedUsers.push(proxyUser);
+  }
+  
+   
+  const [firstUser, ...otherUsers] = fetchedUsers;
+  console.log(`First User: ${firstUser.name}`);
+  
+  console.log('Other Users:');
+  otherUsers.forEach(({ name }) => console.log(name));
+  
+   
+  const userMap = new Map(fetchedUsers.map(user => [user.id, user.name]));
+  console.log('User Map:', userMap);
+})();
+```

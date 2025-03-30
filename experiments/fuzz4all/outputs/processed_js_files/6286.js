@@ -1,0 +1,54 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      url ? resolve(`Data from ${url}`) : reject('Invalid URL');
+    }, 1000);
+  });
+}
+
+ 
+function* dataFlow(urls) {
+  for (let url of urls) {
+    try {
+      yield fetchData(url);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+const dataLogger = (data) => new Proxy(data, {
+  get(target, property) {
+    print(`Accessing property "${property}"`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting property "${property}" to ${value}`);
+    target[property] = value;
+    return true;
+  }
+});
+
+ 
+const urls = ['http://example.com/api/1', 'http://example.com/api/2', null];
+
+ 
+const dataIterator = dataFlow(urls);
+
+ 
+async function processData(iterator) {
+  for await (const dataPromise of iterator) {
+    try {
+      const data = await dataPromise;
+      const dataProxy = dataLogger({ message: data });
+      print(dataProxy.message);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+}
+
+ 
+processData(dataIterator).catch(console.error);

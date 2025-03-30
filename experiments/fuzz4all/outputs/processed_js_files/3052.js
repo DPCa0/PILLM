@@ -1,0 +1,68 @@
+class EventEmitter {
+    #listeners = new Map();
+
+    on(event, listener) {
+        if (!this.#listeners.has(event)) {
+            this.#listeners.set(event, new Set());
+        }
+        this.#listeners.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.get(event).delete(listener);
+        }
+    }
+}
+
+const emitter = new EventEmitter();
+
+ 
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            return target[property];
+        } else {
+            return (...args) => target.emit(property, ...args);
+        }
+    }
+};
+
+const proxiedEmitter = new Proxy(emitter, handler);
+
+ 
+const symbol = Symbol('event');
+const asyncFunction = async (message) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    print(`Async message: ${message}`);
+};
+
+proxiedEmitter.on(symbol, async (message) => {
+    await asyncFunction(message);
+});
+
+proxiedEmitter.on('greet', name => print(`Hello, ${name}!`));
+
+ 
+proxiedEmitter[symbol]('This is a symbolic event!');
+proxiedEmitter.greet('world');
+
+ 
+const iterateEvents = function* () {
+    yield* ['start', 'stop', 'pause'];
+};
+
+for (let event of iterateEvents()) {
+    proxiedEmitter[event] = (message) => print(`${event} event: ${message}`);
+}
+
+ 
+proxiedEmitter.start('Process started');
+proxiedEmitter.stop('Process stopped');
+proxiedEmitter.pause('Process paused');

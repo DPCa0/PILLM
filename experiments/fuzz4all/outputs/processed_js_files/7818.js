@@ -1,0 +1,32 @@
+ 
+
+class DataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+  
+  async fetchData() {
+    try {
+      const promises = this.urls.map(url => fetch(url).then(response => response.json()));
+      const results = await Promise.all(promises);
+      return results;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+const processData = async (...dataFetchers) => {
+  for (const fetcher of dataFetchers) {
+    const data = await fetcher.fetchData();
+    print(data);
+  }
+}
+
+const urls1 = ['https://jsonplaceholder.typicode.com/posts', 'https://jsonplaceholder.typicode.com/comments'];
+const urls2 = ['https://jsonplaceholder.typicode.com/users', 'https://jsonplaceholder.typicode.com/todos'];
+
+const fetcher1 = new DataFetcher(urls1);
+const fetcher2 = new DataFetcher(urls2);
+
+processData(fetcher1, fetcher2);

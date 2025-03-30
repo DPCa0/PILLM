@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      return Promise.all(
+        this.events.get(event).map(listener => listener(...args))
+      );
+    }
+    return Promise.resolve();
+  }
+}
+
+async function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function debounce(fn, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
+(async () => {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('data', async (msg) => {
+    await delay(100);
+    console.log(`Received: ${msg}`);
+  });
+
+  const debouncedEmit = debounce(async (msg) => {
+    await emitter.emit('data', msg);
+  }, 200);
+
+  for (const message of ['Hello', 'World', 'This', 'Is', 'A', 'Test']) {
+    debouncedEmit(message);
+    await delay(150);
+  }
+})();
+```

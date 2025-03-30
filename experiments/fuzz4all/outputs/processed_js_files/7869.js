@@ -1,0 +1,39 @@
+const fetch = require('node-fetch');
+
+(async () => {
+  try {
+    const url = 'https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits';
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const commits = await response.json();
+    const latestCommit = commits[0];
+
+    const parseCommit = ({ commit: { author: { name }, message }, sha }) => ({
+      author: name,
+      message,
+      sha,
+    });
+
+    const createHTML = ({ author, message, sha }) => `
+      <li>
+        <strong>${author}</strong>: 
+        ${message} 
+        <a href="https://github.com/javascript-tutorial/en.javascript.info/commit/${sha}">View Commit</a>
+      </li>
+    `;
+
+    const commitInfo = parseCommit(latestCommit);
+    print('Latest Commit:', commitInfo);
+
+     
+    if (typeof document !== 'undefined') {
+      const ul = document.createElement('ul');
+      ul.innerHTML = createHTML(commitInfo);
+      document.body.appendChild(ul);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

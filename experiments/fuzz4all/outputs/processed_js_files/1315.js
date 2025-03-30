@@ -1,0 +1,34 @@
+ 
+import 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+
+ 
+async function fetchData() {
+  try {
+     
+    const url = `https: 
+    
+     
+    const { data } = await axios.get(url);
+
+     
+    const uniqueUserIds = [...new Set(data.map(({ userId }) => userId))];
+
+     
+    for (const id of uniqueUserIds) {
+      print(`User ID: ${id}`);
+
+       
+      const userPosts = data.filter(post => post.userId === id);
+      
+       
+      userPosts.forEach(({ id, title }) => print(`  Post ID: ${id}, Title: ${title}`));
+    }
+
+  } catch (error) {
+     
+    console.error('Error fetching data:', error?.response?.statusText || error.message);
+  }
+}
+
+ 
+fetchData();

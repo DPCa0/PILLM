@@ -1,0 +1,47 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        const rows = arr.length;
+        const cols = arr[0].length;
+        const matrix = new Matrix(rows, cols);
+        matrix.data = arr;
+        return matrix;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((value, j) => fn(value, i, j)));
+        return this;
+    }
+
+    multiply(matrixOrScalar) {
+        if (matrixOrScalar instanceof Matrix) {
+            if (this.cols !== matrixOrScalar.rows) {
+                throw new Error('Columns of A must match rows of B');
+            }
+            return new Matrix(this.rows, matrixOrScalar.cols).map((_, i, j) => 
+                this.data[i].reduce((sum, elm, k) => sum + elm * matrixOrScalar.data[k][j], 0)
+            );
+        } else {
+            return this.map(value => value * matrixOrScalar);
+        }
+    }
+
+    static random(rows, cols) {
+        return new Matrix(rows, cols).map(() => Math.random() * 2 - 1);
+    }
+
+    log() {
+        console.table(this.data);
+        return this;
+    }
+}
+
+ 
+const a = Matrix.random(3, 2).log();
+const b = Matrix.random(2, 3).log();
+const c = a.multiply(b).log();

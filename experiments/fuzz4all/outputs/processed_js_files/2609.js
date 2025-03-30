@@ -1,0 +1,57 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(dim, init) {
+    return new Matrix(Array.from({ length: dim[0] }, () => Array(dim[1]).fill(init)));
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    const data = this.data;
+    return {
+      next() {
+        if (col >= data[row].length) {
+          row++;
+          col = 0;
+        }
+        if (row >= data.length) {
+          return { done: true };
+        }
+        return { value: data[row][col++], done: false };
+      }
+    };
+  }
+
+  get(row, col) {
+    return this.data[row][col];
+  }
+
+  set(row, col, value) {
+    this.data[row][col] = value;
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, rIdx) => row.map((val, cIdx) => fn(val, rIdx, cIdx))));
+  }
+  
+  async *asyncMap(fn) {
+    for (const [rIdx, row] of this.data.entries()) {
+      for (const [cIdx, val] of row.entries()) {
+        yield await fn(val, rIdx, cIdx);
+      }
+    }
+  }
+
+  static async example() {
+    const mat = Matrix.from([3, 3], 1);
+    for await (const val of mat.asyncMap(async (val, r, c) => val * (r + c))) {
+      print(`Mapped Value: ${val}`);
+    }
+  }
+}
+
+(async () => {
+  await Matrix.example();
+})();

@@ -1,0 +1,58 @@
+ 
+
+ 
+const logSymbol = Symbol('log');
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property === logSymbol) {
+      return Reflect.get(target, property, receiver).bind(target);
+    }
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    if (typeof value === 'string') {
+      value = value.trim();  
+    }
+    return Reflect.set(target, property, value, receiver);
+  },
+};
+
+ 
+async function fetchUserData(userId) {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: 'John Doe', age: 30 });
+    }, 1000);
+  });
+}
+
+ 
+function* userFetcher(userIds) {
+  for (const id of userIds) {
+    yield fetchUserData(id);
+  }
+}
+
+ 
+class UserDataHandler {
+  constructor() {
+    this[logSymbol] = () => print('Data changed');
+    return new Proxy(this, handler);
+  }
+
+  async fetchAndLog(userIds) {
+    const gen = userFetcher(userIds);
+    for await (let userPromise of gen) {
+      const userData = await userPromise;
+      this.user = userData;
+      this[logSymbol]();
+    }
+  }
+}
+
+ 
+const userHandler = new UserDataHandler();
+userHandler.fetchAndLog([1, 2, 3]);

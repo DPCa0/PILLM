@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+}
+
+ 
+const handler = {
+    set(target, property, value) {
+        console.log(`Property ${property} set to ${value}`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+let person = new Proxy({ name: 'Alice', age: 25 }, handler);
+person.age = 26;  
+
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+const ids = idGenerator();
+console.log(ids.next().value);  
+console.log(ids.next().value);  
+
+ 
+const user = { id: 1, username: 'js_dev', email: 'jsdev@example.com' };
+const { id, ...rest } = user;  
+console.log(rest);  
+
+const settings = { theme: 'dark', notifications: true };
+const userSettings = { ...settings, loggedIn: true };  
+console.log(userSettings);  
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 3, 4]);
+console.log(uniqueNumbers.size);  
+
+const userMap = new Map();
+userMap.set('Alice', { age: 30, email: 'alice@example.com' });
+console.log(userMap.get('Alice').email);  
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1').then(data => console.log(data));
+```

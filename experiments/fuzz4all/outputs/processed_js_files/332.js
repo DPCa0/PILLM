@@ -1,0 +1,62 @@
+ 
+const librarySystem = {
+  name: "City Library",
+  books: [
+    { title: "1984", author: "George Orwell", year: 1949 },
+    { title: "The Great Gatsby", author: "F. Scott Fitzgerald", year: 1925 },
+    { title: "To Kill a Mockingbird", author: "Harper Lee", year: 1960 }
+  ],
+  
+   
+  *getBooks() {
+    for (const book of this.books) {
+      yield book;
+    }
+  },
+
+   
+  async findBookByTitle(title) {
+    const book = this.books.find(book => book.title === title);
+    if (book) {
+      return Promise.resolve(book);
+    } else {
+      return Promise.reject(new Error("Book not found"));
+    }
+  },
+
+   
+  createBookProxy(book) {
+    return new Proxy(book, {
+      get(target, prop) {
+        print(`Accessed property "${prop}"`);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        print(`Set property "${prop}" to "${value}"`);
+        target[prop] = value;
+        return true;
+      }
+    });
+  }
+};
+
+ 
+(async () => {
+   
+  for (const book of librarySystem.getBooks()) {
+    print(`Book: ${book.title}, Author: ${book.author}`);
+  }
+
+   
+  try {
+    const book = await librarySystem.findBookByTitle("1984");
+    print(`Found book: ${book.title}, Author: ${book.author}`);
+  } catch (error) {
+    console.error(error.message);
+  }
+
+   
+  const bookProxy = librarySystem.createBookProxy({ title: "Brave New World", author: "Aldous Huxley", year: 1932 });
+  print(bookProxy.title);
+  bookProxy.year = 1933;
+})();

@@ -1,0 +1,51 @@
+class AsyncCollection {
+  constructor(...items) {
+    this.items = items;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const items = this.items;
+    return {
+      next() {
+        if (index < items.length) {
+          return { value: items[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      },
+    };
+  }
+
+  async *asyncIterator() {
+    for (const item of this.items) {
+       
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      yield item;
+    }
+  }
+
+  static compose(...functions) {
+    return function (arg) {
+      return functions.reduceRight((prev, fn) => fn(prev), arg);
+    };
+  }
+
+  async processAsync(fn) {
+    for await (const item of this.asyncIterator()) {
+      print(fn(item));
+    }
+  }
+}
+
+ 
+
+const addOne = (x) => x + 1;
+const square = (x) => x * x;
+const subtractTwo = (x) => x - 2;
+
+const composedFunction = AsyncCollection.compose(subtractTwo, square, addOne);
+
+const collection = new AsyncCollection(1, 2, 3, 4, 5);
+
+collection.processAsync(composedFunction);

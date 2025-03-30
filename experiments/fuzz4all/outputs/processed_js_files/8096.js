@@ -1,0 +1,47 @@
+ 
+
+ 
+function fetchData(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve({ id, name: `Item ${id}` });
+        }, 1000);
+    });
+}
+
+ 
+function* dataFetcher(ids) {
+    for (let id of ids) {
+        yield fetchData(id);
+    }
+}
+
+ 
+async function processData(ids) {
+    const generator = dataFetcher(ids);
+    const results = [];
+    
+    for (let promise of generator) {
+        try {
+            const data = await promise;
+            results.push(data);
+        } catch (error) {
+            console.error(`Error fetching data for ID: ${id}`, error);
+        }
+    }
+    
+    return results;
+}
+
+ 
+function enrichData(...items) {
+    return items.map(item => ({ ...item, enriched: true, timestamp: Date.now() }));
+}
+
+ 
+(async () => {
+    const ids = [1, 2, 3, 4, 5];
+    const data = await processData(ids);
+    const enrichedData = enrichData(...data);
+    print('Enriched Data:', enrichedData);
+})();

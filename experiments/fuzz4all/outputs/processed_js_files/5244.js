@@ -1,0 +1,71 @@
+ 
+class BankAccount {
+   
+  #accountNumber;
+  #balance;
+
+  constructor(accountNumber, initialBalance) {
+    this.#accountNumber = accountNumber;
+    this.#balance = initialBalance;
+  }
+
+   
+  #logTransaction(action, amount) {
+    print(`[${new Date().toISOString()}] ${action} of $${amount}.`);
+  }
+
+   
+  deposit(amount) {
+    this.#balance += amount;
+    this.#logTransaction('Deposit', amount);
+  }
+
+   
+  get balance() {
+    return this.#balance;
+  }
+
+   
+  static transfer(amount, fromAccount, toAccount) {
+    if (fromAccount.#balance < amount) {
+      throw new Error('Insufficient funds');
+    }
+    fromAccount.#balance -= amount;
+    toAccount.#balance += amount;
+    fromAccount.#logTransaction('Transfer out', amount);
+    toAccount.#logTransaction('Transfer in', amount);
+  }
+}
+
+ 
+const createLoggedBankAccount = (accountNumber, initialBalance) => {
+  const account = new BankAccount(accountNumber, initialBalance);
+  return new Proxy(account, {
+    get(target, prop, receiver) {
+      print(`Accessing property "${prop}"`);
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      print(`Setting property "${prop}" to ${value}`);
+      return Reflect.set(target, prop, value, receiver);
+    },
+  });
+};
+
+ 
+const aliceAccount = createLoggedBankAccount('001', 1000);
+const bobAccount = createLoggedBankAccount('002', 500);
+
+ 
+const performTransactions = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500));  
+  aliceAccount.deposit(200);
+  
+  await new Promise((resolve) => setTimeout(resolve, 500));  
+  BankAccount.transfer(300, aliceAccount, bobAccount);
+
+  print(`Alice's balance: $${aliceAccount.balance}`);
+  print(`Bob's balance: $${bobAccount.balance}`);
+};
+
+performTransactions().catch(console.error);

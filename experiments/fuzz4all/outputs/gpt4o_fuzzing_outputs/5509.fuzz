@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+
+    map(transform) {
+        return new Observable(observer => 
+            this.subscribe({
+                next: val => observer.next(transform(val)),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            })
+        );
+    }
+}
+
+function asyncIterableObserver(asyncIterable) {
+    return new Observable(observer => {
+        (async () => {
+            try {
+                for await (let item of asyncIterable) {
+                    observer.next(item);
+                }
+                observer.complete();
+            } catch (err) {
+                observer.error(err);
+            }
+        })();
+
+        return {
+            unsubscribe() {
+                 
+            }
+        };
+    });
+}
+
+ 
+async function* generateNumbers() {
+    let num = 0;
+    while (num < 5) {
+        await new Promise(res => setTimeout(res, 1000));  
+        yield num++;
+    }
+}
+
+const observer = {
+    next: val => console.log('Received:', val),
+    error: err => console.error('Error:', err),
+    complete: () => console.log('Complete')
+};
+
+ 
+asyncIterableObserver(generateNumbers())
+    .map(num => num * 10)
+    .subscribe(observer);
+```

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+    setTimeout(() => {
+        resolve({ data: 'Important data' });
+    }, 1000);
+});
+
+ 
+function* dataGenerator() {
+    yield 'First piece of data';
+    yield fetchData();
+    yield 'Third piece of data';
+}
+
+ 
+const handleData = async () => {
+    const generator = dataGenerator();
+    let result = generator.next();
+    while (!result.done) {
+         
+        if (result.value instanceof Promise) {
+            console.log(await result.value);
+        } else {
+            console.log(result.value);
+        }
+        result = generator.next();
+    }
+};
+
+ 
+const handler = {
+    get: (target, property, receiver) => {
+        console.log(`Accessed property "${property}"`);
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+ 
+const dataObject = {
+    first: 'Hello',
+    second: 'World'
+};
+
+ 
+const proxyObject = new Proxy(dataObject, handler);
+
+ 
+(async () => {
+    console.log(proxyObject.first);
+    console.log(proxyObject.second);
+    await handleData();
+})();
+```

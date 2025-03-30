@@ -1,0 +1,58 @@
+(async () => {
+     
+    const fetchData = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    };
+
+     
+    const handler = {
+        get(target, prop) {
+            print(`Property ${prop} accessed`);
+            return target[prop];
+        },
+        set(target, prop, value) {
+            print(`Property ${prop} set to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+
+    const data = {
+        user: 'John Doe',
+        age: 30
+    };
+
+    const proxyData = new Proxy(data, handler);
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const doubledNumbers = numbers.map(n => n * 2);
+    const evenNumbers = doubledNumbers.filter(n => n % 2 === 0);
+
+    print('Even doubled numbers:', evenNumbers);
+
+     
+    const uniqueNumbers = new Set([1, 1, 2, 2, 3, 4]);
+    print('Unique numbers:', [...uniqueNumbers]);
+
+     
+    const tag = (strings, ...values) => {
+        return strings.reduce((acc, str, i) => {
+            return `${acc}${str}${values[i] ? `<strong>${values[i]}</strong>` : ''}`;
+        }, '');
+    };
+    
+    const name = 'Alice';
+    print(tag`Hello, ${name}! How are you?`);
+
+     
+    try {
+        proxyData.user = 'Jane Doe';
+        const apiData = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        print('Fetched Data:', apiData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

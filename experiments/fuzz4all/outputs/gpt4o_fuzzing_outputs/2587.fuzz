@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (endpoint) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (endpoint === "validEndpoint") {
+                resolve({ data: `Data from ${endpoint}` });
+            } else {
+                reject(new Error("Invalid endpoint"));
+            }
+        }, 1000);
+    });
+};
+
+ 
+function* apiCallsGenerator() {
+    yield fetchData("validEndpoint");
+    yield fetchData("invalidEndpoint");
+    yield fetchData("validEndpoint");
+}
+
+ 
+const generatorProxyHandler = {
+    get: (target, prop) => {
+        if (prop === "next") {
+            return (...args) => {
+                const result = Reflect.get(target, prop)(...args);
+                console.log(`Generator called next: ${JSON.stringify(result)}`);
+                return result;
+            };
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const run = async () => {
+    const generator = new Proxy(apiCallsGenerator(), generatorProxyHandler);
+
+    let next = generator.next();
+    while (!next.done) {
+        try {
+            const result = await next.value;
+            console.log(`API call result: ${JSON.stringify(result)}`);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+        }
+        next = generator.next();
+    }
+};
+
+ 
+run();
+```

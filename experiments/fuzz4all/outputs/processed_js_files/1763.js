@@ -1,0 +1,51 @@
+ 
+
+ 
+function* generateUserData() {
+    yield { id: 1, name: "Alice", age: 28 };
+    yield { id: 2, name: "Bob", age: 34 };
+    yield { id: 3, name: "Charlie", age: 25 };
+}
+
+ 
+async function fetchData(userId) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const users = generateUserData();
+            for (let user of users) {
+                if (user.id === userId) {
+                    resolve(user);
+                }
+            }
+            reject("User not found");
+        }, 1000);
+    });
+}
+
+ 
+const safeAccessHandler = {
+    get: (target, prop) => (prop in target ? target[prop] : `No such property: ${prop}`)
+};
+
+ 
+async function displayUserData() {
+    try {
+        const user1 = await fetchData(1);
+        const proxyUser1 = new Proxy(user1, safeAccessHandler);
+        
+        print(`User 1 Name: ${proxyUser1.name}`);
+        print(`User 1 Age: ${proxyUser1.age}`);
+        print(`User 1 Address: ${proxyUser1.address}`);
+
+        const user2 = await fetchData(2);
+        const proxyUser2 = new Proxy(user2, safeAccessHandler);
+
+        print(`User 2 Name: ${proxyUser2.name}`);
+        print(`User 2 Age: ${proxyUser2.age}`);
+    } catch (error) {
+        print(error);
+    }
+}
+
+ 
+displayUserData();

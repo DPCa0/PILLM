@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const secret = Symbol('secretValue');
+
+ 
+const person = new Proxy(
+  {
+    name: 'Alice',
+    age: 25,
+    [secret]: 'hidden'
+  },
+  {
+    get(target, prop) {
+      if (prop === 'age') {
+        console.log(`Accessing age, which is ${target[prop]}`);
+        return target[prop] * 2;  
+      }
+      return target[prop];
+    },
+    set(target, prop, value) {
+      if (prop === 'age' && value < 0) {
+        console.log('Age cannot be negative');
+        return false;
+      }
+      target[prop] = value;
+      return true;
+    }
+  }
+);
+
+ 
+const fetchData = async () => {
+  const data = await new Promise((resolve) =>
+    setTimeout(() => resolve({ info: 'Data fetched successfully' }), 1000)
+  );
+  console.log(data.info);
+};
+
+ 
+(async function main() {
+  console.log(`Name: ${person.name}`);
+  console.log(`Age (doubled): ${person.age}`);
+
+   
+  person.age = -5;
+  console.log(`Attempting to set a negative age: ${person.age}`);
+
+   
+  console.log(`Secret: ${person[secret]}`);
+
+   
+  await fetchData();
+})();
+```

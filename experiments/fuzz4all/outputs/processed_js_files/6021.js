@@ -1,0 +1,45 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    async emitAsync(event, ...args) {
+        if (this.events.has(event)) {
+            await Promise.all(this.events.get(event).map(listener => listener(...args)));
+        }
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncCounter() {
+    let count = 0;
+    while (count < 5) {
+        await delay(1000);
+        yield count++;
+    }
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('count', count => print(`Count is: ${count}`));
+
+(async () => {
+    for await (const count of asyncCounter()) {
+        emitter.emitAsync('count', count);
+    }
+    print('Counting finished');
+})();

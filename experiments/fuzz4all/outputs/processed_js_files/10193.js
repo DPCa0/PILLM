@@ -1,0 +1,53 @@
+ 
+
+ 
+async function* fetchData(urls) {
+    for (let url of urls) {
+         
+        yield new Promise(resolve => {
+            setTimeout(() => resolve(`Data from ${url}`), 1000);
+        });
+    }
+}
+
+ 
+async function logData(generator) {
+    for await (let data of generator) {
+        print(data);
+    }
+}
+
+ 
+const urlHandler = {
+    get: function(target, name) {
+        if (!target.includes(name)) {
+            throw new Error(`URL not found: ${name}`);
+        }
+        return target[name];
+    }
+};
+
+ 
+const urls = ['https://api.example1.com', 'https://api.example2.com', 'https://api.example3.com'];
+const urlsWithValidation = new Proxy(urls, urlHandler);
+
+ 
+urlsWithValidation[Symbol.iterator] = function* () {
+    for (const url of this) {
+        yield url;
+    }
+};
+
+ 
+for (const url of urlsWithValidation) {
+    print(`Fetching: ${url}`);
+}
+
+ 
+(async () => {
+    try {
+        await logData(fetchData(urlsWithValidation));
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

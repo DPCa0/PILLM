@@ -1,0 +1,44 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+  
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener.apply(null, args));
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+    let i = 0;
+    while (i < 3) {
+        yield i++;
+        await delay(1000);
+    }
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('data', data => print(`Received data: ${data}`));
+    
+    for await (const value of asyncGenerator()) {
+        eventEmitter.emit('data', value);
+    }
+
+    const fetchPromise = fetch('https://jsonplaceholder.typicode.com/todos/1').then(response => response.json());
+    const timeoutPromise = delay(2000).then(() => { throw new Error('Timeout') });
+  
+    try {
+        const result = await Promise.race([fetchPromise, timeoutPromise]);
+        print(`Fetched Data: ${JSON.stringify(result)}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

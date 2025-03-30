@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const { performance } = await import('perf_hooks');
+
+ 
+const target = {
+  msg: 'Hello, Proxy!'
+};
+
+const handler = {
+  get(target, property) {
+    if (property === 'msg') {
+      return target[property].toUpperCase();
+    }
+    return Reflect.get(target, property);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function* asyncGenerator() {
+  yield 'First';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Second';
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  yield 'Third';
+}
+
+(async () => {
+  console.log(proxy.msg);  
+
+  const start = performance.now();
+  
+  for await (const value of asyncGenerator()) {
+    console.log(value);
+  }
+
+  const end = performance.now();
+  console.log(`Operation took ${end - start} milliseconds`);
+})();
+
+ 
+const uniqueSet = new Set([1, 2, 3, 3, 4]);
+const dataMap = new Map([['a', 1], ['b', 2]]);
+uniqueSet.add(5);
+dataMap.set('c', 3);
+
+console.log('Set:', uniqueSet);
+console.log('Map:', dataMap);
+
+ 
+const config = {
+  url: 'http://example.com',
+  timeout: 0
+};
+
+const timeout = config.timeout ?? 5000;
+console.log('Timeout:', timeout);
+
+const nestedObject = { inner: { value: 42 } };
+const value = nestedObject?.inner?.value ?? 'default';
+console.log('Value:', value);
+```

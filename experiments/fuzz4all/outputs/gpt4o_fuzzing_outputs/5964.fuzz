@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const observable = new Observable();
+
+function debounce(fn, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+const fetchData = async (query) => {
+  const response = await fetch(`https: 
+  const data = await response.json();
+  observable.notify(data);
+};
+
+const debouncedFetch = debounce(fetchData, 300);
+
+observable.subscribe(data => {
+  console.log("Data received:", data);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.createElement('input');
+  input.setAttribute('placeholder', 'Type a number to fetch data...');
+  document.body.appendChild(input);
+
+  input.addEventListener('input', event => {
+    const query = event.target.value.trim();
+    if (query) {
+      debouncedFetch(query);
+    }
+  });
+});
+```

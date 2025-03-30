@@ -1,0 +1,58 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+class Observer {
+  constructor() {
+    this.listeners = new Map();
+  }
+  
+  subscribe(event, callback) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(callback);
+  }
+
+  emit(event, data) {
+    if (this.listeners.has(event)) {
+      this.listeners.get(event).forEach(callback => callback(data));
+    }
+  }
+}
+
+const createProxy = (target, callback) => {
+  return new Proxy(target, {
+    set(obj, prop, value) {
+      obj[prop] = value;
+      callback(prop, value);
+      return true;
+    }
+  });
+};
+
+(async () => {
+  const observer = new Observer();
+
+  const data = { count: 0 };
+  const proxyData = createProxy(data, (prop, value) => {
+    observer.emit('change', { prop, value });
+  });
+
+  observer.subscribe('change', ({ prop, value }) => {
+    print(`Property ${prop} changed to ${value}`);
+  });
+
+  try {
+    const url = 'https://api.example.com/data';
+    const result = await fetchData(url);
+    print('Fetched data:', result);
+
+    proxyData.count = result.length;  
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

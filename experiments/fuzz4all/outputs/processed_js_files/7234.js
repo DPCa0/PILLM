@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = (endpoint) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+                posts: [{ userId: 1, content: 'Hello World' }, { userId: 2, content: 'Advanced JS' }],
+            };
+            data[endpoint] ? resolve(data[endpoint]) : reject('Endpoint not found');
+        }, 1000);
+    });
+};
+
+ 
+async function processData() {
+    try {
+         
+        const [users, posts] = await Promise.all([fetchData('users'), fetchData('posts')]);
+
+         
+        const userPosts = users.map(user => ({
+            ...user,
+            posts: posts.filter(post => post.userId === user.id).map(post => post.content)
+        }));
+
+         
+        userPosts.forEach(({ name, posts }) => {
+            print(`User: ${name}, Posts: ${posts?.join(', ') ?? 'No Posts'}`);
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+(async () => await processData())();

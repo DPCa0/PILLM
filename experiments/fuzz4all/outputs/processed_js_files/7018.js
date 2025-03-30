@@ -1,0 +1,47 @@
+ 
+class AdvancedFeatures {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const processedData = await this.fetchData();
+      const reducedData = processedData.reduce((acc, { id, value }) => {
+        acc[id] = value;
+        return acc;
+      }, {});
+      return reducedData;
+    } catch (error) {
+      console.error("Error processing data:", error);
+    }
+  }
+
+  async fetchData() {
+    const promises = this.data.map((item) =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          const { id, value } = this.complexTransform(item);
+          resolve({ id, value: value * 2 });
+        }, 1000);
+      })
+    );
+    const results = await Promise.all(promises);
+    return results;
+  }
+
+  complexTransform({ id, value }) {
+    return { id, value: Math.sqrt(value) };
+  }
+}
+
+const data = [
+  { id: 1, value: 4 },
+  { id: 2, value: 9 },
+  { id: 3, value: 16 },
+];
+
+const processor = new AdvancedFeatures(data);
+processor.processData().then((result) => {
+  print("Processed Data:", result);
+});

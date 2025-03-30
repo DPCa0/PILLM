@@ -1,0 +1,48 @@
+ 
+async function fetchData() {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+function* postGenerator(posts) {
+  for (const post of posts) {
+    yield post;
+  }
+}
+
+ 
+(async () => {
+  const posts = await fetchData();
+  
+   
+  if (posts) {
+    const gen = postGenerator(posts);
+    const filteredPosts = [];
+
+     
+    const userMap = new Map();
+    for (let post of gen) {
+       
+      const { userId, title } = post;
+
+      if (!userMap.has(userId)) {
+        userMap.set(userId, title);
+        filteredPosts.push({ userId, title });
+      }
+    }
+
+     
+    const uniqueTitles = [...new Set(filteredPosts.map(p => p.title))];
+
+     
+    print(`Unique user posts fetched: ${uniqueTitles.length}`);
+    uniqueTitles.forEach(title => print(`- ${title}`));
+  }
+})();

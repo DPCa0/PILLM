@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+    constructor(max) {
+        this.max = max;
+        this[Symbol.iterator] = function*() {
+            let a = 0, b = 1;
+            while (a <= this.max) {
+                yield a;
+                [a, b] = [b, a + b];
+            }
+        };
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function processFibonacci(max) {
+    console.log(`Processing Fibonacci sequence up to ${max}:`);
+    const fibSequence = new FibonacciSequence(max);
+
+    const sum = await Array.from(fibSequence).reduce(async (accPromise, num) => {
+        const acc = await accPromise;
+        await sleep(200);  
+        console.log(num);
+        return acc + num;
+    }, Promise.resolve(0));
+
+    console.log(`Sum of the Fibonacci sequence up to ${max}:`, sum);
+}
+
+processFibonacci(21);
+```

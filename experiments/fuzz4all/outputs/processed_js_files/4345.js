@@ -1,0 +1,39 @@
+ 
+
+(async () => {
+  const fetchData = (url) => {
+     
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (url) {
+          resolve({ data: 'Mock data from ' + url, status: 200 });
+        } else {
+          reject('Invalid URL');
+        }
+      }, 1000);
+    });
+  };
+
+  const processData = ({ data, status }) => {
+     
+    if (status === 200) {
+      return `Processed: ${data.toUpperCase()}`;
+    } else {
+      throw new Error('Failed to process data');
+    }
+  };
+
+  const logData = (message) => {
+    print(`Log: ${message}`);
+  };
+
+  const url = 'https://example.com/data';
+
+  try {
+    const response = await fetchData(url);   
+    const processedData = processData(response);
+    logData(processedData);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+})();

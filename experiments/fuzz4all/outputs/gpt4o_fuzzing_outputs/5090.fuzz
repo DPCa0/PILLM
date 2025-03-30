@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+  display() {
+    console.log(`Shape: ${this.name}`);
+  }
+}
+
+function *fibonacciGen(limit) {
+  let a = 0, b = 1, count = 0;
+  while(count < limit) {
+    yield a;
+    [a, b] = [b, a + b];
+    count++;
+  }
+}
+
+const asyncTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function() {
+  const circle = new Shape('Circle');
+  circle.display();
+
+  console.log('Fibonacci Sequence:');
+  for (const num of fibonacciGen(10)) {
+    console.log(num);
+    await asyncTimeout(500);
+  }
+})();
+
+const uniqueSymbol = Symbol('unique');
+
+const obj = {
+  [uniqueSymbol]: 'secret',
+  normalProperty: 'accessible'
+};
+
+console.log('Accessing Symbol Property:');
+console.log(obj[uniqueSymbol]);
+console.log(obj.normalProperty);
+
+const complexOperation = async (input, transformer = x => x * 2) => {
+  await asyncTimeout(1000);
+  return transformer(input);
+};
+
+(async function() {
+  const result = await complexOperation(10, x => x ** 3);
+  console.log('Complex Operation Result:', result);
+})();
+```

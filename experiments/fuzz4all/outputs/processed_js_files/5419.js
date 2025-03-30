@@ -1,0 +1,36 @@
+class AsyncCalculator {
+  static async *generateFibonacci(n) {
+    let [a, b] = [0, 1];
+    while (n-- > 0) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  static async calculateFactorial(num) {
+    return num < 2 ? 1 : num * (await this.calculateFactorial(num - 1));
+  }
+
+  static async calculateSum(arr) {
+    return arr.reduce((acc, val) => acc + val, 0);
+  }
+
+  static async *processData() {
+    let fib = [];
+    for await (let num of this.generateFibonacci(10)) {
+      fib.push(num);
+    }
+    const factorial = await this.calculateFactorial(5);
+    const sum = await this.calculateSum(fib);
+
+    yield `Fibonacci Sequence: ${fib}`;
+    yield `Factorial of 5: ${factorial}`;
+    yield `Sum of Fibonacci: ${sum}`;
+  }
+}
+
+(async () => {
+  for await (let result of AsyncCalculator.processData()) {
+    print(result);
+  }
+})();

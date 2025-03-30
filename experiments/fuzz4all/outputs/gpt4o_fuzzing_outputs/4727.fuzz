@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Person {
+    #name;
+    constructor(name) {
+        this.#name = name;
+    }
+
+    async getName() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.#name);
+            }, 1000);
+        });
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const getID = (function() {
+    const gen = idGenerator();
+    return () => gen.next().value;
+})();
+
+(async () => {
+    const people = [
+        new Person('Alice'),
+        new Person('Bob'),
+        new Person('Charlie'),
+    ];
+
+    for await (const person of people) {
+        console.log(`ID: ${getID()}, Name: ${await person.getName()}`);
+        await delay(500);
+    }
+
+    const handler = {
+        get(target, prop) {
+            if (prop in target) {
+                return target[prop];
+            }
+            throw new Error(`Property ${prop} does not exist`);
+        }
+    };
+
+    const proxyPerson = new Proxy(new Person('Dave'), handler);
+    console.log(await proxyPerson.getName());
+
+    try {
+        console.log(proxyPerson.age);
+    } catch (e) {
+        console.error(e.message);
+    }
+})();
+```

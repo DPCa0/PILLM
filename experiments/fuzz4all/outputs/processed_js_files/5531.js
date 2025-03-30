@@ -1,0 +1,44 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async (url) => {
+  print(`Fetching data from ${url}`);
+  await delay(1000);
+  return { data: `Data from ${url}`, time: Date.now() };
+};
+
+ 
+const memoizeAsync = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      print('Returning cached result');
+      return cache.get(key);
+    }
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const compose = (...fns) => (x) => fns.reduceRight((v, f) => f(v), x);
+
+ 
+(async () => {
+  const memoizedFetchData = memoizeAsync(fetchData);
+
+   
+  const logAndFetch = compose(console.log, memoizedFetchData);
+
+  const url = "https://api.example.com/data";
+  const data1 = await logAndFetch(url);  
+  print(data1);
+
+  const data2 = await logAndFetch(url);  
+  print(data2);
+})();

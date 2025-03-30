@@ -1,0 +1,41 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    for (const listener of this.events.get(event)) {
+      listener(...args);
+    }
+  }
+}
+
+const asyncOperation = async (duration) => {
+  return new Promise(resolve => setTimeout(resolve, duration));
+};
+
+async function* asyncGenerator() {
+  const intervals = [1000, 500, 2000, 1500];
+  for (const interval of intervals) {
+    await asyncOperation(interval);
+    yield `Yielded after ${interval}ms`;
+  }
+}
+
+const main = async () => {
+  const emitter = new EventEmitter();
+  emitter.on('data', data => print('Event received:', data));
+
+  for await (const data of asyncGenerator()) {
+    print(data);
+    emitter.emit('data', data);
+  }
+};
+
+main().catch(console.error);

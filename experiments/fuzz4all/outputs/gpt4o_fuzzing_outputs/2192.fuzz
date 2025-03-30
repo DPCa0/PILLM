@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+const { log } = console;
+
+ 
+const fib = (() => {
+  const cache = new WeakMap();
+  return function f(n) {
+    if (n <= 1) return n;
+    if (cache.has(n)) return cache.get(n);
+    const result = f(n - 1) + f(n - 2);
+    cache.set(n, result);
+    return result;
+  };
+})();
+
+ 
+async function* asyncFibonacciSequence(limit) {
+  for (let i = 0; i <= limit; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(fib(i)), 100));
+  }
+}
+
+ 
+function logCalls(target) {
+  return new Proxy(target, {
+    apply(target, thisArg, args) {
+      log(`Calling ${target.name} with arguments: ${args}`);
+      return target.apply(thisArg, args);
+    },
+  });
+}
+
+ 
+const dynamicObject = new Proxy(
+  {},
+  {
+    get(target, prop) {
+      if (prop === 'random') return Math.random();
+      return `Property ${prop} doesn't exist`;
+    },
+  }
+);
+
+// Main Function with Async/Await
+(async function main() {
+  const logFib = logCalls(fib);
+  log('Decorated Fibonacci(10):', logFib(10));
+  
+  log('Dynamic Object Random:', dynamicObject.random);
+  log('Dynamic Object Test:', dynamicObject.test);
+  
+  log('Async Fibonacci Sequence:');
+  for await (let num of asyncFibonacciSequence(10)) {
+    log(num);
+  }
+})();
+```

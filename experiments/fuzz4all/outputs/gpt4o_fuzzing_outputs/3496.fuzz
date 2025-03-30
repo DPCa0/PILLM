@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield ++id;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Getting property '${prop}'`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve({ data: 'Sample data' }), 1000));
+
+ 
+async function manageData() {
+  console.log('Fetching data...');
+  const data = await fetchData();
+  console.log('Data fetched:', data);
+  
+  const idGen = idGenerator();
+  user.name = 'John Doe';
+  user.id = idGen.next().value;
+  
+  console.log('User:', user);
+}
+
+ 
+manageData();
+```

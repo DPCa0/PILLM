@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: { name: 'Alice', age: 30 },
+                posts: [
+                    { id: 1, title: 'JavaScript Tips', content: 'Some useful tips...' },
+                    { id: 2, title: 'Advanced JS Features', content: 'In-depth look at advanced features...' }
+                ],
+                comments: [
+                    { postId: 1, text: 'Great tips, thanks!' },
+                    { postId: 2, text: 'Very informative!' }
+                ]
+            });
+        }, 1000);
+    });
+};
+
+ 
+(async function main() {
+    try {
+         
+        const { user, posts, comments } = await fetchData();
+
+         
+        const postTitles = posts.map(({ title }) => title);
+
+         
+        const commentsForFirstPost = comments.filter(({ postId }) => postId === 1);
+
+         
+        print(`User: ${user.name}, Age: ${user.age}`);
+        print('Post Titles:', postTitles);
+        print('Comments on the first post:', commentsForFirstPost.map(({ text }) => text));
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

@@ -1,0 +1,54 @@
+ 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const fetch = require('node-fetch');
+
+ 
+async function fetchData(url) {
+  try {
+     
+    let response = await fetch(url);
+     
+    let data = await response.json();
+     
+    const { title, body } = data[0];
+    print(`Title: ${title}\nBody: ${body}`);
+  } catch (error) {
+     
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+function processItems(items, callback) {
+  return items.map(item => callback(item));
+}
+
+ 
+function* numberGenerator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+ 
+const items = [1, 2, 3, 4, 5];
+const [first, ...rest] = items;
+print(`First: ${first}, Rest: ${rest}`);
+
+ 
+const message = `First item: ${first}, Remaining: ${rest.join(', ')}`;
+print(message);
+
+ 
+const numbers = numberGenerator();
+print(numbers.next().value);
+print(numbers.next().value);
+print(numbers.next().value);
+
+ 
+const doubled = processItems(items, item => item * 2);
+print('Doubled:', doubled);
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts');

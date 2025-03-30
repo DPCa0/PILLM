@@ -1,0 +1,67 @@
+class Matrix {
+  constructor(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(0));
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  map(func) {
+    return this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+  }
+
+  static add(a, b) {
+    let result = new Matrix(a.rows, a.cols);
+    result.map((_, i, j) => a.data[i][j] + b.data[i][j]);
+    return result;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      console.error('Columns of A must match rows of B.');
+      return;
+    }
+    let result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+    return result;
+  }
+}
+
+const asyncMultiplyMatrices = async (mat1, mat2) => {
+  return new Promise((resolve, reject) => {
+    try {
+      let result = Matrix.multiply(mat1, mat2);
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+(async () => {
+  try {
+    let matA = Matrix.fromArray([
+      [1, 2],
+      [3, 4],
+    ]);
+    let matB = Matrix.fromArray([
+      [5, 6],
+      [7, 8],
+    ]);
+    let result = await asyncMultiplyMatrices(matA, matB);
+    print(result.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

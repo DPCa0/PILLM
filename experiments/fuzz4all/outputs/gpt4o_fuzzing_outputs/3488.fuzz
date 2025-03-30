@@ -1,0 +1,61 @@
+print('Hello, world!');
+Certainly! Here's a complex JavaScript program that uses advanced features:
+
+```javascript
+// Importing the Node.js built-in 'fs' and 'crypto' modules using ES6 import syntax
+import { promises as fs } from 'fs';
+import { createHash } from 'crypto';
+
+// An asynchronous Immediately Invoked Function Expression (IIFE)
+(async () => {
+  try {
+    // Read a file asynchronously using modern async/await syntax
+    const data = await fs.readFile('./example.txt', 'utf8');
+
+    // Use map, filter, and reduce to process the text in a functional style
+    const wordCount = data
+      .split(/\s+/) // Split on any whitespace
+      .map(word => word.toLowerCase()) // Convert words to lowercase
+      .filter(word => word.length > 0) // Filter out empty strings
+      .reduce((countMap, word) => {
+        countMap[word] = (countMap[word] || 0) + 1;
+        return countMap;
+      }, {});
+
+    console.log('Word Count:', wordCount);
+
+    // Using a Set to find unique words
+    const uniqueWords = new Set(Object.keys(wordCount));
+    console.log('Unique Words:', uniqueWords.size);
+
+    // Create a hash of the word count object
+    const hash = createHash('sha256');
+    hash.update(JSON.stringify(wordCount));
+    const digest = hash.digest('hex');
+    console.log('Hash of Word Count:', digest);
+
+    // Using Proxy to observe changes to the word count object
+    const handler = {
+      set(target, key, value) {
+        console.log(`Setting value of ${key} to ${value}`);
+        target[key] = value;
+        return true;
+      }
+    };
+
+    const proxiedWordCount = new Proxy(wordCount, handler);
+
+    // Example of changing a value in the proxied object
+    proxiedWordCount['example'] = 42;
+
+    // Using destructuring and spread to manipulate objects
+    const { example, ...rest } = proxiedWordCount;
+    console.log('Example word count:', example);
+    console.log('Rest of the word counts:', rest);
+  } catch (err) {
+    console.error('Error:', err);
+  }
+})();
+```
+
+This program combines various JavaScript features such as ES6 modules, async/await, higher-order functions like map, filter, and reduce, the Set object, cryptographic hashing with the crypto module, Proxy objects, and

@@ -1,0 +1,36 @@
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Hello, advanced JavaScript!' });
+        }, 1000);
+    });
+}
+
+function* dataGenerator(data) {
+    yield `First yield: ${data}`;
+    yield `Second yield: ${data.toUpperCase()}`;
+    yield `Third yield: ${data.split(' ').join('-')}`;
+}
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            return 'Property does not exist';
+        }
+    }
+};
+
+(async function main() {
+    const response = await fetchData();
+    const proxyData = new Proxy(response, handler);
+
+    const gen = dataGenerator(proxyData.data);
+    for (const value of gen) {
+        print(value);
+    }
+
+    print(proxyData.nonExistentProperty);
+})();

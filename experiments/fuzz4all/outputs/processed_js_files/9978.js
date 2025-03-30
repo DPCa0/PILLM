@@ -1,0 +1,41 @@
+(async () => {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  class DataFetcher {
+    static async fetchData(url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    }
+  }
+
+  class Processor {
+    constructor(data) {
+      this.data = data;
+    }
+
+    process() {
+      return this.data.map(item => ({
+        ...item,
+        processedAt: new Date().toISOString(),
+      }));
+    }
+  }
+
+  const logData = (data) => {
+    print("Processed Data:", JSON.stringify(data, null, 2));
+  };
+
+  try {
+    const data = await DataFetcher.fetchData('https://jsonplaceholder.typicode.com/posts');
+    const processor = new Processor(data);
+    const processedData = processor.process();
+
+    logData(processedData);
+
+    await delay(2000);
+    print("Execution finished.");
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

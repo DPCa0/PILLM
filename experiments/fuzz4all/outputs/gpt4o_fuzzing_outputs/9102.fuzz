@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+class Fibonacci {
+   
+  #cache = {};
+
+   
+  static compute(n) {
+    if (n <= 1) return n;
+    return this.#computeHelper(n);
+  }
+
+   
+  static #computeHelper(n, cache = {}) {
+    if (n in cache) return cache[n];
+    cache[n] = this.#computeHelper(n - 1, cache) + this.#computeHelper(n - 2, cache);
+    return cache[n];
+  }
+}
+
+ 
+const fibonacciProxy = new Proxy(Fibonacci, {
+  apply(target, thisArg, argumentsList) {
+    console.log(`Calculating Fibonacci(${argumentsList[0]})`);
+    return Reflect.apply(target.compute, thisArg, argumentsList);
+  }
+});
+
+ 
+async function calculateAndLogFibonacci(num) {
+  try {
+    let result = await Promise.resolve(fibonacciProxy(num));
+    console.log(`Result: ${result}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+ 
+[5, 10, 15].map(async (num) => await calculateAndLogFibonacci(num));
+
+ 
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield prev;
+  }
+}
+
+ 
+console.log('Fibonacci sequence up to 5 terms:');
+for (let num of fibonacciGenerator(5)) {
+  console.log(num);
+}
+```

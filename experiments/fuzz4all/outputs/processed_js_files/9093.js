@@ -1,0 +1,54 @@
+class Animal {
+  #name;
+  static types = ['Mammal', 'Bird', 'Reptile', 'Fish', 'Amphibian'];
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  speak() {
+    print(`${this.#name} makes a sound.`);
+  }
+
+  static *getAnimalTypes() {
+    for (const type of Animal.types) {
+      yield type;
+    }
+  }
+}
+
+class Dog extends Animal {
+  constructor(name) {
+    super(name);
+  }
+
+  speak() {
+    print(`${this.name} barks.`);
+  }
+
+  async play() {
+    const fetchToy = new Promise(resolve => setTimeout(() => resolve(`${this.name} fetched the toy!`), 1000));
+    print(await fetchToy);
+  }
+}
+
+const showAnimalTypes = async () => {
+  for await (const type of Animal.getAnimalTypes()) {
+    print(type);
+  }
+};
+
+const dog = new Dog('Buddy');
+dog.speak();
+dog.play();
+showAnimalTypes();
+
+(async () => {
+  const fetchAnimal = async (name) => ({ name, type: Animal.types[Math.floor(Math.random() * Animal.types.length)] });
+  const { name, type } = await fetchAnimal('Simba');
+  print(`${name} is a ${type}.`);
+})();

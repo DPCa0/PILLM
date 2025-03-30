@@ -1,0 +1,46 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function* fetchWithDelay(urls, delay) {
+  for (let url of urls) {
+    yield new Promise((resolve) => setTimeout(async () => {
+      let response = await fetch(url);
+      resolve(await response.json());
+    }, delay));
+  }
+}
+
+const runTasks = async (urls) => {
+  const responses = [];
+  for await (let data of fetchWithDelay(urls, 1000)) {
+    responses.push(data);
+  }
+  return responses;
+};
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('data', data => print('Data received:', data));
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+runTasks(urls).then(dataArray => {
+  dataArray.forEach(data => eventEmitter.emit('data', data));
+});

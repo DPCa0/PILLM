@@ -1,0 +1,53 @@
+ 
+import { createInterface } from 'readline';
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+   
+  function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      [prev, curr] = [curr, prev + curr];
+      yield prev;
+    }
+  }
+
+   
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const question = (query) => new Promise(resolve => rl.question(query, resolve));
+
+   
+  async function main() {
+    try {
+      const fileName = await question('Enter the filename to save Fibonacci numbers: ');
+      const numCount = parseInt(await question('How many Fibonacci numbers to generate? '), 10);
+
+      if (isNaN(numCount) || numCount <= 0) throw new Error('Invalid number.');
+
+      rl.close();
+
+       
+      const fibSequence = [...Array(numCount)].map(() => fibonacciGenerator.next().value);
+      
+       
+      await fs.writeFile(fileName, `Fibonacci Sequence:\n${fibSequence.join(', ')}`);
+      print(`Fibonacci sequence written to ${fileName}`);
+
+    } catch (error) {
+      console.error('Error:', error);
+      rl.close();
+    }
+  }
+
+   
+  const fibonacciGenerator = fibonacci();
+  
+   
+  main();
+
+})();

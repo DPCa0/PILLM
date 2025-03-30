@@ -1,0 +1,78 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener.apply(this, args));
+    }
+}
+
+ 
+function logExecution(target, property, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function(...args) {
+        print(`Executing ${property} with arguments:`, args);
+        const result = originalMethod.apply(this, args);
+        print(`${property} returned:`, result);
+        return result;
+    };
+    return descriptor;
+}
+
+class Calculator extends EventEmitter {
+    constructor() {
+        super();
+    }
+
+    @logExecution
+    add(a, b) {
+        const result = a + b;
+        this.emit('calculation', { operation: 'add', result });
+        return result;
+    }
+
+    @logExecution
+    multiply(a, b) {
+        const result = a * b;
+        this.emit('calculation', { operation: 'multiply', result });
+        return result;
+    }
+}
+
+ 
+async function calculateAsync(calc, a, b) {
+    try {
+        const addResult = await new Promise(resolve => {
+            calc.on('calculation', data => {
+                if (data.operation === 'add') resolve(data.result);
+            });
+            calc.add(a, b);
+        });
+
+        print(`Addition Result: ${addResult}`);
+
+        const multiplyResult = await new Promise(resolve => {
+            calc.on('calculation', data => {
+                if (data.operation === 'multiply') resolve(data.result);
+            });
+            calc.multiply(a, b);
+        });
+
+        print(`Multiplication Result: ${multiplyResult}`);
+    } catch (error) {
+        console.error('Error during calculation:', error);
+    }
+}
+
+ 
+const calculator = new Calculator();
+calculateAsync(calculator, 3, 5);

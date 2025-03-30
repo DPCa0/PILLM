@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+const processData = async (url) => {
+  const data = await fetchData(url);
+  if (!data) return;
+
+  const transformedData = Object.entries(data).reduce((acc, [key, value]) => {
+    if (typeof value === 'string') {
+      acc[key] = value.toUpperCase();
+    } else if (Array.isArray(value)) {
+      acc[key] = value.map(item => item * 2);
+    }
+    return acc;
+  }, {});
+
+  console.log('Transformed Data:', transformedData);
+};
+
+ 
+globalThis.fetch = async (url) => ({
+  ok: true,
+  json: async () => ({
+    message: 'Hello, world!',
+    values: [1, 2, 3, 4],
+    url,
+  }),
+});
+
+processData('https://api.example.com/data');
+```

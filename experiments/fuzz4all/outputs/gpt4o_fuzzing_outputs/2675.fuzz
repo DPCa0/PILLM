@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncNumberGenerator(start = 0, end = 5) {
+    for (let i = start; i <= end; i++) {
+        await delay(500);  
+        yield i;
+    }
+}
+
+ 
+function logMethod(target, key, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args) {
+        console.log(`Calling ${key} with arguments`, args);
+        return originalMethod.apply(this, args);
+    };
+    return descriptor;
+}
+
+ 
+class Example {
+    @logMethod
+    async getNumbers() {
+        const numbers = [];
+        for await (const num of asyncNumberGenerator(1, 5)) {
+            numbers.push(num);
+        }
+        return numbers;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Accessing property "${prop}"`);
+            return Reflect.get(target, prop, receiver);
+        }
+        return undefined;
+    }
+};
+
+ 
+const exampleInstance = new Example();
+
+ 
+const proxiedExample = new Proxy(exampleInstance, handler);
+
+ 
+proxiedExample.getNumbers().then(result => console.log('Generated Numbers:', result));
+```

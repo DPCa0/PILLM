@@ -1,0 +1,60 @@
+ 
+const asyncTask = (taskName, delay) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {
+                resolve(`Task ${taskName} completed`);
+            } else {
+                reject(`Task ${taskName} failed`);
+            }
+        }, delay);
+    });
+};
+
+ 
+const executeTasks = async () => {
+    const tasks = [
+        asyncTask('A', 1000),
+        asyncTask('B', 2000),
+        asyncTask('C', 1500),
+        asyncTask('D', 500)
+    ];
+
+    try {
+        const results = await Promise.allSettled(tasks);
+
+         
+        const summary = results.reduce((acc, { status, value, reason }) => {
+            status === 'fulfilled' ? acc.completed.push(value) : acc.failed.push(reason);
+            return acc;
+        }, { completed: [], failed: [] });
+
+        print('Completed Tasks:', summary.completed);
+        print('Failed Tasks:', summary.failed);
+    } catch (err) {
+        console.error('Unexpected error:', err);
+    }
+};
+
+ 
+(async () => {
+    const lodash = await import('lodash');
+
+    const data = {
+        user: {
+            name: 'John Doe',
+            preferences: {
+                theme: 'dark'
+            }
+        }
+    };
+
+    const theme = lodash.get(data, 'user.preferences.theme', 'default');
+    print('User theme:', theme);
+
+     
+    const language = data.user.preferences?.language ?? 'en';
+    print('User language:', language);
+
+    await executeTasks();
+})();

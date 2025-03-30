@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this.#generateSequence();
+  }
+
+  #generateSequence() {
+    const seq = [0, 1];
+    while (seq.length < this.limit) {
+      seq.push(seq.at(-1) + seq.at(-2));
+    }
+    return seq;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const seq = this.sequence;
+    return {
+      next() {
+        if (index < seq.length) {
+          return { value: seq[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+
+  static *getEvenNumbers(seq) {
+    for (const num of seq) {
+      if (num % 2 === 0) yield num;
+    }
+  }
+}
+
+async function asyncProcessSequence(seq) {
+  for await (const num of seq) {
+    console.log(`Processed: ${num}`);
+  }
+}
+
+const fibonacci = new FibonacciSequence(10);
+const evenNumbers = FibonacciSequence.getEvenNumbers(fibonacci);
+asyncProcessSequence(evenNumbers);
+```

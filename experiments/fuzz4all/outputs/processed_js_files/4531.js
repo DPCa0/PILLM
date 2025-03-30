@@ -1,0 +1,42 @@
+ 
+
+ 
+async function delayResolve(value, delay) {
+    return new Promise(resolve => setTimeout(() => resolve(value), delay));
+}
+
+ 
+function* promiseGenerator() {
+    yield delayResolve("First Result", 1000);
+    yield delayResolve("Second Result", 2000);
+    yield delayResolve("Third Result", 3000);
+}
+
+ 
+async function asyncHandler(gen) {
+    for await (const promise of gen) {
+        print(await promise);
+    }
+}
+
+ 
+const handler = {
+    apply: function(target, thisArg, argumentsList) {
+        print(`Calling ${target.name} with arguments ${argumentsList}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+function multiply(a, b) {
+    return a * b;
+}
+
+ 
+const proxiedMultiply = new Proxy(multiply, handler);
+
+ 
+print(`Result: ${proxiedMultiply(5, 10)}`);
+
+ 
+asyncHandler(promiseGenerator());

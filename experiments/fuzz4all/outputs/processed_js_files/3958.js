@@ -1,0 +1,45 @@
+ 
+const getRandomNumber = () => new Promise((resolve) => {
+    setTimeout(() => resolve(Math.floor(Math.random() * 100)), 1000);
+});
+
+ 
+async function processNumbers() {
+    try {
+        print("Fetching random numbers...");
+        const num1 = await getRandomNumber();
+        const num2 = await getRandomNumber();
+
+         
+        let [a, b] = [num1, num2];
+        [a, b] = a > b ? [b, a] : [a, b];
+
+        print(`Numbers after sorting: ${a}, ${b}`);
+
+         
+        const numberSet = new Set([a, b].map(x => x * 2));
+        
+         
+        const sumOfDoubled = [...numberSet].reduce((acc, val) => acc + val, 0);
+
+        print(`Sum of doubled numbers: ${sumOfDoubled}`);
+    } catch (error) {
+        console.error("Error occurred:", error);
+    }
+}
+
+ 
+const handler = {
+    apply(target, thisArg, argumentsList) {
+        print(`Called with args: ${JSON.stringify(argumentsList)}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+const proxiedProcessNumbers = new Proxy(processNumbers, handler);
+
+ 
+(async () => {
+    await proxiedProcessNumbers();
+})();

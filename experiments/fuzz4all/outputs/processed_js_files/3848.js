@@ -1,0 +1,42 @@
+ 
+
+class AdvancedFeatures {
+  constructor() {
+    this.data = { value: 42, status: "active" };
+  }
+
+  *dataGenerator() {
+    let i = 1;
+    while (i <= 3) {
+      yield `Data set ${i}`;
+      i++;
+    }
+  }
+
+  async fetchData(setNumber) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(`Fetched data for set ${setNumber}`);
+      }, 1000);
+    });
+  }
+}
+
+const handler = {
+  get: function (target, prop, receiver) {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+const advanced = new Proxy(new AdvancedFeatures(), handler);
+
+(async function execute() {
+  const generator = advanced.dataGenerator();
+
+  for (let item of generator) {
+    print(item);
+    const result = await advanced.fetchData(item.split(' ')[2]);
+    print(result);
+  }
+})();

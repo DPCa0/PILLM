@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+class Book {
+  constructor(title, author) {
+    this.title = title;
+    this.author = author;
+  }
+
+  describe() {
+    return `${this.title} by ${this.author}`;
+  }
+
+  static fetchBooks() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          new Book('1984', 'George Orwell'),
+          new Book('The Great Gatsby', 'F. Scott Fitzgerald'),
+          new Book('The Catcher in the Rye', 'J.D. Salinger')
+        ]);
+      }, 1000);
+    });
+  }
+}
+
+ 
+async function displayBooks() {
+  const books = await Book.fetchBooks();
+  books.forEach(({ title, author }) => {
+    console.log(`Title: ${title}, Author: ${author}`);
+  });
+}
+
+ 
+const logger = new Proxy(console, {
+  get(target, property) {
+    if (property === 'log') {
+      return (...args) => target.log(new Date().toISOString(), ...args);
+    }
+    return target[property];
+  }
+});
+
+ 
+logger.log('Fetching book details...');
+displayBooks().then(() => logger.log('Finished fetching book details.'));
+```

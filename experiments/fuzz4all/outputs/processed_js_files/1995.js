@@ -1,0 +1,67 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static identity(size) {
+        return new Matrix([...Array(size)].map((_, i) => 
+            [...Array(size)].map((_, j) => (i === j ? 1 : 0))
+        ));
+    }
+
+    map(fn) {
+        return new Matrix(this.data.map((row, i) => row.map((val, j) => fn(val, i, j))));
+    }
+
+    multiply(other) {
+        if (other instanceof Matrix) {
+            return new Matrix(this.data.map((row, i) =>
+                [...Array(other.data[0].length)].map((_, j) =>
+                    row.reduce((sum, val, k) => sum + val * other.data[k][j], 0)
+                )
+            ));
+        } else {
+            return this.map(val => val * other);
+        }
+    }
+
+    log() {
+        console.table(this.data);
+        return this;
+    }
+}
+
+ 
+const matrixHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.warn(`Property ${prop} does not exist.`);
+        }
+    }
+};
+
+ 
+async function main() {
+    const matrixA = new Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+    const matrixB = Matrix.identity(3);
+
+    const proxyA = new Proxy(matrixA, matrixHandler);
+    const proxyB = new Proxy(matrixB, matrixHandler);
+
+    print('Matrix A:');
+    proxyA.log();
+
+    print('Identity Matrix B:');
+    proxyB.log();
+
+    print('Matrix A * Matrix B:');
+    await new Promise(r => setTimeout(r, 1000));  
+    proxyA.multiply(proxyB).log();
+
+    print('Matrix A * 2:');
+    proxyA.multiply(2).log();
+}
+
+main();

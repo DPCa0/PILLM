@@ -1,0 +1,36 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  const result = data.reduce((acc, { category, value }) => {
+    if (!acc[category]) acc[category] = 0;
+    acc[category] += value;
+    return acc;
+  }, {});
+  return result;
+};
+
+const logData = (data) => {
+  console.log(
+    Object.entries(data)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n')
+  );
+};
+
+(async () => {
+  const data = await fetchData('https://api.example.com/data');
+  if (data) {
+    const processed = processData(data);
+    logData(processed);
+  }
+})();

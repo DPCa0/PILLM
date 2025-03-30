@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+class Robot {
+  #id;
+  constructor(name) {
+    this.name = name;
+    this.#id = Symbol(name);
+  }
+
+  static #robots = new Map();
+
+  static register(robot) {
+    if (robot instanceof Robot) {
+      this.#robots.set(robot.#id, robot);
+    }
+  }
+
+  static *getAllRobots() {
+    for (let robot of this.#robots.values()) {
+      yield robot;
+    }
+  }
+
+  async #diagnostic() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(`${this.name} is fully operational.`), 1000);
+    });
+  }
+
+  async diagnose() {
+    let status = await this.#diagnostic();
+    console.log(status);
+  }
+}
+
+ 
+function logExecutionTime(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    console.time(key);
+    const result = originalMethod.apply(this, args);
+    console.timeEnd(key);
+    return result;
+  };
+  return descriptor;
+}
+
+class AdvancedRobot extends Robot {
+  constructor(name, abilities) {
+    super(name);
+    this.abilities = abilities;
+  }
+
+  @logExecutionTime
+  performAbilities() {
+    console.log(`${this.name} is performing: ${this.abilities.join(', ')}`);
+  }
+}
+
+(async () => {
+  const r2d2 = new AdvancedRobot('R2-D2', ['beep', 'boop', 'whistle']);
+  const c3po = new AdvancedRobot('C-3PO', ['talk', 'walk', 'translate']);
+
+  Robot.register(r2d2);
+  Robot.register(c3po);
+
+  for (let robot of Robot.getAllRobots()) {
+    robot.performAbilities();
+    await robot.diagnose();
+  }
+})();
+```

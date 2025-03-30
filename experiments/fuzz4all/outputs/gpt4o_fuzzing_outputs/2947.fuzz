@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, Math.random() * 2000);
+    });
+}
+
+ 
+function* dataFetcher(urls) {
+    for (const url of urls) {
+        const data = yield fetchData(url);
+        console.log(data);
+    }
+}
+
+ 
+async function runGenerator(genFn) {
+    const gen = genFn();
+    let result = gen.next();
+    while (!result.done) {
+        const data = await result.value;
+        result = gen.next(data);
+    }
+}
+
+ 
+const urls = [
+    'https://api.example.com/resource1',
+    'https://api.example.com/resource2',
+    'https://api.example.com/resource3'
+];
+
+ 
+runGenerator(function* () { yield* dataFetcher(urls); });
+```

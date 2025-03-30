@@ -1,0 +1,45 @@
+class DataProcessor {
+  #data;  
+
+  constructor(data) {
+    this.#data = data;
+  }
+
+  static fetchData(url) {
+    return fetch(url)
+      .then(response => response.json())
+      .catch(err => { throw new Error('Failed to fetch data') });
+  }
+
+  async process() {
+    const processed = await Promise.all(this.#data.map(async item => {
+      const result = await this.#heavyComputation(item);
+      return { original: item, processed: result };
+    }));
+    return this.#transform(processed);
+  }
+
+  async #heavyComputation(value) {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(value * 2), 1000);
+    });
+  }
+
+  #transform(data) {
+    return data.reduce((acc, { original, processed }) => {
+      acc[original] = processed;
+      return acc;
+    }, {});
+  }
+}
+
+(async () => {
+  try {
+    const data = await DataProcessor.fetchData('https://api.example.com/data');
+    const processor = new DataProcessor(data);
+    const result = await processor.process();
+    print('Processed Data:', result);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

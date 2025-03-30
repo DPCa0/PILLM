@@ -1,0 +1,47 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(key, callback) {
+    if (!this.subscribers.has(key)) {
+      this.subscribers.set(key, []);
+    }
+    this.subscribers.get(key).push(callback);
+  }
+
+  notify(key, data) {
+    if (this.subscribers.has(key)) {
+      this.subscribers.get(key).forEach(callback => callback(data));
+    }
+  }
+}
+
+const delayedPromise = (value, delay) =>
+  new Promise(resolve => setTimeout(() => resolve(value), delay));
+
+async function fetchData() {
+  return delayedPromise({ user: 'John Doe', balance: 1200 }, 1000);
+}
+
+async function* dataGenerator() {
+  const data = await fetchData();
+  yield data.user;
+  yield data.balance;
+}
+
+(async () => {
+  const observable = new Observable();
+  
+  observable.subscribe('user', user => print(`User: ${user}`));
+  observable.subscribe('balance', balance => print(`Balance: $${balance}`));
+
+  const generator = dataGenerator();
+  for await (const data of generator) {
+    if (typeof data === 'string') {
+      observable.notify('user', data);
+    } else if (typeof data === 'number') {
+      observable.notify('balance', data);
+    }
+  }
+})();

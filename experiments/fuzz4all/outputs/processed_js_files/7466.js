@@ -1,0 +1,51 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function fetchData() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+}
+
+function* generateSequence() {
+  const data = yield fetchData();
+  yield data.map(post => post.title).join('\n');
+}
+
+(async function executeGenerator() {
+  const deferred = new Deferred();
+  const sequence = generateSequence();
+
+  function handleNext(data) {
+    const { value, done } = sequence.next(data);
+    if (done) {
+      deferred.resolve(value);
+    } else if (value instanceof Promise) {
+      value.then(handleNext).catch(deferred.reject);
+    }
+  }
+
+  handleNext();
+  try {
+    const result = await deferred.promise;
+    print('Fetched Titles:\n', result);
+  } catch (error) {
+    console.error('Error executing sequence:', error);
+  }
+})();

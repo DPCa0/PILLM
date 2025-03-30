@@ -1,0 +1,43 @@
+ 
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+};
+
+ 
+const processData = async () => {
+    try {
+        const [userData, postData] = await Promise.all([
+            fetchData('https://jsonplaceholder.typicode.com/users'),
+            fetchData('https://jsonplaceholder.typicode.com/posts')
+        ]);
+
+         
+        const usersMap = new Map(userData.map(user => [user.id, user]));
+        const postsByUser = postData.reduce((acc, post) => {
+            const userPosts = acc.get(post.userId) || [];
+            return acc.set(post.userId, [...userPosts, post]);
+        }, new Map());
+
+         
+        for (const [userId, posts] of postsByUser) {
+            const user = usersMap.get(userId);
+            if (user) {
+                print(`User: ${user.name} has ${posts.length} posts`);
+            }
+        }
+
+         
+        const allUserIds = new Set([...usersMap.keys(), ...postsByUser.keys()]);
+        print(`Total unique users involved: ${allUserIds.size}`);
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
+ 
+processData();

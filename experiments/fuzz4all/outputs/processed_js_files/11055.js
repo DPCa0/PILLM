@@ -1,0 +1,41 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = [...this.#generate()];
+  }
+  
+  *#generate() {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+  
+  [Symbol.iterator]() {
+    return this.sequence.values();
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+const complexCalc = memoize((x, y) => {
+  print(`Calculating complex function for ${x} and ${y}`);
+  return Math.sqrt(x * x + y * y);
+});
+
+const fib = new Fibonacci(10);
+
+print([...fib]);  
+
+print(complexCalc(3, 4));  
+print(complexCalc(3, 4));  

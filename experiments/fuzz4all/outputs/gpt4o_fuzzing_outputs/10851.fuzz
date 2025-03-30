@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+let obj = new Proxy({ name: "Complex Object" }, handler);
+
+ 
+function* generatorFunction() {
+  yield "This";
+  yield "is";
+  yield "a";
+  yield "complex";
+  yield "JavaScript";
+  yield "program";
+}
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => setTimeout(() => resolve("Fetched Data"), 1000));
+};
+
+ 
+(async function main() {
+  console.log("Starting program...");
+
+   
+  obj.newProperty = "I'm a Proxy!";
+  console.log(obj.newProperty);
+
+   
+  const gen = generatorFunction();
+  let result = gen.next();
+  while (!result.done) {
+    console.log(result.value);
+    result = gen.next();
+  }
+
+   
+  const data = await fetchData();
+  console.log(data);
+
+  console.log("Program finished!");
+})();
+```

@@ -1,0 +1,47 @@
+ 
+
+ 
+function asyncOperation(value, delay) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (value < 0) {
+        reject('Negative value not allowed.');
+      } else {
+        resolve(value * 2);
+      }
+    }, delay);
+  });
+}
+
+ 
+const loggingHandler = {
+  get(target, property, receiver) {
+    print(`Accessing property "${property}"`);
+    return Reflect.get(target, property, receiver);
+  }
+};
+
+ 
+const targetObject = {
+  data: [1, 2, 3, 4, 5]
+};
+
+ 
+const proxiedObject = new Proxy(targetObject, loggingHandler);
+
+ 
+async function processData() {
+  try {
+    const results = [];
+    for (let i = 0; i < proxiedObject.data.length; i++) {
+      const result = await asyncOperation(proxiedObject.data[i], 1000);
+      results.push(result);
+    }
+    print('Processed results:', results);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+processData();

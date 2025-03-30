@@ -1,0 +1,37 @@
+class Person {
+  #name;
+  #age;
+  
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+  
+  get info() {
+    return `${this.#name} is ${this.#age} years old.`;
+  }
+  
+  static comparator(a, b) {
+    return a.#age - b.#age;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const people = [
+  new Person('Alice', 30),
+  new Person('Bob', 25),
+  new Person('Charlie', 35),
+];
+
+async function showSortedPeopleInfo() {
+  print('Sorting people...');
+  await delay(1000);
+  
+  const sortedPeople = [...people].sort(Person.comparator);
+  for (const person of sortedPeople) {
+    print(person.info);
+  }
+}
+
+showSortedPeopleInfo().catch(console.error);

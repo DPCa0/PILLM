@@ -1,0 +1,28 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  const mapped = data.map(({ id, title }) => ({ id, title: title.toUpperCase() }));
+  const filtered = mapped.filter(item => item.id % 2 === 0);
+  return filtered.reduce((acc, item) => {
+    acc[item.id] = item.title;
+    return acc;
+  }, {});
+};
+
+const printData = async (url) => {
+  const data = await fetchData(url);
+  if (data) {
+    const processedData = processData(data);
+    print(processedData);
+  }
+};
+
+printData('https://jsonplaceholder.typicode.com/posts');

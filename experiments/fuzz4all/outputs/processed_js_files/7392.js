@@ -1,0 +1,53 @@
+ 
+
+class CustomError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CustomError';
+    }
+}
+
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new CustomError(`Error fetching data: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        throw new CustomError(error.message);
+    }
+};
+
+const processData = async () => {
+    try {
+        const data = await Promise.all([
+            fetchData('https://api.exapmle1.com/data'),
+            fetchData('https://api.exapmle2.com/data')
+        ]);
+
+         
+        const [data1, data2] = data.map(item => ({
+            id: item.id,
+            value: item.value,
+            computed: item.value * 2
+        }));
+
+        const result = {
+            ...data1,
+            data2Value: data2.value,
+            total: data1.computed + data2.computed
+        };
+
+        print('Processed Result:', result);
+
+    } catch (error) {
+        if (error instanceof CustomError) {
+            console.error('Custom Error:', error.message);
+        } else {
+            console.error('Unhandled Error:', error);
+        }
+    }
+};
+
+processData();

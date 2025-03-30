@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.isPaused = true;
+    this.resumeCallbacks = [];
+  }
+
+  enqueue(item) {
+    this.queue.push(item);
+    if (this.isPaused && this.resumeCallbacks.length > 0) {
+      this.isPaused = false;
+      this.resumeCallbacks.shift()();
+    }
+  }
+
+  dequeue() {
+    return new Promise((resolve) => {
+      if (this.queue.length > 0) {
+        resolve(this.queue.shift());
+      } else {
+        this.isPaused = true;
+        this.resumeCallbacks.push(() => resolve(this.queue.shift()));
+      }
+    });
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: async () => {
+        const value = await this.dequeue();
+        return { value, done: false };
+      },
+    };
+  }
+}
+
+(async () => {
+  const asyncQueue = new AsyncIterableQueue();
+  
+  asyncQueue.enqueue(1);
+  asyncQueue.enqueue(2);
+  asyncQueue.enqueue(3);
+
+   
+  setTimeout(() => asyncQueue.enqueue(4), 1000);
+  setTimeout(() => asyncQueue.enqueue(5), 2000);
+
+  for await (const value of asyncQueue) {
+    console.log(value);
+    if (value === 5) break;  
+  }
+})();
+```

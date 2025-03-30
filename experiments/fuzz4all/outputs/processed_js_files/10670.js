@@ -1,0 +1,70 @@
+ 
+
+ 
+const id = Symbol('id');
+
+ 
+class Task {
+    constructor(name, executor) {
+        this[id] = Symbol(name);
+        this.name = name;
+        this.status = 'pending';
+        this.executor = executor;
+    }
+
+    async execute() {
+        print(`Starting task: ${this.name}`);
+        this.status = 'in progress';
+        try {
+            await this.executor();
+            this.status = 'completed';
+        } catch (error) {
+            this.status = 'failed';
+            console.error(`Task ${this.name} failed:`, error);
+        }
+    }
+
+    get taskId() {
+        return this[id];
+    }
+}
+
+ 
+function* taskGenerator(tasks) {
+    for (const task of tasks) {
+        yield task.execute();
+    }
+}
+
+ 
+const taskHandler = {
+    apply: (target, thisArg, argumentsList) => {
+        print(`Intercepted execution of task: ${argumentsList[0].name}`);
+        return target.apply(thisArg, argumentsList);
+    },
+};
+
+ 
+const tasks = [
+    new Task('Load Data', async () => {
+        return new Promise((resolve) => setTimeout(resolve, 1000));
+    }),
+    new Task('Process Data', async () => {
+        throw new Error('Processing error');
+    }),
+    new Task('Save Data', async () => {
+        return new Promise((resolve) => setTimeout(resolve, 500));
+    }),
+];
+
+ 
+const proxy = new Proxy(Task.prototype.execute, taskHandler);
+
+ 
+(async () => {
+    const generator = taskGenerator(tasks);
+    for (let result of generator) {
+        await proxy(result);
+    }
+    print('All tasks processed.');
+})();

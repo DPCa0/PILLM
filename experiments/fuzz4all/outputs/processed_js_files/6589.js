@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+    throw error;
+  }
+};
+
+class DataManager {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async getData(url) {
+    if (this.cache.has(url)) {
+      print('Retrieving from cache:', url);
+      return this.cache.get(url);
+    }
+    
+    print('Fetching from network:', url);
+    const data = await fetchData(url);
+    this.cache.set(url, data);
+    return data;
+  }
+
+  clearCache() {
+    this.cache.clear();
+    print('Cache cleared');
+  }
+}
+
+(async () => {
+  const manager = new DataManager();
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  
+   
+  const data1 = await manager.getData(url);
+  print('Data:', data1);
+
+   
+  const data2 = await manager.getData(url);
+  print('Data:', data2);
+
+   
+  manager.clearCache();
+
+   
+  const data3 = await manager.getData(url);
+  print('Data:', data3);
+})();

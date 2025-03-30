@@ -1,0 +1,38 @@
+class Fibonacci {
+  *generate(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+function memoize(fn) {
+  const cache = new Map();
+  return function (...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const fibonacci = new Fibonacci();
+const memoizedFibonacci = memoize((n) => {
+  const fibGenerator = fibonacci.generate(n);
+  return [...fibGenerator];
+});
+
+(async () => {
+   
+  const promise = new Promise((resolve) => {
+    setTimeout(() => resolve("Fibonacci Sequence up to 10 terms:"), 1000);
+  });
+
+  print(await promise);
+  print(memoizedFibonacci(10));
+})();

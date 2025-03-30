@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, Math.random() * 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const dataStore = new Proxy({}, handler);
+
+ 
+async function getAndProcessData(...urls) {
+  const promises = urls.map(url => fetchData(url));
+
+  const results = await Promise.all(promises);
+  results.forEach((result, index) => {
+    const [key, value] = [`url${index + 1}`, result];
+    dataStore[key] = value;
+  });
+
+   
+  const dataSet = new Set(results);
+  const dataMap = new Map();
+  dataSet.forEach((data, index) => dataMap.set(`Entry${index + 1}`, data));
+
+  return { dataStore, dataSet, dataMap };
+}
+
+ 
+getAndProcessData('https://api1.com', 'https://api2.com', 'https://api3.com')
+  .then(({ dataStore, dataSet, dataMap }) => {
+    console.log('Data Store:', dataStore);
+    console.log('Data Set:', dataSet);
+    console.log('Data Map:', dataMap);
+  })
+  .catch(error => console.error('Error:', error));
+```

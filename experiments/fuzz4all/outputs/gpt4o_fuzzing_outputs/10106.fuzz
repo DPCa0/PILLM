@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class DataPipeline {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *filterAsync(predicate) {
+    for (let item of this.data) {
+      if (await predicate(item)) {
+        yield item;
+      }
+    }
+  }
+
+  map(transform) {
+    return new DataPipeline(this.data.map(transform));
+  }
+
+  reduce(reducer, initialValue) {
+    return this.data.reduce(reducer, initialValue);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const process = async () => {
+  const data = new DataPipeline([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+   
+  const isEven = async num => {
+    await delay(100);  
+    return num % 2 === 0;
+  };
+
+  const filteredData = [];
+  for await (let value of data.filterAsync(isEven)) {
+    filteredData.push(value);
+  }
+
+  const result = data
+    .map(num => num * 2)
+    .reduce((acc, curr) => acc + curr, 0);
+
+  console.log('Filtered Data:', filteredData);
+  console.log('Reduced Result:', result);
+};
+
+process();
+```

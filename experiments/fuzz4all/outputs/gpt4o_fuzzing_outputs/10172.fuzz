@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(delay, data) {
+  return new Promise((resolve) => setTimeout(() => resolve(data), delay));
+}
+
+ 
+function* dataGenerator() {
+  console.log('Fetching User...');
+  yield fetchData(1000, { id: 1, name: 'Alice' });
+  console.log('Fetching Posts...');
+  yield fetchData(1000, [{ id: 1, title: 'Post 1' }, { id: 2, title: 'Post 2' }]);
+  console.log('Fetching Comments...');
+  yield fetchData(1000, [{ id: 1, text: 'Nice!' }, { id: 2, text: 'Awesome!' }]);
+}
+
+ 
+async function processData(generator) {
+  const iterator = generator();
+
+  while (true) {
+    const { value, done } = iterator.next();
+    if (done) break;
+    console.log('Data:', await value);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting property '${prop}'`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const user = new Proxy({ id: 1, name: 'Alice' }, handler);
+
+ 
+user.name = 'Bob';
+console.log('User Name:', user.name);
+
+ 
+processData(dataGenerator).catch(console.error);
+```

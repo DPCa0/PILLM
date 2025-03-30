@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const { EventEmitter } = require('events');
+
+ 
+const loggedObject = new Proxy({ x: 10, y: 20 }, {
+  get(target, property) {
+    console.log(`Accessing property ${property}`);
+    return target[property];
+  }
+});
+
+ 
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+async function asyncFunction() {
+  console.log('Async function start');
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  console.log('Async function end');
+}
+
+ 
+(async () => {
+  console.log('IIFE start');
+  await asyncFunction();
+  console.log('IIFE end');
+})();
+
+ 
+const map = new Map();
+map.set('key1', 'value1');
+map.set('key2', 'value2');
+
+ 
+const eventEmitter = new EventEmitter();
+eventEmitter.on('event', (message) => {
+  console.log(`Event received: ${message}`);
+});
+
+ 
+console.log(loggedObject.x);
+console.log(loggedObject.y);
+
+ 
+const gen = numberGenerator();
+console.log(gen.next().value);
+console.log(gen.next().value);
+console.log(gen.next().value);
+
+ 
+eventEmitter.emit('event', 'Hello from event emitter!');
+
+ 
+const array = [1, 2, 3];
+const message = `Array: ${[...array, 4, 5, 6]}`;
+console.log(message);
+```

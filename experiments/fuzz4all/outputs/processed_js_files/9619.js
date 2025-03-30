@@ -1,0 +1,48 @@
+ 
+const EventEmitter = require('events');
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Getting ${property}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, property, value, receiver) {
+    print(`Setting ${property} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const targetObject = { name: 'Complexity', type: 'Advanced' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+const uniqueSymbol = Symbol('unique');
+
+ 
+const map = new Map();
+map.set(uniqueSymbol, proxyObject);
+
+ 
+class MyEmitter extends EventEmitter {}
+const myEmitter = new MyEmitter();
+myEmitter.on('greet', () => {
+  print('Hello, world!');
+});
+
+ 
+async function asyncGreet() {
+  const greetingPromise = new Promise((resolve) => {
+    setTimeout(() => resolve('Greetings from a promise!'), 1000);
+  });
+  const message = await greetingPromise;
+  print(message);
+}
+
+ 
+print(`The object in map with unique key has name: ${map.get(uniqueSymbol).name}`);
+
+ 
+proxyObject.name = 'New Complexity';
+myEmitter.emit('greet');
+asyncGreet();

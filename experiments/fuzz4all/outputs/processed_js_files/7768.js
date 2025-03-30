@@ -1,0 +1,66 @@
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, []);
+        }
+        this.#events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.#events.has(event)) {
+            this.#events.set(event, this.#events.get(event).filter(l => l !== listener));
+        }
+    }
+}
+
+const createProxy = (obj) => new Proxy(obj, {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Getting ${prop}`);
+            return target[prop];
+        }
+        return `Property ${prop} not found`;
+    },
+    set(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+});
+
+class Task {
+    constructor(name) {
+        this.name = name;
+        this.completed = false;
+    }
+
+    complete() {
+        this.completed = true;
+    }
+}
+
+const tasks = createProxy({
+    1: new Task('Learn JavaScript'),
+    2: new Task('Learn Proxy and Class features'),
+});
+
+const taskEmitter = new EventEmitter();
+
+taskEmitter.on('taskCompleted', (task) => {
+    print(`Task "${task.name}" completed!`);
+});
+
+tasks[1].complete();
+taskEmitter.emit('taskCompleted', tasks[1]);
+
+tasks[3] = new Task('Learn Event Emitters');
+taskEmitter.on('newTask', (task) => print(`New Task Added: ${task.name}`));
+taskEmitter.emit('newTask', tasks[3]);

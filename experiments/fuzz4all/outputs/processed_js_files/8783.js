@@ -1,0 +1,69 @@
+class DataProcessor {
+  #data;
+  constructor(data = []) {
+    this.#data = data;
+  }
+
+  addData(...newData) {
+    this.#data = [...this.#data, ...newData];
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const jsonData = await response.json();
+      this.addData(...jsonData);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+  filterData(callback) {
+    return this.#data.filter(callback);
+  }
+
+  sortData(callback) {
+    return [...this.#data].sort(callback);
+  }
+
+  getSummary() {
+    const summary = this.#data.reduce((acc, item) => {
+      acc.count++;
+      if (typeof item === 'number') {
+        acc.sum += item;
+      }
+      return acc;
+    }, { count: 0, sum: 0 });
+
+    return {
+      count: summary.count,
+      sum: summary.sum,
+      average: summary.sum / summary.count || 0,
+    };
+  }
+
+  *dataIterator() {
+    for (let item of this.#data) {
+      yield item;
+    }
+  }
+}
+
+ 
+(async () => {
+  const processor = new DataProcessor([10, 20, 30]);
+  print('Initial summary:', processor.getSummary());
+
+  await processor.fetchData('https://jsonplaceholder.typicode.com/posts');
+  const filteredData = processor.filterData(item => typeof item === 'number' && item > 15);
+  print('Filtered Data:', filteredData);
+
+  const sortedData = processor.sortData((a, b) => a - b);
+  print('Sorted Data:', sortedData);
+
+  const iterator = processor.dataIterator();
+  for (let value of iterator) {
+    print('Iterator value:', value);
+  }
+})();

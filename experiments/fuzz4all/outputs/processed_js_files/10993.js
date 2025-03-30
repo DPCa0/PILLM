@@ -1,0 +1,58 @@
+ 
+
+ 
+class Observable {
+    constructor(obj) {
+        this.observers = new Set();
+        this.data = new Proxy(obj, {
+            set: (target, property, value) => {
+                target[property] = value;
+                this.notify(property, value);
+                return true;
+            }
+        });
+    }
+
+    observe(fn) {
+        this.observers.add(fn);
+    }
+
+    notify(property, value) {
+        this.observers.forEach(fn => fn(property, value));
+    }
+}
+
+ 
+function* uniqueIDGenerator() {
+    let id = 1;
+    while (true) {
+        yield Symbol(`id-${id++}`);
+    }
+}
+
+const idGen = uniqueIDGenerator();
+
+ 
+const data = new Observable({
+    name: 'Alice',
+    age: 30,
+    id: idGen.next().value
+});
+
+data.observe((property, value) => {
+    print(`Property "${property}" changed to "${value}"`);
+});
+
+data.data.name = 'Bob';
+data.data.age = 31;
+data.data.id = idGen.next().value;
+
+ 
+(async () => {
+    if (Math.random() > 0.5) {
+        const { add, multiply } = await import('./mathFunctions.js');
+        print('Random number:', add(5, multiply(2, 3)));
+    } else {
+        print('Dynamic import not executed');
+    }
+})();

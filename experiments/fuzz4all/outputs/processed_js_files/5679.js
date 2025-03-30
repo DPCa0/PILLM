@@ -1,0 +1,76 @@
+class AdvancedFeatureDemo {
+    constructor() {
+        this.factorials = new Map();
+    }
+
+     
+    factorial(n) {
+        if (n < 0) throw new Error("Negative numbers not allowed");
+        if (n === 0 || n === 1) return 1;
+        if (this.factorials.has(n)) return this.factorials.get(n);
+        const result = n * this.factorial(n - 1);
+        this.factorials.set(n, result);
+        return result;
+    }
+
+    async fetchData(url) {
+         
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    *generateFibonacci(limit) {
+         
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < limit; i++) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    proxyExample() {
+         
+        const handler = {
+            get: (target, prop) => {
+                if (prop in target) {
+                    return target[prop];
+                }
+                return `Property "${prop}" does not exist.`;
+            },
+            set: (target, prop, value) => {
+                if (typeof value === 'number') {
+                    target[prop] = value;
+                    return true;
+                }
+                console.warn(`Cannot assign non-numeric value to "${prop}".`);
+                return false;
+            }
+        };
+
+        const data = new Proxy({}, handler);
+        data.age = 30;
+        print(data.age);  
+        data.name = 'John';     
+        print(data.name);  
+    }
+}
+
+const demo = new AdvancedFeatureDemo();
+
+ 
+print('Factorial of 5:', demo.factorial(5));
+
+ 
+(async () => {
+    const data = await demo.fetchData('https://api.github.com');
+    print('Fetched data:', data);
+})();
+
+ 
+const fibSequence =

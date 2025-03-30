@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const hiddenKey = Symbol('hidden');
+
+ 
+const loggerProxyHandler = {
+    get(target, prop) {
+        if (prop === hiddenKey) {
+            console.log('Attempted to access hidden key');
+            return undefined;
+        }
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => setTimeout(() => resolve('Fetched Data'), 1000));
+};
+
+ 
+function* numberGenerator() {
+    let number = 1;
+    while (true) {
+        yield number++;
+    }
+}
+
+(async () => {
+     
+    const dataStore = new Proxy({ name: 'Advanced JS' }, loggerProxyHandler);
+
+     
+    dataStore.name = 'JavaScript Mastery';
+    console.log(dataStore.name);
+
+     
+    dataStore[hiddenKey] = 'This is hidden';
+    console.log(dataStore[hiddenKey]);  
+
+     
+    const data = await fetchData();
+    console.log(data);
+
+     
+    const numbers = numberGenerator();
+    console.log(numbers.next().value);
+    console.log(numbers.next().value);
+    console.log(numbers.next().value);
+})();
+```

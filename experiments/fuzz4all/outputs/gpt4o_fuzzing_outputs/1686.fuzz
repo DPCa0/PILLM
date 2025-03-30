@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = url => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ data: [1, 2, 3, 4, 5] });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+};
+
+ 
+const createValidatedObject = obj => {
+    return new Proxy(obj, {
+        get(target, prop) {
+            if (prop in target) {
+                return target[prop];
+            } else {
+                throw new ReferenceError(`Property "${prop}" does not exist.`);
+            }
+        },
+        set(target, prop, value) {
+            if (typeof value === 'number' && value > 0) {
+                target[prop] = value;
+                return true;
+            } else {
+                throw new TypeError(`Invalid value "${value}" assigned to "${prop}". Must be a positive number.`);
+            }
+        }
+    });
+};
+
+ 
+const runProgram = async () => {
+    try {
+        const validatedObject = createValidatedObject({ count: 1, maxLimit: 100 });
+        
+         
+        validatedObject.count = 5; 
+
+         
+        const response = await fetchData("https://api.example.com/data");
+        
+         
+        console.log("Fetched Data:", response.data);
+        
+         
+        console.log("Validated Object Count:", validatedObject.count);
+        
+         
+        console.log("Validated Object Min Limit:", validatedObject.minLimit);
+
+    } catch (error) {
+        console.error("Error:", error.message);
+    }
+};
+
+ 
+runProgram();
+```

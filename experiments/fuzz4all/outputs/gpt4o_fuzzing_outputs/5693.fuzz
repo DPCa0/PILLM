@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        resolve({ data: `Fetched data from ${url}` });
+      } else {
+        reject(new Error('Failed to fetch data'));
+      }
+    }, 1000);
+  });
+}
+
+async function* asyncGenerator(urls) {
+  for (const url of urls) {
+    try {
+      const data = await fetchData(url);
+      yield data;
+    } catch (error) {
+      console.error(`Error fetching ${url}:`, error);
+    }
+  }
+}
+
+const ee = new EventEmitter();
+
+ee.on('data', data => console.log('Received:', data));
+ee.on('end', () => console.log('All data fetched'));
+
+(async () => {
+  const urls = ['http://api.example.com/data1', 'http://api.example.com/data2', 'http://api.example.com/data3'];
+  const generator = asyncGenerator(urls);
+
+  for await (const data of generator) {
+    ee.emit('data', data);
+  }
+  ee.emit('end');
+})();
+```

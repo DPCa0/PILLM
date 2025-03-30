@@ -1,0 +1,44 @@
+ 
+function* generateNumbers(limit) {
+    for (let i = 1; i <= limit; i++) {
+        yield i;
+    }
+}
+
+async function processNumbers(generator, transform) {
+    const numbers = [];
+    for (let num of generator) {
+        numbers.push(transform(num));
+    }
+    return Promise.all(numbers);
+}
+
+function delaySquare(number) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(number * number);
+        }, 100);
+    });
+}
+
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Accessing property: ${prop}`);
+            return Reflect.get(target, prop);
+        } else {
+            throw new Error(`Property ${prop} not found`);
+        }
+    }
+};
+
+const target = { message: 'Hello, Proxy!' };
+const proxy = new Proxy(target, handler);
+
+(async () => {
+    print(proxy.message);  
+
+    const gen = generateNumbers(5);
+    const transformedNumbers = await processNumbers(gen, delaySquare);
+    print('Squared Numbers:', transformedNumbers);
+})();

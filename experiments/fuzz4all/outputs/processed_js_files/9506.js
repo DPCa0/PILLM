@@ -1,0 +1,48 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve({ data: `Data from ${url}` });
+      } else {
+        reject('URL not provided');
+      }
+    }, 1000);
+  });
+}
+
+ 
+const fetchHandler = {
+  async apply(target, thisArg, argumentsList) {
+    print(`Fetching from: ${argumentsList[0]}`);
+    const result = await target.apply(thisArg, argumentsList);
+    if (result && result.data) {
+      print('Data fetched successfully:', result.data);
+      return result.data;
+    } else {
+      throw new Error('No data received');
+    }
+  }
+};
+
+const fetchDataProxy = new Proxy(fetchData, fetchHandler);
+
+ 
+async function* processData(urls) {
+  for (const url of urls) {
+    try {
+      const data = await fetchDataProxy(url);
+      yield `Processed ${data}`;
+    } catch (error) {
+      yield `Error processing ${url}: ${error}`;
+    }
+  }
+}
+
+ 
+(async function() {
+  const urls = ['https://api.example.com/1', 'https://api.example.com/2', null];
+  for await (const result of processData(urls)) {
+    print(result);
+  }
+})();

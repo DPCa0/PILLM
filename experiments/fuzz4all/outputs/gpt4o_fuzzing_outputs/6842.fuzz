@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            listeners.forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        Math.random() > 0.5 ? resolve('Success') : reject('Failure');
+    }, 1000);
+});
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('success', message => console.log('Success:', message));
+eventEmitter.on('failure', message => console.log('Failure:', message));
+
+(async () => {
+    try {
+        const result = await asyncOperation();
+        eventEmitter.emit('success', result);
+    } catch (error) {
+        eventEmitter.emit('failure', error);
+    }
+})();
+
+const iterableObject = {
+    *[Symbol.iterator]() {
+        yield* ['JavaScript', 'ES6', 'Generators', 'Symbols'];
+    }
+};
+
+for (const item of iterableObject) {
+    console.log(item);
+}
+
+const map = new Map(Object.entries({ a: 1, b: 2, c: 3 }));
+map.set('d', 4);
+const reduced = [...map].reduce((acc, [key, value]) => acc + value, 0);
+console.log('Sum of map values:', reduced);
+
+const proxyHandler = {
+    get(target, property) {
+        return property in target ? target[property] : 'Property does not exist';
+    }
+};
+
+const proxy = new Proxy({ x: 10, y: 20 }, proxyHandler);
+
+console.log('x:', proxy.x);
+console.log('z:', proxy.z);
+```

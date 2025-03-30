@@ -1,0 +1,39 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processItems = (items) => {
+    return items.reduce((acc, item) => {
+        const { category, value } = item;
+        acc[category] = (acc[category] || 0) + value;
+        return acc;
+    }, {});
+};
+
+const logResult = (result) => {
+    Object.entries(result).forEach(([category, totalValue]) => {
+        print(`Category: ${category}, Total Value: ${totalValue}`);
+    });
+};
+
+(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/items');
+        const processedData = processItems(data.items);
+        
+        const handler = {
+            get: (target, prop) => (prop in target ? target[prop] : `No category "${prop}" found`),
+        };
+        
+        const proxyResult = new Proxy(processedData, handler);
+        
+        logResult(proxyResult);
+        
+        print(proxyResult['nonExistentCategory']);   
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

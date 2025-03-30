@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+const target = { value: 42 };
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'value') {
+            console.log('Accessed value');
+            return Reflect.get(obj, prop) + 10;
+        }
+        return Reflect.get(obj, prop);
+    },
+    set: (obj, prop, value) => {
+        if (prop === 'value') {
+            console.log('Modified value');
+            return Reflect.set(obj, prop, value * 2);
+        }
+        return Reflect.set(obj, prop, value);
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+        const value = values[i - 1] ? `<strong>${values[i - 1]}</strong>` : '';
+        return result + value + str;
+    });
+}
+
+const name = 'world';
+console.log(highlight`Hello, ${name}!`);
+
+ 
+async function* asyncGenerator() {
+    let i = 0;
+    while (i < 3) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        yield i++;
+    }
+}
+
+(async () => {
+    for await (let num of asyncGenerator()) {
+        console.log(`Number: ${num}`);
+    }
+})();
+
+ 
+console.log(`Proxy Value: ${proxy.value}`);  
+proxy.value = 100;  
+console.log(`Modified Proxy Value: ${proxy.value}`);  
+```

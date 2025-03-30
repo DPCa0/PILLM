@@ -1,0 +1,50 @@
+ 
+
+ 
+const mockApi = (result) => new Promise((resolve) => setTimeout(() => resolve(result), 1000));
+
+ 
+async function fetchData() {
+    const user = await mockApi({ id: 1, name: 'Alice', items: [1, 2, 3] });
+    return user;
+}
+
+ 
+const loggerProxyHandler = {
+    get: (target, property) => {
+        print(`Getting property "${property}"`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Setting property "${property}" to "${value}"`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+function* itemGenerator(items) {
+    for (const item of items) {
+        yield `Item ${item}`;
+    }
+}
+
+ 
+(async () => {
+    const user = await fetchData();
+
+     
+    const proxiedUser = new Proxy(user, loggerProxyHandler);
+
+    print(`User Name: ${proxiedUser.name}`);
+
+     
+    proxiedUser.name = 'Bob';
+    print(`Updated User Name: ${proxiedUser.name}`);
+
+     
+    const items = itemGenerator(proxiedUser.items);
+    for (let item of items) {
+        print(item);
+    }
+})();

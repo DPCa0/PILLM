@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+const cache = new WeakMap();
+
+function memoize(fn) {
+    return function(...args) {
+        const key = JSON.stringify(args);
+        if (!cache.has(fn)) {
+            cache.set(fn, new Map());
+        }
+        const fnCache = cache.get(fn);
+        if (!fnCache.has(key)) {
+            fnCache.set(key, fn(...args));
+        }
+        return fnCache.get(key);
+    };
+}
+
+const memoizedFibonacci = memoize((num) => {
+    let seq = [];
+    const iterator = fibonacci(num);
+    for (let i = 0; i < num; i++) {
+        iterator.next().then(result => seq.push(result.value));
+    }
+    return seq;
+});
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function run() {
+    console.log("Starting Fibonacci Sequence...");
+    await sleep(1000);
+    const deferred = new Deferred();
+    setTimeout(() => deferred.resolve(memoizedFibonacci(10)), 2000);
+    const sequence = await deferred.promise;
+    console.log("Fibonacci Sequence:", sequence);
+}
+
+run().catch(error => console.error(error));
+```

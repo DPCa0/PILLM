@@ -1,0 +1,37 @@
+ 
+const fetchData = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    const data = { user: 'John Doe', age: 30 };
+    Math.random() > 0.1 ? resolve(data) : reject('Failed to fetch data');
+  }, 1000);
+});
+
+ 
+async function handleData() {
+  try {
+     
+    const { user = 'Anonymous', age = 'N/A' } = await fetchData;
+    print(`User: ${user ?? 'Unknown'}, Age: ${age ?? 'Unknown'}`);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+const logNumbers = (multiplier = 2, ...numbers) => {
+   
+  return numbers.map((number) => `Result: ${number * multiplier}`);
+};
+
+ 
+(async () => {
+  await handleData();
+  const results = logNumbers(3, 1, 2, 3, 4, 5);
+  results.forEach((result) => print(result));
+})();
+
+ 
+(async () => {
+  const { randomUUID } = await import('crypto');
+  print(`Generated UUID: ${randomUUID()}`);
+})();

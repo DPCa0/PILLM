@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    return await response.json();
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+  }
+}
+
+function processData({ title, author, year, genre }) {
+  console.log(`Book: "${title}", by ${author}. Published in ${year}. Genre: ${genre}.`);
+}
+
+async function displayBooks() {
+  const urls = [
+    'https://api.example.com/book1',
+    'https://api.example.com/book2',
+    'https://api.example.com/book3'
+  ];
+  
+  const bookPromises = urls.map(url => fetchData(url));
+  try {
+    const books = await Promise.all(bookPromises);
+    books.filter(Boolean).forEach(book => {
+       
+      const { 
+        title = 'Unknown Title', 
+        author: writer = 'Unknown Author', 
+        year = 'Unknown Year', 
+        genre = 'Unknown Genre' 
+      } = book;
+      processData({ title, author: writer, year, genre });
+    });
+  } catch (error) {
+    console.error(`Processing error: ${error}`);
+  }
+}
+
+displayBooks();
+```

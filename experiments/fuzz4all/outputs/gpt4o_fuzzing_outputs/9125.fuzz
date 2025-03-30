@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { message: "Hello, world!" }, status: 200 });
+    }, 1000);
+  });
+};
+
+ 
+function* asyncGenerator() {
+  console.log("Start fetching...");
+  yield fetchData();
+  console.log("Fetching completed.");
+}
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Getting property: ${prop}`);
+      return obj[prop];
+    },
+  });
+};
+
+(async () => {
+   
+  const gen = asyncGenerator();
+  const { value: fetchPromise } = gen.next();
+
+   
+  try {
+    const response = await fetchPromise;
+    const proxiedData = createLoggingProxy(response.data);
+
+    console.log(proxiedData.message);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  } finally {
+    gen.next();  
+  }
+})();
+```

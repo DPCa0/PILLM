@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+    await delay(1000);  
+    return { id: 1, name: 'Advanced JavaScript', status: 'active' };
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (const data of dataArray) {
+        yield data;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Getting property ${prop}`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+(async () => {
+    console.log('Fetching data...');
+    const fetchedData = await fetchData();
+    console.log('Data fetched:', fetchedData);
+
+    const proxiedData = new Proxy(fetchedData, handler);
+
+    const dataArray = [
+        proxiedData,
+        { id: 2, name: 'JavaScript Proxy', status: 'inactive' }
+    ];
+    
+    const generator = dataGenerator(dataArray);
+    
+    for (const data of generator) {
+        console.log(`ID: ${data.id}, Name: ${data.name}, Status: ${data.status}`);
+        if (data.id === 1) {
+            data.status = 'completed';  
+        }
+    }
+})();
+```

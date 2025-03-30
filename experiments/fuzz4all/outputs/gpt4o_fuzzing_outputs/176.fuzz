@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(api) {
+     
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (api === 'valid') {
+                resolve([
+                    { id: 1, name: 'Alice', value: 10 },
+                    { id: 2, name: 'Bob', value: 20 },
+                    { id: 3, name: 'Charlie', value: 30 }
+                ]);
+            } else {
+                reject('Invalid API');
+            }
+        }, 1000);
+    });
+}
+
+async function processData() {
+    try {
+        const data = await fetchData('valid');  
+
+         
+        const transformedData = new Map();
+        for (let { id, name, value } of data) {
+            transformedData.set(id, { name, value });
+        }
+
+         
+        const nameSet = new Set(data.map(({ name }) => name));
+
+        console.log('Transformed Data:', transformedData);
+        console.log('Unique Names:', nameSet);
+
+         
+        const [first, , third] = data;
+        console.log('First Record:', first);
+        console.log('Third Record:', third);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+processData();
+```

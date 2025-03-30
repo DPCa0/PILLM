@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fsPromises } from 'fs';
+import readline from 'readline';
+
+ 
+async function processLineByLine(filePath) {
+  const fileStream = await fsPromises.open(filePath, 'r');
+  
+  const rl = readline.createInterface({
+    input: fileStream.createReadStream(),
+    crlfDelay: Infinity
+  });
+  
+   
+  for await (const line of rl) {
+    yield line;
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const [data1, data2] = await Promise.all([
+      fsPromises.readFile('file1.txt', 'utf-8'),
+      fsPromises.readFile('file2.txt', 'utf-8')
+    ]);
+    
+    console.log(`Data from file1.txt: ${data1}`);
+    console.log(`Data from file2.txt: ${data2}`);
+    
+     
+    const dynamicKey = 'user';
+    const userData = {
+      [dynamicKey]: { name: 'John Doe', age: 30 }
+    };
+    
+    console.log(`User Data:`, userData);
+    
+     
+    const { name: userName = 'Anonymous' } = userData.user || {};
+    console.log(`Hello, ${userName}!`);
+    
+     
+    const city = userData.user?.location ?? 'Unknown City';
+    console.log(`Location: ${city}`);
+    
+     
+    const handler = {
+      get: (obj, prop) => prop in obj ? obj[prop] : `Property '${prop}' does not exist`
+    };
+    const proxyUser = new Proxy(userData.user, handler);
+    
+    console.log(`User Name: ${proxyUser.name}`);
+    console.log(`User Age: ${proxyUser.age}`);
+    console.log(`User City: ${proxyUser.city}`);
+    
+     
+    for await (const line of processLineByLine('file3.txt')) {
+      console.log(`Line from file3.txt: ${line}`);
+    }
+  } catch (error)

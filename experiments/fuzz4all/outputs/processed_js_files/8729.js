@@ -1,0 +1,56 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+   
+  static *add(...numbers) {
+    let realSum = 0;
+    let imaginarySum = 0;
+    for (let number of numbers) {
+      realSum += number.real;
+      imaginarySum += number.imaginary;
+    }
+    yield new ComplexNumber(realSum, imaginarySum);
+  }
+
+   
+  toString() {
+    return complexString`${this.real} + ${this.imaginary}i`;
+  }
+}
+
+function complexString(literals, real, imaginary) {
+  return `${real} ${imaginary >= 0 ? '+' : '-'} ${Math.abs(imaginary)}i`;
+}
+
+ 
+const ComplexNumberHandler = {
+  construct(target, args) {
+    if (args.length !== 2 || typeof args[0] !== 'number' || typeof args[1] !== 'number') {
+      throw new Error('Invalid arguments. Expected two numbers.');
+    }
+    return new target(...args);
+  }
+};
+
+const ProtectedComplexNumber = new Proxy(ComplexNumber, ComplexNumberHandler);
+
+ 
+async function asyncAddComplex() {
+  const num1 = new ProtectedComplexNumber(1, 2);
+  const num2 = new ProtectedComplexNumber(3, 4);
+
+   
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      const generator = ComplexNumber.add(num1, num2);
+      resolve(generator.next().value);
+    }, 1000);
+  });
+
+  print(result.toString());  
+}
+
+asyncAddComplex();

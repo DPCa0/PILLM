@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: 1,
+        name: 'Alice',
+        email: 'alice@example.com',
+        roles: ['admin', 'user'],
+      });
+    }, 1000);
+  });
+};
+
+ 
+const createLoggedSet = () => {
+  const handler = {
+    get(target, prop, receiver) {
+      const originalValue = Reflect.get(...arguments);
+      if (typeof originalValue === 'function') {
+        return function (...args) {
+          console.log(`Called ${prop} with args: ${JSON.stringify(args)}`);
+          return originalValue.apply(this, args);
+        };
+      }
+      return originalValue;
+    },
+    set(target, prop, value, receiver) {
+      console.log(`Set property ${prop} to ${value}`);
+      return Reflect.set(...arguments);
+    }
+  };
+
+  return new Proxy(new Set(), handler);
+};
+
+ 
+(async () => {
+  const userSet = createLoggedSet();
+  
+   
+  const user = await fetchUserData();
+  
+   
+  const { name, roles } = user;
+  console.log(`User Name: ${name}`);
+  
+   
+  roles.forEach(role => userSet.add(role));
+  
+   
+  console.log(`Roles stored in set:`);
+  userSet.forEach(role => console.log(role));
+})();
+```

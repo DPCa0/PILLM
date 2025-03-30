@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+async function asyncProcess(num) {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(num * num), 1000)
+  );
+}
+
+async function* processNumbersAsync(generator) {
+  for (const num of generator) {
+    yield await asyncProcess(num);
+  }
+}
+
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Property "${prop}" accessed with value: ${target[prop]}`);
+      return Reflect.get(...arguments);
+    } else {
+      console.warn(`Property "${prop}" does not exist.`);
+      return undefined;
+    }
+  }
+};
+
+(async function() {
+  const gen = numberGenerator();
+  const proxiedGen = new Proxy(gen, handler);
+
+  const asyncGen = processNumbersAsync(proxiedGen);
+
+  for await (const squared of asyncGen) {
+    console.log(`Squared Value: ${squared}`);
+    if (squared > 25) break;   
+  }
+})();
+```

@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: [1, 2, 3, 4, 5] });
+        }, 1000);
+    });
+}
+
+ 
+function* dataProcessor(data) {
+    for (const item of data) {
+        yield item * 2;  
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        print(`Accessing property "${property}"`);
+        return target[property];
+    }
+};
+
+ 
+async function main() {
+    try {
+        print("Fetching data...");
+        const response = await fetchData();
+        const proxyResponse = new Proxy(response, handler);
+
+        print("Processing data...");
+        const processor = dataProcessor(proxyResponse.data);
+        for (const processedValue of processor) {
+            print("Processed value:", processedValue);
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+
+main();

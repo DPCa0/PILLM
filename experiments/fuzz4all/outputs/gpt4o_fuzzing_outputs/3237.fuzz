@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+import crypto from 'crypto';
+
+ 
+(async function manageFiles() {
+  try {
+     
+    let data = await fs.readFile('input.txt', 'utf8');
+
+     
+    const processData = data => data.toUpperCase();
+    let upperCaseData = processData(data);
+
+     
+    const encrypt = (text) => {
+      const cipher = crypto.createCipher('aes-256-cbc', 'd6F3Efeq');
+      let encrypted = cipher.update(text, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+      return encrypted;
+    };
+
+    let encryptedData = encrypt(upperCaseData);
+
+     
+    await fs.writeFile('output.txt', encryptedData);
+
+     
+    const points = [1, 2, 3];
+    const [a, b, ...rest] = points;
+    console.log(`Points: ${a}, ${b}, Rest: ${rest}`);
+
+    console.log('File processed successfully!');
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+})();
+```

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+
+(async () => {
+  try {
+    const url = 'https://api.github.com/users/github';
+    
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+     
+    const { login, name, public_repos } = await response.json();
+    
+     
+    const userProxy = new Proxy(
+      { login, name, public_repos },
+      {
+        get(target, prop) {
+          if (prop in target) {
+            console.log(`Accessing property: ${prop}`);
+            return target[prop];
+          }
+          throw new Error(`Property ${prop} does not exist`);
+        },
+      }
+    );
+
+     
+    function* objectEntries(obj) {
+      for (let key of Reflect.ownKeys(obj)) {
+        yield [key, obj[key]];
+      }
+    }
+
+     
+    const userDetails = [...objectEntries(userProxy)]
+      .map(([key, value]) => `${key}: ${value}`)
+      .join('\n');
+
+    console.log(`GitHub User Details:\n${userDetails}`);
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

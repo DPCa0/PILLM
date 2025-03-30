@@ -1,0 +1,85 @@
+print('Hello, world!');
+```javascript
+ 
+'use strict';
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return property in target ? target[property] : 'Property not found';
+  },
+  set: (target, property, value) => {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const data = { name: 'Alice', age: 30 };
+
+ 
+const observedData = new Proxy(data, handler);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => `${result}${string}<em>${values[i] || ''}</em>`, '');
+}
+
+const userName = 'Bob';
+const age = 25;
+console.log(highlight`Welcome, ${userName}. You are ${age} years old.`);
+
+ 
+async function* numbersAsyncGenerator() {
+  for (let i = 0; i < 3; i++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    yield i;
+  }
+}
+
+(async function() {
+  for await (const num of numbersAsyncGenerator()) {
+    console.log(`Async number: ${num}`);
+  }
+})();
+
+ 
+(async function() {
+  if (Math.random() > 0.5) {
+    const { sqrt } = await import('mathjs');
+    console.log(`Dynamic import result: ${sqrt(16)}`);
+  } else {
+    console.log('Math not imported');
+  }
+})();
+
+ 
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  speak() {
+    console.log(`${this.name} makes a noise.`);
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    console.log(`${this.name} barks.`);
+  }
+}
+
+const dog = new Dog('Rex');
+dog.speak();
+
+ 
+observedData.name = 'Charlie';
+console.log(observedData.name);
+
+ 
+const userSettings = { theme: null };
+console.log(userSettings.theme ?? 'Default theme');
+console.log(userSettings.notifications?.email ?? 'No notifications settings');
+```

@@ -1,0 +1,57 @@
+ 
+
+ 
+function fetchData(apiUrl) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (apiUrl) {
+                resolve({ data: [1, 2, 3, 4, 5] });
+            } else {
+                reject('Invalid API URL');
+            }
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'length') {
+            print('Getting length');
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+function* dataProcessor(data) {
+    for (let item of data) {
+        yield item * 2;
+    }
+}
+
+ 
+async function main() {
+    try {
+        const apiUrl = 'https://example.com/api';
+        const { data: apiData } = await fetchData(apiUrl);
+
+         
+        const { length: dataLength } = apiData;
+        print(`Fetched ${dataLength} items`);
+
+         
+        const proxyData = new Proxy(apiData, handler);
+
+         
+        const processor = dataProcessor(proxyData);
+        for (let value of processor) {
+            print(value);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+main();

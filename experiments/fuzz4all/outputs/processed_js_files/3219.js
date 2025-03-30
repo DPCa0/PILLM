@@ -1,0 +1,49 @@
+ 
+
+class ApiClient {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async fetchData(endpoint) {
+    const url = `${this.baseURL}${endpoint}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+  }
+}
+
+const processData = async (data) => {
+   
+  const processedData = data.map(({ id, name, ...rest }) => ({
+    id,
+    name: name.toUpperCase(),
+    details: { ...rest },
+  }));
+
+   
+  const results = await Promise.all(
+    processedData.map(async (item) => {
+       
+      const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      await delay(100);
+      return { ...item, processed: true };
+    })
+  );
+
+  print('Processed Data:', results);
+};
+
+const main = async () => {
+  const apiClient = new ApiClient('https://jsonplaceholder.typicode.com');
+  try {
+    const data = await apiClient.fetchData('/users');
+    await processData(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();

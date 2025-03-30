@@ -1,0 +1,38 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const filePath = './data.txt';
+    const data = await readFile(filePath, 'utf8');
+    const [firstLine, ...remainingLines] = data.split('\n');
+
+     
+    const processedData = firstLine?.trim() ?? 'No data';
+
+     
+    const uniqueChars = new Set(processedData);
+
+     
+    const charCount = [...uniqueChars].reduce((count, char) => {
+      count[char] = (count[char] || 0) + 1;
+      return count;
+    }, {});
+
+     
+    function emphasize(strings, ...values) {
+      return strings.reduce((finalStr, str, i) => {
+        const val = values[i] ? `[${values[i]}]` : '';
+        return `${finalStr}${str.toUpperCase()}${val}`;
+      }, '');
+    }
+
+    print(emphasize`Processed Data: ${processedData}`);
+    print('Character Counts:', JSON.stringify(charCount, null, 2));
+
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+})();

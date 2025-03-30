@@ -1,0 +1,58 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+async function processData(url) {
+    try {
+        const data = await fetchData(url);
+        return data.map(item => ({ ...item, processed: true }));
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+const eventEmitter = new EventEmitter();
+
+const url = 'https://jsonplaceholder.typicode.com/todos';
+
+eventEmitter.on('dataProcessed', data => {
+    print('Data received:', data);
+});
+
+processData(url).then(data => {
+    eventEmitter.emit('dataProcessed', data);
+});
+
+eventEmitter.on('dataProcessed', data => {
+    const count = data ? data.filter(item => item.completed).length : 0;
+    print(`Number of completed items: ${count}`);
+});

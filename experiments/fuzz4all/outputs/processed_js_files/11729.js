@@ -1,0 +1,58 @@
+ 
+class DataProcessor {
+  #data;
+  #operations;
+
+  constructor(data) {
+    this.#data = data;
+    this.#operations = [];
+  }
+
+   
+  static fromJson(json) {
+    try {
+      return new DataProcessor(JSON.parse(json));
+    } catch (error) {
+      throw new Error("Invalid JSON");
+    }
+  }
+
+  addOperation(operation) {
+    this.#operations.push(operation);
+    return this;  
+  }
+
+   
+  *processData() {
+    let processedData = [...this.#data];
+    for (let op of this.#operations) {
+      processedData = processedData.map(op);
+      yield [...processedData];  
+    }
+  }
+
+   
+  static createLoggedProcessor(data) {
+    const handler = {
+      get(target, property, receiver) {
+        print(`Accessing ${property}`);
+        return Reflect.get(target, property, receiver);
+      },
+      set(target, property, value, receiver) {
+        print(`Setting ${property} to ${value}`);
+        return Reflect.set(target, property, value, receiver);
+      },
+    };
+    return new Proxy(new DataProcessor(data), handler);
+  }
+}
+
+ 
+const jsonData = '[1, 2, 3, 4]';
+const processor = DataProcessor.createLoggedProcessor(jsonData)
+  .addOperation(n => n * 2)
+  .addOperation(n => n + 1);
+
+for (const step of processor.processData()) {
+  print(step);
+}

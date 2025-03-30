@@ -1,0 +1,45 @@
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  greet() {
+    return `Hello, my name is ${this.name} and I am ${this.age} years old.`;
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const names = data.map((user) => user.name);
+    const ages = Array.from({ length: data.length }, (_, i) => Math.floor(Math.random() * 50) + 20);
+    const people = names.map((name, index) => new Person(name, ages[index]));
+
+    for (const person of people) {
+      print(person.greet());
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+};
+
+const logMessage = debounce(() => print('Debounced message after typing'), 1000);
+
+document.addEventListener('keydown', logMessage);
+
+processData();

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+
+const fetchData = url => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const mockData = { data: "Hello, World!" };  
+      url ? resolve(mockData) : reject(new Error('URL not provided'));
+    }, 1000);
+  });
+};
+
+const processData = data => {
+  return data.toUpperCase();
+};
+
+(async () => {
+  try {
+    const apiUrl = 'https://api.mockservice.com/data';
+    const data = await fetchData(apiUrl).then(response => response.data);
+    const result = [data].map(processData).reduce((acc, val) => `${acc} - Processed: ${val}`);
+    console.log(result);
+  } catch (error) {
+    console.error('Error occurred:', error.message);
+  }
+})();
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Accessed property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const targetObject = { message: 'Hello, Proxy!' };
+const proxy = new Proxy(targetObject, handler);
+
+console.log(proxy.message);  
+```

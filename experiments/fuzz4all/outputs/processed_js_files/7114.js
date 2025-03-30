@@ -1,0 +1,51 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+  
+  enqueue(promiseGenerator) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ promiseGenerator, resolve, reject });
+      this.runQueue();
+    });
+  }
+
+  async runQueue() {
+    if (this.running) return;
+    this.running = true;
+
+    while (this.queue.length > 0) {
+      const { promiseGenerator, resolve, reject } = this.queue.shift();
+      try {
+        const result = await promiseGenerator();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    }
+
+    this.running = false;
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const task = async (name, time) => {
+  await delay(time);
+  return `Task ${name} finished in ${time}ms`;
+};
+
+(async () => {
+  const queue = new AsyncQueue();
+
+  const results = await Promise.all([
+    queue.enqueue(() => task('A', 1000)),
+    queue.enqueue(() => task('B', 500)),
+    queue.enqueue(() => task('C', 300)),
+    queue.enqueue(() => task('D', 2000)),
+    queue.enqueue(() => task('E', 1500)),
+  ]);
+
+  print('Results:', results);
+})();

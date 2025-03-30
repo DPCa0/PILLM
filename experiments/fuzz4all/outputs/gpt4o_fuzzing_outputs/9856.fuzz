@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    for (let i = 1; i <= 5; i++) {
+       
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      yield i;
+    }
+  }
+};
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === Symbol.asyncIterator) {
+      console.log('Accessing async iterator');
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxy = new Proxy(asyncIterable, handler);
+
+ 
+(async function processData() {
+  iteratorLoop: for await (const num of proxy) {
+    console.log(`Received number: ${num}`);
+    if (num === 3) {
+      console.log('Number 3 found, breaking loop using label');
+      break iteratorLoop;
+    }
+  }
+})();
+
+ 
+(async () => {
+  console.log('Starting IIFE for additional operations');
+  const result = await Promise.resolve('Async operation complete');
+  console.log(result);
+})();
+```

@@ -1,0 +1,45 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+const asyncTask = async (message, duration) => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(message), duration);
+    });
+};
+
+(async function main() {
+    const eventEmitter = new EventEmitter();
+
+    const printMessage = debounce((msg) => print(msg), 200);
+    eventEmitter.on('print', printMessage);
+
+    const results = await Promise.all([
+        asyncTask('First Task Completed', 1000),
+        asyncTask('Second Task Completed', 500),
+        asyncTask('Third Task Completed', 1500),
+    ]);
+
+    results.forEach(result => eventEmitter.emit('print', result));
+})();

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add(other) {
+        return new ComplexNumber(
+            this.real + other.real,
+            this.imaginary + other.imaginary
+        );
+    }
+
+    multiply(other) {
+        const realPart = this.real * other.real - this.imaginary * other.imaginary;
+        const imaginaryPart = this.real * other.imaginary + this.imaginary * other.real;
+        return new ComplexNumber(realPart, imaginaryPart);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+
+    *[Symbol.iterator]() {
+        yield this.real;
+        yield this.imaginary;
+    }
+
+    static fromString(string) {
+        const matches = /([-+]?\d*\.?\d+)\s*([-+]\s*\d*\.?\d+)i/.exec(string.replace(/\s/g, ''));
+        if (!matches) throw new Error('Invalid format');
+        return new ComplexNumber(parseFloat(matches[1]), parseFloat(matches[2]));
+    }
+}
+
+async function fetchComplexNumbers(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data.map(ComplexNumber.fromString);
+}
+
+(async () => {
+    try {
+        const numbers = await fetchComplexNumbers('https://api.example.com/complex-numbers');
+        const result = numbers.reduce((acc, num) => acc.add(num), new ComplexNumber(0, 0));
+        console.log('Sum of complex numbers:', result.toString());
+
+        const multiplied = numbers.reduce((acc, num) => acc.multiply(num), new ComplexNumber(1, 0));
+        console.log('Product of complex numbers:', multiplied.toString());
+
+        for (const component of result) {
+            console.log('Component:', component);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

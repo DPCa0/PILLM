@@ -1,0 +1,50 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.listeners = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(listener);
+  }
+
+  off(event, listener) {
+    if (this.listeners.has(event)) {
+      this.listeners.set(event, this.listeners.get(event).filter(l => l !== listener));
+    }
+  }
+
+  async emit(event, ...args) {
+    if (this.listeners.has(event)) {
+      const promises = this.listeners.get(event).map(listener => listener(...args));
+      await Promise.all(promises);
+    }
+  }
+}
+
+(async () => {
+  const emitter = new AsyncEventEmitter();
+
+  const delayedListener = async (message) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    print(`Received message: ${message}`);
+  };
+
+  const immediateListener = async (message) => {
+    print(`Immediate log: ${message}`);
+  };
+
+  emitter.on('message', delayedListener);
+  emitter.on('message', immediateListener);
+
+  print('Emitting "Hello, World!" event...');
+  await emitter.emit('message', 'Hello, World!');
+  print('Event emission complete.');
+
+  emitter.off('message', delayedListener);
+  print('Emitting "Goodbye, World!" event...');
+  await emitter.emit('message', 'Goodbye, World!');
+  print('Event emission complete.');
+})();

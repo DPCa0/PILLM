@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const runApp = async () => {
+  const fibGenerator = fibonacci();
+
+  for await (const num of fibGenerator) {
+    console.log(`Fibonacci: ${num}`);
+    
+    if (num > 100) break;   
+    await delay(500);       
+  }
+
+  const animals = {
+    cat: 'meow',
+    dog: 'bark',
+    cow: 'moo'
+  };
+
+  console.log('Animal Sounds:', 
+    Object.entries(animals).map(([animal, sound]) => `${animal}: ${sound}`).join(', ')
+  );
+  
+   
+  const data = { value: 42 };
+  const handler = {
+    set(target, property, value) {
+      console.log(`Setting ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+  };
+  
+  const proxyData = new Proxy(data, handler);
+  proxyData.value = 100;  
+  
+   
+  const sym = Symbol('uniqueKey');
+  const obj = {
+    [sym]: 'This is a unique symbol property'
+  };
+  console.log(obj[sym]);
+};
+
+runApp();
+```

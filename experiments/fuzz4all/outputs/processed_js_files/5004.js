@@ -1,0 +1,38 @@
+ 
+
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  
+  info() {
+    return `${this.name} is ${this.age} years old.`;
+  }
+}
+
+const fetchUserData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const users = [
+        { name: 'Alice', age: 25 },
+        { name: 'Bob', age: 30 }
+      ];
+      resolve(users);
+    }, 1000);
+  });
+};
+
+const displayUserData = async () => {
+  try {
+    const usersData = await fetchUserData();
+    usersData.forEach(({ name, age }) => {
+      const user = new User(name, age);
+      print(user.info());
+    });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+displayUserData();

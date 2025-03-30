@@ -1,0 +1,55 @@
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+
+  describe() {
+    return `This is a ${this.name}.`;
+  }
+}
+
+const Logger = {
+  log: (message) => console.log(`[LOG]: ${message}`),
+  error: (message) => console.error(`[ERROR]: ${message}`)
+};
+
+async function fetchShapeData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      Logger.log('Fetched shape data');
+      resolve({ type: 'circle', radius: 5 });
+    }, 1000);
+  });
+}
+
+function* calculateAreas(shapes) {
+  for (let shape of shapes) {
+    switch (shape.type) {
+      case 'circle':
+        yield Math.PI * Math.pow(shape.radius, 2);
+        break;
+      case 'square':
+        yield Math.pow(shape.side, 2);
+        break;
+      default:
+        Logger.error('Unknown shape');
+    }
+  }
+}
+
+(async () => {
+  try {
+    const shapeData = await fetchShapeData();
+    const shape = new Shape(shapeData.type);
+    Logger.log(shape.describe());
+
+    const shapes = [{ type: 'circle', radius: 5 }, { type: 'square', side: 4 }];
+    const areasIterator = calculateAreas(shapes);
+    
+    for (let area of areasIterator) {
+      Logger.log(`Calculated area: ${area}`);
+    }
+  } catch (err) {
+    Logger.error('An error occurred: ' + err.message);
+  }
+})();

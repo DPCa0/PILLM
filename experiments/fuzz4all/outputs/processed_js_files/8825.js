@@ -1,0 +1,35 @@
+ 
+
+async function fetchUserData(userId) {
+  const mockApi = id => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id,
+        name: `User${id}`,
+        email: `user${id}@example.com`
+      });
+    }, 1000);
+  });
+
+  try {
+    const userData = await mockApi(userId);
+    const { id, name, email } = userData;
+    print(`Fetched Data - ID: ${id}, Name: ${name}, Email: ${email}`);
+    return userData;
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+function processUserData({ id, name, email }) {
+  const userNameCaps = name.toUpperCase();
+  print(`Processed Data - ID: ${id}, Name: ${userNameCaps}, Email: ${email}`);
+}
+
+(async () => {
+  const userId = 1;
+  const userData = await fetchUserData(userId);
+  if (userData) {
+    processUserData(userData);
+  }
+})();

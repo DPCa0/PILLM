@@ -1,0 +1,29 @@
+ 
+class AsyncDataFetcher {
+  async *[Symbol.asyncIterator]() {
+    const data = ['apple', 'banana', 'cherry', 'date'];
+    for (const item of data) {
+       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield item;
+    }
+  }
+}
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'fetch') {
+      return async () => {
+        for await (let item of target) {
+          print(`Fetched item: ${item}`);
+        }
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const asyncDataFetcher = new AsyncDataFetcher();
+const proxiedFetcher = new Proxy(asyncDataFetcher, handler);
+
+proxiedFetcher.fetch();

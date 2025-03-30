@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile('example.json', 'utf8');
+    
+     
+    let { name, age } = JSON.parse(data);
+    
+     
+    console.log(`Name: ${name}, Age: ${age ?? 'unknown'}`);
+
+     
+    const greet = (greeting, ...names) => {
+      return names.map(name => `${greeting}, ${name}!`);
+    };
+    
+     
+    const namesArray = ['Alice', 'Bob', 'Charlie'];
+    console.log(greet('Hello', ...namesArray).join(' '));
+    
+     
+    const handler = {
+      get: (obj, prop) => {
+        console.log(`Accessing property: ${prop}`);
+        return prop in obj ? obj[prop] : 'Property not found';
+      }
+    };
+
+    const person = new Proxy({ name: 'Dave', age: 30 }, handler);
+    console.log(person.name);
+    console.log(person.location);
+    
+  } catch (error) {
+     
+    console.error('Error:', error?.message ?? 'An unknown error occurred');
+  }
+})();
+
+ 
+(() => {
+   
+  const map = new Map();
+  map.set('first', 'Hello');
+  map.set('second', 'World');
+  
+  const set = new Set(['one', 'two', 'three']);
+  
+  console.log('Map keys and values:');
+  for (const [key, value] of map) {
+    console.log(`${key}: ${value}`);
+  }
+
+  console.log('Set values:');
+  for (const value of set) {
+    console.log(value);
+  }
+})();
+```

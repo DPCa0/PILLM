@@ -1,0 +1,36 @@
+Certainly! Here's a JavaScript program that uses advanced features such as async/await, Promises, and modern array methods:
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = (data) => {
+  return data.map(item => ({
+    id: item.id,
+    name: item.name.toUpperCase(),
+    price: (item.price * 1.2).toFixed(2)
+  })).filter(item => item.price > 20);
+};
+
+const main = async () => {
+  try {
+    const url = 'https: 
+    const data = await fetchData(url);
+    const processedData = processData(data);
+
+    const result = processedData.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+
+    print('Processed Data:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();
+
+This script fetches data from a given URL, processes it to update and filter the products, and then reduces the processed items into an object keyed by `id`.

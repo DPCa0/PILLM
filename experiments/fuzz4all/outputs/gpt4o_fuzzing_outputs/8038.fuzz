@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+ 
+class AdvancedCalculator {
+    #history = [];  
+
+    constructor() {
+        this.result = 0;
+    }
+
+    add(...numbers) {
+        this.result = numbers.reduce((acc, num) => acc + num, this.result);
+        this.#logOperation('+', numbers);
+        return this;
+    }
+
+    subtract(...numbers) {
+        this.result = numbers.reduce((acc, num) => acc - num, this.result);
+        this.#logOperation('-', numbers);
+        return this;
+    }
+
+    multiply(...numbers) {
+        this.result = numbers.reduce((acc, num) => acc * num, this.result === 0 ? 1 : this.result);
+        this.#logOperation('*', numbers);
+        return this;
+    }
+
+    divide(...numbers) {
+        this.result = numbers.reduce((acc, num) => acc / num, this.result === 0 ? numbers[0] : this.result);
+        this.#logOperation('/', numbers);
+        return this;
+    }
+
+     
+    #logOperation(op, numbers) {
+        this.#history.push({ operation: op, numbers, result: this.result });
+    }
+
+    getHistory() {
+        return this.#history;
+    }
+
+    reset() {
+        this.result = 0;
+        return this;
+    }
+
+    getResult() {
+        return this.result;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        if (typeof value !== 'number') {
+            throw new TypeError('Value must be a number');
+        }
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const calculator = new Proxy(new AdvancedCalculator(), handler);
+
+ 
+try {
+    calculator.add(5, 10).subtract(3).multiply(2).divide(4);
+    console.log(`Final Result: ${calculator.getResult()}`);  
+    console.log('History:', calculator.getHistory());
+} catch (error) {
+    console.error(error);
+}
+```

@@ -1,0 +1,43 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: `Data from ${url}` });
+        }, 1000);
+    });
+}
+
+ 
+function* urlGenerator(urls) {
+    for (const url of urls) {
+        yield url;
+    }
+}
+
+ 
+const dataHandler = {
+    get: function(target, prop, receiver) {
+        print(`Accessing property ${prop} of fetched data`);
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+async function processURLs(urls) {
+    const urlGen = urlGenerator(urls);
+    let nextUrl = urlGen.next();
+    while (!nextUrl.done) {
+        const fetchedData = await fetchData(nextUrl.value);
+        const proxiedData = new Proxy(fetchedData, dataHandler);
+        print(proxiedData.data);
+        nextUrl = urlGen.next();
+    }
+}
+
+ 
+const urls = ['http://api.example.com/resource1', 'http://api.example.com/resource2', 'http://api.example.com/resource3'];
+
+ 
+processURLs(urls);

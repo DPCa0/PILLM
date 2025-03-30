@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData() {
+  const simulateFetch = (data, delay) => new Promise(resolve => setTimeout(() => resolve(data), delay));
+  
+  yield await simulateFetch({ user: 'Alice' }, 1000);
+  yield await simulateFetch({ user: 'Bob' }, 1000);
+  yield await simulateFetch({ user: 'Charlie' }, 1000);
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop} from ${JSON.stringify(target)}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value} in ${JSON.stringify(target)}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+async function handleData() {
+  const dataGenerator = fetchData();
+  for await (const data of dataGenerator) {
+    const proxiedData = new Proxy(data, handler);
+    console.log(`Fetched user: ${proxiedData.user}`);
+    proxiedData.retrievedAt = new Date().toISOString();
+  }
+}
+
+ 
+handleData().then(() => console.log('All data processed.'));
+```

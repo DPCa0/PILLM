@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+async function runApp() {
+  const { randomInt } = await import('node:crypto');
+
+   
+  const asyncTasks = [
+    fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json()),
+    fetch('https://jsonplaceholder.typicode.com/todos/2').then(res => res.json()),
+    new Promise((resolve, reject) => setTimeout(() => reject('Simulated Error'), 500))
+  ];
+
+  const results = await Promise.allSettled(asyncTasks);
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      console.log(`Task ${index + 1} fulfilled:`, result.value);
+    } else {
+      console.error(`Task ${index + 1} failed:`, result.reason);
+    }
+  });
+
+   
+  const person = { name: 'Alice', age: 30 };
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        return `Property ${prop} does not exist.`;
+      }
+    }
+  };
+
+  const proxyPerson = new Proxy(person, handler);
+
+  console.log(proxyPerson.name);  
+  console.log(proxyPerson.height);  
+
+   
+  const largeNumber1 = BigInt('9007199254740991');
+  const largeNumber2 = BigInt('12345678901234567890');
+  console.log('BigInt Sum:', largeNumber1 + largeNumber2);
+
+   
+  const [first, second, ...rest] = [10, 20, 30, 40, 50];
+  const combinedArray = [...rest, first, second];
+  console.log('Combined Array:', combinedArray);
+
+   
+  function factorial(n, acc = 1n) {
+    if (n <= 1) return acc;
+    return factorial(n - 1n, n * acc);
+  }
+
+  console.log('Factorial of 100n:', factorial(100n));
+
+   
+  const htmlTemplate = `
+    <div>
+      <h1>${proxyPerson.name}'

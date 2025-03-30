@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this[Symbol.iterator] = function* () {
+      let a = 0, b = 1, temp;
+      for (let i = 0; i < this.limit; i++) {
+        yield a;
+        temp = a;
+        a = b;
+        b = temp + b;
+      }
+    };
+  }
+}
+
+const asyncProcess = async (num) => {
+  return new Promise(resolve => setTimeout(() => resolve(num * 2), 100));
+};
+
+const processFibonacci = async (limit) => {
+  const fib = new Fibonacci(limit);
+  const results = [];
+  
+  for await (const num of fib) {
+    results.push(await asyncProcess(num));
+  }
+  
+  return results;
+};
+
+(async () => {
+  const limit = 10;
+  const processedResults = await processFibonacci(limit);
+  const [first, second, ...rest] = processedResults;
+  
+  console.log(`First: ${first}, Second: ${second}`);
+  console.log(`Rest: ${rest.join(', ')}`);
+})();
+```

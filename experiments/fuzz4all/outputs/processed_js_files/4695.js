@@ -1,0 +1,49 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+const debounce = (func, delay) => {
+  let timeout;
+  return function(...args) {
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataFetched', data => {
+  print('Data:', data);
+});
+
+const fetchDebouncedData = debounce(async () => {
+  try {
+    const data = await fetchJson('https://jsonplaceholder.typicode.com/posts');
+    eventEmitter.emit('dataFetched', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}, 500);
+
+document.getElementById('fetchDataButton').addEventListener('click', fetchDebouncedData);
+
+This JavaScript program uses features like classes, Promises with async/await, higher-order functions for debouncing, and event-driven programming with a custom event emitter to manage asynchronous operations and emit events upon data fetching.

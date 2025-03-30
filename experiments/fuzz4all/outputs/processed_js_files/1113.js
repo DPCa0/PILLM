@@ -1,0 +1,31 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const { username, age } = { username: 'JohnDoe', age: 30 };
+
+     
+    const userMap = new Map([
+      ['username', username],
+      ['age', age],
+    ]);
+
+     
+    const message = `User Info: ${[...userMap.entries()].map(([key, value]) => `${key}: ${value}`).join(', ')}`;
+
+     
+    await fs.writeFile('userInfo.txt', message);
+
+     
+    const outputPath = fs?.filePath ?? 'userInfo.txt';
+
+     
+    const data = await fs.readFile(outputPath, 'utf8');
+    print(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

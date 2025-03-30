@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = url => 
+    new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.5 
+                ? resolve({ data: `Data from ${url}`, timestamp: Date.now() })
+                : reject(new Error('Failed to fetch data'));
+        }, 1000);
+    });
+
+const processData = async urls => {
+    try {
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        const formattedResults = results.map(({ data, timestamp }) => ({
+            info: data.toUpperCase(),
+            time: new Date(timestamp).toLocaleString()
+        }));
+
+        formattedResults.forEach(({ info, time }, index) => {
+            console.log(`Result ${index + 1}: ${info} at ${time}`);
+        });
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+ 
+const urls = ['https://api.example1.com', 'https://api.example2.com', 'https://api.example3.com'];
+processData(urls);
+```

@@ -1,0 +1,45 @@
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id: 1, name: "Advanced JavaScript" }), 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property === "name") {
+      return target[property].toUpperCase();
+    }
+    return target[property];
+  }
+};
+
+ 
+function* dataGenerator(dataList) {
+  for (const data of dataList) {
+    yield new Proxy(data, handler);
+  }
+}
+
+(async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const dataArray = [data];
+
+     
+    const generator = dataGenerator(dataArray);
+
+     
+    for (const item of generator) {
+      print(`ID: ${item.id}, Name: ${item.name}`);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();

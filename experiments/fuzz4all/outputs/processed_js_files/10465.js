@@ -1,0 +1,30 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+function processUserData({ id, name, ...rest }) {
+  const updatedRest = { ...rest, isActive: true };  
+  return { id, name: name.toUpperCase(), ...updatedRest };
+}
+
+async function getProcessedUsersData(url) {
+  try {
+    const users = await fetchData(url);
+    const userMap = new Map(users.map(user => [user.id, processUserData(user)]));
+    
+    return [...userMap.values()];
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const processedUsers = await getProcessedUsersData(url);
+  print(processedUsers);
+})();

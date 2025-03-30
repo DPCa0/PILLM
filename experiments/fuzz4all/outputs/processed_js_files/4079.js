@@ -1,0 +1,42 @@
+ 
+
+ 
+function* dataStream() {
+  let i = 0;
+  while (i < 5) {
+    yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+  }
+}
+
+ 
+async function processData(stream) {
+  for await (let data of stream) {
+    print("Received data:", data);
+  }
+}
+
+ 
+const handler = {
+  apply: function(target, thisArg, argumentsList) {
+    print(`Called ${target.name} with arguments: ${argumentsList}`);
+    return target(...argumentsList) * 2;   
+  }
+};
+
+ 
+function compute(x) {
+  return x + 10;
+}
+
+const proxyCompute = new Proxy(compute, handler);
+
+ 
+(async () => {
+  print("Start processing data:");
+  const stream = dataStream();
+  await processData(stream);
+  print("Data processing completed.");
+  
+   
+  print("Proxy compute result:", proxyCompute(5));  
+})();

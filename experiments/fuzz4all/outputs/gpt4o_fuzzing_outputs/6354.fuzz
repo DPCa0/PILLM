@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+const fetchData = async () => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Hello, Advanced JavaScript!' });
+        }, 1000);
+    });
+};
+
+ 
+(async () => {
+    try {
+         
+        const response = await fetchData();
+        const { data } = response;
+
+         
+        const formatMessage = (strings, message) => {
+            return `${strings[0]}${message}`;
+        };
+
+        const message = formatMessage`Response: ${data}`;
+        console.log(message);
+
+         
+        const details = { id: 1, name: 'John Doe', age: 30 };
+        const { name, ...rest } = details;
+        const updatedDetails = { ...rest, age: 31 };
+
+        console.log(updatedDetails);
+
+         
+        const user = { profile: { username: 'johndoe' } };
+        const username = user.profile?.username ?? 'Anonymous';
+
+        console.log(`Username: ${username}`);
+
+         
+        const uniqueNumbers = new Set([1, 2, 3, 3, 2]);
+        console.log(uniqueNumbers);  
+
+        const nameMap = new Map();
+        nameMap.set('firstName', 'Jane');
+        nameMap.set('lastName', 'Doe');
+        console.log(nameMap.get('firstName'));
+
+         
+        await fs.writeFile('output.txt', message);
+        const fileContent = await fs.readFile('output.txt', 'utf-8');
+        console.log(`File content: ${fileContent}`);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

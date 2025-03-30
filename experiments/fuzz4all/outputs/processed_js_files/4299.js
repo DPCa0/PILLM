@@ -1,0 +1,39 @@
+class Fetcher {
+    static async fetchData(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    }
+}
+
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+async function processData(url) {
+    try {
+        const data = await Fetcher.fetchData(url);
+        const doubledValues = data.map(num => num * 2);
+        print('Doubled Values:', doubledValues);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+const pipeline = async (url) => {
+    const iterator = numberGenerator();
+    print('Generated Numbers:', Array.from({ length: 5 }, () => iterator.next().value));
+
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(2000);
+
+    await processData(url);
+};
+
+const url = 'https://api.example.com/numbers';
+pipeline(url).catch(console.error);

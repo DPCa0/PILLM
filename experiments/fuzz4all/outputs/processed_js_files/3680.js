@@ -1,0 +1,45 @@
+class Task {
+  #id;
+  constructor(description) {
+    this.#id = Task.generateId();
+    this.description = description;
+    this.completed = false;
+  }
+
+  static generateId = (() => {
+    let counter = 0;
+    return () => ++counter;
+  })();
+
+  complete() {
+    this.completed = true;
+  }
+
+  get info() {
+    return `Task ${this.#id}: ${this.description} - ${this.completed ? 'Completed' : 'Pending'}`;
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const tasks = [
+    new Task("Implement feature X"),
+    new Task("Fix bug Y"),
+    new Task("Write tests for Z"),
+  ];
+
+  for (const task of tasks) {
+    print(task.info);
+    await sleep(1000);  
+    task.complete();
+    print(task.info);
+  }
+
+  const completedTasks = tasks
+    .filter(task => task.completed)
+    .map(({description}) => description)
+    .reduce((all, desc) => `${all}\n- ${desc}`, 'Completed Tasks:');
+
+  print(completedTasks);
+})();

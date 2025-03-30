@@ -1,0 +1,51 @@
+class AsyncNumberGenerator {
+  constructor(limit) {
+    this.limit = limit;
+  }
+
+  *generator() {
+    for (let i = 1; i <= this.limit; i++) {
+      yield new Promise(resolve => setTimeout(() => resolve(i), Math.random() * 1000));
+    }
+  }
+
+  async fetchNumbers() {
+    const numbers = this.generator();
+    const results = [];
+    for await (let num of numbers) {
+      results.push(num);
+    }
+    return results;
+  }
+}
+
+(async () => {
+  const limit = 5;
+  const asyncGen = new AsyncNumberGenerator(limit);
+  console.time('FetchNumbers');
+  const numbers = await asyncGen.fetchNumbers();
+  console.timeEnd('FetchNumbers');
+  print('Generated Numbers:', numbers);
+})();
+
+function pipeline(...fns) {
+  return async (input) => fns.reduce((chain, func) => chain.then(func), Promise.resolve(input));
+}
+
+const fetchUserData = async userId => {
+  return { userId, name: 'User' + userId };
+};
+
+const capitalizeName = async user => {
+  return { ...user, name: user.name.toUpperCase() };
+};
+
+const logUser = async user => {
+  print('Final User:', user);
+  return user;
+};
+
+(async () => {
+  const processUser = pipeline(fetchUserData, capitalizeName, logUser);
+  await processUser(1);
+})();

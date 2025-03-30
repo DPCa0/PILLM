@@ -1,0 +1,33 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+};
+
+const processUserData = async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+  
+  if (!data) return;
+
+  const processedData = data
+    .filter(user => user.address.geo.lat < 0)  
+    .map(user => ({
+      name: user.name,
+      email: user.email,
+      coordinates: {
+        latitude: user.address.geo.lat,
+        longitude: user.address.geo.lng
+      }
+    }));
+  
+  print('Processed Users:', processedData);
+};
+
+processUserData();

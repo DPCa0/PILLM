@@ -1,0 +1,55 @@
+class Observable {
+  constructor() {
+    this.listeners = new Set();
+  }
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  notify(data) {
+    this.listeners.forEach(listener => listener(data));
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const weatherStation = new Observable();
+
+const listener1 = data => print(`Listener 1: Temperature is ${data.temp}°C`);
+const listener2 = data => print(`Listener 2: Humidity is ${data.humidity}%`);
+
+const unsubscribeListener1 = weatherStation.subscribe(debounce(listener1, 1000));
+weatherStation.subscribe(debounce(listener2, 1500));
+
+ 
+let temperature = 20;
+let humidity = 50;
+
+const updateWeather = () => {
+  temperature += Math.floor(Math.random() * 5 - 2);
+  humidity += Math.floor(Math.random() * 5 - 2);
+  weatherStation.notify({ temp: temperature, humidity: humidity });
+};
+
+ 
+const weatherInterval = setInterval(updateWeather, 1000);
+
+ 
+setTimeout(() => {
+  unsubscribeListener1();
+  print("Listener 1 unsubscribed");
+}, 10000);
+
+ 
+setTimeout(() => {
+  clearInterval(weatherInterval);
+  print("Weather updates stopped");
+}, 20000);

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting the value of ${prop}`);
+    return prop in target ? target[prop] : 'Property does not exist';
+  },
+  set(target, prop, value) {
+    console.log(`Setting the value of ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+(async function main() {
+   
+  const targetObject = {
+    name: 'Advanced JS',
+    type: 'Demo'
+  };
+
+   
+  const proxy = new Proxy(targetObject, handler);
+
+   
+  console.log('Starting async operations...');
+  await delay(1000);
+
+  console.log('Current name:', proxy.name);
+  await delay(500);
+  
+  proxy.name = 'Updated JS';
+  await delay(500);
+  
+  console.log('Updated name:', proxy.name);
+  
+  console.log('Trying to access a non-existent property:', proxy.nonExistent);
+  await delay(500);
+
+  console.log('Async operations completed.');
+})().catch(console.error);
+```

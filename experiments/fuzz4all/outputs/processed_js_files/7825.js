@@ -1,0 +1,51 @@
+class TemperatureConverter {
+  constructor(unit, value) {
+    this.unit = unit;
+    this.value = value;
+  }
+
+  static #fahrenheitToCelsius(f) {
+    return ((f - 32) * 5) / 9;
+  }
+
+  static #celsiusToFahrenheit(c) {
+    return (c * 9) / 5 + 32;
+  }
+
+  *convert() {
+    if (this.unit === 'F') {
+      yield `Celsius: ${TemperatureConverter.#fahrenheitToCelsius(this.value).toFixed(2)}`;
+      yield `Kelvin: ${(TemperatureConverter.#fahrenheitToCelsius(this.value) + 273.15).toFixed(2)}`;
+    } else if (this.unit === 'C') {
+      yield `Fahrenheit: ${TemperatureConverter.#celsiusToFahrenheit(this.value).toFixed(2)}`;
+      yield `Kelvin: ${(this.value + 273.15).toFixed(2)}`;
+    } else {
+      throw new Error('Unknown temperature unit.');
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const runConversion = async () => {
+  try {
+    const tempF = new TemperatureConverter('F', 100);
+    const tempC = new TemperatureConverter('C', 37.5);
+
+    print('Converting 100F:');
+    for (const result of tempF.convert()) {
+      print(result);
+      await delay(1000);
+    }
+
+    print('\nConverting 37.5C:');
+    for (const result of tempC.convert()) {
+      print(result);
+      await delay(1000);
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+runConversion();

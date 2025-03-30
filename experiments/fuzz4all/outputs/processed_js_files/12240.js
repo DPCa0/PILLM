@@ -1,0 +1,36 @@
+ 
+(async function () {
+    const fs = await import('fs/promises');
+
+     
+    const data = new Map([
+        ['A', 1],
+        ['B', 2],
+        ['C', 3],
+    ]);
+
+     
+    const dataArray = [...data].map(([key, value]) => ({ key, value }));
+
+     
+    async function processData(arr) {
+        return arr.map(({ key, value }) => ({ key, transformedValue: value ** 2 }));
+    }
+
+     
+    const transformedData = await Promise.all([processData(dataArray)]);
+
+     
+    const uniqueValues = new Set(transformedData[0].map(item => item.transformedValue));
+
+     
+    const output = `
+        Original Data: ${JSON.stringify(dataArray, null, 2)}
+        Transformed Data: ${JSON.stringify(transformedData, null, 2)}
+        Unique Transformed Values: ${[...uniqueValues].join(', ')}
+    `;
+
+     
+    await fs.writeFile('output.txt', output);
+    print('Data processing complete. Check output.txt for results.');
+})();

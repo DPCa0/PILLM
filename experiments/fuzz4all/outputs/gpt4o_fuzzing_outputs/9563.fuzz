@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+    yield new Promise(resolve => setTimeout(() => resolve("Data part 1"), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve("Data part 2"), 1000));
+    return "All data fetched";
+}
+
+ 
+async function handleGenerator(gen) {
+    const iterator = gen();
+    const result = [];
+    
+    for await (const value of iterator) {
+        result.push(value);
+    }
+
+    return result;
+}
+
+ 
+const fetchProxyHandler = {
+    get(target, prop) {
+        return async (...args) => {
+            const response = await target[prop](...args);
+            const data = await response.json();
+            return new Proxy(data, {
+                get(obj, key) {
+                    return key in obj ? obj[key] : `Property ${key} not found`;
+                }
+            });
+        };
+    }
+};
+
+ 
+const fetch = new Proxy({
+    async get(url) {
+        return new Promise(resolve => 
+            setTimeout(() => resolve({ json: () => ({ url, status: "Success", content: "Mock data" }) }), 500)
+        );
+    }
+}, fetchProxyHandler);
+
+(async function main() {
+    console.log("Starting complex JavaScript program...");
+
+     
+    const fetchedData = await handleGenerator(fetchDataGenerator);
+    console.log("Fetched data from generator:", fetchedData);
+
+     
+    try {
+        const data = await fetch.get("https://example.com/api");
+        console.log("Fetched data from API via proxy:", data.url, data.status, data.content, data.missingProperty);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+})();
+```

@@ -1,0 +1,45 @@
+ 
+
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return response.json();
+}
+
+const handler = {
+  get: function(target, property) {
+    return property in target ? target[property] : 'Property not found';
+  },
+};
+
+const user = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+async function processRange() {
+  const numbers = range(1, 5);
+  for (let num of numbers) {
+    print(`Processing number: ${num}`);
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+  }
+}
+
+async function main() {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+
+  print('User name:', user.name);
+  print('User hobby:', user.hobby);  
+  
+  await processRange();
+}
+
+main();

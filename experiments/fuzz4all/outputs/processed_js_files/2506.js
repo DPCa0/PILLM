@@ -1,0 +1,55 @@
+ 
+class DataProcessor {
+   
+  #data;
+
+  constructor(data) {
+    this.#data = data;
+  }
+
+   
+  #process() {
+    return this.#data.map(item => item * 2);
+  }
+
+   
+  execute() {
+    return this.#process();
+  }
+
+   
+  static async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch Error:', error);
+    }
+  }
+}
+
+ 
+function* dataGenerator(processor) {
+  const processedData = processor.execute();
+  for (let item of processedData) {
+    yield item;
+  }
+}
+
+ 
+(async () => {
+  const data = [1, 2, 3, 4, 5];
+  const processor = new DataProcessor(data);
+
+   
+  const generator = dataGenerator(processor);
+  for (let value of generator) {
+    print('Processed Value:', value);
+  }
+
+   
+  const apiData = await DataProcessor.fetchData('https://api.example.com/data');
+  print('Fetched Data:', apiData);
+})();

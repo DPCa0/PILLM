@@ -1,0 +1,42 @@
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      if (url) {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const { data } = await fetchData(url);
+
+     
+    const squaredData = data.map(num => num ** 2);
+
+     
+    const sum = (...numbers) => numbers.reduce((acc, curr) => acc + curr, 0);
+
+     
+    const tag = (strings, ...values) => {
+      return strings.reduce((result, str, i) => `${result}${str}${values[i] || ''}`, '');
+    };
+
+    print(tag`Original data: ${data}\nSquared data: ${squaredData}\nSum of squares: ${sum(...squaredData)}`);
+
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();

@@ -1,0 +1,43 @@
+Certainly! Below is a JavaScript program that uses some advanced features, such as async/await, Promises, destructuring, and higher-order functions.
+
+const fetch = require('node-fetch');
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = async (url) => {
+  const data = await fetchData(url);
+  if (!data) return;
+
+   
+  const { title, body } = data;
+  
+   
+  print(`Title: ${title}`);
+  print(`Body: ${body}`);
+};
+
+const run = async () => {
+   
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+  const tasks = urls.map(url => processData(url));
+
+   
+  await Promise.all(tasks);
+};
+
+run();
+
+This code fetches data from a public API, processes it by extracting specific properties using destructuring, and handles multiple async operations concurrently using `Promise.all`. It showcases a combination of async programming and data manipulation techniques.

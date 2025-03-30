@@ -1,0 +1,24 @@
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* numberGenerator(limit) {
+    let num = 1;
+    while (num <= limit) {
+        yield await delay(500).then(() => num++);
+    }
+}
+
+const double = x => x * 2;
+const isEven = x => x % 2 === 0;
+
+(async () => {
+    try {
+        const limit = 10;
+        const numGen = numberGenerator(limit);
+
+        for await (const num of numGen) {
+            print(`Number: ${num}, Double: ${double(num)}, Is Even: ${isEven(double(num))}`);
+        }
+    } catch (err) {
+        console.error('An error occurred:', err);
+    }
+})();

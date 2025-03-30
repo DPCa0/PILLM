@@ -1,0 +1,45 @@
+ 
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+const user = {
+  name: 'Alice',
+  age: 28,
+  role: 'admin',
+};
+
+ 
+print(`User Details: Name - ${user.name}, Age - ${user.age}, Role - ${user.role}`);
+
+ 
+const userID = Symbol('userID');
+user[userID] = randomBytes(8).toString('hex');
+print(`User ID: ${user[userID]}`);
+
+ 
+const algorithm = 'aes-256-cbc';
+const key = randomBytes(32);  
+const iv = randomBytes(16);  
+
+ 
+const encrypt = (text) => {
+  const cipher = createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+};
+
+ 
+const decrypt = (encryptedText) => {
+  const decipher = createDecipheriv(algorithm, key, iv);
+  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+};
+
+ 
+const encryptedRole = encrypt(user.role);
+print(`Encrypted Role: ${encryptedRole}`);
+
+const decryptedRole = decrypt(encryptedRole);
+print(`Decrypted Role: ${decryptedRole}`);

@@ -1,0 +1,71 @@
+(async () => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    const fetchData = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+        const data = await response.json();
+        return data;
+    };
+
+    class EventEmitter {
+        constructor() {
+            this.events = {};
+        }
+
+        on(event, listener) {
+            if (!this.events[event]) this.events[event] = [];
+            this.events[event].push(listener);
+        }
+
+        emit(event, data) {
+            if (!this.events[event]) return;
+            this.events[event].forEach(listener => listener(data));
+        }
+    }
+
+    const emitter = new EventEmitter();
+
+    emitter.on('dataReceived', data => {
+        print('Data received:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('An error occurred:', error);
+    });
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        await delay(2000);  
+        emitter.emit('dataReceived', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+
+    const sum = (...args) => args.reduce((acc, val) => acc + val, 0);
+
+    print('Sum:', sum(1, 2, 3, 4, 5));
+
+    const nestedFunc = (a) => (b) => (c) => a + b + c;
+    print('Nested function result:', nestedFunc(1)(2)(3));
+
+    const proxyHandler = {
+        get: (target, prop) => {
+            if (prop in target) {
+                return target[prop];
+            } else {
+                throw new ReferenceError(`Property ${prop} does not exist.`);
+            }
+        }
+    };
+
+    const obj = new Proxy({ greeting: 'Hello', name: 'World' }, proxyHandler);
+    print(obj.greeting, obj.name);
+
+    try {
+        print(obj.nonExistentProp);
+    } catch (err) {
+        console.error(err.message);
+    }
+
+})();

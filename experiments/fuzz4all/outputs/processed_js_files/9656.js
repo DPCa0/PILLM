@@ -1,0 +1,62 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static fromArray(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (col >= this.data[row].length) {
+          row++;
+          col = 0;
+        }
+        if (row >= this.data.length) {
+          return { done: true };
+        }
+        return { value: this.data[row][col++], done: false };
+      }
+    };
+  }
+
+  async mapAsync(callback) {
+    const promises = [];
+    for (let row = 0; row < this.data.length; row++) {
+      promises.push(Promise.all(this.data[row].map((x, col) => callback(x, row, col))));
+    }
+    this.data = await Promise.all(promises);
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  const matrix = new Matrix(3, 3, 1);
+
+   
+  await matrix.mapAsync(async (x, row, col) => {
+    await new Promise(resolve => setTimeout(resolve, 10));  
+    return x * (row + 1) * (col + 1);
+  });
+
+   
+  print('Modified Matrix Elements:');
+  for (const element of matrix) {
+    print(element);
+  }
+
+   
+  print('\nMatrix Representation:');
+  print(matrix.toString());
+})();

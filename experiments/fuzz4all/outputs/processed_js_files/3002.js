@@ -1,0 +1,56 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event);
+    for (const listener of listeners) {
+      await listener(...args);
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+    this.events.set(event, listeners);
+  }
+}
+
+const eventEmitter = new AsyncEventEmitter();
+
+async function asyncListener(data) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      print(`Async Listener received: ${data}`);
+      resolve();
+    }, 1000);
+  });
+}
+
+function immediateListener(data) {
+  print(`Immediate Listener received: ${data}`);
+}
+
+eventEmitter.on('data', asyncListener);
+eventEmitter.on('data', immediateListener);
+
+async function simulateEvent() {
+  print('Emitting event with data: Hello!');
+  await eventEmitter.emit('data', 'Hello!');
+  
+  eventEmitter.off('data', immediateListener);
+  
+  print('Emitting event with data: World!');
+  await eventEmitter.emit('data', 'World!');
+}
+
+simulateEvent();

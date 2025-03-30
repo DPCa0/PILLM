@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response.json();
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.error('Fetch aborted due to timeout');
+        } else {
+            console.error('Fetch error:', error);
+        }
+    }
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    
+    emitter.on('data', data => {
+        console.log('Received data:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('Received error:', error);
+    });
+
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    
+    try {
+        const data = await fetchWithTimeout(url);
+        if (data) {
+            emitter.emit('data', data);
+        } else {
+            emitter.emit('error', new Error('No data received'));
+        }
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+})();
+```

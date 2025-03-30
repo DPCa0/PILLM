@@ -1,0 +1,55 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *generate(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  memoized(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    if (n < 2) {
+      return n;
+    }
+    const result = this.memoized(n - 1) + this.memoized(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const asyncTimeout = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const enhancedFilter = (arr, fn) => arr.reduce((acc, val, idx) => {
+  if (fn(val, idx, arr)) acc.push(val);
+  return acc;
+}, []);
+
+(async () => {
+  const fib = new Fibonacci();
+  
+  print("First 10 Fibonacci numbers:");
+  print([...fib.generate(10)]);
+
+  print("Memoized Fibonacci of 10:");
+  print(fib.memoized(10));
+
+  await asyncTimeout(1000);
+
+  const numbers = Array.from({ length: 20 }, (_, i) => i + 1);
+  const isPrime = (num) => {
+    for (let i = 2, sqrt = Math.sqrt(num); i <= sqrt; i++) {
+      if (num % i === 0) return false;
+    }
+    return num > 1;
+  };
+
+  print("Primes between 1 and 20:");
+  print(enhancedFilter(numbers, isPrime));
+})();

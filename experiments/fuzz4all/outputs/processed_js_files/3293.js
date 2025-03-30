@@ -1,0 +1,45 @@
+ 
+
+class DataFetcher {
+  constructor(endpoint) {
+    this.endpoint = endpoint;
+    this.cache = new Map();
+  }
+
+   
+  async fetchData(id) {
+    if (this.cache.has(id)) {
+      return this.cache.get(id);
+    }
+    const response = await fetch(`${this.endpoint}/${id}`);
+    const data = await response.json();
+    this.cache.set(id, data);
+    return data;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property, receiver) => {
+    if (property in target) {
+      print(`Accessing property "${property}"`);
+      return Reflect.get(target, property, receiver);
+    }
+    console.warn(`Property "${property}" does not exist`);
+    return undefined;
+  }
+};
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+
+ 
+const api = new Proxy(new DataFetcher('https://jsonplaceholder.typicode.com/posts'), handler);
+
+async function main() {
+  const dataId = 1;  
+  const data = await api.fetchData(dataId);
+  print({ [uniqueKey]: dataId, data });
+}
+
+main().catch(console.error);

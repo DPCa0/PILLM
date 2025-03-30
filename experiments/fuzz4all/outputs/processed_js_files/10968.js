@@ -1,0 +1,62 @@
+class Matrix {
+    #matrix;
+    constructor(rows, cols, defaultValue = 0) {
+        this.#matrix = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+    }
+
+    static #isSquare(matrix) {
+        return matrix.length === matrix[0].length;
+    }
+
+    transpose() {
+        return this.#matrix[0].map((_, colIndex) => this.#matrix.map(row => row[colIndex]));
+    }
+
+    *[Symbol.iterator]() {
+        for (const row of this.#matrix) {
+            yield* row;
+        }
+    }
+
+    map(callback) {
+        return this.#matrix.map((row, rowIndex) =>
+            row.map((value, colIndex) => callback(value, rowIndex, colIndex))
+        );
+    }
+
+    static identity(size) {
+        if (!Number.isInteger(size) || size <= 0) throw new Error("Size must be a positive integer");
+        const matrix = new Matrix(size, size);
+        for (let i = 0; i < size; i++) matrix.#matrix[i][i] = 1;
+        return matrix;
+    }
+
+    static multiply(a, b) {
+        if (a[0].length !== b.length) throw new Error("Incompatible matrices");
+        return a.map((row, i) =>
+            b[0].map((_, j) =>
+                row.reduce((sum, _, n) => sum + a[i][n] * b[n][j], 0)
+            )
+        );
+    }
+
+    toString() {
+        return this.#matrix.map(row => row.join('\t')).join('\n');
+    }
+}
+
+ 
+const matrixA = new Matrix(2, 3);
+const matrixB = Matrix.identity(3);
+
+print("Matrix A:");
+print(matrixA.toString());
+
+print("Identity Matrix B:");
+print(matrixB.toString());
+
+print("Transpose of A:");
+print(matrixA.transpose().toString());
+
+print("Multiplication of A and B:");
+print(Matrix.multiply(matrixA.transpose(), matrixB.#matrix).map(row => row.join('\t')).join('\n'));

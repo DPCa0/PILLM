@@ -1,0 +1,47 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+  
+  *[Symbol.iterator]() {
+    let n = 0;
+    while (true) yield this.calculate(n++);
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+
+  async getAsyncValue(n) {
+     
+    return new Promise(resolve => setTimeout(() => resolve(this.calculate(n)), 100));
+  }
+}
+
+(async () => {
+  const fibSeq = new FibonacciSequence();
+  const iterator = fibSeq[Symbol.iterator]();
+
+   
+  print([...Array(10)].map(() => iterator.next().value));
+
+   
+  const asyncFibNumbers = await Promise.all([5, 10, 15].map(n => fibSeq.getAsyncValue(n)));
+  print(asyncFibNumbers);
+
+   
+  const memoProxy = new Proxy(fibSeq.memo, {
+    get(target, prop) {
+      if (!target.has(prop)) {
+        console.warn(`Fibonacci number for ${prop} is not yet calculated.`);
+        return undefined;
+      }
+      return target.get(prop);
+    }
+  });
+
+  print('Memoized value for F(10):', memoProxy[10]);  
+})();

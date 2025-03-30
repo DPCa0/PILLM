@@ -1,0 +1,44 @@
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch data: ${response.status}`);
+  return await response.json();
+};
+
+const processUserData = (data) => {
+   
+  return data.map(({ id, name, email }) => ({
+    userId: id,
+    userName: name.toUpperCase(),
+    contact: email,
+  }));
+};
+
+const logData = (processedData) => {
+  console.table(processedData);
+};
+
+const handleErrors = (error) => {
+  console.error(`Error encountered: ${error.message}`);
+};
+
+(async () => {
+  try {
+    const apiUrls = [
+      'https://jsonplaceholder.typicode.com/users',
+      'https://jsonplaceholder.typicode.com/users?userId=2',
+    ];
+
+    const fetchPromises = apiUrls.map(url => fetchData(url));
+
+     
+    const results = await Promise.all(fetchPromises);
+
+    const processedResults = results.flatMap(processUserData);
+
+    logData(processedResults);
+  } catch (error) {
+    handleErrors(error);
+  }
+})();

@@ -1,0 +1,64 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { name: 'Advanced JavaScript', version: 'ES2023' } });
+    }, 1000);
+  });
+};
+
+ 
+async function showData({ data: { name, version } = {} } = await fetchData()) {
+  print(`Package: ${name}, Version: ${version}`);
+}
+
+showData();
+
+ 
+const state = {
+  message: 'Hello, Proxy!',
+  count: 0,
+};
+
+const handler = {
+  set(target, key, value) {
+    print(`Property ${key} changed from ${target[key]} to ${value}`);
+    target[key] = value;
+    if (key === 'count') {
+      print(`Re-rendering UI with count: ${value}`);
+    }
+    return true;
+  },
+};
+
+const proxyState = new Proxy(state, handler);
+
+proxyState.message = 'Hello, World!';
+proxyState.count = 1;
+
+ 
+function* generateNumbers(limit) {
+  for (let i = 0; i < limit; i++) {
+    yield i;
+  }
+}
+
+const numbers = generateNumbers(3);
+for (const number of numbers) {
+  print(`Generated number: ${number}`);
+}
+
+ 
+class Utility {
+  static logMessage(message) {
+    print(`Utility log: ${message}`);
+  }
+}
+
+Utility.logMessage('This is a static method call.');
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 3, 4, 5]);
+print(`Unique numbers: ${Array.from(uniqueNumbers).join(', ')}`);

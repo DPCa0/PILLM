@@ -1,0 +1,43 @@
+ 
+
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    
+     
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const data = await response.json();
+
+     
+    const [first, second, third] = data;
+
+     
+    const processData = (post) => new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (post) {
+          resolve(`Processed post ID: ${post.id}, Title: ${post.title}`);
+        } else {
+          reject('No post data');
+        }
+      }, 1000);
+    });
+
+     
+    const processedPosts = await Promise.all([
+      processData(first),
+      processData(second),
+      processData(third)
+    ]);
+
+     
+    print('Processed posts:', processedPosts);
+    
+  } catch (error) {
+     
+    console.error('Error fetching or processing data:', error);
+  }
+})();

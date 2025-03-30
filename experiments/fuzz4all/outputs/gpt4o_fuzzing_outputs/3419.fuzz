@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const privateKey = Symbol('private');
+
+     
+    const handler = {
+        get: (target, prop) => {
+            if (prop === 'getSecret') {
+                return () => `The secret is: ${target[privateKey]}`;
+            }
+            return target[prop];
+        }
+    };
+
+    const secretHolder = new Proxy({ [privateKey]: 'JavaScript' }, handler);
+
+     
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const revealSecret = async () => {
+        console.log('Thinking...');
+        await delay(1000);  
+        console.log(secretHolder.getSecret());
+    };
+
+     
+    const joinStrings = (...strings) => strings.join(' ');
+    console.log(joinStrings('Hello', 'advanced', 'JavaScript', 'features!'));
+
+     
+    const uniqueValues = new Set([1, 2, 3, 3, 4, 5]);
+    console.log('Unique values from Set:', [...uniqueValues]);
+
+    const map = new Map();
+    map.set('key1', 'value1');
+    map.set('key2', 'value2');
+    console.log('Values from Map:');
+    map.forEach((value, key) => console.log(`${key}: ${value}`));
+
+     
+    const obj = { name: 'JavaScript', type: 'Language' };
+    const { name, type } = obj;
+    console.log(`Destructured object: ${name} is a ${type}`);
+
+    await revealSecret();
+})();
+```

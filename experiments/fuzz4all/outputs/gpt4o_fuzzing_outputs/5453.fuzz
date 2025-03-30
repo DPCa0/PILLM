@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve([
+                { name: "Alice", age: 30 },
+                { name: "Bob", age: 25 },
+                { name: "Charlie", age: 35 }
+            ]);
+        }, 1000);
+    });
+}
+
+ 
+async function* asyncUserGenerator() {
+    const users = await fetchData();
+    for (const user of users) {
+        yield user;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Property "${prop}" accessed with value: ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.log(`Property "${prop}" not found`);
+            return undefined;
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property "${prop}" to value: ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+async function processUsers() {
+    const userGen = asyncUserGenerator();
+    for await (const user of userGen) {
+        const proxiedUser = new Proxy(user, handler);
+        console.log(`User: ${proxiedUser.name}, Age: ${proxiedUser.age}`);
+
+         
+        proxiedUser.isActive = true;
+        console.log(`User active status: ${proxiedUser.isActive}`);
+    }
+}
+
+ 
+processUsers();
+```

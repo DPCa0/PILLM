@@ -1,0 +1,55 @@
+ 
+
+ 
+const asyncOperation = (num) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        num % 2 === 0 ? resolve(num) : reject('Odd number error');
+    }, 1000);
+});
+
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        if (prop in target) {
+            return target[prop];
+        }
+        throw new Error(`Property ${prop} doesn't exist`);
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'number') {
+            target[prop] = value;
+            return true;
+        }
+        throw new Error('Value must be a number');
+    }
+};
+
+ 
+const obj = new Proxy({}, handler);
+
+ 
+const processNumbers = async () => {
+    const gen = numberGenerator();
+    for (let i = 0; i < 5; i++) {
+        const { value } = gen.next();
+        try {
+            obj[`num${i}`] = value;
+            print(`Setting num${i} to ${value}`);
+            const result = await asyncOperation(value);
+            print(`Result for ${result}: Success`);
+        } catch (error) {
+            print(`Error: ${error}`);
+        }
+    }
+};
+
+ 
+processNumbers();

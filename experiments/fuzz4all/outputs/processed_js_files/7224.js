@@ -1,0 +1,39 @@
+class User {
+    #name;
+    #age;
+
+    constructor(name, age) {
+        this.#name = name;
+        this.#age = age;
+    }
+
+    greet() {
+        print(`Hello, ${this.#name}!`);
+    }
+
+    isAdult() {
+        return this.#age >= 18;
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+};
+
+const main = async () => {
+    try {
+        const usersData = await fetchData('https://jsonplaceholder.typicode.com/users');
+        const users = usersData.map(user => new User(user.name, user.age));
+
+        users.forEach(user => {
+            user.greet();
+            print(`Is adult: ${user.isAdult()}`);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+main();

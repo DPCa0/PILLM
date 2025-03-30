@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs';
+import { promisify } from 'util';
+import axios from 'axios';
+
+ 
+const readFileAsync = promisify(fs.readFile);
+const writeFileAsync = promisify(fs.writeFile);
+
+ 
+class Config {
+    constructor() {
+        this.settings = {
+            url: 'https://jsonplaceholder.typicode.com/posts/1',
+            filePath: './data.json',
+        };
+    }
+}
+
+const configProxy = new Proxy(new Config(), {
+    get(target, prop) {
+        if (prop in target.settings) {
+            return target.settings[prop];
+        } else {
+            throw new Error(`Property ${prop} does not exist.`);
+        }
+    },
+    set(target, prop, value) {
+        if (prop in target.settings) {
+            target.settings[prop] = value;
+        } else {
+            throw new Error(`Cannot set non-existent property ${prop}.`);
+        }
+    }
+});
+
+ 
+async function* fetchData(url) {
+    let response = await axios.get(url);
+    yield response.data;
+}
+
+ 
+async function processAndSaveData() {
+    const uniqueData = new Set();
+    for await (const data of fetchData(configProxy.url)) {
+        uniqueData.add(JSON.stringify(data));
+    }
+
+     
+    const finalData = [...uniqueData].map(data => JSON.parse(data));
+    const dataStr = JSON.stringify(finalData, null, 2);
+
+    await writeFileAsync(configProxy.filePath, dataStr);
+    console.log(`Data saved to ${configProxy.filePath}`);
+}
+
+ 
+processAndSaveData().catch(error => console.error(error));
+```

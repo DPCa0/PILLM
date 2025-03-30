@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (data) => {
+  return new Promise((resolve) => setTimeout(() => resolve(data * 2), 1000));
+};
+
+ 
+function* promiseGenerator() {
+  let index = 1;
+  while (index <= 3) {
+    yield fetchData(index);
+    index++;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Getting value of ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set: (target, prop, value, receiver) => {
+    console.log(`Setting value of ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+const dataSymbol = Symbol('data');
+
+const dataObject = new Proxy({}, handler);
+
+ 
+const processData = async () => {
+  const gen = promiseGenerator();
+  dataObject[dataSymbol] = [];
+
+  for await (const promise of gen) {
+    const result = await promise;
+    dataObject[dataSymbol].push(result);
+  }
+
+  console.log(dataObject[dataSymbol]);  
+};
+
+processData();
+```

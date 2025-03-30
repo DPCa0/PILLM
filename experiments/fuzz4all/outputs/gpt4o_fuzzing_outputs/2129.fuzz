@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async ({ url, method = 'GET' }) => {
+    const response = await fetch(url, { method });
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+};
+
+ 
+const targetObject = { name: 'Alice', age: 30 };
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting property '${prop}'`);
+        return prop in obj ? obj[prop] : 'Property does not exist';
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+console.log(proxyObject.name);  
+proxyObject.age = 31;
+console.log(proxyObject.age);  
+
+ 
+const loadData = async () => {
+    try {
+        const data = await fetchData({ url: 'https://jsonplaceholder.typicode.com/users/1' });
+        console.log('User Data:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+(async () => {
+    console.log('Program start');
+
+     
+    await loadData();
+
+    console.log('Program end');
+})();
+```

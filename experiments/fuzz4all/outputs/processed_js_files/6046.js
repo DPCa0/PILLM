@@ -1,0 +1,53 @@
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+ 
+function* sequenceGenerator(start = 0, step = 1) {
+    let count = start;
+    while (true) {
+        yield count;
+        count += step;
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        print(`Getting ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const seqGen = sequenceGenerator(1, 3);
+const sequenceProxy = new Proxy(seqGen, handler);
+
+ 
+(async () => {
+    try {
+        const sequenceValues = [...Array(5)].map(() => sequenceProxy.next().value);
+        print('Generated sequence:', sequenceValues);
+
+        const url = 'https://jsonplaceholder.typicode.com/posts/1';
+        print('Fetching data from', url);
+        const data = await fetchData(url);
+        
+        const dataProxy = new Proxy(data, handler);
+        print('Fetched Data:', dataProxy.title);
+        dataProxy.title = 'New Title';
+        print('Modified Data:', dataProxy.title);
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+    }
+})();

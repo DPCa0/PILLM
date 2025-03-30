@@ -1,0 +1,44 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+ 
+const dataHandler = {
+  get: (target, property) => {
+    print(`Property ${property} accessed.`);
+    return property in target ? target[property] : `Property ${property} not found`;
+  }
+};
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData('https://api.spacexdata.com/v4/launches/latest');
+
+     
+    const launchData = new Proxy(data, dataHandler);
+
+     
+    print('Rocket Name:', launchData.name);
+    print('Launch Date:', launchData.date_utc);
+
+     
+    const { rocket, success, details } = launchData;
+
+    print('Rocket ID:', rocket);
+    print('Launch Successful:', success);
+    print('Details:', details);
+
+     
+    if (!success) {
+      const { notifyFailure } = await import('./failureHandler.js');
+      notifyFailure(details);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

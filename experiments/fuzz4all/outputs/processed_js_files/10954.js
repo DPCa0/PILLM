@@ -1,0 +1,65 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+ 
+class DataProcessor {
+    #data;  
+
+    constructor(data) {
+        this.#data = data;
+    }
+
+    filterData(predicate) {
+        return this.#data.filter(predicate);
+    }
+
+    mapData(transform) {
+        return this.#data.map(transform);
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            return target[property];
+        } else {
+            print(`Property ${property} does not exist`);
+            return undefined;
+        }
+    }
+};
+
+const apiURL = 'https://jsonplaceholder.typicode.com/users';
+
+(async () => {
+    try {
+         
+        const data = await fetchData(apiURL);
+
+         
+        const processor = new DataProcessor(data);
+
+         
+        const proxyProcessor = new Proxy(processor, handler);
+
+         
+        const filtered = proxyProcessor.filterData(user => user.company.name.includes('Group'));
+
+         
+        const emails = proxyProcessor.mapData(user => user.email);
+
+        print('Filtered Users:', filtered);
+        print('Emails:', emails);
+
+         
+        print('Accessing non-existing property:', proxyProcessor.nonExistentProperty);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

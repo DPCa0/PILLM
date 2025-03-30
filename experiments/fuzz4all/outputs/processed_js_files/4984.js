@@ -1,0 +1,48 @@
+ 
+const memoize = (fn) => {
+    const cache = new Map();
+    return function(...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) return cache.get(key);
+        const result = fn.apply(this, args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+const getFibonacciNumber = memoize((n) => {
+    const gen = fibonacci();
+    let number;
+    for (let i = 0; i < n; i++) {
+        number = gen.next().value;
+    }
+    return number;
+});
+
+ 
+const asyncProcessFibonacci = async (n) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(getFibonacciNumber(n));
+        }, 100);
+    });
+};
+
+ 
+(async () => {
+    const tasks = [...Array(10).keys()].map(async (i) => {
+        const fib = await asyncProcessFibonacci(i);
+        print(`Fibonacci(${i}): ${fib}`);
+    });
+    await Promise.all(tasks);
+})();

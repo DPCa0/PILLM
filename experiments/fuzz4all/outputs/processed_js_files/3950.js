@@ -1,0 +1,50 @@
+ 
+
+class ComplexCalculator {
+  constructor() {
+    this.result = 0;
+  }
+
+  async addAsync(value) {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.result += value;
+        resolve(this.result);
+      }, 1000);
+    });
+  }
+
+  *generateSequence(limit) {
+    for (let i = 1; i <= limit; i++) {
+      yield i;
+    }
+  }
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      print(`Accessing property: ${prop}`);
+      return obj[prop];
+    }
+    throw new ReferenceError(`Property ${prop} does not exist.`);
+  },
+  set: (obj, prop, value) => {
+    print(`Setting property: ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  },
+};
+
+const calculatorProxy = new Proxy(new ComplexCalculator(), handler);
+
+(async () => {
+   
+  const sequenceGenerator = calculatorProxy.generateSequence(5);
+  for (const number of sequenceGenerator) {
+    const currentResult = await calculatorProxy.addAsync(number);
+    print(`Current Result after adding ${number}:`, currentResult);
+  }
+})();

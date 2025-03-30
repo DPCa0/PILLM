@@ -1,0 +1,46 @@
+class AsyncCalculator {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async computeAsync(operation, ...args) {
+    const key = `${operation}-${args.join(',')}`;
+    if (this.cache.has(key)) {
+      print('Fetching from cache');
+      return this.cache.get(key);
+    }
+
+    const result = await this.#performOperation(operation, ...args);
+    this.cache.set(key, result);
+    return result;
+  }
+
+  async #performOperation(operation, ...args) {
+    print('Performing operation');
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        switch (operation) {
+          case 'add':
+            resolve(args.reduce((acc, val) => acc + val, 0));
+            break;
+          case 'multiply':
+            resolve(args.reduce((acc, val) => acc * val, 1));
+            break;
+          default:
+            reject(new Error('Operation not supported'));
+        }
+      }, 1000);
+    });
+  }
+}
+
+(async function main() {
+  const calculator = new AsyncCalculator();
+  try {
+    print(await calculator.computeAsync('add', 1, 2, 3));  
+    print(await calculator.computeAsync('multiply', 2, 3, 4));  
+    print(await calculator.computeAsync('add', 1, 2, 3));  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

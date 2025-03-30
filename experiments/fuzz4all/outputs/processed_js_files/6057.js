@@ -1,0 +1,62 @@
+class Lazy {
+    constructor(generator) {
+        this.generator = generator;
+    }
+
+    static range(start, end) {
+        return new Lazy(function* () {
+            for (let i = start; i < end; i++) {
+                yield i;
+            }
+        });
+    }
+
+    map(transform) {
+        const generator = this.generator;
+        return new Lazy(function* () {
+            for (let value of generator()) {
+                yield transform(value);
+            }
+        });
+    }
+
+    filter(predicate) {
+        const generator = this.generator;
+        return new Lazy(function* () {
+            for (let value of generator()) {
+                if (predicate(value)) yield value;
+            }
+        });
+    }
+
+    reduce(reducer, initialValue) {
+        let accumulator = initialValue;
+        for (let value of this.generator()) {
+            accumulator = reducer(accumulator, value);
+        }
+        return accumulator;
+    }
+
+    take(n) {
+        const generator = this.generator;
+        return new Lazy(function* () {
+            let count = 0;
+            for (let value of generator()) {
+                if (count++ < n) yield value;
+                else break;
+            }
+        });
+    }
+
+    forEach(action) {
+        for (let value of this.generator()) {
+            action(value);
+        }
+    }
+}
+
+Lazy.range(1, 1000)
+    .map(x => x * 2)
+    .filter(x => x % 5 === 0)
+    .take(10)
+    .forEach(console.log);

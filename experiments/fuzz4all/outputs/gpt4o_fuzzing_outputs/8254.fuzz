@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+class Fetcher {
+  constructor(url) {
+    this.url = url;
+  }
+  
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Fetching error:', error);
+      throw error;
+    }
+  }
+}
+
+const processData = async (url) => {
+  const fetcher = new Fetcher(url);
+  
+  try {
+    const data = await fetcher.fetchData();
+    
+     
+    const { userId, title } = data;
+    
+    console.log(`User ID: ${userId}`);
+    console.log(`Title: ${title}`);
+    
+     
+    return Promise.all([Promise.resolve(userId), Promise.resolve(title)]).then(([id, t]) => {
+      return `Processed Data: UserId - ${id}, Title - ${t}`;
+    });
+  } catch (error) {
+    console.error('Process error:', error);
+  }
+};
+
+ 
+const sampleUrl = 'https://jsonplaceholder.typicode.com/todos/1';
+processData(sampleUrl).then((result) => console.log(result));
+```

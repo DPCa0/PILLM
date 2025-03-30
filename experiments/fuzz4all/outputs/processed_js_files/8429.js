@@ -1,0 +1,62 @@
+ 
+const generateRandomNumber = (min = 0, max = 100) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ data: generateRandomNumber(), timestamp: new Date() }), 1000);
+  });
+};
+
+ 
+class DataHandler {
+  constructor() {
+    this.dataStore = [];
+  }
+
+  static transformData(data) {
+    return { transformedData: data * 2, transformedAt: new Date() };
+  }
+
+  addData(data) {
+    this.dataStore.push(data);
+  }
+
+  async fetchAndProcessData() {
+    const rawData = await fetchData();
+    const transformedData = DataHandler.transformData(rawData.data);
+    this.addData(transformedData);
+  }
+
+  *dataIterator() {
+    for (const item of this.dataStore) {
+      yield item;
+    }
+  }
+
+  [Symbol.iterator]() {
+    return this.dataIterator();
+  }
+}
+
+ 
+const handler = {
+  set(target, prop, value) {
+    if (prop === 'dataStore' && !Array.isArray(value)) {
+      throw new TypeError('DataStore must be an array');
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const proxyDataHandler = new Proxy(new DataHandler(), handler);
+
+ 
+(async () => {
+  await proxyDataHandler.fetchAndProcessData();
+  await proxyDataHandler.fetchAndProcessData();
+
+  print('Processed Data:', [...proxyDataHandler]);
+})();

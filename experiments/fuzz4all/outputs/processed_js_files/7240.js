@@ -1,0 +1,45 @@
+class DataService {
+    #data = new Map();
+
+    constructor(initialData) {
+        this.loadData(initialData);
+    }
+
+    async loadData(data) {
+        data.forEach(({ id, value }) => this.#data.set(id, value));
+    }
+
+    async *streamData() {
+        for (const [id, value] of this.#data) {
+            yield { id, value };
+        }
+    }
+
+    async filterData(predicate) {
+        return [...this.#data.entries()].filter(([id, value]) => predicate(value));
+    }
+
+    async transformData(transformFn) {
+        return [...this.#data.entries()].map(([id, value]) => [id, transformFn(value)]);
+    }
+}
+
+const main = async () => {
+    const service = new DataService([
+        { id: 1, value: 'Apple' },
+        { id: 2, value: 'Banana' },
+        { id: 3, value: 'Cherry' },
+    ]);
+
+    for await (const { id, value } of service.streamData()) {
+        print(`Streaming ${id}: ${value}`);
+    }
+
+    const filtered = await service.filterData(value => value.includes('a'));
+    print('Filtered:', filtered);
+
+    const transformed = await service.transformData(value => value.toUpperCase());
+    print('Transformed:', transformed);
+};
+
+main().catch(console.error);

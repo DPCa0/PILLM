@@ -1,0 +1,51 @@
+ 
+
+ 
+const specialProp = Symbol('special');
+
+ 
+const handler = {
+    get(target, property) {
+        if (property === 'asyncGenerator') {
+            return async function* () {
+                for await (const value of target[specialProp]) {
+                    yield `Processed: ${value}`;
+                }
+            };
+        }
+        return target[property];
+    },
+    set(target, property, value) {
+        if (typeof value === 'string') {
+            value = value.toUpperCase();
+        }
+        target[property] = value;
+        return true;
+    }
+};
+
+let data = {
+    name: 'example',
+    [specialProp]: ['data1', 'data2', 'data3']
+};
+
+const proxyData = new Proxy(data, handler);
+
+ 
+async function processSpecialProperty() {
+    const { asyncGenerator } = proxyData;
+
+    for await (const message of asyncGenerator()) {
+        print(message);
+    }
+}
+
+ 
+const { name, ...restData } = proxyData;
+proxyData.newProp = 'newValue';
+
+print(`Name: ${name}`);  
+print('Rest Data:', restData);  
+
+ 
+processSpecialProperty();

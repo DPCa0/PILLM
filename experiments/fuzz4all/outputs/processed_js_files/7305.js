@@ -1,0 +1,50 @@
+ 
+class SpaceShip {
+  #name;
+  #fuel;
+
+  constructor(name, fuel) {
+    this.#name = name;
+    this.#fuel = fuel;
+  }
+
+  #refuel(amount) {
+    this.#fuel += amount;
+    return `Refueled ${amount} units. Total fuel: ${this.#fuel}`;
+  }
+
+  async launch() {
+    print(`Launching ${this.#name}...`);
+    const refuelMessage = await this.#delayedRefuel(50);
+    print(refuelMessage);
+    print(`🚀 ${this.#name} is in space!`);
+  }
+
+   
+  #delayedRefuel(amount) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.#refuel(amount)), 2000);
+    });
+  }
+}
+
+ 
+const shipHandler = {
+  construct(target, args) {
+    if (args[1] < 0) {
+      throw new Error("Fuel cannot be negative!");
+    }
+    return new target(...args);
+  }
+};
+
+const ProxySpaceShip = new Proxy(SpaceShip, shipHandler);
+
+(async () => {
+  try {
+    const enterprise = new ProxySpaceShip("Enterprise", 100);
+    await enterprise.launch();
+  } catch (error) {
+    console.error(error);
+  }
+})();

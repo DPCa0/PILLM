@@ -1,0 +1,40 @@
+class LazyEvaluator {
+    constructor() {
+        this.operations = [];
+    }
+
+    add(operation) {
+        this.operations.push(operation);
+        return this;
+    }
+
+    execute(value) {
+        return this.operations.reduce((acc, operation) => operation(acc), value);
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+(async () => {
+    const evaluate = new LazyEvaluator()
+        .add(x => x + 5)
+        .add(async x => { 
+            await delay(1000); 
+            return x * 2; 
+        })
+        .add(x => x - 3);
+
+    const executeAsync = async () => {
+        let result = 10;
+        for (const op of evaluate.operations) {
+            result = await op(result);
+        }
+        return result;
+    };
+
+    print("Processing...");
+    const finalResult = await executeAsync();
+    print(`Final Result: ${finalResult}`);  
+})();

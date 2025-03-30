@@ -1,0 +1,44 @@
+const fetchUserData = async (userId) => {
+  try {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching user data failed:', error);
+  }
+};
+
+const userProxyHandler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      console.warn(`Property ${prop} does not exist on user object`);
+      return undefined;
+    }
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'string') {
+      print(`Updating property: ${prop} with value: ${value}`);
+      return Reflect.set(target, prop, value);
+    } else {
+      console.warn(`Invalid value type for property: ${prop}`);
+      return false;
+    }
+  }
+};
+
+(async () => {
+  const userId = 1;
+  const userData = await fetchUserData(userId);
+  
+  if (userData) {
+    const userProxy = new Proxy(userData, userProxyHandler);
+    
+    print(userProxy.name);  
+    userProxy.username = 'newUsername';  
+    userProxy.age = 30;  
+  }
+})();

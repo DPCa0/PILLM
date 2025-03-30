@@ -1,0 +1,52 @@
+class TemperatureSensor {
+  constructor(deviceName) {
+    this.deviceName = deviceName;
+    this.listeners = new Map();
+  }
+
+  async readTemperature() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const temperature = (Math.random() * 30 + 10).toFixed(2);  
+        resolve(temperature);
+      }, 1000);
+    });
+  }
+
+  async *streamTemperatures(interval = 5000) {
+    while (true) {
+      yield await this.readTemperature();
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+  }
+
+  subscribe(listener) {
+    const id = Symbol();
+    this.listeners.set(id, listener);
+    return () => this.listeners.delete(id);
+  }
+
+  notify(temperature) {
+    this.listeners.forEach((listener) => listener(temperature));
+  }
+
+  async startMonitoring(interval = 5000) {
+    for await (const temperature of this.streamTemperatures(interval)) {
+      print(`Temperature from ${this.deviceName}: ${temperature}°C`);
+      this.notify(temperature);
+    }
+  }
+}
+
+const main = async () => {
+  const livingRoomSensor = new TemperatureSensor('Living Room');
+  const unsubscribe = livingRoomSensor.subscribe((temp) =>
+    console.log(`Listener notified: Living Room temperature is ${temp}°C`)
+  );
+
+  setTimeout(unsubscribe, 20000);  
+  livingRoomSensor.startMonitoring();
+};
+
+main();

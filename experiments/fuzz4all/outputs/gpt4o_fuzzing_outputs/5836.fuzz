@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+   
+  const getRandomData = () =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ data: Math.random() }), 1000)
+    );
+
+  try {
+    const { data } = await getRandomData();
+    console.log(`Fetched data: ${data}`);
+
+     
+    const originalArray = [1, 2, 3, 4, 5];
+    const [first, second, ...rest] = originalArray;
+    console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+     
+    const modifiedArray = originalArray
+      .map((num) => num * data)
+      .filter((num) => num > 2);
+    console.log(`Modified Array: ${modifiedArray}`);
+
+     
+    const uniqueSet = new Set(modifiedArray);
+    console.log(`Unique Values: ${[...uniqueSet]}`);
+
+    const cache = new WeakMap();
+    cache.set(modifiedArray, data);
+    console.log(`Cached Data: ${cache.get(modifiedArray)}`);
+
+     
+    const handler = {
+      get(target, prop) {
+        return prop in target ? target[prop] : 'Property does not exist';
+      },
+    };
+    const obj = new Proxy({ key: 'value' }, handler);
+    console.log(`Proxy Example: ${obj.key}, ${obj.nonExistent}`);
+
+     
+    function* numberGenerator() {
+      yield* [1, 2, 3, 4, 5];
+    }
+
+    const gen = numberGenerator();
+    console.log(`Generator Output: ${[...gen]}`);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchData();
+```

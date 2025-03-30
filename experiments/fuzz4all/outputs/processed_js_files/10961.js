@@ -1,0 +1,50 @@
+ 
+
+ 
+const secretMethod = Symbol('secret');
+
+ 
+class Hidden {
+    constructor(value) {
+        this.value = value;
+    }
+    
+    [secretMethod]() {
+        return `The secret is: ${this.value}`;
+    }
+}
+
+ 
+function* asyncGenerator(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(i * i), 1000));
+    }
+}
+
+ 
+async function consumeGenerator(gen) {
+    for await (let val of gen) {
+        print(`Square: ${val}`);
+    }
+}
+
+ 
+const proxyHandler = {
+    get(target, prop, receiver) {
+        if (prop === 'reveal') {
+            return target[secretMethod]();
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const hiddenInstance = new Hidden(42);
+const proxiedHidden = new Proxy(hiddenInstance, proxyHandler);
+
+ 
+print(proxiedHidden.reveal());   
+
+ 
+const gen = asyncGenerator(1, 3);
+consumeGenerator(gen);   

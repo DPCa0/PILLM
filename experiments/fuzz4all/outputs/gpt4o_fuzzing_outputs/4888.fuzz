@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(
+      () => resolve([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]),
+      1000
+    )
+  );
+
+ 
+async function handleData() {
+  try {
+    const data = await fetchData();
+
+     
+    const dataHandler = {
+      get(target, property) {
+        console.log(`Accessed property '${property}'`);
+        return target[property];
+      },
+    };
+
+    const proxiedData = data.map((item) => new Proxy(item, dataHandler));
+
+     
+    const transformedData = proxiedData.reduce((acc, curr) => {
+      acc[curr.id] = curr.name;
+      return acc;
+    }, {});
+
+    console.log('Transformed Data:', transformedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+handleData();
+```

@@ -1,0 +1,37 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const { randomUUID } = await import('crypto');
+
+     
+    const user = { id: randomUUID(), name: 'Alice', age: 30, role: 'admin' };
+    const { id, ...userDetails } = user;
+    print(`User ID: ${id}`);
+
+     
+    const userArray = [user, { id: randomUUID(), name: 'Bob', age: 25, role: 'user' }];
+    const roles = userArray.map(({ role }) => role);
+
+     
+    const uniqueRoles = new Set(roles);
+    print(`Unique roles: ${[...uniqueRoles].join(', ')}`);
+
+     
+    const userSummary = {
+      userCount: userArray.length,
+      ...Object.fromEntries(uniqueRoles.entries()),
+    };
+    print(userSummary);
+
+     
+    await fs.writeFile('userSummary.json', JSON.stringify(userSummary, null, 2));
+    print('User summary saved to file.');
+  } catch (error) {
+     
+    console.error('Error:', error?.message ?? 'An unknown error occurred');
+  }
+})();

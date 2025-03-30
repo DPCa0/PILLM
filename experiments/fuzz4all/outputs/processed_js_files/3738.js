@@ -1,0 +1,43 @@
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: 'Sample Data' });
+            } else {
+                reject(new Error('Invalid URL'));
+            }
+        }, 1000);
+    });
+};
+
+ 
+const mapHandler = {
+    get: (target, prop) => {
+        if (prop === 'set') {
+            return function (key, value) {
+                print(`Setting key: ${key}, value: ${value}`);
+                return Reflect.get(target, prop).call(target, key, value);
+            };
+        }
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const dataStore = new Proxy(new Map(), mapHandler);
+
+ 
+const main = async () => {
+    try {
+        const response = await fetchData('https://api.example.com/data');
+        dataStore.set('apiData', response.data);
+        print('Data from Map:', dataStore.get('apiData'));
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+};
+
+main();

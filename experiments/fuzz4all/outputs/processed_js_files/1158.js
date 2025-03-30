@@ -1,0 +1,31 @@
+const compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x);
+
+const fetchJson = async (url) => {
+  const response = await fetch(url);
+  return await response.json();
+};
+
+const filterData = predicate => data => data.filter(predicate);
+
+const mapData = mapper => data => data.map(mapper);
+
+const sumField = field => data => data.reduce((sum, item) => sum + item[field], 0);
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+
+    const transformPipeline = compose(
+      sumField('userId'),
+      mapData(item => ({ ...item, userId: item.userId * 2 })),
+      filterData(item => item.userId > 5)
+    );
+
+    const data = await fetchJson(url);
+    const result = transformPipeline(data);
+
+    print('Transformed Result:', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

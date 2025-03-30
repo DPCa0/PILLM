@@ -1,0 +1,52 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('No URL provided');
+      }
+    }, 1000);
+  });
+}
+
+async function main() {
+  const emitter = new EventEmitter();
+
+  emitter.on('dataReceived', data => {
+    print(`Listener 1 received: ${data}`);
+  });
+
+  emitter.on('dataReceived', data => {
+    print(`Listener 2 received: ${data}`);
+  });
+
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    emitter.emit('dataReceived', data);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+main();

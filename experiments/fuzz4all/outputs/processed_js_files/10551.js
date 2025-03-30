@@ -1,0 +1,53 @@
+class Logger {
+  static #instance;
+  
+  static getInstance() {
+    if (!Logger.#instance) {
+      Logger.#instance = new Logger();
+    }
+    return Logger.#instance;
+  }
+
+  log(message) {
+    print(`[${new Date().toISOString()}] ${message}`);
+  }
+}
+
+function withLogging(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function(...args) {
+    Logger.getInstance().log(`Calling ${propertyKey} with args: ${JSON.stringify(args)}`);
+    const result = originalMethod.apply(this, args);
+    Logger.getInstance().log(`Result: ${JSON.stringify(result)}`);
+    return result;
+  };
+  return descriptor;
+}
+
+class Calculator {
+  @withLogging
+  add(a, b) {
+    return a + b;
+  }
+
+  @withLogging
+  multiply(a, b) {
+    return a * b;
+  }
+}
+
+const calculateAsync = async (calc, method, ...args) => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await delay(1000); 
+  return calc[method](...args);
+};
+
+(async () => {
+  const calculator = new Calculator();
+  const results = await Promise.all([
+    calculateAsync(calculator, 'add', 5, 3),
+    calculateAsync(calculator, 'multiply', 7, 2)
+  ]);
+
+  print('Final Results:', results);
+})();

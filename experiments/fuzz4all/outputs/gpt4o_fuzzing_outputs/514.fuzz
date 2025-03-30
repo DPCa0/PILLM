@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretKeeper {
+  #secret;  
+
+  constructor(secret) {
+    this.#secret = secret;
+  }
+
+   
+  revealSecret() {
+    return `The secret is: ${this.#getSecret()}`;
+  }
+
+   
+  #getSecret = () => this.#secret;
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'revealSecret') {
+      return function() {
+        return 'Access denied!';
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+const mySecretKeeper = new SecretKeeper('I love JavaScript');
+
+ 
+const proxySecretKeeper = new Proxy(mySecretKeeper, handler);
+
+ 
+async function asyncOperation() {
+  const secretPromise = new Promise((resolve, reject) => {
+     
+    setTimeout(() => {
+      resolve(mySecretKeeper.revealSecret());
+    }, 1000);
+  });
+
+  const proxyPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(proxySecretKeeper.revealSecret());
+    }, 1000);
+  });
+
+   
+  const [realSecret, proxySecret] = await Promise.all([secretPromise, proxyPromise]);
+  
+  console.log(realSecret);   
+  console.log(proxySecret);  
+}
+
+ 
+asyncOperation();
+```

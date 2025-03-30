@@ -1,0 +1,35 @@
+ 
+const fs = require('fs').promises;
+
+ 
+async function fetchData() {
+  const fakeApi = () => new Promise(resolve => setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000));
+  return fakeApi();
+}
+
+ 
+async function processAndSaveData() {
+  try {
+     
+    const { data } = await fetchData();
+
+     
+    const squaredData = data.map(num => num ** 2);
+
+     
+    const output = `Squared Data: ${squaredData.join(', ')}`;
+
+     
+    await fs.writeFile('output.txt', output, 'utf8');
+
+    print('Data successfully processed and saved!');
+  } catch (error) {
+     
+    console.error({ error });
+  }
+}
+
+ 
+(async () => {
+  await processAndSaveData();
+})();

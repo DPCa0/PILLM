@@ -1,0 +1,65 @@
+ 
+const fs = require('fs');
+const path = require('path');
+
+ 
+class SimpleDB {
+  constructor(dbPath) {
+    this.dbPath = dbPath;
+     
+    if (!fs.existsSync(dbPath)) {
+      fs.mkdirSync(dbPath, { recursive: true });
+    }
+  }
+
+   
+  async set(key, value) {
+    const filePath = path.join(this.dbPath, `${key}.json`);
+     
+    return fs.promises.writeFile(filePath, JSON.stringify(value, null, 2));
+  }
+
+   
+  async get(key) {
+    const filePath = path.join(this.dbPath, `${key}.json`);
+    try {
+       
+      const data = await fs.promises.readFile(filePath, 'utf-8').catch(() => null);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Error reading the key:', key, error);
+      return null;
+    }
+  }
+
+   
+  async *keys() {
+    const files = await fs.promises.readdir(this.dbPath);
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        yield path.basename(file, '.json');
+      }
+    }
+  }
+}
+
+ 
+(async () => {
+  const db = new SimpleDB('./myDatabase');
+
+   
+  await Promise.allSettled([
+    db.set('user1', { name: 'Alice', age: 30 }),
+    db.set('user2', { name: 'Bob', age: 25 }),
+  ]);
+
+   
+  const user1 = await db.get('user1');
+  print('User 1:', user1);
+
+   
+  print('All users:');
+  for await (const key of db.keys()) {
+    print(key, ':', await db.get(key));
+  }
+})();

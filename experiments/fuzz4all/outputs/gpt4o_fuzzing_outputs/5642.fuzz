@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+const fibonacci = new Fibonacci();
+
+async function fetchFibonacciSequence(n) {
+  const sequence = [];
+  for (let i = 0; i <= n; i++) {
+    sequence.push(fibonacci.calculate(i));
+  }
+  return sequence;
+}
+
+(async () => {
+  try {
+    const sequence = await fetchFibonacciSequence(10);
+    console.log('Fibonacci Sequence:', sequence);
+  } catch (error) {
+    console.error('Error fetching sequence:', error);
+  }
+})();
+
+function* generatorFunc(arr) {
+  for (let i of arr) {
+    yield i;
+  }
+}
+
+const sequenceArray = [...generatorFunc([1, 2, 3, 4, 5])];
+console.log('Generated Array:', sequenceArray);
+
+const promise1 = Promise.resolve(3);
+const promise2 = 42;
+const promise3 = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, 'foo');
+});
+
+Promise.all([promise1, promise2, promise3]).then(values => {
+  console.log('Promise.all result:', values);
+});
+```

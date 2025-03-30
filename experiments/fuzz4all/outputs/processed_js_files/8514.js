@@ -1,0 +1,44 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+const asyncDouble = async (num) => {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(num * 2), 1000);
+    });
+};
+
+async function* asyncNumbers() {
+    for (let i = 1; i <= 5; i++) {
+        yield asyncDouble(i);
+    }
+}
+
+(async () => {
+    const numbersIterator = asyncNumbers();
+    const emitter = new EventEmitter();
+    
+    emitter.on('doubled', num => print(`Doubled: ${num}`));
+    emitter.on('end', () => print('All numbers processed.'));
+    
+    for await (let num of numbersIterator) {
+        emitter.emit('doubled', num);
+    }
+    
+    emitter.emit('end');
+})();

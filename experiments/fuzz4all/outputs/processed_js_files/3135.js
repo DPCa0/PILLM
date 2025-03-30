@@ -1,0 +1,62 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+async function fetchData(url) {
+   
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new CustomError(`Failed to fetch data from ${url}`);
+  }
+  return response.json();
+}
+
+ 
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+const defaultHandler = {
+  get: (target, name) => (name in target ? target[name] : `Property ${name} not found`)
+};
+
+const config = new Proxy({}, defaultHandler);
+
+ 
+async function runTasks() {
+  const tasks = [
+    fetchData('https://jsonplaceholder.typicode.com/posts/1'),
+    fetchData('https://jsonplaceholder.typicode.com/posts/2'),
+    fetchData('https://jsonplaceholder.typicode.com/invalid')  
+  ];
+
+  const results = await Promise.allSettled(tasks);
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      print(`Task ${index + 1} succeeded:`, result.value);
+    } else {
+      console.error(`Task ${index + 1} failed:`, result.reason.message);
+    }
+  });
+}
+
+ 
+const uniqueNumbers = new Set([...range(1, 10), 5, 6, 7]);
+
+print('Unique numbers:', [...uniqueNumbers]);
+
+ 
+runTasks().catch(err => console.error('Error executing tasks:', err.message));
+
+ 
+print('Config property:', config.theme);  

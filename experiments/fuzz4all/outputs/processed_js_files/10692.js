@@ -1,0 +1,31 @@
+ 
+const fetchData = async (urls) => {
+  try {
+     
+    const fetchPromises = urls.map(url => fetch(url));
+    
+     
+    const responses = await Promise.all(fetchPromises);
+    
+     
+    const dataPromises = responses.map(response => response.json());
+    const data = await Promise.all(dataPromises);
+    
+     
+    const [{ name: firstName, age: firstAge }, ...others] = data;
+    const newData = [{ name: firstName, age: firstAge + 1 }, ...others];
+    
+    print('Original Data:', data);
+    print('New Data:', newData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const urls = [
+  'https://api.example.com/user/1',
+  'https://api.example.com/user/2'
+];
+
+fetchData(urls);

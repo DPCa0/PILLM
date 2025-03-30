@@ -1,0 +1,52 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+    
+    async emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event);
+        await Promise.all(listeners.map(listener => listener(...args)));
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    }
+};
+
+const deepClone = (obj) => {
+    return structuredClone(obj);
+};
+
+const fibonacci = (function*() {
+    let [a, b] = [0, 1];
+    while (true) {
+        [a, b] = [b, a + b];
+        yield a;
+    }
+})();
+
+const emitter = new AsyncEventEmitter();
+emitter.on('data', debounce(async (data) => {
+    print('Processed:', await processData(data));
+}, 300));
+
+async function processData(data) {
+    return `Data: ${data}, Fibonacci: ${fibonacci.next().value}`;
+}
+
+(async () => {
+    for (let i = 0; i < 5; i++) {
+        emitter.emit('data', deepClone({ index: i, timestamp: Date.now() }));
+        await new Promise(resolve => setTimeout(resolve, 100)); 
+    }
+})();

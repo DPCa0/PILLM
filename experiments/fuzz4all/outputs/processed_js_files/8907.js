@@ -1,0 +1,59 @@
+class Matrix {
+    constructor(rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => Math.random()));
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) throw new Error('Columns of A must match rows of B');
+        let result = new Matrix(a.rows, b.cols);
+        result.data = result.data.map((row, i) => row.map((_, j) =>
+            a.data[i].reduce((sum, elem, k) => sum + elem * b.data[k][j], 0)
+        ));
+        return result;
+    }
+
+    async transpose() {
+        this.data = this.data[0].map((_, i) => this.data.map(row => row[i]));
+        return this;  
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+
+    [Symbol.iterator]() {
+        let count = 0;
+        let total = this.rows * this.cols;
+        return {
+            next: () => {
+                let row = Math.floor(count / this.cols);
+                let col = count % this.cols;
+                count++;
+                return {
+                    value: this.data[row][col],
+                    done: count > total
+                };
+            }
+        };
+    }
+}
+
+(async function() {
+    let a = new Matrix(2, 3);
+    let b = new Matrix(3, 2);
+    print('Matrix A:\n' + a.toString());
+    print('Matrix B:\n' + b.toString());
+
+    let c = Matrix.multiply(a, b);
+    print('Matrix C (A * B):\n' + c.toString());
+
+    await c.transpose();
+    print('Transposed Matrix C:\n' + c.toString());
+
+    print('Flattened Matrix C:');
+    for (let val of c) {
+        print(val);
+    }
+})();

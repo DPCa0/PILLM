@@ -1,0 +1,57 @@
+const { Observable, from, of } = require('rxjs');
+const { map, filter, reduce, switchMap, catchError } = require('rxjs/operators');
+
+ 
+const fetchData = () => new Promise((resolve) =>
+  setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000)
+);
+
+ 
+const complexPipeline = from(fetchData()).pipe(
+  switchMap((data) => from(data)),
+  map((value) => value * 2),
+  filter((value) => value > 5),
+  reduce((acc, value) => acc + value, 0),
+  catchError((err, caught) => {
+    console.error('Error caught:', err);
+    return of(0);
+  })
+);
+
+ 
+complexPipeline.subscribe({
+  next: (result) => console.log('Result:', result),
+  error: (err) => console.error('Subscription error:', err),
+  complete: () => console.log('Completed')
+});
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    print(`Getting ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set: (target, prop, value, receiver) => {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const targetObj = { a: 1, b: 2 };
+const proxyObj = new Proxy(targetObj, handler);
+
+proxyObj.a;      
+proxyObj.b = 4;  
+
+ 
+function* numberGenerator() {
+  let num = 1;
+  while (num <= 3) {
+    yield num++;
+  }
+}
+
+const gen = numberGenerator();
+for (let n of gen) {
+  print('Generated number:', n);
+}

@@ -1,0 +1,52 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+const asyncIterable = {
+  data: ['Hello', ' ', 'world', '!'],
+  [Symbol.asyncIterator]() {
+    let index = 0;
+    return {
+      next: async () => {
+        if (index < this.data.length) {
+          await new Promise((resolve) => setTimeout(resolve, 500));  
+          return { value: this.data[index++], done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+};
+
+async function* generatorPipeline(iterable) {
+  for await (const chunk of iterable) {
+    yield chunk.toUpperCase();
+  }
+}
+
+async function processIterable(iterable) {
+  const deferred = new Deferred();
+
+  (async () => {
+    let result = '';
+    try {
+      for await (const data of generatorPipeline(iterable)) {
+        result += data;
+      }
+      deferred.resolve(result);
+    } catch (error) {
+      deferred.reject(error);
+    }
+  })();
+
+  return deferred.promise;
+}
+
+processIterable(asyncIterable)
+  .then(console.log)
+  .catch(console.error);

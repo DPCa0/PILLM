@@ -1,0 +1,44 @@
+class FibonacciGenerator {
+    constructor(maxTerms) {
+        this.maxTerms = maxTerms;
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    *generate() {
+        for (let i = 0; i < this.maxTerms; i++) {
+            yield this.fib(i);
+        }
+    }
+
+    fib(n) {
+        if (this.memo.has(n)) {
+            return this.memo.get(n);
+        }
+        const value = this.fib(n - 1) + this.fib(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+(async () => {
+    const fibGen = new FibonacciGenerator(10);
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    print('Fibonacci Sequence:');
+    for await (const num of fibGen.generate()) {
+        await delay(500);
+        print(num);
+    }
+
+    const promiseAllSettledExample = Promise.allSettled([
+        Promise.resolve('A resolved promise'),
+        Promise.reject('A rejected promise'),
+        new Promise((resolve) => setTimeout(() => resolve('Delayed resolved promise'), 1000))
+    ]);
+
+    promiseAllSettledExample.then(results =>
+        results.forEach(({ status, value, reason }) =>
+            console.log(`${status}: ${value || reason}`)
+        )
+    );
+})();

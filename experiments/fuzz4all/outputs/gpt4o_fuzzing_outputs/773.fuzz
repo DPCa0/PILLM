@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchDataAndProcess() {
+     
+    const fetchData = () => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { userId: 1, name: 'John Doe', roles: ['admin', 'user'] };
+            Math.random() > 0.1 ? resolve(data) : reject('Fetch error');
+        }, 1000);
+    });
+
+    try {
+        const userData = await fetchData();
+
+         
+        const { name, roles } = userData;
+
+         
+        console.log(`User Name: ${name}`);
+
+         
+        const [firstRole, ...otherRoles] = roles;
+        console.log(`First Role: ${firstRole}`);
+        
+         
+        const upperRoles = otherRoles.map(role => role.toUpperCase());
+        console.log('Other Roles:', upperRoles);
+
+         
+        const uniqueRoles = new Set([...roles, 'guest']);
+        console.log('Unique Roles:', uniqueRoles);
+
+         
+        function* roleGenerator() {
+            for (let role of uniqueRoles) {
+                yield role;
+            }
+        }
+
+        const gen = roleGenerator();
+        console.log('Generated Roles:', [...gen]);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+(async () => {
+    await fetchDataAndProcess();
+})();
+```

@@ -1,0 +1,38 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+        return () => this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+const observable = new Observable();
+
+const delayedNotify = (ms, value) => {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+};
+
+const asyncGenerator = async function* (observable) {
+    let values = [1, 2, 3, 4, 5];
+    for (let value of values) {
+        let result = await delayedNotify(1000, value * 2);
+        observable.notify(result);
+        yield result;
+    }
+};
+
+(async () => {
+    const unsubscribe = observable.subscribe(data => print(`Received: ${data}`));
+    const gen = asyncGenerator(observable);
+    for await (let value of gen) {
+        print(`Processed: ${value}`);
+    }
+    unsubscribe();
+})();

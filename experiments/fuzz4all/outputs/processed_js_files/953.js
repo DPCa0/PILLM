@@ -1,0 +1,41 @@
+ 
+
+ 
+async function* asyncDataGenerator() {
+    yield await new Promise(resolve => setTimeout(() => resolve(10), 1000));
+    yield await new Promise(resolve => setTimeout(() => resolve(20), 1000));
+    yield await new Promise(resolve => setTimeout(() => resolve(30), 1000));
+}
+
+ 
+const target = {
+    sum: 0,
+    async accumulate() {
+        for await (const value of asyncDataGenerator()) {
+            this.sum = Reflect.apply(this.add, this, [value]);
+            print(`Accumulated Value: ${this.sum}`);
+        }
+    },
+    add(value) {
+        return this.sum + value;
+    }
+};
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'add') {
+            return (...args) => {
+                print(`Adding: ${args[0]}`);
+                return Reflect.apply(target[prop], target, args);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+proxy.accumulate();

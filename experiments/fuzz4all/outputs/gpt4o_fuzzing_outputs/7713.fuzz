@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+  }
+};
+
+ 
+function* numberGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+    yield i;
+  }
+}
+
+ 
+class DataProcessor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  static process({name, age}) {
+    return `Name: ${name}, Age: ${age}`;
+  }
+  
+  getProcessedData() {
+    return this.#data.map(item => DataProcessor.process(item));
+  }
+}
+
+ 
+(async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+
+  if (data) {
+    const processor = new DataProcessor(data);
+    console.log(processor.getProcessedData());
+  }
+
+  const numbers = numberGenerator(5);
+  for (const num of numbers) {
+    console.log(num);
+  }
+})();
+```

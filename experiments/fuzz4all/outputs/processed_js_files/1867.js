@@ -1,0 +1,45 @@
+class AsyncPool {
+  constructor(max, iterator) {
+    this.max = max;
+    this.iterator = iterator;
+    this.pool = [];
+    this.results = [];
+  }
+
+  async addTasks(tasks) {
+    for (const task of tasks) {
+      const promise = this.iterator(task);
+      this.results.push(promise);
+      promise.finally(() => this.pool.splice(this.pool.indexOf(promise), 1));
+      this.pool.push(promise);
+
+      if (this.pool.length >= this.max) {
+        await Promise.race(this.pool);
+      }
+    }
+  }
+
+  async getResults() {
+    await Promise.all(this.pool);
+    return Promise.all(this.results);
+  }
+}
+
+async function fetchData(id) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      print(`Fetching data for id: ${id}`);
+      resolve(`Data for id: ${id}`);
+    }, Math.random() * 1000);
+  });
+}
+
+(async () => {
+  const taskIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const pool = new AsyncPool(3, fetchData);
+
+  await pool.addTasks(taskIds);
+  const results = await pool.getResults();
+
+  print('All data fetched:', results);
+})();

@@ -1,0 +1,57 @@
+class Shape {
+  #area;
+
+  constructor(name, sides) {
+    this.name = name;
+    this.sides = sides;
+    this.#area = null;
+  }
+
+  static fromObject(obj) {
+    return new Shape(obj.name, obj.sides);
+  }
+
+  get area() {
+    return this.#area;
+  }
+
+  set area(value) {
+    if (value > 0) {
+      this.#area = value;
+    }
+  }
+
+  describe() {
+    return `${this.name} with ${this.sides} sides.`;
+  }
+}
+
+const calculateArea = (shape, ...dimensions) => {
+  const [dim1, dim2] = dimensions;
+  if (shape.name === 'Rectangle') {
+    shape.area = dim1 * dim2;
+  } else if (shape.name === 'Circle') {
+    shape.area = Math.PI * dim1 * dim1;
+  }
+};
+
+const shapes = [
+  { name: 'Rectangle', sides: 4 },
+  { name: 'Circle', sides: 1 }
+];
+
+const shapeInstances = shapes.map(obj => Shape.fromObject(obj));
+
+const [rectangle, circle] = shapeInstances;
+
+calculateArea(rectangle, 5, 10);
+calculateArea(circle, 7);
+
+const areaInfo = shapeInstances
+  .map(shape => ({ name: shape.name, area: shape.area }))
+  .reduce((acc, curr) => {
+    acc[curr.name] = curr.area;
+    return acc;
+  }, {});
+
+print(areaInfo);  

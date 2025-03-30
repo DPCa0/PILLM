@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Vector {
+    constructor(...components) {
+        this.components = components;
+    }
+
+    [Symbol.iterator]() {
+        let index = 0;
+        let components = this.components;
+        return {
+            next: () => ({
+                value: components[index++],
+                done: index > components.length
+            })
+        };
+    }
+
+    static dotProduct(vec1, vec2) {
+        if (vec1.components.length !== vec2.components.length) throw new Error("Vectors must be of same length");
+        return vec1.components.reduce((sum, comp, i) => sum + comp * vec2.components[i], 0);
+    }
+
+    get magnitude() {
+        return Math.sqrt(this.components.reduce((sum, comp) => sum + comp ** 2, 0));
+    }
+}
+
+function* vectorCombinations(vectors) {
+    for (let i = 0; i < vectors.length; i++) {
+        for (let j = i + 1; j < vectors.length; j++) {
+            yield [vectors[i], vectors[j]];
+        }
+    }
+}
+
+const vectors = [new Vector(1, 2, 3), new Vector(4, 5, 6), new Vector(7, 8, 9)];
+
+(async () => {
+    for (let [vec1, vec2] of vectorCombinations(vectors)) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        console.log(`Dot Product of [${[...vec1]}] and [${[...vec2]}]: `, Vector.dotProduct(vec1, vec2));
+        console.log(`Magnitudes: vec1 = ${vec1.magnitude}, vec2 = ${vec2.magnitude}`);
+    }
+})();
+```

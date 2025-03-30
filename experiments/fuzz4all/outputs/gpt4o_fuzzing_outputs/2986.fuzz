@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = {url: url, content: `Data from ${url}`};
+        resolve(data);
+    }, Math.random() * 1000);
+});
+
+ 
+const handler = {
+    set(target, key, value) {
+        console.log(`Property ${key} changed from ${target[key]} to ${value}`);
+        target[key] = value;
+        return true;
+    }
+};
+
+ 
+const reactiveData = new Proxy({}, handler);
+
+(async () => {
+     
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+
+     
+    const [data1, data2, data3] = await Promise.all(urls.map(fetchData));
+
+     
+    reactiveData.data1 = data1;
+    reactiveData.data2 = data2;
+    reactiveData.data3 = data3;
+
+     
+    console.log('Final Data Object:', reactiveData);
+})();
+```

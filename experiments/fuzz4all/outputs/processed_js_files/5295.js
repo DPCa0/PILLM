@@ -1,0 +1,73 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        const matrix = new Matrix(arr.length, arr[0].length);
+        matrix.data = arr;
+        return matrix;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) =>
+            row.map((val, j) => fn(val, i, j))
+        );
+        return this;
+    }
+
+    static multiply(m1, m2) {
+        if (m1.data[0].length !== m2.data.length) {
+            throw new Error('Columns of A must match rows of B');
+        }
+        return new Matrix(m1.data.length, m2.data[0].length)
+            .map((_, i, j) =>
+                m1.data[i].reduce((sum, elm, k) => sum + elm * m2.data[k][j], 0)
+            );
+    }
+
+    [Symbol.iterator]() {
+        let row = 0;
+        let col = 0;
+        return {
+            next: () => {
+                if (row < this.data.length) {
+                    let value = this.data[row][col];
+                    col++;
+                    if (col >= this.data[row].length) {
+                        col = 0;
+                        row++;
+                    }
+                    return { value, done: false };
+                }
+                return { done: true };
+            },
+        };
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+ 
+const m1 = Matrix.fromArray([
+    [1, 2],
+    [3, 4],
+    [5, 6],
+]);
+
+const m2 = Matrix.fromArray([
+    [7, 8, 9],
+    [10, 11, 12],
+]);
+
+const result = Matrix.multiply(m1, m2);
+
+print('Matrix multiplication result:');
+print(result.toString());
+
+print('Iterating over matrix:');
+for (let value of result) {
+    print(value);
+}

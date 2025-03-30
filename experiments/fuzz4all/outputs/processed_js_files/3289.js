@@ -1,0 +1,78 @@
+ 
+const EventEmitter = require('events');
+
+ 
+class CustomEmitter extends EventEmitter {
+    constructor() {
+        super();
+        this.on('data', this.handleData);
+    }
+
+     
+    handleData(data) {
+        print(`Received data: ${data}`);
+    }
+
+     
+    async fetchData() {
+        try {
+            const data = await this.simulateNetworkRequest();
+            this.emit('data', data);
+        } catch (error) {
+            console.error(`Error: ${error.message}`);
+        }
+    }
+
+     
+    simulateNetworkRequest() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const isSuccess = Math.random() > 0.2;  
+                if (isSuccess) {
+                    resolve('Hello from the network!');
+                } else {
+                    reject(new Error('Network Error'));
+                }
+            }, 1000);
+        });
+    }
+}
+
+ 
+const emitter = new CustomEmitter();
+
+ 
+const emitterProxy = new Proxy(emitter, {
+    get(target, property, receiver) {
+        const original = Reflect.get(target, property, receiver);
+        if (typeof original === 'function') {
+            return function (...args) {
+                print(`Calling ${property} with args: ${JSON.stringify(args)}`);
+                return original.apply(this, args);
+            };
+        }
+        return original;
+    }
+});
+
+ 
+emitterProxy.fetchData();
+
+ 
+function* operationSequence() {
+    print('Operation 1: Start');
+    yield new Promise(resolve => setTimeout(resolve, 500));
+    print('Operation 1: Complete');
+
+    print('Operation 2: Start');
+    yield new Promise(resolve => setTimeout(resolve, 500));
+    print('Operation 2: Complete');
+
+    print('Operation 3: Start');
+    yield new Promise(resolve => setTimeout(resolve, 500));
+    print('Operation 3: Complete');
+}
+
+ 
+async function runOperations(generator) {
+    for (let operation of generator) {

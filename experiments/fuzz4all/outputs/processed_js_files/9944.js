@@ -1,0 +1,54 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      url ? resolve(`Data from ${url}`) : reject('No URL provided');
+    }, 1000);
+  });
+};
+
+ 
+function* dataGenerator(urls) {
+  for (let url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+const dataHandler = {
+  get: (target, property) => {
+    if (property in target) {
+      print(`Accessing data: ${property}`);
+      return target[property];
+    }
+    throw new ReferenceError(`Property ${property} not found`);
+  }
+};
+
+ 
+const processData = async (urls) => {
+  const generator = dataGenerator(urls);
+  const dataPromises = [];
+  
+  for (let promise of generator) {
+    dataPromises.push(promise);
+  }
+
+  try {
+    const data = await Promise.all(dataPromises);
+    const proxiedData = new Proxy(data, dataHandler);
+
+    print(proxiedData[0]);  
+    print(proxiedData[1]);  
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  await processData(urls);
+})();

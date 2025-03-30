@@ -1,0 +1,35 @@
+class AsyncCache {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async get(key, computeFunc) {
+    if (!this.cache.has(key)) {
+      this.cache.set(key, computeFunc().catch(err => {
+        this.cache.delete(key);
+        throw err;
+      }));
+    }
+    return this.cache.get(key);
+  }
+}
+
+const expensiveAsyncOperation = async (num) => {
+  print(`Computing result for ${num}`);
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(num * 2), 1000);
+  });
+};
+
+(async () => {
+  const cache = new AsyncCache();
+
+  const results = await Promise.all([
+    cache.get(5, () => expensiveAsyncOperation(5)),
+    cache.get(5, () => expensiveAsyncOperation(5)),  
+    cache.get(10, () => expensiveAsyncOperation(10)),
+    cache.get(10, () => expensiveAsyncOperation(10))  
+  ]);
+
+  print('Results:', results);  
+})();

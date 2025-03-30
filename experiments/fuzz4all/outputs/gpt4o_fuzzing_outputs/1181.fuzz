@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]);
+    }, 1000);
+});
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+async function main() {
+     
+    const data = await fetchData();
+    
+     
+    const proxyData = new Proxy(data, handler);
+    
+     
+    proxyData.forEach(item => {
+        console.log(`User: ${item.name}`);
+    });
+    
+     
+    proxyData[1].name = 'Charlie';
+    
+     
+    console.log('Final Data:', proxyData);
+}
+
+ 
+main();
+```

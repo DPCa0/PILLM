@@ -1,0 +1,45 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { success: true, data: { message: "Hello, World!" } };
+            if (data.success) {
+                resolve(data);
+            } else {
+                reject('Error fetching data');
+            }
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(...arguments);
+        } else {
+            print(`Property '${prop}' not found on target`);
+            return undefined;
+        }
+    }
+};
+
+(async () => {
+    try {
+         
+        const result = await fetchData('https://api.example.com/data');
+        const proxyData = new Proxy(result.data, handler);
+
+         
+        const { message } = proxyData;
+        print(`Fetched Message: ${message}`);
+        
+         
+        print(`Attempting to access a non-existent property: ${proxyData.nonExistentProp}`);
+
+    } catch (error) {
+        console.error(`Caught an error: ${error}`);
+    }
+})();

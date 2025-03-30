@@ -1,0 +1,50 @@
+ 
+(async () => {
+    const { promises: fs } = await import('fs');
+
+     
+    const data = {
+        name: 'Advanced JS',
+        features: ['ES6', 'Promises', 'Async/Await', 'Modules'],
+        version: 'ES2023'
+    };
+
+     
+    const handler = {
+        get: (target, prop) => {
+            if (prop === 'info') {
+                return `Project: ${target.name}, Version: ${target.version}`;
+            }
+            return Reflect.get(target, prop);
+        }
+    };
+    const proxyData = new Proxy(data, handler);
+
+     
+    const createMessage = ({ name, version }) => {
+        return `Starting project '${name}' with version '${version}'!`;
+    };
+
+     
+    async function handleFileOperations() {
+        try {
+            await fs.writeFile('project.json', JSON.stringify(proxyData));
+            const fileContent = await fs.readFile('project.json', 'utf8');
+            print(`File Content: ${fileContent}`);
+        } catch (err) {
+            console.error('Error:', err);
+        }
+    }
+
+     
+    const featureSet = new Set(proxyData.features);
+
+     
+    const upperFeatures = [...featureSet].map(feature => feature.toUpperCase());
+
+    print(createMessage(proxyData));
+    print('Features:', upperFeatures);
+    print('Additional Info:', proxyData.info);
+
+    await handleFileOperations();
+})();

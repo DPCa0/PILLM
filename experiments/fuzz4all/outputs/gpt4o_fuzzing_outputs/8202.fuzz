@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+class CustomError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CustomError';
+    }
+}
+
+ 
+const delay = () => {
+    return new Promise(resolve => {
+        const time = Math.floor(Math.random() * 3000) + 1000;  
+        setTimeout(() => resolve(time), time);
+    });
+};
+
+ 
+async function performAsyncTask() {
+    try {
+        const time = await delay();
+        console.log(`Task completed in ${time} milliseconds`);
+        if (time > 2000) {
+            throw new CustomError('Task took too long!');
+        }
+    } catch (error) {
+        if (error instanceof CustomError) {
+            console.error(`Custom error: ${error.message}`);
+        } else {
+            console.error(`Unexpected error: ${error}`);
+        }
+    }
+}
+
+ 
+function* numberGenerator() {
+    let number = 1;
+    while (true) {
+        yield number++;
+    }
+}
+
+const generator = numberGenerator();
+
+ 
+(async function main() {
+    console.log('Program started');
+    const promises = [...Array(3)].map(() => performAsyncTask());
+    await Promise.all(promises);
+    
+    console.log('Generating numbers:');
+    for (let i = 0; i < 5; i++) {
+        console.log(generator.next().value);
+    }
+    console.log('Program completed');
+})();
+```

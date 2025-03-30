@@ -1,0 +1,47 @@
+ 
+async function* fetchUserData(userIds) {
+  const fetchUser = id => new Promise(resolve => {
+    setTimeout(() => resolve({ id, name: `User${id}` }), 1000);
+  });
+
+  for (const id of userIds) {
+    yield await fetchUser(id);
+  }
+}
+
+const processUsers = async (userIds) => {
+  const users = [];
+  for await (const user of fetchUserData(userIds)) {
+    users.push(user);
+  }
+  return users;
+};
+
+ 
+const userValidator = {
+  set(obj, prop, value) {
+    if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+      throw new Error('Age must be a positive number');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+async function runApp() {
+  const userIds = [1, 2, 3];
+  const users = await processUsers(userIds);
+
+  const proxyUsers = users.map(user => new Proxy(user, userValidator));
+
+  try {
+    proxyUsers[0].age = 25;
+    proxyUsers[1].age = -5;  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  print(proxyUsers);
+}
+
+runApp();

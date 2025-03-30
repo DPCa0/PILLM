@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+
+ 
+const fetchData = () => new Promise((resolve) =>
+  setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000)
+);
+
+ 
+const processData = (...data) => {
+  const squares = data.map(num => num ** 2);
+  return squares;
+};
+
+ 
+const loggerHandler = {
+  get: (obj, prop) => {
+    console.log(`Getting ${prop}`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+ 
+const dataObject = new Proxy({}, loggerHandler);
+
+ 
+const main = async () => {
+  try {
+    const rawData = await fetchData();
+    console.log('Fetched Data:', rawData);
+
+     
+    const processed = processData(...rawData);
+    console.log('Processed Data:', processed);
+
+     
+    dataObject.results = processed;
+    console.log('Logged Data:', dataObject.results);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+main();
+```

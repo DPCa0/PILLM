@@ -1,0 +1,51 @@
+class Node {
+    constructor(value) {
+        this.value = value;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+    }
+
+    async *[Symbol.asyncIterator]() {
+        let current = this.head;
+        while (current) {
+            yield new Promise(resolve => setTimeout(() => resolve(current.value), 1000));
+            current = current.next;
+        }
+    }
+
+    add(value) {
+        const node = new Node(value);
+        if (!this.head) {
+            this.head = node;
+        } else {
+            let current = this.head;
+            while (current.next) {
+                current = current.next;
+            }
+            current.next = node;
+        }
+    }
+}
+
+function* range(start, end) {
+    while (start < end) {
+        yield start++;
+    }
+}
+
+const list = new LinkedList();
+for (const num of range(1, 6)) {
+    list.add(num);
+}
+
+(async function() {
+    print('Iterating linked list:');
+    for await (const value of list) {
+        print(value);
+    }
+})();

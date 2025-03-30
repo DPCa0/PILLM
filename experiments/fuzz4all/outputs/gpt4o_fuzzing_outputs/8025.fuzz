@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve(['apple', 'banana', 'cherry']);
+  }, 1000);
+});
+
+ 
+async function* asyncGenerator() {
+  const data = await fetchData();
+  for (const item of data) {
+    yield item.toUpperCase();
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Accessing property "${property}"`);
+    return target[property];
+  }
+};
+
+const fruits = { apple: 1, banana: 2, cherry: 3 };
+const proxyFruits = new Proxy(fruits, handler);
+
+(async () => {
+  const iterableFruits = asyncGenerator();
+
+  console.log('Fetching and processing fruits asynchronously...');
+  for await (const fruit of iterableFruits) {
+    console.log(fruit);
+  }
+
+  console.log('\nAccessing fruits through Proxy...');
+  console.log('Apple count:', proxyFruits.apple);
+  console.log('Banana count:', proxyFruits.banana);
+})();
+```

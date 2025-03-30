@@ -1,0 +1,48 @@
+ 
+(async () => {
+  const { default: fetch } = await import('node-fetch');
+
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        throw new Error(`Property ${prop} does not exist`);
+      }
+    },
+  };
+
+  const user = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+   
+  async function fetchData() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/users');
+      const data = await response.json();
+
+      const transformedData = data
+        .map(user => ({ id: user.id, username: user.username }))
+        .filter(user => user.id % 2 === 0);
+
+      print(transformedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+   
+  function* idGenerator() {
+    let id = 1;
+    while (true) {
+      yield id++;
+    }
+  }
+
+  const gen = idGenerator();
+
+   
+  fetchData();
+  print(`Generated ID: ${gen.next().value}`);
+  print(`User Name: ${user.name}`);
+})();

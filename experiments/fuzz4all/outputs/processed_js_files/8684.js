@@ -1,0 +1,63 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+class Store extends Observable {
+    #state;
+    #proxy;
+
+    constructor(initialState) {
+        super();
+        this.#state = initialState;
+        this.#proxy = new Proxy(this.#state, {
+            set: (target, key, value) => {
+                target[key] = value;
+                this.notify(this.#state);
+                return true;
+            },
+            get: (target, key) => {
+                if (typeof target[key] === 'object' && target[key] !== null) {
+                    return new Proxy(target[key], this.#proxy.handler);
+                }
+                return target[key];
+            }
+        });
+    }
+
+    get state() {
+        return this.#proxy;
+    }
+
+    setState(newState) {
+        Object.keys(newState).forEach(key => {
+            this.#state[key] = newState[key];
+        });
+        this.notify(this.#state);
+    }
+}
+
+ 
+
+const store = new Store({ count: 0, details: { name: 'Counter' } });
+
+const unsubscribe = store.subscribe(state => {
+    print('State updated:', state);
+});
+
+store.state.count++;
+store.state.details.name = 'Advanced Counter';
+store.setState({ count: 5 });
+
+unsubscribe();
+store.state.count = 10;  

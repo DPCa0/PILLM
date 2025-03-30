@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+};
+
+ 
+const FETCH_HANDLER = Symbol('fetchHandler');
+
+ 
+const apiProxyHandler = {
+  get(target, prop, receiver) {
+    if (!(prop in target)) {
+      console.log(`Fetching data for ${String(prop)}...`);
+      return async () => {
+        const data = await fetchData(`https: 
+        target[prop] = data;  
+        return data;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const api = new Proxy({}, apiProxyHandler);
+
+ 
+(async () => {
+  const userData = await api.userData();   
+  console.log(userData);
+
+  const postsData = await api.postsData();   
+  console.log(postsData);
+
+  const cachedUserData = await api.userData();   
+  console.log(cachedUserData);
+})();
+```

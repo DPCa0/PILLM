@@ -1,0 +1,64 @@
+ 
+"use strict";
+
+ 
+class CryptoWallet {
+    #balance;
+    #privateKey;
+
+    constructor(initialBalance, privateKey) {
+        this.#balance = initialBalance;
+        this.#privateKey = privateKey;
+    }
+
+     
+    getBalance() {
+        return this.#formatBalance(this.#balance);
+    }
+
+     
+    #formatBalance(amount) {
+        return `$${amount.toFixed(2)}`;
+    }
+
+     
+    async makeTransaction(amount) {
+        if (amount <= 0) throw new Error("Transaction amount must be positive.");
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (this.#balance >= amount) {
+                    this.#balance -= amount;
+                    resolve(`Transaction successful. New balance: ${this.getBalance()}`);
+                } else {
+                    reject("Insufficient balance.");
+                }
+            }, 1000);  
+        });
+    }
+}
+
+ 
+const walletHandler = {
+    set(target, prop, value) {
+        if (prop === 'balance' && value < 0) {
+            throw new Error('Balance cannot be negative.');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const wallet = new Proxy(new CryptoWallet(500, 'my-private-key'), walletHandler);
+
+ 
+(async () => {
+    try {
+        print(wallet.getBalance());  
+        const result = await wallet.makeTransaction(200);
+        print(result);  
+    } catch (error) {
+        console.error(error);
+    }
+})();

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = new Set())).add(listener);
+  }
+
+  off(event, listener) {
+    if (this.events[event]) this.events[event].delete(listener);
+  }
+
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener.apply(this, args));
+  }
+}
+
+class AdvancedCalculator {
+  constructor() {
+    this.eventEmitter = new EventEmitter();
+    this.result = 0;
+  }
+
+  add(...numbers) {
+    this.result = numbers.reduce((sum, num) => sum + num, this.result);
+    this.eventEmitter.emit('change', this.result);
+    return this;
+  }
+
+  subtract(...numbers) {
+    this.result = numbers.reduce((diff, num) => diff - num, this.result);
+    this.eventEmitter.emit('change', this.result);
+    return this;
+  }
+
+  multiply(...numbers) {
+    this.result = numbers.reduce((product, num) => product * num, this.result || 1);
+    this.eventEmitter.emit('change', this.result);
+    return this;
+  }
+
+  divide(...numbers) {
+    this.result = numbers.reduce((quotient, num) => quotient / num, this.result);
+    this.eventEmitter.emit('change', this.result);
+    return this;
+  }
+
+  on(event, callback) {
+    this.eventEmitter.on(event, callback);
+  }
+
+  off(event, callback) {
+    this.eventEmitter.off(event, callback);
+  }
+}
+
+ 
+const calculator = new AdvancedCalculator();
+
+calculator.on('change', result => {
+  console.log(`The new result is: ${result}`);
+});
+
+calculator.add(10, 20).subtract(5).multiply(2).divide(5);
+```

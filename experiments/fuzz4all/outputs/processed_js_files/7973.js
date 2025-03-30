@@ -1,0 +1,48 @@
+ 
+const formatUser = ({ name = 'Guest', age = 0, profession = 'N/A' }) => 
+  `${name}, Age: ${age}, Profession: ${profession}`;
+
+ 
+const fetchUserData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'Alice', age: 30, profession: 'Engineer' });
+    }, 1000);
+  });
+};
+
+ 
+const displayUserData = async () => {
+  try {
+    const user = await fetchUserData();
+    print(`User Info: ${formatUser(user)}`);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+ 
+function* userGenerator(users) {
+  for (const user of users) {
+    yield user;
+  }
+}
+
+ 
+const uniqueUsers = new Set([
+  { name: 'Bob', age: 25 },
+  { name: 'Alice', age: 30 },
+  { name: 'Bob', age: 25 },
+]);
+
+ 
+(async () => {
+  await displayUserData();
+
+  const usersArray = [...uniqueUsers];
+  const userGen = userGenerator(usersArray);
+  print('Unique Users:');
+  for (const user of userGen) {
+    print(formatUser(user));
+  }
+})();

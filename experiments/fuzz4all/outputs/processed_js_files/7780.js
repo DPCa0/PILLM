@@ -1,0 +1,31 @@
+ 
+const complexComputation = async (input) => {
+   
+  const { a = 5, b = 10, ...rest } = input;
+  
+   
+  const numbers = [...Array(10).keys()].map(n => n + a);
+  const squareRoots = numbers.map(n => Math.sqrt(n)).filter(n => n > 3);
+  
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const computeResult = async () => {
+    await delay(1000);
+    return squareRoots.reduce((acc, n) => acc + n * b, 0);
+  };
+
+   
+  try {
+    const result = await computeResult();
+    const { default: _ } = await import('lodash');
+    const summedResult = _.sum([result, ...Object.values(rest)]);
+    print(`The computed result is: ${summedResult}`);
+  } catch (error) {
+    console.error(`Error in computation: ${error}`);
+  }
+};
+
+ 
+complexComputation({ a: 15, b: 20, extra: 50 });

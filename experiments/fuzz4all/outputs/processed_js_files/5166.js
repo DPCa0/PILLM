@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ userId: 1, name: 'John Doe', email: 'john@example.com' });
+    }, 1000);
+  });
+};
+
+ 
+const createValidatedUser = (user) => {
+  return new Proxy(user, {
+    set(target, prop, value) {
+      if (prop === 'email' && !value.includes('@')) {
+        throw new Error('Invalid email address');
+      }
+      target[prop] = value;
+      return true;
+    },
+  });
+};
+
+ 
+function* logUser(user) {
+  for (let [key, value] of Object.entries(user)) {
+    yield `${key}: ${value}`;
+  }
+}
+
+ 
+(async function main() {
+  try {
+    const data = await fetchData();
+    const user = createValidatedUser(data);
+    
+     
+    const { userId = 0, name = 'Unknown', email = 'unknown@example.com' } = user;
+
+     
+    const logger = logUser({ userId, name, email });
+    let result = logger.next();
+    while (!result.done) {
+      print(result.value);
+      result = logger.next();
+    }
+
+     
+    try {
+      user.email = 'invalid-email';
+    } catch (error) {
+      console.error(error.message);
+    }
+
+  } catch (err) {
+    console.error('Error:', err);
+  }
+})();

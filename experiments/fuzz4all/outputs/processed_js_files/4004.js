@@ -1,0 +1,37 @@
+ 
+
+class DataService {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        const response = await fetch(this.url);
+        const data = await response.json();
+        return data;
+    }
+}
+
+function createDataProcessor() {
+    let cachedData = null;
+
+    return async function(url) {
+        if (!cachedData) {
+            const service = new DataService(url);
+            cachedData = await service.fetchData();
+        }
+        return cachedData.map(({ id, title }) => ({ id, title }));
+    };
+}
+
+(async function main() {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const processData = createDataProcessor();
+
+    try {
+        const posts = await processData(url);
+        print('Processed Data:', posts.slice(0, 5));  
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

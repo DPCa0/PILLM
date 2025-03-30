@@ -1,0 +1,58 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+const asyncOperation = () => new Promise((resolve) => {
+    setTimeout(() => resolve('Operation complete'), 1000);
+});
+
+async function executeAsyncTasks(tasks) {
+    for await (const taskResult of tasks) {
+        print(taskResult);
+    }
+}
+
+function* createTaskGenerator() {
+    yield asyncOperation();
+    yield asyncOperation();
+    yield asyncOperation();
+}
+
+const emitter = new EventEmitter();
+const debouncedListener = debounce((message) => print(message), 300);
+
+emitter.on('data', debouncedListener);
+emitter.emit('data', 'Event 1');
+setTimeout(() => emitter.emit('data', 'Event 2'), 100);
+setTimeout(() => emitter.emit('data', 'Event 3'), 400);
+
+executeAsyncTasks(createTaskGenerator());

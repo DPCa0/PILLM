@@ -1,0 +1,41 @@
+ 
+
+ 
+function asyncOperation(message, delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(message), delay);
+  });
+}
+
+ 
+function* messageGenerator() {
+  yield asyncOperation('Hello', 1000);
+  yield asyncOperation('Complex', 1500);
+  yield asyncOperation('World!', 1000);
+}
+
+ 
+async function runGenerator(gen) {
+  for (let promise of gen) {
+    print(await promise);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'concatenate') {
+      return target.join(' ').toUpperCase();
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+const gen = messageGenerator();
+runGenerator(gen).then(() => {
+   
+  const messages = ['Goodbye', 'Complex', 'World!'];
+  const proxyMessages = new Proxy(messages, handler);
+  print(proxyMessages.concatenate);  
+});

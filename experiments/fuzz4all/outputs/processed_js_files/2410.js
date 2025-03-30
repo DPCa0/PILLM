@@ -1,0 +1,51 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id: 1, name: 'John Doe', age: 30 });
+        }, 1000);
+    });
+};
+
+ 
+class UserProcessor {
+    #users = [];
+
+    async processUserData() {
+        const data = await fetchData();
+        this.#addUser(data);
+    }
+
+    #addUser(user) {
+        this.#users.push(user);
+    }
+
+    static printUsers(users) {
+        print('Users:', users);
+    }
+}
+
+ 
+(async () => {
+    const processor = new UserProcessor();
+
+     
+    await Promise.all([processor.processUserData(), processor.processUserData()]);
+
+     
+    const users = processor['#users'];
+
+     
+    const allUsers = [...users, { id: 2, name: 'Jane Doe', age: 25 }];
+    
+     
+    const { default: lodash } = await import('https://cdn.jsdelivr.net/npm/lodash-es/lodash.default.js');
+    
+     
+    const clonedUsers = lodash.cloneDeep(allUsers);
+
+     
+    UserProcessor.printUsers(clonedUsers);
+})();

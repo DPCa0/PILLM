@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* generatorFunction() {
+    yield 'This';
+    yield 'is';
+    yield 'a';
+    yield 'complex';
+    yield 'JavaScript';
+    yield 'program!';
+}
+
+const symbolKey = Symbol('internal');
+
+const createAsyncIterator = async (genFunc) => {
+    const iterator = genFunc();
+    const results = [];
+    let result = iterator.next();
+    while (!result.done) {
+        results.push(result.value);
+        result = iterator.next();
+    }
+    return results;
+};
+
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'symbolKey') {
+            return Reflect.get(target, symbolKey, receiver);
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const obj = {
+    [symbolKey]: 'Using Symbol and Proxy!'
+};
+
+const proxiedObj = new Proxy(obj, handler);
+
+(async () => {
+    const words = await createAsyncIterator(generatorFunction);
+    
+    const sayHello = () => {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve('Hello, world!'), 1000);
+        });
+    };
+
+    const message = await sayHello();
+
+    console.log(message);
+    console.log(words.join(' '));
+    console.log(proxiedObj.symbolKey);
+})();
+```

@@ -1,0 +1,35 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    calculate(n) {
+        if (n < 2) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+}
+
+const fib = new Fibonacci();
+const url = 'https://jsonplaceholder.typicode.com/posts';
+
+(async () => {
+    const fibNumber = fib.calculate(10);
+    print(`10th Fibonacci number: ${fibNumber}`);
+
+    try {
+        const posts = await fetchData(url);
+        const titles = posts.map(({ title }) => title);
+        print('Post titles:', titles.slice(0, 3));
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+    }
+})();

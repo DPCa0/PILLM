@@ -1,0 +1,50 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program using advanced features:
+
+```javascript
+class User {
+    #name;
+    
+    constructor(name) {
+        this.#name = name;
+    }
+
+    async greet() {
+        console.log(`Hello, ${this.#name}! Let's fetch a random fact.`);
+        const fact = await FactAPI.getRandomFact();
+        console.log(`Random Fact: ${fact}`);
+    }
+}
+
+class FactAPI {
+    static #apiEndpoint = "https://uselessfacts.jsph.pl/random.json?language=en";
+
+    static async getRandomFact() {
+        try {
+            const response = await fetch(this.#apiEndpoint);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data.text;
+        } catch (error) {
+            return `Failed to fetch fact: ${error.message}`;
+        }
+    }
+}
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield `User-${id++}`;
+    }
+}
+
+(async () => {
+    const idGen = idGenerator();
+    const user1 = new User(idGen.next().value);
+    const user2 = new User(idGen.next().value);
+
+    await Promise.all([user1.greet(), user2.greet()]);
+})();
+```
+
+This program demonstrates the use of classes with private fields, asynchronous functions, fetching data from an API, generators, and handling Promises.

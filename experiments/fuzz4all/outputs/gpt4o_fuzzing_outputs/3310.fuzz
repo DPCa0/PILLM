@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataFetcher() {
+  yield fetch('https://jsonplaceholder.typicode.com/posts/1')
+    .then(response => response.json());
+
+  yield fetch('https://jsonplaceholder.typicode.com/posts/2')
+    .then(response => response.json());
+}
+
+ 
+async function fetchData() {
+  const generator = dataFetcher();
+
+  for (let dataPromise of generator) {
+    const data = await dataPromise;
+    console.log('Data received:', data);
+  }
+}
+
+ 
+const settings = {
+  theme: 'dark',
+  notifications: true
+};
+
+const handler = {
+  get: (target, prop) => {
+    console.log(`Property '${prop}' was read`);
+    return prop in target ? target[prop] : 'N/A';
+  },
+  set: (target, prop, value) => {
+    console.log(`Property '${prop}' was set to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const proxiedSettings = new Proxy(settings, handler);
+
+ 
+console.log(proxiedSettings.theme);
+proxiedSettings.theme = 'light';
+console.log(proxiedSettings.language);
+
+ 
+(async () => {
+  console.log('Fetching data asynchronously:');
+  await fetchData();
+
+  console.log('Manipulating settings through proxy:');
+  console.log('Current theme:', proxiedSettings.theme);
+  proxiedSettings.notifications = false;
+  console.log('Notifications enabled:', proxiedSettings.notifications);
+})();
+```

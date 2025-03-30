@@ -1,0 +1,61 @@
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), 1000);
+    });
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            print(`Property '${prop}' accessed`);
+            return target[prop];
+        } else {
+            return `No such property: ${prop}`;
+        }
+    },
+    set: (target, prop, value) => {
+        print(`Setting '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+class DataFetcher {
+    constructor() {
+        this.urls = [];
+    }
+
+    addURL(url) {
+        this.urls.push(url);
+    }
+
+    async *fetch() {
+        for (const url of this.urls) {
+            const data = await fetchData(url);
+            yield data;
+        }
+    }
+}
+
+ 
+const proxyObj = new Proxy({ title: 'JavaScript Magic' }, handler);
+
+ 
+print(proxyObj.title);  
+proxyObj.author = 'OpenAI';   
+
+ 
+(async () => {
+    const dataFetcher = new DataFetcher();
+    dataFetcher.addURL('https://api.example.com/data1');
+    dataFetcher.addURL('https://api.example.com/data2');
+
+    for await (const data of dataFetcher.fetch()) {
+        print(data);
+    }
+})();

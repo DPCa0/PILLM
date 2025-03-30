@@ -1,0 +1,62 @@
+ 
+(async () => {
+  const [{ promises: fs }, { promisify }] = await Promise.all([
+    import('fs'),
+    import('util')
+  ]);
+
+   
+  const dataSet = new Set([1, 2, 3, 4, 5]);
+  const dataMap = new Map();
+  const weakMap = new WeakMap();
+
+   
+  const processData = async (numbers) => {
+    const doubleNumbers = numbers.map(num => num * 2);
+    const evenNumbers = doubleNumbers.filter(num => num % 2 === 0);
+
+    evenNumbers.forEach(num => {
+      dataMap.set(num, `Value: ${num}`);
+    });
+
+    print('Data Map:', dataMap);
+
+     
+    await fs.writeFile('output.txt', JSON.stringify([...dataMap]), 'utf8');
+    print('Data written to output.txt');
+
+    return evenNumbers;
+  };
+
+   
+  const delay = promisify(setTimeout);
+
+   
+  await delay(1000);
+  print('Processed Data:', await processData([...dataSet]));
+
+   
+  const user1 = { name: 'Alice' };
+  const user2 = { name: 'Bob' };
+  weakMap.set(user1, { age: 25 });
+  weakMap.set(user2, { age: 30 });
+
+  print('User data from WeakMap:', weakMap.get(user1), weakMap.get(user2));
+
+   
+  const mapHandler = {
+    get(target, prop) {
+      print(`Accessing property "${prop}"`);
+      return target[prop];
+    },
+    set(target, prop, value) {
+      print(`Setting property "${prop}" to "${value}"`);
+      target[prop] = value;
+      return true;
+    }
+  };
+
+  const proxyMap = new Proxy(dataMap, mapHandler);
+  proxyMap.set(10, 'Value: 10');
+  print(proxyMap.get(10));
+})();

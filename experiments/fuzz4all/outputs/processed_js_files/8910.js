@@ -1,0 +1,28 @@
+ 
+
+ 
+const fetchUsers = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 25 },
+        { id: 2, name: 'Bob', age: 30 },
+        { id: 3, name: 'Charlie', age: 35 }
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+async function printUserNames() {
+  try {
+    const users = await fetchUsers();
+    const names = users.map(({ name }) => name.toUpperCase());
+    print(names.join(', '));
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+}
+
+ 
+printUserNames();

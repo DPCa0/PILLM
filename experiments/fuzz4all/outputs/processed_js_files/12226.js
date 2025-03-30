@@ -1,0 +1,68 @@
+class Fetcher {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async getData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+}
+
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+const generator = idGenerator();
+const symbolIterator = Symbol.iterator;
+
+class ComplexStructure {
+    constructor(data) {
+        this.data = data;
+        this.id = generator.next().value;
+    }
+    
+    [symbolIterator]() {
+        let index = 0;
+        return {
+            next: () => ({
+                value: this.data[index],
+                done: index++ >= this.data.length
+            })
+        };
+    }
+    
+    *advancedIterator() {
+        for (const item of this.data) {
+            yield `${this.id}: ${item}`;
+        }
+    }
+}
+
+(async () => {
+    const fetcher = new Fetcher('https://jsonplaceholder.typicode.com/posts/1');
+    try {
+        const data = await fetcher.getData();
+        const complexStructure = new ComplexStructure(Object.values(data));
+        
+        for (const value of complexStructure) {
+            print(value);
+        }
+        
+        print('Advanced Iterator:');
+        for (const value of complexStructure.advancedIterator()) {
+            print(value);
+        }
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();

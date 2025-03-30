@@ -1,0 +1,51 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        userId: 1,
+        id: 1,
+        title: "delectus aut autem",
+        completed: false
+      });
+    }, 1000);
+  });
+}
+
+ 
+async function getData() {
+  const data = await fetchData();
+  print('Fetched Data:', data);
+}
+
+ 
+function* dataProcessor() {
+  const data = yield;
+  if (data.completed) {
+    yield `Task "${data.title}" is completed!`;
+  } else {
+    yield `Task "${data.title}" is still pending!`;
+  }
+}
+
+ 
+const handler = {
+  apply: (target, thisArg, argumentsList) => {
+    const gen = target();
+    print(gen.next().value);  
+    const msg = gen.next(argumentsList[0]).value;
+    print(msg);
+  }
+};
+
+ 
+const proxiedProcessor = new Proxy(dataProcessor, handler);
+
+ 
+(async () => {
+  await getData();
+  const mockData = { userId: 1, id: 1, title: "delectus aut autem", completed: true };
+  proxiedProcessor(mockData);
+})();

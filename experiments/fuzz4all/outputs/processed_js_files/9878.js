@@ -1,0 +1,48 @@
+class TaskQueue {
+  constructor(concurrency) {
+    this.queue = [];
+    this.activeCount = 0;
+    this.concurrency = concurrency;
+  }
+
+  async runTask(task) {
+    this.activeCount++;
+    try {
+      await task();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.activeCount--;
+      this.next();
+    }
+  }
+
+  add(task) {
+    this.queue.push(task);
+    this.next();
+  }
+
+  next() {
+    if (this.queue.length === 0 || this.activeCount >= this.concurrency) {
+      return;
+    }
+    const task = this.queue.shift();
+    this.runTask(task);
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const fetchData = async (id) => {
+  await delay(Math.random() * 1000);
+  print(`Fetched data for ID: ${id}`);
+};
+
+const main = async () => {
+  const taskQueue = new TaskQueue(3);
+  for (let i = 1; i <= 10; i++) {
+    taskQueue.add(() => fetchData(i));
+  }
+};
+
+main();

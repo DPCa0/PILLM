@@ -1,0 +1,45 @@
+class AsyncProcessor {
+  constructor(tasks) {
+    this.tasks = tasks;
+  }
+
+  async *executeTasks() {
+    for (const task of this.tasks) {
+      yield await task();
+    }
+  }
+
+  static async run(tasks) {
+    const processor = new AsyncProcessor(tasks);
+    const results = [];
+    for await (const result of processor.executeTasks()) {
+      results.push(result);
+    }
+    return results;
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const tasks = [
+  async () => {
+    await delay(1000);
+    print("Task 1 completed");
+    return 'Task 1';
+  },
+  async () => {
+    await delay(500);
+    print("Task 2 completed");
+    return 'Task 2';
+  },
+  async () => {
+    await delay(1500);
+    print("Task 3 completed");
+    return 'Task 3';
+  }
+];
+
+(async () => {
+  const results = await AsyncProcessor.run(tasks);
+  print("All tasks completed:", results);
+})();

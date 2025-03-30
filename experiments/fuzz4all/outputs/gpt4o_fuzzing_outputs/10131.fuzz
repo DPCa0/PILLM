@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const loggerHandler = {
+    get(target, property) {
+        console.log(`Getting property '${property}'`);
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Setting property '${property}' to '${value}'`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+const targetObject = { message: "Hello" };
+const proxyObject = new Proxy(targetObject, loggerHandler);
+
+ 
+async function* fetchData() {
+    const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+    for (const url of urls) {
+        const response = await fetch(url);
+        const data = await response.json();
+        yield data;
+    }
+}
+
+ 
+async function processData() {
+    for await (const { title, body } of fetchData()) {
+        console.log(`Title: ${title}`);
+        console.log(`Body: ${body}`);
+    }
+}
+
+ 
+async function run() {
+    proxyObject.message = "Hello, world!";
+    console.log(proxyObject.message);
+
+    await processData();
+}
+
+run();
+```

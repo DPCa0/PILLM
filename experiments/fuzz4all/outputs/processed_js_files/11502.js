@@ -1,0 +1,27 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+function processData({ results }) {
+  return results.map(({ name, height, mass, gender, ...rest }) => {
+    return { name, height, mass, gender, details: { ...rest } };
+  });
+}
+
+function filterData(data, gender) {
+  return data.filter(item => item.gender === gender);
+}
+
+(async () => {
+  try {
+    const data = await fetchData('https://swapi.dev/api/people/');
+    const processedData = processData(data);
+    const males = filterData(processedData, 'male');
+    print('Male Characters:', males);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

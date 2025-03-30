@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}" with value "${target[prop]}"`);
+      return target[prop];
+    }
+    console.log(`Property "${prop}" does not exist`);
+    return undefined;
+  },
+};
+
+ 
+(async () => {
+  const url = `https: 
+  const data = await fetchData(url);
+  
+  const { name, owner: { login } } = data;
+  console.log(`Project: ${name}, Owner: ${login}`);
+  
+  const projectInfo = new Proxy(data, handler);
+  console.log(projectInfo.name);
+  console.log(projectInfo.nonExistentProp);
+
+   
+  const { default: axios } = await import('https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js');
+  const axiosData = await axios.get(url);
+  console.log(`Fetched with axios: ${axiosData.data.name}`);
+})();
+```

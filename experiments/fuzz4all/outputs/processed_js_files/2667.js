@@ -1,0 +1,46 @@
+ 
+
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiEndpoint);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      return [];
+    }
+  }
+
+  processData(data) {
+    return data.map(({ id, title }) => ({ id, title }));
+  }
+}
+
+const logProcessedData = async (...urls) => {
+  const dataFetcher = new DataFetcher(urls[0]);
+
+  const results = await Promise.all(
+    urls.map(async url => {
+      dataFetcher.apiEndpoint = url;
+      return await dataFetcher.fetchData();
+    })
+  );
+
+  const allItems = results.flat();
+  print('Processed Data:', allItems);
+};
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts',
+  'https://jsonplaceholder.typicode.com/comments'
+];
+
+logProcessedData(...urls);

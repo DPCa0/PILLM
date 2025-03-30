@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+import { createServer } from 'http';
+import { pipeline } from 'stream/promises';
+import zlib from 'zlib';
+
+ 
+async function readAndCompressFile(filePath) {
+  try {
+    const fileContent = await readFile(filePath, 'utf-8');
+    const compressed = zlib.gzipSync(fileContent);
+    return compressed;
+  } catch (err) {
+    console.error('Error reading or compressing file:', err);
+  }
+}
+
+ 
+const performOperation = async (operation, data) => {
+  try {
+    return await operation(data);
+  } catch (err) {
+    console.error('Operation failed:', err);
+  }
+};
+
+ 
+const handler = {
+  apply: (target, thisArg, argumentsList) => {
+    console.log(`Operation executed with args: ${argumentsList}`);
+    return target(...argumentsList);
+  }
+};
+
+ 
+const operation = new Proxy((data) => JSON.stringify({ content: data }), handler);
+
+ 
+const server = createServer(async (req, res) => {
+  if (req.url === '/') {
+    try {
+      const filePath = './sample.txt';
+      const compressedData = await performOperation(readAndCompressFile, filePath);
+      await pipeline(
+        compressedData,
+        res
+      );
+      res.writeHead(200, { 'Content-Encoding': 'gzip', 'Content-Type': 'text/plain' });
+    } catch (err) {
+      res.writeHead(500);
+      res.end('Internal Server Error');
+      console.error(err);
+    }
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+ 
+server.listen(3000, () => console.log('Server running at http://localhost:3000/'));
+
+ 
+(async () => {
+  const dataResult = await performOperation(operation, 'Hello, world!');
+  console.log(dataResult);
+})();
+```

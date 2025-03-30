@@ -1,0 +1,58 @@
+ 
+const fetchData = async function* (urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+};
+
+ 
+const dynamicObject = new Proxy({}, {
+  get: (target, property) => 
+    property in target ? target[property] : `Property ${property} does not exist`
+});
+
+ 
+const cache = new Map();
+const metaCache = new WeakMap();
+
+ 
+class SecretKeeper {
+  #secret;
+  
+  constructor(secret) {
+    this.#secret = secret;
+    metaCache.set(this, { created: new Date() });
+  }
+  
+  #logSecret() {
+    print(`The secret is: ${this.#secret}`);
+  }
+  
+  reveal() {
+    this.#logSecret();
+  }
+  
+  getCreationDate() {
+    return metaCache.get(this).created;
+  }
+}
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const dataIterator = fetchData(urls);
+  
+  for await (const dataPromise of dataIterator) {
+    const data = await dataPromise;
+    cache.set(data.id, data);
+    print('Fetched data:', data);
+  }
+  
+  dynamicObject.newProp = 'I am dynamic!';
+  print(dynamicObject.newProp);
+  print(dynamicObject.nonExistentProp);
+  
+  const secretKeeper = new SecretKeeper('s3cr3t');
+  secretKeeper.reveal();
+  print('Secret creation date:', secretKeeper.getCreationDate());
+})();

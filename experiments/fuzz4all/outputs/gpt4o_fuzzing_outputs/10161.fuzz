@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class AsyncComplexity {
+    constructor() {
+        this.data = [1, 2, 3, 4, 5];
+    }
+    
+    async #privateMethod() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.data.map(x => x * 2));
+            }, 1000);
+        });
+    }
+
+    async fetchData() {
+        console.log('Fetching data...');
+        const result = await this.#privateMethod();
+        console.log('Data fetched:', result);
+        return result;
+    }
+
+    static *generatorExample() {
+        yield* [10, 20, 30];
+    }
+
+    #decoratorExample(method) {
+        return (...args) => {
+            console.log('Before execution');
+            const result = method.apply(this, args);
+            console.log('After execution');
+            return result;
+        };
+    }
+
+    @this.#decoratorExample
+    simpleMethod() {
+        console.log('Simple method executed');
+    }
+
+    static async execute() {
+        const instance = new AsyncComplexity();
+        const asyncResult = await instance.fetchData();
+        console.log('Async Result:', asyncResult);
+
+        for (let value of AsyncComplexity.generatorExample()) {
+            console.log('Generator Value:', value);
+        }
+
+        instance.simpleMethod();
+    }
+}
+
+AsyncComplexity.execute().catch(console.error);
+```

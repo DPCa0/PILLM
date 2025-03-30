@@ -1,0 +1,49 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+        return () => this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+const observable = new Observable();
+
+const asyncIterator = {
+    [Symbol.asyncIterator]() {
+        return {
+            next() {
+                return new Promise(resolve => {
+                    const unsubscribe = observable.subscribe(data => {
+                        unsubscribe();
+                        resolve({ value: data, done: false });
+                    });
+                });
+            }
+        };
+    }
+};
+
+(async () => {
+    const logData = async () => {
+        for await (const data of asyncIterator) {
+            print(data);
+        }
+    };
+    
+    logData();
+
+    let counter = 0;
+    setInterval(() => {
+        if (counter < 5) {
+            observable.notify(`Notification ${counter}`);
+            counter++;
+        }
+    }, 1000);
+})();

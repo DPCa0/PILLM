@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({
+          data: {
+            user: { id: 1, name: "Alice", age: 30 },
+            posts: [
+              { id: 1, title: "Post One" },
+              { id: 2, title: "Post Two" }
+            ]
+          }
+        });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function processData(url) {
+  try {
+    const {
+      data: {
+        user: { name, age },
+        posts
+      }
+    } = await fetchData(url);
+
+     
+    function* userGenerator() {
+      yield `User Name: ${name}`;
+      yield `User Age: ${age}`;
+    }
+
+     
+    const userIterator = userGenerator();
+    let userData = "";
+    for (const info of userIterator) {
+      userData += info + '\n';
+    }
+
+     
+    const postTitles = posts.map(({ title }) => `Post Title: ${title}`).join('\n');
+
+    return `${userData}\n${postTitles}`;
+  } catch (error) {
+    return `Error: ${error.message}`;
+  }
+}
+
+ 
+processData("https://api.example.com/data")
+  .then(result => console.log(result))
+  .catch(error => console.error(error));
+
+```

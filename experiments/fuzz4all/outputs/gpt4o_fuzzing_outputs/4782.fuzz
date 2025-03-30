@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const complexObject = {
+  name: "Advanced Feature Demo",
+  version: 1.0,
+  data: [1, 2, 3, 4, 5],
+  details: {
+    created: new Date(),
+    tags: new Set(['javascript', 'es6', 'features']),
+    metadata: new Map([
+      ['author', 'John Doe'],
+      ['license', 'MIT']
+    ])
+  },
+  calculateSum() {
+    return this.data.reduce((acc, val) => acc + val, 0);
+  },
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  },
+  *generateSequence(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield i;
+    }
+  }
+};
+
+ 
+const proxyObject = new Proxy(complexObject, {
+  get(target, prop) {
+    console.log(`Accessing property "${prop}"`);
+    return target[prop];
+  },
+});
+
+ 
+const { name, version } = proxyObject;
+console.log(`${name} v${version}`);
+
+ 
+const extraData = [6, 7, 8];
+const combinedData = [...proxyObject.data, ...extraData];
+
+ 
+proxyObject.details.tags.add('advanced');
+console.log([...proxyObject.details.tags]);
+
+ 
+console.log('Sum of data:', proxyObject.calculateSum());
+console.log('Combined data:', combinedData);
+
+ 
+for (const num of proxyObject.generateSequence(10, 15)) {
+  console.log(`Generated number: ${num}`);
+}
+
+ 
+ 
+```

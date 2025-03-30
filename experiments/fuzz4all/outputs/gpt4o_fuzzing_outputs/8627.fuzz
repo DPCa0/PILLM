@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+const processData = async ({ inputFile, outputFile }) => {
+  try {
+     
+    const data = await fs.readFile(inputFile)?.then(buffer => buffer.toString());
+
+     
+    const processedData = data
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && !line.startsWith('#'))
+      .reduce((acc, line) => {
+        const [key, value] = line.split('=').map(item => item.trim());
+        acc[key] = value;
+        return acc;
+      }, {});
+
+     
+    const templateTag = (strings, ...values) =>
+      strings.reduce((result, string, i) => result + string + (values[i] || ''), '');
+    const output = templateTag`Processed Data: ${JSON.stringify(processedData, null, 2)}`;
+
+     
+    await fs.writeFile(outputFile, output);
+    console.log('File processed and saved successfully.');
+  } catch (error) {
+     
+    console.error('Error processing file:', error?.message);
+  }
+};
+
+ 
+(async () => {
+  await processData({ inputFile: 'input.txt', outputFile: 'output.txt' });
+})();
+```

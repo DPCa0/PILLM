@@ -1,0 +1,46 @@
+ 
+import fs from 'fs/promises';
+
+ 
+async function readFileData(fileName) {
+  try {
+     
+    const data = await fs.readFile(fileName, 'utf-8');
+    print(`File data:\n${data}`);
+    
+     
+    const filteredLines = data.split('\n').filter(line => line.includes('JavaScript'));
+    
+     
+    const uniqueLines = [...new Set(filteredLines)];
+    
+     
+    const wordCount = uniqueLines.map(line => line.split(' '))
+                                 .reduce((acc, words) => {
+                                   words.forEach(word => acc[word] = (acc[word] || 0) + 1);
+                                   return acc;
+                                 }, {});
+    
+    print('Word Count:', wordCount);
+    
+     
+    const handler = {
+      get(target, prop) {
+        return prop in target ? target[prop] : 0;
+      }
+    };
+
+    const proxyWordCount = new Proxy(wordCount, handler);
+    print('Count of "JavaScript":', proxyWordCount['JavaScript']);
+    
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+}
+
+ 
+(async () => {
+  await readFileData('sample.txt');
+})();
+
+Note: This code assumes the existence of a file named `sample.txt` in the same directory where the script is run, containing text data for the operation.

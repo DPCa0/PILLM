@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  return data.map(({ id, name, attributes }) => ({
+    id,
+    name: name.toUpperCase(),
+    isActive: attributes?.status === 'active'
+  }));
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+  
+  if (data) {
+    const processedData = processData(data);
+    print("Processed Data:", processedData);
+
+     
+    const dataProxy = new Proxy(processedData, {
+      get(target, property) {
+        print(`Accessing property ${property}`);
+        return target[property];
+      }
+    });
+
+     
+    dataProxy.forEach(item => {
+      print(`ID: ${item.id}, Name: ${item.name}, IsActive: ${item.isActive}`);
+    });
+  }
+})();

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class DataStore {
+  #data = new Map();
+
+  constructor(initialData = {}) {
+    Object.entries(initialData).forEach(([key, value]) => {
+      this.#data.set(key, value);
+    });
+  }
+
+  *[Symbol.iterator]() {
+    yield* this.#data.entries();
+  }
+
+  get(key) {
+    return this.#data.get(key);
+  }
+
+  set(key, value) {
+    this.#data.set(key, value);
+  }
+
+  toJSON() {
+    return JSON.stringify(Object.fromEntries(this.#data));
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    const data = await response.json();
+    return new DataStore(data);
+  }
+}
+
+(async () => {
+  try {
+    const dataStore = await DataStore.fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    dataStore.set('additionalKey', 'additionalValue');
+
+    for (const [key, value] of dataStore) {
+      console.log(`${key}: ${value}`);
+    }
+
+    console.log('JSON:', dataStore.toJSON());
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();
+```

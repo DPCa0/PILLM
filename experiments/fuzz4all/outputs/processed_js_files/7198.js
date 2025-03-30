@@ -1,0 +1,42 @@
+class DataPipeline {
+  static pipelineCount = 0;
+  
+  constructor(...operations) {
+    this.operations = operations;
+    this.pipelineId = ++DataPipeline.pipelineCount;
+  }
+
+  async execute(data) {
+    try {
+      const result = await this.operations.reduce(
+        async (acc, op) => op(await acc),
+        Promise.resolve(data)
+      );
+      print(`Pipeline ${this.pipelineId} Result:`, result);
+    } catch (error) {
+      console.error(`Error in Pipeline ${this.pipelineId}:`, error);
+    }
+  }
+}
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const fetchData = async (data) => {
+  await delay(100);  
+  return { ...data, fetched: true };
+};
+const processData = async (data) => {
+  await delay(100);  
+  return { ...data, processed: true, value: data.value * 2 };
+};
+const cacheData = async (data) => {
+  await delay(50);  
+  return { ...data, cached: true };
+};
+
+ 
+const pipeline1 = new DataPipeline(fetchData, processData, cacheData);
+const pipeline2 = new DataPipeline(processData, cacheData, fetchData);
+
+pipeline1.execute({ value: 42 });
+pipeline2.execute({ value: 7 });

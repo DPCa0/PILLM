@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        
+         
+        let posts = data.map(({ id, title, ...rest }) => ({ id, title, additional: rest }));
+
+         
+        let extendedPosts = posts.map(post => ({
+            ...post,
+            summary: post.title.substring(0, 15),
+        }));
+
+        console.log(extendedPosts);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+function demonstrateSetMapSymbol() {
+    const set = new Set([1, 2, 3, 3, 4, 5]);
+    console.log('Unique Set:', [...set]);
+
+    const map = new Map();
+    map.set('name', 'Alice');
+    map.set('age', 30);
+    console.log('Map Example:', map.get('name'));
+
+    const uniqueKey = Symbol('unique');
+    const obj = {
+        [uniqueKey]: 'This is a unique symbol property',
+    };
+    console.log('Symbol Property:', obj[uniqueKey]);
+}
+
+function* generateSequence() {
+    yield 'First';
+    yield 'Second';
+    yield* ['Third', 'Fourth'];  
+    yield 'Fifth';
+}
+
+ 
+fetchData();
+demonstrateSetMapSymbol();
+
+ 
+const generator = generateSequence();
+for (const value of generator) {
+    console.log('Generator Value:', value);
+}
+```

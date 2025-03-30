@@ -1,0 +1,56 @@
+ 
+class ComplexCalculator {
+    #value;
+    
+    constructor(initialValue = 0) {
+        this.#value = initialValue;
+    }
+    
+     
+    async calculate(operation) {
+        const result = await this.#performOperation(operation);
+        return result;
+    }
+    
+     
+    async #performOperation(operation) {
+        try {
+            if (operation === 'sqrt') {
+                const { sqrt } = await import('mathjs');  
+                this.#value = sqrt(this.#value);
+            } else if (operation === 'square') {
+                const { square } = await import('mathjs');
+                this.#value = square(this.#value);
+            } else {
+                throw new Error('Unknown operation');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        return this.#value;
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property === 'calculate') {
+            return async function (...args) {
+                print(`Operation started: ${args[0]}`);
+                const result = await target[property](...args);
+                print(`Operation completed: ${args[0]}, Result: ${result}`);
+                return result;
+            }
+        }
+        return target[property];
+    }
+};
+
+const complexCalculator = new ComplexCalculator(16);
+const proxyCalculator = new Proxy(complexCalculator, handler);
+
+ 
+(async () => {
+    await proxyCalculator.calculate('sqrt');
+    await proxyCalculator.calculate('square');
+})();

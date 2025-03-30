@@ -1,0 +1,56 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.running = false;
+    }
+
+    enqueue(task) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ task, resolve, reject });
+            this.runNext();
+        });
+    }
+
+    async runNext() {
+        if (this.running || this.queue.length === 0) return;
+        this.running = true;
+        const { task, resolve, reject } = this.queue.shift();
+        try {
+            const result = await task();
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        } finally {
+            this.running = false;
+            this.runNext();
+        }
+    }
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function fetchData(url) {
+    await delay(1000);  
+    return `Data from ${url}`;
+}
+
+const urls = ['url1', 'url2', 'url3', 'url4', 'url5'];
+const queue = new AsyncQueue();
+
+urls.forEach(url => {
+    queue.enqueue(async () => {
+        const data = await fetchData(url);
+        print(data);
+        return data;
+    });
+});
+
+ 
+(async () => {
+    if (Math.random() > 0.5) {
+        const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es/lodash.js');
+        print('Loaded lodash version:', _.VERSION);
+    } else {
+        print('Lodash not loaded');
+    }
+})();

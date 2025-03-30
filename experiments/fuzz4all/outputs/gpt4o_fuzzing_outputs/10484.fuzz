@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ name: 'Jane Doe', id: Symbol('userId') });
+        }, 1000);
+    });
+};
+
+ 
+const responseHandler = {
+    get: (target, prop, receiver) => {
+        if (prop === 'greeting') {
+            return `Hello, ${target.name}!`;
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+    try {
+         
+        const userData = await fetchUserData();
+
+         
+        const userProxy = new Proxy(userData, responseHandler);
+
+         
+        const customLogger = (strings, ...values) => {
+            console.log(strings.raw[0], ...values);
+        };
+
+         
+        customLogger`User Greeting: ${userProxy.greeting}`;
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

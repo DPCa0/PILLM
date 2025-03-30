@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.apiEndpoint);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  }
+}
+
+class DataProcessor {
+  constructor(fetcher) {
+    this.fetcher = fetcher;
+  }
+
+  async process() {
+    try {
+      const data = await this.fetcher.fetchData();
+      return this.calculateStatistics(data);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  calculateStatistics(data) {
+     
+    const { results } = data;
+    const total = results.reduce((sum, { value }) => sum + value, 0);
+    const average = total / results.length;
+    return { average, count: results.length };
+  }
+}
+
+async function main() {
+  const apiEndpoint = 'https://api.example.com/data';
+  const dataFetcher = new DataFetcher(apiEndpoint);
+  const dataProcessor = new DataProcessor(dataFetcher);
+  
+  try {
+    const { average, count } = await dataProcessor.process();
+    console.log(`Average value: ${average}, Count: ${count}`);
+  } catch (error) {
+    console.error('Error in main:', error);
+  }
+}
+
+main();
+```

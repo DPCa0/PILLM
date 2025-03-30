@@ -1,0 +1,52 @@
+class Observable {
+  constructor() {
+    this.observers = new Set();
+  }
+  
+  subscribe(observer) {
+    this.observers.add(observer);
+    return () => this.observers.delete(observer);
+  }
+  
+  notify(data) {
+    this.observers.forEach(observer => observer.update(data));
+  }
+}
+
+class Observer {
+  constructor(updateFn) {
+    this.update = updateFn;
+  }
+}
+
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+const observable = new Observable();
+const fibonacci = fibonacciGenerator();
+
+const observer1 = new Observer(data => {
+  print(`Observer 1: Received Fibonacci number ${data}`);
+});
+
+const observer2 = new Observer(data => {
+  print(`Observer 2: Fibonacci number ${data} is even: ${data % 2 === 0}`);
+});
+
+const unsubscribe1 = observable.subscribe(observer1);
+const unsubscribe2 = observable.subscribe(observer2);
+
+const interval = setInterval(() => {
+  const nextValue = fibonacci.next().value;
+  observable.notify(nextValue);
+  if (nextValue > 100) {
+    clearInterval(interval);
+    unsubscribe1();
+    unsubscribe2();
+  }
+}, 500);

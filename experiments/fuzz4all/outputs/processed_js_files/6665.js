@@ -1,0 +1,33 @@
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+  yield await delay(1000).then(() => "Hello,");
+  yield await delay(1000).then(() => "world!");
+}
+
+const proxyHandler = {
+  get(target, property) {
+    if (property in target) {
+      print(`Accessing ${property}`);
+      return Reflect.get(target, property);
+    } else {
+      console.warn(`Property ${property} does not exist`);
+    }
+  },
+};
+
+const data = new Proxy({ greeting: "Hello", punctuation: "!" }, proxyHandler);
+
+async function greet() {
+  const gen = asyncGenerator();
+  let phrase = '';
+
+  for await (let part of gen) {
+    phrase += part + " ";
+  }
+
+  print(`${phrase.trim()}${data.punctuation}`);
+}
+
+greet();

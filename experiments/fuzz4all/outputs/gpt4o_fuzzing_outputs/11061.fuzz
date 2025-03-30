@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+
+async function fetchPosts() {
+    try {
+         
+        const response = await fetch(apiUrl);
+        
+         
+        if (!response.ok) throw new Error('Network response was not ok');
+
+         
+        const posts = await response.json();
+
+         
+        const processedPosts = await Promise.all(posts.map(async (post) => {
+             
+            const additionalInfo = await simulateAsyncOperation(post);
+            return { ...post, additionalInfo };
+        }));
+
+         
+        console.log('Processed Posts:', processedPosts.slice(0, 5));  
+    } catch (error) {
+        console.error('Failed to fetch posts:', error);
+    }
+}
+
+function simulateAsyncOperation(post) {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Extra info for post ID: ${post.id}`);
+        }, Math.random() * 1000);  
+    });
+}
+
+fetchPosts();
+```

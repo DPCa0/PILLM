@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class ComplexFeature {
+    #privateField = 'This is a private field';
+
+    constructor() {
+        this.someValue = 42;
+    }
+
+    #privateMethod() {
+        return this.#privateField;
+    }
+
+    static async fetchData(url) {
+        try {
+            let response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
+        }
+    }
+
+    *idGenerator() {
+        let index = 0;
+        while (true) {
+            yield index++;
+        }
+    }
+
+    applyOperations(arr) {
+        return arr.map(n => n * 2)
+            .filter(n => n > 5)
+            .reduce((acc, val) => acc + val, 0);
+    }
+
+    static logIfPositive(n) {
+        n > 0 && console.log('Positive:', n);
+    }
+
+    demonstrateAdvancedFeatures() {
+        console.log('Private Method:', this.#privateMethod());
+        
+        const ids = this.idGenerator();
+        console.log('Generated IDs:', ids.next().value, ids.next().value, ids.next().value);
+
+        const result = this.applyOperations([1, 2, 3, 4, 5, 6, 7]);
+        console.log('Result of operations:', result);
+
+        ComplexFeature.logIfPositive(result);
+    }
+}
+
+(async () => {
+    const complexInstance = new ComplexFeature();
+    complexInstance.demonstrateAdvancedFeatures();
+
+    const data = await ComplexFeature.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched data:', data);
+})();
+```

@@ -1,0 +1,39 @@
+ 
+import { promises as fs } from 'fs';
+import axios from 'axios';
+
+ 
+(async () => {
+  try {
+     
+    const [fileContent, apiResponse] = await Promise.all([
+      fs.readFile('data.json', 'utf8'),
+      axios.get('https://jsonplaceholder.typicode.com/posts')
+    ]);
+
+     
+    const localData = JSON.parse(fileContent);
+    const apiData = apiResponse.data;
+
+     
+    const uniqueUserIds = new Set(apiData.map(post => post.userId));
+
+     
+    const { 0: firstPost, ...restPosts } = apiData;
+
+     
+    const summary = firstPost?.title ?? 'No title available';
+
+     
+    print(`Summary: ${summary}`);
+    print(`Unique User IDs: ${[...uniqueUserIds].join(', ')}`);
+
+     
+    if (localData.logEnabled) {
+      const { log } = await import('./logger.js');
+      log('Data processed successfully');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

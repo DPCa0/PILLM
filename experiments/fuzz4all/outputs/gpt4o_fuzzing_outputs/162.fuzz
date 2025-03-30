@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Calculator {
+  constructor() {
+    this.result = 0;
+  }
+
+  add(...numbers) {
+    return this.#operate(numbers, (a, b) => a + b);
+  }
+
+  subtract(...numbers) {
+    return this.#operate(numbers, (a, b) => a - b);
+  }
+
+  multiply(...numbers) {
+    return this.#operate(numbers, (a, b) => a * b);
+  }
+
+  divide(...numbers) {
+    return this.#operate(numbers, (a, b) => a / b);
+  }
+
+  #operate(numbers, operation) {
+    this.result = numbers.reduce(operation);
+    return this.result;
+  }
+
+  static chain(calculator, ...operations) {
+    return operations.reduce(
+      (chain, operation) => chain.then(() => operation(calculator)),
+      Promise.resolve()
+    );
+  }
+}
+
+ 
+const calc = new Calculator();
+
+Calculator.chain(
+  calc,
+  async (c) => console.log(await c.add(5, 10)),
+  async (c) => console.log(await c.subtract(4)),
+  async (c) => console.log(await c.multiply(3)),
+  async (c) => console.log(await c.divide(2))
+)
+.catch(console.error);
+```

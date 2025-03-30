@@ -1,0 +1,65 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async function complexJSFeatures() {
+   
+  const {
+    name,
+    hobbies: [firstHobby, { type: secondHobbyType }],
+  } = {
+    name: 'Jane Doe',
+    hobbies: ['Reading', { type: 'Coding', time: 'Weekends' }],
+  };
+
+  print(`Name: ${name}, Hobbies: ${firstHobby} and ${secondHobbyType}`);
+
+   
+  const dataFetch = async url => {
+    await delay(1000);  
+    return `Data from ${url}`;
+  };
+
+  const urls = ['api/user', 'api/posts', 'api/comments'];
+  const fetchData = await Promise.all(urls.map(url => dataFetch(url)));
+
+  fetchData.forEach((data, index) => print(`Fetched ${data} from URL ${index + 1}`));
+
+   
+  const handler = {
+    get(target, property) {
+      print(`Getting the property "${property}"`);
+      return target[property];
+    },
+    set(target, property, value) {
+      print(`Setting the property "${property}" to "${value}"`);
+      target[property] = value;
+      return true;
+    },
+  };
+
+  const person = new Proxy({ age: 25 }, handler);
+  print(`Person's age: ${person.age}`);
+  person.age = 26;
+  print(`Person's age: ${person.age}`);
+
+   
+  function* numberGenerator() {
+    yield* [1, 2, 3];
+    yield 4;
+    yield 5;
+  }
+
+  const numbers = [...numberGenerator()];
+  print(`Generated numbers: ${numbers.join(', ')}`);
+
+   
+  const sym1 = Symbol('key1');
+  const sym2 = Symbol('key2');
+
+  const uniqueKeysObject = {
+    [sym1]: 'Value for key1',
+    [sym2]: 'Value for key2',
+  };
+
+  print(`Unique key values: ${uniqueKeysObject[sym1]}, ${uniqueKeysObject[sym2]}`);

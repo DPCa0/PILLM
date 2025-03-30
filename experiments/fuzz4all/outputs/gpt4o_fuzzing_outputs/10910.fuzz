@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._listeners = new Set();
+    }
+    
+    subscribe(listener) {
+        this._listeners.add(listener);
+        listener(this._value);
+        return () => this._listeners.delete(listener);
+    }
+    
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._listeners.forEach(listener => listener(newValue));
+        }
+    }
+    
+    get value() {
+        return this._value;
+    }
+}
+
+function useObservable(initialValue) {
+    const observable = new Observable(initialValue);
+    return [() => observable.value, (newValue) => observable.value = newValue, observable];
+}
+
+const [getCount, setCount, countObservable] = useObservable(0);
+
+const unsubscribe = countObservable.subscribe(value => {
+    console.log(`Current count: ${value}`);
+});
+
+setCount(getCount() + 1);  
+setCount(getCount() + 2);  
+
+unsubscribe();
+
+setCount(getCount() + 5);  
+```

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+    yield 'Data 1';
+    yield 'Data 2';
+    yield 'Data 3';
+}
+
+ 
+async function fetchDataAsync(generator) {
+    const dataArray = [];
+    for (let value of generator) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        console.log('Fetched:', value);
+        dataArray.push(value);
+    }
+    return dataArray;
+}
+
+ 
+const loggerHandler = {
+    get: (target, property) => {
+        console.log(`Getting property '${property}'`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const dataStore = new Proxy({}, loggerHandler);
+
+ 
+async function main() {
+    const generator = dataGenerator();
+    
+     
+    const data = await fetchDataAsync(generator);
+    
+     
+    data.forEach((value, index) => {
+        dataStore[`item${index + 1}`] = value;
+    });
+
+    console.log('DataStore Contents:', dataStore.item1, dataStore.item2, dataStore.item3);
+}
+
+ 
+main();
+```

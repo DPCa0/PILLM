@@ -1,0 +1,43 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = async (id, delay) => {
+    return new Promise(resolve => setTimeout(() => {
+        print(`Async operation ${id} completed`);
+        resolve(id);
+    }, delay));
+};
+
+const processWithPromiseAll = async (operations) => {
+    const results = await Promise.all(operations);
+    print('All operations completed:', results);
+};
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('start', () => print('Operations starting...'));
+eventEmitter.on('end', () => print('Operations ended.'));
+
+const operations = [
+    asyncOperation(1, 1000),
+    asyncOperation(2, 2000),
+    asyncOperation(3, 1500),
+];
+
+eventEmitter.emit('start');
+processWithPromiseAll(operations).then(() => eventEmitter.emit('end'));

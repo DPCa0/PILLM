@@ -1,0 +1,53 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData(emitter) {
+  try {
+    emitter.emit('start');
+    await delay(1000);  
+    const data = { message: 'Data fetched successfully!' };
+    emitter.emit('data', data);
+  } catch (error) {
+    emitter.emit('error', error);
+  } finally {
+    emitter.emit('end');
+  }
+}
+
+ 
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('start', () => print('Fetching started...'));
+  emitter.on('data', (data) => print('Data received:', data));
+  emitter.on('end', () => print('Fetching ended.'));
+  emitter.on('error', (error) => console.error('Error:', error));
+
+  await fetchData(emitter);
+})();

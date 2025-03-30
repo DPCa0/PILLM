@@ -1,0 +1,30 @@
+class AdvancedGreeter {
+    constructor(name) {
+        this.name = name;
+    }
+    
+    async #fetchQuote() {
+        const response = await fetch('https://api.quotable.io/random');
+        const data = await response.json();
+        return data.content;
+    }
+
+    #greetWithQuote(quote) {
+        const greeting = `Hello, ${this.name}! Here's a random quote for you: "${quote}"`;
+        print(greeting);
+    }
+    
+    async greet() {
+        try {
+            const quote = await this.#fetchQuote();
+            this.#greetWithQuote(quote);
+        } catch (error) {
+            console.error('Failed to fetch quote:', error);
+        }
+    }
+}
+
+(async () => {
+    const greeter = new AdvancedGreeter('world');
+    await greeter.greet();
+})();

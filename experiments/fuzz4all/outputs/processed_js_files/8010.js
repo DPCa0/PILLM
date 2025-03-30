@@ -1,0 +1,67 @@
+class DataLoader {
+  #data;
+  static instanceCount = 0;
+
+  constructor() {
+    this.#data = new Map();
+    DataLoader.instanceCount++;
+  }
+
+  async *loadData(urls) {
+    for (const url of urls) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch: ${url}`);
+      const data = await response.json();
+      this.#data.set(url, data);
+      yield data;
+    }
+  }
+
+  getData(url) {
+    return this.#data.get(url);
+  }
+
+  static getInstanceCount() {
+    return DataLoader.instanceCount;
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), delay);
+  };
+};
+
+const observer = new Proxy([], {
+  set(target, property, value) {
+    print(`Array element at index ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  },
+});
+
+const main = async () => {
+  const loader = new DataLoader();
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+  ];
+  
+  for await (const data of loader.loadData(urls)) {
+    observer.push(data);
+  }
+
+  print(`Loaded data for URLs:`, [...loader.#data.keys()]);
+  print(`DataLoader instance count:`, DataLoader.getInstanceCount());
+
+  const logData = debounce((index) => {
+    print(`Data at index ${index}:`, observer[index]);
+  }, 1000);
+
+  logData(0);
+  logData(1);
+};
+
+main();

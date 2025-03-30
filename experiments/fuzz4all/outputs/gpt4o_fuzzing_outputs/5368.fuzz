@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function processFile(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+     
+    const transformed = transform`${data}`;
+    console.log('Processed Content:', transformed);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+}
+
+ 
+function transform(strings, ...values) {
+  const upperCaseStrings = strings.map(str => str.toUpperCase());
+   
+  return upperCaseStrings.reduce((acc, curr, i) => acc + curr + (values[i] ? `[${values[i]}]` : ''), '');
+}
+
+ 
+(async () => {
+  const filePath = './example.txt';  
+  await processFile(filePath);
+})();
+
+ 
+const originalObj = { name: 'AdvancedJS', year: 2023 };
+const handler = {
+  get(target, property) {
+    console.log(`Accessed property: ${property}`);
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    console.log(`Set property: ${property} to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+const proxyObj = new Proxy(originalObj, handler);
+console.log(proxyObj.name);  
+proxyObj.year = 2024;  
+```

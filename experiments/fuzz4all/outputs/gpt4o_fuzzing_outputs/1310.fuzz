@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), 1000);
+    });
+}
+
+ 
+function* dataGenerator() {
+    const urls = ['url1', 'url2', 'url3'];
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+async function processData(generator) {
+    const dataIterator = generator();
+    let result = dataIterator.next();
+    while (!result.done) {
+        const data = await result.value;
+        console.log(`Received: ${data}`);
+        result = dataIterator.next();
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Getting ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const dataObject = {
+    name: 'AdvancedJS',
+    description: 'Complex JS program',
+};
+
+ 
+const proxyData = new Proxy(dataObject, handler);
+
+ 
+proxyData.version = 1.0;
+console.log(proxyData.name);
+
+(async () => {
+    console.log('Processing data...');
+    await processData(dataGenerator);
+    console.log('Processing complete.');
+})();
+```

@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function complexFunction() {
+   
+  const target = { value: 42 };
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Getting property ${prop}`);
+      return obj[prop];
+    },
+    set: (obj, prop, val) => {
+      console.log(`Setting property ${prop} to ${val}`);
+      obj[prop] = val;
+      return true;
+    },
+  };
+  const proxy = new Proxy(target, handler);
+
+   
+  function* numberGenerator() {
+    yield* [1, 2, 3, 4, 5];
+  }
+  
+  const deferred = new Deferred();
+
+   
+  async function asyncIterator() {
+    const numbers = numberGenerator();
+    for (const number of numbers) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log(`Generator produced: ${number}`);
+    }
+    deferred.resolve("All numbers processed");
+  }
+
+  proxy.value = proxy.value * 2;  
+
+  console.log(`Initial proxy value: ${proxy.value}`);
+  
+  asyncIterator();
+
+   
+  const uniqueNumbers = new Set([1, 2, 2, 3, 4, 5, 5]);
+  console.log("Unique numbers:", ...uniqueNumbers);
+
+  return deferred.promise;
+}
+
+complexFunction().then((message) => console.log(message));
+```

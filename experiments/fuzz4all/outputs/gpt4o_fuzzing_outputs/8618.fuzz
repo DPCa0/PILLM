@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processData = (data) => {
+  const result = data
+    .filter(item => item.value > 10)
+    .map(({ id, value }) => ({ id, squaredValue: value ** 2 }))
+    .reduce((acc, { id, squaredValue }) => ({ ...acc, [id]: squaredValue }), {});
+  return result;
+};
+
+(async () => {
+  try {
+    const rawData = await fetchData('https://api.example.com/data');
+    const processedData = processData(rawData);
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error in main flow:', error);
+  }
+})();
+```

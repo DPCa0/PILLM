@@ -1,0 +1,37 @@
+ 
+async function fetchData(url) {
+    try {
+         
+        const response = await fetch(url);
+        const data = await response.json();
+
+         
+        const users = data.results.map(({ name, email, login }) => ({
+            name: `${name.first} ${name.last}`,
+            email,
+            username: login.username
+        }));
+
+         
+        const userMap = new Map();
+        users.forEach(user => userMap.set(user.username, user));
+
+         
+        const getUsers = () => new Promise((resolve) => {
+            setTimeout(() => resolve([...userMap.values()]), 1000);
+        });
+
+        const userList = await getUsers();
+
+         
+        userList.forEach(user => {
+            print(`Name: ${user?.name ?? 'N/A'}, Email: ${user?.email ?? 'N/A'}`);
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+fetchData('https://randomuser.me/api/?results=5');

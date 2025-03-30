@@ -1,0 +1,36 @@
+(async () => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    class MathOperations {
+        static async compute(a, b, operation) {
+            await delay(500);  
+            const operations = {
+                add: () => a + b,
+                subtract: () => a - b,
+                multiply: () => a * b,
+                divide: () => b !== 0 ? a / b : 'Division by zero'
+            };
+
+            return operations[operation] ? operations[operation]() : 'Unknown operation';
+        }
+    }
+
+    const numbers = [1, 2, 3, 4, 5];
+    const [first, second, ...rest] = numbers;
+    const result = await MathOperations.compute(first, second, 'add');
+
+    const generateMessage = result => `The result of the operation is: ${result}`;
+
+    print(generateMessage(result));
+
+    const proxy = new Proxy(numbers, {
+        get(target, property) {
+            if (property === 'last') {
+                return target[target.length - 1];
+            }
+            return target[property];
+        }
+    });
+
+    print(`The last number in the array is: ${proxy.last}`);
+})();

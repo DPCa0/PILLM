@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class Calculator {
+  #history = [];  
+
+  constructor() {
+    this.result = 0;
+  }
+
+  add(...args) {
+    this.#performOperation('add', args.reduce((acc, val) => acc + val, this.result));
+  }
+
+  subtract(...args) {
+    this.#performOperation('subtract', args.reduce((acc, val) => acc - val, this.result));
+  }
+
+  multiply(...args) {
+    this.#performOperation('multiply', args.reduce((acc, val) => acc * val, this.result || 1));
+  }
+
+  divide(...args) {
+    this.#performOperation('divide', args.reduce((acc, val) => acc / val, this.result || 1));
+  }
+
+  #performOperation(type, newResult) {
+    this.#history.push({
+      operation: type,
+      previous: this.result,
+      result: newResult
+    });
+    this.result = newResult;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    let history = this.#history;
+
+    return {
+      next: () => {
+        if (index < history.length) {
+          return { value: history[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+
+  async saveHistory() {
+    const encodedHistory = JSON.stringify(this.#history);
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    console.log(`History saved: ${encodedHistory}`);
+  }
+}
+
+ 
+(async () => {
+  const calc = new Calculator();
+  calc.add(5, 10);
+  calc.subtract(3);
+  calc.multiply(4);
+  calc.divide(2);
+
+   
+  for (const record of calc) {
+    console.log(`Operation: ${record.operation}, Previous: ${record.previous}, Result: ${record.result}`);
+  }
+
+   
+  await calc.saveHistory();
+})();
+```

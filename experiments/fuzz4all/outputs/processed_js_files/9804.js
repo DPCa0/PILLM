@@ -1,0 +1,50 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  
+  const fetchData = async url => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  };
+
+  class EventEmitter {
+    constructor() {
+      this.events = {};
+    }
+  
+    on(event, listener) {
+      if (!this.events[event]) {
+        this.events[event] = [];
+      }
+      this.events[event].push(listener);
+    }
+  
+    emit(event, ...args) {
+      if (this.events[event]) {
+        this.events[event].forEach(listener => listener(...args));
+      }
+    }
+  }
+
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('dataReceived', data => {
+    print('Data received:', data);
+  });
+
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  
+  for await (const interval of [1000, 2000, 3000]) {
+    print(`Waiting for ${interval} ms`);
+    await delay(interval);
+    const data = await fetchData(url);
+    eventEmitter.emit('dataReceived', data);
+  }
+
+  print('Process completed');
+})();

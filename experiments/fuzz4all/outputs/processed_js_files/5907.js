@@ -1,0 +1,48 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncFunction = async (delay) => {
+  return new Promise(resolve => setTimeout(() => resolve(`Resolved after ${delay}ms`), delay));
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', (data) => {
+    print(`Listener 1 received: ${data}`);
+  });
+
+  eventEmitter.on('data', (data) => {
+    print(`Listener 2 received: ${data}`);
+  });
+
+  const results = await Promise.allSettled([
+    asyncFunction(1000),
+    asyncFunction(2000),
+    asyncFunction(500),
+  ]);
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      eventEmitter.emit('data', `Promise ${index + 1}: ${result.value}`);
+    } else {
+      console.error(`Promise ${index + 1} failed: ${result.reason}`);
+    }
+  });
+})();

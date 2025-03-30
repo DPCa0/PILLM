@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Person {
+  #name;  
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  set name(value) {
+    if (typeof value === 'string' && value.length > 0) {
+      this.#name = value;
+    } else {
+      throw new Error('Invalid name');
+    }
+  }
+
+  birthday() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.age += 1;
+        resolve(`Happy Birthday, ${this.name}! You are now ${this.age} years old.`);
+      }, 1000);
+    });
+  }
+
+  static fromJSON(json) {
+    const { name, age } = JSON.parse(json);
+    return new Person(name, age);
+  }
+}
+
+const runExample = async () => {
+  try {
+     
+    const personData = { name: 'Alice', age: 30 };
+    const { name, age } = personData;
+    const alice = new Person(name, age);
+
+    const aliceClone = { ...personData };
+
+    console.log(`Name: ${alice.name}, Age: ${alice.age}`);
+    
+    console.log(await alice.birthday());
+
+    alice.name = 'Alice Smith';  
+    console.log(`Updated Name: ${alice.name}`);
+    
+    const jsonData = JSON.stringify(aliceClone);
+    const bob = Person.fromJSON(jsonData);
+    console.log(`Name: ${bob.name}, Age: ${bob.age}`);
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+runExample();
+```

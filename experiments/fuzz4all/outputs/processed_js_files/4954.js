@@ -1,0 +1,44 @@
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+
+ 
+const fetchData = async () => {
+  await randomDelay();
+  return { data: 'Sample Data', timestamp: Date.now() };
+};
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      print(`Accessed property "${prop}" with value: ${obj[prop]}`);
+      return obj[prop];
+    }
+  });
+};
+
+ 
+(async () => {
+   
+  const data = await fetchData();
+  print('Fetched Data:', data);
+
+   
+  const dataProxy = createLoggingProxy(data);
+
+   
+  const dynamicImportExample = () => {
+    return import('./dummyModule.js').catch(() => {
+      print('Dynamic Import Simulated: Module not found');
+      return { example: () => 'Dummy Module Function' };
+    });
+  };
+
+   
+  const module = await dynamicImportExample();
+  print('Module Function Output:', module.example());
+
+   
+  print('Accessing proxy properties...');
+  print('Data Timestamp:', dataProxy.timestamp);
+})();

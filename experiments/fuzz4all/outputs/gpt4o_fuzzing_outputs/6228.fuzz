@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+
+    const [firstPost, secondPost] = await fetchData(url);
+
+     
+    function* objectEntries(obj) {
+        for (let key of Object.keys(obj)) {
+            yield [key, obj[key]];
+        }
+    }
+
+     
+    const handler = {
+        get(target, prop) {
+            if (prop in target) {
+                console.log(`Getting ${prop}`);
+                return target[prop];
+            } else {
+                console.log(`${prop} not found`);
+                return undefined;
+            }
+        }
+    };
+
+    const proxyPost = new Proxy(firstPost, handler);
+
+     
+    console.log('First Post ID:', proxyPost.id ?? 'No ID');
+    console.log('Non-Existent Property:', proxyPost.nonExistentProp?.name ?? 'Not available');
+
+     
+    const titleLengths = new Map([
+        ['First Post Title Length', firstPost.title.length],
+        ['Second Post Title Length', secondPost.title.length]
+    ]);
+
+     
+    console.log('\nFirst Post Entries:');
+    for (let [key, value] of objectEntries(firstPost)) {
+        console.log(`${key}: ${value}`);
+    }
+
+    console.log('\nTitle Lengths:');
+    for (let [desc, length] of titleLengths.entries()) {
+        console.log(`${desc}: ${length}`);
+    }
+
+     
+    const postDetails = await Promise.allSettled([fetchData(url + '/1'), fetchData(url + '/2')]);
+
+    postDetails.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            console.log(`Post ${index + 1} fetched successfully:`,

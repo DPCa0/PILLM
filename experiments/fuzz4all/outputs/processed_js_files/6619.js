@@ -1,0 +1,43 @@
+class Fibonacci {
+  #sequenceCache = new Map();
+
+  constructor(limit) {
+    this.limit = limit;
+    this.#generateSequence();
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.limit; i++) {
+      yield this.#sequenceCache.get(i);
+    }
+  }
+
+  #generateSequence() {
+    for (let i = 0; i < this.limit; i++) {
+      if (i <= 1) {
+        this.#sequenceCache.set(i, i);
+      } else {
+        this.#sequenceCache.set(i, this.#sequenceCache.get(i - 1) + this.#sequenceCache.get(i - 2));
+      }
+    }
+  }
+
+  async logSequence() {
+    print("Fibonacci Sequence:");
+    for await (const num of this.#logWithDelay()) {
+      print(num);
+    }
+  }
+
+  async *#logWithDelay() {
+    for (const num of this) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      yield num;
+    }
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci(10);
+  await fib.logSequence();
+})();

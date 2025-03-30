@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class AdvancedArray extends Array {
+  constructor(...args) {
+    super(...args);
+  }
+
+  unique() {
+    return [...new Set(this)];
+  }
+
+  async mapAsync(callback) {
+    return Promise.all(this.map(callback));
+  }
+}
+
+ 
+const complexFunction = async () => {
+  const data = new AdvancedArray(1, 2, 2, 3, 4, 5, 5);
+
+   
+  const uniqueData = data.unique();
+  console.log('Unique Data:', uniqueData);
+
+   
+  const asyncMapped = await data.mapAsync(async (num) => {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    return num * 2;
+  });
+  console.log('Async Mapped:', asyncMapped);
+
+   
+  function* generateSquares(arr) {
+    for (let num of arr) {
+      yield num * num;
+    }
+  }
+
+  const squares = generateSquares(uniqueData);
+  console.log('Squares:', [...squares]);
+
+   
+  const handler = {
+    get: function(target, prop, receiver) {
+      if (prop in target) {
+        return target[prop];
+      } else {
+        return `Property '${prop}' not found`;
+      }
+    }
+  };
+
+  const proxyData = new Proxy(data, handler);
+
+  console.log('Proxy Access:', proxyData[3]);   
+  console.log('Proxy Access:', proxyData[10]);  
+};
+
+complexFunction();
+```

@@ -1,0 +1,56 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        for (const listener of this.events.get(event)) {
+            listener(...args);
+        }
+    }
+}
+
+class ComplexOperation extends EventEmitter {
+    constructor() {
+        super();
+        this.data = new Proxy({}, {
+            set: (target, prop, value) => {
+                target[prop] = value;
+                this.emit('dataChange', { [prop]: value });
+                return true;
+            }
+        });
+    }
+
+    async performTask(input) {
+        try {
+            await this.simulateAsyncTask(input);
+            this.data.result = input.toUpperCase();
+            this.emit('taskComplete', this.data.result);
+        } catch (error) {
+            this.emit('error', error);
+        }
+    }
+
+    simulateAsyncTask(input) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                input ? resolve(input) : reject('Invalid input');
+            }, 1000);
+        });
+    }
+}
+
+const operation = new ComplexOperation();
+operation.on('dataChange', change => print('Data changed:', change));
+operation.on('taskComplete', result => print('Task complete with result:', result));
+operation.on('error', error => print('Error:', error));
+
+operation.performTask('hello');
+operation.data.additionalInfo = 'Some extra info';

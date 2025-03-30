@@ -1,0 +1,45 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* generateValues() {
+    yield delay(Math.random() * 1000).then(() => 'Value 1');
+    yield delay(Math.random() * 1000).then(() => 'Value 2');
+    yield delay(Math.random() * 1000).then(() => 'Value 3');
+}
+
+ 
+async function asyncGeneratorHandler(generator) {
+    for (let promise of generator) {
+        const value = await promise;
+        print(value);
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        print(`Accessing property '${property}'`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { a: 1, b: 2, c: 3 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+proxyObject.a;  
+proxyObject.b = 4;  
+
+ 
+(async () => {
+    const generator = generateValues();
+    await asyncGeneratorHandler(generator);
+})();

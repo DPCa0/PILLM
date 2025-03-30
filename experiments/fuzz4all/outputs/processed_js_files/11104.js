@@ -1,0 +1,72 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+     
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+    yield `Data from ${url}`;  
+  }
+}
+
+ 
+const logAccess = new Proxy({}, {
+  get(target, property) {
+    print(`Accessed property: ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Set property: ${property} = ${value}`);
+    target[property] = value;
+    return true;
+  }
+});
+
+ 
+const _privateData = new WeakMap();
+
+class AdvancedFeatureExample {
+  constructor(name) {
+    _privateData.set(this, { name });
+  }
+
+  get name() {
+    return _privateData.get(this).name;
+  }
+
+  set name(newName) {
+    _privateData.get(this).name = newName;
+  }
+
+   
+  @logMethod
+  displayInfo() {
+    print(`Name is: ${this.name}`);
+  }
+}
+
+ 
+function logMethod(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = function(...args) {
+    print(`Calling ${key} with arguments: ${JSON.stringify(args)}`);
+    return originalMethod.apply(this, args);
+  };
+
+  return descriptor;
+}
+
+ 
+(async () => {
+  const example = new AdvancedFeatureExample('Test Name');
+  example.displayInfo();
+  example.name = 'New Test Name';
+  example.displayInfo();
+
+  logAccess.test = 'Logging this access';
+  print(logAccess.test);
+
+  const urls = ['http://example.com', 'http://another-example.com'];
+  for await (const data of fetchData(urls)) {
+    print(data);
+  }
+})();

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+(async () => {
+  const delayedMessage = (message, delay) => new Promise(resolve => setTimeout(() => resolve(message), delay));
+
+  const fetchAndLogData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      console.log('Fetched Data:', data);
+    } catch (error) {
+      console.error('Fetch Error:', error);
+    }
+  };
+
+  class MessageQueue {
+    constructor() {
+      this.queue = [];
+      this.isProcessing = false;
+    }
+
+    enqueue(message, delay = 1000) {
+      this.queue.push(() => delayedMessage(message, delay));
+      this.processQueue();
+    }
+
+    async processQueue() {
+      if (this.isProcessing || this.queue.length === 0) return;
+      this.isProcessing = true;
+      while (this.queue.length > 0) {
+        const task = this.queue.shift();
+        const result = await task();
+        console.log(result);
+      }
+      this.isProcessing = false;
+    }
+  }
+
+   
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  fetchAndLogData(url);
+
+  const messageQueue = new MessageQueue();
+  messageQueue.enqueue('Hello, world!', 500);
+  messageQueue.enqueue('How are you?', 1000);
+  messageQueue.enqueue('Goodbye!', 1500);
+})();
+```

@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function apiCall(endpoint) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (endpoint === 'data') {
+        resolve({ id: 1, name: 'John Doe', role: 'Developer' });
+      } else {
+        reject('Error: Endpoint not found');
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* fetchData() {
+  try {
+    const data = yield apiCall('data');
+    console.log(`User: ${data.name}, Role: ${data.role}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+async function runGenerator(genFunc) {
+  const genObj = genFunc();
+
+  async function step(genResult) {
+    if (genResult.done) return;
+    try {
+      const data = await genResult.value;
+      step(genObj.next(data));
+    } catch (error) {
+      genObj.throw(error);
+    }
+  }
+
+  step(genObj.next());
+}
+
+ 
+const handler = {
+  apply: function(target, thisArg, argumentsList) {
+    console.log(`Calling function ${target.name} with arguments: ${argumentsList}`);
+    return Reflect.apply(target, thisArg, argumentsList);
+  }
+};
+
+ 
+const proxiedRunGenerator = new Proxy(runGenerator, handler);
+
+ 
+proxiedRunGenerator(fetchData);
+```

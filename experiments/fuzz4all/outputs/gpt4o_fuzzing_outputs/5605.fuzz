@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+}
+
+const fromEvent = (element, eventType) =>
+  new Observable(observer => {
+    const handler = event => observer.next(event);
+    element.addEventListener(eventType, handler);
+    return () => element.removeEventListener(eventType, handler);
+  });
+
+const debounceTime = (duration) => (source) =>
+  new Observable(observer => {
+    let timerId = null;
+    const subscription = source.subscribe({
+      next(value) {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => observer.next(value), duration);
+      },
+    });
+    return () => {
+      clearTimeout(timerId);
+      subscription.unsubscribe();
+    };
+  });
+
+const distinctUntilChanged = () => (source) =>
+  new Observable(observer => {
+    let lastValue;
+    const subscription = source.subscribe({
+      next(value) {
+        if (value !== lastValue) {
+          observer.next(value);
+          lastValue = value;
+        }
+      },
+    });
+    return () => subscription.unsubscribe();
+  });
+
+const searchInput = document.getElementById('search');
+const resultsOutput = document.getElementById('results');
+
+const searchEvents = fromEvent(searchInput, 'input');
+const searchRequests = searchEvents.pipe(
+  debounceTime(300),
+  distinctUntilChanged()
+);
+
+const searchApiCall = (query) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Results for "${query}"`);
+    }, 500);
+  });
+};
+
+const handleSearch = async (event) => {
+  const query = event.target.value;
+  if (query) {
+    const results = await searchApiCall(query);
+    resultsOutput.textContent = results;
+  } else {
+    resultsOutput.textContent = '';
+  }
+};
+
+searchRequests.subscribe({
+  next: handleSearch
+});
+```

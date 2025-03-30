@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class TemperatureSensor {
+    constructor(location) {
+        this.location = location;
+    }
+
+    async fetchTemperature() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve((Math.random() * 30 + 10).toFixed(2)), 1000);
+        });
+    }
+}
+
+class TemperatureMonitor {
+    #sensors = new Map();
+
+    addSensor(location) {
+        if (!this.#sensors.has(location)) {
+            this.#sensors.set(location, new TemperatureSensor(location));
+        }
+    }
+
+    async logTemperature(location) {
+        if (!this.#sensors.has(location)) {
+            throw new Error('Sensor not found for this location');
+        }
+        const temperature = await this.#sensors.get(location).fetchTemperature();
+        console.log(`Temperature at ${location}: ${temperature}°C`);
+    }
+}
+
+const monitor = new TemperatureMonitor();
+['New York', 'Tokyo', 'London'].forEach(location => monitor.addSensor(location));
+
+(async () => {
+    const results = await Promise.allSettled([
+        monitor.logTemperature('New York'),
+        monitor.logTemperature('Tokyo'),
+        monitor.logTemperature('London'),
+        monitor.logTemperature('Sydney')  
+    ]);
+
+    results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+            console.log(`Operation ${index + 1} succeeded`);
+        } else {
+            console.error(`Operation ${index + 1} failed: ${result.reason}`);
+        }
+    });
+})();
+```

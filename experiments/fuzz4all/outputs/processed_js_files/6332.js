@@ -1,0 +1,49 @@
+ 
+
+class WeatherService {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://api.weatherapi.com/v1/current.json';
+  }
+
+  async fetchWeather(city) {
+    const url = `${this.baseUrl}?key=${this.apiKey}&q=${city}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch weather data');
+    return response.json();
+  }
+}
+
+class WeatherDisplay {
+  constructor() {
+    this.service = new WeatherService('your-api-key-here');
+  }
+
+  async display(city) {
+    try {
+      const data = await this.service.fetchWeather(city);
+      const { location, current } = data;  
+      this.render(location, current);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+
+  render({ name, country }, { temp_c, condition: { text, icon } }) {
+    print(`Weather in ${name}, ${country}:`);
+    print(`Temperature: ${temp_c}°C, Condition: ${text}`);
+    const img = new Image();
+    img.src = icon;
+    document.body.appendChild(img);
+  }
+}
+
+(async () => {
+  const city = prompt("Enter a city");
+  if (city) {
+    const weatherDisplay = new WeatherDisplay();
+    await weatherDisplay.display(city);
+  }
+})();
+
+Please remember to replace `'your-api-key-here'` with a valid API key from a weather service provider that you choose to use.

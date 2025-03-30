@@ -1,0 +1,46 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncHandler = fn => (...args) => {
+    Promise.resolve(fn(...args)).catch(args[args.length - 1]);
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('data', asyncHandler(async (data, next) => {
+    print(`Received: ${data}`);
+    if (data === 'trigger error') throw new Error('Simulated error');
+    next();
+}));
+
+emitter.on('data', asyncHandler(async (data) => {
+    print(`Processing: ${data}`);
+}));
+
+const processData = async () => {
+    for (const data of ['Hello', 'world', 'trigger error', 'again']) {
+        await new Promise(resolve => {
+            emitter.emit('data', data, resolve);
+        });
+    }
+};
+
+processData().catch(error => {
+    console.error(`Caught error: ${error.message}`);
+});

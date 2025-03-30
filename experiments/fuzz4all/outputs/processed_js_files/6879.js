@@ -1,0 +1,50 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+ 
+const loggerProxyHandler = {
+  get(target, property) {
+    print(`Property '${property}' was accessed.`);
+    return target[property];
+  }
+};
+
+ 
+const _privateId = Symbol('privateId');
+
+class User {
+  constructor(name, id) {
+    this.name = name;
+    this[_privateId] = id;
+  }
+  getId() {
+    return this[_privateId];
+  }
+}
+
+ 
+const user = new Proxy(new User('Alice', 123), loggerProxyHandler);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? `<strong>${values[i]}</strong>` : '';
+    return result + string + value;
+  }, '');
+}
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+  
+  print(highlight`Hello, ${user.name}! Your ID is ${user.getId()}.`);
+})();

@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  const groupedData = data.reduce((acc, item) => {
+    const key = item.category;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
+
+  return Object.entries(groupedData).map(([key, value]) => ({
+    category: key,
+    count: value.length,
+    items: value.map(({ id, name }) => ({ id, name })),
+  }));
+};
+
+const render = (processedData) => {
+  processedData.forEach(({ category, count, items }) => {
+    console.group(`Category: ${category} (Total: ${count})`);
+    items.forEach(({ id, name }) => {
+      print(`ID: ${id}, Name: ${name}`);
+    });
+    console.groupEnd();
+  });
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    const processedData = processData(data);
+    render(processedData);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

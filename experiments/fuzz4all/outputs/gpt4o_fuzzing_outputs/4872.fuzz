@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+const handler = {
+  get(target, prop) {
+    return prop in target ? target[prop] : `Property '${prop}' does not exist`;
+  },
+};
+
+const config = new Proxy({ filePath: './data.txt', encoding: 'utf-8' }, handler);
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile(config.filePath, config.encoding);
+    
+     
+    const formattedData = tagString`File Contents:\n${data}`;
+
+     
+    const words = data.split(/\s+/);
+    const wordFrequency = words.reduce((map, word) => {
+      map.set(word, (map.get(word) || 0) + 1);
+      return map;
+    }, new Map());
+
+    console.log(formattedData);
+    console.log('Word Frequencies:', wordFrequency);
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+ 
+function tagString(strings, ...expressions) {
+  return strings.reduce((accumulator, str, i) => {
+    return `${accumulator}${str}<${expressions[i] || ''}>`;
+  }, '');
+}
+```
+
+Note: Before running this code, ensure you have a file named `data.txt` with some content in the same directory.

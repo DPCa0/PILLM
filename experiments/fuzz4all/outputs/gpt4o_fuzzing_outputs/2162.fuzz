@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return new DataProcessor(data);
+  }
+
+  *filterBy(key, value) {
+    for (const item of this.data) {
+      if (item[key] === value) yield item;
+    }
+  }
+
+  applyFunctionToKey(key, fn) {
+    this.data = this.data.map(item => ({ ...item, [key]: fn(item[key]) }));
+  }
+
+  get transposed() {
+    return this.data.reduce((result, item) => {
+      Object.keys(item).forEach(key => {
+        result[key] = result[key] || [];
+        result[key].push(item[key]);
+      });
+      return result;
+    }, {});
+  }
+}
+
+(async () => {
+  try {
+    const processor = await DataProcessor.fetchData('https://api.example.com/data');
+    
+    console.log('Initial Data:', processor.data);
+
+    const filteredData = [...processor.filterBy('category', 'fruit')];
+    console.log('Filtered Data:', filteredData);
+
+    processor.applyFunctionToKey('price', price => price * 1.2);
+    console.log('Updated Prices:', processor.data);
+
+    console.log('Transposed Data:', processor.transposed);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();
+```

@@ -1,0 +1,43 @@
+ 
+async function* fetchData() {
+  const dataChunks = ['Hello', 'world', 'from', 'an', 'async', 'generator'];
+  for (const chunk of dataChunks) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    yield chunk;
+  }
+}
+
+ 
+class Greeter {
+  #name;
+  
+  constructor(name) {
+    this.#name = name;
+  }
+
+  #formatGreeting(chunk) {
+    return `${chunk}, ${this.#name}!`;
+  }
+
+  static async processGreetings(generator) {
+    for await (const chunk of generator()) {
+      print(Greeter.prototype.#formatGreeting.call({ #name: 'Advanced JavaScript User' }, chunk));
+    }
+  }
+}
+
+ 
+const greeterProxy = new Proxy(Greeter, {
+  construct(target, args) {
+    print('Creating a new Greeter instance...');
+    return new target(...args);
+  }
+});
+
+ 
+const greeterInstance = new greeterProxy('Developer');
+const greeting = greeterInstance?.getName?.() ?? 'Greeting method not defined';
+
+ 
+Greeter.processGreetings(fetchData);
+

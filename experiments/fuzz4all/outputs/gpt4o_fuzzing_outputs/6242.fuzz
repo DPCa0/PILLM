@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class MathOps {
+  static #counter = 0;
+  
+  static fibonacci(n, memo = {}) {
+    MathOps.#log(`Calculating Fibonacci of ${n}`);
+    if (n <= 1) return n;
+    if (memo[n]) return memo[n];
+    return memo[n] = MathOps.fibonacci(n - 1, memo) + MathOps.fibonacci(n - 2, memo);
+  }
+
+  static async performOperation() {
+    MathOps.#log('Starting complex operation...');
+    const promise1 = new Promise(resolve => setTimeout(() => resolve(42), 1000));
+    const promise2 = new Promise(resolve => setTimeout(() => resolve(24), 1500));
+    const [result1, result2] = await Promise.all([promise1, promise2]);
+    MathOps.#log(`Promise results: ${result1}, ${result2}`);
+    
+    const mapped = [1, 2, 3, 4].map(n => MathOps.#square(n));
+    MathOps.#log(`Squared values: ${mapped.join(', ')}`);
+  }
+
+  static #square(n) {
+    return n ** 2;
+  }
+
+  static #log(message) {
+    MathOps.#counter++;
+    console.log(`Log #${MathOps.#counter}: ${message}`);
+  }
+}
+
+(async () => {
+  const fib = MathOps.fibonacci(10);
+  console.log(`Fibonacci of 10 is: ${fib}`);
+  
+  await MathOps.performOperation();
+
+  const iterable = {
+    *[Symbol.iterator]() {
+      yield 5; yield 10; yield 15;
+    }
+  };
+
+  for (const value of iterable) {
+    console.log(`Iterated value: ${value}`);
+  }
+})();
+```

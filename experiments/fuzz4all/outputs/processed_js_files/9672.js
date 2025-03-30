@@ -1,0 +1,46 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* randomNumberGenerator(max, interval) {
+  while (true) {
+    await sleep(interval);
+    yield Math.floor(Math.random() * max);
+  }
+}
+
+const main = async () => {
+  const emitter = new EventEmitter();
+  emitter.on('newNumber', num => {
+    print(`Generated number: ${num}`);
+    if (num > 75) {
+      print('Lucky number! Ending...');
+      process.exit(0);
+    }
+  });
+
+  const generator = randomNumberGenerator(100, 1000);
+
+  for await (const num of generator) {
+    emitter.emit('newNumber', num);
+  }
+};
+
+main();

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Fetch Error: ${error.message}`);
+  }
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  processData() {
+    return this.data
+      .filter(item => item.active)
+      .map(item => ({ ...item, processedAt: new Date() }));
+  }
+}
+
+const analyzeData = data => {
+  const summary = data.reduce((acc, item) => {
+    acc[item.category] = (acc[item.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  return Object.entries(summary).map(([category, count]) => ({ category, count }));
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const rawData = await fetchData(url);
+  if (!rawData) return;
+
+  const processor = new DataProcessor(rawData);
+  const processedData = processor.processData();
+
+  const analysisResult = analyzeData(processedData);
+  console.table(analysisResult);
+})();
+```

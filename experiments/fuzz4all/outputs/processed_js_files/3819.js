@@ -1,0 +1,74 @@
+ 
+class Person {
+  #name;
+  #age;
+  
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+  
+   
+  greet = () => {
+    print(`Hello, my name is ${this.#name}.`);
+  }
+  
+   
+  #isAdult() {
+    return this.#age >= 18;
+  }
+  
+   
+  static compareAges(person1, person2) {
+    return person1.#age - person2.#age;
+  }
+  
+   
+  get name() {
+    return this.#name;
+  }
+  
+  set name(name) {
+    if (typeof name === 'string' && name.length > 0) {
+      this.#name = name;
+    } else {
+      throw new Error('Invalid name');
+    }
+  }
+  
+   
+  static createPersonProxy(name, age) {
+    return new Proxy(new Person(name, age), {
+      set(target, property, value) {
+        if (property === 'name' && (typeof value !== 'string' || value.length === 0)) {
+          throw new Error('Invalid name');
+        }
+        return Reflect.set(target, property, value);
+      }
+    });
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const alice = Person.createPersonProxy('Alice', 30);
+alice.greet();  
+
+const bob = Person.createPersonProxy('Bob', 25);
+print(`Alice is older than Bob by ${Person.compareAges(alice, bob)} years.`);
+
+ 
+fetchData('https://api.sampleapis.com/futurama/characters');

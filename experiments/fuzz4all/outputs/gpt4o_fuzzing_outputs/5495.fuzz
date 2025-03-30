@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+import { createInterface } from 'readline';
+import { Transform, pipeline } from 'stream';
+import { promisify } from 'util';
+
+ 
+const asyncPipeline = promisify(pipeline);
+
+ 
+class UpperCaseTransform extends Transform {
+  constructor(options) {
+    super(options);
+  }
+
+  _transform(chunk, encoding, callback) {
+    try {
+      this.push(chunk.toString().toUpperCase());
+      callback();
+    } catch (error) {
+      callback(error);
+    }
+  }
+}
+
+(async () => {
+   
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: false,
+  });
+
+   
+  const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+   
+  const userInput = await question('Enter some text: ');
+  rl.close();
+
+   
+  const outputStream = await fs.open('output.txt', 'w');
+
+  try {
+     
+    await asyncPipeline(
+       
+      Readable.from(userInput),
+       
+      new UpperCaseTransform(),
+       
+      outputStream.createWriteStream()
+    );
+    console.log('Text was successfully transformed and saved to output.txt');
+  } catch (err) {
+    console.error('Pipeline failed:', err);
+  } finally {
+     
+    await outputStream.close();
+  }
+})();
+```

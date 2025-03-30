@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = async (url) => {
+   
+  const mockFetch = (url) => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        json: () => ({
+          name: 'John Doe',
+          occupation: 'Developer',
+          location: {
+            city: 'San Francisco',
+            country: 'USA',
+          },
+        }),
+      });
+    }, 1000);
+  });
+
+  try {
+    const response = await mockFetch(url);
+    const { name, occupation, location: { city, country } } = await response.json();
+    
+     
+    const userData = {
+      [`${name.split(' ').join('_')}_profile`]: {
+        name,
+        occupation,
+        ...{ location: `${city}, ${country}` }
+      }
+    };
+    
+     
+    print(`User Details: ${userData[name.split(' ').join('_') + '_profile']?.name}, a ${userData[name.split(' ').join('_') + '_profile']?.occupation} from ${userData[name.split(' ').join('_') + '_profile']?.location}.`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchData('https://api.example.com/user');

@@ -1,0 +1,52 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+    });
+};
+
+ 
+const handler = {
+    get: (target, property) => {
+        print(`Property "${property}" accessed`);
+        return property in target ? target[property] : 'Property not found';
+    }
+};
+
+ 
+class DataProcessor {
+    #rawData;
+    constructor(rawData) {
+        this.#rawData = rawData;
+    }
+
+    static process(data) {
+        return data.map(item => ({
+            id: item.id,
+            name: item.name.toUpperCase()
+        }));
+    }
+
+    get processedData() {
+        return DataProcessor.process(this.#rawData);
+    }
+}
+
+ 
+(async () => {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/users';
+        const rawData = await fetchData(url);
+
+        const processor = new DataProcessor(rawData);
+        const proxyProcessor = new Proxy(processor, handler);
+
+         
+        print(proxyProcessor.processedData);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

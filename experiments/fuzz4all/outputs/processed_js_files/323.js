@@ -1,0 +1,51 @@
+ 
+
+ 
+const secret = Symbol('secret');
+
+class AsyncNumberGenerator {
+  constructor() {
+    this.history = [];
+  }
+
+   
+  async generateNumber() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const number = Math.floor(Math.random() * 100);
+        this.history.push(number);
+        resolve(number);
+      }, 1000);
+    });
+  }
+
+   
+  [secret]() {
+    return this.history;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === 'getHistory') {
+      return () => target[secret]();
+    }
+    return target[property];
+  }
+};
+
+ 
+(async function() {
+  const generator = new AsyncNumberGenerator();
+  const proxiedGenerator = new Proxy(generator, handler);
+
+  const num1 = await proxiedGenerator.generateNumber();
+  print('Generated Number 1:', num1);
+
+  const num2 = await proxiedGenerator.generateNumber();
+  print('Generated Number 2:', num2);
+
+   
+  print('Generated Numbers History:', proxiedGenerator.getHistory());
+})();

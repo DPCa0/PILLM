@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchMockData() {
+  const data = [
+    { id: 1, value: 'Foo' },
+    { id: 2, value: 'Bar' },
+    { id: 3, value: 'Baz' }
+  ];
+  for (const item of data) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Property '${property}' accessed.`);
+      return target[property];
+    } else {
+      console.log(`Property '${property}' not found, returning default.`);
+      return 'default';
+    }
+  },
+  set(target, property, value) {
+    console.log(`Property '${property}' set to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+Reflect.set(dataProxy, 'configurableProp', 'initialValue');
+
+ 
+async function main() {
+   
+  for await (const item of fetchMockData()) {
+    console.log(`Fetched item: ${item.value}`);
+  }
+
+   
+  console.log(`Accessing 'configurableProp': ${dataProxy.configurableProp}`);
+  console.log(`Accessing non-existent property: ${dataProxy.nonExistentProp}`);
+  dataProxy.newProp = 'New Value';
+}
+
+ 
+main();
+```

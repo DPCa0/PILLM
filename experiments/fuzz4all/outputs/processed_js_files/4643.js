@@ -1,0 +1,55 @@
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.apiUrl}/${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
+  }
+}
+
+class DataAnalyzer {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *analyze() {
+    let total = 0;
+    for (let item of this.data) {
+      total += item.value;
+      yield item;
+    }
+    return total;
+  }
+}
+
+async function main() {
+  const apiUrl = 'https://api.example.com';
+  const dataFetcher = new DataFetcher(apiUrl);
+  
+  try {
+    const data = await dataFetcher.fetchData('data-endpoint');
+    const analyzer = new DataAnalyzer(data);
+    const analysis = analyzer.analyze();
+
+    for (let item of analysis) {
+      print('Analyzing:', item);
+    }
+
+    const total = analysis.return();
+    print('Total value:', total.value);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+main();

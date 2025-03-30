@@ -1,0 +1,61 @@
+class Matrix {
+  constructor(rows, cols, fillValue = 0) {
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, () => fillValue));
+  }
+
+  static fromArray(array) {
+    let matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  map(callback) {
+    this.data = this.data.map((row, i) => row.map((value, j) => callback(value, i, j)));
+    return this;
+  }
+
+  add(matrix) {
+    return this.map((value, i, j) => value + matrix.data[i][j]);
+  }
+
+  multiply(matrix) {
+    return this.map((value, i, j) => value * matrix.data[i][j]);
+  }
+
+  static identity(size) {
+    let matrix = new Matrix(size, size);
+    matrix.map((_, i, j) => (i === j ? 1 : 0));
+    return matrix;
+  }
+}
+
+ 
+const matrixHandler = {
+  get(target, prop) {
+    if (prop === 'data') {
+      print('Accessing data');
+    }
+    return target[prop];
+  },
+  set(target, prop, value) {
+    if (prop === 'data') {
+      if (!Array.isArray(value)) {
+        throw new TypeError('Data must be an array.');
+      }
+      print('Setting data');
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const matrix1 = new Matrix(3, 3, 1);
+const matrix2 = Matrix.identity(3);
+const proxiedMatrix1 = new Proxy(matrix1, matrixHandler);
+
+proxiedMatrix1.data = proxiedMatrix1.add(matrix2).data;
+
+const [firstRow, ...otherRows] = proxiedMatrix1.data;  
+print(firstRow);
+print(otherRows);

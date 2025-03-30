@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+  const loadModule = async () => {
+    const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.default.js');
+    return _;
+  };
+
+  const processData = async () => {
+    const _ = await loadModule();
+
+    const data = [
+      { name: 'Alice', age: 25, city: 'New York' },
+      { name: 'Bob', age: 30, city: 'San Francisco' },
+      { name: 'Charlie', age: 25, city: 'New York' },
+      { name: 'David', age: 30, city: 'San Francisco' },
+    ];
+
+     
+    const groupedData = _.groupBy(data, ({ age, city }) => `${age}-${city}`);
+
+    return groupedData;
+  };
+
+  const run = async () => {
+    try {
+      const groupedData = await processData();
+      console.log('Grouped Data:', groupedData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  };
+
+  run();
+})();
+```

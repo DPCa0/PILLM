@@ -1,0 +1,35 @@
+ 
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+    return response.json();
+};
+
+const processData = async (url) => {
+    try {
+        const data = await fetchData(url);
+        const { title, body } = data;
+        print(`Title: ${title}\nBody: ${body}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+};
+
+const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+ 
+const handler = {
+    apply: function(target, thisArg, argumentsList) {
+        print(`Fetching data from ${argumentsList[0]}`);
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+};
+
+const proxyFetchData = new Proxy(fetchData, handler);
+
+ 
+(async () => {
+    await processData(url);
+    await proxyFetchData(url);
+})();

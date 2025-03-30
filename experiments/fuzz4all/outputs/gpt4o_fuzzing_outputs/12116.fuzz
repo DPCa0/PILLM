@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class Fibonacci {
+    constructor() {
+      this.memo = new Map();
+    }
+
+    calculate(n) {
+      if (n <= 1) return n;
+      if (this.memo.has(n)) return this.memo.get(n);
+
+      const value = this.calculate(n - 1) + this.calculate(n - 2);
+      this.memo.set(n, value);
+      return value;
+    }
+
+    *[Symbol.iterator]() {
+      let i = 0;
+      while (true) {
+        yield this.calculate(i++);
+      }
+    }
+  }
+
+  const fibonacci = new Fibonacci();
+  const controller = new AbortController();
+
+  const asyncIterator = async function* (gen, signal) {
+    for (const num of gen) {
+      if (signal.aborted) {
+        throw new Error('Iteration was aborted');
+      }
+      await delay(500);
+      yield num;
+    }
+  };
+
+  try {
+    for await (const num of asyncIterator(fibonacci, controller.signal)) {
+      console.log(num);
+      if (num > 100) {
+        controller.abort();
+      }
+    }
+  } catch (error) {
+    console.error('Caught error:', error.message);
+  }
+})();
+```

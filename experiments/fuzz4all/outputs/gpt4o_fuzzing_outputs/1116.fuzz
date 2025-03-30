@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class Task {
+    constructor(title, description) {
+        this.title = title;
+        this.description = description;
+        this.completed = false;
+    }
+    
+    complete() {
+        this.completed = true;
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function taskManager(tasks) {
+    const completionPromises = tasks.map(async (task, index) => {
+        console.log(`Starting task ${index + 1}: ${task.title}`);
+        await delay((index + 1) * 1000);  
+        task.complete();
+        console.log(`Completed task ${index + 1}: ${task.title}`);
+    });
+
+    await Promise.all(completionPromises);
+    console.log('All tasks completed!');
+}
+
+const tasks = [
+    new Task('Task 1', 'Description of Task 1'),
+    new Task('Task 2', 'Description of Task 2'),
+    new Task('Task 3', 'Description of Task 3'),
+];
+
+taskManager(tasks).then(() => {
+    console.log('Finished managing tasks.');
+});
+```

@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ id: 1, name: 'John Doe', age: 30 });
+    }, 1000);
+  });
+};
+
+ 
+async function processData() {
+  try {
+     
+    const data = await fetchData();
+    print('Fetched Data:', data);
+
+     
+    const dataMap = new Map(Object.entries(data));
+    dataMap.set('country', 'USA');
+
+     
+    const proxy = new Proxy(dataMap, {
+      get(target, prop) {
+        return target.has(prop) ? target.get(prop) : `Property ${prop} not found`;
+      },
+      set(target, prop, value) {
+        if (prop === 'age' && typeof value !== 'number') {
+          throw new TypeError('Age must be a number');
+        }
+        target.set(prop, value);
+        return true;
+      },
+    });
+
+     
+    print('Name:', proxy.get('name'));
+    print('Country:', proxy.country);
+
+     
+    proxy.age = 31;
+
+    print('Updated Age:', proxy.get('age'));
+
+     
+    try {
+      proxy.age = 'thirty-two';
+    } catch (e) {
+      console.error(e.message);
+    }
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+processData();

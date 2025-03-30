@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = async (delay) => new Promise((resolve) => setTimeout(() => resolve(`Completed after ${delay}ms`), delay));
+
+async function* asyncGenerator() {
+    yield await asyncOperation(1000);
+    yield await asyncOperation(2000);
+    yield await asyncOperation(3000);
+}
+
+const handleAsyncOperations = async (emitter) => {
+    for await (const result of asyncGenerator()) {
+        console.log(result);
+        emitter.emit('operationComplete', result);
+    }
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('operationComplete', (msg) => console.log(`Event received: ${msg}`));
+
+handleAsyncOperations(emitter);
+
+const proxy = new Proxy(emitter, {
+    get(target, prop) {
+        if (prop === 'magic') {
+            return '✨ Magic Property Accessed! ✨';
+        }
+        return target[prop];
+    },
+    set(target, prop, value) {
+        if (prop === 'events') {
+            throw new Error('Cannot modify events directly');
+        }
+        target[prop] = value;
+    }
+});
+
+console.log(proxy.magic);  
+
+try {
+    proxy.events = {};
+} catch (e) {
+    console.error(e.message);
+}
+```

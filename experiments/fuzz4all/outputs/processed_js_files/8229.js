@@ -1,0 +1,46 @@
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.pendingPromises = [];
+  }
+
+  enqueue(value) {
+    if (this.pendingPromises.length > 0) {
+      this.pendingPromises.shift().resolve({ value, done: false });
+    } else {
+      this.queue.push(value);
+    }
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this.queue.length > 0) {
+        yield this.queue.shift();
+      } else {
+        yield await new Promise((resolve, reject) => {
+          this.pendingPromises.push({ resolve, reject });
+        });
+      }
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function main() {
+  const aiQueue = new AsyncIterableQueue();
+
+  setInterval(() => {
+    const randomValue = Math.floor(Math.random() * 100);
+    print(`Enqueuing: ${randomValue}`);
+    aiQueue.enqueue(randomValue);
+  }, 1000);
+
+  let count = 0;
+  for await (const value of aiQueue) {
+    print(`Dequeued: ${value}`);
+    count++;
+    if (count >= 10) break;
+    await delay(500);
+  }
+})();

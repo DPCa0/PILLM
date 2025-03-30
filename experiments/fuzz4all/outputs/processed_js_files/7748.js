@@ -1,0 +1,43 @@
+class Emitter {
+  constructor() {
+    this.events = new Map();
+  }
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const fetchData = async () => {
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  return response.json();
+};
+
+const processPosts = posts => {
+  return posts.map(({ id, title }) => ({ id, title: title.toUpperCase() }));
+};
+
+const emitter = new Emitter();
+emitter.on('dataProcessed', data => {
+  print('Processed Data:', data);
+});
+
+const main = async () => {
+  try {
+    const rawPosts = await fetchData();
+    const processedPosts = processPosts(rawPosts);
+    emitter.emit('dataProcessed', processedPosts);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+(async () => await main())();

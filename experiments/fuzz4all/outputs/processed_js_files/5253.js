@@ -1,0 +1,39 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async () => {
+   
+  const [data1, data2] = await Promise.all([
+    fs.readFile('./data1.json', 'utf-8').then(JSON.parse),
+    fs.readFile('./data2.json', 'utf-8').then(JSON.parse)
+  ]);
+
+   
+  const combinedData = [...data1, ...data2];
+
+   
+  const uniqueTransformedData = [
+    ...new Set(combinedData.map(item => item.value.toUpperCase()))
+  ];
+
+   
+  const result = uniqueTransformedData.map(value => ({
+    value,
+    length: value?.length ?? 0
+  }));
+
+   
+  async function* processResults() {
+    for (const item of result) {
+       
+      await new Promise(res => setTimeout(res, 100));
+      yield item;
+    }
+  }
+
+   
+  for await (const item of processResults()) {
+    print(`Processed: ${item.value} (Length: ${item.length})`);
+  }
+})();

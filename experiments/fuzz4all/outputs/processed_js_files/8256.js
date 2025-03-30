@@ -1,0 +1,57 @@
+ 
+async function* primeGenerator(limit) {
+  let num = 2;
+  while (limit > 0) {
+    if (isPrime(num)) {
+      yield num;
+      limit--;
+    }
+    num++;
+  }
+}
+
+ 
+const isPrime = (num) => {
+  for (let i = 2, sqrt = Math.sqrt(num); i <= sqrt; i++)
+    if (num % i === 0) return false;
+  return num > 1;
+};
+
+ 
+const handler = {
+  get: (target, prop) => (typeof target[prop] === 'function' ? target[prop].bind(target) : target[prop])
+};
+
+ 
+class MathOperations {
+  constructor() {
+    return new Proxy(this, handler);
+  }
+
+  async sumPrimes(limit) {
+    let sum = 0;
+    const gen = primeGenerator(limit);
+    for await (const prime of gen) {
+      sum += prime;
+    }
+    return sum;
+  }
+}
+
+ 
+const resultsCache = new Map();
+const mathOps = new MathOperations();
+
+ 
+(async () => {
+  const limit = 10;
+
+   
+  if (resultsCache.has(limit)) {
+    print(`Cached Result for first ${limit} primes: ${resultsCache.get(limit)}`);
+  } else {
+    const result = await mathOps.sumPrimes(limit);
+    resultsCache.set(limit, result);
+    print(`Calculated Result for first ${limit} primes: ${result}`);
+  }
+})();

@@ -1,0 +1,54 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield delay(1000).then(() => num++);
+    }
+}
+
+ 
+async function* asyncNumberStream(gen) {
+    for await (let num of gen) {
+        yield num;
+    }
+}
+
+ 
+const numbers = { max: 10 };
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'max') {
+            print(`Getting max: ${obj[prop]}`);
+        }
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        if (prop === 'max' && typeof value === 'number' && value > 0) {
+            print(`Setting max to ${value}`);
+            obj[prop] = value;
+            return true;
+        } else {
+            throw new Error('Invalid value for max');
+        }
+    }
+};
+
+const proxyNumbers = new Proxy(numbers, handler);
+
+ 
+Reflect.set(proxyNumbers, 'max', 5);
+
+ 
+const gen = numberGenerator();
+const asyncStream = asyncNumberStream(gen);
+
+(async () => {
+    for await (let valuePromise of asyncStream) {
+        const value = await valuePromise;
+        if (value >= proxyNumbers.max) break;   
+        print(`Generated value: ${value}`);
+    }
+})();

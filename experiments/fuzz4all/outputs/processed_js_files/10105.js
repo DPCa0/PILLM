@@ -1,0 +1,37 @@
+Certainly! Below is a JavaScript program that makes use of advanced features such as async/await, Promises, destructuring, arrow functions, template literals, and modules. 
+
+ 
+export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return response.json();
+};
+
+ 
+import { delay, fetchData } from './utils.js';
+
+const processData = async (url) => {
+    try {
+        print(`Fetching data from ${url}...`);
+        const data = await fetchData(url);
+        
+        print('Processing data...');
+        await delay(1000);
+
+         
+        const { name, main: { temp }, weather: [{ description }] } = data;
+        print(`Weather in ${name}: ${temp}°C, ${description}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+};
+
+ 
+(async () => {
+    const url = 'https://api.openweathermap.org/data/2.5/weather?q=London&appid=YOUR_API_KEY&units=metric';
+    await processData(url);
+})();
+
+Replace `'YOUR_API_KEY'` with your actual OpenWeatherMap API key to run this program. It fetches the current weather for London and logs it to the console, demonstrating several modern JavaScript features.

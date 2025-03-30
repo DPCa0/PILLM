@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, elements = []) {
+    this.rows = rows;
+    this.cols = cols;
+    this.elements = elements.length ? elements : Array(rows).fill().map(() => Array(cols).fill(0));
+  }
+  
+  static identity(size) {
+    return new Matrix(size, size, Array(size).fill().map((_, i) => Array(size).fill().map((_, j) => i === j ? 1 : 0)));
+  }
+  
+  multiply(matrixB) {
+    if (this.cols !== matrixB.rows) throw new Error('Matrix dimensions do not match for multiplication');
+    return new Matrix(this.rows, matrixB.cols, this.elements.map((row, i) =>
+      Array(matrixB.cols).fill().map((_, j) =>
+        row.reduce((sum, el, k) => sum + el * matrixB.elements[k][j], 0)
+      )
+    ));
+  }
+  
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) {
+      yield this.elements[i];
+    }
+  }
+}
+
+function* fibonacci(n) {
+  let a = 0, b = 1;
+  while (n--) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+(async () => {
+  const matrixA = new Matrix(2, 3, [[1, 2, 3], [4, 5, 6]]);
+  const matrixB = new Matrix(3, 2, [[7, 8], [9, 10], [11, 12]]);
+  const matrixC = matrixA.multiply(matrixB);
+  
+  console.log('Matrix Multiplication Result:');
+  for (const row of matrixC) {
+    console.log(row);
+  }
+  
+  console.log('First 10 Fibonacci Numbers:');
+  for (const num of fibonacci(10)) {
+    console.log(num);
+  }
+})();
+```

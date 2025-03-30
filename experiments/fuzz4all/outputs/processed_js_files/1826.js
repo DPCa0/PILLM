@@ -1,0 +1,26 @@
+ 
+async function* dataStream() {
+    let dataChunks = ['Hello', ' ', 'advanced', ' ', 'JavaScript', ' ', 'World', '!'];
+    for (let chunk of dataChunks) {
+         
+        await new Promise(resolve => setTimeout(resolve, 100));
+        yield chunk;
+    }
+}
+
+ 
+(async () => {
+    let message = '';
+    
+    for await (let chunk of dataStream()) {
+        message += chunk;
+    }
+
+     
+    let [greeting, separator, ...rest] = message.split(' ');
+     
+    let completeMessage = [greeting, separator, ...rest].join(' ');
+
+     
+    console?.log(completeMessage ?? 'Message not found');
+})();

@@ -1,0 +1,51 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+class Calculator extends EventEmitter {
+    constructor() {
+        super();
+        this.result = 0;
+    }
+
+    async calculate(expression) {
+        try {
+            const dynamicFunction = new Function(`return ${expression}`);
+            const result = await dynamicFunction();
+            this.result = result;
+            this.emit('calculation', result);
+        } catch (error) {
+            this.emit('error', error);
+        }
+    }
+}
+
+const calculator = new Calculator();
+
+calculator.on('calculation', (result) => {
+    print(`Result: ${result}`);
+});
+
+calculator.on('error', (error) => {
+    console.error(`Error: ${error.message}`);
+});
+
+(async () => {
+    await calculator.calculate('5 * (3 + 2)');
+    await calculator.calculate('invalidExpression');
+})();

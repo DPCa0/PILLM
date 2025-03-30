@@ -1,0 +1,41 @@
+ 
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+    this.resultMap = new Map();
+    return new Proxy(this, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        }
+        if (prop === 'results') {
+          return target.getResults();
+        }
+        throw new ReferenceError(`Property ${prop} not found`);
+      }
+    });
+  }
+
+  async processData() {
+    const promises = this.data.map((item, index) => 
+      this.processItem(item).then(result => this.resultMap.set(index, result))
+    );
+    await Promise.all(promises);
+  }
+
+  async processItem(item) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(`Processed: ${item}`), Math.random() * 1000);
+    });
+  }
+
+  getResults() {
+    return Array.from(this.resultMap.values());
+  }
+}
+
+(async () => {
+  const processor = new AsyncProcessor(['apple', 'banana', 'cherry']);
+  await processor.processData();
+  print(processor.results);  
+})();

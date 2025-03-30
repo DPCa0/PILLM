@@ -1,0 +1,52 @@
+class NetworkNode {
+  #data;
+  constructor(id) {
+    this.id = id;
+    this.connections = new Set();
+    this.#data = null;
+  }
+
+  setData(data) {
+    this.#data = data;
+  }
+
+  getData() {
+    return this.#data;
+  }
+
+  connectTo(node) {
+    if (node instanceof NetworkNode && node !== this) {
+      this.connections.add(node);
+      node.connections.add(this);
+    }
+  }
+
+  async broadcast(message) {
+    const send = async (node, message) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          node.setData(message);
+          resolve(node);
+        }, Math.random() * 1000);
+      });
+    };
+
+    const tasks = [...this.connections].map((node) => send(node, message));
+    await Promise.all(tasks);
+  }
+}
+
+(async () => {
+  const nodeA = new NetworkNode('A');
+  const nodeB = new NetworkNode('B');
+  const nodeC = new NetworkNode('C');
+
+  nodeA.connectTo(nodeB);
+  nodeB.connectTo(nodeC);
+
+  await nodeA.broadcast('Hello, Network!');
+
+  print(nodeA.getData());  
+  print(nodeB.getData());  
+  print(nodeC.getData());  
+})();

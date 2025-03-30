@@ -1,0 +1,41 @@
+class AsyncCollection {
+    constructor(items) {
+        this.items = items;
+    }
+
+    async *[Symbol.asyncIterator]() {
+        for (let item of this.items) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            yield item;
+        }
+    }
+}
+
+const processItems = async (collection) => {
+    const results = [];
+    for await (let item of collection) {
+        results.push(await processItem(item));
+    }
+    return results;
+};
+
+const processItem = async (item) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(item * item);
+        }, 50);
+    });
+};
+
+(async () => {
+    const numbers = new AsyncCollection([1, 2, 3, 4, 5]);
+    
+    try {
+        const squaredNumbers = await processItems(numbers);
+        print("Squared Numbers:", squaredNumbers);
+    } catch (error) {
+        console.error("Error processing items:", error);
+    }
+
+    print("Program completed.");
+})();

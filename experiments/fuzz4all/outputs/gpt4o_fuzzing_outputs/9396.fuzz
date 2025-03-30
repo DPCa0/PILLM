@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  #tasks = [];
+  #running = false;
+
+  enqueue(task) {
+    this.#tasks.push(task);
+    if (!this.#running) this.#run();
+  }
+
+  async #run() {
+    this.#running = true;
+    while (this.#tasks.length > 0) {
+      const task = this.#tasks.shift();
+      try {
+        await task();
+      } catch (e) {
+        console.error('Task failed', e);
+      }
+    }
+    this.#running = false;
+  }
+}
+
+const queue = new AsyncQueue();
+
+const fetchResource = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+  const data = await response.json();
+  console.log('Fetched data:', data);
+};
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  for (const url of urls) {
+    queue.enqueue(async () => {
+      await delay(1000);   
+      await fetchResource(url);
+    });
+  }
+})();
+```

@@ -1,0 +1,45 @@
+ 
+
+ 
+function asyncOperation(msg, timeout) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(msg), timeout);
+  });
+}
+
+ 
+const handler = {
+  get: function (target, prop, receiver) {
+    if (typeof target[prop] === 'function') {
+      return async (...args) => {
+        print(`Calling ${prop} with args: ${JSON.stringify(args)}`);
+        const result = await target[prop](...args);
+        print(`Result of ${prop}: ${result}`);
+        return result;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+const asyncObj = {
+  async method1(x) {
+    return await asyncOperation(`Result from method1: ${x}`, 1000);
+  },
+  async method2(y) {
+    return await asyncOperation(`Result from method2: ${y}`, 1500);
+  },
+};
+
+ 
+const proxiedAsyncObj = new Proxy(asyncObj, handler);
+
+ 
+(async () => {
+  const res1 = await proxiedAsyncObj.method1('Test 1');
+  print(res1);
+
+  const res2 = await proxiedAsyncObj.method2('Test 2');
+  print(res2);
+})();

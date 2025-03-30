@@ -1,0 +1,29 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.map(({ id, name, age }) => ({ id, fullName: name.toUpperCase(), ageIn2025: age + (2025 - new Date().getFullYear()) }));
+};
+
+const displayData = (processedData) => {
+  processedData.forEach(({ id, fullName, ageIn2025 }) => {
+    print(`ID: ${id}, Name: ${fullName}, Age in 2025: ${ageIn2025}`);
+  });
+};
+
+const main = async () => {
+  const rawData = await fetchData('https://jsonplaceholder.typicode.com/users');
+  if (rawData) {
+    const processedData = processData(rawData);
+    displayData(processedData);
+  }
+};
+
+main();

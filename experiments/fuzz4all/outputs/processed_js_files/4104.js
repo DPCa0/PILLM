@@ -1,0 +1,40 @@
+ 
+ 
+
+ 
+function asyncOperation(id) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data ${id}`), Math.random() * 2000);
+  });
+}
+
+ 
+async function* dataGenerator(count) {
+  for (let i = 0; i < count; i++) {
+    const data = await asyncOperation(i);
+    yield data;
+  }
+}
+
+ 
+function mergeResults(...results) {
+  return results.reduce((acc, result) => `${acc}, ${result}`);
+}
+
+ 
+async function processData(numItems) {
+  const dataGen = dataGenerator(numItems);
+  let results = [];
+
+  for await (const data of dataGen) {
+    print(`Received: ${data}`);
+    results.push(data);
+  }
+
+  const mergedResult = mergeResults(...results);
+  print(`Final Merged Result: ${mergedResult}`);
+}
+
+ 
+const [numItems] = [5];
+processData(numItems);

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (userId) => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: userId,
+        name: 'John Doe',
+        age: 30,
+        hobbies: ['coding', 'hiking', 'reading']
+      });
+    }, 1000);
+  });
+};
+
+const processUserData = ({ id, name, age, hobbies }) => {
+   
+  console.log(`User ID: ${id}`);
+  console.log(`Name: ${name}`);
+  console.log(`Age: ${age}`);
+  console.log(`Hobbies: ${hobbies.join(', ')}`);
+  return {
+    id,
+    name,
+    isAdult: age >= 18,
+    hobbyCount: hobbies.length
+  };
+};
+
+const displayProcessedData = ({ id, name, isAdult, hobbyCount }) => {
+  console.log(`\nProcessed Data for User ID: ${id}`);
+  console.log(`Name: ${name}`);
+  console.log(`Adult: ${isAdult ? 'Yes' : 'No'}`);
+  console.log(`Number of Hobbies: ${hobbyCount}`);
+};
+
+(async () => {
+  try {
+     
+    const userData = await fetchUserData(1);
+    const processedData = processUserData(userData);
+    displayProcessedData(processedData);
+
+     
+    const unknownUserData = null;
+    const name = unknownUserData?.name ?? 'Unknown User';
+    console.log(`\nOptional Chaining Example: ${name}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

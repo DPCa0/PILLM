@@ -1,0 +1,39 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+class DataProcessor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  *filterData(predicate) {
+    for (const item of this.#data) {
+      if (predicate(item)) yield item;
+    }
+  }
+  
+  transformData(callback) {
+    return this.#data.map(callback);
+  }
+}
+
+(async () => {
+  try {
+    const dataUrl = 'https://jsonplaceholder.typicode.com/posts';
+    const rawData = await fetchData(dataUrl);
+    const processor = new DataProcessor(rawData);
+    
+    const filteredData = [...processor.filterData(item => item.id % 2 === 0)];
+    const transformedData = processor.transformData(item => ({ ...item, title: item.title.toUpperCase() }));
+
+    print('Filtered Data:', filteredData);
+    print('Transformed Data:', transformedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

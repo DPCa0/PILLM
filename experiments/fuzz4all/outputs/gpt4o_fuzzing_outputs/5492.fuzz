@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Task {
+    constructor(name, duration) {
+        this.name = name;
+        this.duration = duration;
+    }
+    
+    async complete() {
+        console.log(`${this.name} started...`);
+        await new Promise(resolve => setTimeout(resolve, this.duration));
+        console.log(`${this.name} completed!`);
+    }
+}
+
+const taskPipeline = {
+    tasks: [],
+    
+    add(task) {
+        this.tasks.push(task);
+        return this;  
+    },
+    
+    async run() {
+        for (const task of this.tasks) {
+            await task.complete();
+        }
+    }
+};
+
+ 
+const taskCreator = new Proxy({}, {
+    get(target, prop) {
+        return (duration) => new Task(prop, duration);
+    }
+});
+
+ 
+async function main() {
+    await taskPipeline
+        .add(taskCreator.FetchData(2000))
+        .add(taskCreator.ProcessData(3000))
+        .add(taskCreator.SaveData(1000))
+        .run();
+    
+    console.log("All tasks are done!");
+}
+
+main().catch(console.error);
+```

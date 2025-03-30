@@ -1,0 +1,42 @@
+class AsyncManager {
+    constructor() {
+        this.queue = [];
+    }
+
+    async enqueue(asyncFunc, ...args) {
+        const promise = asyncFunc(...args);
+        this.queue.push(promise);
+        return promise;
+    }
+
+    async executeAll() {
+        await Promise.all(this.queue);
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data from ${url}`);
+    return response.json();
+};
+
+(async () => {
+    const manager = new AsyncManager();
+
+    const urls = [
+        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://jsonplaceholder.typicode.com/todos/2',
+        'https://jsonplaceholder.typicode.com/todos/3'
+    ];
+
+    const fetchDataTasks = urls.map(url => manager.enqueue(fetchData, url));
+
+    try {
+        const results = await Promise.all(fetchDataTasks);
+        print(results);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        await manager.executeAll();
+    }
+})();

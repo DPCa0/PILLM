@@ -1,0 +1,38 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacciSequence(max) {
+  let [prev, curr] = [0, 1];
+  while (curr <= max) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+    await delay(500);
+  }
+}
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('fibonacci', num => print(`Fibonacci number: ${num}`));
+
+(async () => {
+  for await (const num of fibonacciSequence(20)) {
+    eventEmitter.emit('fibonacci', num);
+  }
+})();

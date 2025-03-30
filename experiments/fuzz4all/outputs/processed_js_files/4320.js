@@ -1,0 +1,43 @@
+ 
+
+ 
+function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+ 
+async function processUrls(urls) {
+    const generator = fetchData(urls);
+
+    try {
+         
+        const results = await Promise.all([...generator]);
+
+         
+        const processedResults = results.map(({ id, title, body }) => ({
+            id,
+            title: title.toUpperCase(),
+            summary: `${body.substring(0, 20)}...`
+        }));
+
+         
+        processedResults.forEach(({ id, title, summary }) => {
+            print(`Post ID: ${id}\nTitle: ${title}\nSummary: ${summary}\n`);
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+processUrls(urls);

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async function main() {
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const { default: lodash } = await import('https://cdn.jsdelivr.net/npm/lodash-es/lodash.default.js');
+
+   
+  const [first, second, ...rest] = lodash.shuffle([1, 2, 3, 4, 5]);
+
+   
+  const person = {
+    firstName: 'John',
+    lastName: 'Doe',
+    get fullName() {
+      return `${this.firstName} ${this.lastName}`;
+    }
+  };
+
+  console.log(`Shuffled numbers: First: ${first}, Second: ${second}, Rest: ${rest}`);
+  console.log(`Full Name: ${person.fullName}`);
+
+  await sleep(1000);
+  
+   
+  const asyncResults = await Promise.all(
+    [1000, 2000, 3000].map(async (time) => {
+      await sleep(time);
+      return `Slept for ${time / 1000} second(s)`;
+    })
+  );
+
+  console.log('Async Results:', asyncResults);
+
+   
+  const handler = {
+    get(target, property) {
+      if (property in target) {
+        return target[property];
+      } else {
+        throw new Error(`Property ${property} does not exist.`);
+      }
+    },
+    set(target, property, value) {
+      if (property === 'age' && typeof value !== 'number') {
+        throw new TypeError('Age must be a number.');
+      }
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const user = new Proxy({}, handler);
+  user.age = 30;
+  console.log(`User Age: ${user.age}`);
+})().catch(console.error);
+```

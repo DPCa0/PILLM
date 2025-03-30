@@ -1,0 +1,70 @@
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async () => {
+  await delay(1000);  
+  return { data: "Fetched Data" };
+};
+
+ 
+const processData = async () => {
+  const { data } = await fetchData();
+  const additionalData = { ...data, extra: "Extra Data" };
+  const { extra, ...rest } = additionalData;
+
+  return { extra, rest };
+};
+
+ 
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+const targetObject = { name: "John Doe", age: 30 };
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'age') {
+      return `Age is a secret!`;
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+class ExampleClass {
+  #privateField = "Private Data";
+  
+  static staticMethod() {
+    print("I'm a static method!");
+  }
+  
+  getPrivateField() {
+    return this.#privateField;
+  }
+}
+
+ 
+(async () => {
+  print("Hello, world!");
+
+  const processed = await processData();
+  print("Processed Data:", processed);
+
+  const gen = numberGenerator();
+  print("Generator Value:", gen.next().value);
+  print("Generator Value:", gen.next().value);
+
+  print("Proxy Access (name):", proxyObject.name);
+  print("Proxy Access (age):", proxyObject.age);
+
+  ExampleClass.staticMethod();
+  const instance = new ExampleClass();
+  print("Private Field Access:", instance.getPrivateField());
+})();

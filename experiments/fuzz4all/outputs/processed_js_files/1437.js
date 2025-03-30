@@ -1,0 +1,46 @@
+class Task {
+  #id;
+  static counter = 0;
+
+  constructor(description) {
+    this.#id = ++Task.counter;
+    this.description = description;
+    this.completed = false;
+  }
+
+  toggleCompletion() {
+    this.completed = !this.completed;
+  }
+
+  get info() {
+    return `Task ${this.#id}: ${this.description} [${this.completed ? "Completed" : "Pending"}]`;
+  }
+
+  static totalTasks() {
+    return Task.counter;
+  }
+}
+
+async function fetchTasks() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        new Task("Write a blog post"),
+        new Task("Review pull request"),
+        new Task("Plan next sprint"),
+      ]);
+    }, 1000);
+  });
+}
+
+(async () => {
+  try {
+    print("Fetching tasks...");
+    const tasks = await fetchTasks();
+    tasks[0].toggleCompletion();
+    tasks.forEach(task => print(task.info));
+    print(`Total tasks created: ${Task.totalTasks()}`);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+  }
+})();

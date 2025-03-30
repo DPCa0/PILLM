@@ -1,0 +1,48 @@
+(async () => {
+   
+  const { readFile } = await import('fs/promises');
+  const filePath = new URL('./data.json', import.meta.url);
+
+   
+  const data = JSON.parse((await readFile(filePath)).toString());
+  const configValue = data?.config?.setting ?? 'default';
+
+   
+  const array = [1, 2, 3, 4, 5];
+  const [evenSum, oddSum] = array.reduce(
+    ([even, odd], num) => (num % 2 === 0 ? [even + num, odd] : [even, odd + num]),
+    [0, 0]
+  );
+
+   
+  const targetObject = { count: 0 };
+  const handler = {
+    get(target, prop, receiver) {
+      print(`Getting ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      print(`Setting ${prop} to ${value}`);
+      return Reflect.set(target, prop, value, receiver);
+    },
+  };
+  const proxy = new Proxy(targetObject, handler);
+  proxy.count += 1;
+  proxy.count += 2;
+
+   
+  const tag = (strings, ...values) => 
+    strings.reduce((acc, str, i) => acc + str + (values[i] ?? ''), '').toUpperCase();
+  const message = tag`The even sum is ${evenSum} and the odd sum is ${oddSum}.`;
+
+   
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const results = await Promise.all([
+    delay(1000).then(() => 'First done'),
+    delay(2000).then(() => 'Second done'),
+  ]);
+
+  print(message);
+  print(configValue);
+  print(results);
+})();

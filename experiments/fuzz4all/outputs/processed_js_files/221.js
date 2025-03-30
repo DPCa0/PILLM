@@ -1,0 +1,63 @@
+class EventEmitter {
+  #events = new Map();
+  
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.#events.has(event)) {
+      this.#events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  off(event, listener) {
+    if (this.#events.has(event)) {
+      const listeners = this.#events.get(event).filter(l => l !== listener);
+      if (listeners.length > 0) {
+        this.#events.set(event, listeners);
+      } else {
+        this.#events.delete(event);
+      }
+    }
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const calculateFibonacci = (n, memo = {}) => {
+  if (n <= 1) return n;
+  if (memo[n]) return memo[n];
+  return memo[n] = calculateFibonacci(n - 1, memo) + calculateFibonacci(n - 2, memo);
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.once('dataFetched', data => print('Data fetched:', data));
+  emitter.on('error', error => console.error('Error:', error));
+
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    emitter.emit('dataFetched', data);
+  } catch (error) {
+    emitter.emit('error', error.message);
+  }
+
+  print('Fibonacci of 10:', calculateFibonacci(10));
+})();

@@ -1,0 +1,59 @@
+ 
+(async () => {
+  if (!('window' in globalThis)) {
+     
+    const fs = (await import('fs')).promises;
+
+     
+    try {
+      await fs.writeFile('hello.txt', 'Hello, world!');
+      const content = await fs.readFile('hello.txt', 'utf-8');
+      print(content);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  } else {
+     
+    print('Hello, world!');
+  }
+})();
+
+ 
+class AdvancedGreeter {
+  #greeting = 'Hello';
+  
+  #generateMessage(name) {
+    return `${this.#greeting}, ${name}!`;
+  }
+
+  static async *namesGenerator(names) {
+    for (let name of names) {
+      yield new Promise(resolve => setTimeout(() => resolve(name), 1000));
+    }
+  }
+
+  async greet(names) {
+    for await (const name of AdvancedGreeter.namesGenerator(names)) {
+      print(this.#generateMessage(name));
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'greet') {
+      return async (names) => {
+        print('Greeting the following names:');
+        await target[prop](names);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const greeter = new Proxy(new AdvancedGreeter(), handler);
+
+ 
+greeter.greet(['Alice', 'Bob', 'Charlie']);

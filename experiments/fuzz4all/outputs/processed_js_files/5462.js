@@ -1,0 +1,43 @@
+class FibonacciGenerator {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    *[Symbol.iterator]() {
+        let i = 0;
+        while (true) {
+            yield this.get(i++);
+        }
+    }
+
+    get(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        const value = this.get(n - 1) + this.get(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+async function fetchWithTimeout(url, ms) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), ms);
+    const response = await fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
+    return response.ok ? response.json() : Promise.reject(new Error('Request timed out'));
+}
+
+(async () => {
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 2000);
+        print('Fetched data:', data);
+
+        const fibGen = new FibonacciGenerator();
+        const fibArray = [...fibGen][Symbol.iterator]();
+        print('First 10 Fibonacci numbers:', Array.from({ length: 10 }, () => fibArray.next().value));
+
+        const newArray = [1, 2, 3, 4, 5];
+        const doubledArray = newArray.map(num => num * 2);
+        print('Doubled array:', doubledArray);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

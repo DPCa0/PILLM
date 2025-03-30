@@ -1,0 +1,64 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (this.events.has(event)) {
+      this.events.set(event, this.events.get(event).filter(listener => listener !== listenerToRemove));
+    }
+  }
+}
+
+class AsyncCounter {
+  constructor(limit) {
+    this.limit = limit;
+    this.value = 0;
+  }
+  
+  async increment() {
+    while (this.value < this.limit) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      this.value++;
+      this.onIncrement(this.value);
+    }
+  }
+
+  onIncrement(value) {
+     
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+  const counter = new AsyncCounter(5);
+
+  counter.onIncrement = (value) => {
+    emitter.emit('increment', value);
+  };
+
+  emitter.on('increment', value => {
+    print(`Counter incremented to: ${value}`);
+  });
+
+  emitter.on('increment', value => {
+    if (value === 5) {
+      print('Counter reached the limit!');
+    }
+  });
+
+  await counter.increment();
+})();

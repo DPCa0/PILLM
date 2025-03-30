@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+};
+
+class Observable {
+    constructor() {
+        this.observers = [];
+    }
+
+    subscribe(func) {
+        this.observers.push(func);
+    }
+
+    unsubscribe(func) {
+        this.observers = this.observers.filter(observer => observer !== func);
+    }
+
+    notify(data) {
+        this.observers.forEach(observer => observer(data));
+    }
+}
+
+const observeDataChanges = async (url, interval = 5000) => {
+    const observable = new Observable();
+    let currentData = null;
+
+    observable.subscribe((data) => {
+        print('Data changed:', data);
+    });
+
+    setInterval(async () => {
+        const newData = await fetchData(url);
+        if (JSON.stringify(newData) !== JSON.stringify(currentData)) {
+            currentData = newData;
+            observable.notify(currentData);
+        }
+    }, interval);
+};
+
+const url = 'https://api.example.com/data';
+observeDataChanges(url);
+
+ 
+observeDataChanges(url).then(observable => {
+    observable.subscribe((data) => {
+        print('Another subscriber received data:', data);
+    });
+});

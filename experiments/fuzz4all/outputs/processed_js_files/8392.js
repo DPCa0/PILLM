@@ -1,0 +1,77 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchUserData(userId) {
+    await delay(1000);
+    if (Math.random() < 0.2) {
+        throw new Error("Network Error");
+    }
+    return { userId, name: `User${userId}` };
+}
+
+ 
+const retry = (fn, retries = 3) => async (...args) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn(...args);
+        } catch (error) {
+            if (i === retries - 1) throw error;
+        }
+    }
+};
+
+ 
+class Cache {
+    constructor() {
+        this.cache = new Map();
+    }
+
+    get(key) {
+        return this.cache.get(key);
+    }
+
+    set(key, value) {
+        this.cache.set(key, value);
+    }
+}
+
+ 
+const createValidatedProxy = (target, validations) => {
+    return new Proxy(target, {
+        set: (obj, prop, value) => {
+            if (validations[prop] && !validations[prop](value)) {
+                throw new TypeError(`Invalid value for ${prop}: ${value}`);
+            }
+            obj[prop] = value;
+            return true;
+        }
+    });
+};
+
+ 
+const cache = new Cache();
+const fetchUserDataWithRetry = retry(fetchUserData);
+
+ 
+async function getUserData(userId) {
+    if (cache.get(userId)) return cache.get(userId);
+    const data = await fetchUserDataWithRetry(userId);
+    const validatedData = createValidatedProxy(data, {
+        userId: value => typeof value === 'number',
+        name: value => typeof value === 'string'
+    });
+    cache.set(userId, validatedData);
+    return validatedData;
+}
+
+ 
+(async () => {
+    try {
+        const userId = 42;
+        const user = await getUserData(userId);
+        print(`Fetched user: ${user.name}`);
+    } catch (error) {
+        console.error(`Failed to fetch user: ${error.message}`);
+    }
+})();

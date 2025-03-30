@@ -1,0 +1,76 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+class Calculator extends EventEmitter {
+    constructor() {
+        super();
+        this.result = 0;
+    }
+
+    #logOperation(op, val) {
+        print(`Performed ${op} with ${val}, result is now ${this.result}`);
+    }
+
+    add(value) {
+        this.result += value;
+        this.#logOperation('addition', value);
+        this.emit('operation', 'add', value, this.result);
+        return this;
+    }
+
+    subtract(value) {
+        this.result -= value;
+        this.#logOperation('subtraction', value);
+        this.emit('operation', 'subtract', value, this.result);
+        return this;
+    }
+
+    multiply(value) {
+        this.result *= value;
+        this.#logOperation('multiplication', value);
+        this.emit('operation', 'multiply', value, this.result);
+        return this;
+    }
+
+    divide(value) {
+        if (value !== 0) {
+            this.result /= value;
+            this.#logOperation('division', value);
+            this.emit('operation', 'divide', value, this.result);
+        } else {
+            console.error('Cannot divide by zero');
+        }
+        return this;
+    }
+}
+
+(async function() {
+    const calc = new Calculator();
+    
+    calc.on('operation', (op, val, result) => {
+        print(`Event: ${op} with ${val}, resulting in ${result}`);
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    calc.add(10)
+        .subtract(2)
+        .multiply(3)
+        .divide(4);
+})();

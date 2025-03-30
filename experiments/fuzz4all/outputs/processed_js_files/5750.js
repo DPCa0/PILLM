@@ -1,0 +1,61 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchDataWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    
+    const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => {
+            controller.abort();
+            reject(new Error('Request timed out'));
+        }, timeout)
+    );
+
+    try {
+        const fetchPromise = fetch(url, { signal });
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
+        return await response.json();
+    } catch (error) {
+        throw error;
+    }
+}
+
+async function* generateData(urls) {
+    for (const url of urls) {
+        yield await fetchDataWithTimeout(url);
+    }
+}
+
+async function processUrls(urls) {
+    const deferred = new Deferred();
+    
+    const dataProcessor = async () => {
+        try {
+            for await (const data of generateData(urls)) {
+                print(data);
+            }
+            deferred.resolve();
+        } catch (error) {
+            deferred.reject(error);
+        }
+    };
+
+    dataProcessor();
+    return deferred.promise;
+}
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+processUrls(urls)
+    .then(() => console.log('All data processed successfully'))
+    .catch(error => console.error('Error processing data:', error));

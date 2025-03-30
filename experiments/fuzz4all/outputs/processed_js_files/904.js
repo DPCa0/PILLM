@@ -1,0 +1,63 @@
+ 
+
+ 
+export const fetchData = async (url) => {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (url === "https://api.example.com/data") {
+        return { success: true, data: [1, 2, 3, 4, 5] };
+    }
+    throw new Error("Invalid URL");
+};
+
+ 
+function* dataIterator(data) {
+    for (let item of data) {
+        yield item;
+    }
+}
+
+ 
+function createEnhancedObject(data) {
+    return new Proxy(data, {
+        get(target, prop) {
+            if (prop in target) {
+                return target[prop];
+            } else if (prop === 'size') {
+                return target.length;
+            }
+            throw new ReferenceError(`Property ${prop} does not exist.`);
+        },
+        set(target, prop, value) {
+            if (typeof value === 'number') {
+                target[prop] = value;
+                return true;
+            }
+            throw new TypeError('Values must be numbers');
+        }
+    });
+}
+
+ 
+(async () => {
+    try {
+        const { data } = await fetchData("https://api.example.com/data");
+        const enhancedData = createEnhancedObject(data);
+        
+        print(`Fetched Data Size: ${enhancedData.size}`);
+        
+        const iterator = dataIterator(enhancedData);
+        for (let value of iterator) {
+            print(`Processing value: ${value}`);
+        }
+        
+         
+        enhancedData[5] = 6;
+        print(`Updated Data: ${[...enhancedData]}`);
+
+         
+         
+    } catch (error) {
+        console.error(`An error occurred: ${error.message}`);
+    }
+})();

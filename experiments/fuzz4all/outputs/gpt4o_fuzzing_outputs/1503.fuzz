@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.isDraining = false;
+    this.resolveDrain = null;
+  }
+  
+  enqueue(item) {
+    this.queue.push(item);
+    this.drain();
+  }
+  
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      if (this.queue.length === 0) {
+        await new Promise(resolve => this.resolveDrain = resolve);
+      }
+      while (this.queue.length > 0) {
+        yield this.queue.shift();
+      }
+    }
+  }
+  
+  drain() {
+    if (!this.isDraining && this.resolveDrain) {
+      this.isDraining = true;
+      this.resolveDrain();
+      this.isDraining = false;
+    }
+  }
+}
+
+ 
+async function main() {
+  const queue = new AsyncIterableQueue();
+
+  (async () => {
+    for await (const item of queue) {
+      console.log(`Processing: ${item}`);
+    }
+  })();
+
+  queue.enqueue('task1');
+  queue.enqueue('task2');
+  setTimeout(() => queue.enqueue('task3'), 1000);
+}
+
+main();
+```

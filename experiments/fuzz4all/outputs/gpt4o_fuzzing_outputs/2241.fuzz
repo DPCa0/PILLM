@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class TaskScheduler {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+   
+  addTask(task, priority = 0) {
+    this.queue.push({ task, priority });
+    this.queue.sort((a, b) => b.priority - a.priority);
+    if (!this.running) {
+      this.runTasks();
+    }
+  }
+
+   
+  async runTasks() {
+    this.running = true;
+    while (this.queue.length > 0) {
+      const { task } = this.queue.shift();
+      try {
+        await task();
+      } catch (error) {
+        console.error('Task failed', error);
+      }
+    }
+    this.running = false;
+  }
+}
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const exampleTasks = [
+  { task: async () => { console.log('Task 1 starting'); await delay(1000); console.log('Task 1 done'); }, priority: 1 },
+  { task: async () => { console.log('Task 2 starting'); await delay(500); console.log('Task 2 done'); }, priority: 2 },
+  { task: async () => { console.log('Task 3 starting'); await delay(700); console.log('Task 3 done'); }, priority: 1 },
+];
+
+ 
+const scheduler = new TaskScheduler();
+exampleTasks.forEach(({ task, priority }) => scheduler.addTask(task, priority));
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'secret') {
+      return 'You found the secret!';
+    }
+    return target[prop];
+  },
+};
+
+const proxyExample = new Proxy({ hello: 'world', answer: 42 }, handler);
+console.log(proxyExample.hello);
+console.log(proxyExample.secret);
+
+ 
+const privateProperty = Symbol('private');
+const obj = {
+  [privateProperty]: 'This is private',
+  publicProperty: 'This is public',
+};
+
+console.log(obj.publicProperty);
+console.log(obj[privateProperty]);
+```

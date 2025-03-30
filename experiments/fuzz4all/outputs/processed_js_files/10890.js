@@ -1,0 +1,61 @@
+ 
+
+ 
+class ReactiveStore {
+  constructor(initialState = {}) {
+    this.state = new Proxy(initialState, this.stateHandler());
+    this.subscribers = new Set();
+  }
+
+  stateHandler() {
+    return {
+      set: (target, key, value) => {
+        target[key] = value;
+        this.notifySubscribers();
+        return true;
+      }
+    };
+  }
+
+  subscribe(callback) {
+    this.subscribers.add(callback);
+  }
+
+  unsubscribe(callback) {
+    this.subscribers.delete(callback);
+  }
+
+  notifySubscribers() {
+    for (let callback of this.subscribers) {
+      callback(this.state);
+    }
+  }
+}
+
+ 
+async function* mockAsyncOperation(items) {
+  for (let item of items) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    yield item;
+  }
+}
+
+ 
+async function main() {
+  const store = new ReactiveStore({ count: 0, items: [] });
+
+  store.subscribe(state => {
+    print(`State updated: count = ${state.count}, items = ${state.items}`);
+  });
+
+  store.state.count = 1;  
+  store.state.items = ['apple', 'banana'];  
+
+  const asyncGenerator = mockAsyncOperation(['cherry', 'date', 'elderberry']);
+  
+  for await (let item of asyncGenerator) {
+    store.state.items = [...store.state.items, item];  
+  }
+}
+
+main();

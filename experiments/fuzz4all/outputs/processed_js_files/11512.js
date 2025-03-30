@@ -1,0 +1,62 @@
+ 
+class User {
+  #name;
+  #email;
+  
+  constructor(name, email) {
+    this.#name = name;
+    this.#email = email;
+  }
+  
+   
+  #getUserInfo() {
+    return `${this.#name} <${this.#email}>`;
+  }
+  
+   
+  getUserDetails() {
+    return this.#getUserInfo();
+  }
+}
+
+ 
+async function fetchUserData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { name: 'Alice', email: 'alice@example.com' },
+        { name: 'Bob', email: 'bob@example.com' }
+      ]);
+    }, 1000);
+  });
+}
+
+ 
+(async function() {
+  const usersData = await fetchUserData();
+  const users = usersData.map(({ name, email }) => new User(name, email));
+  
+   
+  const handler = {
+    get(target, prop) {
+      print(`Accessing property "${prop}" of ${target.getUserDetails()}`);
+      return target[prop];
+    }
+  };
+  
+  const proxiedUsers = users.map(user => new Proxy(user, handler));
+
+  for (const user of proxiedUsers) {
+    print(user.getUserDetails());
+  }
+})();
+
+ 
+function* generateNumbers() {
+  for (let i = 1; i <= 5; i++) {
+    yield i;
+  }
+}
+
+const numbers = [...generateNumbers()];
+print(numbers);

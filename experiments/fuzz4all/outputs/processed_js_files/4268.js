@@ -1,0 +1,31 @@
+ 
+class FetchData {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(`Fetch error: ${error}`);
+            throw error;
+        }
+    }
+}
+
+const processData = async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    const dataFetcher = new FetchData(url);
+    try {
+        const { userId, id, title, body } = await dataFetcher.fetchData();
+        print(`UserID: ${userId}\nPost ID: ${id}\nTitle: ${title}\nContent: ${body}`);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+processData();

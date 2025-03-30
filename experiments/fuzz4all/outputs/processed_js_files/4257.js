@@ -1,0 +1,32 @@
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+  const { default: axios } = await import('axios');
+
+   
+  const fetchDataAndWriteToFile = async (url, filePath) => {
+    try {
+       
+      const response = await axios.get(url);
+      const data = response.data;
+
+       
+      const processedData = Object.entries(data)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+
+       
+      await fs.writeFile(filePath, processedData, 'utf8');
+      print('Data successfully written to file.');
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+  };
+
+   
+  const fileName = `output-${Date.now()}.txt`;
+
+   
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  fetchDataAndWriteToFile(url, `./${fileName}`);
+})();

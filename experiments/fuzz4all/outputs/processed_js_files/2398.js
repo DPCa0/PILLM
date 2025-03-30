@@ -1,0 +1,57 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    return await response.json();
+}
+
+ 
+const validator = {
+    set: function(obj, prop, value) {
+        if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new Error('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+ 
+const user = new Proxy({}, validator);
+
+ 
+(async function() {
+     
+    const { name, age } = { name: 'Alice', age: 25 };
+    print(`User: ${name}, Age: ${age}`);
+
+     
+    user.name = name;
+    try {
+        user.age = age;
+    } catch (e) {
+        console.error(e.message);
+    }
+
+     
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        print(`Fetched Data: ${JSON.stringify(data)}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+
+     
+    const uniqueKey = Symbol('uniqueKey');
+    user[uniqueKey] = 'secretValue';
+    print(`Unique Key: ${user[uniqueKey]}`);
+
+     
+    const set = new Set([1, 2, 3, 3, 4]);
+    const map = new Map([
+        ['name', 'Bob'],
+        ['age', 30]
+    ]);
+
+    print(`Set Values: ${[...set]}`);
+    print(`Map Values: ${[...map.entries()]}`);
+})();

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueKey = Symbol('unique');
+
+class ComplexObject {
+  constructor() {
+    this[uniqueKey] = 'Sensitive Data';
+    this.data = { info: 'Important Info', count: 0 };
+  }
+
+  async complexOperation() {
+     
+    const result = await this.delayedOperation('Operation Complete', 1000);
+    console.log(result);
+  }
+
+  delayedOperation(message, delay) {
+    return new Promise((resolve) => setTimeout(() => resolve(message), delay));
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === uniqueKey) {
+      return 'Access Denied';
+    }
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    if (property === 'count') {
+      if (typeof value !== 'number') {
+        throw new TypeError('Count must be a number');
+      }
+      console.log(`Setting count to ${value}`);
+    }
+    return Reflect.set(target, property, value);
+  }
+};
+
+async function main() {
+  const obj = new ComplexObject();
+  const proxyObj = new Proxy(obj, handler);
+
+   
+  console.log(proxyObj[uniqueKey]);  
+
+   
+  proxyObj.data.count = 5;  
+  console.log(proxyObj.data.count);  
+
+   
+  await proxyObj.complexOperation();  
+}
+
+ 
+main();
+```

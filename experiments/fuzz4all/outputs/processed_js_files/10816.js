@@ -1,0 +1,56 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ id: 1, name: 'John Doe', age: 30 });
+      } else {
+        reject(new Error('Invalid URL'));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function getUserData() {
+  try {
+    const data = await fetchData("https://api.example.com/data");
+    print("Fetched Data:", data);
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+}
+
+ 
+const userMap = new Map();
+
+ 
+const userProxy = new Proxy(userMap, {
+  set(target, key, value) {
+    print(`Updating key: ${key} with value:`, value);
+    target.set(key, value);
+    return true;
+  }
+});
+
+ 
+async function main() {
+  try {
+    const userData = await getUserData();
+    userProxy.set(userData.id, userData);
+
+     
+    userProxy.set(userData.id, { ...userData, age: 31 });  
+
+    print('Final User Data:', [...userMap.entries()]);
+  } catch (error) {
+    console.error('Error in main:', error);
+  }
+}
+
+ 
+main();

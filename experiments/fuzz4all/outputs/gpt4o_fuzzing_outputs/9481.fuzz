@@ -1,0 +1,41 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that uses some advanced features like async/await, Promises, destructuring, template literals, and the spread operator in a complex way:
+
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+    const { id, title, ...otherProps } = data;
+    return { id, title: title.toUpperCase(), ...otherProps, processed: true };
+};
+
+const fetchAndProcessData = async (url) => {
+    try {
+        const data = await fetchData(url);
+        return processData(data);
+    } catch (error) {
+        console.error(`Error fetching data: ${error.message}`);
+    }
+};
+
+const urls = [
+    'https: 
+    'https://jsonplaceholder.typicode.com/todos/2',
+];
+
+const main = async () => {
+    const results = await Promise.all(urls.map(async (url) => {
+        const result = await fetchAndProcessData(url);
+        return result ? `Processed Data: ${JSON.stringify(result)}` : 'Failed to process';
+    }));
+    results.forEach(console.log);
+};
+
+main();
+```
+
+This program fetches data from a couple of URLs, processes the data by transforming it, and outputs the results, demonstrating the use of several JavaScript features.

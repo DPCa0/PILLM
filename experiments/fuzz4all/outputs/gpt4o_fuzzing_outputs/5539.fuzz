@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error(`Fetch error: ${error}`);
+    throw error;
+  }
+}
+
+ 
+async function processWeatherData() {
+  try {
+    console.log("Fetching weather data...");
+    const data = await fetchData('https://api.open-meteo.com/v1/forecast?latitude=35&longitude=139&hourly=temperature_2m');
+
+     
+    await delay(1000);
+
+     
+    const { hourly: { temperature_2m: temps } } = data;
+    console.log("Latest temperature readings:");
+
+     
+    temps.slice(0, 5).forEach((temp, index) => {
+      console.log(`Hour ${index + 1}: ${temp}°C`);
+    });
+  } catch (error) {
+    console.error("Error processing weather data:", error);
+  }
+}
+
+ 
+processWeatherData();
+```

@@ -1,0 +1,42 @@
+class User {
+  #name;
+  #age;
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+
+  get name() {
+    return this.#name;
+  }
+
+  set name(name) {
+    this.#name = name;
+  }
+
+  isAdult() {
+    return this.#age >= 18;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+const processUserData = async (url) => {
+  try {
+    const users = await fetchData(url);
+    const userObjects = users.map(user => new User(user.name, user.age));
+    userObjects.forEach(user => {
+      print(`User: ${user.name}, Adult: ${user.isAdult()}`);
+    });
+  } catch (error) {
+    console.error('Failed to fetch or process data:', error);
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+processUserData(url);

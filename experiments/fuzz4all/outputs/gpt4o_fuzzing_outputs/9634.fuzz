@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+import { getRandomNumber } from './randomModule.js';
+
+ 
+(async () => {
+   
+  const { min = 0, max = 100 } = getBounds();
+
+  try {
+     
+    const randomNumber = await getRandomNumber(min, max);
+
+     
+    console.log(formatOutput`Random Number between ${min} and ${max}: ${randomNumber}`);
+  } catch (error) {
+    console.error('Error fetching random number:', error);
+  }
+})();
+
+ 
+function getBounds() {
+  return { min: 1, max: 50 };
+}
+
+ 
+function formatOutput(strings, ...values) {
+  return strings.reduce((result, string, i) => result + string + (values[i] || ''), '');
+}
+```
+
+Create an additional file named `randomModule.js`:
+
+```javascript
+ 
+export const getRandomNumber = (min, max) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (min >= max) {
+        reject(new Error('Invalid range'));
+      }
+      const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
+      resolve(randomNum);
+    }, 1000);
+  });
+```
+
+This code uses several advanced JavaScript features, such as modules, promises, async/await, destructuring, and tagged template literals to create a dynamic and modular program.

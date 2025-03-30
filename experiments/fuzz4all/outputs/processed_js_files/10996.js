@@ -1,0 +1,58 @@
+class AdvancedFeatureDemo {
+  #privateField = "I am private";
+  static #staticPrivateField = "I am static private";
+  
+  constructor() {
+    this.dynamicProperty = "I'm dynamic";
+  }
+
+  #privateMethod() {
+    return `Accessing private method: ${this.#privateField}`;
+  }
+
+  static #staticPrivateMethod() {
+    return `Accessing static private method: ${this.#staticPrivateField}`;
+  }
+
+  demonstrateOptionalChaining(obj) {
+    return obj?.deep?.property ?? "Property not found";
+  }
+
+  async *asyncGeneratorExample() {
+    for (let i = 0; i < 3; i++) {
+      yield new Promise((resolve) => setTimeout(() => resolve(i), 1000));
+    }
+  }
+
+  async demonstrateAsyncIterator() {
+    for await (let value of this.asyncGeneratorExample()) {
+      print(value);
+    }
+  }
+
+  static main() {
+    const demo = new AdvancedFeatureDemo();
+
+     
+    import('./someModule.js')
+      .then((module) => console.log("Dynamic Import Successful", module))
+      .catch((err) => console.error("Failed to dynamically import module:", err));
+
+     
+    print(demo.#privateMethod());
+
+     
+    print(demo.demonstrateOptionalChaining({ deep: { property: "Found me!" } }));
+
+     
+    demo.demonstrateAsyncIterator();
+
+     
+    const result = await new Promise(resolve => resolve("Awaiting this promise"));
+    print(result);
+  }
+}
+
+AdvancedFeatureDemo.main();
+
+**Note:** The above code includes features like private class fields and methods, static private fields, dynamic imports, optional chaining, nullish coalescing, async generators, and top-level await. It may need to be adjusted to run in a specific JavaScript environment, such as by ensuring support for these ES2020+ features or using a module bundler that supports top-level await. Also, `someModule.js` should exist or be replaced with a valid module.

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'JavaScript', version: 'ES2023', features: ['async/await', 'Proxy', 'destructuring'] });
+    }, 2000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Accessing property '${prop}'`);
+    return target[prop];
+  }
+};
+
+ 
+const displayData = async () => {
+  const data = await fetchData();
+  
+   
+  const { name, version, features } = data;
+  
+   
+  const proxyData = new Proxy(data, handler);
+
+  console.log(`Framework: ${name}`);
+  console.log(`Version: ${version}`);
+  
+   
+  console.log(`Features: ${proxyData.features.join(', ')}`);
+};
+
+ 
+displayData();
+```

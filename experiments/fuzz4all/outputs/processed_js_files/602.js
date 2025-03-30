@@ -1,0 +1,56 @@
+class TaskQueue {
+    constructor(concurrency) {
+        this.tasks = [];
+        this.concurrency = concurrency;
+        this.running = 0;
+    }
+
+    addTask(promiseFactory) {
+        this.tasks.push(promiseFactory);
+        this.next();
+    }
+
+    next() {
+        while (this.running < this.concurrency && this.tasks.length) {
+            const task = this.tasks.shift();
+            task().then(() => {
+                this.running--;
+                this.next();
+            }).catch((error) => {
+                console.error('Task failed:', error);
+                this.running--;
+                this.next();
+            });
+            this.running++;
+        }
+    }
+}
+
+ 
+const asyncTask = (id, duration) => () => new Promise((resolve) => {
+    print(`Task ${id} started.`);
+    setTimeout(() => {
+        print(`Task ${id} completed.`);
+        resolve();
+    }, duration);
+});
+
+ 
+const taskManager = new TaskQueue(2);
+
+[...Array(5).keys()].map(i => asyncTask(i + 1, (i + 1) * 1000))
+                   .forEach(task => taskManager.addTask(task));
+
+ 
+const logTasks = new Proxy(taskManager, {
+    get(target, prop) {
+        if (prop === 'taskCount') {
+            return target.tasks.length;
+        }
+        return Reflect.get(target, prop);
+    }
+});
+
+setTimeout(() => {
+    print('Remaining tasks:', logTasks.taskCount);
+}, 3000);

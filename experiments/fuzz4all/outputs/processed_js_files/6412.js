@@ -1,0 +1,40 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 28 },
+        { id: 2, name: 'Bob', age: 33 },
+        { id: 3, name: 'Charlie', age: 23 },
+      ]);
+    }, 1000);
+  });
+}
+
+ 
+async function processUsers() {
+  try {
+    const users = await fetchData();
+    const [firstUser, ...otherUsers] = users;
+    
+    print(`First user: ${firstUser.name}`);
+    
+    for (const user of iterateUsers(otherUsers)) {
+      print(`Other user: ${user.name}`);
+    }
+  } catch (error) {
+    console.error('Error fetching users:', error);
+  }
+}
+
+ 
+function* iterateUsers(users) {
+  for (const user of users) {
+    yield user;
+  }
+}
+
+ 
+processUsers();

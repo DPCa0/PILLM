@@ -1,0 +1,51 @@
+(async () => {
+   
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      return response.json();
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+      throw error;
+    }
+  };
+
+   
+  const createObservableObject = (target, onChange) => {
+    return new Proxy(target, {
+      set(obj, prop, value) {
+        if (value !== obj[prop]) {
+          const oldValue = obj[prop];
+          obj[prop] = value;
+          onChange(prop, oldValue, value);
+        }
+        return true;
+      },
+    });
+  };
+
+  const user = createObservableObject({ name: 'Alice', age: 30 }, (prop, oldValue, newValue) => {
+    print(`Property ${prop} changed from ${oldValue} to ${newValue}`);
+  });
+
+   
+  if (Math.random() > 0.5) {
+    const { greet } = await import('./greetModule.js');
+    greet();
+  } else {
+    print('Greet module was not imported.');
+  }
+
+   
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    print('Fetched Data:', data);
+
+     
+    user.name = 'Bob';
+    user.age = 31;
+  } catch (e) {
+    console.error('Error during data fetching and processing:', e);
+  }
+})();

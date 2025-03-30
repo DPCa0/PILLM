@@ -1,0 +1,62 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+   
+  return data?.items?.map(item => ({
+    id: item.id ?? 'No ID',
+    name: item.name ?? 'Unknown',
+    value: item.value ?? 'N/A'
+  })) || [];
+};
+
+const displayData = (items) => {
+  console.group('Processed Items');
+  items.forEach(({ id, name, value }) => {
+    print(`ID: ${id}, Name: ${name}, Value: ${value}`);
+  });
+  console.groupEnd();
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  
+  const [fetchedData, cachedData] = await Promise.all([fetchData(url), fetchDataFromCache(url)]);
+  
+  const combinedData = {...fetchedData, ...cachedData};
+  
+  const processedItems = processData(combinedData);
+  
+  displayData(processedItems);
+
+  const updateData = {
+    timestamp: new Date(),
+    items: processedItems
+  };
+
+   
+  const { saveData } = await import('./dataSaver.js');
+  saveData(updateData);
+})();
+
+ 
+function fetchDataFromCache(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        items: [
+          { id: '101', name: 'CachedItem1', value: 10 },
+          { id: '102', name: 'CachedItem2', value: 20 }
+        ]
+      });
+    }, 200);
+  });
+}

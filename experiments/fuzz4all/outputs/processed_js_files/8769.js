@@ -1,0 +1,65 @@
+ 
+class Person {
+    #age;
+    constructor(name, age) {
+        this.name = name;
+        this.#age = age;
+    }
+
+    get age() {
+        return this.#age;
+    }
+
+    set age(value) {
+        if (value < 0) throw new Error('Age cannot be negative');
+        this.#age = value;
+    }
+
+    async delayGreeting() {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        print(`Hello, my name is ${this.name} and I am ${this.#age} years old.`);
+    }
+}
+
+ 
+async function displayPeople() {
+    const people = [
+        new Person('Alice', 30),
+        new Person('Bob', 25),
+        new Person('Charlie', 35)
+    ];
+
+    await Promise.all(people.map(person => person.delayGreeting()));
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const alice = new Proxy(new Person('Alice', 30), handler);
+alice.age = 31;
+print(alice.age);
+
+ 
+function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+for (let num of fibonacci(5)) {
+    print(num);
+}
+
+ 
+displayPeople();

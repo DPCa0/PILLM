@@ -1,0 +1,44 @@
+ 
+
+class DataHandler {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok ' + response.statusText);
+    }
+    return response.json();
+  }
+
+  process(data) {
+    return data.map(item => ({
+      ...item,
+      processedDate: new Date().toISOString(),
+    }));
+  }
+}
+
+const dataHandlerProxy = new Proxy(DataHandler, {
+  construct(target, args) {
+    print(`Creating instance of DataHandler with URL: ${args[0]}`);
+    return new target(...args);
+  }
+});
+
+async function run() {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const dataHandler = new dataHandlerProxy(url);
+
+  try {
+    const data = await dataHandler.fetchData();
+    const processedData = dataHandler.process(data);
+    print('Processed Data:', processedData.slice(0, 5));  
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+run();

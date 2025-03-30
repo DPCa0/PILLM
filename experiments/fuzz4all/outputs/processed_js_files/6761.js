@@ -1,0 +1,55 @@
+ 
+(async () => {
+   
+  const users = new Map();
+  const roles = new Set(['Admin', 'User', 'Guest']);
+  
+   
+  const fetchUserData = async (id) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ id, name: `User${id}`, role: roles.has('User') ? 'User' : 'Guest' });
+      }, 100 * id);
+    });
+  };
+
+   
+  const enhanceUserData = ({ id, name, role }) => ({
+    id,
+    name,
+    role,
+    permissions: role === 'Admin' ? ['read', 'write', 'delete'] : ['read']
+  });
+
+   
+  const userPromises = [...Array(5).keys()].map(async (id) => {
+    const userData = await fetchUserData(id + 1);
+    users.set(userData.id, enhanceUserData(userData));
+  });
+
+  await Promise.all(userPromises);
+
+   
+  const handler = {
+    set(target, prop, value) {
+      if (prop === 'role' && !roles.has(value)) {
+        console.error(`Invalid role assignment: ${value}`);
+        return false;
+      }
+      print(`User role changed from ${target[prop]} to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+  };
+
+   
+  const userToProxy = users.get(1);
+  const proxiedUser = new Proxy(userToProxy, handler);
+
+   
+  proxiedUser.role = 'Admin';  
+  proxiedUser.role = 'SuperAdmin';  
+
+   
+  console.table([...users.values()]);
+})();

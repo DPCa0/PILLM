@@ -1,0 +1,50 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+};
+
+const eventBus = new EventEmitter();
+
+eventBus.on('dataReceived', data => {
+    print('Data received:', data);
+});
+
+const fetchDebouncedData = debounce(async (url) => {
+    try {
+        const data = await fetchData(url);
+        eventBus.emit('dataReceived', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}, 300);
+
+fetchDebouncedData('https://jsonplaceholder.typicode.com/todos/1');
+fetchDebouncedData('https://jsonplaceholder.typicode.com/todos/2');
+
+setTimeout(() => fetchDebouncedData('https://jsonplaceholder.typicode.com/todos/3'), 400);

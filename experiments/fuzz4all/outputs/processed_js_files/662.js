@@ -1,0 +1,49 @@
+ 
+
+ 
+const target = {
+    message: "Hello, world!"
+};
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'message') {
+            return `The message is: ${Reflect.get(obj, prop)}`;
+        }
+        return Reflect.get(obj, prop);
+    },
+    set: (obj, prop, value) => {
+        if (prop === 'message' && typeof value !== 'string') {
+            throw new TypeError('The message must be a string');
+        }
+        return Reflect.set(obj, prop, value);
+    }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+async function displayMessageWithDelay() {
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    try {
+        print(proxy.message);  
+        await delay(2000);  
+        proxy.message = "Hello, Proxy World!";
+        print(proxy.message);
+
+        await delay(2000);
+         
+        proxy.message = 42;  
+    } catch (error) {
+        console.error(`Caught an error: ${error.message}`);
+    }
+}
+
+ 
+(async () => {
+    await displayMessageWithDelay();
+})();

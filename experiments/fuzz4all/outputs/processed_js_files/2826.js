@@ -1,0 +1,56 @@
+ 
+import { createServer } from 'http';
+import { readFile } from 'fs/promises';
+import url from 'url';
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessed property ${prop}`);
+    return target[prop];
+  }
+};
+
+const config = new Proxy({
+  port: 3000,
+  file: 'index.html'
+}, handler);
+
+ 
+async function readFileContent(filePath) {
+  try {
+    const content = await readFile(filePath, 'utf8');
+    return content;
+  } catch (error) {
+    return `Error reading file: ${error.message}`;
+  }
+}
+
+ 
+const getQueryParameter = (req, param) => {
+  const query = url.parse(req.url, true).query;
+  return query[param] ?? 'default';
+};
+
+ 
+createServer(async (req, res) => {
+  const content = await readFileContent(config.file);
+  const paramValue = getQueryParameter(req, 'name');
+
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end(`<h1>${content}</h1><p>Hello, ${paramValue}!</p>`);
+}).listen(config.port, () => {
+  console.log(`Server running at http: 
+});
+
+ 
+(async () => {
+  print('Fetching external resource...');
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const data = await response.json();
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();

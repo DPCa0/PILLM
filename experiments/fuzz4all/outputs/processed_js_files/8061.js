@@ -1,0 +1,49 @@
+class ComplexSystem {
+  constructor() {
+    this.state = new Proxy({ tasks: [] }, {
+      set: (target, key, value) => {
+        if (key === 'tasks' && Array.isArray(value)) {
+          print(`Tasks updated: ${value.length} tasks`);
+        }
+        target[key] = value;
+        return true;
+      }
+    });
+  }
+
+  async processTasks() {
+    try {
+      let tasks = await this.fetchTasks();
+      this.state.tasks = tasks;
+      await Promise.all(tasks.map(task => this.executeTask(task)));
+    } catch (error) {
+      console.error('Error processing tasks:', error);
+    }
+  }
+
+  fetchTasks() {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, name: 'Task One' },
+          { id: 2, name: 'Task Two' }
+        ]);
+      }, 1000);
+    });
+  }
+
+  async executeTask(task) {
+    print(`Executing: ${task.name}`);
+    return new Promise(resolve => {
+      setTimeout(() => {
+        print(`Completed: ${task.name}`);
+        resolve();
+      }, Math.random() * 2000);
+    });
+  }
+}
+
+(async () => {
+  const system = new ComplexSystem();
+  await system.processTasks();
+})();

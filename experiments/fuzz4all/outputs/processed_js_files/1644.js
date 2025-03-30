@@ -1,0 +1,77 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Map();
+    }
+
+    subscribe(eventType, callback) {
+        if (!this.subscribers.has(eventType)) {
+            this.subscribers.set(eventType, new Set());
+        }
+        this.subscribers.get(eventType).add(callback);
+    }
+
+    unsubscribe(eventType, callback) {
+        if (this.subscribers.has(eventType)) {
+            this.subscribers.get(eventType).delete(callback);
+        }
+    }
+
+    notify(eventType, data) {
+        if (this.subscribers.has(eventType)) {
+            this.subscribers.get(eventType).forEach(callback => callback(data));
+        }
+    }
+}
+
+const makeReactive = (obj) => {
+    const observable = new Observable();
+    return new Proxy(obj, {
+        get(target, prop) {
+            return Reflect.get(target, prop);
+        },
+        set(target, prop, value) {
+            const oldValue = target[prop];
+            const result = Reflect.set(target, prop, value);
+            if (oldValue !== value) {
+                observable.notify(prop, value);
+            }
+            return result;
+        }
+    });
+};
+
+ 
+const reactiveObj = makeReactive({ name: 'Alice', age: 30 });
+
+reactiveObj.subscribe('name', newName => {
+    print(`Name changed to ${newName}`);
+});
+
+reactiveObj.subscribe('age', newAge => {
+    print(`Age changed to ${newAge}`);
+});
+
+reactiveObj.name = 'Bob';  
+reactiveObj.age = 31;     
+
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, 1000);
+    });
+}
+
+async function* dataGenerator(urls) {
+    for (const url of urls) {
+        const data = await fetchData(url);
+        yield data;
+    }
+}
+
+(async () => {
+    const urls = ['http://example.com/data1', 'http://example.com/data2'];
+    for await (const data of dataGenerator(urls)) {
+        print(data);
+    }
+})();

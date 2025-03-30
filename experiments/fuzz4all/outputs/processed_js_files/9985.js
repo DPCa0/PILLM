@@ -1,0 +1,51 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  calculate(n) {
+    if (n < 2) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    let result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+  *generateSequence(limit) {
+    for (let i = 0; i < limit; i++) {
+      yield this.calculate(i);
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return response.json();
+}
+
+(async () => {
+  try {
+    const fib = new Fibonacci();
+    const sequence = [...fib.generateSequence(10)];
+    print('Fibonacci Sequence:', sequence);
+
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    print('Fetched Data:', data);
+
+    const squaredSequence = sequence.map(x => x ** 2);
+    const result = squaredSequence.reduce((acc, val) => acc + val, 0);
+    print('Sum of Squared Sequence:', result);
+
+    const proxyHandler = {
+      get: (target, prop) => prop in target ? target[prop] : `No such property: ${prop}`
+    };
+
+    const obj = new Proxy({ a: 1, b: 2, c: 3 }, proxyHandler);
+    print('Access Property a:', obj.a);
+    print('Access Property z:', obj.z);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

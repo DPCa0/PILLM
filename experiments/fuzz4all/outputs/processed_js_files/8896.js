@@ -1,0 +1,42 @@
+ 
+const complexFunction = async (items) => {
+     
+    const promiseSet = new Set(items.map(async (item) => {
+         
+        const { name, id } = await getItemDetails(item);
+        return `${name} (${id})`;
+    }));
+
+     
+    const results = await Promise.all([...promiseSet]);
+
+     
+    const handler = {
+        get: (target, property) => {
+            if (property === 'formattedResults') {
+                return target.join(' | ');
+            }
+            return target[property];
+        }
+    };
+    
+     
+    const enhancedResults = new Proxy(results, handler);
+
+     
+    print(enhancedResults.formattedResults?.toUpperCase() ?? 'No results found');
+};
+
+ 
+const getItemDetails = async (item) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ name: item, id: Math.floor(Math.random() * 100) });
+        }, 100);
+    });
+};
+
+ 
+(async () => {
+    await complexFunction(['item1', 'item2', 'item3']);
+})();

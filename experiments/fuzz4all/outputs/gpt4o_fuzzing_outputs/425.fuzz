@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async (userId) => {
+  try {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Failed to fetch user data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+ 
+function* processUserData(user) {
+  yield `Processing user: ${user.name}`;
+  yield `Email: ${user.email}`;
+  yield `Address: ${user.address.street}, ${user.address.city}`;
+}
+
+ 
+const getUserFullName = ({ name, address: { city } }) => {
+  return `${name} from ${city}`;
+};
+
+ 
+(async () => {
+  const userIds = [1, 2, 3];
+  const userPromises = userIds.map(id => fetchUserData(id));
+  const users = await Promise.all(userPromises);
+
+  users.forEach(user => {
+    if (user) {
+      console.log(getUserFullName(user));
+      const userProcess = processUserData(user);
+      for (let step of userProcess) {
+        console.log(step);
+      }
+    }
+  });
+})();
+```

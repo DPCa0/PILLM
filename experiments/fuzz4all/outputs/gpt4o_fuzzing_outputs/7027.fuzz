@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData(ids) {
+  for (const id of ids) {
+    yield new Promise((resolve) => setTimeout(() => resolve(`Data for ID: ${id}`), 1000));
+  }
+}
+
+ 
+async function processData(ids) {
+  const results = [];
+  for await (const data of fetchData(ids)) {
+    results.push(data);
+  }
+  return results;
+}
+
+ 
+const handler = {
+  get: function (target, prop, receiver) {
+    console.log(`Accessing property "${prop}"`);
+    return Reflect.get(...arguments);
+  },
+};
+
+const obj = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+async function main() {
+  console.log('Starting data processing...');
+  const ids = [1, 2, 3, 4, 5];
+  const data = await processData(ids);
+  console.log('Processed Data:', data);
+
+  console.log('Accessing object properties through Proxy:');
+  console.log(obj.a);
+  console.log(obj.b);
+}
+
+ 
+main();
+```

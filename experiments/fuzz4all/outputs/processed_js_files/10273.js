@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = (endpoint) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${endpoint}` });
+    }, 1000);
+  });
+};
+
+ 
+async function displayData() {
+  try {
+     
+    const [userData, postsData, commentsData] = await Promise.all([
+      fetchData('/user'),
+      fetchData('/posts'),
+      fetchData('/comments')
+    ]);
+
+     
+    const { data: user } = userData;
+    const { data: posts } = postsData;
+    const { data: comments } = commentsData;
+
+     
+    console.log(`
+      User Data: ${user}
+      Posts Data: ${posts}
+      Comments Data: ${comments}
+    `);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+(async () => {
+  await displayData();
+})();

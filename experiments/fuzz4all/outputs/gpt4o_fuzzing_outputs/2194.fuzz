@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+  }
+
+  enqueue(item) {
+    if (this.resolvers.length > 0) {
+      const resolver = this.resolvers.shift();
+      resolver(item);
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  async *dequeue() {
+    while (true) {
+      if (this.queue.length > 0) {
+        yield this.queue.shift();
+      } else {
+        yield await new Promise(resolve => this.resolvers.push(resolve));
+      }
+    }
+  }
+}
+
+async function complexOperation() {
+  const queue = new AsyncIterableQueue();
+
+  const producer = async () => {
+    for (let i = 1; i <= 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      queue.enqueue(i);
+      console.log(`Produced: ${i}`);
+    }
+  };
+
+  const consumer = async () => {
+    for await (const item of queue.dequeue()) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(`Consumed: ${item}`);
+    }
+  };
+
+  await Promise.all([producer(), consumer()]);
+}
+
+complexOperation();
+```

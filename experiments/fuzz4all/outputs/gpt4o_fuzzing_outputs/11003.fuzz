@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  return await response.json();
+};
+
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      console.log(`Fetching from cache for args: ${key}`);
+      return cache.get(key);
+    }
+    console.log(`Calculating result for args: ${key}`);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const processData = async () => {
+   
+  const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+  
+   
+  const result = users
+    .filter(({ address: { city } }) => city === 'South Christy')  
+    .map(({ id, name, email, company: { name: companyName } }) => ({
+      id,
+      name,
+      email,
+      companyName,
+    }));  
+
+  return result;
+};
+
+ 
+const memoizedProcessData = memoize(processData);
+
+ 
+memoizedProcessData().then((data) => console.log('Processed Data:', data));
+memoizedProcessData().then((data) => console.log('Processed Data (Memoized):', data));
+```

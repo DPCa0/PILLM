@@ -1,0 +1,55 @@
+ 
+async function complexFeatureExample() {
+     
+    const { x, y, ...rest } = { x: 1, y: 2, a: 3, b: 4, c: 5 };
+    print('Destructured x:', x, 'y:', y, 'Rest:', rest);
+
+     
+    try {
+        const { dynamicImportFunction } = await import('./dynamicModule.js');
+        const result = await dynamicImportFunction(x, y);
+        print('Result from dynamic import function:', result);
+    } catch (error) {
+        console.error('Error loading module:', error);
+    }
+
+     
+    const target = { message: 'Hello, Proxy!' };
+    const handler = {
+        get: (obj, prop) => (prop in obj ? obj[prop] : `Property ${prop} not found`)
+    };
+    const proxy = new Proxy(target, handler);
+    print(proxy.message);
+    print(proxy.nonExistent);
+
+     
+    function* generatorExample() {
+        yield 'This';
+        yield 'is';
+        yield 'a';
+        yield 'generator';
+    }
+
+    for (const word of generatorExample()) {
+        print(word);
+    }
+
+     
+    const uniqueSymbol = Symbol('unique');
+    const iterableObject = {
+        [Symbol.iterator]: function* () {
+            yield 1;
+            yield 2;
+            yield 3;
+        },
+        [uniqueSymbol]: 'This is a unique symbol property'
+    };
+    
+    print('Unique Symbol Property:', iterableObject[uniqueSymbol]);
+    for (const num of iterableObject) {
+        print(num);
+    }
+}
+
+ 
+complexFeatureExample();

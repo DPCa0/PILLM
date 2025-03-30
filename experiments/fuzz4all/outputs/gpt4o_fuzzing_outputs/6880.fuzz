@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    const newData = await response.json();
+    this.data = [...this.data, ...newData];
+  }
+
+  *dataGenerator() {
+    let index = 0;
+    while (index < this.data.length) {
+      yield this.data[index++];
+    }
+  }
+
+  async processData() {
+    const promises = this.data.map(item => this.complexOperation(item));
+    const results = await Promise.all(promises);
+    return results;
+  }
+
+  async complexOperation(item) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(item * 2);  
+      }, 100);
+    });
+  }
+}
+
+(async () => {
+  const data = [1, 2, 3];
+  const processor = new DataProcessor(data);
+
+  await processor.fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+  const results = await processor.processData();
+  console.log('Processed Results:', results);
+
+  const generator = processor.dataGenerator();
+  for (const item of generator) {
+    console.log('Generated Item:', item);
+  }
+})();
+```

@@ -1,0 +1,56 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.pendingPromise = false;
+  }
+
+  enqueue(asyncFunc) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ asyncFunc, resolve, reject });
+      this.dequeue();
+    });
+  }
+
+  async dequeue() {
+    if (this.pendingPromise || this.queue.length === 0) return;
+    const { asyncFunc, resolve, reject } = this.queue.shift();
+    this.pendingPromise = true;
+    try {
+      const result = await asyncFunc();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    } finally {
+      this.pendingPromise = false;
+      this.dequeue();
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncQueue = new AsyncQueue();
+
+const asyncTask1 = async () => {
+  print('Starting task 1');
+  await delay(1000);
+  print('Completed task 1');
+  return 'Result of task 1';
+};
+
+const asyncTask2 = async () => {
+  print('Starting task 2');
+  await delay(500);
+  print('Completed task 2');
+  return 'Result of task 2';
+};
+
+async function main() {
+  const results = await Promise.all([
+    asyncQueue.enqueue(asyncTask1),
+    asyncQueue.enqueue(asyncTask2),
+  ]);
+  print(results);
+}
+
+main();

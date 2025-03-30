@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'secret') {
+            return `Secret is: ${target[uniqueKey]}`;
+        }
+        return prop in target ? target[prop] : 'Property not found!';
+    },
+    set: (target, prop, value) => {
+        if (prop === 'password') {
+            if (value.length >= 8) {
+                target[prop] = value;
+                console.log('Password set successfully');
+                return true;
+            }
+            console.log('Password must be at least 8 characters long');
+            return false;
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+const secureObj = new Proxy({}, handler);
+secureObj[uniqueKey] = 'SuperSecretValue123';
+secureObj.password = 'short';  
+secureObj.password = 'longEnoughPassword';  
+
+ 
+function* generatorFunc() {
+    yield 'First yield value';
+    yield new Promise((resolve) => setTimeout(() => resolve('Async yield value'), 2000));
+}
+
+(async () => {
+    const gen = generatorFunc();
+    console.log(gen.next().value);  
+    console.log(await gen.next().value);  
+
+    console.log(secureObj.secret);  
+    console.log(secureObj.nonExistentProperty);  
+})();
+```

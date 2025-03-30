@@ -1,0 +1,49 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  async process() {
+    if (this.processing) return;
+    this.processing = true;
+    while (this.queue.length > 0) {
+      const task = this.queue.shift();
+      await task();
+    }
+    this.processing = false;
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+    this.process();
+  }
+}
+
+const fetchWithRetry = async (url, retries = 3) => {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      if (attempt === retries - 1) throw error;
+      await new Promise(res => setTimeout(res, 1000));  
+    }
+  }
+};
+
+const asyncQueue = new AsyncQueue();
+
+const urls = ['https://api.github.com/users/github', 'https://api.github.com/users/microsoft'];
+
+urls.forEach(url => {
+  asyncQueue.addTask(async () => {
+    try {
+      const data = await fetchWithRetry(url);
+      print(`Fetched data for ${data.login}:`, data);
+    } catch (error) {
+      console.error(`Failed to fetch data from ${url}:`, error);
+    }
+  });
+});

@@ -1,0 +1,45 @@
+const fetchUserData = async (userId) => {
+    const userApiUrl = `https: 
+    try {
+        const response = await fetch(userApiUrl);
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        return null;
+    }
+};
+
+const processData = (userData) => {
+    if (!userData) return;
+
+    const { name, email, address: { city, geo: { lat, lng } } } = userData;
+    print(`Name: ${name}, Email: ${email}, City: ${city}, Latitude: ${lat}, Longitude: ${lng}`);
+    
+    const formattedData = {
+        fullName: name,
+        contactInfo: {
+            email,
+            location: {
+                city,
+                coordinates: {
+                    lat: parseFloat(lat).toFixed(2),
+                    lng: parseFloat(lng).toFixed(2)
+                }
+            }
+        }
+    };
+    return formattedData;
+};
+
+const init = async () => {
+    const userId = 1;  
+    const userData = await fetchUserData(userId);
+    const formattedData = processData(userData);
+    
+    if (formattedData) {
+        print('Formatted User Data:', JSON.stringify(formattedData, null, 2));
+    }
+};
+
+init();

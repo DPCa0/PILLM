@@ -1,0 +1,35 @@
+ 
+const fetchData = async (url) => {
+  try {
+     
+    const response = await fetch(url);
+    const { data } = await response.json();  
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const processData = async () => {
+  const url = 'https://api.example.com/data';
+
+   
+  const [data1, data2] = await Promise.all([
+    fetchData(url + '?type=1'),
+    fetchData(url + '?type=2'),
+  ]);
+
+   
+  const processedData = [data1, data2].flat().map(item => ({
+    ...item,
+    processed: true,
+  }));
+
+   
+  const uniqueData = Array.from(new Set(processedData.map(JSON.stringify))).map(JSON.parse);
+
+   
+  print(`Processed ${uniqueData.length} unique items.`);
+};
+
+processData();

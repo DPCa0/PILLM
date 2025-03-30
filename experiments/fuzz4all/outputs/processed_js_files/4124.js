@@ -1,0 +1,57 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static multiply(a, b) {
+        return new Matrix(a.data.map((row, i) => 
+            row.map((_, j) => 
+                row.reduce((sum, _, n) => sum + a.data[i][n] * b.data[n][j], 0)
+            )
+        ));
+    }
+
+    static async asyncOperation(matrix, delay) {
+        return new Promise(resolve => 
+            setTimeout(() => resolve(matrix), delay)
+        );
+    }
+
+    async transform(callback) {
+        const newMatrix = await Matrix.asyncOperation(this, 500);
+        return new Matrix(newMatrix.data.map(row => row.map(callback)));
+    }
+
+    [Symbol.iterator]() {
+        let row = 0, col = 0;
+        return {
+            next: () => {
+                if (row < this.data.length && col < this.data[row].length) {
+                    const value = this.data[row][col];
+                    col++;
+                    if (col === this.data[row].length) {
+                        col = 0;
+                        row++;
+                    }
+                    return { value, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+}
+
+(async () => {
+    const matrix1 = new Matrix([[1, 2], [3, 4]]);
+    const matrix2 = new Matrix([[5, 6], [7, 8]]);
+    const result = Matrix.multiply(matrix1, matrix2);
+    
+    for (let value of result) {
+        print(value);
+    }
+
+    const transformedMatrix = await matrix1.transform(x => x * 10);
+    for (let value of transformedMatrix) {
+        print(value);
+    }
+})();

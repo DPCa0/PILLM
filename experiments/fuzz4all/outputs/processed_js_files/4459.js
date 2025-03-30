@@ -1,0 +1,36 @@
+ 
+(async () => {
+  const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (url === "https://api.example.com/data") {
+          resolve([{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }, { id: 3, name: "Carol" }]);
+        } else {
+          reject("Invalid URL");
+        }
+      }, 1000);
+    });
+  };
+
+  try {
+    const url = "https://api.example.com/data";
+    const data = await fetchData(url);
+    
+    const processData = (data, transform) => data.map(transform);
+    
+    const transformFunction = ({ id, name }) => ({
+      id,
+      name,
+      nameLength: name.length,
+    });
+    
+    const processedData = processData(data, transformFunction);
+
+    processedData.forEach((entry) => {
+      print(`ID: ${entry.id}, Name: ${entry.name}, Name Length: ${entry.nameLength}`);
+    });
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

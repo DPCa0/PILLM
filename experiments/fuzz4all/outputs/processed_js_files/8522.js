@@ -1,0 +1,62 @@
+ 
+import fs from 'fs/promises';
+import https from 'https';
+import { pipeline } from 'stream/promises';
+import { createGunzip } from 'zlib';
+
+ 
+async function fetchAndProcessData(url, outputFile) {
+   
+  const response = await new Promise((resolve, reject) => {
+    https.get(url, resolve).on('error', reject);
+  });
+
+   
+  await pipeline(
+    response,
+    createGunzip(),
+    fs.createWriteStream(outputFile)
+  );
+  print(`Data saved to ${outputFile}`);
+}
+
+ 
+async function* filterFileLines(filePath, keyword) {
+  const fileHandle = await fs.open(filePath);
+  try {
+    const fileStream = fileHandle.createReadStream();
+    let remaining = '';
+    
+     
+    for await (const chunk of fileStream) {
+      remaining += chunk;
+      let index;
+      while ((index = remaining.indexOf('\n')) > -1) {
+        const line = remaining.slice(0, index);
+        if (line.includes(keyword)) {
+          yield line;
+        }
+        remaining = remaining.slice(index + 1);
+      }
+    }
+  } finally {
+    await fileHandle.close();
+  }
+}
+
+ 
+(async () => {
+  const url = 'https://example.com/data.txt.gz';
+  const outputFile = 'output.txt';
+  
+   
+  await fetchAndProcessData(url, outputFile);
+
+  print(`Lines containing the keyword 'JavaScript':`);
+  const keyword = 'JavaScript';
+
+   
+  for await (const line of filterFileLines(outputFile, keyword)) {
+    print(line);
+  }
+})();

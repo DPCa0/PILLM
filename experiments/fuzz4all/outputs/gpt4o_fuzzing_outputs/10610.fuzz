@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+class ComplexCalculation {
+  constructor() {
+    this.cache = new Map();
+  }
+  
+   
+  *fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+   
+  createProxy(obj) {
+    return new Proxy(obj, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        }
+        return `Property ${prop} does not exist`;
+      },
+    });
+  }
+
+   
+  calculateNthFibonacci(n) {
+    if (n < 2) return n;
+    if (this.cache.has(n)) return this.cache.get(n);
+    const value = this.calculateNthFibonacci(n - 1) + this.calculateNthFibonacci(n - 2);
+    this.cache.set(n, value);
+    return value;
+  }
+
+   
+  async simulateAsyncOperation(n) {
+    try {
+      const promise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          n < 0 ? reject('Negative index not allowed') : resolve(this.calculateNthFibonacci(n));
+        }, 1000);
+      });
+      const result = await promise;
+      console.log(`Fibonacci(${n}): ${result}`);
+    } catch (error) {
+      console.error(`Error: ${error}`);
+    }
+  }
+
+  async execute() {
+    const proxyObj = this.createProxy({ key1: 'value1', key2: 'value2' });
+    console.log(proxyObj.key1);  
+    console.log(proxyObj.key3);  
+
+    const fibGen = this.fibonacci();
+    console.log(fibGen.next().value);  
+    console.log(fibGen.next().value);  
+    console.log(fibGen.next().value);  
+
+    await this.simulateAsyncOperation(10);  
+    await this.simulateAsyncOperation(-5);  
+  }
+}
+
+const calc = new ComplexCalculation();
+calc.execute();
+```

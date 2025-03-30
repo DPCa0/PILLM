@@ -1,0 +1,38 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processData = (data) => {
+  const sortedData = [...data].sort((a, b) => b.value - a.value);
+  const result = sortedData.map(({ id, value }) => ({ id, value }));
+  return result;
+};
+
+const logResults = (results) => {
+  const printResult = (result) => new Promise((resolve) => {
+    print(`ID: ${result.id}, Value: ${result.value}`);
+    setTimeout(() => resolve(), 100);
+  });
+
+  results.reduce((promise, result) => 
+    promise.then(() => printResult(result)), Promise.resolve());
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    const processedData = processData(data);
+    logResults(processedData);
+  } catch (error) {
+    console.error('Error in processing:', error);
+  }
+})();

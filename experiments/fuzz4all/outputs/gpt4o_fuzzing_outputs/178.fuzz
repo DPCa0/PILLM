@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        Math.random() > 0.2 ? resolve({ data: [1, 2, 3, 4, 5], status: 200 }) : reject('Failed to fetch data');
+    }, 1000);
+});
+
+ 
+function* numberGenerator(limit) {
+    let num = 0;
+    while (num < limit) {
+        yield num++;
+    }
+}
+
+ 
+async function processData(url) {
+    try {
+        const { data, status } = await fetchData(url);
+
+        if (status === 200) {
+             
+            const [first, ...rest] = data;
+            console.log('First element:', first);
+            const filtered = rest.filter(num => num % 2 === 0);
+            console.log('Filtered elements (even):', filtered);
+
+             
+            const handler = {
+                get: (target, prop) => {
+                    console.log(`Accessing property "${prop}"`);
+                    return prop in target ? target[prop] : null;
+                }
+            };
+
+            const proxiedData = new Proxy(filtered, handler);
+            console.log('Proxied data access:', proxiedData[0]);
+
+             
+            const gen = numberGenerator(5);
+            for (let n of gen) {
+                console.log(`Generated number: ${n}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+processData('https://api.example.com/data');
+```

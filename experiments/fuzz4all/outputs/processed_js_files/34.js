@@ -1,0 +1,59 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static add(a, b) {
+    return new Matrix(a.data.map((row, i) => row.map((val, j) => val + b.data[i][j])));
+  }
+
+  static multiply(a, b) {
+    const result = a.data.map(row => Array(b.data[0].length).fill(0));
+    return new Matrix(result.map((row, i) => row.map((_, j) => {
+      return a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0);
+    })));
+  }
+
+  static identity(size) {
+    return new Matrix(Array.from({length: size}, (_, i) => Array.from({length: size}, (_, j) => i === j ? 1 : 0)));
+  }
+
+  async fetchMultiplier() {
+    const response = await fetch('https://api.example.com/multiplier');
+    const multiplier = await response.json();
+    this.data = this.data.map(row => row.map(val => val * multiplier));
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    return {
+      next: () => {
+        if (index < this.data.length) {
+          return { value: this.data[index++], done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+(async () => {
+  const a = new Matrix([[1, 2], [3, 4]]);
+  const b = new Matrix([[5, 6], [7, 8]]);
+  const c = Matrix.add(a, b);
+  const d = Matrix.multiply(a, b);
+  const e = Matrix.identity(3);
+
+  print('Matrix c:');
+  for (const row of c) print(row);
+
+  print('Matrix d:');
+  for (const row of d) print(row);
+
+  print('Identity Matrix e:');
+  for (const row of e) print(row);
+
+  await a.fetchMultiplier();
+  print('Matrix a after fetch:');
+  for (const row of a) print(row);
+})();

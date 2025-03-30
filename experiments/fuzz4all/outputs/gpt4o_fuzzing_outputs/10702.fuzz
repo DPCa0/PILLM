@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+function multiply(factor, ...args) {
+  return args.map(n => n * factor);
+}
+
+ 
+function* fibonacci(limit) {
+  let a = 0, b = 1, temp;
+  while (limit--) {
+    yield a;
+    temp = a;
+    a = b;
+    b = temp + b;
+  }
+}
+
+ 
+async function fetchFibonacci(limit) {
+  const fib = [];
+  const gen = fibonacci(limit);
+  for (let i = 0; i < limit; i++) {
+    const result = await new Promise(resolve => setTimeout(() => resolve(gen.next().value), 100));
+    fib.push(result);
+  }
+  return fib;
+}
+
+ 
+(async () => {
+  console.log("Fetching Fibonacci numbers...");
+  const fibNumbers = await fetchFibonacci(10);
+  console.log("Fibonacci numbers:", fibNumbers);
+
+  console.log("Doubled Fibonacci numbers:", multiply(2, ...fibNumbers));
+})();
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Getting ${property}`);
+    return property in target ? target[property] : 42;
+  },
+  set(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj.a = 10;
+console.log(obj.a);
+console.log(obj.b);
+
+ 
+class MathUtil {
+  static cube(x) {
+    return x ** 3;
+  }
+}
+
+console.log("Cubed value:", MathUtil.cube(3));
+```

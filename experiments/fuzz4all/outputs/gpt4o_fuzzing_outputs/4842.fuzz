@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const crypto = require('crypto');
+const { readFile } = require('fs').promises;
+
+ 
+(async function() {
+    try {
+         
+        const data = await readFile('example.txt', 'utf8');
+        console.log('File content:', data);
+
+         
+        const [firstLine, ...restLines] = data.split('\n');
+        console.log('First line:', firstLine);
+        console.log('Rest of the lines:', restLines);
+
+         
+        const hash = crypto.createHash('sha256').update(data).digest('hex');
+        console.log('Data Hash:', hash);
+
+         
+        const words = new Set(data.split(/\s+/));
+        const wordFrequencyMap = new Map();
+        words.forEach(word => {
+            const count = data.split(word).length - 1;
+            wordFrequencyMap.set(word, count);
+        });
+
+         
+        console.log(`Unique words: ${[...words]}`);
+        console.log(`Word Frequencies:`);
+        wordFrequencyMap.forEach((value, key) => {
+            console.log(`  ${key}: ${value}`);
+        });
+
+         
+        const filterShortWords = (threshold) => [...words].filter(word => word.length > threshold);
+        console.log('Words longer than 3 characters:', filterShortWords(3));
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

@@ -1,0 +1,55 @@
+class Observable {
+  constructor() {
+    this.observers = new Set();
+  }
+
+  subscribe(fn) {
+    this.observers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.observers.delete(fn);
+  }
+
+  notify(data) {
+    this.observers.forEach(observer => observer(data));
+  }
+}
+
+class DataStream {
+  constructor(generatorFn) {
+    this.generatorFn = generatorFn;
+  }
+
+  [Symbol.asyncIterator]() {
+    const generator = this.generatorFn();
+    return {
+      next() {
+        return generator.next();
+      },
+    };
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncNumberGenerator() {
+  let num = 0;
+  while (true) {
+    await delay(1000);
+    yield num++;
+  }
+}
+
+const observable = new Observable();
+const dataStream = new DataStream(asyncNumberGenerator);
+
+observable.subscribe(data => print(`Observer 1: Received ${data}`));
+observable.subscribe(data => print(`Observer 2: Received ${data}`));
+
+(async () => {
+  for await (const value of dataStream) {
+    if (value > 5) break;
+    observable.notify(value);
+  }
+})();

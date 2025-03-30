@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+   
+  #formatComplex() {
+    return `${this.#real} ${this.#imaginary < 0 ? '-' : '+'} ${Math.abs(this.#imaginary)}i`;
+  }
+
+   
+  get formatted() {
+    return this.#formatComplex();
+  }
+
+   
+  static add(c1, c2) {
+    const real = c1.#real + c2.#real;
+    const imaginary = c1.#imaginary + c2.#imaginary;
+    return new ComplexNumber(real, imaginary);
+  }
+
+   
+  *parts() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+}
+
+ 
+async function calculateSumAsync(c1, c2) {
+   
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  console.log('Calculating sum...');
+  await delay(1000);
+
+  const result = ComplexNumber.add(c1, c2);
+  return result.formatted;
+}
+
+ 
+const complexLogger = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Accessing property: ${property}`);
+      return target[property];
+    }
+    throw new Error(`Property ${property} does not exist.`);
+  },
+};
+
+const c1 = new ComplexNumber(3, 4);
+const c2 = new ComplexNumber(5, -6);
+
+const proxiedC1 = new Proxy(c1, complexLogger);
+
+ 
+console.log([...proxiedC1.parts()]);
+
+ 
+calculateSumAsync(c1, c2).then(result => console.log(`Sum: ${result}`));
+
+ 
+const [realPart, imaginaryPart] = c2.parts();
+console.log(`Real Part: ${realPart}, Imaginary Part: ${imaginaryPart}`);
+```

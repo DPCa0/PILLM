@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+
+ 
+(async function main() {
+     
+    const uniqueNumbers = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+     
+    const numberSquareMap = new Map();
+    
+     
+    for (const num of uniqueNumbers) {
+        numberSquareMap.set(num, num * num);
+    }
+    
+     
+    console.log(`Number-Square Map: ${JSON.stringify(Array.from(numberSquareMap.entries()))}`);
+
+     
+    const squaredEvens = [...uniqueNumbers].filter(num => num % 2 === 0).map(num => num * num);
+
+    console.log(`Squared Even Numbers: ${squaredEvens}`);
+
+     
+    try {
+        await fs.writeFile('output.txt', `Squared Even Numbers: ${squaredEvens.join(', ')}`);
+        console.log('Data written to output.txt successfully.');
+    } catch (err) {
+        console.error('Error writing to file', err);
+    }
+
+     
+    const handler = {
+        get(target, prop) {
+            console.log(`Getting property ${prop}`);
+            return target[prop];
+        },
+        set(target, prop, value) {
+            console.log(`Setting property ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+
+    const proxyObj = new Proxy({ a: 1, b: 2 }, handler);
+    proxyObj.a;   
+    proxyObj.b = 42;   
+})();
+```

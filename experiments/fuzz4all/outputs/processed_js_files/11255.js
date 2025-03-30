@@ -1,0 +1,62 @@
+class AsyncOperations {
+  constructor() {
+    this.data = [1, 2, 3, 4, 5];
+  }
+
+  async *generateData() {
+    for (const num of this.data) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      yield num;
+    }
+  }
+
+  async mapAsync(iterator, callback) {
+    const result = [];
+    for await (const item of iterator) {
+      result.push(callback(item));
+    }
+    return result;
+  }
+
+  async execute() {
+    const asyncIterable = this.generateData();
+    
+    const squares = await this.mapAsync(asyncIterable, (x) => x * x);
+
+    print('Squared Values:', squares);
+
+     
+    const target = {
+      values: squares
+    };
+
+    const handler = {
+      get(obj, prop) {
+        if (prop === 'doubleValues') {
+          return obj.values.map((x) => x * 2);
+        }
+        return obj[prop];
+      }
+    };
+
+    const proxy = new Proxy(target, handler);
+
+    print('Doubled Values:', proxy.doubleValues);
+
+     
+    const finalResult = await squares.reduce((promiseChain, current) => {
+      return promiseChain.then(chainResults => 
+        new Promise(resolve => setTimeout(() => {
+          print('Processing:', current);
+          chainResults.push(current + 10);
+          resolve(chainResults);
+        }, 100))
+      );
+    }, Promise.resolve([]));
+
+    print('Final Processed Values:', finalResult);
+  }
+}
+
+const operations = new AsyncOperations();
+operations.execute();

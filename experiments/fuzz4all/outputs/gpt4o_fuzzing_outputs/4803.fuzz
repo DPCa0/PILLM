@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const processData = (data) => {
+  const { title, completed } = data[0];
+  return `Title: ${title}, Completed: ${completed}`;
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos');
+    const result = processData(data);
+    console.log(result);
+
+    const mappedData = data
+      .filter(item => item.completed)
+      .map(({ id, title }) => ({ id, title }));
+
+    const reducedData = mappedData.reduce((acc, { id, title }) => {
+      acc[id] = title;
+      return acc;
+    }, {});
+
+    console.table(reducedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

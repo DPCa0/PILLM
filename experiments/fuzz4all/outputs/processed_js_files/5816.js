@@ -1,0 +1,59 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.pendingPromise = false;
+  }
+
+  enqueue(promiseFunc) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ promiseFunc, resolve, reject });
+      this.dequeue();
+    });
+  }
+
+  async dequeue() {
+    if (this.pendingPromise) return false;
+    const item = this.queue.shift();
+    if (!item) return false;
+    try {
+      this.pendingPromise = true;
+      const result = await item.promiseFunc();
+      this.pendingPromise = false;
+      item.resolve(result);
+      this.dequeue();
+    } catch (error) {
+      this.pendingPromise = false;
+      item.reject(error);
+      this.dequeue();
+    }
+  }
+}
+
+function fetchData(endpoint) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.2) {
+        resolve(`Data from ${endpoint}`);
+      } else {
+        reject(`Error fetching data from ${endpoint}`);
+      }
+    }, 1000);
+  });
+}
+
+const endpoints = ['endpoint1', 'endpoint2', 'endpoint3'];
+const asyncQueue = new AsyncQueue();
+
+endpoints.forEach(endpoint => {
+  asyncQueue.enqueue(() => fetchData(endpoint))
+    .then(data => console.log(data))
+    .catch(error => console.error(error));
+});
+
+ 
+const dataObject = {
+  user: { name: 'Alice', details: { age: null } }
+};
+
+const userAge = dataObject.user?.details?.age ?? 'Age not available';
+print(userAge);

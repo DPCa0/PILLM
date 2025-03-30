@@ -1,0 +1,58 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            for (const listener of listeners) {
+                listener(...args);
+            }
+        }
+    }
+}
+
+class TaskQueue {
+    constructor(concurrency) {
+        this.concurrency = concurrency;
+        this.queue = [];
+        this.activeCount = 0;
+    }
+
+    async add(task) {
+        if (this.activeCount >= this.concurrency) {
+            await new Promise(resolve => this.queue.push(resolve));
+        }
+        this.activeCount++;
+        try {
+            return await task();
+        } finally {
+            this.activeCount--;
+            if (this.queue.length > 0) {
+                this.queue.shift()();
+            }
+        }
+    }
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+    const queue = new TaskQueue(2);
+
+    emitter.on('taskCompleted', message => print('Task Completed:', message));
+
+    const tasks = Array.from({ length: 5 }, (_, i) => async () => {
+        print(`Task ${i + 1} started`);
+        await new Promise(res => setTimeout(res, 1000));
+        print(`Task ${i + 1} finished`);
+        emitter.emit('taskCompleted', `Task ${i + 1}`);
+    });
+
+    await Promise.all(tasks.map(task => queue.add(task)));
+})();

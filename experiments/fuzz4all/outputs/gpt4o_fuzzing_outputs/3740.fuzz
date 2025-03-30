@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    getMemoized(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        const fib = (num) => (num <= 1 ? num : fib(num - 1) + fib(num - 2));
+        const result = fib(n);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+(async () => {
+    const limit = 10;
+    const fibonacci = new FibonacciSequence(limit);
+
+    console.log(`First ${limit} Fibonacci numbers:`);
+    for (const num of fibonacci) {
+        console.log(num);
+    }
+
+    console.log('\nMemoized Fibonacci of 15:');
+    console.log(fibonacci.getMemoized(15));
+
+    console.log('\nUsing Promise and async/await:');
+    const asyncFibonacci = (n) =>
+        new Promise((resolve) => {
+            setTimeout(() => resolve(fibonacci.getMemoized(n)), 1000);
+        });
+
+    const result = await asyncFibonacci(20);
+    console.log(`Fibonacci of 20 is ${result}`);
+})();
+```

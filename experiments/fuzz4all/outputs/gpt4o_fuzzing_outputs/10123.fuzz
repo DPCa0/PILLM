@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const secretSymbol = Symbol('secret');
+
+ 
+async function* fetchData() {
+    const dataChunks = ["data1", "data2", "data3"];
+    for (const chunk of dataChunks) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield chunk;
+    }
+}
+
+ 
+const targetObject = {
+    [secretSymbol]: "This is a secret value",
+    normalProperty: "I am a normal property",
+    async *[Symbol.asyncIterator]() {
+        yield* fetchData();
+    }
+};
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop === secretSymbol) {
+            return `Accessing hidden: ${obj[prop]}`;
+        }
+        return prop in obj ? obj[prop] : `Property ${prop.toString()} does not exist.`;
+    },
+    set: (obj, prop, value) => {
+        if (typeof value === 'string') {
+            obj[prop] = value.toUpperCase();
+            return true;
+        }
+        return false;
+    }
+};
+
+ 
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+console.log(proxiedObject[secretSymbol]);  
+console.log(proxiedObject.normalProperty);  
+console.log(proxiedObject.nonExistent);     
+
+ 
+proxiedObject.newProperty = 'new value';
+console.log(proxiedObject.newProperty);  
+
+ 
+proxiedObject.nonStringProperty = 123;
+console.log(proxiedObject.nonStringProperty);  
+
+ 
+(async () => {
+    for await (const data of proxiedObject) {
+        console.log(`Received chunk: ${data}`);
+    }
+})();
+```

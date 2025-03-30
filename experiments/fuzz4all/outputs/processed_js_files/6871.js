@@ -1,0 +1,34 @@
+ 
+
+ 
+async function* dataFetcher(apiCalls) {
+    for (const apiCall of apiCalls) {
+        yield new Promise((resolve) => setTimeout(() => resolve(apiCall), 1000));
+    }
+}
+
+ 
+const apiProxyHandler = {
+    get: (target, prop, receiver) => {
+        print(`Fetching API: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const apiCalls = {
+    getUsers: () => ({ users: ['Alice', 'Bob', 'Charlie'] }),
+    getPosts: () => ({ posts: ['Post1', 'Post2'] }),
+    getComments: () => ({ comments: ['Comment1', 'Comment2'] })
+};
+
+const api = new Proxy(apiCalls, apiProxyHandler);
+
+(async function processApiData() {
+    const apiGen = dataFetcher(Object.keys(api));
+
+    for await (const apiName of apiGen) {
+        const result = api[apiName]();
+        print(`Result for ${apiName}:`, result);
+    }
+})();

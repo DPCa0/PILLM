@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+function* generateNumbers() {
+    for (let i = 1; i <= 5; i++) {
+        yield delay(1000).then(() => i);
+    }
+}
+
+ 
+async function processNumbers(gen) {
+    for await (let num of gen()) {
+        console.log(`Processing number: ${num}`);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Property '${prop}' accessed`);
+        return prop in target ? target[prop] : 'Property does not exist';
+    }
+};
+
+const data = new Proxy({foo: 'bar', baz: 42}, handler);
+
+ 
+console.log(data.foo);   
+console.log(data.nonExistent);   
+processNumbers(generateNumbers);   
+```

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Node {
+    constructor(value) {
+        this.value = value;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+    }
+
+    add(value) {
+        const newNode = new Node(value);
+        if (!this.head) {
+            this.head = newNode;
+        } else {
+            let current = this.head;
+            while (current.next) {
+                current = current.next;
+            }
+            current.next = newNode;
+        }
+    }
+
+    [Symbol.iterator]() {
+        let current = this.head;
+        return {
+            next() {
+                if (current) {
+                    const value = current.value;
+                    current = current.next;
+                    return { value, done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch data');
+    return response.json();
+}
+
+(async function main() {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const list = new LinkedList();
+
+    data.forEach(user => list.add(user.name));
+
+    for (const name of list) {
+        console.log(name);
+    }
+})();
+```

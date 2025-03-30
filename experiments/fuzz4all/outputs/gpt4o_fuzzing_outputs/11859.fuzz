@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+class AsyncDataHandler {
+    constructor(urls) {
+        this.urls = urls;
+    }
+
+    async fetchAll() {
+        const results = await Promise.all(
+            this.urls.map(url =>
+                fetch(url).then(response => response.json())
+            )
+        );
+        return results;
+    }
+
+    processData(data) {
+        return data
+            .flatMap(item => Object.entries(item))
+            .reduce((acc, [key, value]) => {
+                acc[key] = (acc[key] || 0) + value;
+                return acc;
+            }, {});
+    }
+
+    async runPipeline() {
+        try {
+            const data = await this.fetchAll();
+            const processed = this.processData(data);
+            console.log('Processed Data:', processed);
+        } catch (error) {
+            console.error('Error in data processing:', error);
+        }
+    }
+}
+
+const handler = new AsyncDataHandler([
+    'https://jsonplaceholder.typicode.com/users',
+    'https://jsonplaceholder.typicode.com/posts'
+]);
+
+handler.runPipeline();
+```

@@ -1,0 +1,56 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  enqueue(promiseFunc) {
+    this.queue.push(promiseFunc);
+    if (!this.processing) {
+      this.processing = true;
+      this.process();
+    }
+  }
+
+  async process() {
+    while (this.queue.length) {
+      const promiseFunc = this.queue.shift();
+      try {
+        await promiseFunc();
+      } catch (error) {
+        console.error('Error processing queue:', error);
+      }
+    }
+    this.processing = false;
+  }
+}
+
+function fetchWithRetry(url, options, retries = 3) {
+  const fetchAttempt = (attempt) => {
+    return fetch(url, options)
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch');
+        return response.json();
+      })
+      .catch(error => {
+        if (attempt < retries) return fetchAttempt(attempt + 1);
+        throw error;
+      });
+  };
+  return fetchAttempt(0);
+}
+
+async function simulateTask(id) {
+  await new Promise(resolve => setTimeout(resolve, Math.random() * 2000));
+  print(`Task ${id} completed`);
+}
+
+const taskQueue = new AsyncQueue();
+for (let i = 1; i <= 5; i++) {
+  taskQueue.enqueue(() => simulateTask(i));
+}
+
+taskQueue.enqueue(() => fetchWithRetry('https://jsonplaceholder.typicode.com/todos/1')
+  .then(data => console.log('Fetched data:', data))
+  .catch(error => console.error('Fetch error:', error))
+);

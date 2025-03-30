@@ -1,0 +1,55 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(fn) {
+    this.subscribers.add(fn);
+    return () => this.subscribers.delete(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const debounce = (fn, delay) => {
+  let timeoutId;
+  return function(...args) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => fn.apply(this, args), delay);
+  };
+};
+
+const asyncOperation = async () => {
+  return new Promise(resolve => setTimeout(() => resolve('Async Result'), 1000));
+};
+
+const main = async () => {
+  const observable = new Observable();
+
+  const logSubscriber = debounce((data) => {
+    print('Logged:', data);
+  }, 300);
+
+  const asyncSubscriber = debounce(async (data) => {
+    const result = await asyncOperation();
+    print('Async:', result, 'with', data);
+  }, 500);
+
+  const unsubscribeLog = observable.subscribe(logSubscriber);
+  const unsubscribeAsync = observable.subscribe(asyncSubscriber);
+
+  observable.notify('First Event');
+  observable.notify('Second Event');
+
+  setTimeout(() => {
+    observable.notify('Third Event');
+    unsubscribeLog();
+    observable.notify('Fourth Event');
+  }, 700);
+};
+
+main();

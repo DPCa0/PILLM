@@ -1,0 +1,43 @@
+ 
+const fs = require('fs').promises;
+const crypto = require('crypto');
+const { promisify } = require('util');
+
+ 
+const setTimeoutPromise = promisify(setTimeout);
+
+ 
+async function complexExample() {
+    try {
+         
+        const { randomBytes } = crypto;
+        const buf = await promisify(randomBytes)(16);
+        const hexString = buf.toString('hex');
+
+        print(`Generated Random Hex String: ${hexString}`);
+
+         
+        const delay = (ms, ...args) => setTimeoutPromise(ms, ...args);
+        
+        await delay(1000, print('Waiting for 1 second...'));
+
+         
+        await fs.writeFile('random.txt', `Random Data: ${hexString}`, 'utf8');
+
+        const data = await fs.readFile('random.txt', 'utf8');
+        print(`Read from file: ${data}`);
+
+         
+        const map = new Map([[1, 'One'], [2, 'Two'], [3, 'Three']]);
+        print('Entries in map:');
+        for (const [key, value] of map) {
+            print(`${key}: ${value}`);
+        }
+        
+    } catch (error) {
+        console.error(`Error occurred: ${error.message}`);
+    }
+}
+
+ 
+complexExample();

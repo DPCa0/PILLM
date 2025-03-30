@@ -1,0 +1,55 @@
+class EventEmitter {
+    #events = new Map();
+    
+    on(event, listener) {
+        if (!this.#events.has(event)) this.#events.set(event, []);
+        this.#events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (!this.#events.has(event)) return;
+        for (const listener of this.#events.get(event)) {
+            listener(...args);
+        }
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+};
+
+class AdvancedFeatureDemo {
+    static #dataCache = new Map();
+    
+    static async fetchData(api) {
+        if (this.#dataCache.has(api)) return this.#dataCache.get(api);
+        
+        const response = await fetch(api);
+        const data = await response.json();
+        this.#dataCache.set(api, data);
+        return data;
+    }
+    
+    constructor() {
+        this.events = new EventEmitter();
+        this.init();
+    }
+    
+    init() {
+        this.events.on('dataFetched', debounce((data) => {
+            print('Data Fetched:', data);
+        }, 300));
+    }
+    
+    async getData(api) {
+        const data = await AdvancedFeatureDemo.fetchData(api);
+        this.events.emit('dataFetched', data);
+    }
+}
+
+const demo = new AdvancedFeatureDemo();
+demo.getData('https://jsonplaceholder.typicode.com/todos/1');

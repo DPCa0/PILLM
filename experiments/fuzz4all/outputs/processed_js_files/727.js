@@ -1,0 +1,39 @@
+ 
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Getting ${prop}: ${Reflect.get(target, prop)}`);
+      return Reflect.get(target, prop);
+    }
+    return undefined;
+  },
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  },
+};
+
+ 
+const state = new Proxy({ data: null }, handler);
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    state.data = data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+(async () => {
+  await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  if (state.data) {
+    print('Fetched Data:', state.data);
+  }
+})();

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Getting property '${prop}' with value: ${target[prop]}`);
+            return Reflect.get(target, prop);
+        }
+        return 'Property does not exist';
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property '${prop}' to value: ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const targetObj = { a: 1, b: 2, c: 3 };
+
+ 
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+async function manipulateProxy() {
+     
+    const { a, b, c } = proxyObj;
+    console.log(`Destructured values: a=${a}, b=${b}, c=${c}`);
+
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+     
+    proxyObj.a = 10;
+    proxyObj.d = 20;
+
+     
+    const uniqueKey = Symbol('unique');
+    proxyObj[uniqueKey] = 'Symbol Property';
+    console.log(`Unique key value: ${proxyObj[uniqueKey]}`);
+}
+
+ 
+manipulateProxy().then(() => console.log('Proxy manipulation complete'));
+```

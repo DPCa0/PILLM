@@ -1,0 +1,54 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) resolve(`Data from ${url}`);
+            else reject('No URL provided');
+        }, 1000);
+    });
+}
+
+ 
+function* dataProcessor(data) {
+    yield `Processed: ${data.toUpperCase()}`;
+    yield `Length: ${data.length}`;
+    return `Done processing: ${data}`;
+}
+
+ 
+const dataStore = new Map();
+const uniqueUrls = new Set(['https://api.example.com/data1', 'https://api.example.com/data2']);
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        print(`Accessed property: ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+        print(`Setting property: ${prop} = ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+const proxiedDataStore = new Proxy(dataStore, handler);
+
+ 
+(async function main() {
+    for (let url of uniqueUrls) {
+        try {
+            const rawData = await fetchData(url);
+            const processor = dataProcessor(rawData);
+
+            for (let step of processor) {
+                print(step);
+            }
+
+             
+            proxiedDataStore.set(url, rawData);
+        } catch (error) {
+            console.error(`Error: ${error}`);
+        }
+    }
+})();

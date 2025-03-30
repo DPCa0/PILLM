@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  let userProfile = { name: "Alice", stats: { posts: 5, likes: 150 } };
+  userProfile.stats.posts ??= 0;
+  userProfile.stats.likes ??= 0;
+  
+   
+  const { format } = await import(`https: 
+  const formattedDate = format(new Date(), 'MMMM do, yyyy');
+
+   
+  class FancyCounter {
+    #count = 0;
+    increment(by = 1) {
+      this.#count += by;
+    }
+    getCount() {
+      return this.#count;
+    }
+  }
+
+  const counter = new FancyCounter();
+  counter.increment(10);
+
+   
+  const dataPromises = [
+    fetch('https://api.exapmle.com/data1'),
+    fetch('https://api.exapmle.com/data2'),
+    fetch('https://api.exapmle.com/data3')
+  ];
+  
+  const results = await Promise.allSettled(dataPromises);
+  const successes = results
+    .filter(({ status }) => status === 'fulfilled')
+    .map(({ value }) => value.json());
+
+   
+  const cleanupRegistry = new FinalizationRegistry((heldValue) => {
+    console.log(`Cleaning up: ${heldValue}`);
+  });
+  
+  let obj = { important: "I am important" };
+  let weakRef = new WeakRef(obj);
+  cleanupRegistry.register(obj, "Object #1");
+
+   
+  obj = null;
+
+  console.log(`Date: ${formattedDate}`);
+  console.log(`User: ${userProfile.name}, Posts: ${userProfile.stats.posts}, Likes: ${userProfile.stats.likes}`);
+  console.log(`Counter Value: ${counter.getCount()}`);
+})();
+```

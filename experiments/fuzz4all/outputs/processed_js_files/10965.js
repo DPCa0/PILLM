@@ -1,0 +1,61 @@
+ 
+const _privateField = Symbol('privateField');
+const _privateMethod = Symbol('privateMethod');
+
+class ComplexClass {
+  constructor(value) {
+    this[_privateField] = value;
+  }
+
+   
+  getValue() {
+    return this[_privateMethod]();
+  }
+
+   
+  [_privateMethod]() {
+    return `Value: ${this[_privateField]}`;
+  }
+
+   
+  static async complexOperation(data) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          const processedData = data.map((item) => item * 2);
+          resolve(processedData);
+        } catch (error) {
+          reject('Error processing data');
+        }
+      }, 1000);
+    });
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop === 'secret') {
+      return 'Access Denied';
+    }
+    return target[prop];
+  }
+};
+
+ 
+const proxyInstance = new Proxy(new ComplexClass(42), handler);
+
+ 
+(function* () {
+  print(proxyInstance.getValue());  
+  print(proxyInstance.secret);  
+
+   
+  const data = [1, 2, 3, 4];
+  try {
+    const result = await ComplexClass.complexOperation(data);
+    print('Processed Data:', result);  
+  } catch (error) {
+    console.error(error);
+  }
+})();

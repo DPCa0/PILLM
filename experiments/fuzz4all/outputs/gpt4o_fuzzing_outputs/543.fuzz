@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', (msg) => {
+    console.log(`Received: ${msg}`);
+  });
+
+  const fetchData = async (url) => {
+    const simulatedResponse = await delay(500).then(() => `Data from ${url}`);
+    emitter.emit('data', simulatedResponse);
+  };
+
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3',
+  ];
+
+  await Promise.all(urls.map(fetchData));
+
+  console.log('All data fetched!');
+})();
+```

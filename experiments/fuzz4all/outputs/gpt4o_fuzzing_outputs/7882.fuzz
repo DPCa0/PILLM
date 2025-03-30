@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+(async () => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+     
+    const loggerProxy = new Proxy({}, {
+        get: (target, prop) => {
+            console.log(`Accessing ${prop}`);
+            return target[prop];
+        },
+        set: (target, prop, value) => {
+            console.log(`Setting ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    });
+
+    loggerProxy.message = "Hello, world!";
+    
+     
+    function* characterGenerator(message) {
+        for (const char of message) {
+            yield char;
+        }
+    }
+
+    const gen = characterGenerator(loggerProxy.message);
+
+    console.log("Starting message display...");
+
+     
+    for await (const char of {
+        [Symbol.asyncIterator]: () => ({
+            next: () => delay(100).then(() => {
+                const { value, done } = gen.next();
+                return { value, done };
+            })
+        })
+    }) {
+        process.stdout.write(char);
+    }
+    
+    console.log("\nMessage display complete!");
+})();
+```

@@ -1,0 +1,48 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexExample() {
+   
+  const [first, second = 'default'] = ['value1'];
+
+   
+  const map = new Map();
+  map.set(first, { detail: 'Detail of value1' });
+  map.set(second, { detail: 'Detail of default' });
+
+   
+  const fetchData = async (key) => {
+    await delay(1000);  
+    return map.get(key) ? Promise.resolve(map.get(key)) : Promise.reject('No data found');
+  };
+
+   
+  const displayData = ({ detail }) => print(`Fetched Data: ${detail}`);
+
+   
+  (async function manageData() {
+    try {
+       
+      const uniqueKey = Symbol('unique');
+
+       
+      function* dataGenerator() {
+        yield fetchData(first);
+        yield fetchData(second);
+      }
+
+       
+      for (const dataPromise of dataGenerator()) {
+        const data = await dataPromise;
+        data[uniqueKey] = `Unique info for ${data.detail}`;
+        print(data[uniqueKey]);
+        displayData(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  })();
+}
+
+complexExample();

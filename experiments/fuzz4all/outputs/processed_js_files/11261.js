@@ -1,0 +1,69 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from2DArray(arr) {
+    return new Matrix(arr);
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row < this.data.length && col < this.data[row].length) {
+          const value = this.data[row][col++];
+          if (col === this.data[row].length) {
+            col = 0;
+            row++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  map(fn) {
+    return Matrix.from2DArray(
+      this.data.map((row, i) => row.map((val, j) => fn(val, i, j)))
+    );
+  }
+
+  async forEachAsync(fn) {
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        await fn(this.data[i][j], i, j);
+      }
+    }
+  }
+
+  static async wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+(async () => {
+  const matrix = Matrix.from2DArray([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ]);
+
+  print('Original Matrix:');
+  for (const value of matrix) {
+    print(value);
+  }
+
+  const multiplied = matrix.map(x => x * 2);
+  print('Multiplied Matrix:');
+  for (const value of multiplied) {
+    print(value);
+  }
+
+  print('Processing Matrix Asynchronously:');
+  await multiplied.forEachAsync(async (value, i, j) => {
+    await Matrix.wait(100);
+    print(`Value at (${i}, ${j}): ${value}`);
+  });
+})();

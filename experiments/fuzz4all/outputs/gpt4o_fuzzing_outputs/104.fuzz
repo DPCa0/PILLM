@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function logCalls(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function(...args) {
+        console.log(`Calling ${propertyKey} with`, args);
+        const result = originalMethod.apply(this, args);
+        console.log(`Result from ${propertyKey}:`, result);
+        return result;
+    };
+    return descriptor;
+}
+
+ 
+const person = new Proxy({}, {
+    get: (obj, prop) => obj[prop] || `Property ${prop} does not exist`,
+    set: (obj, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+});
+
+class AdvancedFeaturesDemo {
+     
+    static #instanceCount = 0;
+
+    constructor(name) {
+        this.name = name;
+        AdvancedFeaturesDemo.#instanceCount++;
+    }
+
+     
+    @logCalls
+    greet(greeting = "Hello") {
+        return `${greeting}, ${this.name}!`;
+    }
+
+    static getInstanceCount() {
+        return AdvancedFeaturesDemo.#instanceCount;
+    }
+
+     
+    async simulateWork() {
+        console.log("Simulating work...");
+        await delay(1000);
+        console.log("Work done!");
+    }
+}
+
+ 
+async function main() {
+    const demo1 = new AdvancedFeaturesDemo("Alice");
+    console.log(demo1.greet("Hi"));
+
+    const demo2 = new AdvancedFeaturesDemo("Bob");
+    console.log(demo2.greet());
+
+    console.log(`Instance count: ${AdvancedFeaturesDemo.getInstanceCount()}`);
+
+    await demo1.simulateWork();
+
+     
+    person.name = "Charlie";
+    console.log(person.name);
+    console.log(person.age);
+}
+
+main();
+```

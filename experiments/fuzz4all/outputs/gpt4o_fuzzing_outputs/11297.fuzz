@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(array) {
+    return new Matrix(array.length, array[0].length).map((_, i, j) => array[i][j]);
+  }
+
+  map(callback) {
+    this.data = this.data.map((row, i) => row.map((val, j) => callback(val, i, j)));
+    return this;
+  }
+
+  reduce(callback, initialValue) {
+    return this.data.reduce((acc, row, i) => row.reduce((acc, val, j) => callback(acc, val, i, j), acc), initialValue);
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) throw new Error("Columns of A must match rows of B");
+    return new Matrix(a.data.length, b.data[0].length).map(
+      (_, i, j) => a.data[i].reduce((sum, _, k) => sum + a.data[i][k] * b.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+const a = Matrix.fromArray([[1, 2, 3], [4, 5, 6]]);
+const b = Matrix.fromArray([[7, 8], [9, 10], [11, 12]]);
+const product = Matrix.multiply(a, b);
+
+console.log('Matrix A:');
+console.log(a.toString());
+console.log('Matrix B:');
+console.log(b.toString());
+console.log('Product of A and B:');
+console.log(product.toString());
+
+ 
+const sumOfElements = product.reduce((acc, val) => acc + val, 0);
+console.log('Sum of all elements in the product matrix:', sumOfElements);
+```

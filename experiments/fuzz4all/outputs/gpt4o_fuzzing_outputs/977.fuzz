@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+    await delay(1000);  
+    return { data: 'Sample Data' };
+}
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Property ${property} has been accessed.`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Property ${property} has been set to ${value}.`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const dataStore = new Proxy({}, handler);
+
+async function main() {
+    const data = await fetchData();
+    const sym = Symbol('unique');
+
+    dataStore[sym] = new Map();
+
+    dataStore[sym].set('key1', data.data);
+    dataStore[sym].set('key2', 'More Data');
+
+    for (let [key, value] of dataStore[sym].entries()) {
+        console.log(`Map entry - ${key}: ${value}`);
+    }
+}
+
+main();
+```

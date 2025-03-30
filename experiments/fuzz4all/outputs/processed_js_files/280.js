@@ -1,0 +1,59 @@
+ 
+
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+  
+    async *on(event) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        const queue = this.events.get(event);
+        let resolve;
+        queue.push(() => new Promise(res => (resolve = res)));
+        while (queue.length) {
+            yield await queue.shift()();
+            if (resolve) resolve();
+        }
+    }
+
+    emit(event, data) {
+        const queue = this.events.get(event) || [];
+        queue.forEach(callback => callback(data));
+    }
+}
+
+ 
+const eventEmitterHandler = {
+    get(target, prop) {
+        print(`Accessing property: ${prop}`);
+        if (typeof target[prop] === 'function') {
+            return target[prop].bind(target);
+        }
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const emitter = new Proxy(new EventEmitter(), eventEmitterHandler);
+
+async function main() {
+    const myEmitter = emitter;
+    
+    (async () => {
+        const listener = myEmitter.on('data');
+        for await (const data of listener) {
+            print('Received:', data);
+        }
+    })();
+  
+    myEmitter.emit('data', 'Hello');
+    myEmitter.emit('data', 'World');
+}
+
+main();

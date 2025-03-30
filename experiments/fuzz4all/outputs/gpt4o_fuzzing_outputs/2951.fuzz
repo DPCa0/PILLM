@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const arrayHandler = {
+  get(target, prop) {
+    console.log(`Getting property ${prop}`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+async function asyncOperation() {
+  console.log('Starting async operation');
+  await delay(1000);
+  console.log('Operation complete');
+}
+
+ 
+(async () => {
+  try {
+    const monitoredArray = new Proxy([], arrayHandler);
+
+    monitoredArray.push(1);
+    monitoredArray.push(2);
+    console.log(monitoredArray[0]);
+    
+    await asyncOperation();
+
+    if (monitoredArray.length !== 2) throw new CustomError('Array length mismatch');
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`Custom error: ${error.message}`);
+    } else {
+      console.error(`An error occurred: ${error.message}`);
+    }
+  } finally {
+    console.log('Process complete');
+  }
+})();
+```

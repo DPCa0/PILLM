@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class Task {
+    constructor(name, duration) {
+        this.name = name;
+        this.duration = duration;  
+    }
+    
+    async execute() {
+        console.log(`Starting task: ${this.name}`);
+        return new Promise(resolve => setTimeout(() => {
+            console.log(`Finished task: ${this.name}`);
+            resolve(this.name);
+        }, this.duration));
+    }
+}
+
+const tasks = [
+    new Task('Task 1', 1000),
+    new Task('Task 2', 2000),
+    new Task('Task 3', 500)
+];
+
+async function executeAll() {
+    let results = await Promise.all(tasks.map(task => task.execute()));
+    console.log(`All tasks completed: ${results}`);
+}
+
+(async function main() {
+    try {
+        console.log('Running tasks...');
+        await executeAll();
+        console.log('All done!');
+    } catch (error) {
+        console.error('Error executing tasks:', error);
+    }
+})();
+```

@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  const transformed = data.map(({ id, name, attributes }) => ({
+    id,
+    displayName: name.toUpperCase(),
+    attributes: Object.fromEntries(
+      Object.entries(attributes).filter(([key, value]) => value !== null)
+    ),
+  }));
+  return transformed;
+};
+
+const executePipeline = async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+
+    const result = processedData
+      .filter((item) => item.attributes.isActive)
+      .reduce((acc, { id, displayName }) => {
+        acc[id] = displayName;
+        return acc;
+      }, {});
+
+    console.table(result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+executePipeline();
+```

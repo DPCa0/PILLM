@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(array) {
+    return new Matrix(array);
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const data = this.data;
+
+    return {
+      next() {
+        if (row < data.length) {
+          if (col < data[row].length) {
+            return { value: data[row][col++], done: false };
+          } else {
+            col = 0;
+            row++;
+            return this.next();
+          }
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  get transpose() {
+    return Matrix.from(this.data[0].map((_, i) => this.data.map(row => row[i])));
+  }
+
+  static async multiply(matrixA, matrixB) {
+    if (matrixA.data[0].length !== matrixB.data.length) {
+      throw new Error("Incompatible matrices");
+    }
+    const result = Array.from({ length: matrixA.data.length }, () => 
+      Array(matrixB.data[0].length).fill(0));
+
+    await Promise.all(result.map((row, i) =>
+      row.map(async (_, j) => {
+        result[i][j] = await matrixA.data[i].reduce((sum, _, n) =>
+          sum + matrixA.data[i][n] * matrixB.data[n][j], 0);
+      })
+    ));
+    return Matrix.from(result);
+  }
+}
+
+(async () => {
+  const matrixA = Matrix.from([
+    [1, 2, 3],
+    [4, 5, 6],
+  ]);
+
+  const matrixB = Matrix.from([
+    [7, 8],
+    [9, 10],
+    [11, 12],
+  ]);
+
+  const resultMatrix = await Matrix.multiply(matrixA, matrixB);
+
+  console.log('Result Matrix:');
+  for (const value of resultMatrix) {
+    process.stdout.write(value.toString() + ' ');
+  }
+  console.log('\nTranspose of Result Matrix:');
+  for (const value of resultMatrix.transpose) {
+    process.stdout.write(value.toString() + ' ');
+  }
+})();
+```

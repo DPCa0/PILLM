@@ -1,0 +1,61 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+class User {
+  #name;  
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+  async fetchData() {
+     
+    const data = await fetch(`https: 
+      .then(response => response.json());
+    return data;
+  }
+
+  getName() {
+    return this.#name;
+  }
+}
+
+const main = async () => {
+  const user = new User('Leanne Graham');
+  const eventEmitter = new EventEmitter();
+
+   
+  const handler = {
+    get: (target, prop, receiver) => {
+      print(`Property '${prop}' accessed.`);
+      return Reflect.get(...arguments);
+    }
+  };
+
+  const proxyUser = new Proxy(user, handler);
+
+  eventEmitter.on('dataFetched', data => {
+    print('Data fetched:', data);
+  });
+
+  const data = await proxyUser.fetchData();
+  eventEmitter.emit('dataFetched', data);
+};
+
+main();

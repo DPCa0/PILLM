@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+async function encryptDecryptMessage() {
+    const algorithm = 'aes-256-cbc';  
+    const initVector = randomBytes(16);  
+    const securityKey = randomBytes(32);  
+
+    const message = "Advanced JavaScript Features!";
+
+     
+    const encryptMessage = (message) => {
+        return new Promise((resolve, reject) => {
+            try {
+                const cipher = createCipheriv(algorithm, securityKey, initVector);
+                let encryptedData = cipher.update(message, 'utf-8', 'hex');
+                encryptedData += cipher.final('hex');
+                resolve({ iv: initVector.toString('hex'), encryptedData });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+
+     
+    const decryptMessage = ({ iv, encryptedData }) => {
+        return new Promise((resolve, reject) => {
+            try {
+                const decipher = createDecipheriv(algorithm, securityKey, Buffer.from(iv, 'hex'));
+                let decryptedData = decipher.update(encryptedData, 'hex', 'utf-8');
+                decryptedData += decipher.final('utf-8');
+                resolve(decryptedData);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+
+    try {
+        const encrypted = await encryptMessage(message);
+        console.log(`Encrypted Message: ${encrypted.encryptedData}`);
+        
+        const decrypted = await decryptMessage(encrypted);
+        console.log(`Decrypted Message: ${decrypted}`);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+encryptDecryptMessage();
+```

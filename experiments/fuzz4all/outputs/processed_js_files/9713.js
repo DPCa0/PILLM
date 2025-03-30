@@ -1,0 +1,29 @@
+ 
+
+const fetchData = (ms) => new Promise((resolve) => setTimeout(() => resolve(ms), ms));
+
+async function* asyncGenerator() {
+  const dataPoints = [1000, 2000, 3000];
+  
+  for (const point of dataPoints) {
+    yield fetchData(point).then((data) => `Fetched data in ${data}ms`);
+  }
+}
+
+(async function main() {
+  const getData = asyncGenerator();
+  const results = [];
+  
+  for await (const result of getData) {
+    results.push(result);
+  }
+  
+  const processResults = (...data) => {
+    const [first, second, ...rest] = data;
+    print(`First: ${first}`);
+    print(`Second: ${second}`);
+    print(`Rest: ${rest.join(', ')}`);
+  };
+  
+  processResults(...results);
+})();

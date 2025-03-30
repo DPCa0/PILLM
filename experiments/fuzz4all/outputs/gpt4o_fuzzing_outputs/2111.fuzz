@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const targetObject = {};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function asyncOperation() {
+    const asyncAction = () => {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve("Action Completed!"), 1000);
+        });
+    };
+    
+    const result = await asyncAction();
+    console.log(result);
+}
+
+ 
+(async () => {
+     
+    const gen = numberGenerator();
+    console.log(`Generated Number: ${gen.next().value}`);
+    console.log(`Generated Number: ${gen.next().value}`);
+    
+     
+    proxyObject.someProperty = 42;
+    console.log(`someProperty: ${proxyObject.someProperty}`);
+    
+     
+    await asyncOperation();
+})();
+```

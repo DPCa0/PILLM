@@ -1,0 +1,63 @@
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: 'Sample data from API' });
+            } else {
+                reject('404 Not Found');
+            }
+        }, 1000);
+    });
+};
+
+ 
+function* dataGenerator(url) {
+    try {
+        const data = yield fetchData(url);
+        print('Data received:', data);
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+}
+
+ 
+const runGenerator = async (gen, ...args) => {
+    const iterator = gen(...args);
+    const iterate = async (prev) => {
+        const { value, done } = iterator.next(prev);
+        if (done) return;
+        if (value instanceof Promise) {
+            try {
+                const result = await value;
+                iterate(result);
+            } catch (e) {
+                iterator.throw(e);
+            }
+        }
+    };
+    iterate();
+};
+
+ 
+const dataHandler = {
+    get: (target, property) => {
+        print(`Property ${property} accessed`);
+        return Reflect.get(target, property);
+    },
+};
+
+ 
+const apiData = { id: 1, name: 'Resource', type: 'API Data' };
+
+ 
+const proxiedData = new Proxy(apiData, dataHandler);
+
+ 
+runGenerator(dataGenerator, 'https://api.example.com/data');
+
+ 
+print('Accessed Name:', proxiedData.name);
+print('Accessed Type:', proxiedData.type);

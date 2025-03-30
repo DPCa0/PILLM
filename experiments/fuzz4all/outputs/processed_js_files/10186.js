@@ -1,0 +1,41 @@
+class AsyncPipeline {
+  constructor(initialValue) {
+    this.value = Promise.resolve(initialValue);
+  }
+
+  async apply(func) {
+    this.value = this.value.then(func);
+    return this;
+  }
+
+  async getResult() {
+    return this.value;
+  }
+}
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+  await delay(1000);  
+  const response = await fetch(url);
+  return response.json();
+};
+
+const processData = async (data) => {
+  await delay(500);  
+  return data.map(item => ({ ...item, processed: true }));
+};
+
+ 
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+  const pipeline = new AsyncPipeline(apiUrl);
+
+  const result = await pipeline
+    .apply(fetchData)
+    .apply(processData)
+    .getResult();
+
+  print(result);
+})();

@@ -1,0 +1,40 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const result = data.map(({ id, value }) => ({ id, value: value * 2 }));
+    print('Processed Data:', result);
+    return result;
+  } catch (error) {
+    console.error('Process error:', error);
+  }
+};
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
+const throttledFunction = debounce(() => processData('https://jsonplaceholder.typicode.com/todos'), 1000);
+
+ 
+for (let i = 0; i < 5; i++) {
+  throttledFunction();
+}

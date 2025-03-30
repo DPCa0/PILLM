@@ -1,0 +1,48 @@
+class APIDataFetcher {
+  #apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async fetchData(id) {
+    if (this.cache.has(id)) {
+      print('Returning cached data.');
+      return this.cache.get(id);
+    }
+    print('Fetching new data.');
+    const response = await fetch(`${this.#apiEndpoint}/${id}`);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    this.cache.set(id, data);
+    return data;
+  }
+}
+
+const fetcher = new APIDataFetcher();
+
+(async function handleData() {
+  try {
+    const [data1, data2, data3] = await Promise.all([
+      fetcher.fetchData(1),
+      fetcher.fetchData(2),
+      fetcher.fetchData(1),  
+    ]);
+
+    const processedData = [data1, data2, data3].map(({ id, title }) => ({
+      id,
+      title: title.toUpperCase(),
+    }));
+
+    print(processedData);
+
+    const extractedTitles = processedData.reduce((acc, { title }) => {
+      acc.add(title);
+      return acc;
+    }, new Set());
+
+    print('Unique titles:', extractedTitles);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

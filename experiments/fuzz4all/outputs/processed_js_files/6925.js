@@ -1,0 +1,31 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function processFile() {
+    try {
+         
+        const data = await fs.readFile('data.json', 'utf-8');
+        
+         
+        let jsonData = JSON.parse(data);
+        
+         
+        let { important, ...rest } = jsonData;
+        let updatedData = { ...rest, important: important.map(value => value * 2) };
+        
+         
+        print(`Updated Data: ${JSON.stringify(updatedData, null, 2)}`);
+
+         
+        await fs.writeFile('updatedData.json', JSON.stringify(updatedData, null, 2));
+    } catch (error) {
+         
+        console.error('Error processing file:', error);
+    }
+}
+
+ 
+(async () => {
+    await processFile();
+})();

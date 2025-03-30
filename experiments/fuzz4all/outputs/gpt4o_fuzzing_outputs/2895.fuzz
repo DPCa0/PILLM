@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+'use strict';
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexFunction() {
+     
+    const dataMap = new Map([['key1', 10], ['key2', 20], ['key3', 30]]);
+
+     
+    const [key1Value, key2Value] = [dataMap.get('key1'), dataMap.get('key2')];
+
+     
+    console.log(`Values: key1 = ${key1Value}, key2 = ${key2Value}`);
+
+     
+    const uniqueValues = new Set([...dataMap.values(), 10, 40]);
+
+     
+    console.log('Unique Values:', uniqueValues);
+
+     
+    const validator = {
+        set(target, prop, value) {
+            if (prop === 'important' && value < 0) {
+                throw new Error('Value cannot be negative');
+            }
+            target[prop] = value;
+            return true;
+        }
+    };
+
+     
+    const config = new Proxy({}, validator);
+    config.important = 5;  
+    try {
+        config.important = -5;  
+    } catch (e) {
+        console.error(e.message);
+    }
+
+     
+    const multiLineString = `This is a complex
+JavaScript example that uses advanced
+features like async/await, Proxy, Set,
+and more. Sum of key1 and key2 is ${key1Value + key2Value}.`;
+
+    console.log(multiLineString);
+
+     
+    await delay(1000);
+    console.log('Finished after a delay');
+}
+
+ 
+complexFunction();
+```

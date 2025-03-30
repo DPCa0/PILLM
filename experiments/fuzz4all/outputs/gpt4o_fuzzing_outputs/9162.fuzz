@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ user: 'Alice', balance: 1500 });
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting the property "${property}"`);
+    return property in target ? target[property] : 'Property not found';
+  },
+  set: (target, property, value) => {
+    if (property === 'balance' && typeof value !== 'number') {
+      throw new TypeError('Balance must be a number');
+    }
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+async function handleData() {
+  try {
+    const data = await fetchData();
+    const proxiedData = new Proxy(data, handler);
+    
+    console.log(proxiedData.user);   
+    proxiedData.balance = 2000;      
+    
+    console.log(proxiedData.balance);  
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+handleData();
+```

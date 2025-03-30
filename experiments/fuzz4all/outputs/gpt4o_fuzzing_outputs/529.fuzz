@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* createAsyncGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve(1), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(2), 500));
+  yield new Promise((resolve) => setTimeout(() => resolve(3), 1500));
+}
+
+ 
+async function asyncProcess(generator) {
+  const results = [];
+  for await (const num of generator) {
+    results.push(num);
+    console.log(`Processed: ${num}`);
+  }
+  return results;
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessing property: ${property}`);
+    return target[property];
+  },
+};
+
+const proxyObj = new Proxy({ name: 'Complex JS', year: 2023 }, handler);
+
+ 
+(async () => {
+  const gen = createAsyncGenerator();
+  const result = await asyncProcess(gen);
+  console.log('Async process completed with results:', result);
+
+   
+  console.log(proxyObj.name);
+  console.log(proxyObj.year);
+})();
+```

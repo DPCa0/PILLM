@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    return response.json();
+};
+
+const processData = ({ users }) => {
+    return users.flatMap(({ name, addresses }) =>
+        addresses.map(({ city }) => `${name} lives in ${city}`)
+    );
+};
+
+const main = async () => {
+    try {
+        const url = 'https://api.example.com/data';
+        const data = await fetchData(url);
+        const results = processData(data);
+        results.forEach((result) => print(result));
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+    }
+};
+
+ 
+const handler = {
+    apply: function(target, thisArg, argumentsList) {
+        print(`Called ${target.name} with arguments:`, argumentsList);
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+};
+
+const proxiedMain = new Proxy(main, handler);
+
+ 
+proxiedMain();

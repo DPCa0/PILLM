@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async ({ url, method = 'GET', headers = {} }) => {
+    try {
+         
+        const response = await fetch(url, { method, headers });
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const data = { ...await response.json() };
+        
+         
+        Object.entries(data).map(([key, value]) => console.log(`${key}: ${value}`));
+
+         
+        const [data1, data2] = await Promise.all([
+            fetch(url).then(res => res.json()),
+            fetch(url).then(res => res.json())
+        ]);
+
+         
+        const combinedData = [...new Set([...Object.values(data1), ...Object.values(data2)])];
+        
+        console.log('Combined Data:', combinedData);
+
+        return data;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+};
+
+ 
+(async () => {
+    const apiDetails = {
+        url: 'https://jsonplaceholder.typicode.com/posts/1',
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    };
+
+    const data = await fetchData(apiDetails);
+
+     
+    console.log('Title:', data?.title ?? 'No Title Available');
+})();
+```

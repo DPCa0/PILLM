@@ -1,0 +1,68 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  static fromString(matrixString) {
+    const rows = matrixString.trim().split('\n');
+    const data = rows.map(row => row.split(' ').map(Number));
+    return new Matrix(data);
+  }
+  
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield* row;
+    }
+  }
+  
+  static async multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Matrices dimensions do not match for multiplication.');
+    }
+    
+    const result = Array.from({ length: a.data.length }, () => Array(b.data[0].length).fill(0));
+    
+    for (let i = 0; i < a.data.length; i++) {
+      for (let j = 0; j < b.data[0].length; j++) {
+        for (let k = 0; k < b.data.length; k++) {
+          result[i][j] += a.data[i][k] * b.data[k][j];
+        }
+      }
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    return new Matrix(result);
+  }
+  
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+(async () => {
+  const matrixA = Matrix.fromString(`
+    1 2
+    3 4
+  `);
+  
+  const matrixB = Matrix.fromString(`
+    5 6
+    7 8
+  `);
+  
+  const resultMatrix = await Matrix.multiply(matrixA, matrixB);
+  
+  print('Matrix A:');
+  print(matrixA.toString());
+  
+  print('Matrix B:');
+  print(matrixB.toString());
+  
+  print('Result Matrix:');
+  print(resultMatrix.toString());
+  
+  print('Flattened Result Matrix Values:');
+  for (let value of resultMatrix) {
+    print(value);
+  }
+})();

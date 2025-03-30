@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const getJSON = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ name, main: { temp }, weather: [{ description }] }) => {
+  return `Weather in ${name}: ${temp}°C and ${description}`;
+};
+
+const displayData = (message) => {
+  console.log(message);
+};
+
+const main = async () => {
+  try {
+    const url = 'https://api.openweathermap.org/data/2.5/weather?q=London&units=metric&appid=YOUR_API_KEY';
+    const data = await getJSON(url);
+    const message = processData(data);
+    displayData(message);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+main();
+```
+This code snippet demonstrates fetching weather data for a city using the Fetch API and OpenWeatherMap, processing the data with modern JavaScript features, and then displaying it in the console. Replace `'YOUR_API_KEY'` with a valid OpenWeatherMap API key.

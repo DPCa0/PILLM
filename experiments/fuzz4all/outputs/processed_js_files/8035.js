@@ -1,0 +1,45 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+ 
+const dataHandler = {
+  get: (target, prop) => (prop in target ? target[prop] : `Property ${prop} is not available`)
+};
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* sequenceGenerator(start, end) {
+  let current = start;
+  while (current <= end) {
+    yield delay(1000).then(() => current++);
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    
+     
+    const proxyData = new Proxy(data, dataHandler);
+    
+    print('Todo Title:', proxyData.title);
+    print('Non-existing Property:', proxyData.nonExistingProperty);
+
+     
+    const sequence = sequenceGenerator(1, 5);
+    for await (let num of sequence) {
+      print('Sequence number:', num);
+    }
+
+  } catch (error) {
+    console.error('An error occurred:', error.message);
+  }
+})();

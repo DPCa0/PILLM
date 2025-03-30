@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  #data;
+  static #logger = console.log;
+  
+  constructor(data = []) {
+    this.#data = data;
+  }
+
+  static logMessage(message) {
+    this.#logger(`Log: ${message}`);
+  }
+
+  addData(...newData) {
+    this.#data.push(...newData);
+  }
+
+  processData(callback) {
+    return new Promise((resolve, reject) => {
+      try {
+        const processed = this.#data.map(item => callback(item));
+        resolve(processed);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const json = await response.json();
+      this.addData(...json);
+      DataProcessor.logMessage('Data fetched successfully');
+    } catch (error) {
+      DataProcessor.logMessage(`Fetch error: ${error}`);
+    }
+  }
+}
+
+(async () => {
+  const processor = new DataProcessor([1, 2, 3]);
+
+  processor.addData(4, 5, 6);
+  DataProcessor.logMessage('Initial data added');
+
+  const result = await processor.processData(item => item * 2);
+  DataProcessor.logMessage(`Processed data: ${result.join(', ')}`);
+
+   
+  await processor.fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+  const processedFetchedData = await processor.processData(item => {
+    if (typeof item === 'object') return JSON.stringify(item);
+    return item;
+  });
+
+  DataProcessor.logMessage(`Processed fetched data: ${processedFetchedData.join(', ')}`);
+})();
+```

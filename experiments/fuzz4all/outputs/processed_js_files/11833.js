@@ -1,0 +1,54 @@
+ 
+
+class TaskScheduler {
+  constructor() {
+    this.tasks = [];
+  }
+  
+  addTask(taskFn, delay) {
+    const task = { taskFn, delay };
+    this.tasks.push(task);
+    return this;
+  }
+  
+  async executeTasks() {
+    for (const { taskFn, delay } of this.tasks) {
+      await this.#delayExecution(taskFn, delay);
+    }
+  }
+  
+  #delayExecution(taskFn, delay) {
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        try {
+          const result = await taskFn();
+          print('Task completed:', result);
+        } catch (error) {
+          console.error('Task failed:', error);
+        } finally {
+          resolve();
+        }
+      }, delay);
+    });
+  }
+}
+
+const getRandomNumber = () => new Promise((resolve, reject) => {
+  const num = Math.floor(Math.random() * 10);
+  setTimeout(() => (num > 2 ? resolve(num) : reject('Number too low')), 1000);
+});
+
+const reverseString = (str) => new Promise((resolve) => {
+  setTimeout(() => resolve(str.split('').reverse().join('')), 500);
+});
+
+const taskScheduler = new TaskScheduler();
+taskScheduler
+  .addTask(() => getRandomNumber(), 1000)
+  .addTask(() => reverseString("JavaScript"), 1500)
+  .addTask(async () => {
+    const num = await getRandomNumber();
+    return `Square of ${num} is ${num * num}`;
+  }, 2000);
+
+taskScheduler.executeTasks();

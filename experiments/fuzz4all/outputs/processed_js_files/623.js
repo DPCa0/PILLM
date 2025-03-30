@@ -1,0 +1,45 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const filteredListeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+    this.events.set(event, filteredListeners);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncFunc = async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('start', () => print('Process started'));
+  eventEmitter.on('data', data => print(`Received data: ${data}`));
+  eventEmitter.on('end', () => print('Process ended'));
+
+  eventEmitter.emit('start');
+  
+  for (const data of ['data1', 'data2', 'data3']) {
+    await delay(1000);
+    eventEmitter.emit('data', data);
+  }
+
+  eventEmitter.emit('end');
+};
+
+asyncFunc();

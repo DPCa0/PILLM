@@ -1,0 +1,63 @@
+ 
+import { createServer } from 'http';
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+ 
+class Config {
+  constructor() {
+    this.settings = {};
+  }
+  
+  set(key, value) {
+    this.settings[key] = value;
+  }
+  
+  get(key) {
+    return this.settings[key];
+  }
+}
+
+ 
+const configProxy = new Proxy(new Config(), {
+  get: (target, prop) => {
+    print(`Getting ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+});
+
+ 
+(async () => {
+  configProxy.set('port', 3000);
+  const port = configProxy.get('port');
+
+  print(`Server will run on port: ${port}`);
+  
+   
+  createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    
+    (async () => {
+      for await (const chunk of fetchData('https://api.github.com')) {
+        res.write(JSON.stringify(chunk));
+      }
+      res.end();
+    })().catch(err => {
+      res.statusCode = 500;
+      res.end(JSON.stringify({ error: err.message }));
+    });
+    
+  }).listen(port, () => {
+    print(`Server is listening on port ${port}`);
+  });
+})();

@@ -1,0 +1,28 @@
+ 
+const fs = require('fs');
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
+
+ 
+async function processFiles(files) {
+  try {
+    const contents = await Promise.all(files.map(async (file) => {
+      const data = await readFileAsync(file, 'utf8');
+      return { file, length: data.length };
+    }));
+    
+     
+    const uniqueFiles = new Set(contents.map(({ file }) => file));
+    const lengthSorted = new Map([...contents].sort((a, b) => a.length - b.length));
+    
+    print(`Unique Files (${uniqueFiles.size}):`, ...uniqueFiles);
+    print('Files sorted by content length:', Array.from(lengthSorted.values()));
+  } catch (error) {
+    console.error('Error processing files:', error);
+  }
+}
+
+ 
+const filesToRead = ['file1.txt', 'file2.txt', 'file3.txt'];
+print(`Processing files: ${[...filesToRead].join(', ')}`);
+processFiles(filesToRead);

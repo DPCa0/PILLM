@@ -1,0 +1,56 @@
+ 
+
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+    }
+
+    *generate() {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function delayedFibonacciPrint(limit) {
+    const fib = new Fibonacci(limit);
+    for (const num of fib.generate()) {
+        await delay(500);  
+        print(num);
+    }
+}
+
+const handler = {
+    get: function(obj, prop) {
+        return prop in obj ? obj[prop] : `Property ${prop} does not exist`;
+    },
+    set: function(obj, prop, value) {
+        if (prop === 'limit' && value <= 0) {
+            console.error('Limit must be a positive number');
+        } else {
+            obj[prop] = value;
+        }
+        return true;
+    }
+};
+
+const proxyFibonacci = new Proxy(new Fibonacci(10), handler);
+
+(async function main() {
+    print('Starting Fibonacci sequence:');
+    await delayedFibonacciPrint(proxyFibonacci.limit);
+
+    print('\nModifying the sequence limit to 5:');
+    proxyFibonacci.limit = 5;
+    await delayedFibonacciPrint(proxyFibonacci.limit);
+
+    print('\nTrying to set an invalid limit:');
+    proxyFibonacci.limit = -5;   
+    await delayedFibonacciPrint(proxyFibonacci.limit);
+})();

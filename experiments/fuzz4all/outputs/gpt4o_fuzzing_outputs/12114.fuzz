@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { userId: 1, title: 'JavaScript Magic', completed: true } });
+    }, 1000);
+  });
+};
+
+ 
+function* dataProcessor(data) {
+  yield `Processed Title: ${data.title.toUpperCase()}`;
+  yield `Status: ${data.completed ? 'Completed' : 'Pending'}`;
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting property: ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting property: ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+(async function main() {
+  try {
+    const response = await fetchData();
+    const proxyResponse = new Proxy(response.data, handler);
+
+    console.log(`User ID: ${proxyResponse.userId}`);
+
+    const processor = dataProcessor(proxyResponse);
+    console.log(processor.next().value);  
+    console.log(processor.next().value);  
+
+    Reflect.set(proxyResponse, 'completed', false);
+    console.log(`Updated Status: ${proxyResponse.completed}`);
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* fetchDataGenerator() {
+    console.log('Fetching user data...');
+    yield delay(1000).then(() => console.log('User data fetched'));
+
+    console.log('Fetching orders...');
+    yield delay(1500).then(() => console.log('Orders fetched'));
+
+    console.log('Fetching additional information...');
+    yield delay(500).then(() => console.log('Additional information fetched'));
+}
+
+ 
+async function executeGenerator(gen) {
+    const generator = gen();
+    let result = generator.next();
+    while (!result.done) {
+        await result.value;
+        result = generator.next();
+    }
+}
+
+ 
+(async function main() {
+    console.log('Starting complex async operations using Generators and Promises');
+    await executeGenerator(fetchDataGenerator);
+    console.log('All async operations completed');
+})();
+```

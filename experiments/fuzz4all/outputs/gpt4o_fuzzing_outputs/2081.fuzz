@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry']);
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (let item of dataArray) {
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property === 'all') {
+            return Object.keys(target).reduce((acc, key) => {
+                acc.push(target[key]);
+                return acc;
+            }, []);
+        }
+        return target[property];
+    }
+};
+
+ 
+async function processData() {
+    try {
+        const data = await fetchData();
+        
+         
+        const gen = dataGenerator(data);
+        let nextItem = gen.next();
+        
+        const processedData = {};
+        
+        while (!nextItem.done) {
+            const fruit = nextItem.value;
+            
+             
+            processedData[fruit] = fruit.toUpperCase();
+            nextItem = gen.next();
+        }
+        
+         
+        const proxyData = new Proxy(processedData, handler);
+        
+         
+        console.log(proxyData.all);  
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+processData();
+```

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* asyncGenerator(array) {
+  for (const item of array) {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield item;
+  }
+}
+
+ 
+const loggingHandler = {
+  get(target, property) {
+    console.log(`Accessed property "${property}"`);
+    return target[property];
+  }
+};
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+
+ 
+const proxy = new Proxy(targetObject, loggingHandler);
+
+ 
+async function processArray(array) {
+  const asyncGen = asyncGenerator(array);
+
+  for await (const item of asyncGen) {
+    console.log(`Processing item: ${item}`);
+     
+    console.log(`Value of a: ${proxy.a}`);
+  }
+}
+
+ 
+processArray(['apple', 'banana', 'cherry']);
+```

@@ -1,0 +1,53 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === 'https://api.example.com/data') {
+            resolve({
+                data: [
+                    { id: 1, name: 'Alice' },
+                    { id: 2, name: 'Bob' },
+                    { id: 3, name: 'Charlie' }
+                ]
+            });
+        } else {
+            reject(new Error('Invalid URL'));
+        }
+    }, 1000);
+});
+
+ 
+const userIds = new Set();
+
+async function processData() {
+    try {
+        const response = await fetchData('https://api.example.com/data');
+        const { data } = response;  
+
+        data.forEach(user => {
+            const { id, name } = user;  
+            userIds.add(id);  
+
+             
+            print(`Processing User: ID=${id}, Name=${name}`);
+        });
+
+         
+        const uniqueIds = [...userIds];
+        print('Unique User IDs:', uniqueIds);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+processData();
+
+ 
+const names = ['Anna', 'Bob', 'Charlie', 'David', 'Edward'];
+const shortNames = names
+    .map(name => name.toUpperCase())
+    .filter(name => name.length <= 4);
+
+print('Short Names:', shortNames);

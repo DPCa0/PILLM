@@ -1,0 +1,28 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async (urls) => {
+  try {
+    const results = await Promise.all(urls.map(async (url) => {
+      const data = await fetchData(url);
+      return data.map(({ id, name, value }) => ({
+        id,
+        name,
+        value: value * 2,
+        timestamp: new Date().toISOString(),
+      }));
+    }));
+    return results.flat().sort((a, b) => a.value - b.value);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+processData(urls).then((data) => {
+  print('Processed Data:', JSON.stringify(data, null, 2));
+});

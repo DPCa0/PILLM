@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+  }
+
+  enqueue(item) {
+    if (this.resolvers.length > 0) {
+      const resolve = this.resolvers.shift();
+      resolve({ value: item, done: false });
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  dequeue() {
+    return new Promise((resolve) => {
+      if (this.queue.length > 0) {
+        const value = this.queue.shift();
+        resolve({ value, done: false });
+      } else {
+        this.resolvers.push(resolve);
+      }
+    });
+  }
+
+  async *[Symbol.asyncIterator]() {
+    while (true) {
+      const { value, done } = await this.dequeue();
+      if (done) return;
+      yield value;
+    }
+  }
+
+  return() {
+    for (const resolve of this.resolvers) {
+      resolve({ value: undefined, done: true });
+    }
+    this.resolvers = [];
+    return { value: undefined, done: true };
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function example() {
+  const queue = new AsyncIterableQueue();
+  const asyncIterator = queue[Symbol.asyncIterator]();
+
+  (async () => {
+    for (let i = 1; i <= 5; i++) {
+      await delay(1000);
+      queue.enqueue(`Message ${i}`);
+    }
+    queue.return();
+  })();
+
+  for await (const message of asyncIterator) {
+    console.log(message);
+  }
+}
+
+example();
+```

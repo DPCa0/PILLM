@@ -1,0 +1,62 @@
+class Matrix {
+    constructor(rows, cols, fillValue = 0) {
+        this.data = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => fillValue)
+        );
+    }
+
+    static from(array) {
+        const m = new Matrix(array.length, array[0].length);
+        m.data = array;
+        return m;
+    }
+
+    *[Symbol.iterator]() {
+        for (let row of this.data) {
+            yield* row;
+        }
+    }
+
+    map(callback) {
+        return new Matrix(
+            this.data.length,
+            this.data[0].length,
+            (i, j) => callback(this.data[i][j], i, j)
+        );
+    }
+
+    static add(a, b) {
+        if (a.data.length !== b.data.length || a.data[0].length !== b.data[0].length) {
+            throw new Error("Matrices dimensions must match");
+        }
+        return a.map((value, i, j) => value + b.data[i][j]);
+    }
+
+    toString() {
+        return this.data.map(row => row.join(' ')).join('\n');
+    }
+}
+
+ 
+const matrixA = Matrix.from([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]);
+
+const matrixB = Matrix.from([
+    [9, 8, 7],
+    [6, 5, 4],
+    [3, 2, 1]
+]);
+
+const sumMatrix = Matrix.add(matrixA, matrixB);
+print('Sum of Matrices:\n', sumMatrix.toString());
+
+const incrementedMatrix = matrixA.map(value => value + 1);
+print('\nIncremented Matrix:\n', incrementedMatrix.toString());
+
+print('\nIterating over Matrix A:');
+for (let value of matrixA) {
+    print(value);
+}

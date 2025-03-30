@@ -1,0 +1,47 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { url: url, content: "Sample data from " + url };
+      resolve(data);
+    }, 1000);
+  });
+};
+
+ 
+function* urlGenerator(urls) {
+  for (let url of urls) {
+    yield url;
+  }
+}
+
+ 
+async function processUrls(urlList) {
+  const urlGen = urlGenerator(urlList);
+  const promises = [];
+
+  for (let url of urlGen) {
+    promises.push(fetchData(url));
+  }
+
+  try {
+    const results = await Promise.all(promises);
+    results.forEach((result) => {
+      print(`Fetched data from ${result.url}: ${result.content}`);
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+const urls = [
+  "https://api.example.com/data1",
+  "https://api.example.com/data2",
+  "https://api.example.com/data3"
+];
+
+ 
+processUrls(urls);

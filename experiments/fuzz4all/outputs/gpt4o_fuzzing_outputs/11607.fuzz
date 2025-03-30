@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+ 
+const EventEmitter = require('events');
+const fs = require('fs').promises;
+
+ 
+const eventEmitter = new EventEmitter();
+
+ 
+async function readFileAndEmit(fileName) {
+  try {
+    const data = await fs.readFile(fileName, 'utf-8');
+    eventEmitter.emit('fileRead', data);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+}
+
+ 
+function* processData(data) {
+  try {
+    yield new Promise((resolve, reject) => {
+      const lines = data.split('\n');
+      if (lines.length > 0) {
+        resolve(lines);
+      } else {
+        reject(new Error('No lines to process'));
+      }
+    });
+  } catch (error) {
+    throw error;
+  }
+}
+
+ 
+async function* asyncDataIterator(data) {
+  const lines = data.split('\n');
+  for (const line of lines) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield line;
+  }
+}
+
+ 
+eventEmitter.on('fileRead', async data => {
+  console.log('File successfully read! Processing data...');
+  
+   
+  const generator = processData(data);
+  generator.next().value.then(lines => {
+    console.log(`Number of lines: ${lines.length}`);
+  }).catch(err => {
+    console.error('Error processing lines:', err);
+  });
+
+   
+  for await (const line of asyncDataIterator(data)) {
+    console.log('Line:', line);
+  }
+});
+
+eventEmitter.on('error', err => {
+  console.error('An error occurred:', err.message);
+});
+
+ 
+readFileAndEmit('example.txt');
+```

@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchUserData = async (userId) => {
+  try {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error(`User not found: ${response.statusText}`);
+    
+    const user = await response.json();
+    return user;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+  }
+};
+
+ 
+const fetchUserPosts = async (userId) => {
+  try {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error(`Posts not found: ${response.statusText}`);
+    
+    const posts = await response.json();
+    return posts;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  }
+};
+
+ 
+(async () => {
+  const userId = 1;  
+  const [user, posts] = await Promise.all([fetchUserData(userId), fetchUserPosts(userId)]);
+  
+  if (user && posts) {
+    print(`User: ${user.name}`);
+    print('Posts:');
+    posts.forEach(post => print(`- ${post.title}`));
+  }
+})();

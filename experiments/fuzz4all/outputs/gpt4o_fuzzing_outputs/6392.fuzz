@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    
+     
+    function* randomNumbersGenerator() {
+        while (true) {
+            yield Math.floor(Math.random() * 100);
+        }
+    }
+    
+     
+    const handler = {
+        get: (obj, prop) => {
+            if (prop in obj) {
+                return Reflect.get(obj, prop);
+            }
+            return `Property ${prop} doesn't exist`;
+        }
+    };
+    
+    const target = { name: 'Advanced JS' };
+    const proxy = new Proxy(target, handler);
+    
+    // Using Set and Map
+    const numberSet = new Set();
+    const numberMap = new Map();
+    
+    const gen = randomNumbersGenerator();
+    
+    while (numberSet.size < 5) {
+        const num = gen.next().value;
+        numberSet.add(num);
+        numberMap.set(num, num * num);
+    }
+    
+    console.log(`Program Name: ${proxy.name}`);
+    console.log(`Non-existent Property: ${proxy.nonExistent}`);
+    
+    console.log('Generated Numbers:', Array.from(numberSet));
+    console.log('Number Squares:');
+    numberMap.forEach((value, key) => console.log(`${key}: ${value}`));
+    
+    // Using Class with Static Method
+    class Utility {
+        static square(x) {
+            return x * x;
+        }
+    }
+    
+    console.log('Squares using Utility Class:');
+    numberSet.forEach(num => console.log(`${num}: ${Utility.square(num)}`));
+
+    // Template Literals and Destructuring
+    const [first, ...rest] = Array.from(numberSet);
+    console.log(`First number: ${first}`);
+    console.log(`Rest of the numbers: ${rest.join(', ')}`);
+    
+    // Simulating an asynchronous operation
+    console.log('Starting async operation...');
+    await delay(2000);
+    console.log('Async operation complete.');
+})();
+```

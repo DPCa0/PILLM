@@ -1,0 +1,50 @@
+ 
+class Person {
+  #age;
+  
+  constructor(name, age) {
+    this.name = name;
+    this.#age = age;
+  }
+
+  get details() {
+    return `${this.name} is ${this.#age} years old.`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Accessing property ${prop}`);
+    return target[prop];
+  }
+};
+
+const alice = new Person('Alice', 30);
+const proxyAlice = new Proxy(alice, handler);
+
+print(proxyAlice.details);
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    print(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const uniqueValues = new Set([1, 2, 3, 4, 5, 5, 4, 3]);
+
+print(uniqueValues);
+
+ 
+const nestedObject = { a: { b: { c: 42 } } };
+print(nestedObject?.a?.b?.c ?? 'Default Value');   
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');

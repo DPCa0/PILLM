@@ -1,0 +1,29 @@
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { name: 'Jane Doe', age: 28 }, items: ['apple', 'banana', 'carrot'] });
+    }, 1000);
+  });
+};
+
+const manipulateData = async () => {
+  const { user: { name, age }, items } = await fetchData();
+
+  const itemList = [...items, 'date', 'elderberry'];
+
+  const userProxy = new Proxy({ name, age }, {
+    get(target, property) {
+      if (property in target) {
+        return `Property ${property} is ${target[property]}`;
+      }
+      return 'Property does not exist';
+    }
+  });
+
+  print(userProxy.name);  
+  print(userProxy.age);   
+  print(itemList);        
+};
+
+manipulateData();

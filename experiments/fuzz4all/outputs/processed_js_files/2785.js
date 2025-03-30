@@ -1,0 +1,66 @@
+ 
+
+ 
+const SECRET_KEY = Symbol('secret');
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === SECRET_KEY) {
+      return Reflect.get(target, property);
+    }
+    print(`Accessing property: ${property}`);
+    return property in target ? target[property] : 'Property not found';
+  },
+  set(target, property, value) {
+    if (property === 'password') {
+      throw new Error("Can't set password directly");
+    }
+    print(`Setting property: ${property} to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+ 
+const user = {
+  username: 'admin',
+  [SECRET_KEY]: 'superSecretPassword'
+};
+
+ 
+const proxyUser = new Proxy(user, handler);
+
+ 
+async function fetchUserData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { name: 'John Doe', age: 30 } });
+    }, 1000);
+  });
+}
+
+ 
+async function displayUserData() {
+  try {
+    print('Fetching user data...');
+    const response = await fetchUserData();
+    print(`User: ${response.data.name}, Age: ${response.data.age}`);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+}
+
+ 
+(async function main() {
+  print(proxyUser.username);  
+  proxyUser.age = 25;  
+  try {
+    proxyUser.password = '12345';  
+  } catch (e) {
+    console.error(e.message);
+  }
+  print('Secret Key:', proxyUser[SECRET_KEY]);  
+
+   
+  await displayUserData();
+})();

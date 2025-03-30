@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function complexOperation(data) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (data.valid) {
+                resolve(data.values);
+            } else {
+                reject("Invalid data");
+            }
+        }, 1000);
+    });
+}
+
+const data = {
+    valid: true,
+    values: [1, 2, 3, 4, 5]
+};
+
+(async function() {
+    try {
+        const { values } = data;
+        const results = await complexOperation({ valid: data.valid, values });
+
+        const processedResults = results.map(num => num * 2);
+        const [first, ...rest] = processedResults;
+        const uniqueValues = new Set(rest);
+
+        const proxyHandler = {
+            get: function(target, prop) {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    return "Property not found";
+                }
+            }
+        };
+
+        const proxiedResults = new Proxy([...uniqueValues], proxyHandler);
+
+        console.log(`First value: ${first}`);
+        console.log('Rest values doubled and unique:', [...proxiedResults]);
+
+    } catch (error) {
+        console.error("Error:", error);
+    }
+})();
+```

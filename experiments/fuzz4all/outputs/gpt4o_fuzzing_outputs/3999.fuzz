@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const person = {
+  firstName: 'John',
+  lastName: 'Doe'
+};
+
+const handler = {
+  get(target, prop) {
+    console.log(`Property '${prop}' has been accessed.`);
+    return Reflect.get(target, prop);
+  },
+  set(target, prop, value) {
+    console.log(`Property '${prop}' is being set to '${value}'.`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const proxiedPerson = new Proxy(person, handler);
+
+ 
+class Calculator {
+  static history = [];
+
+  static add(a, b) {
+    const result = a + b;
+    this.history.push(`Added ${a} to ${b} and got ${result}`);
+    return result;
+  }
+
+  static multiply(a, b) {
+    const result = a * b;
+    this.history.push(`Multiplied ${a} with ${b} and got ${result}`);
+    return result;
+  }
+}
+
+ 
+async function executeComplexOperations() {
+  console.log('Starting complex operations...');
+
+   
+  await Promise.all([delay(1000), delay(2000)]);
+
+   
+  console.log(proxiedPerson.firstName);
+  proxiedPerson.lastName = 'Smith';
+
+   
+  console.log(`Sum: ${Calculator.add(3, 5)}`);
+  console.log(`Product: ${Calculator.multiply(4, 7)}`);
+
+  console.log('Operations completed. History:');
+  console.log(Calculator.history.join('\n'));
+}
+
+ 
+executeComplexOperations();
+```

@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+    yield i;
+  }
+}
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+};
+
+ 
+const fetchAllData = async (urls) => {
+  const results = [];
+  for (const url of urls) {
+    const data = await fetchData(url);
+    results.push(data);
+  }
+  return results;
+};
+
+ 
+const apiManager = (function () {
+  const cache = new Map();
+
+  return {
+    getData: async function (url) {
+      if (cache.has(url)) {
+        return cache.get(url);
+      }
+      const data = await fetchData(url);
+      cache.set(url, data);
+      return data;
+    },
+  };
+})();
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+   
+  const data = await fetchAllData(urls);
+  const [firstData, secondData] = data;
+
+  console.log('Fetched Data:', firstData, secondData);
+
+   
+  const apiData1 = await apiManager.getData('https://api.example.com/data1');
+  const apiData2 = await apiManager.getData('https://api.example.com/data2');
+
+  console.log('API Manager Data:', apiData1, apiData2);
+
+   
+  const gen = numberGenerator(5);
+  console.log('Generated Numbers:', ...gen);
+})();
+```

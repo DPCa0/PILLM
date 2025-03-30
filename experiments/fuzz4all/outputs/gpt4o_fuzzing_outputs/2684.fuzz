@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import { writeFile, readFile } from 'fs/promises';
+
+ 
+(async function complexProgram() {
+   
+  const uniqueValues = new Set([1, 2, 3, 4, 4, 5, 5]);
+
+   
+  const transformed = Array.from(uniqueValues).map(value => value * 2);
+
+   
+  function* valueGenerator(values) {
+    for (const value of values) {
+      yield `Value: ${value}`;
+    }
+  }
+
+   
+  const uniqueKey = Symbol('unique');
+
+   
+  const dataObject = {
+    [uniqueKey]: 'This is a symbol key!',
+    transformed,
+  };
+
+   
+  for (const [key, value] of Object.entries(dataObject)) {
+    console.log(`Key: ${key.toString()}, Value: ${value}`);
+  }
+
+   
+  const message = dataObject.someNonExistentProp?.message ?? 'Property not found';
+
+  console.log(message);
+
+   
+  const fileOperations = [
+    writeFile('output.txt', JSON.stringify(dataObject, null, 2)),
+    readFile('output.txt', 'utf-8')
+  ];
+
+  const results = await Promise.allSettled(fileOperations);
+
+   
+  const summary = results.reduce((acc, result, index) => (
+    `${acc}Operation ${index}: ${result.status}\n`
+  ), '');
+
+  console.log(summary);
+
+   
+  const generator = valueGenerator(transformed);
+  for (const value of generator) {
+    console.log(value);
+  }
+
+})();
+```

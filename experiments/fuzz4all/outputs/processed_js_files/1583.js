@@ -1,0 +1,46 @@
+ 
+
+ 
+function fetchData(id) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            id % 2 === 0 ? resolve(`Data for ID: ${id}`) : reject('Invalid ID');
+        }, 1000);
+    });
+}
+
+ 
+async function getData(id) {
+    try {
+        const data = await fetchData(id);
+        print(data);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: function(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const originalObject = { a: 1, b: 2 };
+
+ 
+const proxyObject = new Proxy(originalObject, handler);
+
+ 
+proxyObject.a;  
+proxyObject.b = 10;  
+
+ 
+getData(2);  
+getData(3);  

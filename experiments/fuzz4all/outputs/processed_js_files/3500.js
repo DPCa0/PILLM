@@ -1,0 +1,57 @@
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`An error has occurred: ${response.status}`);
+  const data = await response.json();
+  return data;
+}
+
+ 
+function* numberGenerator(limit) {
+  let count = 0;
+  while (count < limit) {
+    yield count++;
+  }
+}
+
+ 
+async function processDataSequence(generator, processFunction) {
+  for (const value of generator) {
+    await processFunction(value);
+  }
+}
+
+ 
+async function main() {
+  try {
+    const apiData = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    
+     
+    const { title: taskTitle } = apiData;
+    
+     
+    const uniqueValues = [...new Set(['apple', 'banana', 'apple', 'orange'])];
+    
+     
+    const mappedValues = uniqueValues.map((item, index) => ({ id: index, fruit: item }));
+    
+    print('API Data:', taskTitle);
+    print('Unique Values:', uniqueValues);
+    print('Mapped Values:', mappedValues);
+
+     
+    const numberSeq = numberGenerator(5);
+    await processDataSequence(numberSeq, async (num) => {
+      print(`Processing number: ${num}`);
+      await new Promise((resolve) => setTimeout(resolve, 500));  
+    });
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+ 
+main();

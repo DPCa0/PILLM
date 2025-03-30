@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexFeatureDemo {
+  constructor() {
+    this.data = new Set([1, 2, 3, 4, 5]);
+  }
+
+  fetchData() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (this.data.size > 0) {
+          resolve([...this.data]);
+        } else {
+          reject('No data found');
+        }
+      }, 1000);
+    });
+  }
+
+  async processData() {
+    try {
+      const data = await this.fetchData();
+      const processedData = data.map(num => num * 2);
+      const [first, second, ...rest] = processedData;
+      console.log(`Processed data: First - ${first}, Second - ${second}, Rest - ${rest.join(', ')}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  addData(newData) {
+    newData.forEach(item => this.data.add(item));
+  }
+}
+
+ 
+const demo = new ComplexFeatureDemo();
+demo.addData([6, 7, 8]);
+demo.processData();
+```

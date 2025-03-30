@@ -1,0 +1,57 @@
+ 
+const students = new Map([
+  [1, { name: "Alice", courses: new Set(["Math", "Science"]) }],
+  [2, { name: "Bob", courses: new Set(["History", "Math"]) }],
+  [3, { name: "Charlie", courses: new Set(["Science", "Art"]) }],
+]);
+
+ 
+function* studentIDGenerator() {
+  let id = 1;
+  while (id <= students.size) yield id++;
+}
+
+ 
+async function fetchStudentCourses(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (students.has(id)) {
+        resolve(students.get(id).courses);
+      } else {
+        reject("Student ID not found");
+      }
+    }, 1000);
+  });
+}
+
+ 
+(async () => {
+  try {
+    const studentIDGen = studentIDGenerator();
+    let id;
+    while (!(id = studentIDGen.next()).done) {
+      let courses = await fetchStudentCourses(id.value);
+      print(`Courses for student ID ${id.value}: ${[...courses].join(", ")}`);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+ 
+const studentProxyHandler = {
+  get: (target, prop) => {
+    if (prop === "courses") {
+      return [...target[prop]].join(", ");
+    }
+    return target[prop];
+  }
+};
+
+const proxyStudent = new Proxy(students.get(1), studentProxyHandler);
+print(`Student Name: ${proxyStudent.name}, Courses: ${proxyStudent.courses}`);
+
+ 
+const { name: studentName, courses: studentCourses } = students.get(2);
+const additionalCourses = ["Music", ...studentCourses];
+print(`Student: ${studentName}, Additional Courses: ${additionalCourses.join(", ")}`);

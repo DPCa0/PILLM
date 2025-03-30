@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    
+    on(event, listener) {
+        if (typeof this.events[event] !== 'object') {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+    
+    off(event, listener) {
+        if (typeof this.events[event] === 'object') {
+            const idx = this.events[event].indexOf(listener);
+            if (idx > -1) this.events[event].splice(idx, 1);
+        }
+    }
+    
+    emit(event, ...args) {
+        if (typeof this.events[event] === 'object') {
+            [...this.events[event]].forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+class ResourcePool {
+    constructor(size) {
+        this.pool = Array.from({ length: size }, () => Symbol('resource'));
+    }
+
+    acquire() {
+        return new Promise(resolve => {
+            const resource = this.pool.pop();
+            if (resource) resolve(resource);
+            else {
+                const handleRelease = (releasedResource) => {
+                    resolve(releasedResource);
+                    emitter.off('release', handleRelease);
+                };
+                emitter.on('release', handleRelease);
+            }
+        });
+    }
+
+    release(resource) {
+        this.pool.push(resource);
+        emitter.emit('release', resource);
+    }
+}
+
+const emitter = new EventEmitter();
+const pool = new ResourcePool(2);
+
+(async function() {
+    const resource1 = await pool.acquire();
+    console.log('Acquired Resource 1:', resource1.toString());
+
+    const resource2 = await pool.acquire();
+    console.log('Acquired Resource 2:', resource2.toString());
+
+    setTimeout(() => {
+        pool.release(resource1);
+        console.log('Released Resource 1:', resource1.toString());
+    }, 1000);
+
+    const resource3 = await pool.acquire();
+    console.log('Acquired Resource 3:', resource3.toString());
+
+    pool.release(resource2);
+    console.log('Released Resource 2:', resource2.toString());
+
+    pool.release(resource3);
+    console.log('Released Resource 3:', resource3.toString());
+})();
+```

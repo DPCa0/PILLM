@@ -1,0 +1,46 @@
+const compose = (...fns) => (arg) => fns.reduce((acc, fn) => fn(acc), arg);
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const debounce = (fn, delay) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const asyncOperation = (x) => new Promise((resolve) => {
+  setTimeout(() => resolve(x * 2), 1000);
+});
+
+const asyncMiddleware = (fn) => async (...args) => {
+  const result = await fn(...args);
+  print(`Async result: ${result}`);
+  return result;
+};
+
+const complexFunction = compose(
+  memoize(asyncMiddleware(asyncOperation)),
+  async (x) => x + 1
+);
+
+const runComplexFunction = async (value) => {
+  const result = await complexFunction(value);
+  print(`Final Result: ${result}`);
+};
+
+const debouncedRun = debounce(runComplexFunction, 500);
+
+debouncedRun(5);  

@@ -1,0 +1,32 @@
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve([5, 3, 8, 1, 2, 9, 4]), 1000)
+  );
+
+const processArray = async () => {
+  try {
+    const array = await fetchData();
+    
+     
+    const [first, ...rest] = array.map(num => num * 2);
+
+     
+    const sumOfFiltered = rest
+      .filter(num => num % 2 === 0)
+      .reduce((acc, num) => acc + num, first);
+
+     
+    const uniqueValues = [...new Set([first, ...rest, 10, 2, 5])];
+
+    print(`Sum of filtered values: ${sumOfFiltered}`);
+    print(`Unique values: ${uniqueValues}`);
+  } catch (error) {
+    console.error('Error processing array:', error);
+  }
+};
+
+ 
+(async () => {
+  await processArray();
+})();

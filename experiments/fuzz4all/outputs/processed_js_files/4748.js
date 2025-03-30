@@ -1,0 +1,43 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    *sequence(n) {
+        for (let i = 0; i < n; i++) {
+            yield this.fib(i);
+        }
+    }
+
+    fib(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        let result = this.fib(n - 1) + this.fib(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return function(...args) {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+};
+
+(async () => {
+    const fibonacci = new Fibonacci();
+    print([...fibonacci.sequence(10)]);
+
+    const fetchData = debounce(async () => {
+        const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+        const data = await response.json();
+        print('Fetched Data:', data);
+    }, 3000);
+
+    print('Start fetching data...');
+    fetchData();
+})();

@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const fakeData = { title: "Sample Data", value: 42 };
+      resolve(fakeData);
+    }, 1000);
+  });
+};
+
+ 
+class DataProcessor {
+   
+  #data;
+
+  constructor(data) {
+    this.#data = data;
+  }
+
+  process() {
+    const { title, value } = this.#data;
+    return `Processed: ${title} with value ${value * 2}`;
+  }
+
+  static async fetchAndProcess(url) {
+    const data = await fetchData(url);
+    const processor = new DataProcessor(data);
+    return processor.process();
+  }
+}
+
+ 
+(async function main() {
+  try {
+    const processedData = await DataProcessor.fetchAndProcess('http://example.com/data');
+    print(processedData);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

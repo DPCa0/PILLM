@@ -1,0 +1,35 @@
+ 
+async function* fibonacciGen() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+const fibonacciHandler = {
+  cache: new Map(),
+  get(target, prop) {
+    if (typeof prop === 'string' && !isNaN(prop)) {
+      prop = Number(prop);
+      if (!this.cache.has(prop)) {
+        this.cache.set(prop, target[prop]);
+      }
+      return this.cache.get(prop);
+    }
+    return target[prop];
+  }
+};
+
+ 
+(async () => {
+  const fibonacciSequence = fibonacciGen();
+  const proxy = new Proxy(fibonacciSequence, fibonacciHandler);
+
+   
+  for (let i = 0; i < 10; i++) {
+    const { value } = await proxy.next();
+    print(`Fibonacci ${i + 1}: ${value}`);
+  }
+})();

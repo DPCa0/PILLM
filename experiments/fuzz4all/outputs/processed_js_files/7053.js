@@ -1,0 +1,52 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(array2D) {
+    return new Matrix(array2D);
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield* row;
+    }
+  }
+
+  map(fn) {
+    return Matrix.from(this.data.map((row, i) => row.map((value, j) => fn(value, i, j))));
+  }
+
+  reduce(fn, initialValue) {
+    let accumulator = initialValue;
+    for (let value of this) {
+      accumulator = fn(accumulator, value);
+    }
+    return accumulator;
+  }
+
+  static async fromAPI(url) {
+    const response = await fetch(url);
+    const json = await response.json();
+    return Matrix.from(json.data);
+  }
+}
+
+(async () => {
+   
+  const url = "https://example.com/api/matrix";
+  
+  try {
+    const matrix = await Matrix.fromAPI(url);
+
+    const doubledMatrix = matrix.map(x => x * 2);
+    
+    const sum = doubledMatrix.reduce((acc, val) => acc + val, 0);
+
+    print("Doubled Matrix:", doubledMatrix.data);
+    print("Sum of elements:", sum);
+
+  } catch (error) {
+    console.error("Failed to fetch or process the matrix:", error);
+  }
+})();

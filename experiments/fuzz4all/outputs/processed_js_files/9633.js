@@ -1,0 +1,44 @@
+class Fibonacci {
+  #memo = new Map();
+  constructor() {
+    this.#memo.set(0, 0);
+    this.#memo.set(1, 1);
+  }
+
+  *generate(n) {
+    for (let i = 0; i < n; i++) {
+      yield this.#fibonacci(i);
+    }
+  }
+
+  #fibonacci(n) {
+    if (this.#memo.has(n)) return this.#memo.get(n);
+    const value = this.#fibonacci(n - 1) + this.#fibonacci(n - 2);
+    this.#memo.set(n, value);
+    return value;
+  }
+}
+
+const sumAsync = async (generator) => {
+  let sum = 0;
+  for await (const num of generator) {
+    sum += num;
+  }
+  return sum;
+};
+
+(async () => {
+  const fib = new Fibonacci();
+  const fibGenerator = fib.generate(10);
+  
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+      for (const num of fibGenerator) {
+        await new Promise((res) => setTimeout(res, 100));  
+        yield num;
+      }
+    }
+  };
+  
+  print("Fibonacci Sequence Sum:", await sumAsync(asyncIterable));
+})();

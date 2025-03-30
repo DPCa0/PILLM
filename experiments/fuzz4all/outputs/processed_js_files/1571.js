@@ -1,0 +1,40 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncHandler = fn => (...args) => Promise.resolve(fn(...args)).catch(console.error);
+
+const simulateAsyncOperation = async value => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Processed ${value}`), Math.random() * 1000);
+  });
+};
+
+const processValues = asyncHandler(async (values) => {
+  const results = await Promise.all(values.map(simulateAsyncOperation));
+  eventEmitter.emit('done', results);
+});
+
+const values = [1, 2, 3, 4, 5];
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('done', results => {
+  print('All operations completed:', results);
+});
+
+processValues(values);

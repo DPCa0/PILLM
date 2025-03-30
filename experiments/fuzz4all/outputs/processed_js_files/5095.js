@@ -1,0 +1,29 @@
+ 
+
+ 
+function fetchUserData(userId) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const users = [
+                { id: 1, name: "Alice", age: 25, location: { city: "Wonderland", country: "Fantasy" } },
+                { id: 2, name: "Bob", age: 30, location: { city: "Builderstown", country: "Construction" } },
+                { id: 3, name: "Charlie", age: 35, location: { city: "Chocolate Factory", country: "Sweetland" } }
+            ];
+            const user = users.find(u => u.id === userId);
+            user ? resolve(user) : reject('User not found');
+        }, 1000);
+    });
+}
+
+ 
+async function displayUserData(userId) {
+    try {
+        const { name, age, location: { city, country } } = await fetchUserData(userId);
+        print(`User Info:\nName: ${name}\nAge: ${age}\nLocation: ${city}, ${country}`);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+ 
+displayUserData(2);

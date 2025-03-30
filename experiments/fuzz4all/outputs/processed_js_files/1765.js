@@ -1,0 +1,54 @@
+ 
+class Observable {
+  constructor(obj) {
+    this._subscribers = new Map();
+    return new Proxy(obj, {
+      set: (target, property, value) => {
+        target[property] = value;
+        this.notify(property, value);
+        return true;
+      },
+    });
+  }
+
+  subscribe(property, callback) {
+    if (!this._subscribers.has(property)) {
+      this._subscribers.set(property, []);
+    }
+    this._subscribers.get(property).push(callback);
+  }
+
+  notify(property, value) {
+    if (this._subscribers.has(property)) {
+      this._subscribers.get(property).forEach((callback) => callback(value));
+    }
+  }
+}
+
+ 
+let person = new Observable({ name: 'John Doe', age: 30 });
+
+ 
+person.subscribe('name', (newName) => {
+  print(`Name changed to: ${newName}`);
+});
+
+ 
+person.subscribe('age', (newAge) => {
+  print(`Age changed to: ${newAge}`);
+});
+
+ 
+person.name = 'Jane Doe';  
+person.age = 31;  
+
+ 
+async function updatePerson() {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  person.name = 'Emily Smith';
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  person.age = 32;
+}
+
+ 
+updatePerson();

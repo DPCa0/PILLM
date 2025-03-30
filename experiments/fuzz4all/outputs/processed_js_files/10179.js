@@ -1,0 +1,63 @@
+ 
+
+ 
+async function fetchUserData(userId) {
+  const response = await fetch(`https: 
+  const user = await response.json();
+  return user;
+}
+
+ 
+function* fibonacci(limit) {
+  let a = 0, b = 1, count = 0;
+  while (count < limit) {
+    yield a;
+    [a, b] = [b, a + b];
+    count++;
+  }
+}
+
+ 
+const processUserData = async (userId) => {
+  try {
+    const { name, email } = await fetchUserData(userId);
+
+    const dataMap = new Map([
+      ['Name', name],
+      ['Email', email],
+    ]);
+
+    dataMap.forEach((value, key) => {
+      print(`${key}: ${value}`);
+    });
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
+ 
+const arrayHandler = {
+  get(target, prop) {
+    print(`Accessing ${prop} on the array`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    print(`Setting value ${value} at index ${prop}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const arr = new Proxy([1, 2, 3, 4, 5], arrayHandler);
+arr.push(6);
+print(arr[0]);
+
+ 
+(async () => {
+  await processUserData(1);
+
+  print("Fibonacci sequence:");
+  for (let num of fibonacci(10)) {
+    print(num);
+  }
+})();

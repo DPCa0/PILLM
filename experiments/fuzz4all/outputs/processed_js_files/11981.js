@@ -1,0 +1,46 @@
+class Task {
+  constructor(name, priority) {
+    this.name = name;
+    this.priority = priority;
+  }
+
+  static compare(task1, task2) {
+    return task1.priority - task2.priority;
+  }
+}
+
+const taskQueue = new Proxy([], {
+  get(target, property) {
+    if (property === 'addTask') {
+      return (task) => target.push(task);
+    }
+    if (property === 'nextTask') {
+      return () => {
+        target.sort(Task.compare);
+        return target.shift();
+      };
+    }
+    return target[property];
+  },
+});
+
+const fetchTasksFromAPI = async () => {
+   
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  return [
+    new Task('Task 1', 2),
+    new Task('Task 2', 1),
+    new Task('Task 3', 3),
+  ];
+};
+
+const processTasks = async () => {
+  const tasks = await fetchTasksFromAPI();
+  tasks.forEach(task => taskQueue.addTask(task));
+  while (taskQueue.length > 0) {
+    const next = taskQueue.nextTask();
+    print(`Processing ${next.name} with priority ${next.priority}`);
+  }
+};
+
+processTasks().catch(console.error);

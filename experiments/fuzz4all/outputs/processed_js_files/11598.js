@@ -1,0 +1,28 @@
+ 
+
+function* fetchDataGenerator(apiEndpoints) {
+    for (const endpoint of apiEndpoints) {
+        yield fetch(endpoint).then(response => response.json());
+    }
+}
+
+async function fetchData(apiEndpoints) {
+    const dataGenerator = fetchDataGenerator(apiEndpoints);
+
+    for (let result of dataGenerator) {
+        try {
+            let data = await result;
+            print(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+}
+
+const endpoints = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+fetchData(endpoints);

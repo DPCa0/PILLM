@@ -1,0 +1,77 @@
+ 
+(async () => {
+  if (typeof window === 'undefined') {
+    const fs = await import('fs').then(module => module.promises);
+
+     
+    try {
+      const data = await fs.readFile('example.txt', 'utf8');
+      print('File data:', data);
+    } catch (error) {
+      console.error('Error reading file:', error);
+    }
+  }
+})();
+
+ 
+class FancyCounter {
+  #count = 0;
+  
+  #increment() {
+    this.#count++;
+    print(`Count: ${this.#count}`);
+  }
+  
+  start() {
+    setInterval(() => this.#increment(), 1000);  
+  }
+}
+
+const counter = new FancyCounter();
+counter.start();
+
+ 
+const targetObject = { message: 'Hello, world!' };
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop}' accessed`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+print(proxy.message);
+
+ 
+function tag(strings, ...expressions) {
+  return strings.reduce((result, string, i) => {
+    return `${result}${string}<strong>${expressions[i] || ''}</strong>`;
+  }, '');
+}
+
+const name = 'world';
+print(tag`Hello, ${name}!`);
+
+ 
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+const gen = numberGenerator();
+print(gen.next().value);  
+print(gen.next().value);  
+print(gen.next().value);  
+
+ 
+const promise1 = new Promise((resolve) => setTimeout(() => resolve('Result 1'), 1000));
+const promise2 = new Promise((resolve) => setTimeout(() => resolve('Result 2'), 500));
+
+Promise.all([promise1, promise2])
+  .then(results => {
+    print('All promises resolved:', results);
+  })
+  .catch(error => {
+    console.error('Error in promises:',

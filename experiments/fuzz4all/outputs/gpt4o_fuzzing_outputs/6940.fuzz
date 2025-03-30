@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let a = 0, b = 1;
+    yield a;
+    yield b;
+    while (true) {
+      [a, b] = [b, a + b];
+      yield b;
+    }
+  }
+
+  memoizedFib(n) {
+    if (n < 0) return 0;
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.memoizedFib(n - 1) + this.memoizedFib(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function fetchFibonacciUntil(n) {
+  const fibonacci = new Fibonacci();
+  const fibs = [];
+  for (let num of fibonacci) {
+    if (num > n) break;
+    fibs.push(num);
+  }
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(fibs), 1000)
+  );
+}
+
+(async () => {
+  const fibsUpTo100 = await fetchFibonacciUntil(100);
+  console.log('Fibonacci numbers up to 100:', fibsUpTo100);
+
+  const fibonacci = new Fibonacci();
+  console.log('10th Fibonacci number (memoized):', fibonacci.memoizedFib(10));
+})();
+```

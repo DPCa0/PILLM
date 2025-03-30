@@ -1,0 +1,39 @@
+ 
+ 
+
+const fetchData = async (url) => {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve({ data: [1, 2, 3, 4, 5], success: true });
+      } else {
+        reject(new Error('Invalid URL'));
+      }
+    }, 1000);
+  });
+};
+
+const processData = async () => {
+  try {
+     
+    const { data } = await fetchData('https://api.example.com/data');
+    
+     
+    const newData = [...data, 6, 7, 8];
+    
+     
+    const sum = newData.reduce((acc, val) => acc + val, 0);
+    
+    print(`Processed Data: [${newData}]`);
+    print(`Sum of Data: ${sum}`);
+    
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();

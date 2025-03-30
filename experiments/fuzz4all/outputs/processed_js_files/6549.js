@@ -1,0 +1,68 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static fromArray(arr) {
+        return new Matrix(arr.map(row => [...row]));
+    }
+
+    get rows() {
+        return this.data.length;
+    }
+
+    get cols() {
+        return this.data[0].length;
+    }
+
+    static add(a, b) {
+        if (a.rows !== b.rows || a.cols !== b.cols) {
+            throw new Error("Matrices must have the same dimensions to add.");
+        }
+        return new Matrix(a.data.map((row, i) =>
+            row.map((val, j) => val + b.data[i][j])
+        ));
+    }
+
+    static multiply(a, b) {
+        if (a.cols !== b.rows) {
+            throw new Error("The number of columns in the first matrix must be equal to the number of rows in the second.");
+        }
+        const result = Array.from({ length: a.rows }, () => Array(b.cols).fill(0));
+        return new Matrix(result.map((row, i) =>
+            row.map((_, j) =>
+                a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0)
+            )
+        ));
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+ 
+const matrixHandler = {
+    get(target, prop) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Calling ${prop} with`, args);
+                const result = target[prop](...args);
+                print(`Result:`);
+                if (result instanceof Matrix) {
+                    result.print();
+                } else {
+                    print(result);
+                }
+                return result;
+            };
+        }
+        return target[prop];
+    }
+};
+
+const matrixA = new Proxy(Matrix.fromArray([[1, 2, 3], [4, 5, 6]]), matrixHandler);
+const matrixB = new Proxy(Matrix.fromArray([[7, 8], [9, 10], [11, 12]]), matrixHandler);
+
+const matrixC = Matrix.multiply(matrixA, matrixB);
+matrixC.print();

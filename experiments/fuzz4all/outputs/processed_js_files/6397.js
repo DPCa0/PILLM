@@ -1,0 +1,40 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+        const delays = [1000, 500, 2000];
+        for (const delay of delays) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            yield `Event fired after ${delay / 1000} seconds`;
+        }
+    }
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('log', console.log);
+
+    for await (const message of asyncIterable) {
+        emitter.emit('log', message);
+    }
+
+    emitter.emit('log', 'All events processed');
+})();

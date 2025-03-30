@@ -1,0 +1,52 @@
+ 
+class Complex {
+  #privateField;
+
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+    this.#privateField = this.#computeMagnitude();
+  }
+
+  #computeMagnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+  get magnitude() {
+    return this.#privateField;
+  }
+
+   
+  *series(n) {
+    for (let i = 0; i < n; i++) {
+      yield `Complex(${this.real * i}, ${this.imaginary * i})`;
+    }
+  }
+
+   
+  static async fromPolar(r, theta) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const real = r * Math.cos(theta);
+        const imaginary = r * Math.sin(theta);
+        resolve(new Complex(real, imaginary));
+      }, 1000);
+    });
+  }
+}
+
+ 
+async function demonstrateComplexUsage() {
+  const complexNumber = new Complex(3, 4);
+  print(`Magnitude: ${complexNumber.magnitude}`);
+
+  for (const value of complexNumber.series(5)) {
+    print(value);
+  }
+
+  const polarComplex = await Complex.fromPolar(5, Math.PI / 4);
+  const { real, imaginary } = polarComplex;
+  print(`Polar to Cartesian: Real = ${real}, Imaginary = ${imaginary}`);
+}
+
+demonstrateComplexUsage();

@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+
+ 
+async function readFilesRecursive(dir) {
+  const files = await fs.readdir(dir, { withFileTypes: true });
+  
+  const filePromises = files.map(async (file) => {
+    const filePath = path.resolve(dir, file.name);
+    
+    if (file.isDirectory()) {
+      return readFilesRecursive(filePath);
+    } else {
+      const content = await fs.readFile(filePath, 'utf8');
+      return { [filePath]: content };
+    }
+  });
+
+   
+  const results = await Promise.all(filePromises);
+  
+   
+  return results.reduce((acc, val) => ({ ...acc, ...val }), {});
+}
+
+ 
+(async () => {
+  try {
+    const directoryPath = path.resolve('.', 'your-directory-name');
+    const allFilesContent = await readFilesRecursive(directoryPath);
+    console.log(allFilesContent);
+  } catch (err) {
+    console.error('Error reading files:', err);
+  }
+})();
+```

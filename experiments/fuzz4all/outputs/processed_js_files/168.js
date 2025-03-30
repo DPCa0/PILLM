@@ -1,0 +1,47 @@
+ 
+
+ 
+const mockApiCall = (value, delay) => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve(`Processed ${value}`);
+    }, delay);
+});
+
+ 
+function* dataProcessor(dataArray) {
+    for (let data of dataArray) {
+        yield mockApiCall(data.value, data.delay);
+    }
+}
+
+ 
+async function executeGenerator(generator, callback) {
+    const gen = generator();
+
+    while (true) {
+        const { value, done } = gen.next();
+        if (done) break;
+
+        try {
+            const result = await value;
+            callback(result);
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    }
+}
+
+ 
+const dataArray = [
+    { value: 'Data1', delay: 1000 },
+    { value: 'Data2', delay: 2000 },
+    { value: 'Data3', delay: 500 },
+];
+
+ 
+const handleResult = (result) => {
+    print(result);
+};
+
+ 
+executeGenerator(dataProcessor.bind(null, dataArray), handleResult);

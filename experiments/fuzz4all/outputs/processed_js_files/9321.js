@@ -1,0 +1,45 @@
+ 
+
+ 
+const complexObject = {
+    name: 'Complex Object',
+    attributes: {
+        color: 'blue',
+        size: 'large',
+    },
+    items: [
+        { id: 1, value: 'Item 1' },
+        { id: 2, value: 'Item 2' }
+    ]
+};
+
+ 
+const modifyObjectAsync = async ({ name, attributes, items }) => {
+     
+    const modifiedItems = [...items, { id: 3, value: 'Item 3' }];
+    const newAttributes = { ...attributes, weight: 'heavy' };
+    
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: `${name} Modified`,
+                attributes: newAttributes,
+                items: modifiedItems
+            });
+        }, 1000);
+    });
+};
+
+ 
+(async () => {
+    try {
+        print('Original Object:', complexObject);
+        
+        const modifiedObject = await modifyObjectAsync(complexObject);
+        
+        print('Modified Object:', modifiedObject);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

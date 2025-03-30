@@ -1,0 +1,43 @@
+ 
+
+class Complex {
+  constructor(value) {
+    this.value = value;
+  }
+
+  async calculate(factor) {
+    return new Promise(resolve => setTimeout(() => resolve(this.value * factor), 1000));
+  }
+}
+
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      if (typeof target[prop] === 'function') {
+        return async function(...args) {
+          print(`Calling method: ${prop} with arguments: ${args}`);
+          const result = await Reflect.apply(target[prop], receiver, args);
+          print(`Result: ${result}`);
+          return result;
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    } else {
+      print(`Property ${prop} not found`);
+      return undefined;
+    }
+  },
+  set: function(target, prop, value) {
+    print(`Setting property: ${prop} with value: ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+(async () => {
+  const complex = new Complex(42);
+  const proxy = new Proxy(complex, handler);
+
+  proxy.value = 21;
+  await proxy.calculate(2);
+  print(proxy.nonExistentProp);
+})();

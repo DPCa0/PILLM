@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+    await delay(1000);
+    return { data: 'Sample Data' };
+}
+
+ 
+function* dataGenerator() {
+    console.log('Fetching data...');
+    const data = yield fetchData();
+    console.log('Data fetched:', data);
+    yield 'Process complete';
+}
+
+ 
+const target = { status: 'Idle' };
+const handler = {
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    },
+    get(target, prop) {
+        console.log(`Getting ${prop}`);
+        return target[prop];
+    }
+};
+
+const proxiedTarget = new Proxy(target, handler);
+
+ 
+async function run() {
+    const gen = dataGenerator();
+    
+    proxiedTarget.status = 'Running';
+    
+    const firstStep = gen.next();  
+    if (firstStep.value instanceof Promise) {
+        const data = await firstStep.value;  
+        gen.next(data);  
+    }
+    
+    console.log(gen.next().value);  
+    proxiedTarget.status = 'Complete';
+}
+
+run();
+```

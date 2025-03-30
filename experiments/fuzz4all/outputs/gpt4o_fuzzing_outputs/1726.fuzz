@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function fetchData() {
+    try {
+         
+        const [url, ...options] = ["https://jsonplaceholder.typicode.com/todos/1"];
+
+         
+        const response = await fetch(url, { method: 'GET', ...options });
+        const data = await response.json();
+
+         
+        const title = data?.title ?? 'No title available';
+
+         
+        console.log(capitalize`Fetched Data: ${title}`);
+        
+         
+        const handler = {
+            set: function(obj, prop, value) {
+                console.log(`Property ${prop} set to ${value}`);
+                obj[prop] = value;
+                return true;
+            }
+        };
+        const proxyData = new Proxy(data, handler);
+        proxyData.completed = !proxyData.completed;
+
+         
+        await fs.writeFile('data.json', JSON.stringify(proxyData, null, 2));
+        console.log('Data written to file');
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+function capitalize(strings, ...values) {
+    return strings.reduce((result, string, i) => {
+        const value = values[i] ? values[i].toUpperCase() : '';
+        return result + string + value;
+    }, '');
+}
+
+ 
+(async () => {
+    await fetchData();
+})();
+```

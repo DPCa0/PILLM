@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+     
+    return { name: 'JavaScript', type: 'Programming Language', popularity: 'High' };
+  }
+}
+
+ 
+function* dataProcessor(data) {
+  for (const key in data) {
+    yield `${key}: ${data[key]}`;
+  }
+}
+
+ 
+async function main() {
+  const url = 'https://api.example.com/data';
+  const fetcher = new DataFetcher(url);
+
+   
+  const data = await fetcher.fetchData();
+  const { name, type, popularity } = data;
+
+   
+  Promise.resolve({ name, type, popularity })
+    .then(data => {
+      const processor = dataProcessor(data);
+      for (const item of processor) {
+        console.log(item);
+      }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+main();
+```

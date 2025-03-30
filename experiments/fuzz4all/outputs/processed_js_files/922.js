@@ -1,0 +1,41 @@
+class Person {
+  #privateSecret = "I love JavaScript";
+
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  static fromJSON(json) {
+    const data = JSON.parse(json);
+    return new Person(data.name, data.age);
+  }
+
+  *ageInFuture(years) {
+    for (let i = 1; i <= years; i++) {
+      yield this.age + i;
+    }
+  }
+
+  async celebrateBirthday() {
+    this.age++;
+    return new Promise((resolve) => setTimeout(() => resolve(`Happy ${this.age}th Birthday, ${this.name}!`), 1000));
+  }
+
+  get secret() {
+    return `Shh! The secret is: ${this.#privateSecret}`;
+  }
+}
+
+async function simulateLife() {
+  const john = Person.fromJSON('{"name": "John", "age": 30}');
+  print(john.secret);
+
+  for (const futureAge of john.ageInFuture(5)) {
+    print(`In ${futureAge - john.age} year(s), John will be ${futureAge}.`);
+  }
+
+  print(await john.celebrateBirthday());
+}
+
+simulateLife().catch(console.error);

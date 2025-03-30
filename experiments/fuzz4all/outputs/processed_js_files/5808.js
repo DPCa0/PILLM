@@ -1,0 +1,42 @@
+ 
+class ComplexFeatureExample {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data);
+      }, 1000);
+    });
+  }
+
+  async processData() {
+    try {
+      const data = await this.fetchData();
+       
+      const { numbers, message } = data;
+      
+       
+      const processedNumbers = numbers
+        .map((num) => num * 2)
+        .filter((num) => num > 10)
+        .reduce((acc, num) => acc + num, 0);
+      
+      print(`${message} Processed sum: ${processedNumbers}`);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+}
+
+ 
+const exampleData = {
+  numbers: [3, 6, 8, 10, 12],
+  message: 'Data processed successfully.'
+};
+
+const example = new ComplexFeatureExample(exampleData);
+example.processData();

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  await delay(1000);  
+  return {
+    user: { id: 1, name: "Alice", email: "alice@example.com" },
+    posts: [
+      { id: 1, title: "Post 1", content: "Content 1" },
+      { id: 2, title: "Post 2", content: "Content 2" }
+    ]
+  };
+}
+
+ 
+async function displayData() {
+  const data = await fetchData();
+  const { user: { name, email }, posts } = data;
+  console.log(`User: ${name} (${email})`);
+  posts.forEach(({ title, content }) => {
+    console.log(`Post: ${title}\nContent: ${content}`);
+  });
+}
+
+ 
+const userDataHandler = {
+  get(target, property) {
+    console.log(`Accessing ${property} of user`);
+    return target[property];
+  }
+};
+
+(async () => {
+  const data = await fetchData();
+  const proxyUser = new Proxy(data.user, userDataHandler);
+  console.log(`Proxy User Name: ${proxyUser.name}`);
+})();
+
+ 
+displayData();
+```

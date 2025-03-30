@@ -1,0 +1,42 @@
+class NeuralNetwork {
+    constructor(layers) {
+        this.layers = layers;
+        this.weights = [];
+        this.biases = [];
+        
+        this.initWeightsBiases();
+    }
+    
+    initWeightsBiases() {
+        for (let i = 0; i < this.layers.length - 1; i++) {
+            const weight = math.random([this.layers[i], this.layers[i + 1]], -1.0, 1.0);
+            const bias = math.zeros([this.layers[i + 1]]);
+            this.weights.push(weight);
+            this.biases.push(bias);
+        }
+    }
+
+    sigmoid(x) {
+        return math.map(x, val => 1 / (1 + Math.exp(-val)));
+    }
+
+    feedforward(input) {
+        let activation = input;
+        for (let i = 0; i < this.weights.length; i++) {
+            const z = math.add(math.multiply(activation, this.weights[i]), this.biases[i]);
+            activation = this.sigmoid(z);
+        }
+        return activation;
+    }
+}
+
+ 
+const nn = new NeuralNetwork([3, 5, 2]);
+
+ 
+const input = math.matrix([0.1, 0.5, 0.9]);
+
+ 
+const output = nn.feedforward(input);
+
+print('Output:', output.toArray());

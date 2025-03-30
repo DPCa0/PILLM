@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+class AsyncMath {
+  static delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  static async performComplexOperation(a, b) {
+    await this.delay(1000);  
+    return new Proxy({ result: a * b }, {
+      get: (target, prop) => {
+        if (prop === 'double') {
+          return target.result * 2;
+        }
+        return Reflect.get(target, prop);
+      }
+    });
+  }
+}
+
+(async function() {
+  const input = [3, 7];
+  const [a, b] = input;
+
+  const { result, double } = await AsyncMath.performComplexOperation(a, b);
+
+  console.log(`Operation on ${a} and ${b} results in ${result}`);
+  console.log(`Double of result is ${double}`);
+
+   
+  function tag(strings, ...values) {
+    return strings.reduce((acc, str, i) => `${acc}${str}<${values[i] || ''}>`, '');
+  }
+
+  console.log(tag`The original values were: ${a} and ${b}, with operations resulting in ${result}.`);
+})();
+```

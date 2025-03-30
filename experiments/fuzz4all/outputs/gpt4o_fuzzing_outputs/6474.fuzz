@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+class NetworkRequest {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      let response = await fetch(this.url);
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error(`Failed to fetch data: ${error.message}`);
+    }
+  }
+}
+
+const processUserData = async () => {
+  const request = new NetworkRequest('https://jsonplaceholder.typicode.com/users');
+  try {
+    const users = await request.fetchData();
+    const userNames = users.map(user => `${user.name} (${user.email})`);
+    console.log('Fetched User Names:', userNames);
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  console.log('Starting process...');
+  await processUserData();
+  console.log('Waiting for 3 seconds...');
+  await delay(3000);
+  console.log('Process finished.');
+})();
+```

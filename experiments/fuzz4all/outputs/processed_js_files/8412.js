@@ -1,0 +1,60 @@
+ 
+function* fetchDataGenerator() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2',
+        'https://jsonplaceholder.typicode.com/posts/3'
+    ];
+    
+    for (let url of urls) {
+        yield new Promise((resolve, reject) => {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => resolve(data))
+                .catch(error => reject(error));
+        });
+    }
+}
+
+async function executeGenerator() {
+    const gen = fetchDataGenerator();
+
+    for await (let promise of gen) {
+        try {
+            const data = await promise;
+            print('Fetched Data:', data);
+        } catch (error) {
+            console.error('Fetch Error:', error);
+        }
+    }
+}
+
+executeGenerator();
+
+ 
+const targetObject = {
+    message: "Hello",
+    name: "World"
+};
+
+const handler = {
+    get: function(target, property, receiver) {
+        print(`Getting property ${property}`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, property, value, receiver) {
+        print(`Setting property ${property} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+print(proxy.message);  
+proxy.message = "Hi";  
+print(proxy.message);  

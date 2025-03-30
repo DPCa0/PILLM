@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* generateTasks() {
+    yield "Task 1";
+    yield "Task 2";
+    yield "Task 3";
+}
+
+ 
+function completeTask(task) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Completed: ${task}`);
+        }, Math.random() * 1000);
+    });
+}
+
+ 
+async function processTasks(generator) {
+    for (let task of generator) {
+        const result = await completeTask(task);
+        console.log(result);
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Property '${property}' accessed.`);
+        return target[property];
+    }
+};
+
+ 
+const tasks = {
+    task1: "Learn Promises",
+    task2: "Learn Async/Await",
+    task3: "Learn Proxy"
+};
+
+ 
+const proxyTasks = new Proxy(tasks, handler);
+
+ 
+console.log(proxyTasks.task1);
+console.log(proxyTasks.task2);
+
+ 
+const taskGenerator = generateTasks();
+processTasks(taskGenerator);
+```

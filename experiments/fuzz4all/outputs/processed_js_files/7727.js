@@ -1,0 +1,54 @@
+ 
+
+async function* fetchUserData(userIds) {
+    for (let id of userIds) {
+        yield new Promise((resolve) => {
+            setTimeout(() => resolve(`User data for ID: ${id}`), 1000);
+        });
+    }
+}
+
+async function processUserData(userIds) {
+    const userGenerator = fetchUserData(userIds);
+    const processedData = [];
+    for await (let userDataPromise of userGenerator) {
+        processedData.push(await userDataPromise);
+    }
+    return processedData;
+}
+
+function createDataProxy(data) {
+    return new Proxy(data, {
+        get(target, property) {
+            if (property in target) {
+                print(`Accessing ${property}...`);
+                return target[property];
+            }
+            throw new Error(`Property ${property} does not exist`);
+        },
+        set(target, property, value) {
+            print(`Setting ${property} to ${value}...`);
+            target[property] = value;
+            return true;
+        }
+    });
+}
+
+ 
+(async function main() {
+    const userIds = [101, 102, 103];
+    const fetchedData = await processUserData(userIds);
+    
+    const proxyData = createDataProxy({ data: fetchedData });
+
+    print(proxyData.data);
+
+    try {
+        print(proxyData.nonExistentProperty);  
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    proxyData.data = 'Updated user data';
+    print(proxyData.data);
+})();

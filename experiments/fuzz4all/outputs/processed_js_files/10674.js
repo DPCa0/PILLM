@@ -1,0 +1,46 @@
+ 
+import fetch from 'node-fetch';
+import { writeFileSync } from 'fs';
+import crypto from 'crypto';
+
+ 
+const fetchDataAndProcess = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    const processedData = processData(data);
+    
+    writeToFile('output.json', processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const processData = (data) => {
+  return data.map(item => {
+     
+    const hash = crypto.createHash('sha256').update(JSON.stringify(item)).digest('hex');
+    
+     
+    return {
+      ...item,
+      hash,
+      timestamp: new Date().toISOString()
+    };
+  });
+};
+
+ 
+const writeToFile = (filename, data) => {
+  writeFileSync(filename, JSON.stringify(data, null, 2));
+  print('Data successfully written to', filename);
+};
+
+ 
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/posts';
+  await fetchDataAndProcess(apiUrl);
+})();

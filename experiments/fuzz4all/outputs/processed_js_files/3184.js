@@ -1,0 +1,57 @@
+ 
+import { createServer } from 'http';
+import { EventEmitter } from 'events';
+
+ 
+class DataEmitter extends EventEmitter {
+  async fetchData() {
+    const data = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ message: 'Data fetched successfully', timestamp: new Date() });
+      }, 1000);
+    });
+    this.emit('data', data);
+  }
+}
+
+ 
+const dataEmitter = new DataEmitter();
+
+ 
+const handler = {
+  set(target, property, value) {
+    print(`Property ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+const state = new Proxy({ message: '', timestamp: null }, handler);
+
+ 
+dataEmitter.on('data', (data) => {
+  state.message = data.message;
+  state.timestamp = data.timestamp;
+  print(`Data received: ${JSON.stringify(state)}`);
+});
+
+ 
+const server = createServer((req, res) => {
+  const response = `
+    <html>
+      <body>
+        <h1>Real-time Data</h1>
+        <p>${state.message}</p>
+        <p>${state.timestamp}</p>
+      </body>
+    </html>
+  `;
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.end(response);
+});
+
+ 
+server.listen(3000, async () => {
+  print('Server running at http://localhost:3000/');
+  await dataEmitter.fetchData();
+});

@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Getting ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set: function(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const obj = new Proxy({}, handler);
+
+ 
+(async () => {
+  if (Math.random() > 0.5) {
+    const { sayHello } = await import('./module.js');
+    sayHello();
+  } else {
+    console.log("Module not loaded this time");
+  }
+})();
+
+ 
+function* fibonacci() {
+  let [a, b] = [0, 1];
+  while (true) {
+    [a, b] = [b, a + b];
+    yield a;
+  }
+}
+
+const fib = fibonacci();
+console.log(fib.next().value);  
+console.log(fib.next().value);  
+console.log(fib.next().value);  
+
+ 
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    for (let i = 0; i < 3; i++) {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      yield i;
+    }
+  }
+};
+
+(async () => {
+  for await (const num of asyncIterable) {
+    console.log(num);  
+  }
+})();
+
+ 
+const map = new Map([
+  ['name', 'Alice'],
+  ['age', 25]
+]);
+
+for (let [key, value] of map) {
+  console.log(`${key}: ${value}`);
+}
+
+ 
+const sum = (...nums) => nums.reduce((acc, num) => acc + num, 0);
+console.log(sum(1, 2, 3, 4, 5));  
+
+const originalArray = [1, 2, 3];
+const clonedArray = [...originalArray, 4, 5];
+console.log(clonedArray);  
+```
+
+Note: For the dynamic import example to work

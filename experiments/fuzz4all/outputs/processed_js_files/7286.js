@@ -1,0 +1,66 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  static fromPolar(magnitude, angle) {
+    return new ComplexNumber(magnitude * Math.cos(angle), magnitude * Math.sin(angle));
+  }
+
+  get magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+  get angle() {
+    return Math.atan2(this.imaginary, this.real);
+  }
+
+  add(other) {
+    return new ComplexNumber(this.real + other.real, this.imaginary + other.imaginary);
+  }
+
+  multiply(other) {
+    return new ComplexNumber(
+      this.real * other.real - this.imaginary * other.imaginary,
+      this.real * other.imaginary + this.imaginary * other.real
+    );
+  }
+
+  [Symbol.iterator]() {
+    return [this.real, this.imaginary][Symbol.iterator]();
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    const origMethod = target[prop];
+    if (typeof origMethod === 'function') {
+      return function (...args) {
+        print(`Calling ${prop} with arguments ${args}`);
+        const result = origMethod.apply(this, args);
+        print(`Result: ${result}`);
+        return result;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const c1 = new ComplexNumber(3, 4);
+const c2 = ComplexNumber.fromPolar(5, Math.PI / 4);
+
+const proxiedC1 = new Proxy(c1, handler);
+const proxiedC2 = new Proxy(c2, handler);
+
+const sum = proxiedC1.add(proxiedC2);
+const product = proxiedC1.multiply(proxiedC2);
+
+print([...proxiedC1]);  
+print(`Sum: ${sum}`);
+print(`Product: ${product}`);

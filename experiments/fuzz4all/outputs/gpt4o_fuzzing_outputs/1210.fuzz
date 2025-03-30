@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const memoize = (fn) => {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            console.log('Fetching from cache for args:', args);
+            return cache.get(key);
+        }
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+ 
+const fibonacci = (n) => {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+};
+
+ 
+const memoizedFibonacci = memoize(fibonacci);
+
+ 
+const prefix = 'user';
+const userId = 42;
+const user = {
+    [prefix + 'Id']: userId,
+    name: 'John Doe',
+    sayHello() {
+        console.log(`Hello, my name is ${this.name}`);
+    }
+};
+
+ 
+const privateId = Symbol('privateId');
+user[privateId] = 12345;
+
+ 
+const userProxy = new Proxy(user, {
+    get(target, prop) {
+        if (prop === privateId) {
+            return 'Access Denied';
+        }
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        if (prop === 'name') {
+            console.log(`Changing name to: ${value}`);
+        }
+        target[prop] = value;
+        return true;
+    }
+});
+
+ 
+(async () => {
+    console.log('Generating user IDs...');
+    const ids = idGenerator();
+    console.log(ids.next().value);
+    console.log(ids.next().value);
+    console.log(ids.next().value);
+
+    console.log('Calculating Fibonacci with memoization...');
+    console.log(memoizedFibonacci(5));
+    console.log(memoized

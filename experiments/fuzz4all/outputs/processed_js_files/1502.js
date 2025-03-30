@@ -1,0 +1,40 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* generateNumbers() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+const logHandler = {
+  get: (target, prop) => {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop);
+  }
+};
+
+ 
+const numbers = new Proxy([], logHandler);
+
+ 
+async function processNumbers(generator, count) {
+  for (let i = 0; i < count; i++) {
+    const { value } = generator.next();
+    numbers.push(value);
+    print(`Added number: ${value}`);
+    await delay(500);  
+  }
+}
+
+ 
+(async () => {
+  const numberGenerator = generateNumbers();
+  await processNumbers(numberGenerator, 5);
+  print('Final numbers:', numbers);
+})();

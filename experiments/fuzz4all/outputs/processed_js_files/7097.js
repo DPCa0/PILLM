@@ -1,0 +1,39 @@
+ 
+
+class WeatherStation {
+  #apiKey = 'your_api_key_here';
+  
+  constructor(location) {
+    this.location = location;
+  }
+
+  async getWeather() {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error(`Failed to fetch weather data: ${response.statusText}`);
+    const data = await response.json();
+    return this.#processWeatherData(data);
+  }
+
+  #processWeatherData(data) {
+    const { main: { temp }, weather: [ { description } ], name: cityName } = data;
+    return { temperature: temp, description, cityName };
+  }
+}
+
+const locationPrompt = () => new Promise(resolve => {
+  const location = prompt("Enter a city to get its current weather:");
+  resolve(location);
+});
+
+(async () => {
+  try {
+    const location = await locationPrompt();
+    const station = new WeatherStation(location);
+    const { temperature, description, cityName } = await station.getWeather();
+    print(`Current weather in ${cityName}: ${temperature}°C, ${description}`);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+Note: Replace `'your_api_key_here'` with an actual API key from OpenWeatherMap to use this script effectively.

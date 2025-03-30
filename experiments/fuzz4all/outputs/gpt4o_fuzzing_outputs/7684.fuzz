@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processUserData = async () => {
+    try {
+         
+        const [user, posts] = await Promise.all([
+            fetchData('https://jsonplaceholder.typicode.com/users/1'),
+            fetchData('https://jsonplaceholder.typicode.com/posts?userId=1')
+        ]);
+
+         
+        const { name, email } = user ?? {};
+        const firstPostTitle = posts?.[0]?.title ?? 'No posts available';
+
+         
+        console.log(`User: ${name} (Email: ${email})`);
+        console.log(`First post title: ${firstPostTitle}`);
+
+    } catch (error) {
+         
+        console.error('Error fetching data:', error);
+    }
+};
+
+const debounce = (func, delay) => {
+     
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+};
+
+ 
+const userHandler = {
+    get(target, property) {
+        console.log(`Getting property ${property}`);
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Setting property ${property} to ${value}`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+const user = new Proxy({ name: 'John Doe', age: 30 }, userHandler);
+
+processUserData();
+user.name = 'Jane Doe';   
+
+const logInput = debounce((input) => console.log(`Input: ${input}`), 300);
+logInput('Hello');   
+```

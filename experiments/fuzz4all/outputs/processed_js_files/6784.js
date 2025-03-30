@@ -1,0 +1,36 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.cache = new Proxy({}, {
+            get: (obj, prop) => (prop in obj) ? obj[prop] : (obj[prop] = this.compute(prop))
+        });
+    }
+
+    compute(n) {
+        return (n < 2) ? n : this.cache[n - 1] + this.cache[n - 2];
+    }
+
+    *[Symbol.iterator]() {
+        for (let i = 0; i < this.limit; i++) {
+            yield this.cache[i];
+        }
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+
+    const fibAsync = async function* () {
+        for (const num of fib) {
+            yield await new Promise(resolve => setTimeout(() => resolve(num), 100));
+        }
+    };
+
+    for await (const num of fibAsync()) {
+        print(num);
+    }
+
+     
+    const [first, second, , , fifth] = fib;
+    print(`First: ${first}, Second: ${second}, Fifth: ${fifth}`);
+})();

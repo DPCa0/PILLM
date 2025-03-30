@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const targetObject = {
+  a: 1,
+  b: 2,
+  get sum() {
+    return this.a + this.b;
+  }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+function* generatorFunction() {
+  yield Promise.resolve(10);
+  yield Promise.resolve(20);
+  yield Promise.resolve(30);
+}
+
+async function processGenerator(gen) {
+  const iter = gen();
+  for await (const val of iter) {
+    console.log(`Processing value: ${val}`);
+  }
+}
+
+async function main() {
+  console.log(`Sum: ${proxiedObject.sum}`);
+  
+   
+  await processGenerator(generatorFunction);
+}
+
+main().then(() => console.log('All tasks completed.'));
+```

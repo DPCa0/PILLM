@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  #queue = [];
+  #pendingPromise = false;
+
+  enqueue(promiseFunc) {
+    this.#queue.push(promiseFunc);
+    this.#processQueue();
+  }
+
+  async #processQueue() {
+    if (this.#pendingPromise) return;
+    this.#pendingPromise = true;
+
+    while (this.#queue.length) {
+      const promiseFunc = this.#queue.shift();
+      try {
+        const result = await promiseFunc();
+        console.log('Processed:', result);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    
+    this.#pendingPromise = false;
+  }
+}
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const queue = new AsyncQueue();
+
+ 
+(async () => {
+  const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.js');
+  
+  for (const item of _.shuffle([1, 2, 3, 4, 5])) {
+    queue.enqueue(async () => {
+      await delay(1000 * item);
+      return `Item ${item}`;
+    });
+  }
+})();
+```

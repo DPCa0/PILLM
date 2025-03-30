@@ -1,0 +1,40 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener(...args));
+    }
+}
+
+async function* generateAsyncNumbers(limit) {
+    let i = 0;
+    while (i < limit) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 100));
+    }
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('numberGenerated', num => {
+        if (num % 2 === 0) {
+            print(`Even number: ${num}`);
+        } else {
+            print(`Odd number: ${num}`);
+        }
+    });
+
+    for await (let numberPromise of generateAsyncNumbers(10)) {
+        let number = await numberPromise;
+        eventEmitter.emit('numberGenerated', number);
+    }
+})();

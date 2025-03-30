@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class FibonacciGenerator {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [a, b] = [0, 1];
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  async getNthFibonacci(n) {
+    if (this.memo.has(n)) {
+      return Promise.resolve(this.memo.get(n));
+    }
+    const fibonacci = [...this].slice(0, n + 1);
+    const result = fibonacci[n];
+    this.memo.set(n, result);
+    return Promise.resolve(result);
+  }
+}
+
+const run = async () => {
+  const fibGen = new FibonacciGenerator();
+  console.log('First 10 Fibonacci numbers:');
+  
+  for (const [index, value] of [...fibGen].entries()) {
+    if (index >= 10) break;
+    console.log(value);
+  }
+
+  const n = 15;
+  const nthFib = await fibGen.getNthFibonacci(n);
+  console.log(`The ${n}th Fibonacci number is: ${nthFib}`);
+};
+
+run();
+```

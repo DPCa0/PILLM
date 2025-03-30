@@ -1,0 +1,66 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  async processQueue() {
+    if (this.processing) return;
+    this.processing = true;
+    while (this.queue.length) {
+      const task = this.queue.shift();
+      await task();
+    }
+    this.processing = false;
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+    this.processQueue();
+  }
+}
+
+const queue = new AsyncQueue();
+
+async function delayedLog(message, delay) {
+  await new Promise(resolve => setTimeout(resolve, delay));
+  print(message);
+}
+
+const taskGenerator = function* (messages) {
+  for (const [message, delay] of messages) {
+    yield async () => await delayedLog(message, delay);
+  }
+};
+
+const messages = [
+  ["Task 1", 1000],
+  ["Task 2", 500],
+  ["Task 3", 1500],
+];
+
+for (const task of taskGenerator(messages)) {
+  queue.addTask(task);
+}
+
+ 
+const proxyQueue = new Proxy(queue, {
+  get(target, prop, receiver) {
+    if (prop === 'addTask') {
+      return (...args) => {
+        print('Adding task:', args[0].name || 'Anonymous task');
+        return Reflect.get(target, prop, receiver).apply(target, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+ 
+proxyQueue.addTask(async () => await delayedLog("Task 4", 2000));
+
+ 
+const uniqueTaskId = Symbol('uniqueTask');
+proxyQueue.addTask(async function [uniqueTaskId]() {
+  await delayedLog("Unique Task", 1000);
+});

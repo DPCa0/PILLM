@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === 'https://api.example.com/data') {
+            resolve({ data: 'Sample Data from ' + url });
+        } else {
+            reject('Error: Invalid URL');
+        }
+    }, 1000);
+});
+
+ 
+async function displayData() {
+    try {
+        const urls = [
+            'https://api.example.com/data',
+            'https://api.example.com/invalid'
+        ];
+        
+         
+        const results = await Promise.all(urls.map(async url => {
+            try {
+                const result = await fetchData(url);
+                return result.data;
+            } catch (error) {
+                return error;
+            }
+        }));
+
+         
+        results.forEach((result, index) => console.log(`Result ${index + 1}: ${result}`));
+    } catch (error) {
+        console.error('An unexpected error occurred:', error);
+    }
+}
+
+displayData();
+```

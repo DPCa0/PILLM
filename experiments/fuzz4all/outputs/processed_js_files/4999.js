@@ -1,0 +1,44 @@
+ 
+
+async function fetchData(url) {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const data = {
+        items: [
+          { id: 1, name: 'Alice', age: 30 },
+          { id: 2, name: 'Bob', age: 25 },
+          { id: 3, name: 'Charlie', age: 35 },
+        ],
+      };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+async function processUserData(url) {
+   
+  const { items } = await fetchData(url);
+
+   
+  const nameSet = new Set();
+  const ageMap = new Map();
+
+  items.forEach(({ name, age }) => {
+    nameSet.add(name);
+    ageMap.set(name, age);
+  });
+
+   
+  const allAges = [...ageMap.values()];
+  const averageAge =
+    allAges.reduce((sum, age) => sum + age, 0) / allAges.length;
+
+   
+  print('Unique Names:', [...nameSet]);
+  print('Age Map:', ageMap);
+  print('Average Age:', averageAge.toFixed(2));
+}
+
+ 
+processUserData('https://api.example.com/users');

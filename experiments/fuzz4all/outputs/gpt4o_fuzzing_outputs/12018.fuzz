@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+class AsyncPipeline {
+    constructor(initialValue) {
+        this.promise = Promise.resolve(initialValue);
+    }
+
+    pipe(fn) {
+        this.promise = this.promise.then(fn);
+        return this;
+    }
+
+    execute() {
+        return this.promise;
+    }
+}
+
+const fetchJson = url => fetch(url).then(response => response.json());
+const extractData = json => json.data;
+const processData = data => data.map(item => item.value * 2);
+const logResult = result => console.log('Processed Result:', result);
+
+async function run() {
+    const url = 'https://api.example.com/data';
+    
+    const pipeline = new AsyncPipeline(url)
+        .pipe(fetchJson)
+        .pipe(extractData)
+        .pipe(processData)
+        .pipe(logResult);
+
+    await pipeline.execute();
+}
+
+run().catch(console.error);
+```

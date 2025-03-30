@@ -1,0 +1,40 @@
+class TaskScheduler {
+  constructor() {
+    this.queue = [];
+  }
+
+  schedule(task, delay = 0) {
+    return new Promise((resolve) => {
+      const executeTask = async () => {
+        try {
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          console.error('Task failed:', error);
+        }
+      };
+      this.queue.push(setTimeout(executeTask, delay));
+    });
+  }
+
+  cancelAll() {
+    this.queue.forEach((timeoutId) => clearTimeout(timeoutId));
+    this.queue = [];
+  }
+}
+
+ 
+(async () => {
+  const scheduler = new TaskScheduler();
+
+  const tasks = [
+    () => new Promise((res) => res('Task 1 complete')),
+    () => new Promise((res, rej) => rej('Task 2 failed')),
+    () => new Promise((res) => setTimeout(() => res('Task 3 complete'), 200)),
+  ];
+
+  const results = await Promise.allSettled(tasks.map((task, index) => scheduler.schedule(task, index * 100)));
+  print(results);
+  
+  scheduler.cancelAll();
+})();

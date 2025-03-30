@@ -1,0 +1,60 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.map((_, i, j) => array[i][j]);
+    return matrix;
+  }
+
+  static randomize(rows, cols) {
+    const matrix = new Matrix(rows, cols);
+    matrix.map(() => Math.random() * 2 - 1);
+    return matrix;
+  }
+
+  map(callback) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => callback(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.cols !== other.rows) throw new Error("Columns of A must match rows of B.");
+      return new Matrix(this.rows, other.cols).map(
+        (_, i, j) => this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+      );
+    } else {
+      return this.map(val => val * other);
+    }
+  }
+
+  static multiply(a, b) {
+    if (!(a instanceof Matrix) || !(b instanceof Matrix))
+      throw new Error("Both arguments must be matrices.");
+    return a.multiply(b);
+  }
+
+  transpose() {
+    return new Matrix(this.cols, this.rows).map((_, i, j) => this.data[j][i]);
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+const a = Matrix.randomize(2, 3);
+const b = Matrix.randomize(3, 2);
+
+print("Matrix A:\n" + a.toString());
+print("Matrix B:\n" + b.toString());
+
+const result = Matrix.multiply(a, b);
+print("A * B:\n" + result.toString());

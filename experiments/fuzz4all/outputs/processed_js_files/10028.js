@@ -1,0 +1,31 @@
+class AsyncMath {
+    static async calculate() {
+        const numbers = [10, 20, 30, 40, 50];
+        
+        const results = await Promise.all(numbers.map(async (num) => {
+            const doubled = await AsyncMath.doubleAfterDelay(num);
+            const squared = AsyncMath.square(doubled);
+            return squared;
+        }));
+        
+        return results;
+    }
+
+    static doubleAfterDelay(num) {
+        return new Promise(resolve => {
+            setTimeout(() => resolve(num * 2), 100);
+        });
+    }
+
+    static square(num) {
+        return num ** 2;
+    }
+}
+
+(async () => {
+    const results = await AsyncMath.calculate();
+    const total = results.reduce((acc, num) => acc + num, 0);
+
+    print('Doubled and squared numbers:', results);
+    print('Total of all results:', total);
+})();

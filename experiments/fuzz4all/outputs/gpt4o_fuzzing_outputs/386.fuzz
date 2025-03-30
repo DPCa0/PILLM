@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, defaultValue = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    return new Matrix(a.data.length, b.data[0].length).map(
+      (_, i, j) => a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0)
+    );
+  }
+}
+
+ 
+async function fetchDataAndMultiply() {
+   
+  const fetchData = () => new Promise(resolve => {
+    setTimeout(() => resolve([[1, 2], [3, 4]]), 1000);
+  });
+
+   
+  const data = await fetchData();
+
+   
+  const matrixA = Matrix.fromArray(data);
+  const matrixB = Matrix.fromArray([[2, 0], [1, 2]]);
+  const result = Matrix.multiply(matrixA, matrixB);
+
+  console.log('Multiplication Result:', result.data);
+}
+
+fetchDataAndMultiply().catch(console.error);
+```

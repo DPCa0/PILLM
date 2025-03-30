@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  async fetchUserData() {
+    const data = await simulateAPICall(this.name, this.age);
+    return data;
+  }
+
+  updateUser({ name = this.name, age = this.age } = {}) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+function simulateAPICall(name, age) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = true;  
+      if (success) {
+        resolve({ name, age, id: Math.floor(Math.random() * 1000) });
+      } else {
+        reject('Failed to fetch user data');
+      }
+    }, 1000);
+  });
+}
+
+async function main() {
+  const user = new User('Alice', 25);
+
+  try {
+    const userData = await user.fetchUserData();
+    const { name, age, ...rest } = userData;
+    console.log(`Fetched user data: Name - ${name}, Age - ${age}, ID - ${rest.id}`);
+    
+    user.updateUser({ name: 'Bob' });
+    console.log(`Updated user data: Name - ${user.name}, Age - ${user.age}`);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+main();
+```

@@ -1,0 +1,35 @@
+ 
+
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    greet() {
+        print(`Hello, my name is ${this.name}, and I am ${this.age} years old.`);
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async () => {
+     
+    await delay(1000);
+    return { id: 1, data: { name: "John Doe", age: 30 } };
+}
+
+(async () => {
+    try {
+        const { data: { name, age } } = await fetchData();
+        const person = new Person(name, age);
+        person.greet();
+
+        const hobbies = ["Reading", "Traveling", "Coding"];
+        const [firstHobby, ...otherHobbies] = hobbies;
+        print(`First hobby: ${firstHobby}, Other hobbies: ${otherHobbies.join(", ")}`);
+        
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();

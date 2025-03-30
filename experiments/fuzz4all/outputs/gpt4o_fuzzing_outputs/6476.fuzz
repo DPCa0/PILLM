@@ -1,0 +1,58 @@
+print('Hello, world!');
+Certainly! Below is a JavaScript program utilizing some advanced features such as Promises, async/await, ES6 classes, and destructuring.
+
+```javascript
+ 
+const fetchUserData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                id: 1,
+                name: "John Doe",
+                email: "john.doe@example.com",
+                friends: [
+                    { name: "Jane", id: 2 },
+                    { name: "Mike", id: 3 }
+                ]
+            });
+        }, 1000);
+    });
+};
+
+ 
+class User {
+    constructor({ id, name, email, friends }) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.friends = friends;
+    }
+
+    getProfile() {
+        return `Name: ${this.name}, Email: ${this.email}`;
+    }
+
+    async fetchFriendNames() {
+        const friendNames = this.friends.map(friend => friend.name);
+        return await Promise.all(friendNames);
+    }
+}
+
+(async () => {
+     
+    const userData = await fetchUserData();
+
+     
+    const { id, name, email, friends } = userData;
+    const user = new User({ id, name, email, friends });
+
+     
+    console.log(user.getProfile());
+
+     
+    const friendNames = await user.fetchFriendNames();
+    console.log(`Friends: ${friendNames.join(", ")}`);
+})();
+```
+
+This script demonstrates using Promises, async/await for handling asynchronous operations, ES6 classes with destructuring, and template literals for string interpolation.

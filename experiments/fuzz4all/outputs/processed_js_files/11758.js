@@ -1,0 +1,59 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+    }
+
+    async enqueue(task) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ task, resolve, reject });
+            this.processQueue();
+        });
+    }
+
+    async processQueue() {
+        if (this.isProcessing || this.queue.length === 0) {
+            return;
+        }
+
+        this.isProcessing = true;
+        const { task, resolve, reject } = this.queue.shift();
+
+        try {
+            const result = await task();
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        } finally {
+            this.isProcessing = false;
+            this.processQueue();
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncQueue = new AsyncQueue();
+
+const fetchData = url => async () => {
+    print(`Fetching: ${url}`);
+    await delay(1000);  
+    const response = await fetch(url);
+    const data = await response.json();
+    print(`Fetched: ${url}`, data);
+    return data;
+};
+
+(async () => {
+    const urls = [
+        'https://api.spacexdata.com/v4/launches/latest',
+        'https://api.spacexdata.com/v4/rockets',
+        'https://api.spacexdata.com/v4/starlink'
+    ];
+
+    const results = await Promise.all(
+        urls.map(url => asyncQueue.enqueue(fetchData(url)))
+    );
+
+    print('All data fetched:', results);
+})();

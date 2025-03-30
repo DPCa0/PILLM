@@ -1,0 +1,52 @@
+ 
+class DataFetcher {
+     
+    #url;
+    #data;
+
+    constructor(url) {
+        this.#url = url;
+        this.#data = null;
+    }
+
+     
+    async #fetchData() {
+        if (!this.#url) throw new Error('URL is not defined');
+        return fetch(this.#url)
+            .then(response => response.json())
+            .catch(error => { throw new Error('Failed to fetch data: ' + error); });
+    }
+
+     
+    async getData() {
+        if (this.#data) return this.#data;
+        this.#data = await this.#fetchData();
+        return this.#data;
+    }
+
+     
+    static mergeData(...dataObjects) {
+        return dataObjects.reduce((acc, obj) => ({ ...acc, ...obj }), {});
+    }
+}
+
+ 
+(async () => {
+    try {
+        const url = 'https://api.example.com/data';
+        const dataFetcher = new DataFetcher(url);
+
+         
+        const data1 = await dataFetcher.getData();
+        print('Data 1:', data1);
+
+         
+        const data2 = { user: 'John Doe', age: 30 };
+
+         
+        const mergedData = DataFetcher.mergeData(data1, data2);
+        print('Merged Data:', mergedData);
+    } catch (error) {
+        console.error(error);
+    }
+})();

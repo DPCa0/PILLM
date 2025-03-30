@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+  try {
+     
+    const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+    const data = await response.json();
+
+     
+    const { bpi: { USD, GBP, EUR } } = data;
+
+     
+    const styledOutput = (strings, ...values) =>
+      strings.reduce((prev, curr, i) => prev + curr + `%c${values[i]}`, '');
+
+    console.log(
+      styledOutput`Current Bitcoin Prices: USD: $${USD.rate_float.toFixed(2)} GBP: £${GBP.rate_float.toFixed(2)} EUR: €${EUR.rate_float.toFixed(2)}`,
+      'color: green;', 'color: blue;', 'color: red;'
+    );
+
+     
+    const currencies = ['USD', 'GBP', 'EUR'];
+    const formattedPrices = currencies.map(currency => {
+      const rate = data.bpi[currency].rate_float.toFixed(2);
+      return { currency, rate };
+    });
+
+     
+    const uniquePrices = new Set(formattedPrices.map(price => price.rate));
+    console.log('Unique Prices:', [...uniquePrices]);
+
+     
+    const asyncOperations = currencies.map(currency => new Promise(resolve => {
+      setTimeout(() => {
+        resolve(`Processed ${currency}`);
+      }, Math.random() * 1000);
+    }));
+
+    const results = await Promise.all(asyncOperations);
+    console.log('Async Operations Results:', results);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+(async () => {
+  await fetchData();
+})();
+```

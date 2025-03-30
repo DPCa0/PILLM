@@ -1,0 +1,42 @@
+ 
+
+ 
+function fetchData(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = [
+        { id: 1, name: 'Alice', age: 30 },
+        { id: 2, name: 'Bob', age: 25 },
+        { id: 3, name: 'Charlie', age: 35 },
+      ];
+      const result = data.find(item => item.id === id);
+      if (result) resolve(result);
+      else reject('User not found');
+    }, 1000);
+  });
+}
+
+ 
+async function getUserInfo(id) {
+  try {
+    const { name, age } = await fetchData(id);
+    const message = `User: ${name}, Age: ${age}`;
+    print(message);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+function logExecution(fn) {
+  return function(...args) {
+    print(`Executing function with arguments: ${args}`);
+    return fn(...args);
+  };
+}
+
+ 
+const decoratedGetUserInfo = logExecution(getUserInfo);
+
+ 
+[1, 2, 4].forEach(decoratedGetUserInfo);

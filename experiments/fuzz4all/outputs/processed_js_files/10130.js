@@ -1,0 +1,38 @@
+ 
+ 
+
+const analyzeNumbers = async (numbers) => {
+   
+  if (!Array.isArray(numbers) || numbers.some(isNaN)) {
+    throw new Error("Input must be an array of numbers");
+  }
+
+   
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+
+   
+  const average = sum / numbers.length;
+
+   
+  const evens = numbers.filter(num => num % 2 === 0);
+
+   
+  const asyncOp = () => new Promise(resolve => setTimeout(() => resolve("Operation Complete"), 1000));
+
+   
+  await asyncOp();
+
+   
+  return { sum, average, evens };
+};
+
+ 
+(async () => {
+  try {
+    const numbers = [10, 21, 32, 43, 54];
+    const result = await analyzeNumbers(numbers);
+    print(result);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

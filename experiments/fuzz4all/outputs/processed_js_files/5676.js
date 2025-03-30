@@ -1,0 +1,33 @@
+ 
+async function fetchDataAndProcess() {
+   
+  const apiEndpoints = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+  try {
+    const responses = await Promise.all(
+      apiEndpoints.map(endpoint => fetch(endpoint).then(response => response.json()))
+    );
+
+     
+    const [data1, data2] = responses;
+
+     
+    const processedData1 = data1.map(({ id, value }) => ({ id, value: value * 2 }));
+    const processedData2 = data2.map(({ id, value }) => ({ id, value: value * 3 }));
+
+     
+    const mergedData = [...processedData1, ...processedData2];
+
+     
+    const uniqueData = [...new Map(mergedData.map(item => [item.id, item])).values()];
+
+     
+    print(uniqueData);
+  } catch (error) {
+     
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+fetchDataAndProcess();

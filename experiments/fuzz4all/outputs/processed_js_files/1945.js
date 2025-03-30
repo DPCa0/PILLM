@@ -1,0 +1,61 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.listeners = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    if (this.listeners.has(event)) {
+      for (let listener of this.listeners.get(event)) {
+        await listener(...args);
+      }
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+  return response.json();
+}
+
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield ++id;
+  }
+}
+
+(async () => {
+  const emitter = new AsyncEventEmitter();
+  const gen = idGenerator();
+
+  emitter.on('data', async (data) => {
+    print(`Received data #${gen.next().value}:`, data);
+  });
+
+  emitter.on('error', async (err) => {
+    console.error('Error:', err.message);
+  });
+
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/invalid-url',
+  ];
+
+  for (let url of urls) {
+    try {
+      const data = await fetchData(url);
+      await emitter.emit('data', data);
+    } catch (err) {
+      await emitter.emit('error', err);
+    }
+  }
+})();

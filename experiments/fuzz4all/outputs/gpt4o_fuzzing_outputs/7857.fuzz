@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+const secretKey = Symbol('secret');
+
+class Complex {
+  constructor() {
+    this[secretKey] = new Set();
+  }
+  
+  async addValue(value) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    this[secretKey].add(value);
+  }
+
+  async *getValues() {
+    for (let value of this[secretKey]) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      yield value;
+    }
+  }
+}
+
+const complexHandler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'reveal') {
+      return async () => {
+        const values = [];
+        for await (const val of target.getValues()) {
+          values.push(val);
+        }
+        return values;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const complexInstance = new Proxy(new Complex(), complexHandler);
+
+(async () => {
+  await complexInstance.addValue(1);
+  await complexInstance.addValue(2);
+  await complexInstance.addValue(3);
+  
+  const result = await complexInstance.reveal();
+  console.log('Revealed values:', ...result);
+})();
+```

@@ -1,0 +1,56 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: {
+          name: 'John Doe',
+          age: 30,
+          friends: [
+            { name: 'Jane', age: 28 },
+            { name: 'Jack', age: 32 }
+          ]
+        }
+      });
+    }, 1000);
+  });
+};
+
+const processUserData = async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const {
+      user: {
+        name: userName,
+        age: userAge,
+        friends: [{ name: firstFriendName, age: firstFriendAge }]
+      }
+    } = data;
+
+     
+    console.log(`User Info: 
+      Name: ${userName} 
+      Age: ${userAge}
+      First Friend: 
+        Name: ${firstFriendName} 
+        Age: ${firstFriendAge}`);
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+};
+
+ 
+const wrapWithLogging = (fn) => async (...args) => {
+  print('Starting function execution');
+  await fn(...args);
+  print('Function execution completed');
+};
+
+ 
+const wrappedProcessUserData = wrapWithLogging(processUserData);
+wrappedProcessUserData();

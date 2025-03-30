@@ -1,0 +1,45 @@
+const asyncOperation = async (n) => {
+    return new Promise((resolve) => setTimeout(() => resolve(n * 2), 1000));
+};
+
+const asyncProcess = async (numbers) => {
+    try {
+        const results = await Promise.all(numbers.map(num => asyncOperation(num)));
+        return results.reduce((acc, curr) => acc + curr, 0);
+    } catch (error) {
+        console.error('Error in async processing:', error);
+    }
+};
+
+const proxyHandler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            console.warn(`Property "${prop}" not found, returning default value.`);
+            return 'default';
+        }
+    },
+    set: (obj, prop, value) => {
+        if (typeof value === 'number') {
+            obj[prop] = value;
+            return true;
+        } else {
+            console.error(`Invalid type for property "${prop}". Only numbers are allowed.`);
+            return false;
+        }
+    }
+};
+
+const data = new Proxy({ a: 1, b: 2, c: 3 }, proxyHandler);
+
+data.d = 4;   
+data.e = '5';  
+
+const computation = async () => {
+    const numbers = Object.values(data);
+    const total = await asyncProcess(numbers);
+    print(`Total after async operations: ${total}`);
+};
+
+computation();

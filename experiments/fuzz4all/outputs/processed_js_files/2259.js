@@ -1,0 +1,37 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({real, imaginary}) {
+        return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+    }
+
+    multiply({real, imaginary}) {
+        return new ComplexNumber(
+            this.real * real - this.imaginary * imaginary,
+            this.real * imaginary + this.imaginary * real
+        );
+    }
+
+    toString() {
+        const realPart = this.real !== 0 ? `${this.real}` : '';
+        const imaginaryPart = `${this.imaginary === 1 ? '' : this.imaginary}i`;
+        return `${realPart}${this.imaginary < 0 ? '-' : '+'}${imaginaryPart}`;
+    }
+}
+
+const complexNumbers = [
+    new ComplexNumber(2, 3),
+    new ComplexNumber(4, -1),
+    new ComplexNumber(-1, 2),
+];
+
+const sum = complexNumbers.reduce((acc, num) => acc.add(num), new ComplexNumber(0, 0));
+const product = complexNumbers.reduce((acc, num) => acc.multiply(num), new ComplexNumber(1, 0));
+
+const logComplexOperation = (operation, result) => print(`${operation}: ${result.toString()}`);
+
+logComplexOperation('Sum', sum);
+logComplexOperation('Product', product);

@@ -1,0 +1,49 @@
+ 
+
+async function* fetchData(urls) {
+    for (let url of urls) {
+        let response = await fetch(url);
+        yield response.json();
+    }
+}
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    process() {
+        return this.data.map(item => ({
+            ...item,
+            processed: true
+        }));
+    }
+}
+
+const handler = {
+    get(target, property, receiver) {
+        if (property in target) {
+            print(`Accessing property: ${property}`);
+            return Reflect.get(target, property, receiver);
+        }
+        throw new Error(`Property ${property} does not exist.`);
+    }
+};
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+
+    const generator = fetchData(urls);
+    const results = [];
+
+    for await (let data of generator) {
+        const processor = new DataProcessor(data);
+        const proxy = new Proxy(processor, handler);
+        results.push(proxy.process());
+    }
+
+    print(results);
+})();

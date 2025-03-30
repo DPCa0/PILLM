@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(
+      () =>
+        resolve({
+          name: 'Alice',
+          age: 30,
+          location: { city: 'Wonderland', planet: 'Earth' },
+          hobbies: ['Reading', 'Gardening', 'Coding'],
+        }),
+      1000
+    )
+  );
+
+const processUserData = async () => {
+  try {
+    const { name, age, location: { city }, hobbies } = await fetchData();
+    const [firstHobby, ...otherHobbies] = hobbies;
+    const updatedHobbies = ['Traveling', ...otherHobbies];
+
+    const userSummary = `
+      Name: ${name}
+      Age: ${age}
+      City: ${city}
+      First Hobby: ${firstHobby}
+      Updated Hobbies: ${updatedHobbies.join(', ')}
+    `;
+
+    print(userSummary);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+processUserData();

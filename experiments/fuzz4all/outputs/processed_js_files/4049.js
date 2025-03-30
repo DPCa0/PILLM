@@ -1,0 +1,54 @@
+class AsyncHandler {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async *fetchData() {
+    for (const url of this.urls) {
+      yield fetch(url).then(response => response.json());
+    }
+  }
+
+  async runParallel(tasks) {
+    const results = await Promise.all([...tasks]);
+    return results;
+  }
+}
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  const handler = new AsyncHandler(urls);
+
+   
+  const generator = handler.fetchData();
+
+   
+  const results = await handler.runParallel(generator);
+
+   
+  const formattedResults = results.map(({ id, title }) => ({
+    id,
+    title: title.toUpperCase(),
+  }));
+
+   
+  const uniqueTitles = new Set(formattedResults.map(({ title }) => title));
+
+  print('Unique Titles:', [...uniqueTitles]);
+
+   
+  const logger = {
+    get: (obj, prop) => {
+      print(`Accessing property ${prop}`);
+      return prop in obj ? obj[prop] : undefined;
+    },
+  };
+
+  const proxy = new Proxy(formattedResults, logger);
+  print('First formatted result:', proxy[0]);
+})();

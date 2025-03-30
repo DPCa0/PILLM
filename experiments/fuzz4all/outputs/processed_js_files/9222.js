@@ -1,0 +1,51 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fibonacciSequence(limit) {
+  let [prev, curr] = [0, 1];
+  while (limit-- > 0) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new WeakMap();
+  return async (...args) => {
+    if (!cache.has(args[0])) {
+      cache.set(args[0], fn(...args));
+    }
+    return cache.get(args[0]);
+  };
+};
+
+const fetchData = memoize(async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+});
+
+const main = async () => {
+  const deferred = new Deferred();
+  
+  setTimeout(() => {
+    deferred.resolve('Hello, Deferred World!');
+  }, 1000);
+  
+  print(await deferred.promise);
+  
+  for await (let num of fibonacciSequence(10)) {
+    print(num);
+  }
+  
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  print(data);
+};
+
+main().catch(console.error);

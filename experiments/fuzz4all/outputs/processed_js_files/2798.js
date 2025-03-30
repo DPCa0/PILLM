@@ -1,0 +1,33 @@
+const fetch = require('node-fetch');
+
+ 
+(async function complexFetch() {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const users = await response.json();
+
+     
+    const usernames = users
+      .filter(user => user.id % 2 === 0)  
+      .map(user => user.username);  
+
+     
+    const uniqueUsernames = new Set(usernames);
+
+     
+    print([...uniqueUsernames]);
+
+     
+    const privateCalculation = ((a, b) => {
+      const result = a ** b;
+      return `Result of ${a} to the power of ${b} is ${result}`;
+    })(2, 3);
+
+    print(privateCalculation);
+
+  } catch (error) {
+     
+    console.error('Error fetching data:', error);
+  }
+})();

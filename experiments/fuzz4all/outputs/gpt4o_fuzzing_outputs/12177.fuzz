@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchUserData(userId) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const users = { 1: 'Alice', 2: 'Bob', 3: 'Charlie' };
+            users[userId] ? resolve(users[userId]) : reject('User not found');
+        }, 1000);
+    });
+}
+
+ 
+const userHandler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'age') {
+            return target[prop] + ' years old';
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+(async () => {
+    try {
+         
+        const userName = await fetchUserData(2);
+        console.log(`Fetched User: ${userName}`);
+
+         
+        const user = new Proxy({ name: userName, age: 25 }, userHandler);
+        console.log(`User Name: ${user.name}, User Age: ${user.age}`);
+
+         
+        const [first, second, third] = numberGenerator();
+        console.log(`Generated numbers: ${first}, ${second}, ${third}`);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+})();
+```

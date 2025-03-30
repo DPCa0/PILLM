@@ -1,0 +1,50 @@
+ 
+
+(async () => {
+     
+    function* promiseGenerator() {
+        yield new Promise((resolve) => setTimeout(() => resolve('Hello'), 1000));
+        yield new Promise((resolve) => setTimeout(() => resolve('world'), 500));
+    }
+
+     
+    const handler = {
+        get: (target, prop, receiver) => {
+            if (prop === 'next') {
+                return function () {
+                    const result = Reflect.get(target, prop, receiver).apply(target, []);
+                    return { ...result, value: result.value + ' from Proxy' };
+                }
+            }
+            return Reflect.get(target, prop, receiver);
+        }
+    };
+
+    const gen = new Proxy(promiseGenerator(), handler);
+
+     
+    for await (const msg of gen) {
+        print(msg);  
+    }
+
+     
+    try {
+        const { customFunction } = await import('./optionalModule.js').catch(() => ({ customFunction: undefined }));
+        customFunction?.();  
+    } catch (err) {
+        console.error('Error importing module:', err);
+    }
+
+     
+    const [a, b, ...rest] = [1, 2, 3, 4, 5];
+    const merged = { ...{ a, b }, ...{ rest } };
+    print(merged);
+
+     
+    const results = await Promise.all([...new Set([Promise.resolve(1), Promise.resolve(2), Promise.resolve(2)])].map(async (x) => {
+        const value = await x;
+        return value * 2;
+    }));
+
+    print(results);
+})();

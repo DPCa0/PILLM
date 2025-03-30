@@ -1,0 +1,36 @@
+Certainly! Here's a short JavaScript program that uses some advanced features like Promises, async/await, destructuring, and template literals:
+
+class Weather {
+    constructor() {
+        this.apiKey = 'your_api_key';
+        this.apiUrl = 'https: 
+    }
+
+    async fetchWeather(city) {
+        try {
+            const response = await fetch(`${this.apiUrl}?key=${this.apiKey}&q=${city}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching weather:', error);
+        }
+    }
+
+    displayWeather({ location: { name, country }, current: { temp_c, condition: { text, icon } } }) {
+        print(`Current weather in ${name}, ${country}:`);
+        print(`Temperature: ${temp_c}°C`);
+        print(`Condition: ${text}`);
+        print(`Icon: ${icon}`);
+    }
+}
+
+(async () => {
+    const weather = new Weather();
+    const city = 'New York';
+    const weatherData = await weather.fetchWeather(city);
+    if (weatherData) {
+        weather.displayWeather(weatherData);
+    }
+})();
+
+Replace `'your_api_key'` with an actual API key from a weather data provider like WeatherAPI. This script asynchronously fetches the current weather for a specified city and logs it to the console using destructuring and template literals for neat output formatting.

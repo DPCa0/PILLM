@@ -1,0 +1,31 @@
+ 
+async function getRandomJoke() {
+  try {
+    const response = await fetch('https://official-joke-api.appspot.com/random_joke');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const joke = await response.json();
+    return `${joke.setup} - ${joke.punchline}`;
+  } catch (error) {
+    console.error('Failed to fetch the joke:', error);
+    return 'Joke not available!';
+  }
+}
+
+ 
+const jokesCache = new Proxy({}, {
+  get: async (target, prop) => {
+    if (!(prop in target)) {
+      print(`Fetching joke for key: ${prop}`);
+      target[prop] = await getRandomJoke();
+    }
+    return target[prop];
+  }
+});
+
+ 
+(async () => {
+  const keys = ['joke1', 'joke2', 'joke3'];
+  for (const key of keys) {
+    print(`Joke for ${key}:`, await jokesCache[key]);
+  }
+})();

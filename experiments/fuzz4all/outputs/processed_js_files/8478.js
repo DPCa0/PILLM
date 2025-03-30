@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  const data = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        users: [
+          { id: 1, name: 'Alice', age: 28 },
+          { id: 2, name: 'Bob', age: 34 },
+          { id: 3, name: 'Charlie', age: 25 },
+        ],
+      });
+    }, 1000);
+  });
+  
+  return await data;
+};
+
+ 
+const processData = async () => {
+  try {
+     
+    const { users } = await fetchData('https://example.com/api/users');
+    
+     
+    const [user1, user2] = users;
+
+     
+    const processedUsers = users.map(({ id, name, age }) => ({
+      userId: id,
+      userName: name.toUpperCase(),
+      userAge: age + 5,
+    }));
+
+    print('Selected Users:', user1, user2);
+    print('Processed Users:', processedUsers);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processData();

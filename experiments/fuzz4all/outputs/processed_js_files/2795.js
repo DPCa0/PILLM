@@ -1,0 +1,51 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+  
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const fetchWithTimeout = (url, ms) => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  return Promise.race([
+    fetch(url, { signal }),
+    new Promise((_, reject) => setTimeout(() => {
+      controller.abort();
+      reject(new Error('Timeout'));
+    }, ms))
+  ]);
+}
+
+const observer = new Observer();
+
+observer.subscribe(data => {
+  print(`Subscriber 1 received: ${data}`);
+});
+
+observer.subscribe(data => {
+  print(`Subscriber 2 received: ${data}`);
+});
+
+const simulateAsyncOperation = async () => {
+  try {
+    const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1', 3000);
+    const data = await response.json();
+    observer.notify(JSON.stringify(data));
+  } catch (error) {
+    observer.notify(`Error: ${error.message}`);
+  }
+};
+
+simulateAsyncOperation();

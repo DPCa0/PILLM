@@ -1,0 +1,47 @@
+ 
+(async () => {
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+   
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  const fetchData = async (url) => {
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  };
+
+   
+  const results = await Promise.all(urls.map(fetchData));
+  print('Fetched Data:', results);
+
+   
+  const uniqueUserIds = new Set(results.map(post => post.userId));
+  const userIdMap = new Map();
+
+  uniqueUserIds.forEach(userId => {
+    userIdMap.set(userId, results.filter(post => post.userId === userId));
+  });
+
+  print('UserId to Posts Map:', userIdMap);
+
+   
+  const postProxyHandler = {
+    get(target, prop) {
+      print(`Accessed property "${prop}" with value: ${target[prop]}`);
+      return target[prop];
+    }
+  };
+
+  const proxiedPost = new Proxy(results[0], postProxyHandler);
+  print('Proxied Post Title:', proxiedPost.title);
+
+})();

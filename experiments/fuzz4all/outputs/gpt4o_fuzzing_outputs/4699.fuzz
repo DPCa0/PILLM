@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+
+const userHandler = {
+    get: (target, prop) => {
+        if (prop === 'info') {
+            return `${target.name} is ${target.age} years old.`;
+        }
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        if (prop === 'age' && typeof value !== 'number') {
+            throw new TypeError('Age must be a number.');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxiedUser = new Proxy(new User('Alice', 25), userHandler);
+
+ 
+function* userInfoGenerator(user) {
+    yield `Name: ${user.name}`;
+    yield `Age: ${user.age}`;
+}
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve('Data fetched!'), 1000);
+    });
+}
+
+(async () => {
+    for (const info of userInfoGenerator(proxiedUser)) {
+        console.log(info);
+    }
+    
+     
+    console.log(await fetchData());
+    
+     
+    function messageTemplate(strings, user, fetchedData) {
+        return `${strings[0]}${user.info}${strings[1]}${fetchedData}${strings[2]}`;
+    }
+
+    console.log(messageTemplate`User Details: ${proxiedUser} | Status: ${await fetchData()}.`);
+    
+     
+    try {
+        proxiedUser.age = 'twenty';
+    } catch (error) {
+        console.error(error.message);
+    }
+})();
+```

@@ -1,0 +1,56 @@
+ 
+class Person {
+  #age;  
+
+  constructor(name, age) {
+    this.name = name;
+    this.#age = age;
+  }
+
+  getAge() {
+    return this.#age;
+  }
+
+  growOlder(years) {
+    this.#age += years;
+  }
+}
+
+ 
+function describePerson({ name, ...rest }) {
+  const { age = 'unknown', hobbies = [] } = rest;
+  return `Person: ${name}, Age: ${age}, Hobbies: ${hobbies.join(', ')}`;
+}
+
+ 
+function createPersonAsync(name, age) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(new Person(name, age));
+    }, 1000);
+  });
+}
+
+ 
+(async function () {
+  try {
+    const john = await createPersonAsync('John', 30);
+    john.growOlder(5);
+
+     
+    const johnDescription = describePerson({ ...john, hobbies: ['reading', 'hiking'] });
+    print(johnDescription);
+
+    const results = await Promise.all([
+      createPersonAsync('Alice', 25),
+      createPersonAsync('Bob', 20)
+    ]);
+
+     
+    const [alice, bob] = results;
+    print(describePerson({ ...alice, hobbies: ['gaming'] }));
+    print(describePerson({ ...bob, hobbies: ['coding'] }));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

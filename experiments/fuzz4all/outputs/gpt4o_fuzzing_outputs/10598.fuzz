@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+const target = { secret: 'shhh', value: 42 };
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Property '${prop}' accessed.`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        console.log(`Property '${prop}' set to '${value}'.`);
+        return Reflect.set(target, prop, value);
+    }
+};
+const proxy = new Proxy(target, handler);
+
+ 
+console.log(proxy.value);  
+proxy.value = 100;         
+console.log(proxy.value);  
+
+ 
+async function* dataStream() {
+    yield await Promise.resolve(1);
+    yield await Promise.resolve(2);
+    yield await Promise.resolve(3);
+}
+
+(async function processData() {
+    for await (let num of dataStream()) {
+        console.log(`Processed number: ${num}`);
+    }
+})();
+
+ 
+const map = new Map();
+const weakMap = new WeakMap();
+
+let obj1 = { key: 'obj1' };
+let obj2 = { key: 'obj2' };
+
+map.set(obj1, 'Hello');
+weakMap.set(obj2, 'World');
+
+console.log(map.get(obj1));  
+
+ 
+obj2 = null; 
+
+ 
+const asyncIterable = {
+    [Symbol.asyncIterator]: () => {
+        let i = 0;
+        return {
+            next: () => {
+                if (i < 5) {
+                    return Promise.resolve({ value: i++, done: false });
+                } else {
+                    return Promise.resolve({ done: true });
+                }
+            }
+        };
+    }
+};
+
+(async function runAsyncIterable() {
+    for await (let num of asyncIterable) {
+        console.log(`Async iterated number: ${num}`);
+    }
+})();
+```

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Property ${String(property)} accessed`);
+    return Reflect.get(target, property);
+  },
+};
+
+const user = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((prev, current, i) => `${prev}<strong>${values[i - 1]}</strong>${current}`);
+}
+
+const city = 'Paris';
+console.log(highlight`Welcome to ${city}, the city of lights!`);
+
+ 
+(async () => {
+  const fib = fibonacci();
+  for (let i = 0; i < 5; i++) {
+    console.log(fib.next().value);
+  }
+
+  const data = await fetchData('https://api.example.com/data');
+  if (data) console.log(data);
+
+  console.log(user.name);
+  console.log(user.age);
+})();
+```

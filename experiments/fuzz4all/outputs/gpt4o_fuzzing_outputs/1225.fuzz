@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const loggerHandler = {
+  get(target, prop) {
+    console.log(`Accessed property: ${prop}`);
+    return prop in target ? target[prop] : 'Property not found';
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const person = new Proxy({ name: 'John', age: 30 }, loggerHandler);
+
+ 
+function* fetchData() {
+  console.log('Fetching data...');
+  yield new Promise((resolve) => setTimeout(() => resolve({ data: 'some data' }), 1000));
+  console.log('Processing data...');
+  yield new Promise((resolve) => setTimeout(() => resolve({ processed: true }), 500));
+}
+
+ 
+async function processGenerator(gen) {
+  for await (const value of gen) {
+    console.log(value);
+  }
+}
+
+ 
+const { name, age } = person;
+console.log(`Name: ${name}, Age: ${age}`);
+
+ 
+person.name = 'Jane';
+person.age = 25;
+
+ 
+processGenerator(fetchData());
+```

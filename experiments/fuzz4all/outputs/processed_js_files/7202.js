@@ -1,0 +1,56 @@
+ 
+
+ 
+class MathUtility {
+  constructor() {
+    this.history = [];
+  }
+
+   
+  add(...numbers) {
+    const result = numbers.reduce((acc, num) => acc + num, 0);
+    this.history.push({ operation: 'add', numbers, result });
+    return result;
+  }
+
+   
+  *fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (limit--) {
+      [prev, curr] = [curr, prev + curr];
+      yield prev;
+    }
+  }
+}
+
+ 
+const mathUtilityProxy = new Proxy(new MathUtility(), {
+  get(target, prop) {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  },
+});
+
+ 
+const asyncFibonacciCalc = async (limit) => {
+  return new Promise((resolve) => {
+    const fibArray = [...mathUtilityProxy.fibonacci(limit)];
+    resolve(fibArray);
+  });
+};
+
+ 
+const formatter = (strings, ...values) =>
+  strings.reduce((acc, str, i) => acc + str + (values[i] ? `<${values[i]}>` : ''), '');
+
+ 
+(async () => {
+  print(formatter`Adding numbers: ${[3, 5, 7]}`);
+  print(`Result: ${mathUtilityProxy.add(3, 5, 7)}`);
+
+  print('Calculating Fibonacci sequence up to 10:');
+  const fibonacci = await asyncFibonacciCalc(10);
+  print(fibonacci);
+
+  print('Operation history:', mathUtilityProxy.history);
+})();

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOp = async (msg, delay) => {
+    return new Promise((resolve) => setTimeout(() => resolve(msg), delay));
+};
+
+async function* asyncGenerator() {
+    yield await asyncOp('Hello', 1000);
+    yield await asyncOp('from', 500);
+    yield await asyncOp('advanced', 700);
+    yield await asyncOp('JavaScript', 300);
+}
+
+async function consumeAsyncGenerator(eventEmitter) {
+    for await (const value of asyncGenerator()) {
+        eventEmitter.emit('data', value);
+    }
+    eventEmitter.emit('end');
+}
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('data', console.log);
+eventEmitter.on('end', () => console.log('Done!'));
+
+consumeAsyncGenerator(eventEmitter);
+```

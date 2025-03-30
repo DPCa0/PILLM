@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* asyncGenerator(max) {
+    for (let i = 1; i <= max; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield i * 2;  
+    }
+}
+
+ 
+const trapHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.log(`Property ${prop} not found, generating new value...`);
+            return `New Value for ${prop}`;
+        }
+    }
+};
+
+const obj = new Proxy({}, trapHandler);
+
+ 
+async function processValues() {
+    const generator = asyncGenerator(5);  
+
+    for await (const val of generator) {  
+        console.log(`Generated: ${val}`);
+    }
+
+    console.log('Accessing properties with Proxy:');
+    console.log(`Existing property: ${obj.existingProp = 'I exist!'}`);  
+    console.log(`Non-existing property: ${obj.nonExistingProp}`);  
+}
+
+processValues();
+```

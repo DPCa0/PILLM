@@ -1,0 +1,65 @@
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Getting property: ${prop}`);
+            return Reflect.get(target, prop);
+        } else {
+            console.error(`Property ${prop} does not exist!`);
+        }
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number') {
+            print(`Setting property ${prop} to ${value}`);
+            return Reflect.set(target, prop, value);
+        } else {
+            console.error(`Invalid type for ${prop}. Must be a number.`);
+            return false;
+        }
+    }
+};
+
+const obj = new Proxy({}, handler);
+
+ 
+async function performOperations() {
+    try {
+        const moduleA = await import('./moduleA.js');
+        const moduleB = await import('./moduleB.js');
+
+        const promises = [
+            moduleA.operation1(obj),
+            moduleB.operation2(obj)
+        ];
+
+        const [result1, result2] = await Promise.all(promises);
+
+        print(`Results: ${result1}, ${result2}`);
+    } catch (error) {
+        console.error(`Error during operations: ${error}`);
+    }
+}
+
+ 
+function* numberGenerator(limit) {
+    for (let i = 0; i < limit; i++) {
+        yield i;
+    }
+}
+
+async function main() {
+     
+    obj.x = 42;
+    print(obj.x);
+
+     
+    const gen = numberGenerator(5);
+    for (const num of gen) {
+        print(`Generated number: ${num}`);
+    }
+
+     
+    await performOperations();
+}
+
+main();

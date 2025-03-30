@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+    const jsonResponse = await response.json();
+    return jsonResponse;
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+function complexOperation(arr) {
+  return arr
+    .filter(({ id }) => id % 2 === 0)   
+    .map(({ name, age }) => ({ name, ageInMonths: age * 12 }))   
+    .reduce((acc, curr) => {  
+      acc.names.push(curr.name);
+      acc.totalAgeInMonths += curr.ageInMonths;
+      return acc;
+    }, { names: [], totalAgeInMonths: 0 });
+}
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+
+fetchData(url)
+  .then(data => complexOperation(data))
+  .then(({ names, totalAgeInMonths }) => {
+    console.log(`Names: ${names.join(', ')}`);
+    console.log(`Total Age in Months: ${totalAgeInMonths}`);
+  })
+  .catch(error => console.error('Error processing data:', error));
+
+ 
+const state = {
+  count: 0,
+};
+
+const handler = {
+  set(obj, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  },
+};
+
+const proxyState = new Proxy(state, handler);
+
+ 
+proxyState.count = 1;
+proxyState.count = 2;
+```

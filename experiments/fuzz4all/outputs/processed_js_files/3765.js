@@ -1,0 +1,59 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events.has(event)) return;
+    const filteredListeners = this.events.get(event)
+      .filter(listener => listener !== listenerToRemove);
+    this.events.set(event, filteredListeners);
+  }
+}
+
+function asyncFetch(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+}
+
+(async function complexExample() {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataReceived', data => {
+    print(`Listener 1: Received - ${data}`);
+  });
+
+  const anotherListener = data => {
+    print(`Listener 2: Also received - ${data}`);
+  };
+  eventEmitter.on('dataReceived', anotherListener);
+
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const promises = urls.map(url => asyncFetch(url).then(data => {
+    eventEmitter.emit('dataReceived', data);
+  }));
+
+  await Promise.all(promises);
+
+  eventEmitter.off('dataReceived', anotherListener);
+
+  asyncFetch('https://api.example.com/data3').then(data => {
+    eventEmitter.emit('dataReceived', data);
+  });
+})();

@@ -1,0 +1,57 @@
+ 
+async function fetchDataAndProcess(url) {
+    try {
+         
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const dataStream = response.body;
+        const reader = dataStream.getReader();
+        const decoder = new TextDecoder();
+        
+        let { done, value } = await reader.read();
+        while (!done) {
+             
+            let chunk = decoder.decode(value, { stream: true });
+            print(`Received chunk: ${chunk}`);
+            
+            ({ done, value } = await reader.read());
+        }
+    } catch (error) {
+        console.error(`Fetch failed: ${error.message}`);
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            return target[property];
+        } else {
+            throw new Error(`Property ${property} not found`);
+        }
+    },
+    set: (target, property, value) => {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+Reflect.set(proxy, 'a', 42);
+print(Reflect.get(proxy, 'a'));  
+
+ 
+try {
+    print(Reflect.get(proxy, 'c'));
+} catch (error) {
+    console.error(error.message);
+}
+
+ 
+fetchDataAndProcess('https://jsonplaceholder.typicode.com/posts/1');

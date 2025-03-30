@@ -1,0 +1,37 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  };
+
+  const processData = (data) => {
+    const mappedData = data.map(item => ({
+      id: item.id,
+      name: item.name.toUpperCase(),
+      value: item.value * 10
+    }));
+
+    const filteredData = mappedData.filter(item => item.value > 100);
+
+    return filteredData.reduce((acc, curr) => {
+      acc[curr.id] = curr;
+      return acc;
+    }, {});
+  };
+
+  const url = 'https://api.example.com/data';
+
+  try {
+    print('Fetching data...');
+    const rawData = await fetchData(url);
+    print('Processing data...');
+    await delay(1000);  
+    const processedData = processData(rawData);
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

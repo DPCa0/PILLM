@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+ 
+const loggingProxyHandler = {
+  get(target, prop, receiver) {
+    console.log(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    console.log(`Setting property: ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+ 
+function* objectValues(obj) {
+  for (const key of Object.keys(obj)) {
+    yield obj[key];
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((result, str, i) => result + str + (values[i] ? `<strong>${values[i]}</strong>` : ''), '');
+}
+
+ 
+(async function() {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    const data = await fetchData(url);
+    
+     
+    const proxyData = new Proxy(data, loggingProxyHandler);
+
+     
+    for (const value of objectValues(proxyData)) {
+      console.log(tag`Fetched value: ${value}`);
+    }
+
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+})();
+```

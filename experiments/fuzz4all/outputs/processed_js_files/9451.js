@@ -1,0 +1,55 @@
+ 
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const reactive = (obj) => {
+  const handlers = {
+    get(target, prop, receiver) {
+      print(`Getting ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      print(`Setting ${prop} to ${value}`);
+      return Reflect.set(target, prop, value, receiver);
+    }
+  };
+  return new Proxy(obj, handlers);
+};
+
+ 
+const fibonacci = memoize((n) => {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+ 
+const state = reactive({ count: 0 });
+
+ 
+const fetchData = async (urls) => {
+  const results = await Promise.all(urls.map(url => fetch(url).then(res => res.json())));
+  return results;
+};
+
+ 
+(async () => {
+  state.count = 5;
+  print(`Fibonacci(${state.count}):`, fibonacci(state.count));
+
+  const urls = ['https://api.agify.io/?name=michael', 'https://api.agify.io/?name=lucy'];
+  try {
+    const data = await fetchData(urls);
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

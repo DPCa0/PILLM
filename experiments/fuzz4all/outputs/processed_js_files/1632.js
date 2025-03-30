@@ -1,0 +1,49 @@
+(async () => {
+   
+  const urls = [
+    'https://api.github.com/users/github',
+    'https://api.github.com/users/microsoft',
+    'https://api.github.com/users/google'
+  ];
+
+  const fetchUserData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching ${url}`);
+    return response.json();
+  };
+
+  const processUserData = (users) => {
+     
+    users.forEach(({ login, ...rest }) => {
+      print(`User: ${login}`, rest);
+    });
+  };
+
+  try {
+    const results = await Promise.allSettled(urls.map(url => fetchUserData(url)));
+
+     
+    const fulfilledData = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => result.value?.login ?? 'Unknown');
+    
+    print('Fulfilled User Logins:', fulfilledData);
+
+     
+    const logger = (function* () {
+      let count = 0;
+      while (true) {
+        yield `Log entry ${++count}`;
+      }
+    })();
+
+     
+    const uniqueLogins = new Set(fulfilledData);
+    uniqueLogins.forEach(login => {
+      print(logger.next().value, login);
+    });
+
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncNumberGenerator() {
+    let count = 0;
+    while (count < 5) {
+        await delay(1000);
+        yield count++;
+    }
+}
+
+ 
+function logUserInfo({ name, age, address: { city, country } }) {
+    console.log(`User Info: Name - ${name}, Age - ${age}, City - ${city}, Country - ${country}`);
+}
+
+ 
+const user = {
+    name: 'Alice',
+    age: 30,
+    address: {
+        city: 'Wonderland',
+        country: 'Imagination'
+    }
+};
+
+ 
+(async function run() {
+    logUserInfo(user);
+
+    console.log("Starting async number generator...");
+    for await (const num of asyncNumberGenerator()) {
+        console.log(`Generated number: ${num}`);
+    }
+
+    console.log("All numbers generated.");
+})();
+```

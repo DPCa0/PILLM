@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (Math.random() > 0.5) {
+            resolve(`Data from ${url}`);
+        } else {
+            reject(`Error fetching data from ${url}`);
+        }
+    }, 1000);
+});
+
+async function* dataGenerator(urls) {
+    for (let url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield { url, data };
+        } catch (error) {
+            yield { url, error };
+        }
+    }
+}
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('data', ({ url, data }) => {
+    console.log(`Success: ${url} - ${data}`);
+});
+
+eventEmitter.on('error', ({ url, error }) => {
+    console.error(`Failure: ${url} - ${error}`);
+});
+
+(async () => {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+    for await (const result of dataGenerator(urls)) {
+        if (result.data) {
+            eventEmitter.emit('data', result);
+        } else {
+            eventEmitter.emit('error', result);
+        }
+    }
+})();
+```

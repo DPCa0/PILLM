@@ -1,0 +1,26 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const rawData = [1, 2, 3, 4, 5, 3, 2, 1];
+    const uniqueData = new Set(rawData);
+
+     
+    const squaredMap = new Map([...uniqueData].map(num => [num, num ** 2]));
+
+     
+    const [file1, file2] = await Promise.all([
+      fs.writeFile('file1.txt', JSON.stringify([...uniqueData]), 'utf8'),
+      fs.writeFile('file2.txt', JSON.stringify([...squaredMap]), 'utf8')
+    ]);
+
+     
+    print(`Data saved to files successfully!`);
+  } catch (error) {
+     
+    console.error(`An error occurred: ${error?.message ?? 'Unknown error'}`);
+  }
+})();

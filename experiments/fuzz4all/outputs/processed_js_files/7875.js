@@ -1,0 +1,47 @@
+ 
+
+class Weather {
+  constructor(city) {
+    this.city = city;
+    this.apiKey = 'your_api_key_here';
+  }
+
+  async fetchWeather() {
+    try {
+      const response = await fetch(`https: 
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return this.extractDetails(data);
+    } catch (error) {
+      console.error('Fetching weather failed:', error);
+      return null;
+    }
+  }
+
+  extractDetails({ main: { temp, humidity }, weather: [{ description }] }) {
+    return { temp, humidity, description };
+  }
+}
+
+const displayWeather = async (city) => {
+  const weather = new Weather(city);
+  const { temp, humidity, description } = await weather.fetchWeather() || {};
+  
+  if (temp) {
+    print(`Weather in ${city}:`);
+    print(`Temperature: ${(temp - 273.15).toFixed(2)} °C`);
+    print(`Humidity: ${humidity}%`);
+    print(`Conditions: ${description}`);
+  } else {
+    print('Weather data could not be retrieved.');
+  }
+};
+
+ 
+const userInput = new Promise((resolve) => setTimeout(() => resolve('New York'), 100));
+
+userInput
+  .then(displayWeather)
+  .catch((error) => console.error('Error in user input processing:', error));
+
+Please replace `'your_api_key_here'` with a valid OpenWeather API key to make this program functional.

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, filler = () => Math.random()) {
+    this.data = Array.from({ length: rows }, () => 
+      Array.from({ length: cols }, filler));
+  }
+
+  *[Symbol.iterator]() {
+    for (const row of this.data) yield* row;
+  }
+
+  map(callback) {
+    return new Matrix(
+      this.data.length, 
+      this.data[0].length, 
+      (_, r, c) => callback(this.data[r][c], r, c)
+    );
+  }
+
+  static add(m1, m2) {
+    if (m1.data.length !== m2.data.length || 
+        m1.data[0].length !== m2.data[0].length) {
+      throw new Error("Matrix dimensions must match");
+    }
+    return m1.map((val, r, c) => val + m2.data[r][c]);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function() {
+  const matrix1 = new Matrix(3, 3);
+  const matrix2 = new Matrix(3, 3, () => Math.random() * 10);
+
+  console.log('Matrix 1:', matrix1.data);
+  console.log('Matrix 2:', matrix2.data);
+
+  await delay(1000);  
+  const matrix3 = Matrix.add(matrix1, matrix2);
+
+  console.log('Resultant Matrix:', matrix3.data);
+
+  for (const value of matrix3) {
+    console.log('Value:', value);
+  }
+})();
+```

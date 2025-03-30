@@ -1,0 +1,54 @@
+class Node {
+    constructor(value) {
+        this.value = value;
+        this.next = null;
+    }
+}
+
+class LinkedList {
+    constructor() {
+        this.head = null;
+    }
+
+    async append(value) {
+        const newNode = new Node(value);
+        if (!this.head) {
+            this.head = newNode;
+            return;
+        }
+        let current = this.head;
+        while (current.next) {
+            current = current.next;
+        }
+        current.next = newNode;
+    }
+
+    async *traverse() {
+        let current = this.head;
+        while (current) {
+            yield current.value;
+            current = current.next;
+        }
+    }
+}
+
+(async () => {
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    const list = new LinkedList();
+    await list.append(1);
+    await list.append(2);
+    await list.append(3);
+
+    print('Traversing the linked list with a delay:');
+    for await (const value of list.traverse()) {
+        print(value);
+        await delay(1000);
+    }
+
+    const double = (x) => x * 2;
+    const pipeline = (value, ...fns) => fns.reduce((v, fn) => fn(v), value);
+    
+    print('\nUsing a pipeline to process the number 5:');
+    print(pipeline(5, double, Math.sqrt, Math.floor));  
+})();

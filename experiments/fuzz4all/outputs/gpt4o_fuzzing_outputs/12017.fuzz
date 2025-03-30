@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = (value, delay) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (value < 10) {
+            resolve(`Success: ${value}`);
+        } else {
+            reject(`Error: Value too high (${value})`);
+        }
+    }, delay);
+});
+
+ 
+async function* complexOperation(values) {
+    try {
+        for (const { val, delay } of values) {
+            const result = await asyncOperation(val, delay);
+            yield result;
+        }
+    } catch (error) {
+        yield error;
+    }
+}
+
+ 
+(async () => {
+    const values = [
+        { val: 3, delay: 500 },
+        { val: 8, delay: 300 },
+        { val: 12, delay: 100 },  
+        { val: 5, delay: 700 }
+    ];
+
+    const iterator = complexOperation(values);
+
+    for await (const result of iterator) {
+        console.log(result);
+    }
+})();
+```

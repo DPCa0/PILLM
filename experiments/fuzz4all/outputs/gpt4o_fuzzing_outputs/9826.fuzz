@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(task) {
+        this.queue.push(task);
+        if (!this.processing) {
+            this.processing = true;
+            while (this.queue.length) {
+                const currentTask = this.queue.shift();
+                await currentTask();
+            }
+            this.processing = false;
+        }
+    }
+}
+
+function fetchWithTimeout(url, timeout = 5000) {
+    return Promise.race([
+        fetch(url),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), timeout)
+        )
+    ]);
+}
+
+(async function() {
+    const queue = new AsyncQueue();
+
+    const tasks = [
+        async () => {
+            try {
+                const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1');
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching post 1:', error);
+            }
+        },
+        async () => {
+            try {
+                const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/2', 3000);
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching post 2:', error);
+            }
+        },
+        async () => {
+            try {
+                const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/3');
+                const data = await response.json();
+                console.log(data);
+            } catch (error) {
+                console.error('Error fetching post 3:', error);
+            }
+        }
+    ];
+
+    for (const task of tasks) {
+        queue.enqueue(task);
+    }
+})();
+```

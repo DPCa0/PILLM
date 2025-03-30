@@ -1,0 +1,44 @@
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const todo = await response.json();
+
+     
+    const { userId, title, completed } = todo;
+    const todoDetails = `User ID: ${userId}\nTitle: ${title}\nCompleted: ${completed}`;
+
+     
+    print('Fetched TODO:', todoDetails ?? 'No TODO data');
+
+     
+    if (completed) {
+      const { default: chalk } = await import('chalk');
+      print(chalk.green('This TODO is completed!'));
+    } else {
+      print('This TODO is not completed.');
+    }
+
+     
+    const handler = {
+      set: function (obj, prop, value) {
+        print(`Property ${prop} set to ${value}`);
+        obj[prop] = value;
+        return true;
+      },
+    };
+    const proxiedTodo = new Proxy(todo, handler);
+    proxiedTodo.title = 'New Title Set by Proxy';
+
+     
+    await fs.writeFile('todo.txt', todoDetails);
+    print('TODO details written to file.');
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

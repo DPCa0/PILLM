@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => {
+    setTimeout(resolve, Math.floor(Math.random() * 1000));
+});
+
+ 
+async function* asyncCounter() {
+    for (let i = 1; i <= 5; i++) {
+        await randomDelay();
+        yield i;
+    }
+}
+
+ 
+(async () => {
+    for await (const number of asyncCounter()) {
+        console.log(`Received number: ${number}`);
+    }
+    console.log('Finished processing numbers');
+})();
+
+ 
+const target = {};
+const handler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : `Property '${prop}' does not exist`),
+    set: (obj, prop, value) => {
+        console.log(`Setting value '${value}' to '${prop}'`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+proxy.name = "JavaScript";
+console.log(proxy.name);  
+console.log(proxy.nonExistent);  
+
+ 
+function format(strings, ...values) {
+    return strings.reduce((result, string, i) => `${result}${string}<${values[i] || ''}>`, '');
+}
+
+const name = "JavaScript";
+const version = "ES2021";
+console.log(format`Welcome to ${name} version ${version}!`);
+```

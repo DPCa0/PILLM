@@ -1,0 +1,68 @@
+ 
+const createUser = ({ name, age = 18, role = 'guest' } = {}) => ({
+  name,
+  age,
+  role,
+  greeting: () => `Hello, my name is ${name} and I am ${age} years old.`,
+});
+
+ 
+const fetchUserData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+    throw error;
+  }
+};
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const userRoles = new Map();
+userRoles.set('admin', { permissions: ['read', 'write', 'delete'] });
+userRoles.set('editor', { permissions: ['read', 'write'] });
+userRoles.set('guest', { permissions: ['read'] });
+
+const activeUsers = new Set();
+
+ 
+(async () => {
+   
+  const users = [
+    createUser({ name: 'Alice', age: 25, role: 'admin' }),
+    createUser({ name: 'Bob', role: 'editor' }),
+    createUser(),
+  ];
+
+   
+  const generateId = idGenerator();
+  users.forEach(user => {
+    user.id = generateId.next().value;
+    activeUsers.add(user);
+  });
+
+   
+  try {
+    const apiUser = await fetchUserData('https://jsonplaceholder.typicode.com/users/1');
+    const apiUserObject = createUser({ name: apiUser.name, age: apiUser.id, role: 'guest' });
+    apiUserObject.id = generateId.next().value;
+    activeUsers.add(apiUserObject);
+  } catch (error) {
+    console.error('Failed to fetch API user:', error);
+  }
+
+   
+  for (const user of activeUsers) {
+    const { role, name, id } = user;
+    const permissions = userRoles.get(role)?.permissions || ['no permissions'];
+    console.log(`User

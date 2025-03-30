@@ -1,0 +1,57 @@
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    let data = await fs.readFile('data.json', 'utf8');
+    let jsonData = JSON.parse(data);
+
+     
+    let processedData = jsonData
+      .filter(item => item.active)
+      .map(item => ({ ...item, value: item.value * 2 }))
+      .reduce((acc, curr) => {
+        acc[curr.id] = curr;
+        return acc;
+      }, {});
+
+     
+    print(`Processed Data:\n${JSON.stringify(processedData, null, 2)}`);
+
+     
+    const handler = {
+      set(obj, prop, value) {
+        if (prop === 'value' && typeof value !== 'number') {
+          throw new TypeError('Value must be a number');
+        }
+        obj[prop] = value;
+        return true;
+      }
+    };
+
+    const target = { id: 1, value: 42 };
+    const proxy = new Proxy(target, handler);
+
+     
+    proxy.value = 100;  
+    print(`Proxy Object Value: ${proxy.value}`);
+
+     
+    function* generateSequence(start, end) {
+      for (let i = start; i <= end; i++) {
+        yield i;
+      }
+    }
+
+    const sequence = generateSequence(1, 5);
+    print('Generated Sequence:');
+    for (const num of sequence) {
+      print(num);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

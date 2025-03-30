@@ -1,0 +1,26 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+    await delay(500);  
+    return [
+        { id: 1, name: 'Alice', age: 28 },
+        { id: 2, name: 'Bob', age: 34 },
+        { id: 3, name: 'Charlie', age: 25 }
+    ];
+}
+
+async function processUsers() {
+    const users = await fetchData();
+    const usersMap = new Map(users.map(({ id, ...rest }) => [id, rest]));
+
+    console.log("Users processed:");
+    for (const [id, { name, age }] of usersMap) {
+        console.log(`User ID: ${id}, Name: ${name}, Age: ${age}`);
+    }
+}
+
+processUsers();
+```

@@ -1,0 +1,64 @@
+class Observable {
+    constructor() {
+        this.listeners = new Set();
+    }
+
+    subscribe(listener) {
+        this.listeners.add(listener);
+        return {
+            unsubscribe: () => this.listeners.delete(listener)
+        };
+    }
+
+    notify(data) {
+        this.listeners.forEach(listener => listener(data));
+    }
+}
+
+class Emitter {
+    #state = new Observable();
+
+    constructor(initialValue = 0) {
+        this.#value = initialValue;
+    }
+
+    set value(newValue) {
+        if (this.#value !== newValue) {
+            this.#value = newValue;
+            this.#state.notify(this.#value);
+        }
+    }
+
+    get value() {
+        return this.#value;
+    }
+
+    subscribe(listener) {
+        return this.#state.subscribe(listener);
+    }
+}
+
+ 
+const handler = {
+    set(target, prop, value) {
+        print(`Property ${prop} set to ${value}`);
+        target[prop] = value;
+        return true;
+    },
+    get(target, prop) {
+        print(`Property ${prop} accessed`);
+        return target[prop];
+    }
+};
+
+const emitter = new Proxy(new Emitter(5), handler);
+
+const subscription = emitter.subscribe(value => print(`New value: ${value}`));
+
+emitter.value = 10;
+print(emitter.value);
+
+subscription.unsubscribe();
+
+emitter.value = 20;
+print(emitter.value);

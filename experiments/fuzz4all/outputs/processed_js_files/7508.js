@@ -1,0 +1,42 @@
+ 
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+     
+    #transformData(item) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(item * 2);
+            }, 500);
+        });
+    }
+
+     
+    async *processData() {
+        for (let item of this.data) {
+            yield await this.#transformData(item);
+        }
+    }
+}
+
+(async () => {
+    const processor = new AsyncProcessor([1, 2, 3, 4, 5]);
+
+     
+    for await (const transformed of processor.processData()) {
+        print(`Transformed Value: ${transformed}`);
+    }
+
+     
+    const [first, ...rest] = processor.data;
+    print(`First: ${first}, Rest: ${rest}`);
+
+     
+    const uniqueKey = Symbol('uniqueKey');
+    const obj = {
+        [uniqueKey]: 'Symbol based value'
+    };
+    print(`Symbol Value: ${obj[uniqueKey]}`);
+})();

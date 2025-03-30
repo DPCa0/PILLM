@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+class DataProcessor {
+  #data;
+
+  constructor() {
+    this.#data = [];
+  }
+
+   
+  async processData(urls) {
+    const results = await Promise.all(urls.map(url => this.#fetchAndProcess(url)));
+    console.log('All data processed:', results);
+  }
+
+   
+  async #fetchAndProcess(url) {
+    const response = await fetchData(url);
+    const processedData = this.#transformData(response.data);
+    this.#data.push(processedData);
+    return processedData;
+  }
+
+   
+  #transformData(data) {
+    return data.toUpperCase();
+  }
+}
+
+ 
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const processor = new DataProcessor();
+  await processor.processData(urls);
+})();
+```

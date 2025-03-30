@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacciSequence(limit) {
+  let [prev, current] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    await delay(500);
+    yield current;
+    [prev, current] = [current, prev + current];
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('data', data => console.log('Data received:', data));
+  eventEmitter.on('end', () => console.log('Fibonacci sequence has ended.'));
+  
+  try {
+    for await (const number of fibonacciSequence(10)) {
+      eventEmitter.emit('data', number);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  } finally {
+    eventEmitter.emit('end');
+  }
+})();
+```

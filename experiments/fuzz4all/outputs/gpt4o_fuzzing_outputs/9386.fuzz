@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator(n) {
+    let num = 1;
+    while (num <= n) {
+        yield num++;
+    }
+}
+
+ 
+const generatorHandler = {
+    get: function(target, prop) {
+        console.log(`Accessing property: ${prop}`);
+        return target[prop];
+    }
+};
+
+ 
+async function processNumbers(n) {
+    const numbers = new Proxy(numberGenerator(n), generatorHandler);
+
+     
+    for await (let number of numbers) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        console.log(`Processed number: ${number}`);
+    }
+}
+
+ 
+(async () => {
+    try {
+        await processNumbers(5);
+        console.log('All numbers processed successfully.');
+    } catch (error) {
+        console.error('Error processing numbers:', error);
+    }
+})();
+```

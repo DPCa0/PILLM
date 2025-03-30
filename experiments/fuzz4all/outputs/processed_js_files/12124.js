@@ -1,0 +1,66 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static identity(size) {
+    return new Matrix([...Array(size)].map((_, i) => (
+      [...Array(size)].map((_, j) => (i === j ? 1 : 0))
+    )));
+  }
+
+  static fromFunction(size, fn) {
+    return new Matrix([...Array(size)].map((_, i) => (
+      [...Array(size)].map((_, j) => fn(i, j))
+    )));
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield* row;
+    }
+  }
+
+  map(fn) {
+    return new Matrix(this.data.map((row, i) => (
+      row.map((value, j) => fn(value, i, j))
+    )));
+  }
+
+  reduce(fn, initialValue) {
+    let accumulator = initialValue;
+    for (let value of this) {
+      accumulator = fn(accumulator, value);
+    }
+    return accumulator;
+  }
+
+  transpose() {
+    const newSize = this.data.length;
+    return new Matrix([...Array(newSize)].map((_, i) => (
+      [...Array(newSize)].map((_, j) => this.data[j][i])
+    )));
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Incompatible matrices for multiplication');
+    }
+    return new Matrix(a.data.map((row) => (
+      b.transpose().data.map((col) => (
+        row.reduce((sum, value, i) => sum + value * col[i], 0)
+      ))
+    )));
+  }
+}
+
+const randomMatrix = Matrix.fromFunction(3, () => Math.floor(Math.random() * 10));
+const identityMatrix = Matrix.identity(3);
+
+const resultMatrix = Matrix.multiply(randomMatrix, identityMatrix);
+const sumOfElements = resultMatrix.reduce((sum, value) => sum + value, 0);
+
+print('Random Matrix:', randomMatrix.data);
+print('Identity Matrix:', identityMatrix.data);
+print('Result Matrix:', resultMatrix.data);
+print('Sum of all elements in Result Matrix:', sumOfElements);

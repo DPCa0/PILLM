@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (userId) => {
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+  const simulateFetch = async (userId) => {
+    await delay(1000);  
+    const users = new Map([
+      [1, { name: 'Alice', age: 30 }],
+      [2, { name: 'Bob', age: 25 }],
+    ]);
+    if (!users.has(userId)) throw new Error('User not found');
+    return users.get(userId);
+  };
+
+  try {
+    const user = await simulateFetch(userId);
+    console.log(`Fetched User: ${JSON.stringify(user)}`);
+  } catch (error) {
+    console.error('Error fetching user:', error.message);
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+(async () => {
+  const userId = 1;
+  const emitter = new EventEmitter();
+
+  emitter.on('userFetched', (user) => {
+    console.log(`User event received: ${JSON.stringify(user)}`);
+  });
+
+  const user = await fetchUserData(userId);
+  if (user) {
+    emitter.emit('userFetched', user);
+  }
+
+  const numbers = [1, 2, 3, 4, 5];
+  const double = numbers.map(num => num * 2);
+  console.log('Doubled numbers:', double);
+
+  const [a, b, ...rest] = double;
+  console.log('Destructured:', { a, b, rest });
+})();
+```

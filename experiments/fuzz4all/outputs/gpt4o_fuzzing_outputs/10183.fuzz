@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Accessing property '${property}'`);
+        if (property in target) {
+            return target[property];
+        } else {
+            return `Property '${property}' not found!`;
+        }
+    },
+    set(target, property, value) {
+        console.log(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { a: 1, b: 2, c: 3 };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function fetchData() {
+     
+    const fakeApiCall = new Promise((resolve) => {
+        setTimeout(() => resolve({ data: 'Sample Data' }), 1000);
+    });
+
+    const result = await fakeApiCall;
+    console.log(`Fetched data: ${result.data}`);
+}
+
+ 
+function* numberGenerator() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+const generator = numberGenerator();
+console.log('Generated Numbers:');
+for (const number of generator) {
+    console.log(number);
+}
+
+ 
+function sum(...numbers) {
+    return numbers.reduce((acc, curr) => acc + curr, 0);
+}
+
+const numbersArray = [1, 2, 3, 4, 5];
+console.log(`Sum of numbers: ${sum(...numbersArray)}`);
+
+ 
+const user = {
+    profile: {
+        name: 'John Doe',
+        address: null
+    }
+};
+
+console.log(`User name: ${user?.profile?.name ?? 'Anonymous'}`);
+console.log(`User address: ${user?.profile?.address ?? 'Address not provided'}`);
+
+ 
+proxyObject.a;
+proxyObject.b = 5;
+console.log(`Non-existent property: ${proxyObject.nonExistentProp}`);
+
+ 
+fetchData();
+```

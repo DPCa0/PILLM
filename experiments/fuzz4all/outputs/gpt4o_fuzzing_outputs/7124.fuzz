@@ -1,0 +1,45 @@
+print('Hello, world!');
+Certainly! Here is a JavaScript program that utilizes advanced features such as Promises, async/await, and the spread operator:
+
+```javascript
+class DataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async getAllData() {
+    const promises = this.urls.map(url => this.fetchData(url));
+    return await Promise.all(promises);
+  }
+}
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  const fetcher = new DataFetcher(urls);
+  const data = await fetcher.getAllData();
+
+  const allTitles = data
+    .filter(item => item !== null)
+    .map(item => item.title);
+
+  console.log(...allTitles);
+})();
+```
+
+This program defines a `DataFetcher` class that fetches JSON data from a list of URLs. It uses `async/await` for asynchronous operations, handles errors gracefully, and logs the titles of the fetched posts using the spread operator.

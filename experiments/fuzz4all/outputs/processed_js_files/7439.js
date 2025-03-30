@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        status: 'success',
+        data: {
+          users: [
+            { id: 1, name: 'Alice', age: 30 },
+            { id: 2, name: 'Bob', age: 25 },
+            { id: 3, name: 'Charlie', age: 35 },
+          ],
+        },
+      });
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const {
+      status,
+      data: { users },
+    } = await fetchData();
+
+    if (status === 'success') {
+       
+      const sortedUsers = [...users]
+        .filter(({ age }) => age > 28)
+        .sort((a, b) => a.age - b.age);
+
+       
+      print(sortedUsers);
+    } else {
+      console.error('Data fetch failed');
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+processData();

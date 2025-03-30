@@ -1,0 +1,68 @@
+ 
+const fs = require('fs').promises;
+const { promisify } = require('util');
+
+ 
+(async () => {
+  try {
+     
+    function* fibonacci() {
+      let [prev, curr] = [0, 1];
+      while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+      }
+    }
+
+     
+    const fibGen = fibonacci();
+    const fibArray = Array.from({ length: 10 }, () => fibGen.next().value);
+    
+     
+    await fs.writeFile('fibonacci.txt', fibArray.join('\n'));
+
+     
+    const data = await fs.readFile('fibonacci.txt', 'utf-8');
+    const squaredData = data
+      .split('\n')
+      .map(Number)
+      .map(x => x ** 2)
+      .join('\n');
+
+     
+    await fs.writeFile('fibonacci_squared.txt', squaredData);
+
+     
+    const arrHandler = {
+      get(target, prop) {
+        if (prop in target) {
+          print(`Getting ${prop}`);
+          return target[prop];
+        } else {
+          return undefined;
+        }
+      },
+      set(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+      }
+    };
+
+    const proxiedArray = new Proxy([], arrHandler);
+
+     
+    proxiedArray.push(1);
+    proxiedArray.push(2);
+    print(proxiedArray[0]);
+
+     
+    const sleep = promisify(setTimeout);
+    print("Waiting for 2 seconds...");
+    await sleep(2000);
+    print("Done!");
+
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();

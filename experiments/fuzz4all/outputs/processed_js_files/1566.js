@@ -1,0 +1,28 @@
+ 
+
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000));
+
+const processData = async () => {
+  try {
+    const { data } = await fetchData();
+    
+     
+    const [first, second, ...rest] = data;
+    
+    print(`First: ${first}, Second: ${second}, Rest: [${rest.join(', ')}]`);
+    
+     
+    const sum = rest.reduce((acc, val) => acc + val, 0);
+    print(`Sum of rest: ${sum}`);
+    
+     
+    const uniqueNumbers = new Set([first, second, ...rest, 2, 3]);
+    print(`Unique Numbers: [${[...uniqueNumbers].join(', ')}]`);
+    
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+processData();

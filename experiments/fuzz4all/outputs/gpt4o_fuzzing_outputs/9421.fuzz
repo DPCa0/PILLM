@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        userId,
+        name: 'John Doe',
+        age: 30,
+        hobbies: ['reading', 'coding', 'hiking'],
+        address: {
+          city: 'New York',
+          country: 'USA',
+        },
+      };
+      resolve(data);
+    }, 1000);
+  });
+};
+
+ 
+const displayUserData = ({ name, age, hobbies: [firstHobby], address: { city } }) => {
+  console.log(`User ${name} is ${age} years old and lives in ${city}.`);
+  console.log(`They enjoy ${firstHobby}.`);
+};
+
+ 
+(async () => {
+  try {
+    const userId = 1;
+    console.log(`Fetching data for user with ID: ${userId}`);
+
+     
+    const userData = await fetchUserData(userId);
+
+     
+    displayUserData(userData);
+
+     
+    const message = `
+    Successfully fetched and displayed data for:
+    User ID: ${userData.userId}
+    Name: ${userData.name}
+    `;
+    console.log(message);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

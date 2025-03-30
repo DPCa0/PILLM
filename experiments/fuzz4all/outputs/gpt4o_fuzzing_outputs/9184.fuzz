@@ -1,0 +1,39 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that uses advanced features like async/await, Promises, destructuring, and higher-order functions:
+
+```javascript
+// Simulate a delayed API call with a Promise
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ user: 'Alice', age: 25, roles: ['admin', 'user'] }), 1000)
+  );
+
+// Async function to handle data processing
+async function processData() {
+  try {
+    // Await the simulated API call
+    const { user, age, roles } = await fetchData();
+
+    // Destructuring to extract and transform user info
+    console.log(`User: ${user}, Age: ${age}`);
+
+    // Higher-order function to process roles
+    const displayRoles = (roles) => roles.map((role, index) => `Role ${index + 1}: ${role}`).join(', ');
+
+    console.log(displayRoles(roles));
+
+    // Dynamically import a module
+    const { default: greetings } = await import('./greetings.js');
+
+    // Use imported module
+    console.log(greetings(user));
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+processData();
+```
+
+Please note that this code assumes the existence of a `greetings.js` module that exports a default function, which is simulated here as being dynamically imported.

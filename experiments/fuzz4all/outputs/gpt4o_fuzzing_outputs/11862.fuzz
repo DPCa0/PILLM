@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+class AdvancedFeatures {
+  #privateField = 'Secret Message';
+
+  static #staticPrivateMethod() {
+    return 'This is a static private method';
+  }
+
+  constructor() {
+    this.dynamicValue = Math.random();
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  }
+
+  *generateSequence(end) {
+    for (let i = 0; i < end; i++) {
+      yield i * this.dynamicValue;
+    }
+  }
+
+  showPrivate() {
+    console.log(this.#privateField);
+    console.log(AdvancedFeatures.#staticPrivateMethod());
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'dynamicValue') {
+      return Reflect.get(target, prop, receiver) * 2;
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value) => {
+    if (prop === 'dynamicValue') {
+      console.log(`Setting dynamicValue: ${value}`);
+      return Reflect.set(target, prop, value);
+    }
+    return false;
+  }
+};
+
+const instance = new Proxy(new AdvancedFeatures(), handler);
+
+ 
+(async () => {
+  console.log('Fetching data asynchronously...');
+  const data = await instance.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  console.log('Fetched Data:', data);
+
+  instance.showPrivate();
+
+  console.log('Generated sequence:');
+  for (const value of instance.generateSequence(5)) {
+    console.log(value);
+  }
+})();
+```

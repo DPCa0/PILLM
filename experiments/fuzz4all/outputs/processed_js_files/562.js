@@ -1,0 +1,48 @@
+class AsyncIterator {
+    constructor(data) {
+        this.data = data;
+        this.current = 0;
+    }
+    
+    async next() {
+        if (this.current < this.data.length) {
+            const value = await new Promise(resolve => 
+                setTimeout(() => resolve(this.data[this.current++]), 500)
+            );
+            return { value, done: false };
+        } else {
+            return { done: true };
+        }
+    }
+    
+    [Symbol.asyncIterator]() {
+        return this;
+    }
+}
+
+function* generatorFunction() {
+    yield* [10, 20, 30];
+}
+
+const enhancedDataPipeline = async () => {
+    const asyncIterator = new AsyncIterator(['Alice', 'Bob', 'Charlie']);
+    const generator = generatorFunction();
+    
+    const dataPromises = [
+        (async () => {
+            for await (let name of asyncIterator) {
+                print(`Async name: ${name}`);
+            }
+        })(),
+        (async () => {
+            for (let value of generator) {
+                print(`Generator value: ${value}`);
+            }
+        })()
+    ];
+    
+    await Promise.all(dataPromises);
+    print('Processing complete.');
+};
+
+enhancedDataPipeline().catch(error => console.error(`Error: ${error}`));

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+    console.log("Fetching data...");
+    await delay(1000);  
+    console.log("Data fetched!");
+    return { data: 'Sample data' };
+}
+
+ 
+function* processData() {
+    const response = yield fetchData();
+    console.log("Processing:", response.data);
+    yield delay(500);  
+    console.log("Data processed!");
+}
+
+ 
+async function handleAsyncGenerator(genFunc) {
+    const generator = genFunc();
+    let result = generator.next();
+
+    while (!result.done) {
+        if (result.value instanceof Promise) {
+             
+            const value = await result.value;
+            result = generator.next(value);
+        } else {
+             
+            result = generator.next(result.value);
+        }
+    }
+}
+
+ 
+handleAsyncGenerator(processData);
+```

@@ -1,0 +1,29 @@
+ 
+
+ 
+export function add(a, b) {
+  return a + b;
+}
+
+export function multiply(a, b) {
+  return a * b;
+}
+
+ 
+import { add, multiply } from './mathOperations.js';
+
+async function complexCalculation() {
+  const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ num1: 10, num2: 20 });
+    }, 1000);
+  });
+
+  const { num1, num2 } = await fetchData();
+  const sum = add(num1, num2);
+  const product = multiply(num1, num2);
+  
+  return `Sum: ${sum}, Product: ${product}`;
+}
+
+complexCalculation().then(result => print(result));

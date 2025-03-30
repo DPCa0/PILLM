@@ -1,0 +1,70 @@
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    }
+}
+
+function asyncFetch(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.5 ? resolve(`Data from ${url}`) : reject(`Failed to fetch ${url}`);
+        }, 1000);
+    });
+}
+
+const memoize = (fn) => {
+    const cache = new Map();
+    return function (...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            print(`Fetching from cache: ${key}`);
+            return cache.get(key);
+        }
+        print(`Computing result for: ${key}`);
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+const sum = memoize((a, b) => {
+    return a + b;
+});
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => {
+        print(`Received data: ${data}`);
+    });
+
+    try {
+        const data1 = await asyncFetch('https://api.example.com/data1');
+        emitter.emit('data', data1);
+    } catch (err) {
+        console.error(err);
+    }
+
+    try {
+        const data2 = await asyncFetch('https://api.example.com/data2');
+        emitter.emit('data', data2);
+    } catch (err) {
+        console.error(err);
+    }
+
+    print(`Sum: ${sum(2, 3)}`);
+    print(`Sum: ${sum(2, 3)}`);  
+
+    print(`Sum: ${sum(4, 5)}`);
+})();

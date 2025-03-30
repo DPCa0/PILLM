@@ -1,0 +1,38 @@
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    const uniqueData = new Set(this.data);
+    const processedData = await Promise.all([...uniqueData].map(async item => {
+      return this.fakeAPICall(item);
+    }));
+    
+    return processedData.map(({id, ...rest}) => {
+      return { id, ...rest, processedAt: new Date() };
+    });
+  }
+
+  async fakeAPICall(item) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve({ id: item, value: item * 2 });
+      }, 100);
+    });
+  }
+}
+
+(async () => {
+  const data = [1, 2, 3, 4, 5, 3, 2, 1];
+  const processor = new DataProcessor(data);
+
+  try {
+    const results = await processor.processData();
+    print('Processed Data:', results);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+  async process() {
+    if (this.running) return;
+    this.running = true;
+    while (this.queue.length) {
+      const task = this.queue.shift();
+      await task();
+    }
+    this.running = false;
+  }
+
+  add(task) {
+    this.queue.push(task);
+    this.process();
+  }
+}
+
+const simulateAsyncTask = (id, time) =>
+  new Promise((resolve) =>
+    setTimeout(() => {
+      console.log(`Task ${id} completed`);
+      resolve();
+    }, time)
+  );
+
+(async () => {
+  const taskQueue = new AsyncQueue();
+
+  const tasks = [
+    () => simulateAsyncTask(1, 2000),
+    () => simulateAsyncTask(2, 500),
+    () => simulateAsyncTask(3, 1500),
+  ];
+
+  tasks.forEach((task) => taskQueue.add(task));
+
+   
+  setTimeout(() => taskQueue.add(() => simulateAsyncTask(4, 1000)), 1000);
+  setTimeout(() => taskQueue.add(() => simulateAsyncTask(5, 300)), 3000);
+})();
+```

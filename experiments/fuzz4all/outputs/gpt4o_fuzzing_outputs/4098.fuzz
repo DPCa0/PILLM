@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const createLoggingProxy = (obj) => {
+    return new Proxy(obj, {
+        get(target, prop) {
+            console.log(`Getting ${prop}`);
+            return Reflect.get(target, prop);
+        },
+        set(target, prop, value) {
+            console.log(`Setting ${prop} to ${value}`);
+            return Reflect.set(target, prop, value);
+        }
+    });
+};
+
+ 
+function* fibonacciGenerator() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const fetchData = async (url) => {
+    console.log(`Fetching data from ${url}...`);
+     
+    return new Promise((resolve) =>
+        setTimeout(() => resolve(`Data from ${url}`), 1000)
+    );
+};
+
+ 
+const main = async () => {
+    const person = createLoggingProxy({ name: 'Alice', age: 30 });
+    person.name = 'Bob';
+    console.log(person.name);
+
+    const fibonacci = fibonacciGenerator();
+    console.log('Fibonacci numbers:', [...Array(5)].map(() => fibonacci.next().value));
+
+    const { data: responseData } = { data: await fetchData('https://api.example.com') };
+    console.log('Fetched:', responseData);
+};
+
+main().catch(console.error);
+```

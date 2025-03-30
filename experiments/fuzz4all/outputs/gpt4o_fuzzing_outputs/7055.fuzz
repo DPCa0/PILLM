@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncOperation = () => new Promise((resolve) => setTimeout(() => resolve('Data fetched'), 1000));
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Getting ${prop}`);
+            return target[prop];
+        } else {
+            return 'Property not found';
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+let dataObject = { name: 'Initial' };
+const proxyData = new Proxy(dataObject, handler);
+
+const processData = async () => {
+     
+    let data = await asyncOperation();
+    console.log(data);
+
+     
+    console.log(proxyData.name);   
+    proxyData.name = 'Updated';    
+    console.log(proxyData.name);   
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const doubleNumbers = numbers.map(num => num * 2);
+    const sum = doubleNumbers.reduce((acc, num) => acc + num, 0);
+
+    console.log('Doubled Numbers:', doubleNumbers);
+    console.log('Sum of Doubled Numbers:', sum);
+};
+
+ 
+processData().catch(console.error);
+```

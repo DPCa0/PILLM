@@ -1,0 +1,38 @@
+ 
+import fetch from 'node-fetch';
+import { readFile } from 'fs/promises';
+
+ 
+(async () => {
+    try {
+         
+        const { apiKey, baseCurrency } = JSON.parse(await readFile(new URL('./config.json', import.meta.url)));
+
+         
+        const response = await fetch(`https: 
+        if (!response.ok) throw new Error('Network response was not ok');
+
+         
+        const data = await response.json();
+        const { rates } = data;
+        const usdRate = rates?.USD ?? 'Rate not available';
+
+         
+        const topFiveRates = [...Object.entries(rates)]
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([currency, rate]) => `${currency}: ${rate}`);
+
+         
+        const logRates = ({ USD: usd, ...otherRates }) => {
+            print(`USD: ${usd}`);
+            print('Top five other rates:', otherRates);
+        };
+
+         
+        logRates({ USD: usdRate, topFiveRates });
+    } catch (error) {
+         
+        console.error('Error fetching exchange rates:', error);
+    }
+})();

@@ -1,0 +1,61 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromArray(arr) {
+    const data = [];
+    let size = Math.sqrt(arr.length);
+    for (let i = 0; i < size; i++) {
+      data.push(arr.slice(i * size, i * size + size));
+    }
+    return new Matrix(data);
+  }
+
+  transpose() {
+    return new Matrix(this.data[0].map((_, colIndex) => this.data.map(row => row[colIndex])));
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const data = this.data;
+    return {
+      next() {
+        if (col >= data[row].length) {
+          row++;
+          col = 0;
+        }
+        if (row >= data.length) {
+          return { done: true };
+        }
+        return { value: data[row][col++], done: false };
+      }
+    };
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const pipeline = (...funcs) => input => funcs.reduce((acc, fn) => fn(acc), input);
+
+const rotateMatrix = matrix => matrix.transpose();
+
+const flatten = matrix => Array.from(matrix);
+
+const sum = arr => arr.reduce((acc, val) => acc + val, 0);
+
+const squareRoot = num => Math.sqrt(num);
+
+const calculate = pipeline(
+  Matrix.fromArray,
+  rotateMatrix,
+  flatten,
+  sum,
+  squareRoot
+);
+
+const result = calculate([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+print(`The result is: ${result.toFixed(2)}`);

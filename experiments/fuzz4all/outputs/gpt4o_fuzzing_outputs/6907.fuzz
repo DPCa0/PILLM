@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+import readline from 'readline';
+
+ 
+function* complexTask() {
+    console.log('Starting complex task...');
+    yield new Promise(resolve => setTimeout(() => resolve('Step 1 complete'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Step 2 complete'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Final step complete'), 1000));
+}
+
+ 
+async function runComplexTask() {
+    const task = complexTask();
+    for (let step of task) {
+        console.log(await step);
+    }
+    console.log('Complex task finished!');
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Getting property '${prop}'`);
+            return Reflect.get(...arguments);
+        } else {
+            return `Property '${prop}' does not exist.`;
+        }
+    }
+};
+
+const targetObject = { prop1: 'value1', prop2: 'value2' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+ 
+console.log('Script started.');
+
+ 
+rl.question('Enter a property to get: ', async (answer) => {
+    console.log(proxyObject[answer]);
+    await runComplexTask();  
+    rl.close();
+});
+```

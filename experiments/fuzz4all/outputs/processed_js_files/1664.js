@@ -1,0 +1,46 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }
+}
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  processData() {
+    return this.data.map(({ id, ...rest }) => ({
+      newId: `ID-${id}`,
+      ...rest
+    }));
+  }
+}
+
+async function main() {
+  const url = "https://jsonplaceholder.typicode.com/users";
+  const fetcher = new DataFetcher(url);
+  const rawData = await fetcher.fetchData();
+
+  if (rawData) {
+    const processor = new DataProcessor(rawData);
+    const processedData = processor.processData();
+    
+    print("Processed Data:");
+    console.table(processedData);
+  }
+}
+
+main();

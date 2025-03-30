@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  on(event, listener) {
+    (this.events[event] || (this.events[event] = [])).push(listener);
+    return this;
+  }
+  emit(event, ...args) {
+    (this.events[event] || []).forEach(listener => listener(...args));
+  }
+  off(event, listener) {
+    if (!this.events[event]) return this;
+    this.events[event] = this.events[event].filter(l => l !== listener);
+    return this;
+  }
+}
+
+function asyncOperation(value) {
+  return new Promise(resolve => setTimeout(() => resolve(value * 2), 1000));
+}
+
+async function* asyncGenerator(arr) {
+  for (let item of arr) {
+    yield asyncOperation(item);
+  }
+}
+
+(async function main() {
+  const emitter = new EventEmitter();
+  
+  emitter.on('data', data => console.log('Data event:', data));
+  emitter.on('completed', () => console.log('All operations completed!'));
+
+  const data = [1, 2, 3, 4, 5];
+  const generator = asyncGenerator(data);
+  
+  for await (let result of generator) {
+    emitter.emit('data', result);
+  }
+  
+  emitter.emit('completed');
+})();
+```

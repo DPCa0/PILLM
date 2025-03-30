@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchUserData = async (userId) => {
+    try {
+        const response = await fetch(`https: 
+        if (!response.ok) throw new Error(`User with ID ${userId} not found`);
+        const { name, email, address: { city } } = await response.json();
+
+         
+        const userData = await new Promise((resolve) => setTimeout(() => {
+            resolve({ name, email, city });
+        }, 1000));
+
+        console.log(`User Info: 
+            Name: ${userData.name}, 
+            Email: ${userData.email}, 
+            City: ${userData.city}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+};
+
+ 
+const showAlert = async (message) => {
+    const { default: showAlertLib } = await import('./alertLibrary.js');
+    const enhancedAlert = (msg) => () => showAlertLib(msg);
+    enhancedAlert(message)();
+};
+
+ 
+document.getElementById('getUserButton').addEventListener('click', (event, userId = 1) => {
+    fetchUserData(userId);
+    showAlert('Fetch operation initiated');
+});
+```
+
+Please ensure to have a valid `alertLibrary.js` file for the dynamic import part to work correctly and an HTML element with the id `getUserButton`.

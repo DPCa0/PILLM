@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+  
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    yield prev;
+    yield curr;
+    while (true) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n < 2) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+  async getNthAsync(n) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.calculate(n)), 100);
+    });
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+
+   
+  const fibIterator = fib[Symbol.iterator]();
+  console.log([...Array(10)].map(() => fibIterator.next().value));  
+
+   
+  const nthFib = await fib.getNthAsync(20);
+  console.log(`20th Fibonacci number is ${nthFib}`);
+})();
+```

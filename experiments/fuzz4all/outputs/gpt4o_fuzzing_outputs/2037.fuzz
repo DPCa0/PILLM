@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => 
+            Array.from({ length: cols }, () => fill)
+        );
+    }
+  
+    static fromArray(arr) {
+        const rows = arr.length;
+        const cols = Array.isArray(arr[0]) ? arr[0].length : 1;
+        const matrix = new Matrix(rows, cols);
+        arr.forEach((row, i) => row.forEach((val, j) => matrix.data[i][j] = val));
+        return matrix;
+    }
+  
+    [Symbol.iterator]() {
+        let i = 0, j = 0;
+        return {
+            next: () => {
+                if (i < this.rows && j < this.cols) {
+                    let value = this.data[i][j];
+                    j++;
+                    if (j === this.cols) {
+                        j = 0;
+                        i++;
+                    }
+                    return { value, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+
+    map(fn) {
+        return new Matrix(this.rows, this.cols, 0).mapInPlace((_, i, j) => fn(this.data[i][j], i, j));
+    }
+
+    mapInPlace(fn) {
+        this.data.forEach((row, i) => row.forEach((_, j) => {
+            this.data[i][j] = fn(this.data[i][j], i, j);
+        }));
+        return this;
+    }
+
+    static async loadData(url) {
+        const response = await fetch(url);
+        const json = await response.json();
+        return Matrix.fromArray(json);
+    }
+}
+
+ 
+(async () => {
+    try {
+        const matrix = await Matrix.loadData('https://example.com/api/matrix');
+        const transformedMatrix = matrix.map(value => value * 2);
+        for (const value of transformedMatrix) {
+            console.log(value);
+        }
+    } catch (error) {
+        console.error('Error loading matrix:', error);
+    }
+})();
+```

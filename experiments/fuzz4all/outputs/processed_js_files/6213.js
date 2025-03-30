@@ -1,0 +1,36 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "valid_url") {
+                resolve({ data: { user: { name: "John Doe", age: 30 }, posts: [1, 2, 3] } });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function getUserInfo(url) {
+    try {
+        const { data: { user, posts } } = await fetchData(url);
+
+         
+        const userProxy = new Proxy(user, {
+            get(target, prop) {
+                print(`Accessing property '${prop}'`);
+                return target[prop];
+            }
+        });
+
+        print(`User: ${userProxy.name}, Age: ${userProxy.age}, Posts: ${posts.length}`);
+    } catch (error) {
+        console.error("Error fetching data:", error.message);
+    }
+}
+
+ 
+getUserInfo("valid_url");

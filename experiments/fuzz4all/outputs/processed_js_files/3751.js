@@ -1,0 +1,59 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    const safeObserver = new Proxy(observer, {
+      set: (target, prop, value) => {
+        if (prop === 'next' || prop === 'error' || prop === 'complete') {
+          if (typeof value !== 'function') {
+            throw new Error(`${prop} must be a function`);
+          }
+        }
+        return Reflect.set(target, prop, value);
+      },
+    });
+    return this._subscribe(safeObserver);
+  }
+
+  map(transformFn) {
+    return new Observable(observer => {
+      return this.subscribe({
+        next: val => observer.next(transformFn(val)),
+        error: err => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+
+  filter(predicateFn) {
+    return new Observable(observer => {
+      return this.subscribe({
+        next: val => predicateFn(val) && observer.next(val),
+        error: err => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+}
+
+const timerObservable = new Observable(observer => {
+  let count = 0;
+  const id = setInterval(() => observer.next(count++), 1000);
+  return () => clearInterval(id);
+});
+
+const subscription = timerObservable
+  .map(x => x * 2)
+  .filter(x => x % 3 === 0)
+  .subscribe({
+    next: val => console.log(`Value: ${val}`),
+    error: err => console.error(`Error: ${err}`),
+    complete: () => console.log('Complete')
+  });
+
+setTimeout(() => {
+  subscription();
+  print('Unsubscribed');
+}, 10000);

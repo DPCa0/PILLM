@@ -1,0 +1,45 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Columns of A must match rows of B.");
+    return new Matrix(a.rows, b.cols).map((_, i, j) => 
+      a.data[i].reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+    );
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  log() {
+    console.table(this.data);
+    return this;
+  }
+}
+
+const a = new Matrix(2, 3).map((_, i, j) => i + j);
+const b = new Matrix(3, 2).map((_, i, j) => i * j);
+
+const result = Matrix.multiply(a, b);
+result.log();
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    }
+    return "Property does not exist!";
+  }
+};
+
+const proxyMatrix = new Proxy(result, handler);
+print(proxyMatrix.rows);   
+print(proxyMatrix.nonExistentProp);   

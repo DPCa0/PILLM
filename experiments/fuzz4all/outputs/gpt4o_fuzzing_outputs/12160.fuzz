@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+  async run(task) {
+    this.queue.push(task);
+    if (!this.running) {
+      this.running = true;
+      while (this.queue.length) {
+        const currentTask = this.queue.shift();
+        await currentTask();
+      }
+      this.running = false;
+    }
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2',
+    'https://jsonplaceholder.typicode.com/todos/3',
+  ];
+
+  const asyncQueue = new AsyncQueue();
+
+  const results = [];
+  const tasks = urls.map((url, index) => async () => {
+    try {
+      const data = await fetchData(url);
+      console.log(`Task ${index + 1}:`, data);
+      results.push(data);
+    } catch (error) {
+      console.error(`Error in task ${index + 1}:`, error);
+    }
+  });
+
+  tasks.forEach(task => asyncQueue.run(task));
+
+   
+  await new Promise(resolve => {
+    const interval = setInterval(() => {
+      if (!asyncQueue.running) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 100);
+  });
+
+  console.log('All tasks completed, results:', results);
+})();
+```

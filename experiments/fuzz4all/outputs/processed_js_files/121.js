@@ -1,0 +1,45 @@
+class AsyncResourceManager {
+    constructor() {
+        this.resources = new Map();
+    }
+
+    async acquireResource(name, asyncInitFn) {
+        if (!this.resources.has(name)) {
+            const resource = await asyncInitFn();
+            this.resources.set(name, resource);
+        }
+        return this.resources.get(name);
+    }
+
+    releaseResource(name) {
+        if (this.resources.has(name)) {
+            const resource = this.resources.get(name);
+            if (resource.cleanup) {
+                resource.cleanup();
+            }
+            this.resources.delete(name);
+        }
+    }
+}
+
+function createRandomResource() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const resource = {
+                data: Math.random(),
+                cleanup: () => console.log('Resource cleaned up')
+            };
+            resolve(resource);
+        }, 500);
+    });
+}
+
+(async () => {
+    const manager = new AsyncResourceManager();
+    const resourceName = 'randomResource';
+    
+    const resource = await manager.acquireResource(resourceName, createRandomResource);
+    print(`Resource Data: ${resource.data}`);
+    
+    manager.releaseResource(resourceName);
+})();

@@ -1,0 +1,48 @@
+class Scheduler {
+  #tasks = new Map();
+
+  addTask(name, fn, interval) {
+    if (this.#tasks.has(name)) throw new Error('Task already exists.');
+    const id = setInterval(async () => {
+      try {
+        print(`Running task: ${name}`);
+        await fn();
+      } catch (e) {
+        console.error(`Error in task ${name}:`, e);
+        this.removeTask(name);
+      }
+    }, interval);
+    this.#tasks.set(name, id);
+  }
+
+  removeTask(name) {
+    if (!this.#tasks.has(name)) throw new Error('Task not found.');
+    clearInterval(this.#tasks.get(name));
+    this.#tasks.delete(name);
+  }
+
+  listTasks() {
+    return Array.from(this.#tasks.keys());
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  print(data);
+}
+
+(async () => {
+  const scheduler = new Scheduler();
+  
+  scheduler.addTask('FetchGitHubAPI', () => fetchData('https://api.github.com'), 5000);
+  scheduler.addTask('FetchWeatherAPI', () => fetchData('https://api.open-meteo.com/v1/forecast?latitude=35&longitude=139&hourly=temperature_2m'), 10000);
+
+  print('Scheduled tasks:', scheduler.listTasks());
+
+  setTimeout(() => {
+    scheduler.removeTask('FetchGitHubAPI');
+    print('After removal, tasks:', scheduler.listTasks());
+  }, 20000);
+})();

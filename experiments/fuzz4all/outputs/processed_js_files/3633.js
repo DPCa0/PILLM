@@ -1,0 +1,63 @@
+ 
+
+ 
+const arrayHandler = {
+    get(target, property) {
+        if (property in target) {
+            print(`Accessing element at index ${property}: ${target[property]}`);
+            return target[property];
+        } else {
+            console.warn(`Attempt to access non-existent property ${property}`);
+        }
+    },
+    set(target, property, value) {
+        if (typeof value === 'number') {
+            print(`Setting element at index ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        } else {
+            throw new TypeError('Array values must be numbers');
+        }
+    }
+};
+
+const numbers = new Proxy([], arrayHandler);
+
+ 
+function* fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+ 
+const fibonacciSequence = {
+    [Symbol.iterator]: fibonacci
+};
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        print('Fetched data:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+numbers[0] = 10;  
+print(numbers[0]);  
+
+ 
+for (const value of fibonacciSequence) {
+    if (value > 100) break;  
+    print(value);
+}
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1');

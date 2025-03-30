@@ -1,0 +1,66 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: 'Sample Data' });
+            } else {
+                reject(new Error('404 Not Found'));
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+async function processNumbers() {
+    const gen = numberGenerator();
+    for (let i = 0; i < 5; i++) {
+        print('Number:', gen.next().value);
+    }
+}
+
+ 
+const handler = {
+    get: function (target, property) {
+        print(`Accessing property '${property}' with value '${target[property]}'`);
+        return target[property];
+    },
+    set: function (target, property, value) {
+        print(`Setting property '${property}' to '${value}'`);
+        target[property] = value;
+    }
+};
+
+const dataObject = { name: 'Alice', age: 30 };
+const proxy = new Proxy(dataObject, handler);
+
+ 
+async function main() {
+     
+    print('Name:', proxy.name);
+    proxy.age = 31;
+    print('Updated Age:', proxy.age);
+    
+     
+    try {
+        const response = await fetchData('https://api.example.com/data');
+        print('Fetched Data:', response.data);
+    } catch (error) {
+        console.error('Error Fetching Data:', error.message);
+    }
+    
+     
+    await processNumbers();
+}
+
+main().catch(console.error);

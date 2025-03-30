@@ -1,0 +1,39 @@
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ id: 1, name: 'Sample Data' });
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+}
+
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            return `Property ${prop} does not exist`;
+        }
+    }
+};
+
+async function processData() {
+    const map = new Map();
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        const proxyData = new Proxy(data, handler);
+
+        map.set('data', proxyData);
+
+        print(map.get('data').name);  
+        print(map.get('data').age);   
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+processData();

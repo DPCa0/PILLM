@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const getRandomNumber = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+ 
+const simulateApiCall = async () => {
+  const delay = getRandomNumber(100, 1000);
+  return new Promise(resolve => setTimeout(() => resolve(`API response after ${delay}ms`), delay));
+};
+
+ 
+const handler = {
+  set(target, property, value) {
+    if (typeof value !== 'number' || value < 0) {
+      throw new Error('Value must be a non-negative number');
+    }
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const data = new Proxy({}, handler);
+
+ 
+(async () => {
+   
+  const uniqueNumbers = new Set();
+  
+  while (uniqueNumbers.size < 5) {
+    const randomNumber = getRandomNumber(1, 10);
+    uniqueNumbers.add(randomNumber);
+  }
+
+   
+  const numberArray = [...uniqueNumbers];
+  console.log('Unique random numbers:', numberArray);
+
+   
+  try {
+    const apiResponse = await simulateApiCall();
+    console.log(apiResponse);
+  } catch (err) {
+    console.error('API call failed', err);
+  }
+
+   
+  try {
+    data.itemsProcessed = numberArray.length;
+    data.itemsProcessed = 'invalid';  
+  } catch (err) {
+    console.error(err.message);
+  }
+})();
+```

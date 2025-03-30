@@ -1,0 +1,54 @@
+class AsyncComputation {
+    constructor() {
+        this.cache = new Map();
+    }
+
+    async fetchData(url) {
+        if (this.cache.has(url)) {
+            print('Returning cached data.');
+            return this.cache.get(url);
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok.');
+            const data = await response.json();
+            this.cache.set(url, data);
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
+        }
+    }
+
+    computeFibonacci(n, memo = {}) {
+        if (n in memo) return memo[n];
+        if (n <= 1) return n;
+        memo[n] = this.computeFibonacci(n - 1, memo) + this.computeFibonacci(n - 2, memo);
+        return memo[n];
+    }
+
+    async process(url, fibIndex) {
+        const [data, fibValue] = await Promise.all([
+            this.fetchData(url),
+            new Promise((resolve) => setTimeout(() => resolve(this.computeFibonacci(fibIndex)), 1000))
+        ]);
+
+        print(`Data from ${url}:`, data);
+        print(`Fibonacci of ${fibIndex}:`, fibValue);
+
+        return { data, fibValue };
+    }
+}
+
+(async () => {
+    const computation = new AsyncComputation();
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+    const results = await Promise.all([
+        computation.process(url, 10),
+        computation.process(url, 20)
+    ]);
+
+    print('Final results:', results);
+})();

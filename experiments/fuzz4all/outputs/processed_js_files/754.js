@@ -1,0 +1,58 @@
+ 
+
+ 
+import fetch from 'node-fetch';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+class WeatherFetcher {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  }
+
+   
+  async getWeather(city) {
+    try {
+      await delay(1000);  
+      const response = await fetch(`${this.apiUrl}?q=${city}&appid=${this.apiKey}&units=metric`);
+      if (!response.ok) throw new Error('Weather data not available');
+      const data = await response.json();
+
+       
+      const { main: { temp, feels_like }, weather: [{ description }] } = data;
+
+      return {
+        city,
+        temperature: temp,
+        feelsLike: feels_like,
+        description,
+      };
+    } catch (error) {
+      console.error(error.message);
+      return null;
+    }
+  }
+}
+
+ 
+(async () => {
+  const weatherFetcher = new WeatherFetcher('your_api_key_here');
+  const cities = ['New York', 'London', 'Paris', 'Tokyo'];
+  
+  const weatherPromises = cities.map(city => weatherFetcher.getWeather(city));
+  const weatherResults = await Promise.all(weatherPromises);
+
+   
+  const formattedResults = weatherResults
+    .filter(result => result !== null)
+    .map(({ city, ...rest }) => ({
+      [city]: rest
+    }));
+
+  print('Weather Data:', formattedResults);
+})();
+
+Make sure to replace `'your_api_key_here'` with an actual API key from OpenWeatherMap or another weather service provider. You also need to have Node.js and the `node-fetch` package installed to run this code.

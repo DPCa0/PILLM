@@ -1,0 +1,46 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* asyncGenerator(array) {
+    for (let item of array) {
+        yield new Promise((resolve) => setTimeout(() => resolve(item), Math.random() * 1000));
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const complexFunction = async (inputArray) => {
+    const result = [];
+    const deferred = new Deferred();
+
+    const processData = async () => {
+        for await (let item of asyncGenerator(inputArray)) {
+            print(`Processing: ${item}`);
+            result.push(item ** 2);
+            if (item === 4) {
+                deferred.resolve('Condition met. Ending early!');
+                break;
+            }
+        }
+        if (result.length === inputArray.length) {
+            deferred.resolve('Processed all items!');
+        }
+    };
+
+    processData();
+
+    await delay(2000);
+
+    const message = await deferred.promise;
+    print(message);
+    print('Final result:', result);
+};
+
+const input = [1, 2, 3, 4, 5, 6];
+complexFunction(input);

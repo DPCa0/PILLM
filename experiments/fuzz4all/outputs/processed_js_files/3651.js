@@ -1,0 +1,40 @@
+class AsyncRangeIterator {
+  constructor(start, end, delay = 100) {
+    this.current = start;
+    this.end = end;
+    this.delay = delay;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      current: this.current,
+      end: this.end,
+      delay: this.delay,
+      next: async function () {
+        if (this.current <= this.end) {
+          await new Promise(resolve => setTimeout(resolve, this.delay));
+          return { value: this.current++, done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+const runAsyncGenerator = async () => {
+  const asyncRange = new AsyncRangeIterator(1, 5, 500);
+  for await (const num of asyncRange) {
+    print(`Number: ${num}`);
+  }
+  print('Iteration complete.');
+};
+
+const withProxy = new Proxy(runAsyncGenerator, {
+  apply: function(target, thisArg, argumentsList) {
+    print('Proxy: Function called with arguments:', argumentsList);
+    return target.apply(thisArg, argumentsList);
+  }
+});
+
+withProxy();

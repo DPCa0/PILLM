@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function* asyncNumberGenerator() {
+  for (let i = 1; i <= 5; i++) {
+    await delay(1000);
+    yield i;
+  }
+}
+
+async function displayNumbers() {
+  const generator = asyncNumberGenerator();
+
+  for await (const num of generator) {
+    console.log(`Number: ${num}`);
+  }
+}
+
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      throw new Error(`Property ${prop} does not exist.`);
+    }
+  },
+};
+
+const secureData = {
+  apiKey: '1234567890abcdef',
+  secret: 's3cr3t',
+};
+
+const protectedData = new Proxy(secureData, handler);
+
+function main() {
+  console.log('Starting the async number display:');
+  displayNumbers().then(() => {
+    console.log('All numbers displayed.');
+
+     
+    try {
+      console.log(`Accessing API Key: ${protectedData.apiKey}`);
+      console.log(`Accessing Non-existent Property: ${protectedData.nonExistent}`);
+    } catch (error) {
+      console.error(error.message);
+    }
+  });
+}
+
+main();
+```

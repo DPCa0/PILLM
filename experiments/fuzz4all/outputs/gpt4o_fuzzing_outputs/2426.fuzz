@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', scores: [95, 80, 85] },
+        { id: 2, name: 'Bob', scores: [70, 90, 65] },
+        { id: 3, name: 'Charlie', scores: [85, 75, 95] },
+      ]);
+    }, 1000);
+  });
+};
+
+const processScores = async () => {
+  const data = await fetchData();
+
+  const calculateAverage = (...scores) => scores.reduce((acc, score) => acc + score, 0) / scores.length;
+
+  const getAverages = data.map(({ id, name, scores }) => {
+    const average = calculateAverage(...scores);
+    return { id, name, average };
+  });
+
+  const [highest] = getAverages.sort((a, b) => b.average - a.average);
+
+  console.log(`Top Student: ${highest.name}, Average Score: ${highest.average.toFixed(2)}`);
+};
+
+processScores();
+```

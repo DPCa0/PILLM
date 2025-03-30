@@ -1,0 +1,63 @@
+ 
+
+ 
+const balanceSymbol = Symbol('balance');
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Getting ${property}`);
+    return property in target ? target[property] : `Property "${property}" not found`;
+  },
+  set(target, property, value) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+class User {
+  constructor(name) {
+    this.name = name;
+    this[balanceSymbol] = 100;  
+  }
+
+  async getData() {
+    const url = `https: 
+    const response = await fetchData(url);
+    print(response.data);
+  }
+
+  get balance() {
+    return this[balanceSymbol];
+  }
+
+  set balance(amount) {
+    if (amount < 0) throw new Error('Balance cannot be negative');
+    this[balanceSymbol] = amount;
+  }
+}
+
+ 
+const user = new User('Alice');
+
+ 
+const proxiedUser = new Proxy(user, handler);
+
+ 
+(async () => {
+  await proxiedUser.getData();  
+  print(`Initial Balance: ${proxiedUser.balance}`);  
+  proxiedUser.balance = 150;  
+  print(`Updated Balance: ${proxiedUser.balance}`);
+})();

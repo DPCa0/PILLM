@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const _id = Symbol('id');
+
+ 
+const logHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}'`);
+      return target[prop];
+    } else {
+      console.log(`Property '${prop}' not found`);
+      return undefined;
+    }
+  }
+};
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ data: [10, 20, 30, 40] }), 1000);
+  });
+}
+
+ 
+async function main() {
+  let { data } = await fetchData();  
+
+   
+  const [first, ...rest] = data;
+  console.log('First:', first);
+  console.log('Rest:', rest);
+
+   
+  const user = new Proxy(
+    {
+      [_id]: 101,
+      name: 'Alice',
+      age: 25
+    },
+    logHandler
+  );
+
+  console.log(user.name);  
+  console.log(user[_id]);  
+
+   
+  const userInfo = { ...user, city: 'Wonderland' };
+  console.log('User Info:', userInfo);
+}
+
+main();
+```

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+ 
+const target = { data: [] };
+const handler = {
+    set: function(obj, prop, value) {
+        console.log(`Property ${prop} set to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const observed = new Proxy(target, handler);
+
+ 
+function* processData(data) {
+    for (let item of data) {
+        yield `Processed: ${item}`;
+    }
+}
+
+ 
+(async () => {
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+        
+         
+        observed.data = data.map(post => post.title);
+
+         
+        const processedSet = new Set(processData(observed.data));
+
+         
+        for (const processed of processedSet) {
+            console.log(processed);
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+
+ 
+function htmlEscape(strings, ...values) {
+    return strings.reduce((result, string, i) => {
+        const value = values[i - 1];
+        return result + 
+               (value ? String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') : '') + 
+               string;
+    });
+}
+
+const userInput = '<script>alert("xss")</script>';
+console.log(htmlEscape`User input: ${userInput}`);
+```

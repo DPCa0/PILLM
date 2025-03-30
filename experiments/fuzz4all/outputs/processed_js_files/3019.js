@@ -1,0 +1,38 @@
+ 
+
+class WeatherStation {
+    constructor(location) {
+        this.location = location;
+    }
+
+    getWeather() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const weatherData = {
+                    temperature: Math.random() * 30,
+                    condition: ['Sunny', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 3)]
+                };
+                weatherData ? resolve(weatherData) : reject('Failed to retrieve data');
+            }, 1000);
+        });
+    }
+}
+
+const displayWeather = async (station) => {
+    try {
+        const data = await station.getWeather();
+        print(`Weather in ${station.location}: ${data.temperature.toFixed(1)}°C and ${data.condition}`);
+    } catch (error) {
+        console.error(`Error fetching weather: ${error}`);
+    }
+};
+
+const locations = ['New York', 'Los Angeles', 'Chicago'];
+
+const weatherStations = locations.map(location => new WeatherStation(location));
+
+(async () => {
+    for (const station of weatherStations) {
+        await displayWeather(station);
+    }
+})();

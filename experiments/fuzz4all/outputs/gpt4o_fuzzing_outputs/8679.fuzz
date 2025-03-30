@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  static fromString(str) {
+    const match = str.match(/([+-]?\d+(\.\d+)?)\s*([+-]\s*\d+(\.\d+)?)i/);
+    if (!match) throw new Error("Invalid complex number format");
+    return new ComplexNumber(parseFloat(match[1]), parseFloat(match[3].replace(/\s+/g, '')));
+  }
+
+  toString() {
+    const sign = this.imaginary >= 0 ? '+' : '-';
+    return `${this.real} ${sign} ${Math.abs(this.imaginary)}i`;
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'string') return this.toString();
+    return NaN;
+  }
+
+  *[Symbol.iterator]() {
+    yield this.real;
+    yield this.imaginary;
+  }
+
+  get magnitude() {
+    return Math.hypot(this.real, this.imaginary);
+  }
+}
+
+async function fetchComplexNumbers() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        '3+4i',
+        '-2-2i',
+        '5+0i',
+        '0+1i',
+      ]);
+    }, 1000);
+  });
+}
+
+(async function() {
+  const rawData = await fetchComplexNumbers();
+  const complexNumbers = rawData.map(str => ComplexNumber.fromString(str));
+
+  complexNumbers.forEach(cn => {
+    console.log(`Complex Number: ${String(cn)}, Magnitude: ${cn.magnitude}`);
+  });
+
+  const allRealParts = complexNumbers.flatMap(cn => [...cn]);
+  console.log('All Real Parts:', allRealParts);
+})();
+```

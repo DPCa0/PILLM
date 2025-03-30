@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.listeners = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(listener);
+    return this;  
+  }
+
+  off(event, listener) {
+    if (this.listeners.has(event)) {
+      this.listeners.set(event, this.listeners.get(event).filter(l => l !== listener));
+    }
+    return this;  
+  }
+
+  async emit(event, ...args) {
+    if (this.listeners.has(event)) {
+      const promises = this.listeners.get(event).map(listener => listener(...args));
+      await Promise.all(promises);
+    }
+  }
+
+  once(event, listener) {
+    const wrapper = async (...args) => {
+      await listener(...args);
+      this.off(event, wrapper);
+    };
+    this.on(event, wrapper);
+    return this;  
+  }
+}
+
+ 
+(async () => {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('data', async (data) => {
+    console.log(`Listener 1 received: ${data}`);
+  });
+
+  emitter.once('data', async (data) => {
+    console.log(`Listener 2 (once) received: ${data}`);
+  });
+
+  await emitter.emit('data', 'Hello, Event!');
+  await emitter.emit('data', 'Hello again!');
+
+  emitter.on('data', async (data) => {
+    console.log(`Listener 3 received: ${data}`);
+  });
+
+  await emitter.emit('data', 'Final Call!');
+})();
+```

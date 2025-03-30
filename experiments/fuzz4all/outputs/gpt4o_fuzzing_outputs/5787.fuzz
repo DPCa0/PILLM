@@ -1,0 +1,81 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  static from(iterable) {
+    return new Observable(observer => {
+      for (let item of iterable) {
+        observer.next(item);
+      }
+      observer.complete();
+    });
+  }
+
+  map(transformFn) {
+    return new Observable(observer => {
+      return this.subscribe({
+        next: val => observer.next(transformFn(val)),
+        complete: () => observer.complete()
+      });
+    });
+  }
+
+  filter(predicateFn) {
+    return new Observable(observer => {
+      return this.subscribe({
+        next: val => {
+          if (predicateFn(val)) {
+            observer.next(val);
+          }
+        },
+        complete: () => observer.complete()
+      });
+    });
+  }
+
+  reduce(reducerFn, initialValue) {
+    let accumulator = initialValue;
+    return new Observable(observer => {
+      return this.subscribe({
+        next: val => {
+          accumulator = reducerFn(accumulator, val);
+        },
+        complete: () => {
+          observer.next(accumulator);
+          observer.complete();
+        }
+      });
+    });
+  }
+}
+
+async function* fetchAsyncIterable(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2'
+];
+
+const iterable = fetchAsyncIterable(urls);
+
+Observable.from(iterable)
+  .map(data => data.value)
+  .filter(value => value > 10)
+  .reduce((acc, val) => acc + val, 0)
+  .subscribe({
+    next: val => console.log(`Total: ${val}`),
+    complete: () => console.log('Completed')
+  });
+```

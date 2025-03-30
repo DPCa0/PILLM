@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+}
+
+function processData({ userId, id, title, body }) {
+    console.log(`Post ID: ${id}`);
+    console.log(`Title: ${title}`);
+    console.log(`Body: ${body}`);
+    console.log(`Written by user: ${userId}`);
+}
+
+(async () => {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/posts/1';
+        const postData = await fetchData(url);
+        
+        const handler = {
+            get(target, prop) {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    console.warn(`Property "${prop}" does not exist on target.`);
+                    return undefined;
+                }
+            }
+        };
+
+        const proxyPost = new Proxy(postData, handler);
+        processData(proxyPost);
+
+    } catch (error) {
+        console.error(`Error occurred: ${error}`);
+    }
+})();
+```

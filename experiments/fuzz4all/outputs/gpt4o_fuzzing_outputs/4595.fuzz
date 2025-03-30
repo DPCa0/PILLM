@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+(async () => {
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    function* fibonacciGenerator() {
+        let [prev, curr] = [0, 1];
+        while (true) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+
+    const handler = {
+        get: function(target, prop, receiver) {
+            if (prop in target) {
+                return Reflect.get(...arguments);
+            } else {
+                return `Property ${prop} not found`;
+            }
+        }
+    };
+
+    class AsyncQueue {
+        constructor() {
+            this.queue = [];
+            this.process();
+        }
+        
+        async process() {
+            while (true) {
+                if (this.queue.length > 0) {
+                    const task = this.queue.shift();
+                    await task();
+                }
+                await delay(100);
+            }
+        }
+
+        enqueue(task) {
+            this.queue.push(task);
+        }
+    }
+
+    const queue = new AsyncQueue();
+    const fibonacci = fibonacciGenerator();
+    const proxyFibonacci = new Proxy(fibonacci, handler);
+
+    for (let i = 0; i < 10; i++) {
+        queue.enqueue(async () => {
+            console.log(`Fibonacci #${i+1}: ${proxyFibonacci.next().value}`);
+        });
+    }
+})();
+```

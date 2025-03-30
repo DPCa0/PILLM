@@ -1,0 +1,63 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+const cache = new Proxy({}, {
+  get(target, name) {
+    if (!(name in target)) {
+      target[name] = 'Fetching...';
+    }
+    return target[name];
+  },
+  set(target, name, value) {
+    print(`Setting value for ${name}`);
+    target[name] = value;
+    return true;
+  }
+});
+
+(async function main() {
+  const emitter = new EventEmitter();
+
+  emitter.on('dataReceived', (data) => {
+    print('Data received:', data);
+    cache.data = data;
+  });
+
+  emitter.on('error', (err) => {
+    console.error('Error encountered:', err);
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('dataReceived', data);
+  } catch (error) {
+    emitter.emit('error', error);
+  }
+
+  print(cache.data);
+})();

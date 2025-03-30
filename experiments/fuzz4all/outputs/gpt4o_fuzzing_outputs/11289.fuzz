@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+    }
+
+    *generateFibonacci() {
+        let [prev, curr] = [0, 1];
+        while (curr <= this.limit) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+}
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+    const fib = new Fibonacci(100);
+    const fibGen = fib.generateFibonacci();
+
+    console.log("Fibonacci sequence up to 100:");
+    for (let value of fibGen) {
+        console.log(value);
+        await timeout(500);  
+    }
+
+    const numbers = [1, 2, 3, 4, 5];
+    const doubled = numbers.map(n => n * 2);
+    console.log("\nOriginal numbers:", numbers);
+    console.log("Doubled numbers:", doubled);
+
+    const asyncTask = async num => {
+        await timeout(100);
+        return num * 3;
+    };
+
+    const tripled = await Promise.all(numbers.map(asyncTask));
+    console.log("Tripled numbers (processed asynchronously):", tripled);
+
+    const uniqueNumbers = new Set([1, 2, 2, 3, 4, 4, 5]);
+    console.log("\nUnique numbers (using Set):", [...uniqueNumbers]);
+
+    const arrayFlat = [1, [2, [3, [4, [5]]]]];
+    console.log("\nFlattened array:", arrayFlat.flat(Infinity));
+}
+
+main().catch(console.error);
+```

@@ -1,0 +1,58 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(array) {
+    const matrix = new Matrix(array.length, 1);
+    for (let i = 0; i < array.length; i++) {
+      matrix.data[i][0] = array[i];
+    }
+    return matrix;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B.');
+    }
+    const result = new Matrix(a.data.length, b.data[0].length);
+    return result.map((_, i, j) => 
+      a.data[i].reduce((sum, el, k) => sum + el * b.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+function* randomMatrixGenerator(rows, cols, maxVal) {
+  while (true) {
+    yield new Matrix(rows, cols).map(() => Math.floor(Math.random() * maxVal));
+  }
+}
+
+async function demo() {
+  const gen = randomMatrixGenerator(3, 3, 10);
+  const a = gen.next().value;
+  const b = gen.next().value;
+
+  print("Matrix A:\n" + a.toString());
+  print("Matrix B:\n" + b.toString());
+
+  const c = await new Promise((resolve) =>
+    setTimeout(() => resolve(Matrix.multiply(a, b)), 1000)
+  );
+
+  print("Matrix C (A x B):\n" + c.toString());
+}
+
+demo();

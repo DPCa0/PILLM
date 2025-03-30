@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+class DataTransformer {
+  #data;
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  async *[Symbol.asyncIterator]() {
+    for (let item of this.#data) {
+      await new Promise(res => setTimeout(res, 100));
+      yield this.transformItem(item);
+    }
+  }
+  
+  transformItem(item) {
+    return [...item].reverse().join('');
+  }
+}
+
+const processData = async (data) => {
+  const transformer = new DataTransformer(data);
+  const results = [];
+  for await (let transformedItem of transformer) {
+    results.push(transformedItem);
+  }
+  return results;
+};
+
+const sampleData = ["JavaScript", "Async", "Generators", "Complex"];
+processData(sampleData).then(results => console.log(results));
+```

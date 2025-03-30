@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Api {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data);
+      }, 1000);
+    });
+  }
+}
+
+ 
+const handler = {
+  get: function (target, propKey, receiver) {
+    console.log(`Method ${propKey} is called`);
+    return Reflect.get(...arguments);
+  },
+};
+
+const dataApi = new Api(['JavaScript', 'Python', 'C++']);
+const proxiedApi = new Proxy(dataApi, handler);
+
+async function loadData() {
+  try {
+    console.log('Fetching data...');
+    const data = await proxiedApi.fetchData();
+    console.log('Data fetched:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+loadData();
+```

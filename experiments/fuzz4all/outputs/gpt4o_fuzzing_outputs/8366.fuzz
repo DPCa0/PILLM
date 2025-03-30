@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+import { nanoid } from 'https://cdn.jsdelivr.net/npm/nanoid@4.0.0/nanoid.js';
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+}
+
+ 
+const multiply = a => b => a * b;
+const double = multiply(2);
+console.log('Double 5:', double(5));
+
+ 
+const handler = {
+  set(obj, prop, value) {
+    if (prop === 'age' && !Number.isInteger(value)) {
+      throw new TypeError('Age must be an integer');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const person = new Proxy({}, handler);
+try {
+  person.age = 30;   
+  console.log('Person age set to:', person.age);
+  person.age = 'thirty';   
+} catch (e) {
+  console.error(e.message);
+}
+
+ 
+function* generatorFunction() {
+  yield 'State 1';
+  yield 'State 2';
+  yield 'State 3';
+}
+
+const gen = generatorFunction();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+function tag(strings, ...values) {
+  console.log('String parts:', strings);
+  console.log('Value parts:', values);
+  return strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+}
+
+const name = 'John Doe';
+const id = nanoid();
+console.log(tag`User: ${name} with ID: ${id}`);
+
+ 
+const privateData = new WeakMap();
+
+class Secret {
+  constructor(secret) {
+    privateData.set(this, { secret });
+  }
+
+  reveal() {
+    console.log('The secret is:', privateData.get(this).secret

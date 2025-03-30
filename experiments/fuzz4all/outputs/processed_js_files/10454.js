@@ -1,0 +1,55 @@
+ 
+import fs from 'fs/promises';
+
+ 
+async function processFiles() {
+  try {
+     
+    const data = await fs.readFile('input.json', 'utf8');
+    const parsedData = JSON.parse(data);
+
+     
+    const processedData = parsedData.map(item => ({
+      ...item,
+      isActive: item.status === 'active',
+    }))
+    .filter(item => item.isActive)
+    .reduce((acc, item) => {
+      acc[item.category] = acc[item.category] || [];
+      acc[item.category].push(item);
+      return acc;
+    }, {});
+
+     
+    await fs.writeFile('output.json', JSON.stringify(processedData, null, 2));
+    print('Data processed and written to output.json');
+  } catch (error) {
+    console.error('Error processing files:', error);
+  }
+}
+
+ 
+processFiles();
+
+ 
+const user = {
+  name: 'John Doe',
+  age: 30,
+};
+
+const userProxy = new Proxy(user, {
+  set(target, property, value) {
+    if (property === 'age' && (typeof value !== 'number' || value <= 0)) {
+      throw new TypeError('Age must be a positive number');
+    }
+    target[property] = value;
+    return true;
+  }
+});
+
+try {
+  userProxy.age = 25;   
+  userProxy.age = -5;   
+} catch (error) {
+  console.error(error.message);
+}

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { pipeline } from 'stream/promises';
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: 'Sample data from ' + url });
+    }, 1000);
+  });
+}
+
+ 
+async function* dataGenerator(urls) {
+  for (const url of urls) {
+    yield await fetchData(url);
+  }
+}
+
+ 
+async function processData() {
+  const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+  const dataStream = dataGenerator(urls);
+
+  await pipeline(
+    async function* () {
+      for await (const data of dataStream) {
+        yield JSON.stringify(data) + '\n';
+      }
+    },
+    fs.createWriteStream('output.txt')
+  );
+
+  console.log('Data processing complete. Check output.txt for results.');
+}
+
+ 
+(async () => {
+  try {
+    await processData();
+  } catch (error) {
+    console.error('Error during processing:', error);
+  }
+})();
+```

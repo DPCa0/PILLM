@@ -1,0 +1,53 @@
+class Matrix {
+  constructor(rows, cols, filler = () => Math.random()) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array.from({ length: cols }, filler));
+  }
+
+  static multiply(A, B) {
+    if (A.cols !== B.rows) throw new Error('Columns of A must match rows of B');
+    return new Matrix(A.rows, B.cols, (_, i, j) => 
+      A.data[i].reduce((sum, _, n) => sum + A.data[i][n] * B.data[n][j], 0)
+    );
+  }
+  
+  [Symbol.iterator]() {
+    let i = 0, j = 0;
+    return {
+      next: () => {
+        if (i < this.rows) {
+          const value = this.data[i][j];
+          if (++j >= this.cols) { j = 0; i++; }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+(async () => {
+  const A = new Matrix(3, 2, () => Math.floor(Math.random() * 10));
+  const B = new Matrix(2, 3, () => Math.floor(Math.random() * 10));
+
+  print("Matrix A:");
+  A.print();
+
+  print("Matrix B:");
+  B.print();
+
+  const C = Matrix.multiply(A, B);
+  print("Matrix C (A x B):");
+  C.print();
+
+  print("Flattened matrix C:");
+  for (const value of C) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    print(value);
+  }
+})();

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ApiService {
+  async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return await response.json();
+  }
+}
+
+ 
+function* dataGenerator(apiService, urls) {
+  for (let url of urls) {
+    yield apiService.fetchData(url);
+  }
+}
+
+ 
+const handler = {
+  get(target, propKey) {
+    const originalMethod = target[propKey];
+    return function (...args) {
+      console.log(`Called ${propKey} with args: ${JSON.stringify(args)}`);
+      return originalMethod.apply(this, args);
+    };
+  }
+};
+
+const apiServiceProxy = new Proxy(new ApiService(), handler);
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+async function processUrls() {
+  const dataGen = dataGenerator(apiServiceProxy, urls);
+  for (let promise of dataGen) {
+    try {
+      const data = await promise;
+      console.log(data);
+    } catch (error) {
+      console.error('Fetching failed:', error);
+    }
+  }
+}
+
+processUrls();
+```

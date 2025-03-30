@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+const dynamicProp = "status";
+const person = {
+  name: "Alice",
+  age: 30,
+  [dynamicProp]: "Active",
+  greet() {
+    return `Hello, my name is ${this.name} and I am ${this.age} years old.`;
+  },
+  updateAge(newAge) {
+    this.age = newAge;
+  }
+};
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Getting property '${property}'`);
+    return property in target ? target[property] : `Property '${property}' does not exist.`;
+  },
+  set(target, property, value) {
+    console.log(`Setting property '${property}' to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxiedPerson = new Proxy(person, handler);
+
+ 
+function* numberSequence(start = 0, end = Infinity, step = 1) {
+  for (let i = start; i < end; i += step) {
+    yield i;
+  }
+}
+
+const numbers = numberSequence(1, 5);
+
+console.log(proxiedPerson.greet());  
+proxiedPerson.updateAge(31);         
+console.log(proxiedPerson.age);      
+console.log([...numbers]);           
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function asyncFunction() {
+  console.log("Waiting for 2 seconds...");
+  await delay(2000);
+  console.log("Done waiting!");
+}
+
+asyncFunction();
+```

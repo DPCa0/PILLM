@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === "number") {
+      return this.magnitude();
+    }
+    return this.toString();
+  }
+
+  magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+
+  static *fibonacciComplex(limit) {
+    let a = new ComplexNumber(0, 0);
+    let b = new ComplexNumber(1, 1);
+    for (let i = 0; i < limit; i++) {
+      yield a;
+      let next = new ComplexNumber(
+        a.real + b.real, 
+        a.imaginary + b.imaginary
+      );
+      a = b;
+      b = next;
+    }
+  }
+
+  static async fetchComplexData(url) {
+    try {
+      let response = await fetch(url);
+      if (!response.ok) throw new Error("Network response was not ok");
+      let data = await response.json();
+      return new ComplexNumber(data.real, data.imaginary);
+    } catch (error) {
+      console.error("Fetch error: ", error);
+    }
+  }
+}
+
+ 
+const fibonacci = ComplexNumber.fibonacciComplex(5);
+for (const num of fibonacci) {
+  console.log(`${num} with magnitude: ${+num}`);
+}
+
+ComplexNumber.fetchComplexData('https://api.example.com/complex-number')
+  .then(complexNum => {
+    if (complexNum) {
+      console.log(`Fetched complex number: ${complexNum}`);
+    }
+  });
+```

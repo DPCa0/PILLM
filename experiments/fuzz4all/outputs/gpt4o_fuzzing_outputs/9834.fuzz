@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      let response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      let data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+  processData(data) {
+    return new Promise((resolve, reject) => {
+      const processedData = data.map(({ id, title, body }) => ({ id, title, body }));
+      if (processedData.length) resolve(processedData);
+      else reject('No data processed');
+    });
+  }
+}
+
+class DataPresenter {
+  constructor(dataFetcher) {
+    this.dataFetcher = dataFetcher;
+  }
+
+  async showData() {
+    try {
+      const data = await this.dataFetcher.fetchData();
+      console.table(data);
+    } catch (error) {
+      console.error('Data processing error:', error);
+    }
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+const dataFetcher = new DataFetcher(url);
+const dataPresenter = new DataPresenter(dataFetcher);
+
+dataPresenter.showData();
+```

@@ -1,0 +1,48 @@
+class EventEmitter {
+  #events = new Map();
+  
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+    return this;
+  }
+
+  emit(event, ...args) {
+    if (this.#events.has(event)) {
+      this.#events.get(event).forEach(listener => listener(...args));
+    }
+    return this;
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+    return this;
+  }
+
+  off(event, listener) {
+    if (this.#events.has(event)) {
+      const listeners = this.#events.get(event);
+      this.#events.set(event, listeners.filter(l => l !== listener));
+    }
+    return this;
+  }
+}
+
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve('Operation complete!'), 1000));
+
+const emitter = new EventEmitter();
+
+emitter.once('data', async (message) => {
+  print('Received:', message);
+  const result = await asyncOperation();
+  print(result);
+});
+
+emitter.emit('data', 'Hello, async world!');
+emitter.emit('data', 'This will not be logged');

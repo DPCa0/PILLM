@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) => {
+  return Promise.race([
+    fetch(url),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), timeout)
+    ),
+  ]);
+};
+
+(async function main() {
+  try {
+    const response = await fetchWithTimeout('https://api.github.com/users/octocat');
+    const data = await response.json();
+    console.log(`Fetched User: ${data.login}`);
+
+    const fib = new Fibonacci();
+    console.log("First 5 Fibonacci numbers:");
+    console.log([...fib].slice(0, 5));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  const fetchData = () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([
+          { id: 1, name: 'Alice', score: 91 },
+          { id: 2, name: 'Bob', score: 85 },
+          { id: 3, name: 'Charlie', score: 72 },
+          { id: 4, name: 'Diana', score: 94 },
+        ]);
+      }, 1000);
+    });
+  };
+
+   
+  const mapScores = (fn, arr) => arr.map(fn);
+
+   
+  const processData = async () => {
+    const data = await fetchData();
+    
+     
+    function* studentGenerator(students) {
+      for (const student of students) {
+        yield student;
+      }
+    }
+
+    const students = studentGenerator(data);
+    const passedStudents = [];
+
+     
+    for (const student of students) {
+      if (student.score > 75) {
+        passedStudents.push(student);
+      }
+    }
+
+     
+    const handler = {
+      get(target, prop) {
+        if (prop in target) {
+          console.log(`Accessing name: ${target[prop]}`);
+          return target[prop];
+        }
+      }
+    };
+
+    const displayNames = mapScores(
+      (student) => new Proxy(student, handler).name,
+      passedStudents
+    );
+
+    console.log('Passed Students:', displayNames);
+  };
+
+   
+  processData();
+})();
+```

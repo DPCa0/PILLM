@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class AsyncCalculator {
+    constructor() {
+        this.result = 0;
+    }
+
+    async add(x) {
+        this.result += await Promise.resolve(x);
+        return this;
+    }
+
+    async subtract(x) {
+        this.result -= await Promise.resolve(x);
+        return this;
+    }
+
+    async multiply(x) {
+        this.result *= await Promise.resolve(x);
+        return this;
+    }
+
+    async divide(x) {
+        if (x === 0) throw new Error('Division by zero');
+        this.result /= await Promise.resolve(x);
+        return this;
+    }
+
+    async getResult() {
+        return this.result;
+    }
+}
+
+(async () => {
+    try {
+        const calculator = new AsyncCalculator();
+        const result = await calculator
+            .add(10)
+            .then(calc => calc.multiply(2))
+            .then(calc => calc.subtract(5))
+            .then(calc => calc.divide(3))
+            .then(calc => calc.getResult());
+        
+        console.log(`Result: ${result}`);  
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();
+```

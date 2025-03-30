@@ -1,0 +1,47 @@
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Property '${prop}' accessed.`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value, receiver) {
+        print(`Setting value ${value} to property '${prop}'.`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const targetObject = { a: 10, b: 20 };
+const proxyObject = new Proxy(targetObject, handler);
+
+proxyObject.a;            
+proxyObject.b = 30;       
+
+ 
+async function* asyncGenerator() {
+    yield Promise.resolve(1);
+    yield Promise.resolve(2);
+    yield Promise.resolve(3);
+}
+
+(async () => {
+    for await (const num of asyncGenerator()) {
+        print(`Async Generator output: ${num}`);
+    }
+})();
+
+ 
+function sum(...nums) {
+    return nums.reduce((acc, num) => acc + num, 0);
+}
+
+const numbers = [1, 2, 3, 4, 5];
+print(`Sum of numbers: ${sum(...numbers)}`);
+
+ 
+const promise1 = Promise.resolve(3);
+const promise2 = new Promise((resolve, reject) => setTimeout(reject, 100, 'error'));
+const promise3 = Promise.resolve(42);
+
+Promise.allSettled([promise1, promise2, promise3])
+    .then(results => results.forEach((result, index) => 
+        print(`Promise ${index + 1}: ${result.status}`)));

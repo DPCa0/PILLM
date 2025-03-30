@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  #data = [];
+  
+  constructor(...dataPoints) {
+    this.#data = dataPoints;
+  }
+
+  *[Symbol.iterator]() {
+    for (let value of this.#data) {
+      yield value * 2;
+    }
+  }
+
+  async processData() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.#data.map((value) => value ** 2));
+      }, 1000);
+    });
+  }
+
+  static async fetchData(url) {
+    try {
+      let response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error: ', error);
+      return null;
+    }
+  }
+}
+
+(async () => {
+  const processor = new DataProcessor(1, 2, 3, 4);
+  
+  for (let value of processor) {
+    console.log('Doubled value:', value);
+  }
+  
+  const squaredData = await processor.processData();
+  console.log('Squared Data:', squaredData);
+  
+  const apiData = await DataProcessor.fetchData('https://jsonplaceholder.typicode.com/posts');
+  console.log('Fetched Data:', apiData ? apiData.slice(0, 3) : 'Error fetching data');
+})();
+```

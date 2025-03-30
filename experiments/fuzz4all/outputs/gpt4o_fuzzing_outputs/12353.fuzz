@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({
+                user: { name: 'Alice', age: 30 },
+                location: { city: 'Wonderland', zip: 12345 }
+            });
+        }, 1000);
+    });
+};
+
+ 
+function* dataProcessor(data) {
+    const { user: { name, age }, location: { city } } = data;
+    yield `User: ${name}, Age: ${age}`;
+    yield `City: ${city}`;
+}
+
+ 
+const logAccessHandler = {
+    get: (target, prop) => {
+        console.log(`Accessed property ${String(prop)}`);
+        return target[prop];
+    }
+};
+
+ 
+(async () => {
+    try {
+        const rawData = await fetchData();
+        const proxiedData = new Proxy(rawData, logAccessHandler);
+        
+        const processor = dataProcessor(proxiedData);
+        
+        for (const step of processor) {
+            console.log(step);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

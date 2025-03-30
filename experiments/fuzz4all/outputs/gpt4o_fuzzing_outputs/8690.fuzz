@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* numberGenerator() {
+    let num = 1;
+    while (true) {
+        yield num++;
+        delay(500);   
+    }
+}
+
+ 
+async function logNumbers(gen) {
+    for (let i = 0; i < 5; i++) {
+        const { value } = gen.next();
+        console.log(`Number: ${value}`);
+        await delay(500);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Getting property: ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const obj = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+console.log(obj.a);   
+obj.b = 10;   
+console.log(obj.b);   
+
+ 
+const gen = numberGenerator();
+logNumbers(gen);
+```

@@ -1,0 +1,39 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const processedData = data.map((item, index) => ({
+      ...item,
+      index,
+      timestamp: new Date().toISOString(),
+    }));
+    return processedData;
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+};
+
+const logData = (data) => {
+  console.group('Processed Data');
+  console.table(data);
+  console.groupEnd();
+};
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const processedData = await processData(url);
+
+  if (processedData) {
+    logData(processedData);
+  }
+})();

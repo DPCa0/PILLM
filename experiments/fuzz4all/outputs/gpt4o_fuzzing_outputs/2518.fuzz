@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+const deepClone = obj => {
+    return structuredClone(obj);
+};
+
+function* idGenerator(start = 0) {
+    let id = start;
+    while (true) {
+        yield id++;
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: () => {
+        let i = 0;
+        return {
+            next: () =>
+                Promise.resolve(i < 3 ? { value: i++, done: false } : { done: true }),
+        };
+    },
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('data', data => console.log('Data received:', data));
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        eventEmitter.emit('data', deepClone(data));
+    } catch (error) {
+        console.error(error);
+    }
+
+    const debouncedLog = debounce((msg) => console.log(msg), 1000);
+    debouncedLog('Hello, this will be debounced!');
+
+    const gen = idGenerator(10);
+    console.log(gen.next().value);  
+    console.log(gen.next().value);  
+
+    for await (const num of asyncIterable) {
+        console.log('Async Iterated Value:', num);
+    }
+})();
+```

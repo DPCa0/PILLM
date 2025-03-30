@@ -1,0 +1,53 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+  
+  calculate(n) {
+    if (n < 2) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+const fibonacciGenerator = async function* (limit) {
+  const fib = new Fibonacci();
+  for (let i = 0; i < limit; i++) {
+    yield fib.calculate(i);
+  }
+};
+
+(async () => {
+  const limit = 10;
+  const results = [];
+  for await (let number of fibonacciGenerator(limit)) {
+    results.push(number);
+  }
+  print(`First ${limit} Fibonacci numbers:`, results);
+})();
+
+function* range(start, end, step = 1) {
+  let current = start;
+  while (current < end) {
+    yield current;
+    current += step;
+  }
+}
+
+const enhancedArray = new Proxy([], {
+  get(target, property) {
+    if (property === 'sum') {
+      return target.reduce((acc, val) => acc + val, 0);
+    }
+    return Reflect.get(target, property);
+  }
+});
+
+const numbers = new enhancedArray();
+for (const num of range(0, 10)) {
+  numbers.push(num);
+}
+
+print('Sum of numbers from 0 to 9:', numbers.sum);

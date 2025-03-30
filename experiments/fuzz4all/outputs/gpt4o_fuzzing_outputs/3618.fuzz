@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    try {
+         
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+         
+        const [first, second] = ['Hello', 'World'];
+
+         
+        const uniqueGreetings = new Set([`${first}, ${second}!`, `${first.toLowerCase()}, ${second.toLowerCase()}!`]);
+
+         
+        for await (const greeting of uniqueGreetings) {
+            await delay(500);  
+            console.log(greeting);
+        }
+
+         
+        const target = { count: 0 };
+        const handler = {
+            get: (obj, prop) => {
+                console.log(`Getting the property '${prop}'`);
+                return prop in obj ? obj[prop] : 'Not found';
+            },
+            set: (obj, prop, value) => {
+                console.log(`Setting the property '${prop}' to ${value}`);
+                obj[prop] = value;
+                return true;
+            }
+        };
+
+        const reactiveObject = new Proxy(target, handler);
+        reactiveObject.count = 42;   
+        console.log(reactiveObject.count);   
+
+         
+        function* numberGenerator() {
+            let num = 1;
+            while (num <= 5) {
+                yield num++;
+            }
+        }
+
+        for (const number of numberGenerator()) {
+            console.log(number);
+        }
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

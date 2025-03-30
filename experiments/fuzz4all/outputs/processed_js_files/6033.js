@@ -1,0 +1,40 @@
+ 
+const complexProgram = async () => {
+     
+    const fetchData = () => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                users: [{ id: 1, name: "Alice" }, { id: 2, name: "Bob" }],
+                details: { title: "Advanced JS", year: 2023 }
+            };
+            resolve(data);
+        }, 1000);
+    });
+
+     
+    const { users, details: { title, year } } = await fetchData();
+
+     
+    const [firstUser, ...restUsers] = users;
+
+     
+    const userHandler = {
+        get(target, property) {
+            if (property in target) {
+                return target[property];
+            } else {
+                console.warn(`User with id ${property} does not exist.`);
+            }
+        }
+    };
+    const proxiedUsers = new Proxy(restUsers, userHandler);
+
+     
+    const mergedUser = { ...firstUser, isActive: true };
+
+    print(`Title: ${title} (${year})`);
+    print("First User:", mergedUser);
+    print("Proxied Users:", proxiedUsers[0], proxiedUsers[2]);  
+};
+
+complexProgram().catch(console.error);

@@ -1,0 +1,39 @@
+ 
+import { writeFileSync } from 'fs';
+
+ 
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+   
+  const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+
+   
+  const userPostCounts = data
+    .map(post => post.userId)
+    .filter((id, index, self) => self.indexOf(id) === index)
+    .reduce((acc, id) => {
+      acc[id] = data.filter(post => post.userId === id).length;
+      return acc;
+    }, {});
+
+   
+  print('User Post Counts:', userPostCounts);
+
+   
+  const [{ userId, title }] = data;
+  print(`First Post: UserID - ${userId}, Title - ${title}`);
+
+   
+  writeFileSync('output.txt', `User Post Counts: ${JSON.stringify(userPostCounts, null, 2)}`);
+
+   
+  print('First Post Title:', data?.[0]?.title ?? 'No Title Available');
+})().catch(error => console.error('Error:', error));
+
+This JavaScript program showcases advanced features such as modules, asynchronous functions, Promise handling with async/await, functional programming methods (map, filter, reduce), template literals, destructuring, and the usage of optional chaining and nullish coalescing operators. It fetches data from a public API, processes it, and writes some results to a file.

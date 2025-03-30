@@ -1,0 +1,60 @@
+class Fibonacci {
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        while (true) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+}
+
+const fib = new Fibonacci();
+const asyncFetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+ 
+async function processMultipleData(urls) {
+    const results = await Promise.allSettled(urls.map(asyncFetchData));
+    return results.map((result) =>
+        result.status === 'fulfilled' ? result.value : 'Error occurred'
+    );
+}
+
+ 
+const targetObject = { a: 1, b: 2 };
+const handler = {
+    get(target, prop, receiver) {
+        print(`Getting property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+print("Fibonacci series:");
+for (let n of fib) {
+    if (n > 100) break;
+    print(n);
+}
+
+ 
+print(proxyObject.a);
+proxyObject.b = 42;
+
+ 
+const urls = [
+    'https://api.exapmle1.com/data',
+    'https://api.exapmle2.com/data'
+];
+processMultipleData(urls).then(console.log);

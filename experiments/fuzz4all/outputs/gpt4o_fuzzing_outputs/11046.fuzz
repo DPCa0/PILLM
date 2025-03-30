@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(data) {
+        this._data = data;
+        this._listeners = new Set();
+    }
+    
+    subscribe(listener) {
+        this._listeners.add(listener);
+        return () => this._listeners.delete(listener);
+    }
+    
+    notify() {
+        this._listeners.forEach(listener => listener(this._data));
+    }
+    
+    set data(newData) {
+        if (this._data !== newData) {
+            this._data = newData;
+            this.notify();
+        }
+    }
+    
+    get data() {
+        return this._data;
+    }
+}
+
+const observable = new Observable('Hello, world!');
+
+const unsubscribeLogger = observable.subscribe(data => console.log(`Logger: ${data}`));
+const unsubscribeAlert = observable.subscribe(data => alert(`Alert: ${data}`));
+
+observable.data = 'New message for observables!';   
+
+ 
+function* messageGenerator() {
+    yield 'First dynamic message';
+    yield 'Second dynamic message';
+    yield 'Third dynamic message';
+}
+
+const messages = messageGenerator();
+const updateMessages = setInterval(() => {
+    const nextMessage = messages.next();
+    if (!nextMessage.done) {
+        observable.data = nextMessage.value;
+    } else {
+        clearInterval(updateMessages);
+        unsubscribeLogger();  
+        unsubscribeAlert();
+    }
+}, 2000);
+
+ 
+async function fetchData() {
+    const response = await new Promise(resolve => setTimeout(() => resolve('Fetched message!'), 5000));
+    observable.data = response;
+}
+
+fetchData();   
+```

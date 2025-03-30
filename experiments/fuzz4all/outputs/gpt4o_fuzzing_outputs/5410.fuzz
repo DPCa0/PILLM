@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}': ${target[prop]}`);
+      return target[prop];
+    }
+    return `Property '${prop}' is not defined`;
+  }
+};
+
+ 
+function* operationSequence() {
+  yield 'Start operation';
+  yield 'Processing data';
+  yield 'Finalizing';
+}
+
+ 
+(async function main() {
+  const myObject = { name: 'JavaScript', type: 'Language' };
+  const proxyObject = new Proxy(myObject, handler);
+
+  const gen = operationSequence();
+  
+  for (let operation of gen) {
+    console.log(operation);
+    await delay(500);  
+  }
+
+  const { name, type } = proxyObject;  
+  console.log(`The object represents a ${type}: ${name}`);
+})();
+```

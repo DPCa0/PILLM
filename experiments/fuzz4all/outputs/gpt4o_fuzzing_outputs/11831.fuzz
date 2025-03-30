@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const person = {
+  name: 'Alice',
+  age: 25
+};
+
+const handler = {
+  get: function(target, property) {
+    if (property in target) {
+      return target[property];
+    } else {
+      return `Property ${property} does not exist.`;
+    }
+  },
+  set: function(target, property, value) {
+    if (typeof value === 'string' && property === 'name') {
+      target[property] = value;
+    } else if (typeof value === 'number' && property === 'age') {
+      target[property] = value;
+    } else {
+      console.warn(`Invalid type for ${property}: ${value}`);
+    }
+    return true;
+  }
+};
+
+const proxyPerson = new Proxy(person, handler);
+
+ 
+function dynamicMethodInvocation(methodName, ...args) {
+  const methods = {
+    greet(name) {
+      console.log(`Hello, ${name}!`);
+    },
+    farewell(name) {
+      console.log(`Goodbye, ${name}!`);
+    }
+  };
+  
+  return Reflect.has(methods, methodName) ? Reflect.apply(methods[methodName], null, args) : console.log('Method not found.');
+}
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 3, 4]);
+const numberMap = new Map();
+numberMap.set('one', 1).set('two', 2);
+
+ 
+function safeAccess(obj, property) {
+  return obj?.[property] ?? 'Default Value';
+}
+
+ 
+ 
+ 
+ 
+
+ 
+(async function() {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  console.log('Fetched data:', data);
+  
+  console.log

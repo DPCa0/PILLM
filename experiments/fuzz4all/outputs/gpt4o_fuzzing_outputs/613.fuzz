@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function fetchData() {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', role: 'Developer' },
+        { id: 2, name: 'Bob', role: 'Designer' },
+        { id: 3, name: 'Charlie', role: 'Manager' }
+      ]);
+    }, 1000);
+  });
+}
+
+async function processData() {
+  const data = await fetchData();
+
+   
+  const dataMap = new Map(data.map(({ id, ...rest }) => [id, { ...rest, active: true }]));
+  
+   
+  dataMap.set(4, { ...{ name: 'David', role: 'Tester' }, active: true });
+
+   
+  for (const [id, { name, role, active }] of dataMap) {
+    console.log(`ID: ${id}, Name: ${name}, Role: ${role}, Active: ${active}`);
+  }
+}
+
+processData();
+```

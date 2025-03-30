@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.warn(`Property "${prop}" not found`);
+            return 'Default Value';
+        }
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+let targetObject = { existingProp: 42 };
+let proxyObject = new Proxy(targetObject, handler);
+
+console.log(proxyObject.existingProp);  
+console.log(proxyObject.nonExistentProp);  
+proxyObject.newProp = 'Hello';  
+console.log(proxyObject.newProp);  
+
+ 
+let mySet = new Set([1, 2, 3, 3, 4]);
+console.log([...mySet]);  
+
+let myMap = new Map();
+myMap.set('key1', 'value1').set('key2', 'value2');
+for (let [key, value] of myMap.entries()) {
+    console.log(key, value);
+}
+
+ 
+function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    while (n-- > 0) {
+        [a, b] = [b, a + b];
+        yield a;
+    }
+}
+
+for (let num of fibonacci(5)) {
+    console.log(num);  
+}
+
+ 
+let obj = { a: 1, b: 2, c: 3 };
+let { a, ...rest } = obj;
+console.log(a);  
+console.log(rest);  
+
+let

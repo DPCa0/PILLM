@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class AsyncRange {
+  constructor(start, end, delay = 100) {
+    this.current = start;
+    this.end = end;
+    this.delay = delay;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      current: this.current,
+      end: this.end,
+      delay: this.delay,
+      next() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            if (this.current <= this.end) {
+              resolve({ value: this.current++, done: false });
+            } else {
+              resolve({ done: true });
+            }
+          }, this.delay);
+        });
+      },
+    };
+  }
+}
+
+const processData = async (data) => {
+  const result = await Promise.all(
+    data.map(async (num) => {
+      const doubled = num * 2;
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      console.log(`Processed: ${doubled}`);
+      return doubled;
+    })
+  );
+
+  return result;
+};
+
+const main = async () => {
+  console.log("Starting async range:");
+  const range = new AsyncRange(1, 5, 200);
+  const collectedData = [];
+  
+  for await (const num of range) {
+    console.log(`Collected: ${num}`);
+    collectedData.push(num);
+  }
+
+  console.log("Processing data:");
+  const processedData = await processData(collectedData);
+
+  console.log("Processed Data:", processedData);
+};
+
+main().catch(console.error);
+```

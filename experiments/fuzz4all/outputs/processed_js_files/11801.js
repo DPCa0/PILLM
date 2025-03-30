@@ -1,0 +1,63 @@
+ 
+const complexObject = {
+    data: {
+        users: [
+            { id: 1, name: "Alice", age: 28 },
+            { id: 2, name: "Bob", age: 22 },
+            { id: 3, name: "Charlie", age: 35 }
+        ],
+        settings: {
+            theme: "dark",
+            notifications: true
+        }
+    },
+    getFilteredUsers(minAge) {
+         
+        const { users } = this.data;
+        return users.filter(({ age }) => age > minAge).map(user => ({ ...user, premium: true }));
+    },
+    async fetchData(url) {
+         
+        try {
+            let response = await fetch(url);
+            if (!response.ok) throw new Error("Network response was not ok");
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Fetching error:", error);
+        }
+    },
+    generateReport() {
+         
+        const report = this.data.users.reduce((acc, { name, age }) => {
+            return `${acc}\nName: ${name}, Age: ${age}`;
+        }, "User Report:");
+        return report;
+    }
+};
+
+ 
+print(complexObject.getFilteredUsers(25));  
+complexObject.fetchData('https://jsonplaceholder.typicode.com/posts/1')
+    .then(data => print(data));  
+print(complexObject.generateReport());  
+
+ 
+(async () => {
+    if (complexObject.data.settings.theme === "dark") {
+        const { default: dynamicFeature } = await import('./darkFeature.js');
+        dynamicFeature.applyDarkMode();
+    }
+})();
+
+ 
+const handler = {
+    set(target, key, value) {
+        print(`Property ${key} changed from ${target[key]} to ${value}`);
+        target[key] = value;
+        return true;
+    }
+};
+
+const proxiedSettings = new Proxy(complexObject.data.settings, handler);
+proxiedSettings.theme = "light";   

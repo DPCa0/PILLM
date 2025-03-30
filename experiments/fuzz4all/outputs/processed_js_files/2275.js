@@ -1,0 +1,57 @@
+ 
+
+const fetchData = async (url) => {
+     
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve(`Data from ${url}`);
+            } else {
+                reject(new Error('Failed to fetch data'));
+            }
+        }, 1000);
+    });
+};
+
+const dataHandler = {
+    get: (target, property) => {
+        return property in target ? target[property] : `No data for ${property}`;
+    }
+};
+
+function* dataGenerator(urls) {
+    for (let url of urls) {
+        try {
+            const data = yield fetchData(url);
+            print(`Fetched: ${data}`);
+        } catch (error) {
+            print(`Error: ${error.message}`);
+        }
+    }
+}
+
+const asyncDataProcessing = async (urls) => {
+    const handler = new Proxy({}, dataHandler);
+    const generator = dataGenerator(urls);
+
+    while (true) {
+        const { value: promise, done } = generator.next();
+        if (done) break;
+        try {
+            const data = await promise;
+            handler[url] = data;
+            generator.next(data);
+        } catch (error) {
+            generator.throw(error);
+        }
+    }
+
+    return handler;
+};
+
+(async () => {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+    const data = await asyncDataProcessing(urls);
+    print(data['https://api.example.com/data1']);
+    print(data['https://api.example.com/data4']);  
+})();

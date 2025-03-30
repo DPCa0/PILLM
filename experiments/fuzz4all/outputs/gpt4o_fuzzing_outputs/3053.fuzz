@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncTask = (value) =>
+  new Promise((resolve, reject) =>
+    setTimeout(() => (Math.random() > 0.1 ? resolve(value) : reject('Error occurred')), 1000)
+  );
+
+ 
+function* asyncGenerator() {
+  yield asyncTask('Task 1 completed');
+  yield asyncTask('Task 2 completed');
+  yield asyncTask('Task 3 completed');
+}
+
+ 
+async function runAsyncTasks() {
+  const iterator = asyncGenerator();
+  for (let promise of iterator) {
+    try {
+      const result = await promise;
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2, c: 3 };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessing property "${prop}"`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    console.log(`Setting property "${prop}" to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+runAsyncTasks();
+console.log(proxiedObject.a);
+proxiedObject.b = 4;
+```

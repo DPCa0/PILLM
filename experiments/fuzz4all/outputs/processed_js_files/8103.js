@@ -1,0 +1,41 @@
+ 
+
+const fetchMockData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ success: true, data: { message: 'Hello, world!' } });
+    }, 1000);
+});
+
+const apiHandler = {
+    get: async (target, property) => {
+        if (property in target) {
+            print(`Calling API method: ${property}`);
+            const startTime = Date.now();
+            const result = await target[property]();
+            const endTime = Date.now();
+            print(`API method ${property} completed in ${endTime - startTime}ms`);
+            return result;
+        } else {
+            throw new Error(`Method ${property} does not exist on target`);
+        }
+    }
+};
+
+const apiMethods = {
+    getData: fetchMockData
+};
+
+const proxy = new Proxy(apiMethods, apiHandler);
+
+(async () => {
+    try {
+        const response = await proxy.getData();
+        if (response.success) {
+            print(response.data.message);
+        } else {
+            console.error('API call failed');
+        }
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

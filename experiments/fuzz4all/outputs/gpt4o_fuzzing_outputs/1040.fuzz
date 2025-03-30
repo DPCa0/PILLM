@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+class Greeter {
+  constructor(name) {
+    this.name = name;
+  }
+
+   
+  greet() {
+    console.log(customGreet`Hello, ${this.name}! Welcome to the future of JavaScript.`);
+  }
+}
+
+ 
+function customGreet(strings, nameExp) {
+  const timeOfDay = (new Date()).getHours() < 12 ? 'morning' : 'afternoon';
+  return `${strings[0]}${nameExp}${strings[1]} Good ${timeOfDay}!`;
+}
+
+ 
+async function simulateAsyncOperation() {
+  const result = await new Promise((resolve) =>
+    setTimeout(() => resolve('Asynchronous task complete!'), 1000)
+  );
+  console.log(result);
+}
+
+ 
+const runApp = async () => {
+  const greeter = new Greeter('Alice');
+  const greetings = ['Hi', 'Hello', 'Hey'];
+  
+   
+  greetings.forEach(greeting => console.log(`${greeting}, ${greeter.name}!`));
+  
+  greeter.greet();
+
+   
+  const { length: numGreetings } = greetings;
+  console.log(`Number of greetings: ${numGreetings}`);
+  
+  await simulateAsyncOperation();
+};
+
+ 
+runApp();
+```

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchUserData = async (userId) => {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { id: userId, name: "John Doe", role: "admin" };
+};
+
+ 
+const createUserGreeting = (role) => {
+    return (name) => {
+        switch (role) {
+            case 'admin':
+                return `Welcome back, Admin ${name}!`;
+            case 'guest':
+                return `Hello, Guest ${name}! Enjoy your visit.`;
+            default:
+                return `Hi, ${name}! Welcome to our platform.`;
+        }
+    };
+};
+
+ 
+(async () => {
+    try {
+         
+        const user = await fetchUserData(42);
+
+         
+        if (user.role === 'admin') {
+            const { default: adminTools } = await import('./adminTools.js');
+            adminTools.initialize();
+        }
+
+         
+        const userGreeting = createUserGreeting(user.role);
+        console.log(userGreeting(user.name));
+
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();
+```

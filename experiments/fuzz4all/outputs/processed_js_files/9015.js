@@ -1,0 +1,40 @@
+class AsyncIterator {
+    constructor(limit) {
+        this.limit = limit;
+        this.current = 0;
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            next: () => {
+                if (this.current < this.limit) {
+                    return Promise.resolve({ value: this.current++, done: false });
+                } else {
+                    return Promise.resolve({ done: true });
+                }
+            }
+        };
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield await delay(100).then(() => a);
+        [a, b] = [b, a + b];
+    }
+}
+
+(async () => {
+    const asyncIterable = new AsyncIterator(5);
+
+    for await (const num of asyncIterable) {
+        print(`Async Number: ${num}`);
+    }
+
+    for await (const num of fibonacci(10)) {
+        print(`Fibonacci: ${num}`);
+    }
+})();

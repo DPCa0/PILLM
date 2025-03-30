@@ -1,0 +1,55 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(task) {
+        this.queue.push(task);
+        if (!this.processing) {
+            this.processing = true;
+            while (this.queue.length > 0) {
+                const currentTask = this.queue.shift();
+                await currentTask();
+            }
+            this.processing = false;
+        }
+    }
+}
+
+function createTask(delay, message) {
+    return async () => {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        print(message);
+    };
+}
+
+const asyncQueue = new AsyncQueue();
+
+async function runTasks() {
+    const tasks = [
+        createTask(1000, 'Task 1 completed after 1 second'),
+        createTask(500, 'Task 2 completed after 0.5 seconds'),
+        createTask(1500, 'Task 3 completed after 1.5 seconds')
+    ];
+
+    tasks.forEach(task => asyncQueue.enqueue(task));
+}
+
+runTasks();
+
+ 
+const dataStream = new EventTarget();
+dataStream.addEventListener('data', async event => {
+    const processData = async data => {
+        print(`Processing data: ${data}`);
+        await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+        print(`Finished processing: ${data}`);
+    };
+    asyncQueue.enqueue(() => processData(event.detail));
+});
+
+setInterval(() => {
+    const randomData = `data-${Math.floor(Math.random() * 100)}`;
+    dataStream.dispatchEvent(new CustomEvent('data', { detail: randomData }));
+}, 2000);

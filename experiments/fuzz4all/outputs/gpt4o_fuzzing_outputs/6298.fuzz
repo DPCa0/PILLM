@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Reactive {
+    constructor(target) {
+        this.handlers = new Map();
+        this.proxy = this.makeProxy(target);
+    }
+
+    makeProxy(target) {
+        return new Proxy(target, {
+            get: (obj, prop) => {
+                if (typeof obj[prop] === 'object' && obj[prop] !== null) {
+                    return this.makeProxy(obj[prop]);
+                }
+                return obj[prop];
+            },
+            set: (obj, prop, value) => {
+                obj[prop] = value;
+                if (this.handlers.has(prop)) {
+                    this.handlers.get(prop).forEach(handler => handler(value));
+                }
+                return true;
+            }
+        });
+    }
+
+    on(key, handler) {
+        if (!this.handlers.has(key)) {
+            this.handlers.set(key, new Set());
+        }
+        this.handlers.get(key).add(handler);
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+}
+
+(async () => {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    const { userId, id, title, completed } = data;
+
+    const reactiveData = new Reactive({ userId, id, title, completed });
+
+    reactiveData.on('title', newValue => {
+        console.log(`Title changed to: ${newValue}`);
+    });
+
+     
+    setTimeout(() => {
+        reactiveData.proxy.title = "New Title!";
+    }, 1000);
+})();
+```

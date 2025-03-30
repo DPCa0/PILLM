@@ -1,0 +1,52 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`GET ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set: function(target, prop, value, receiver) {
+    print(`SET ${prop} = ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+const data = { name: 'John Doe', age: 30 };
+const proxiedData = new Proxy(data, handler);
+
+ 
+function* userDetailGenerator(user) {
+  yield `Name: ${user.name}`;
+  yield `Age: ${user.age}`;
+}
+
+ 
+(async function() {
+  try {
+    const userData = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    
+     
+    const { name, email, ...rest } = userData;
+    
+     
+    proxiedData.name = name;
+    proxiedData.email = email;
+
+     
+    const userDetails = userDetailGenerator(proxiedData);
+    for (const detail of userDetails) {
+      print(detail);
+    }
+
+    print('Additional Info:', rest);
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();

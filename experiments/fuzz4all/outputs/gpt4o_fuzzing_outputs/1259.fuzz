@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+class DataHandler {
+    constructor(url) {
+        this.url = url;
+    }
+
+     
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetching error: ', error);
+        }
+    }
+
+     
+    *chunkData(data, chunkSize) {
+        for (let i = 0; i < data.length; i += chunkSize) {
+            yield data.slice(i, i + chunkSize);
+        }
+    }
+
+     
+    async processData(data) {
+        for (const chunk of this.chunkData(data, 5)) {
+            await new Promise(resolve => setTimeout(resolve, 1000));  
+            console.log('Processing chunk:', chunk);
+        }
+    }
+
+     
+    static async execute(url) {
+        const handler = new DataHandler(url);
+        const data = await handler.fetchData();
+        if (data) {
+            await handler.processData(data);
+        }
+    }
+}
+
+ 
+const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+
+ 
+DataHandler.execute(apiURL);
+```

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    *filterData(criteria) {
+        for (let item of this.data) {
+            if (criteria(item)) yield item;
+        }
+    }
+
+    async processDataAsync(transformFn) {
+        const promises = this.data.map(item => new Promise(resolve => 
+            setTimeout(() => resolve(transformFn(item)), Math.random() * 1000)
+        ));
+        return Promise.all(promises);
+    }
+}
+
+const fetchData = async () => {
+    return new Promise(resolve => 
+        setTimeout(() => resolve([1, 2, 3, 4, 5]), 500)
+    );
+};
+
+(async () => {
+    const data = await fetchData();
+    const processor = new DataProcessor(data);
+    
+    console.log("Filtered Data:");
+    for (let item of processor.filterData(x => x > 2)) {
+        console.log(item);
+    }
+
+    console.log("Processed Data:");
+    const processed = await processor.processDataAsync(x => x * 2);
+    console.log(processed);
+})();
+```

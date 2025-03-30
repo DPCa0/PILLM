@@ -1,0 +1,30 @@
+ 
+
+const apiSimulator = (success, delay, data) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (success) {
+            resolve(data);
+        } else {
+            reject('Failed to fetch data');
+        }
+    }, delay);
+});
+
+const fetchData = async () => {
+    try {
+        const [userData, postData] = await Promise.all([
+            apiSimulator(true, 1000, { userId: 1, name: "John Doe" }),
+            apiSimulator(true, 2000, [{ postId: 1, content: "Hello World!" }, { postId: 2, content: "Advanced JS" }])
+        ]);
+
+        const { userId, name } = userData;
+        const [firstPost] = postData;
+
+        print(`User ${name} (ID: ${userId}) has a post: ${firstPost.content}`);
+
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+};
+
+fetchData();

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            const listeners = this.events.get(event);
+            this.events.set(event, listeners.filter(l => l !== listener));
+        }
+    }
+
+    async emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                await listener(...args);
+            }
+        }
+    }
+}
+
+ 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+ 
+(async () => {
+    const emitter = new AsyncEventEmitter();
+
+    emitter.on('data', async (payload) => {
+        console.log('Listener 1 received:', payload);
+        await delay(1000);
+        console.log('Listener 1 processing done.');
+    });
+
+    emitter.on('data', async (payload) => {
+        console.log('Listener 2 received:', payload);
+        await delay(500);
+        console.log('Listener 2 processing done.');
+    });
+
+    console.log('Emitting event...');
+    await emitter.emit('data', { some: 'payload' });
+    console.log('All listeners have processed the event.');
+})();
+```

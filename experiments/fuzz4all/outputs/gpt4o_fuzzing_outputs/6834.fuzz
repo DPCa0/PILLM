@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['JavaScript', 'Python', 'C++', 'Java']);
+    }, 2000);
+  });
+};
+
+ 
+async function displayLanguages() {
+  try {
+    console.log('Fetching programming languages...');
+    
+     
+    const languages = await fetchData();
+    
+     
+    languages.map(language => {
+      console.log(`- Language: ${language}`);
+    });
+
+     
+    const [first, second, ...rest] = languages;
+    console.log(`First two languages are: ${first} and ${second}`);
+    
+     
+    const extendedLanguages = [...languages, 'Rust'];
+    console.log('Extended language list:', extendedLanguages.join(', '));
+    
+  } catch (error) {
+    console.error('Error fetching languages:', error);
+  }
+}
+
+ 
+(async () => {
+  await displayLanguages();
+})();
+```

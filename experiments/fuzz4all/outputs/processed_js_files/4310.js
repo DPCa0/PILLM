@@ -1,0 +1,36 @@
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const results = await Promise.all(this.data.map(async (item) => this.#processItem(item)));
+      print('Processed Results:', results);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async #processItem(item) {
+    const transformedItem = this.#transformData(item);
+    const result = await this.#mockApiCall(transformedItem);
+    return result;
+  }
+
+  #transformData(item) {
+    return [...item].reverse().join('');
+  }
+
+  async #mockApiCall(transformedItem) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(transformedItem.toUpperCase());
+      }, 500);
+    });
+  }
+}
+
+const data = ['hello', 'world', 'async', 'javascript'];
+const processor = new AsyncProcessor(data);
+processor.processData();

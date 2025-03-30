@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (delay, data) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            data ? resolve(`Data received: ${data}`) : reject('No data found');
+        }, delay);
+    });
+};
+
+ 
+async function processData() {
+    try {
+        const result1 = await fetchData(1000, 'User Data');
+        console.log(result1);
+
+        const result2 = await fetchData(1000, 'Order Details');
+        console.log(result2);
+
+        return 'Process completed successfully';
+    } catch (error) {
+        console.error('Error occurred:', error);
+        throw error;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        return prop in target ? target[prop] : `Property ${prop} not found`;
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+(async function main() {
+     
+    console.log(user.name);  
+    user.name = 'Alice';
+    console.log(user.name);  
+
+     
+    try {
+        const finalMessage = await processData();
+        console.log(finalMessage);
+    } catch (error) {
+        console.log('Process failed.');
+    }
+})();
+```

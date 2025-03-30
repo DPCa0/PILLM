@@ -1,0 +1,54 @@
+ 
+ 
+
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+const processData = (data) => {
+    const { results } = data;
+    return results.map(({ name, height, mass }) => ({
+        name,
+        bmi: calculateBMI(height, mass)
+    }));
+};
+
+const calculateBMI = (height, mass) => {
+    return (mass / ((height / 100) ** 2)).toFixed(2);
+};
+
+const displayData = (data) => {
+    data.forEach(({ name, bmi }) => {
+        print(`Name: ${name}, BMI: ${bmi}`);
+    });
+};
+
+const startApp = async () => {
+    const url = 'https://swapi.dev/api/people/';
+    const data = await fetchData(url);
+    if (data) {
+        const processedData = processData(data);
+        displayData(processedData);
+    }
+};
+
+ 
+const combineData = (...arrays) => {
+    return arrays.flat();
+};
+
+startApp();
+
+ 
+const array1 = [1, 2, 3];
+const array2 = [4, 5, 6];
+const array3 = [7, 8, 9];
+
+const combined = combineData(...[array1, array2, array3]);
+print('Combined Array:', combined);

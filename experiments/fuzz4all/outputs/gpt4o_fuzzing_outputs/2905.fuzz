@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                name: 'Jane Doe',
+                age: 28,
+                email: 'janedoe@example.com',
+                preferences: {
+                    theme: 'dark',
+                    notifications: true
+                }
+            });
+        }, 1000);
+    });
+}
+
+ 
+const loggingHandler = {
+    get: (target, property) => {
+        if (property in target) {
+            console.log(`Property '${property}' accessed, value: ${target[property]}`);
+            return target[property];
+        }
+        throw new Error(`Property '${property}' does not exist.`);
+    }
+};
+
+ 
+(async function() {
+    try {
+         
+        const { name, preferences: { theme } } = await fetchData();
+        console.log(`User name is: ${name}`);
+        console.log(`Preferred theme is: ${theme}`);
+
+         
+        const userProxy = new Proxy(await fetchData(), loggingHandler);
+
+         
+        console.log(`User email is: ${userProxy.email}`);
+        console.log(`User age is: ${userProxy.age}`);
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

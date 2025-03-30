@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+const { EventEmitter } = require('events');
+const fetch = require('node-fetch');
+
+ 
+const apiProxy = new Proxy(fetch, {
+  apply: async function(target, thisArg, argumentsList) {
+    console.log(`Fetching URL: ${argumentsList[0]}`);
+    const response = await Reflect.apply(target, thisArg, argumentsList);
+    return response;
+  }
+});
+
+ 
+async function* fetchData(url) {
+  const response = await apiProxy(url);
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    yield decoder.decode(value, { stream: true });
+  }
+}
+
+ 
+class DataEmitter extends EventEmitter {
+  async emitData(url) {
+    for await (const chunk of fetchData(url)) {
+      this.emit('data', chunk);
+    }
+    this.emit('end');
+  }
+}
+
+ 
+(async () => {
+  const dataEmitter = new DataEmitter();
+
+  dataEmitter.on('data', chunk => {
+    console.log(`Received chunk: ${chunk.substring(0, 50)}...`);
+  });
+
+  dataEmitter.on('end', () => {
+    console.log('Data fetching completed.');
+  });
+
+  await dataEmitter.emitData('https://jsonplaceholder.typicode.com/posts');
+})();
+```

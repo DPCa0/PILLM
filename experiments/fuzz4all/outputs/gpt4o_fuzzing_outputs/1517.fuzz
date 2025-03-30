@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const reactiveHandler = {
+  get(target, property) {
+    if (typeof target[property] === 'function') {
+      return target[property].bind(target);
+    }
+    console.log(`Accessing property "${property}": ${target[property]}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting property "${property}" to: ${value}`);
+    target[property] = value;
+     
+    if (property in watchers) {
+      watchers[property].forEach(fn => fn(value));
+    }
+    return true;
+  }
+};
+
+ 
+const data = {
+  text: 'Hello, world!',
+  count: 0
+};
+
+const reactiveData = new Proxy(data, reactiveHandler);
+
+ 
+const watchers = {
+  text: [
+    newText => console.log(`Text watcher triggered: ${newText}`)
+  ],
+  count: [
+    newCount => console.log(`Count updated to: ${newCount}`)
+  ]
+};
+
+ 
+function simulateOperations() {
+   
+  const updateTextAsync = async (newText) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    reactiveData.text = newText;
+  };
+
+   
+  function* countGenerator(max) {
+    for (let i = 0; i <= max; i++) {
+      yield i;
+    }
+  }
+
+   
+  updateTextAsync('Updated asynchronously!');
+
+  const maxCount = 5;
+  const countIterator = countGenerator(maxCount);
+  let countInterval = setInterval(() => {
+    const { value, done } = countIterator.next();
+    if (done) {
+      clearInterval(countInterval);
+    } else {
+      reactiveData.count = value;
+    }
+  }, 500);  
+}
+
+ 
+simulateOperations();
+```

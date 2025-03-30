@@ -1,0 +1,55 @@
+ 
+import { promises as fs } from 'fs';
+import path from 'path';
+
+ 
+(async function main() {
+     
+    const handler = {
+        get(target, property) {
+            if (property === 'greet') {
+                return () => `Hello, ${target.name}!`;
+            }
+            return Reflect.get(target, property);
+        },
+    };
+
+    const person = new Proxy({ name: 'World' }, handler);
+
+     
+    const { greet = () => 'Hello, Stranger!' } = person;
+
+     
+    const asyncIterable = {
+        [Symbol.asyncIterator]: async function* () {
+            yield* ['a', 'b', 'c'];
+        },
+    };
+
+    print(greet());  
+
+     
+    const config = null;
+    print(config?.settings?.language ?? 'Default Language');  
+
+     
+    for await (const char of asyncIterable) {
+        print(`Character from async generator: ${char}`);
+    }
+
+     
+    const { default: os } = await import('os');
+
+     
+    print(`System Info: OS - ${os.type()} | Platform - ${os.platform()}`);
+
+     
+    try {
+        const filePath = path.join(__dirname, 'example.txt');
+        await fs.writeFile(filePath, 'Hello, advanced JavaScript!\n', 'utf-8');
+        const data = await fs.readFile(filePath, 'utf-8');
+        print(`File Content:\n${data}`);
+    } catch (error) {
+        console.error('File operation error:', error);
+    }
+})();

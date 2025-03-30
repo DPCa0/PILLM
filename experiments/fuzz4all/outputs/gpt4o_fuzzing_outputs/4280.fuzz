@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+(async function main() {
+   
+  const userPreferences = new Map([
+    [{ id: 1 }, { theme: 'dark', language: 'en' }],
+    [{ id: 2 }, { theme: 'light', language: 'es' }]
+  ]);
+
+   
+  readline.question('Enter your user ID (1 or 2): ', async (input) => {
+    const userId = parseInt(input);
+
+     
+    const userTheme = userPreferences.get({ id: userId })?.theme ?? 'default';
+
+     
+    try {
+      const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+      console.log(`User ${userId} prefers ${userTheme} theme. Here is some fetched data:`, data);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+
+     
+    const languages = new Set();
+    userPreferences.forEach(pref => languages.add(pref.language));
+    console.log('Unique languages used by users:', Array.from(languages));
+
+    readline.close();
+  });
+})();
+```

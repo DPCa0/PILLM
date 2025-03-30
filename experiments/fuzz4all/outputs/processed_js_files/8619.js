@@ -1,0 +1,34 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+const processData = async (url) => {
+  const data = await fetchData(url);
+  if (!data) return;
+
+   
+  const [first, second, ...rest] = data.results;
+  const filteredData = rest.filter(item => item.value > 50);
+
+   
+  const mappedData = filteredData.map(({ id, name, value }) => ({ id, name: name.toUpperCase(), value }));
+  const finalData = { first, second, others: mappedData };
+
+   
+  print(`First: ${first.name}\nSecond: ${second.name}\nOthers: ${finalData.others.length} items processed.`);
+};
+
+ 
+const apiUrl = 'https://api.example.com/data';
+
+processData(apiUrl);

@@ -1,0 +1,43 @@
+ 
+
+ 
+ 
+export class UserAPI {
+  constructor() {
+    this.users = [
+      { id: 1, name: 'Alice', age: 28 },
+      { id: 2, name: 'Bob', age: 34 }
+    ];
+  }
+  
+  async fetchUserById(id) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const user = this.users.find(user => user.id === id);
+        if (user) {
+          resolve(user);
+        } else {
+          reject(new Error('User not found'));
+        }
+      }, 1000);
+    });
+  }
+}
+
+ 
+ 
+import { UserAPI } from './userModule.js';
+
+(async () => {
+  const userAPI = new UserAPI();
+  
+   
+  try {
+    const { id, name, age } = await userAPI.fetchUserById(1);
+    print(`User Info: ID = ${id}, Name = ${name}, Age = ${age}`);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+Note: To run this code, you need to have both `userModule.js` and `main.js` in the same directory and a server environment that supports ES6 modules (e.g., using Node.js with experimental module support or any modern web browser with a local server setup).

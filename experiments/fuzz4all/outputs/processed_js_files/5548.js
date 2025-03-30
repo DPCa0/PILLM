@@ -1,0 +1,42 @@
+ 
+
+function* fibonacciGenerator(limit) {
+    let a = 0, b = 1;
+    for (let i = 0; i < limit; i++) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+async function getFibonacci(limit) {
+    const fibonacciNumbers = [];
+    const gen = fibonacciGenerator(limit);
+    let next = gen.next();
+    
+    while (!next.done) {
+        fibonacciNumbers.push(next.value);
+        next = gen.next();
+    }
+
+    return fibonacciNumbers;
+}
+
+function promiseBasedGetFibonacci(limit) {
+    return new Promise((resolve) => {
+        setTimeout(async () => {
+            const numbers = await getFibonacci(limit);
+            resolve(numbers);
+        }, 1000);  
+    });
+}
+
+async function main() {
+    try {
+        const numbers = await promiseBasedGetFibonacci(10);
+        print("Fibonacci Sequence:", numbers);
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+main();

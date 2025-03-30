@@ -1,0 +1,51 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { id: 1, name: 'Sample Data', values: [10, 20, 30] };
+      Math.random() > 0.2 ? resolve(data) : reject('Failed to fetch data');
+    }, 1000);
+  });
+};
+
+ 
+async function processData() {
+  try {
+    const { id, name, values } = await fetchData();  
+    print(`Data ID: ${id}, Name: ${name}`);
+    const processedValues = values.map(v => v * 2);
+    print(`Processed Values: ${processedValues}`);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+const handler = {
+  set(target, key, value) {
+    if (typeof value === 'string') {
+      target[key] = value;
+    } else {
+      throw new Error('Value must be a string');
+    }
+    return true;
+  }
+};
+
+const dataObject = new Proxy({}, handler);
+
+ 
+function setData() {
+  try {
+    dataObject.name = 'Valid Name';
+    print(`Data Name: ${dataObject.name}`);
+    dataObject.invalid = 123;  
+  } catch (error) {
+    console.error(`Proxy Error: ${error.message}`);
+  }
+}
+
+processData();
+setData();

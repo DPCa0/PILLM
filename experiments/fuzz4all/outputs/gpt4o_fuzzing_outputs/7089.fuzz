@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+class Matrix {
+   
+  #data;
+  #rows;
+  #cols;
+  
+  constructor(rows, cols, fill = 0) {
+    this.#rows = rows;
+    this.#cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+   
+  static fromArray(arr) {
+    const rows = arr.length;
+    const cols = arr[0].length;
+    const matrix = new Matrix(rows, cols);
+    matrix.#data = arr;
+    return matrix;
+  }
+  
+   
+  map(fn) {
+    this.#data = this.#data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+  }
+
+   
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.#rows; i++) {
+      for (let j = 0; j < this.#cols; j++) {
+        yield this.#data[i][j];
+      }
+    }
+  }
+
+   
+  get rows() {
+    return this.#rows;
+  }
+
+  get cols() {
+    return this.#cols;
+  }
+  
+   
+  log() {
+    console.table(this.#data);
+  }
+}
+
+ 
+async function demoMatrix() {
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const matrix = new Matrix(3, 3);
+
+   
+  matrix.map(() => Math.floor(Math.random() * 10));
+
+   
+  console.log("Initial Matrix:");
+  matrix.log();
+
+   
+  console.log("Matrix Elements:");
+  for await (const element of matrix) {
+    await sleep(500);  
+    console.log(element);
+  }
+}
+
+ 
+demoMatrix();
+```

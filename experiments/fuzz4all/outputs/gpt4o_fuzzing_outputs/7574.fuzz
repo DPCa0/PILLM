@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('No URL provided');
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function* asyncGenerator(urls) {
+  for (const url of urls) {
+    try {
+      const data = await fetchData(url);
+      yield data;
+    } catch (error) {
+      yield `Error: ${error}`;
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessed property "${property}"`);
+    return target[property];
+  }
+};
+
+const targetObject = {
+  prop1: 'value1',
+  prop2: 'value2'
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+const map = new Map();
+const set = new Set();
+
+map.set('key1', 'value1');
+set.add('value1');
+
+ 
+(async () => {
+  const urls = ['http://api1.com', 'http://api2.com', null];
+  const generator = asyncGenerator(urls);
+
+  for await (const data of generator) {
+    console.log(data);
+  }
+
+  console.log(`Map value for key1: ${map.get('key1')}`);
+  console.log(`Set contains 'value1': ${set.has('value1')}`);
+
+   
+  console.log(`Proxy prop1: ${proxyObject.prop1}`);
+})();
+```

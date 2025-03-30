@@ -1,0 +1,37 @@
+class DataProcessor {
+  #data = [];
+  
+  constructor(data) {
+    this.#data = data;
+  }
+
+  async *filterData(predicate) {
+    for (const item of this.#data) {
+      if (await predicate(item)) {
+        yield item;
+      }
+    }
+  }
+
+  static combineData(...processors) {
+    return processors.flatMap(p => [...p.#data]);
+  }
+}
+
+const asyncPredicate = async (item) => {
+  return new Promise(resolve => setTimeout(() => resolve(item % 2 === 0), 100));
+};
+
+(async () => {
+  const data1 = new DataProcessor([1, 2, 3, 4, 5]);
+  const data2 = new DataProcessor([6, 7, 8, 9, 10]);
+
+  print('Original Data:', DataProcessor.combineData(data1, data2));
+
+  const filteredData = [];
+  for await (const item of data1.filterData(asyncPredicate)) {
+    filteredData.push(item);
+  }
+  
+  print('Filtered Data:', filteredData);
+})();

@@ -1,0 +1,39 @@
+ 
+
+class Weather {
+  constructor(city) {
+    this.city = city;
+    this.apiKey = 'YOUR_API_KEY';
+  }
+
+  async fetchWeather() {
+    try {
+      const response = await fetch(`https: 
+      if (!response.ok) throw new Error('City not found');
+      const data = await response.json();
+      const { main: { temp }, weather: [{ description }] } = data;
+      return { temp, description };
+    } catch (error) {
+      console.error(`Error fetching weather: ${error.message}`);
+    }
+  }
+
+  static toCelsius(kelvin) {
+    return (kelvin - 273.15).toFixed(2);
+  }
+}
+
+(async () => {
+  const cities = ['London', 'New York', 'Tokyo'];
+  const weatherReports = await Promise.all(
+    cities.map(async city => {
+      const weather = new Weather(city);
+      const report = await weather.fetchWeather();
+      return `${city}: ${Weather.toCelsius(report.temp)}°C, ${report.description}`;
+    })
+  );
+  
+  weatherReports.forEach(report => print(report));
+})();
+
+**Note:** You need to replace `'YOUR_API_KEY'` with your actual API key from OpenWeatherMap to run this code.

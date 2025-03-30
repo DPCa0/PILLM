@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    #events = new Map();
+
+    on(event, listener) {
+        if (!this.#events.has(event)) {
+            this.#events.set(event, []);
+        }
+        this.#events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#events.has(event)) {
+            this.#events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('data', data => console.log('Data received:', data));
+    eventEmitter.on('error', error => console.error('Error:', error));
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+        eventEmitter.emit('data', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+
+    const proxyHandler = {
+        get(target, prop, receiver) {
+            if (prop in target) {
+                return Reflect.get(target, prop, receiver);
+            } else {
+                throw new Error(`Property "${prop}" does not exist on target`);
+            }
+        }
+    };
+
+    const user = new Proxy({ id: 1, name: 'John Doe', age: 30 }, proxyHandler);
+
+    try {
+        console.log(user.name);  
+        console.log(user.email);  
+    } catch (error) {
+        console.error('Proxy Error:', error.message);
+    }
+})();
+```

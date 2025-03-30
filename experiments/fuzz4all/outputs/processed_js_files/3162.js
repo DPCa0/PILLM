@@ -1,0 +1,38 @@
+class Temperature {
+  #celsius;
+  
+  constructor(celsius) {
+    this.#celsius = celsius;
+  }
+
+  get fahrenheit() {
+    return this.#celsius * 9/5 + 32;
+  }
+
+  *[Symbol.iterator]() {
+    yield* [this.#celsius, this.fahrenheit];
+  }
+  
+  static async fetchTemperature(city) {
+     
+    const response = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ celsius: 25 });
+      }, 1000);
+    });
+    return new Temperature(response.celsius);
+  }
+}
+
+ 
+(async () => {
+  const temp = await Temperature.fetchTemperature('New York');
+  print(`Temperature in Celsius and Fahrenheit: ${[...temp]}`);
+
+  const processTemperature = async (t) => {
+    const [celsius, fahrenheit] = t;
+    return `Processed Temp: ${celsius}°C / ${fahrenheit}°F`;
+  };
+
+  print(await processTemperature([...temp]));
+})();

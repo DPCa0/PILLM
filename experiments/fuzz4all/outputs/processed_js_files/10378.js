@@ -1,0 +1,39 @@
+ 
+const accessLogger = {
+    get(target, property) {
+        print(`Accessed property: ${property}`);
+        return property in target ? target[property] : undefined;
+    },
+    set(target, property, value) {
+        print(`Set property: ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const sampleObject = {
+    name: 'Advanced JS',
+    version: 1.0
+};
+
+const proxiedObject = new Proxy(sampleObject, accessLogger);
+
+ 
+function showProps({ name, version, ...rest }) {
+    print(`Name: ${name}, Version: ${version}, Other:`, rest);
+}
+
+ 
+async function dynamicLoadAndExecute() {
+    const { default: _ } = await import('lodash');  
+
+     
+    proxiedObject.version = _.round(proxiedObject.version + 0.1, 2);
+    proxiedObject.newProp = 'Dynamically Added';
+
+     
+    showProps(proxiedObject);
+}
+
+dynamicLoadAndExecute();

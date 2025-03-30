@@ -1,0 +1,63 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+class AsyncWorker {
+  #taskQueue = [];
+  
+  constructor(concurrency = 2) {
+    this.concurrency = concurrency;
+    this.running = 0;
+  }
+
+  async #processQueue() {
+    while (this.running < this.concurrency && this.#taskQueue.length) {
+      const task = this.#taskQueue.shift();
+      if (task) {
+        this.running++;
+        await task().catch(console.error);
+        this.running--;
+      }
+      if (this.#taskQueue.length) {
+        this.#processQueue();
+      }
+    }
+  }
+
+  addTask(task) {
+    this.#taskQueue.push(task);
+    setTimeout(() => this.#processQueue(), 0);
+  }
+}
+
+ 
+
+const emitter = new EventEmitter();
+const worker = new AsyncWorker(3);
+
+emitter.on('taskCompleted', (id) => print(`Task ${id} completed`));
+
+for (let i = 1; i <= 10; i++) {
+  worker.addTask(async () => {
+    print(`Starting task ${i}`);
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 2000));
+    emitter.emit('taskCompleted', i);
+  });
+}

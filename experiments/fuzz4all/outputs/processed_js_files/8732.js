@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { name: 'Alice', age: 25, city: 'New York' },
+        { name: 'Bob', age: 30, city: 'San Francisco' },
+        { name: 'Charlie', age: 35, city: 'Chicago' }
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+async function processUserData() {
+  try {
+     
+    const data = await fetchData();
+    
+     
+    const messages = data.map(({ name, city }) => `Welcome ${name} from ${city}!`);
+
+     
+    messages.forEach(message => print(message));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+(async () => {
+  await processUserData();
+})();

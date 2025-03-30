@@ -1,0 +1,54 @@
+ 
+
+ 
+const simulateApiCall = (data, delay) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(data), delay);
+  });
+};
+
+ 
+const processData = (dataProcessor) => {
+  return async (data) => {
+    const processedData = await dataProcessor(data);
+    print('Processed Data:', processedData);
+  };
+};
+
+ 
+const sampleData = [1, 2, 3, 4, 5];
+
+ 
+const modifyData = async (data) => {
+  const result = await simulateApiCall(
+    data.map((num) => num * 2),
+    1000
+  );
+  return result;
+};
+
+ 
+const processedDataHandler = processData(modifyData);
+processedDataHandler(sampleData);
+
+ 
+class Example {
+  static staticField = 'I am static';
+  #privateField = 'I am private';
+
+  #privateMethod() {
+    return `Accessing: ${this.#privateField}`;
+  }
+
+  static getStaticField() {
+    return Example.staticField;
+  }
+
+  accessPrivateField() {
+    return this.#privateMethod();
+  }
+}
+
+const example = new Example();
+print(Example.getStaticField());
+print(example.accessPrivateField());

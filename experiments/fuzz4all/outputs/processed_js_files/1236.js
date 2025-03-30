@@ -1,0 +1,32 @@
+ 
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  const data = await response.json();
+  return data;
+};
+
+const processData = (data) => {
+   
+  const items = data.map(item => item.name);
+  const uniqueItems = [...new Set(items)];
+  return uniqueItems;
+};
+
+const outputData = (data) => {
+   
+  print(`Processed ${data.length} unique items:`);
+  data.forEach((item, index) => print(`${index + 1}: ${item}`));
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const data = await fetchData(url);
+    const uniqueItems = processData(data);
+    outputData(uniqueItems);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

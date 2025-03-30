@@ -1,0 +1,47 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    while (limit--) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('dataReceived', data => {
+    print('Data received:', data);
+    print('First 5 Fibonacci numbers:', [...fibonacciGenerator(5)]);
+});
+
+(async function main() {
+    try {
+        const data = await fetchJson('https://api.github.com');
+        eventEmitter.emit('dataReceived', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

@@ -1,0 +1,65 @@
+(async () => {
+  class DataFetcher {
+    #apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+
+    async fetchData() {
+      try {
+        const response = await fetch(this.#apiEndpoint);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Fetch error: ', error);
+        return [];
+      }
+    }
+  }
+
+  function* dataGenerator(data) {
+    for (const item of data) {
+      yield item;
+    }
+  }
+
+  const processWithPromise = (data) => {
+    return new Promise((resolve) => {
+      const processed = data.map(item => ({ ...item, processed: true }));
+      resolve(processed);
+    });
+  };
+
+  const fetcher = new DataFetcher();
+  const data = await fetcher.fetchData();
+  
+  const generator = dataGenerator(data);
+  let item;
+  const asyncIterator = {
+    [Symbol.asyncIterator]: function () {
+      return {
+        next: () => {
+          return new Promise((resolve) => {
+            item = generator.next();
+            resolve(item);
+          });
+        },
+      };
+    },
+  };
+
+  const processedData = [];
+  for await (const item of asyncIterator) {
+    if (item.done) break;
+    const processedItem = await processWithPromise([item.value]);
+    processedData.push(...processedItem);
+  }
+
+  const { processedPosts, count } = processedData.reduce((acc, curr) => {
+    if (curr.processed) {
+      acc.processedPosts.push(curr);
+      acc.count++;
+    }
+    return acc;
+  }, { processedPosts: [], count: 0 });
+
+  print(`Processed ${count} posts:`, processedPosts.slice(0, 5));  
+})();

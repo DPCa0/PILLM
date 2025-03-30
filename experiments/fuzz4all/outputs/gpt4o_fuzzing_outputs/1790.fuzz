@@ -1,0 +1,43 @@
+print('Hello, world!');
+Certainly! Here's a JavaScript program that uses advanced features such as async/await, Promises, destructuring, and template literals to fetch and display data from a mocked API:
+
+```javascript
+// Mock an API call
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        users: [
+          { id: 1, name: 'Alice', age: 28 },
+          { id: 2, name: 'Bob', age: 32 },
+          { id: 3, name: 'Charlie', age: 25 }
+        ]
+      });
+    }, 1000);
+  });
+};
+
+// Async function to fetch and process data
+async function processData() {
+  try {
+    const { users } = await fetchData();
+    
+    const getUserInfo = (user) => {
+      const { name, age } = user;
+      return `Name: ${name}, Age: ${age}`;
+    };
+    
+    users.forEach((user) => console.log(getUserInfo(user)));
+
+    const averageAge = users.reduce((acc, { age }) => acc + age, 0) / users.length;
+    console.log(`Average Age: ${averageAge.toFixed(2)}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+processData();
+```
+
+This code demonstrates several JavaScript features and concepts in a cohesive manner, such as using async/await for handling asynchronous operations, destructuring objects to access properties easily, and template literals for string interpolation.

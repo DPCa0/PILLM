@@ -1,0 +1,63 @@
+ 
+class CryptoWallet {
+   
+  #balance = 0;
+  
+   
+  static #walletCount = 0;
+
+  constructor(owner) {
+    this.owner = owner;
+    CryptoWallet.#walletCount++;
+  }
+
+   
+  #encrypt(data) {
+    return [...data].map(char => char.charCodeAt(0) + 1).join('');
+  }
+
+   
+  static getWalletCount() {
+    return CryptoWallet.#walletCount;
+  }
+
+   
+  deposit(amount) {
+    if (amount > 0) {
+      this.#balance += amount;
+      print(`Deposited: ${amount}. New balance: ${this.#balance}`);
+    }
+  }
+
+   
+  async getEncryptedBalance() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.#encrypt(String(this.#balance))), 1000);
+    });
+  }
+}
+
+ 
+const walletHandler = {
+  set(target, property, value) {
+    if (property === '#balance' && value < 0) {
+      throw new Error('Balance cannot be negative');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+function createWallet(owner) {
+  return new Proxy(new CryptoWallet(owner), walletHandler);
+}
+
+ 
+(async () => {
+  const myWallet = createWallet('Alice');
+  myWallet.deposit(100);
+  const encryptedBalance = await myWallet.getEncryptedBalance();
+  print(`Encrypted Balance: ${encryptedBalance}`);
+  print(`Total Wallets Created: ${CryptoWallet.getWalletCount()}`);
+})();

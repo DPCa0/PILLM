@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+  let i = 0;
+  while (true) {
+    yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Getting property "${prop}"`);
+      return target[prop];
+    } else {
+      console.warn(`Property "${prop}" does not exist!`);
+      return undefined;
+    }
+  }
+};
+
+ 
+const data = {
+  name: 'ComplexObject',
+  description: 'A demonstration of advanced JS features'
+};
+
+ 
+const proxyData = new Proxy(data, handler);
+
+ 
+async function runAdvancedExample() {
+  console.log('Starting the advanced JavaScript example...');
+
+   
+  console.log(proxyData.name);  
+  console.log(proxyData.nonExistentProperty);  
+
+   
+  const gen = numberGenerator();
+  for (let i = 0; i < 5; i++) {
+    const numPromise = gen.next().value;
+    const number = await numPromise;
+    console.log(`Generated number: ${number}`);
+  }
+}
+
+ 
+runAdvancedExample();
+```

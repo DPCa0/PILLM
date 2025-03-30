@@ -1,0 +1,45 @@
+const crypto = require('crypto');
+
+ 
+const generateRandomHex = () => 
+  new Promise((resolve, reject) => {
+    crypto.randomBytes(8, (err, buf) => {
+      if (err) reject(err);
+      else resolve(buf.toString('hex'));
+    });
+  });
+
+ 
+const createComplexObject = async () => {
+  try {
+    const randomHex = await generateRandomHex();
+    
+     
+    const uniqueId = Symbol('id');
+    const dataSet = new Set([1, 2, 3, 4, 5]);
+    const dataMap = new Map([
+      ['key1', 'value1'],
+      ['key2', 'value2'],
+      [uniqueId, randomHex]
+    ]);
+
+     
+    const newDataSet = new Set([...dataSet, 6, 7, 8]);
+    const { length: mapSize } = Array.from(dataMap);
+
+    return {
+      randomHex,
+      newDataSet,
+      dataMap,
+      mapSize
+    };
+  } catch (error) {
+    console.error('Error generating complex object:', error);
+  }
+};
+
+ 
+(async () => {
+  const complexObject = await createComplexObject();
+  print('Complex Object:', complexObject);
+})();

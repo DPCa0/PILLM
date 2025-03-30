@@ -1,0 +1,65 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function advancedFeaturesDemo() {
+  try {
+     
+    const { platform, arch } = process;
+
+     
+    const systemInfo = `System Information:
+    Platform: ${platform}
+    Architecture: ${arch}`;
+
+    print(systemInfo);
+
+     
+    const uniqueKey = Symbol('unique');
+
+     
+    const obj = {
+      [uniqueKey]: 'This is a unique value.',
+      show() {
+        print(`Value from symbol key: ${this[uniqueKey]}`);
+      }
+    };
+
+    obj.show();
+
+     
+    const [fileData, jsonData] = await Promise.all([
+      fs.readFile('./example.txt', 'utf8'),
+      fs.readFile('./example.json', 'utf8').then(JSON.parse)
+    ]);
+
+    print(`File content: ${fileData}`);
+    print(`JSON content: ${JSON.stringify(jsonData, null, 2)}`);
+
+     
+    function* range(start, end) {
+      for (let i = start; i <= end; i++) yield i;
+    }
+
+    const numbers = [...range(1, 5)];
+    print(`Generated numbers: ${numbers}`);
+
+     
+    const handler = {
+      get: (target, prop) => {
+        return prop in target ? target[prop] : `No such property: ${prop}`;
+      }
+    };
+
+    const proxyObj = new Proxy(obj, handler);
+    print(proxyObj.existingProp);  
+
+  } catch (err) {
+    console.error('An error occurred:', err);
+  }
+}
+
+ 
+(async () => {
+  await advancedFeaturesDemo();
+})();

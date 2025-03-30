@@ -1,0 +1,48 @@
+ 
+import fetch from 'node-fetch';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchDataAndProcess = async () => {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const posts = await response.json();
+        
+         
+        const processedData = posts.reduce((acc, post) => {
+            if (post.id % 2 === 0) {
+                acc.push({ ...post, title: `${post.title} - Processed` });
+            }
+            return acc;
+        }, []).map(post => ({
+            ...post,
+            summary: `${post.body.slice(0, 50)}...`
+        }));
+
+         
+        function* postGenerator(data) {
+            for (const item of data) {
+                yield item;
+            }
+        }
+
+        const generator = postGenerator(processedData);
+
+         
+        for await (const post of generator) {
+            await delay(1000);
+            print(`Title: ${post.title}\nSummary: ${post.summary}\n`);
+        }
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+};
+
+ 
+(async () => {
+    print('Starting data processing...');
+    await fetchDataAndProcess();
+    print('Data processing completed.');
+})();

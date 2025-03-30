@@ -1,0 +1,39 @@
+ 
+
+async function* fetchDataFromAPI(endpoints) {
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error(`Failed to fetch from ${endpoint}`);
+      const data = await response.json();
+      yield data;
+    } catch (error) {
+      yield { error: error.message };
+    }
+  }
+}
+
+const processFetchedData = async (endpoints) => {
+  const fetchedData = [];
+
+  for await (const data of fetchDataFromAPI(endpoints)) {
+    const processedData = (() => {
+      if (data.error) return { error: data.error };
+      
+      const { id, title, body } = data;  
+      return { id, title: title.toUpperCase(), preview: body.slice(0, 20) };
+    })();
+
+    fetchedData.push(processedData);
+  }
+
+  return fetchedData;
+};
+
+const apiEndpoints = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://nonexistent.endpoint/404',
+];
+
+processFetchedData(apiEndpoints).then(result => print(result));

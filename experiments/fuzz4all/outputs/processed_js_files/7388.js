@@ -1,0 +1,30 @@
+const fetch = require('node-fetch');
+
+ 
+async function fetchData() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/users/1',
+    'https://jsonplaceholder.typicode.com/comments/1'
+  ];
+
+  const results = await Promise.allSettled(urls.map(url => fetch(url).then(res => res.json())));
+
+  const data = results.map(result => {
+    const { status, value, reason } = result;
+    return status === 'fulfilled' ? value : { error: reason.message };
+  });
+
+  const proxyHandler = {
+    get: (target, prop) => (prop in target ? target[prop] : 'Property not found'),
+  };
+
+  const proxyData = new Proxy({ posts: data[0], user: data[1], comments: data[2] }, proxyHandler);
+
+  print(proxyData.posts);
+  print(proxyData.user);
+  print(proxyData.comments);
+  print(proxyData.nonExistentProperty);  
+}
+
+fetchData();

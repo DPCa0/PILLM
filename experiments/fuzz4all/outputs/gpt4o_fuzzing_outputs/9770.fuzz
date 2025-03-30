@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+     
+    const fetchData = async (url) => {
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            throw new Error('Data fetch failed');
+        }
+    };
+
+     
+    const handler = {
+        get: (target, prop) => {
+            return prop in target ? target[prop] : `Property "${prop}" not found!`;
+        }
+    };
+
+    const dataProxy = new Proxy({}, handler);
+
+     
+    function* dataGenerator(data) {
+        for (let item of data) {
+            yield item;
+        }
+    }
+
+     
+    async function main() {
+        const url = 'https://jsonplaceholder.typicode.com/posts';
+        try {
+            const data = await fetchData(url);
+            Object.assign(dataProxy, { data });
+
+            const dataIter = dataGenerator(dataProxy.data);
+
+            console.log('Processing data...');
+            for (let item of dataIter) {
+                console.log(`Title: ${item.title}`);
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    await main();
+})();
+```

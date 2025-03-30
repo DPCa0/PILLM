@@ -1,0 +1,28 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this[Symbol.iterator]();
+  }
+  
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+const runAsync = async (fibo) => {
+  for await (const num of fibo.sequence) {
+    console.log(`Fibonacci Number: ${num}`);
+    await new Promise(resolve => setTimeout(resolve, 500));  
+  }
+};
+
+const limit = 10;
+const fibonacci = new Fibonacci(limit);
+runAsync(fibonacci).then(() => console.log('Fibonacci sequence complete.'));
+```

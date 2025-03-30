@@ -1,0 +1,30 @@
+print('Hello, world!');
+```javascript
+const createClosure = (multiplier) => {
+  return (num) => num * multiplier;
+};
+
+const asyncOperation = async (num, closureFunc) => {
+  const result = await new Promise((resolve) =>
+    setTimeout(() => resolve(closureFunc(num)), 1000)
+  );
+  return result;
+};
+
+const complexAsyncFunction = async () => {
+  const results = await Promise.all(
+    [1, 2, 3, 4, 5].map(async (num) => {
+      const randomMultiplier = Math.floor(Math.random() * 10);
+      const closure = createClosure(randomMultiplier);
+      return await asyncOperation(num, closure);
+    })
+  );
+
+  const [first, ...rest] = results;
+  const total = rest.reduce((acc, curr) => acc + curr, first);
+
+  console.log(`Total: ${total}`);
+};
+
+complexAsyncFunction();
+```

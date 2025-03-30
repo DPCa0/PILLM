@@ -1,0 +1,51 @@
+ 
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+};
+
+function* fibonacciGenerator() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+const dataHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Getting property "${prop}": ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.warn(`Property "${prop}" not found!`);
+            return undefined;
+        }
+    },
+    set(target, prop, value) {
+        print(`Setting property "${prop}" to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const myData = new Proxy({}, dataHandler);
+
+(async () => {
+    const url = 'https://api.example.com/data';
+    const symbolKey = Symbol('secret');
+
+    try {
+        myData[symbolKey] = await fetchData(url);
+        print('Fetched data:', myData[symbolKey]);
+
+        const fib = fibonacciGenerator();
+        for (let i = 0; i < 10; i++) {
+            print(`Fibonacci ${i + 1}: ${fib.next().value}`);
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

@@ -1,0 +1,47 @@
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async *fetchChunks() {
+        const response = await fetch(this.url);
+        const reader = response.body.getReader();
+        let result;
+        while (!(result = await reader.read()).done) {
+            yield result.value;
+        }
+    }
+
+    async processData() {
+        const decoder = new TextDecoder("utf-8");
+        let text = '';
+        for await (const chunk of this.fetchChunks()) {
+            text += decoder.decode(chunk, { stream: true });
+        }
+        return JSON.parse(text);
+    }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/posts';
+const dataFetcher = new DataFetcher(url);
+
+(async () => {
+    try {
+        const posts = await dataFetcher.processData();
+        const titleLens = (id) => ({
+            get: () => posts.find(p => p.id === id)?.title,
+            set: (newTitle) => {
+                const post = posts.find(p => p.id === id);
+                if (post) post.title = newTitle;
+            }
+        });
+
+        const firstPostTitle = titleLens(1);
+        print('Original Title:', firstPostTitle.get());
+
+        firstPostTitle.set('Updated Title');
+        print('Updated Title:', firstPostTitle.get());
+    } catch (err) {
+        console.error('Error:', err);
+    }
+})();

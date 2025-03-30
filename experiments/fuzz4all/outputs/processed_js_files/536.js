@@ -1,0 +1,40 @@
+ 
+const dataStore = {
+    users: [
+        { id: 1, name: 'Alice', age: 30 },
+        { id: 2, name: 'Bob', age: 25 },
+    ],
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            print(`Accessed property: ${prop}`);
+            return target[prop];
+        }
+        return `Property "${prop}" does not exist.`;
+    },
+};
+
+const proxy = new Proxy(dataStore, handler);
+
+const fetchUserData = (id) =>
+    new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const user = proxy.users.find((user) => user.id === id);
+            user ? resolve(user) : reject(`User with id ${id} not found.`);
+        }, 1000);
+    });
+
+async function displayUser(id) {
+    try {
+        const { name, age } = await fetchUserData(id);
+        print(`User Found: ${name}, Age: ${age}`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+displayUser(1);  
+displayUser(3);  

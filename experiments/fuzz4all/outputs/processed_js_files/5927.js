@@ -1,0 +1,36 @@
+ 
+
+ 
+const fetchData = async (id) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { id, name: `Item ${id}`, price: Math.random() * 100 };
+            data.price > 50 ? resolve(data) : reject(new Error('Price too low!'));
+        }, 1000);
+    });
+};
+
+ 
+const processItem = async (id) => {
+    try {
+        const item = await fetchData(id);
+        print(`Processing ${item.name} with price $${item.price.toFixed(2)}`);
+    } catch (error) {
+        console.warn(`Failed to process item ${id}: ${error.message}`);
+    }
+};
+
+ 
+const main = async () => {
+    const itemIds = [1, 2, 3, 4, 5];
+    
+     
+    const promises = itemIds.map((id) => processItem(id));
+    
+     
+    await Promise.all(promises);
+    print('All items processed.');
+};
+
+ 
+main();

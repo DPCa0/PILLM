@@ -1,0 +1,43 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const processData = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const transformed = data.map(({ id, name, email }) => ({ 
+      id, 
+      name: name.toUpperCase(), 
+      email 
+    }));
+
+    const nameSet = new Set(transformed.map(item => item.name));
+    const uniqueNames = [...nameSet];
+
+    print('Transformed Data:', transformed);
+    print('Unique Names:', uniqueNames);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const handleResize = debounce(() => {
+  print('Resized window:', window.innerWidth, 'x', window.innerHeight);
+}, 300);
+
+window.addEventListener('resize', handleResize);
+
+ 
+const demoURL = 'https://jsonplaceholder.typicode.com/users';
+processData(demoURL);

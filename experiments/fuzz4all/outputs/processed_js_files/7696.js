@@ -1,0 +1,66 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function (...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+const cache = new Map();
+
+const fetchAndCache = async (url) => {
+  if (cache.has(url)) {
+    print('Fetching from cache:', url);
+    return cache.get(url);
+  }
+  const data = await fetchData(url);
+  cache.set(url, data);
+  return data;
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('dataFetched', (data) => {
+  print('Data received:', data);
+});
+
+const processRequest = debounce(async (url) => {
+  const data = await fetchAndCache(url);
+  eventEmitter.emit('dataFetched', data);
+}, 300);
+
+ 
+processRequest('https://jsonplaceholder.typicode.com/posts/1');
+processRequest('https://jsonplaceholder.typicode.com/posts/1');  

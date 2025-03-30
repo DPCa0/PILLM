@@ -1,0 +1,57 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  once(event, listener) {
+    const onceWrapper = (...args) => {
+      listener(...args);
+      this.off(event, onceWrapper);
+    };
+    this.on(event, onceWrapper);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event).filter(l => l !== listener);
+      this.events.set(event, listeners);
+    }
+  }
+}
+
+ 
+const emitter = new EventEmitter();
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+const handleData = async (data) => {
+  print('Data received:', data);
+  const processedData = await new Promise(resolve => {
+    setTimeout(() => resolve(data.map(item => ({ ...item, processed: true }))), 1000);
+  });
+  print('Processed Data:', processedData);
+};
+
+emitter.once('dataReady', handleData);
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const data = await fetchData(url);
+  emitter.emit('dataReady', data);
+})();

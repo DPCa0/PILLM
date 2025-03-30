@@ -1,0 +1,39 @@
+class ComplexOperations {
+    constructor() {
+        this.data = Array.from({ length: 10 }, (_, i) => i + 1);
+    }
+
+    *generateFibonacci(limit) {
+        let [prev, curr] = [0, 1];
+        while (limit--) {
+            [prev, curr] = [curr, prev + curr];
+            yield curr;
+        }
+    }
+
+    async fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+    async processData() {
+        const results = await Promise.all(this.data.map(async (num) => {
+            const fibonacciGenerator = this.generateFibonacci(num);
+            const fibSequence = Array.from(fibonacciGenerator);
+            return {
+                number: num,
+                fibonacciSum: fibSequence.reduce((a, b) => a + b, 0),
+                apiData: await this.fetchData(`https: 
+            };
+        }));
+        console.table(results);
+    }
+}
+
+const operations = new ComplexOperations();
+operations.processData();

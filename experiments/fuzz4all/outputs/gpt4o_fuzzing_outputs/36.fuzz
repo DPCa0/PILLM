@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    return data;
+};
+
+const processData = async () => {
+    try {
+        const url = 'https://api.spacexdata.com/v4/launches/latest';
+        const data = await fetchData(url);
+
+        const {
+            name,
+            date_utc: launchDate,
+            rocket: rocketId,
+            details
+        } = data;
+
+        const rocketData = await fetchData(`https: 
+        const { name: rocketName, description } = rocketData;
+
+        const summary = `
+            Launch Name: ${name}
+            Launch Date: ${new Date(launchDate).toLocaleString()}
+            Rocket: ${rocketName}
+            Details: ${details || 'No details available.'}
+            Rocket Description: ${description}
+        `;
+        console.log(summary);
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+};
+
+processData();
+```

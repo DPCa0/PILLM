@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(maxValue) {
+    this.maxValue = maxValue;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (curr <= this.maxValue) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  calculate(n) {
+    if (n < 2) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+const fibSequence = new Fibonacci(100);
+console.log([...fibSequence]);
+
+const asyncCalculator = async (n) => {
+  const fib = new Fibonacci(n);
+  console.log(`Fibonacci(${n}): ${await fib.calculate(n)}`);
+};
+
+(async () => {
+  try {
+    const calculations = [10, 15, 20].map(asyncCalculator);
+    await Promise.all(calculations);
+  } catch (error) {
+    console.error("Error calculating Fibonacci:", error);
+  }
+})();
+```

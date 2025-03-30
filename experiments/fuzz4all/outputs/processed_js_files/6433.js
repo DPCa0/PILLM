@@ -1,0 +1,56 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+};
+
+ 
+const processUserData = ({ name, age = 'unknown', location = 'Earth' }) => {
+  return `Name: ${name}, Age: ${age}, Location: ${location}`;
+};
+
+ 
+const User = (() => {
+  const privateData = new WeakMap();
+
+  return class {
+    constructor(name, age) {
+      const id = Symbol();
+      privateData.set(this, { id, name, age });
+    }
+
+    get info() {
+      const { name, age } = privateData.get(this);
+      return `User: ${name}, Age: ${age}`;
+    }
+  };
+})();
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users/1';
+  try {
+    const userData = await fetchData(url);
+    print(processUserData(userData));
+
+    const user = new User(userData.name, userData.age);
+    print(user.info);
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+
+   
+  function* numberGenerator() {
+    yield* [1, 2, 3, 4, 5];
+  }
+
+  for (let num of numberGenerator()) {
+    print(`Generated number: ${num}`);
+  }
+})();

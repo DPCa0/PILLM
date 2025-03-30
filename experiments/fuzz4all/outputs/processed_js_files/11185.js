@@ -1,0 +1,56 @@
+ 
+class Person {
+  #name;
+  #age;
+
+  constructor(name, age) {
+    this.#name = name;
+    this.#age = age;
+  }
+
+   
+  introduce() {
+    print(`Hello, my name is ${this.#name} and I am ${this.#age} years old.`);
+  }
+
+   
+  static fromJSON(json) {
+    const { name, age } = JSON.parse(json);
+    return new Person(name, age);
+  }
+
+   
+  static *introduceAll(people) {
+    for (const person of people) {
+      yield person.introduce();
+    }
+  }
+}
+
+ 
+async function fetchPersonData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(JSON.stringify({ name: "Alice", age: 30 }));
+    }, 1000);
+  });
+}
+
+ 
+(async () => {
+  const data = await fetchPersonData();
+  const person = Person.fromJSON(data);
+  person.introduce();
+
+   
+  const people = [
+    new Person("Bob", 25),
+    new Person("Charlie", 35),
+    new Person("David", 28),
+  ];
+
+   
+  for (const introduction of Person.introduceAll(people)) {
+    introduction;  
+  }
+})();

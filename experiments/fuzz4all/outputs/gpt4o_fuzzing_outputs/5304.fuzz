@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+ 
+class Fibonacci {
+  constructor(max) {
+    this.max = max;
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (curr <= this.max) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+ 
+async function fetchData(urls) {
+  try {
+    const fetchPromises = urls.map(async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    });
+
+    const results = await Promise.all(fetchPromises);
+    console.log('Fetched data:', results);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const user = {
+  name: 'Alice',
+  age: 25,
+  address: {
+    city: 'Wonderland',
+    postal: '12345'
+  }
+};
+
+const { name, address: { city, postal = '00000' } = {} } = user;
+
+console.log(`User: ${name}, City: ${city}, Postal: ${postal}`);
+
+ 
+const numbers = [1, 2, 2, 3, 4, 4, 5];
+const uniqueNumbers = Array.from(new Set(numbers));
+console.log('Unique numbers:', uniqueNumbers);
+
+const numberMap = new Map(uniqueNumbers.map(num => [num, num ** 2]));
+console.log('Number squares:', numberMap);
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'greet') return () => 'Hello from the proxy!';
+    return Reflect.get(target, prop);
+  }
+};
+
+const proxyUser = new Proxy(user, handler);
+console.log(proxyUser.greet());
+
+ 
+(async () => {
+  if (name === 'Alice') {
+    const module = await import('./someModule.js');
+    module.default();
+  }
+})();
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((acc, str, index) => `${acc}${str}<strong>${values[index] || ''}</strong>`, '');
+}
+
+const message = highlight`Welcome, ${name} to

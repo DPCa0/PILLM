@@ -1,0 +1,75 @@
+ 
+import { readFileSync } from 'fs';
+import { EventEmitter } from 'events';
+import { promisify } from 'util';
+import fetch from 'node-fetch';
+
+ 
+async function* fetchData(urls) {
+  for (let url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+ 
+async function getAllData(urls) {
+  const results = [];
+  for await (let data of fetchData(urls)) {
+    results.push(data);
+  }
+  return Promise.allSettled(results);
+}
+
+ 
+class MyEmitter extends EventEmitter {
+  constructor() {
+    super();
+    this.on('dataReceived', this.dataHandler);
+  }
+
+  dataHandler(data) {
+    print('Data received and processed:', data);
+  }
+}
+
+ 
+function createLogger() {
+  let count = 0;
+  return function logger(message) {
+    print(`Log ${++count}:`, message);
+  };
+}
+
+const logger = createLogger();
+
+ 
+const [configPath] = process.argv.slice(2);
+const { name: appName, urls } = JSON.parse(readFileSync(configPath, 'utf-8'));
+logger(`Starting application: ${appName}`);
+
+ 
+const myEmitter = new MyEmitter();
+
+ 
+const processData = (data) => {
+  return data
+    .map(item => ({ ...item, value: item.value * 2 }))
+    .filter(item => item.value > 10)
+    .reduce((acc, item) => acc + item.value, 0);
+};
+
+ 
+(async () => {
+  try {
+    const results = await getAllData(urls);
+    results
+      .filter(result => result.status === 'fulfilled')
+      .forEach(({ value }) => {
+        const processedValue = processData(value);
+        myEmitter.emit('dataReceived', processedValue);
+      });
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

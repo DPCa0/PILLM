@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+  
+   
+  const config = {
+    database: {
+      host: process.env.DB_HOST ?? 'localhost',
+      port: process.env.DB_PORT ?? 5432,
+    },
+  };
+
+  console.log(`Connecting to DB at ${config.database.host}:${config.database.port}`);
+
+   
+  async function readData(filePath) {
+    try {
+      const data = await fs.readFile(filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Failed to read data:', error);
+      return {};
+    }
+  }
+
+   
+  const data = await readData('./data.json');
+  Object.entries(data).forEach(([key, value]) => {
+    console.log(`Key: ${key.padEnd(10)} Value: ${String(value).padStart(10)}`);
+  });
+
+   
+  const uniqueValues = new Set(Object.values(data));
+  const metaDataCache = new WeakMap();
+  
+  const metaData = {
+    lastUpdated: new Date(),
+    uniqueKeysCount: uniqueValues.size,
+  };
+
+  metaDataCache.set(data, metaData);
+
+   
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        console.log(`Accessed property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+      }
+      return `Property ${prop} not found`;
+    }
+  };
+
+  const proxiedData = new Proxy(data, handler);
+  console.log(proxiedData.exampleProperty ?? 'No exampleProperty present');
+
+   
+  function* createRange(start, end) {
+    let current = start;
+    while (current <= end) {
+      yield current++;
+    }
+  }
+
+  for (let num of createRange(1, 5)) {
+    console.log(`Generated number: ${num}`);
+  }
+})();
+```

@@ -1,0 +1,58 @@
+class FibonacciSequence {
+  constructor(maxValue) {
+    this.maxValue = maxValue;
+    this.current = 0;
+    this.next = 1;
+  }
+
+  [Symbol.iterator]() {
+    return {
+      maxValue: this.maxValue,
+      current: this.current,
+      next: this.next,
+      next() {
+        if (this.current > this.maxValue) {
+          return { done: true };
+        }
+        const returnValue = this.current;
+        this.current = this.next;
+        this.next = returnValue + this.next;
+        return { value: returnValue, done: false };
+      }
+    };
+  }
+}
+
+async function printFibonacci(maxValue) {
+  const sequence = new FibonacciSequence(maxValue);
+  for await (const num of sequence) {
+    print(num);
+  }
+}
+
+const runFibonacci = async () => {
+  const upperLimit = 100;
+  await printFibonacci(upperLimit);
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const heavyComputation = memoize((num) => {
+  let result = 0;
+  for (let i = 0; i < num * 1000; i++) {
+    result += Math.sqrt(i);
+  }
+  return result;
+});
+
+print("Heavy computation result:", heavyComputation(5000));
+runFibonacci();

@@ -1,0 +1,50 @@
+(async function() {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class Matrix {
+    constructor(width, height) {
+      this.width = width;
+      this.height = height;
+      this.data = Array.from({ length: height }, () => Array(width).fill(0));
+    }
+    
+    * [Symbol.iterator]() {
+      for (let row of this.data) {
+        yield* row;
+      }
+    }
+    
+    static async multiply(a, b) {
+      if (a.width !== b.height) throw new Error("Incompatible matrices");
+
+      const result = new Matrix(b.width, a.height);
+      await delay(10);  
+
+      for (let i = 0; i < a.height; i++) {
+        for (let j = 0; j < b.width; j++) {
+          for (let k = 0; k < a.width; k++) {
+            result.data[i][j] += a.data[i][k] * b.data[k][j];
+          }
+        }
+      }
+      return result;
+    }
+  }
+
+  const a = new Matrix(2, 2);
+  a.data = [[1, 2], [3, 4]];
+
+  const b = new Matrix(2, 2);
+  b.data = [[5, 6], [7, 8]];
+
+  print('Matrix A:', a.data);
+  print('Matrix B:', b.data);
+
+  const product = await Matrix.multiply(a, b);
+  print('Product of A and B:', product.data);
+
+  print('Iterating over result matrix:');
+  for (let value of product) {
+    print(value);
+  }
+})();

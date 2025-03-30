@@ -1,0 +1,67 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+
+    static fromEvent(target, eventName) {
+        return new Observable(observer => {
+            const handler = (event) => observer.next(event);
+            target.addEventListener(eventName, handler);
+            return {
+                unsubscribe: () => target.removeEventListener(eventName, handler)
+            };
+        });
+    }
+
+    map(transformFn) {
+        return new Observable(observer => {
+            return this.subscribe({
+                next: x => observer.next(transformFn(x)),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            });
+        });
+    }
+
+    filter(predicateFn) {
+        return new Observable(observer => {
+            return this.subscribe({
+                next: x => predicateFn(x) && observer.next(x),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            });
+        });
+    }
+
+    reduce(accumulator, initialValue) {
+        return new Observable(observer => {
+            let accumulatedValue = initialValue;
+            return this.subscribe({
+                next: x => {
+                    accumulatedValue = accumulator(accumulatedValue, x);
+                },
+                error: err => observer.error(err),
+                complete: () => {
+                    observer.next(accumulatedValue);
+                    observer.complete();
+                }
+            });
+        });
+    }
+}
+
+ 
+const button = document.querySelector('button');
+Observable.fromEvent(button, 'click')
+    .map(event => event.clientX)
+    .filter(x => x > 100)
+    .reduce((acc, val) => acc + val, 0)
+    .subscribe({
+        next: total => console.log('Total:', total),
+        error: err => console.error('Error:', err),
+        complete: () => console.log('Complete')
+    });

@@ -1,0 +1,46 @@
+ 
+const fs = require('fs').promises;
+const crypto = require('crypto');
+
+ 
+async function advancedFeatures() {
+  try {
+     
+    const key = crypto.randomBytes(32).toString('hex');
+
+     
+    const fileHashes = new Set();
+
+     
+    const fileReadPromises = ['file1.txt', 'file2.txt', 'file3.txt'].map(async (filename) => {
+      const content = await fs.readFile(filename, 'utf8');
+      const hash = crypto.createHash('sha256').update(content + key).digest('hex');
+      fileHashes.add(hash);
+    });
+
+     
+    await Promise.all(fileReadPromises);
+
+     
+    const handler = {
+      get(target, property) {
+        if (property === 'size') {
+          print(`Accessing the size of fileHashes: ${target.size}`);
+          return target.size;
+        }
+        return Reflect.get(target, property);
+      }
+    };
+
+    const proxyFileHashes = new Proxy(fileHashes, handler);
+
+     
+    print(`Number of unique file hashes: ${proxyFileHashes.size}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+advancedFeatures();

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const fetchData = async () => {
+    await delay(500);  
+    return { user: 'Alice', age: 25 };
+  };
+
+   
+  const processData = async () => {
+    const { user, age } = await fetchData();
+    const message = `User ${user} is ${age} years old.`;
+    console.log(message);
+    
+    const additionalData = { location: 'Earth', occupation: 'Developer' };
+    const mergedData = { user, age, ...additionalData };
+    
+    console.log(mergedData);
+  };
+
+   
+  const manipulateDataStructures = () => {
+    const map = new Map();
+    map.set('name', 'Bob');
+    map.set('role', 'Designer');
+
+    map.forEach((value, key) => console.log(`${key}: ${value}`));
+
+    const set = new Set([1, 2, 3, 4, 5]);
+    const filteredSet = new Set([...set].filter(num => num % 2 === 0));
+
+    console.log(filteredSet);
+  };
+
+   
+  const highlight = (strings, ...values) => {
+    return strings.reduce((acc, str, i) => acc + str + (values[i] ? `<strong>${values[i]}</strong>` : ''), '');
+  };
+
+  const userInfo = highlight`The user ${'John Doe'} is a ${'Coder'}.`;
+  console.log(userInfo);
+
+   
+  await processData();
+  manipulateDataStructures();
+})();
+```

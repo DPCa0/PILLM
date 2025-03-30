@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+function greet({ name, times = 1, ...options }) {
+  const { message = "Hello", punctuation = "!" } = options;
+  for (let i = 0; i < times; i++) {
+    console.log(`${message}, ${name}${punctuation}`);
+  }
+}
+
+ 
+const handler = {
+  apply: function(target, thisArg, argumentsList) {
+    console.log(`Calling greet with args: ${JSON.stringify(argumentsList)}`);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+const proxiedGreet = new Proxy(greet, handler);
+
+ 
+async function performGreeting() {
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await wait(1000);
+  proxiedGreet({ name: 'Alice', times: 3, message: 'Hi', punctuation: '?' });
+  await wait(1000);
+  proxiedGreet({ name: 'Bob', message: 'Howdy' });
+}
+
+ 
+const names = new Set(['Alice', 'Bob', 'Charlie']);
+const nameCounts = new Map();
+for (const name of names) {
+  nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+}
+
+ 
+const nameArray = [...nameCounts.keys()];
+const upperNames = nameArray.map(name => name.toUpperCase());
+console.log(upperNames);
+
+ 
+performGreeting();
+```

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+const complexObject = {
+  name: "Advanced JS",
+  year: 2023,
+};
+
+const proxyHandler = {
+  get(target, prop, receiver) {
+    if (prop === "year") {
+      return new Date().getFullYear();
+    }
+    if (typeof target[prop] === "function") {
+      return function(...args) {
+        console.log(`Method ${prop} called with arguments: ${JSON.stringify(args)}`);
+        return Reflect.apply(target[prop], receiver, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+const proxiedObject = new Proxy(complexObject, proxyHandler);
+
+console.log(proxiedObject.name);   
+console.log(proxiedObject.year);   
+
+ 
+async function* fetchAndLogUrls(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(`Fetched data from ${url}:`, data);
+    yield data;
+  }
+}
+
+(async () => {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  for await (const data of fetchAndLogUrls(urls)) {
+    console.log('Processed data:', data);
+  }
+})();
+
+ 
+const _privateField = Symbol('privateField');
+const privateData = new WeakMap();
+
+class AdvancedFeature {
+  constructor(value) {
+    this[_privateField] = value;
+    privateData.set(this, { hiddenValue: `Secret: ${value}` });
+  }
+
+  getPrivateField() {
+    return this[_privateField];
+  }
+
+  getHiddenValue() {
+    return privateData.get(this).hiddenValue;
+  }
+}
+
+const featureInstance = new AdvancedFeature('SensitiveInfo');
+console.log(featureInstance.getPrivateField());   
+console.log(featureInstance.getHiddenValue());   
+```

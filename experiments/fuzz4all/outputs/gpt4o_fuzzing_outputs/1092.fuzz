@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fibonacciSequence() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function getFibonacciNumbers(count) {
+    const fibGen = fibonacciSequence();
+    const numbers = [];
+    
+    for (let i = 0; i < count; i++) {
+        numbers.push(fibGen.next().value);
+    }
+
+     
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(numbers), 1000);
+    });
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+    const fibonacciNumbers = await getFibonacciNumbers(10);
+    const proxy = new Proxy(fibonacciNumbers, handler);
+
+     
+    console.log(`First Fibonacci number: ${proxy[0]}`);
+    console.log(`Fifth Fibonacci number: ${proxy[4]}`);
+    console.log(`Tenth Fibonacci number: ${proxy[9]}`);
+})();
+```

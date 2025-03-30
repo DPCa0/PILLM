@@ -1,0 +1,62 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+    return null;
+  }
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('dataFetched', data => {
+  print('Data Fetched:', data);
+});
+
+emitter.on('error', error => {
+  console.error('Error occurred:', error);
+});
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(url);
+  
+  data ? emitter.emit('dataFetched', data) : emitter.emit('error', 'No data received');
+})();
+
+ 
+const target = {
+  message: 'Hello, World!',
+};
+
+const handler = {
+  set(target, property, value) {
+    print(`Property ${property} changed from ${target[property]} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+proxy.message = 'Hello, Universe!';

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+};
+
+ 
+const processData = (data) => {
+   
+  const { name, age, ...rest } = data;
+  console.log(`Name: ${name}, Age: ${age}`);
+  console.log('Other Info:', { ...rest });
+
+   
+  const map = new Map(Object.entries(data));
+  for (const [key, value] of map) {
+    console.log(`${key}: ${value}`);
+  }
+
+   
+  const uniqueValues = new Set(Object.values(data));
+  console.log('Unique Values:', [...uniqueValues]);
+
+   
+  const greet = (greeting = 'Hello', ...names) => {
+    names.forEach((name) => console.log(`${greeting}, ${name}!`));
+  };
+  greet('Hi', name);
+};
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users/1';  
+  const data = await fetchData(url);
+  if (data) processData(data);
+})();
+```

@@ -1,0 +1,47 @@
+class FibonacciSequence {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        while (true) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    nth(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        const value = this.nth(n - 1) + this.nth(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const asyncCalculateFibonacci = async (n) => {
+    const sequence = new FibonacciSequence();
+    print(`Fibonacci #${n} is ${sequence.nth(n)}`);
+
+    print('First 10 Fibonacci numbers:');
+    const iterator = sequence[Symbol.iterator]();
+    for (let i = 0; i < 10; i++) {
+        print(iterator.next().value);
+    }
+
+    const arraySum = (arr) => arr.reduce((acc, curr) => acc + curr, 0);
+    const numbers = Array.from({ length: 10 }, (_, i) => i);
+    const sum = await new Promise((resolve) =>
+        setTimeout(() => resolve(arraySum(numbers)), 500)
+    );
+
+    print(`Sum of first 10 natural numbers is ${sum}`);
+};
+
+(async () => {
+    try {
+        await asyncCalculateFibonacci(10);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

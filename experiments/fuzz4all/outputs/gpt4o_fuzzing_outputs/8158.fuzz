@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+};
+
+ 
+const createGreeter = (greeting) => {
+  return (name) => console.log(`${greeting}, ${name}!`);
+};
+
+ 
+const displayStats = ({ name, ...stats }) => {
+  console.log(`Stats for ${name}:`);
+  Object.entries(stats).forEach(([key, value]) => {
+    console.log(`- ${key}: ${value}`);
+  });
+};
+
+ 
+const processData = async () => {
+  const mockAPIs = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+
+  const promises = mockAPIs.map(url => fetchData(url));
+
+  for await (let data of promises) {
+    if (data) {
+      displayStats({ name: data.title, userId: data.userId, id: data.id });
+    }
+  }
+};
+
+ 
+const greet = createGreeter('Hello');
+
+ 
+greet('Alice');
+processData();
+```

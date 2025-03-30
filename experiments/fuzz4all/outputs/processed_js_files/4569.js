@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: { id: 1, name: "Advanced JS Features" } });
+      } else {
+        reject("URL not recognized");
+      }
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Property '${prop}' accessed.`);
+    return target[prop];
+  },
+};
+
+ 
+(async () => {
+  try {
+    const { data: { id, name } } = await fetchData("https://api.example.com/data");
+
+     
+    const additionalInfo = { author: "John Doe", year: 2023 };
+    const completeInfo = { id, name, ...additionalInfo };
+
+     
+    const proxiedInfo = new Proxy(completeInfo, handler);
+
+     
+    const displayInfo = ({ name, ...rest }) => {
+      print(`Name: ${name}`);
+      print("Other Info:", rest);
+    };
+
+    displayInfo(proxiedInfo);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

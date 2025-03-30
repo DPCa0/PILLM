@@ -1,0 +1,47 @@
+ 
+import fetch from 'node-fetch';
+
+ 
+async function fetchAndProcessData(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+         
+        const data = await response.json();
+
+         
+        const processedData = data.map(({ id, title, completed }) => ({
+            id,
+            title: title.toUpperCase(),
+            isDone: completed,
+        }));
+
+         
+        const result = [...processedData].filter(item => item.isDone);
+
+        print(result);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+async function runMultipleFetches(urls) {
+    try {
+        const fetchPromises = urls.map(url => fetchAndProcessData(url));
+        await Promise.all(fetchPromises);
+    } catch (error) {
+        console.error('Error in runMultipleFetches:', error);
+    }
+}
+
+ 
+const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2',
+];
+
+ 
+runMultipleFetches(urls);

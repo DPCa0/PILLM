@@ -1,0 +1,40 @@
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async processData() {
+        try {
+            const results = await Promise.all(this.data.map(async item => {
+                const transformed = await this.transform(item);
+                return this.enhance(transformed);
+            }));
+            print('Processed Results:', results);
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    }
+
+    async transform(item) {
+        return new Promise(resolve => setTimeout(() => resolve(item * 2), 100));
+    }
+
+    enhance(item) {
+        return { value: item, timestamp: new Date().toISOString() };
+    }
+}
+
+const randomData = Array.from({ length: 5 }, () => Math.floor(Math.random() * 100));
+const processor = new AsyncProcessor(randomData);
+
+(async () => {
+    await processor.processData();
+
+    const factorial = (n) => (n <= 1 ? 1 : n * factorial(n - 1));
+    const factorials = randomData.map(num => ({
+        number: num,
+        factorial: factorial(num),
+    }));
+
+    print('Factorials:', factorials);
+})();

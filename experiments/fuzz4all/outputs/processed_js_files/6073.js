@@ -1,0 +1,59 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  static from(real, imaginary) {
+    return new ComplexNumber(real, imaginary);
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'number') {
+      return this.real;
+    }
+    return `${this.real} + ${this.imaginary}i`;
+  }
+
+  add(other) {
+    return ComplexNumber.from(this.real + other.real, this.imaginary + other.imaginary);
+  }
+
+  multiply(other) {
+    const real = this.real * other.real - this.imaginary * other.imaginary;
+    const imaginary = this.real * other.imaginary + this.imaginary * other.real;
+    return ComplexNumber.from(real, imaginary);
+  }
+
+  *[Symbol.iterator]() {
+    yield this.real;
+    yield this.imaginary;
+  }
+}
+
+const complex1 = ComplexNumber.from(4, 5);
+const complex2 = ComplexNumber.from(3, -2);
+
+ 
+const [realPart, imaginaryPart] = complex1;
+print(`Real: ${realPart}, Imaginary: ${imaginaryPart}`);
+
+ 
+print(`Complex Number: ${complex1}`);
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'magnitude') {
+      return Math.sqrt(target.real ** 2 + target.imaginary ** 2);
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxiedComplex = new Proxy(complex1, handler);
+print(`Magnitude: ${proxiedComplex.magnitude}`);
+
+ 
+const result = complex1.add(complex2).multiply(complex1);
+print(`Result: ${result}`);

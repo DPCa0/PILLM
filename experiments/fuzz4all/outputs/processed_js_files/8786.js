@@ -1,0 +1,52 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static from(rows, columns, fn) {
+        return new Matrix([...Array(rows)].map((_, i) => [...Array(columns)].map((_, j) => fn(i, j))));
+    }
+
+    static identity(size) {
+        return Matrix.from(size, size, (i, j) => (i === j ? 1 : 0));
+    }
+
+    map(fn) {
+        return new Matrix(this.data.map((row, i) => row.map((value, j) => fn(value, i, j))));
+    }
+
+    reduce(fn, initial) {
+        return this.data.flat().reduce(fn, initial);
+    }
+
+    multiply(matrix) {
+        const result = Matrix.from(this.data.length, matrix.data[0].length, () => 0);
+        return result.map((_, i, j) => this.data[i].reduce((sum, element, k) => sum + element * matrix.data[k][j], 0));
+    }
+
+    [Symbol.iterator]() {
+        return this.data[Symbol.iterator]();
+    }
+}
+
+function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    while (n--) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+ 
+const matA = Matrix.from(2, 2, (i, j) => i + j + 1);
+const matB = Matrix.identity(2);
+
+print('Matrix A:');
+for (const row of matA) print(row);
+
+print('Matrix A x Identity:');
+const product = matA.multiply(matB);
+for (const row of product) print(row);
+
+print('First 10 Fibonacci Numbers:');
+print([...fibonacci(10)]);

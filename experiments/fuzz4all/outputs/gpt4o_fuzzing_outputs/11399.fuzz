@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'orange', 'apple']);
+    }, 1000);
+  });
+}
+
+ 
+function* itemGenerator(items) {
+  for (let item of items) {
+    yield item;
+  }
+}
+
+ 
+const setHandler = {
+  get(target, property) {
+    console.log(`Accessing property "${property}"`);
+    return target[property];
+  },
+  has(target, key) {
+    console.log(`Checking existence of "${key}"`);
+    return target.has(key);
+  },
+};
+
+ 
+async function main() {
+  console.log("Fetching data...");
+  const data = await fetchData();
+
+   
+  const uniqueItems = new Set(data);
+  const proxySet = new Proxy(uniqueItems, setHandler);
+
+  console.log("Processing items:");
+  for (let item of itemGenerator(proxySet)) {
+    if (proxySet.has(item)) {
+      console.log(`Unique item: ${item}`);
+    }
+  }
+}
+
+main();
+```

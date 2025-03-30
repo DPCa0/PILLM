@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async *fetchData() {
+    const response = await fetch(this.apiEndpoint);
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+    for (const item of data.items) {
+      yield item;
+    }
+  }
+}
+
+const processItem = async (item) => {
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Processed item with id: ${item.id}`);
+    }, 100);
+  });
+  return result;
+};
+
+const main = async () => {
+  try {
+    const fetcher = new DataFetcher('https://api.example.com/data');
+    const iterator = fetcher.fetchData();
+
+    const results = [];
+    for await (const item of iterator) {
+      results.push(await processItem(item));
+    }
+
+    console.log(results);
+
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+};
+
+main();
+```

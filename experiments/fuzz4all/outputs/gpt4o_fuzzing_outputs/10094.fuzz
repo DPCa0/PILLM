@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData() {
+  const data = ['Item1', 'Item2', 'Item3'];
+  for (const item of data) {
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield item;
+  }
+}
+
+ 
+const user = {
+  name: 'Alice',
+  age: 25
+};
+
+const handler = {
+  get(target, property) {
+    console.log(`Property ${property} has been accessed`);
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    console.log(`Property ${property} is set to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+async function processData() {
+  for await (const item of fetchData()) {
+    console.log(`Processing ${item}`);
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((result, str, i) => result + str + (values[i] ? `<strong>${values[i]}</strong>` : ''), '');
+}
+
+const name = 'John';
+const message = tag`Hello, ${name}. Welcome to the advanced JavaScript program!`;
+console.log(message);
+
+ 
+proxyUser.name;  
+proxyUser.age = 30;  
+
+ 
+processData();
+```

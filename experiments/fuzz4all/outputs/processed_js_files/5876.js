@@ -1,0 +1,72 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+   
+  try {
+    const data = await fs.readFile('./example.txt', 'utf8');
+    print('File content:', data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+})();
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      return target[property];
+    } else {
+      console.warn(`Property "${property}" not found, returning default value.`);
+      return 42;
+    }
+  },
+};
+
+const targetObject = { existingKey: 'value' };
+const proxyObject = new Proxy(targetObject, handler);
+
+print('Accessing existing key:', proxyObject.existingKey);
+print('Accessing non-existing key:', proxyObject.nonExistingKey);
+
+ 
+const userMap = new Map([
+  ['id', 1],
+  ['username', 'coder123'],
+  ['email', 'coder123@example.com'],
+]);
+
+const { id, username, email } = Object.fromEntries(userMap);
+print(`User Info: ID=${id}, Username=${username}, Email=${email}`);
+
+ 
+const UNIQUE_KEY = Symbol('unique');
+const obj = {
+  [UNIQUE_KEY]: 'Unique value',
+};
+
+print('Accessing unique property:', obj[UNIQUE_KEY]);
+
+ 
+function customTag(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    const val = values[i - 1] ? values[i - 1].toUpperCase() : '';
+    return `${result}${val}${str}`;
+  });
+}
+
+const name = 'world';
+print(customTag`Hello, ${name}! Welcome to the JavaScript realm.`);
+
+ 
+function* numberGenerator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const numbers = numberGenerator();
+for (const number of numbers) {
+  print('Generated number:', number);
+}

@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+class DataHandler {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint) {
+        try {
+            const response = await fetch(`${this.apiUrl}${endpoint}`);
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async processData(endpoint, callback) {
+        const data = await this.fetchData(endpoint);
+        if (data) callback(data);
+    }
+}
+
+ 
+const dataProxyHandler = {
+    set(target, property, value) {
+        console.log(`Property '${property}' set to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const data = {
+    value: 42
+};
+
+const proxiedData = new Proxy(data, dataProxyHandler);
+
+ 
+function* dataGenerator(dataArray) {
+    for (let item of dataArray) {
+        yield item;
+    }
+}
+
+ 
+(async () => {
+    const handler = new DataHandler('https://jsonplaceholder.typicode.com');
+    await handler.processData('/todos', (fetchedData) => {
+         
+        const dataGen = dataGenerator(fetchedData);
+        let item;
+        while (!(item = dataGen.next()).done) {
+            console.log(item.value);
+        }
+
+         
+        proxiedData.value = 100;
+        console.log(proxiedData.value);
+    });
+})();
+```

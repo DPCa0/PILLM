@@ -1,0 +1,30 @@
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Fetching data failed:", error);
+    }
+}
+
+function processData({ results = [] }) {
+    return new Map(results.map(({ id, name, email }) => [id, { name, email }]));
+}
+
+async function displayData() {
+    const url = "https://jsonplaceholder.typicode.com/users";
+    const data = await fetchData(url);
+
+    if (data) {
+        const userMap = processData(data);
+        for (const [id, { name, email }] of userMap) {
+            print(`User ID: ${id} | Name: ${name} | Email: ${email}`);
+        }
+    }
+}
+
+displayData();

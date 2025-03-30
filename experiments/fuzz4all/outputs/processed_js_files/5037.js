@@ -1,0 +1,45 @@
+ 
+
+ 
+const dataSymbol = Symbol('data');
+
+ 
+const myObject = {
+  name: 'Advanced JS',
+  [dataSymbol]: 'Confidential Data'
+};
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    print(`Property '${property.toString()}' has been accessed.`);
+    return Reflect.get(target, property, receiver);
+  }
+};
+
+const proxy = new Proxy(myObject, handler);
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+(async () => {
+  print(proxy.name);  
+  print(proxy[dataSymbol]);  
+
+   
+  const apiUrl = 'https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits';
+  const data = await fetchData(apiUrl);
+  if (data) {
+    print('Fetched Data:', data.slice(0, 2));  
+  }
+})();

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    const users = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const postsByUser = data.reduce((acc, post) => {
+      const user = users.find(u => u.id === post.userId);
+      const userName = user ? user.name : 'Unknown';
+      acc[userName] = acc[userName] || [];
+      acc[userName].push(post.title);
+      return acc;
+    }, {});
+
+    Object.entries(postsByUser).forEach(([user, posts]) => {
+      console.log(`${user} wrote ${posts.length} post(s):`);
+      posts.forEach(post => console.log(`- ${post}`));
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+const debouncedProcessData = debounce(processData, 300);
+
+debouncedProcessData();
+```

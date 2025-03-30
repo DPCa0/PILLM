@@ -1,0 +1,45 @@
+ 
+async function fetchDataAndProcess() {
+    try {
+         
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        
+         
+        const data = (await response.json()) ?? [];
+
+         
+        const titles = data.map(({ id, title }) => ({ id, title }));
+
+         
+        const uniqueTitles = [...new Set(titles.map(item => item.title))];
+
+         
+        print(`Fetched and processed ${uniqueTitles.length} unique titles.`);
+
+         
+        const titleSummary = uniqueTitles.reduce((summary, title) => {
+            const initial = title[0].toUpperCase();
+            summary[initial] = (summary[initial] || 0) + 1;
+            return summary;
+        }, {});
+
+         
+        const summaryProxy = new Proxy(titleSummary, {
+            get(target, prop) {
+                return prop in target ? target[prop] : 0;
+            }
+        });
+
+         
+        for (const [initial, count] of Object.entries(summaryProxy)) {
+            print(`Titles starting with "${initial}": ${count}`);
+        }
+        
+    } catch (error) {
+         
+        console.error(`Error fetching data: ${error.message}`);
+    }
+}
+
+ 
+fetchDataAndProcess();

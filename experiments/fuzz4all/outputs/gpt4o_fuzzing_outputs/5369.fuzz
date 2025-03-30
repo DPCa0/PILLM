@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+     
+    const userData = await new Promise((resolve) =>
+      setTimeout(() => resolve({ id, name: `User${id}` }), 100)
+    );
+    yield userData;
+  }
+}
+
+ 
+const userHandler = {
+  get: (target, prop, receiver) => {
+    console.log(`Accessing property '${prop}' of user ${target.id}`);
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+async function processUserData() {
+  const userIds = [1, 2, 3];
+  const userDataGen = fetchUserData(userIds);
+
+  for await (const userData of userDataGen) {
+     
+    const proxiedUser = new Proxy(userData, userHandler);
+    console.log(`Processing user: ${proxiedUser.name}`);
+  }
+}
+
+processUserData().catch((error) => console.error(`Error: ${error.message}`));
+```

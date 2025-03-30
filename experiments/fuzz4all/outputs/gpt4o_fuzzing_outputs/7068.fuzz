@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+(async function() {
+     
+    const fetchUserData = async (id) => {
+        try {
+            const { fetch } = await import('node-fetch');
+            const response = await fetch(`https: 
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetching user data failed:', error);
+            return null;
+        }
+    };
+
+     
+    const createLoggingProxy = (target) => {
+        return new Proxy(target, {
+            get: (obj, prop) => {
+                console.log(`Accessed property: ${prop}`);
+                return obj[prop];
+            }
+        });
+    };
+
+     
+    const SYMBOL_SECRET = Symbol('secret');
+    const user = {
+        name: 'Alice',
+        age: 30,
+        [SYMBOL_SECRET]: 'This is a secret'
+    };
+
+    const userProxy = createLoggingProxy(user);
+
+     
+    const id = 1;
+    const userData = await fetchUserData(id);
+    if (userData) {
+        const { name, email } = userData;
+        console.log(`User Name: ${name}`);
+        console.log(`User Email: ${email}`);
+    }
+
+     
+    console.log(`Accessed Symbol property: ${Reflect.get(userProxy, SYMBOL_SECRET)}`);
+
+     
+    const userSet = new Set([userProxy]);
+    const userMap = new Map(userSet.entries());
+
+    userMap.forEach((user, key) => {
+        console.log(`Set/Map User Name: ${key.name}`);
+    });
+})();
+```

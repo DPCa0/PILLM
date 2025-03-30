@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'Alice', age: 30, country: 'Wonderland' });
+    }, 1000);
+  });
+};
+
+ 
+const processUserData = async () => {
+  try {
+    const userData = await fetchData();
+    
+     
+    const { name, ...rest } = userData;
+    const newUserData = { username: name.toLowerCase(), ...rest };
+
+    console.log('Processed User Data:', newUserData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+(async () => {
+  console.log('Fetching and processing user data...');
+  await processUserData();
+})();
+```

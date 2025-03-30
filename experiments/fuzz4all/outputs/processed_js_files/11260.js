@@ -1,0 +1,51 @@
+ 
+(async function advancedJavaScript() {
+  const fetchData = async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
+
+  const processData = (data) => {
+    return data
+      .filter(({ active }) => active)
+      .map(({ name, age }) => ({ name, age }))
+      .reduce((acc, curr) => {
+        acc[curr.age] = acc[curr.age] ? [...acc[curr.age], curr.name] : [curr.name];
+        return acc;
+      }, {});
+  };
+
+  const printData = (data) => {
+    console.table(data);
+  };
+
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const rawData = await fetchData(url);
+  const processedData = rawData ? processData(rawData) : {};
+  printData(processedData);
+
+   
+  const handler = {
+    get(target, property) {
+      print(`Accessing property '${property}'`);
+      return target[property];
+    },
+    set(target, property, value) {
+      print(`Setting property '${property}' to '${value}'`);
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const user = { name: 'John Doe', age: 30 };
+  const proxiedUser = new Proxy(user, handler);
+  print(proxiedUser.name);  
+  proxiedUser.age = 31;           
+})();
+

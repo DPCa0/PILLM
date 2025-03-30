@@ -1,0 +1,55 @@
+ 
+
+class EventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            this.listeners.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncProcess = async () => {
+    return new Promise(resolve => setTimeout(() => resolve("Process Complete"), 1000));
+};
+
+async function* generatorFunction() {
+    for (let i = 0; i < 5; i++) {
+        yield await asyncProcess();
+    }
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', (message) => {
+        print(`Received: ${message}`);
+    });
+
+    for await (const result of generatorFunction()) {
+        eventEmitter.emit('data', result);
+    }
+
+    const mapExample = new Map([[1, 'one'], [2, 'two']]);
+    mapExample.set(3, 'three');
+    print([...mapExample.entries()].map(([key, value]) => `${key}: ${value}`).join(', '));
+
+    const weakMapExample = new WeakMap();
+    const obj = {};
+    weakMapExample.set(obj, 'weakValue');
+    print(`WeakMap has obj: ${weakMapExample.has(obj)}`);
+
+    const array = [1, 2, 3, 4, 5];
+    const newArray = array.flatMap(num => num % 2 === 0 ? [num * 2] : []);
+    print(`Transformed Array: ${newArray.join(', ')}`);
+})();

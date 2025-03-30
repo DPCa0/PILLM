@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._listeners = new Set();
+    }
+
+    subscribe(listener) {
+        this._listeners.add(listener);
+        return () => this._listeners.delete(listener);
+    }
+
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._notify();
+        }
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    _notify() {
+        this._listeners.forEach(listener => listener(this._value));
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+}
+
+const dataObservable = new Observable(null);
+dataObservable.subscribe(data => console.log('Data updated:', data));
+
+(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        dataObservable.value = data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();
+
+function memoize(fn) {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+}
+
+const complexCalculation = memoize((x, y) => {
+    console.log('Calculating...');
+    return x * y + Math.random(); 
+});
+
+console.log(complexCalculation(5, 3));
+console.log(complexCalculation(5, 3));
+```

@@ -1,0 +1,54 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+  let count = 0;
+  while (count < 5) {
+    await delay(500);
+    yield count++;
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', data => {
+    print(`Data received: ${data}`);
+  });
+
+  eventEmitter.on('end', () => {
+    print('Generator finished');
+  });
+
+  for await (const num of asyncGenerator()) {
+    eventEmitter.emit('data', num);
+  }
+
+  eventEmitter.emit('end');
+})();

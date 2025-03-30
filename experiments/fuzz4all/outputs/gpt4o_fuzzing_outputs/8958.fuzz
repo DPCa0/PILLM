@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const emitter = new EventEmitter();
+
+   
+  emitter.on('greet', async (name) => {
+    console.log(`Hello, ${name}!`);
+    await delay(1000);
+    console.log(`How are you today, ${name}?`);
+  });
+
+   
+  emitter.emit('greet', 'Alice');
+  emitter.emit('greet', 'Bob');
+
+   
+  const handler = {
+    get(target, property) {
+      if (typeof target[property] === 'function') {
+        return (...args) => {
+          console.log(`Calling ${property} with arguments:`, args);
+          return target[property].apply(this, args);
+        };
+      }
+      return target[property];
+    }
+  };
+
+  const proxiedEmitter = new Proxy(emitter, handler);
+  proxiedEmitter.emit('greet', 'Charlie');
+})();
+```

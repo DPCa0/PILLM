@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function calculateStats({ values = [], operation = 'sum', ...options } = {}) {
+  const stats = {
+    sum: values.reduce((acc, val) => acc + val, 0),
+    avg: values.reduce((acc, val) => acc + val, 0) / (values.length || 1),
+    max: Math.max(...values),
+    min: Math.min(...values),
+  };
+  return stats[operation] || stats.sum;
+}
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+    throw error;
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: function(target, property, value) {
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const monitoredData = new Proxy({ x: 10, y: 20 }, handler);
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield `ID-${++id}`;
+  }
+}
+const gen = idGenerator();
+
+ 
+async function main() {
+  const data = { values: [10, 20, 30, 40, 50], operation: 'avg' };
+  console.log(`Average: ${calculateStats(data)}`);
+
+  monitoredData.x = 42;
+  console.log(`Monitored x: ${monitoredData.x}`);
+
+  console.log('Fetching example data...');
+  const result = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  console.log('Fetched data:', result);
+
+  monitoredData[uniqueKey] = 'UniqueValue';
+  console.log(`Unique key value: ${monitoredData[uniqueKey]}`);
+
+  console.log(`Generated ID: ${gen.next().value}`);
+}
+
+main().catch(console.error);
+```

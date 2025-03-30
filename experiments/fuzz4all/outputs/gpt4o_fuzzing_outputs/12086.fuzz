@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let item of this.data) {
+      yield new Promise(resolve => setTimeout(() => resolve(item), 100));
+    }
+  }
+}
+
+async function processItems() {
+  const asyncIterable = new AsyncIterator([1, 2, 3, 4, 5]);
+
+  const processed = await Promise.all(
+    [...asyncIterable].map(async (promise) => {
+      const value = await promise;
+      return value * 2;
+    })
+  );
+
+  return processed;
+}
+
+function* generatePermutations(arr, n = arr.length) {
+  if (n <= 1) yield arr.slice();
+  else {
+    for (let i = 0; i < n; i++) {
+      yield* generatePermutations(arr, n - 1);
+      const j = n % 2 ? 0 : i;
+      [arr[n - 1], arr[j]] = [arr[j], arr[n - 1]];
+    }
+  }
+}
+
+(async () => {
+  const processedData = await processItems();
+  const permutations = Array.from(generatePermutations(processedData));
+  console.log('Permutations of processed data:', permutations);
+})();
+```

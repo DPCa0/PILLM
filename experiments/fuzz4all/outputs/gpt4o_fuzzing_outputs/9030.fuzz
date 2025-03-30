@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class Singleton {
+  constructor(name = 'Default') {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+    this.name = name;
+    Singleton.instance = this;
+  }
+
+  getName() {
+    return this.name;
+  }
+}
+
+const modulePattern = (() => {
+  let privateCounter = 0;
+
+  function privateMethod() {
+    return `Current count is ${privateCounter}`;
+  }
+
+  return {
+    increment: () => privateCounter++,
+    decrement: () => privateCounter--,
+    getCounter: () => privateMethod(),
+  };
+})();
+
+const asyncProcess = async () => {
+  try {
+    const fetchPromise = fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const [singleton1, singleton2, response] = await Promise.all([
+      new Singleton('FirstInstance'),
+      new Singleton('SecondInstance'),
+      fetchPromise,
+    ]);
+
+    const data = await response.json();
+    console.log('Singleton Name:', singleton1.getName());  
+    console.log('Are both singletons the same?', singleton1 === singleton2);  
+    console.log('Fetched Data:', data);
+
+    console.log(modulePattern.getCounter());
+    modulePattern.increment();
+    console.log(modulePattern.getCounter());
+    modulePattern.increment();
+    console.log(modulePattern.getCounter());
+    modulePattern.decrement();
+    console.log(modulePattern.getCounter());
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+asyncProcess();
+```

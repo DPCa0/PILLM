@@ -1,0 +1,44 @@
+ 
+
+class ComplexFeatureDemo {
+  constructor() {
+    this.state = {};
+    this.proxyState = new Proxy(this.state, {
+      get: (target, prop) => {
+        if (prop in target) {
+          print(`Getting ${prop}: ${target[prop]}`);
+          return target[prop];
+        }
+        throw new ReferenceError(`Property "${prop}" does not exist.`);
+      },
+      set: (target, prop, value) => {
+        print(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+      }
+    });
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    const data = await response.json();
+    return data;
+  }
+
+  async processData(url) {
+    try {
+      const data = await this.fetchData(url);
+      this.proxyState.fetchedData = data;
+      return 'Data successfully processed';
+    } catch (error) {
+      console.error('Error in processing data:', error);
+      return 'Data processing failed';
+    }
+  }
+}
+
+const demo = new ComplexFeatureDemo();
+const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+demo.processData(url).then(console.log).catch(console.error);

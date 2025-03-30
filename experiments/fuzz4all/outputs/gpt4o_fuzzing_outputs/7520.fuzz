@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fibonacciSequence(n) {
+  let [prev, current] = [0, 1];
+  while (n-- > 0) {
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve(current), 500)
+    );
+    [prev, current] = [current, prev + current];
+  }
+}
+
+ 
+const loggerHandler = {
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  },
+};
+
+const config = new Proxy({ maxIterations: 10 }, loggerHandler);
+
+(async () => {
+  console.log('Fibonacci Sequence:');
+  for await (const num of fibonacciSequence(config.maxIterations)) {
+    console.log(num);
+  }
+})();
+
+ 
+const privateData = new WeakMap();
+
+class Person {
+  constructor(name) {
+    privateData.set(this, { name });
+  }
+
+  getName() {
+    return privateData.get(this).name;
+  }
+}
+
+const alice = new Person('Alice');
+console.log(`Name accessed from private storage: ${alice.getName()}`);
+
+ 
+const numbers = [1, 2, 3, 2, 4, 5, 1, 6];
+const uniqueNumbers = [...new Set(numbers)];
+console.log('Unique numbers:', uniqueNumbers);
+```

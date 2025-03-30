@@ -1,0 +1,26 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+}
+
+async function fetchAllData(urls) {
+    try {
+        const promises = urls.map(url => fetchData(url));
+        const results = await Promise.all(promises);
+        
+        results.forEach(({ name, age }, index) => {
+            print(`User ${index + 1}: Name is ${name}, Age is ${age}`);
+        });
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/users/1',
+    'https://jsonplaceholder.typicode.com/users/2',
+    'https://jsonplaceholder.typicode.com/users/3'
+];
+
+fetchAllData(urls);

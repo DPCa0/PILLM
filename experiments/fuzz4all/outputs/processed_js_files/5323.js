@@ -1,0 +1,39 @@
+ 
+
+class Complex {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({ real, imaginary }) {
+        return new Complex(this.real + real, this.imaginary + imaginary);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+const calculate = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const num1 = new Complex(2, 3);
+            const num2 = new Complex(4, 5);
+            resolve(num1.add(num2));
+        }, 1000);
+    });
+};
+
+const main = async () => {
+    print('Starting complex number addition...');
+    try {
+        const result = await calculate();
+        print(`Result: ${result.toString()}`);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+    print('Finished complex number addition.');
+};
+
+main();

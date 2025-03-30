@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class User {
+    #name;
+    constructor(name, age) {
+        this.#name = name;
+        this.age = age;
+    }
+    
+    getName() {
+        return this.#name;
+    }
+    
+    static *idGenerator() {
+        let id = 0;
+        while (true) {
+            yield id++;
+        }
+    }
+}
+
+const userIds = User.idGenerator();
+
+const users = new Proxy({}, {
+    set(target, key, value) {
+        if (!(value instanceof User)) {
+            throw new Error("Value must be an instance of User");
+        }
+        target[key] = value;
+        return true;
+    },
+    get(target, key) {
+        if (key in target) {
+            return target[key];
+        } else {
+            return `User with ID ${key} not found`;
+        }
+    }
+});
+
+function delay(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function addUser(name, age) {
+    await delay(1000);
+    const id = userIds.next().value;
+    users[id] = new User(name, age);
+    console.log(`User ${name} added with ID: ${id}`);
+    console.log(`Private name access: ${users[id].getName()}`);
+}
+
+addUser("Alice", 30);
+addUser("Bob", 25);
+```

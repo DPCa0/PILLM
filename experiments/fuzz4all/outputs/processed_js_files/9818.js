@@ -1,0 +1,53 @@
+class FibonacciSequence {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        yield prev;
+        yield curr;
+        while (true) {
+            [prev, curr] = [curr, prev + curr];
+            this.memo.set(curr, curr);
+            yield curr;
+        }
+    }
+
+    get(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        let [a, b] = [0, 1];
+        for (let i = 2; i <= n; i++) {
+            [a, b] = [b, a + b];
+        }
+        this.memo.set(n, b);
+        return b;
+    }
+}
+
+const asyncFibonacci = async (n) => {
+    const sequence = new FibonacciSequence();
+    print(`Fibonacci of ${n} using memoization: ${sequence.get(n)}`);
+    
+    print('First 10 numbers in the Fibonacci sequence using iterator:');
+    let i = 0;
+    for (let num of sequence) {
+        print(num);
+        if (++i >= 10) break;
+    }
+
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);   
+
+    print(`Generating Fibonacci sequence asynchronously for first ${n} numbers:`);
+    i = 0;
+    for (let num of sequence) {
+        print(num);
+        if (++i >= n) break;
+        await delay(500);  
+    }
+};
+
+(async () => {
+    await asyncFibonacci(15);
+})();

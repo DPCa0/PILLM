@@ -1,0 +1,36 @@
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => resolve(['apple', 'banana', 'cherry']), 1000);
+});
+
+ 
+const processFruits = async () => {
+   
+  const [first, second, third] = await fetchData();
+
+   
+  const fruitsInfo = [first, second, third].map((fruit, index) => ({
+    name: fruit,
+    length: fruit.length,
+    index,
+  }));
+
+   
+  try {
+    const transformedInfo = fruitsInfo.map(({name, length, index}) => ({
+      name: name.toUpperCase(),
+      size: `${length}-letters`,
+      position: `Fruit #${index + 1}`,
+    }));
+
+     
+    console.table(transformedInfo);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+(async () => {
+  await processFruits();
+})();

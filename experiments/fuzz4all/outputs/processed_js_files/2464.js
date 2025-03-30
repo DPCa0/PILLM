@@ -1,0 +1,48 @@
+ 
+
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Fetched data from ${url}`);
+    }, 1000);
+  });
+};
+
+const dataHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      print(`Property ${prop} doesn't exist. Intercepted by Proxy.`);
+      return `Default Value`;
+    }
+  }
+};
+
+const dataProxy = new Proxy({}, dataHandler);
+
+async function* dataGenerator(urls) {
+  for (const url of urls) {
+    const data = await fetchData(url);
+    dataProxy[url] = data;
+    yield data;
+  }
+}
+
+const processData = async (urls) => {
+  const generator = dataGenerator(urls);
+
+  for await (const data of generator) {
+    print(`Processing: ${data}`);
+  }
+
+  console.log(dataProxy['https: 
+  print(dataProxy['https://nonexistent.com']);  
+};
+
+const urlsToFetch = [
+  'https://example.com',
+  'https://anotherexample.com'
+];
+
+processData(urlsToFetch);

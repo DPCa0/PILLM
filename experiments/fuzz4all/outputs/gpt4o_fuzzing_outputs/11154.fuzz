@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                users: [
+                    { id: 1, name: 'Alice', age: 28 },
+                    { id: 2, name: 'Bob', age: 34 },
+                    { id: 3, name: 'Charlie', age: 25 },
+                ],
+                posts: [
+                    { userId: 1, title: 'Post by Alice' },
+                    { userId: 2, title: 'Post by Bob' },
+                ],
+            };
+            data ? resolve(data) : reject(new Error('Failed to fetch data'));
+        }, 1000);
+    });
+};
+
+const processData = async () => {
+    try {
+        const { users, posts } = await fetchData('https://api.example.com/data');
+        
+         
+        const result = users.map(({ id, name }) => {
+            const userPosts = posts.filter(post => post.userId === id).map(post => post.title);
+            return {
+                name,
+                posts: userPosts.length ? userPosts : 'No posts available',
+            };
+        });
+        
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+processData();
+```

@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(endpoint) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+             
+            const data = {
+                users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }],
+                posts: [{ id: 1, userId: 1, title: 'Hello' }, { id: 2, userId: 2, title: 'World' }]
+            };
+            if (data[endpoint]) {
+                resolve(data[endpoint]);
+            } else {
+                reject('Endpoint not found');
+            }
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        }
+        throw new Error(`Property ${prop} doesn't exist`);
+    }
+};
+
+// Using async/await to handle asynchronous logic
+async function main() {
+    try {
+        const usersPromise = fetchData('users');
+        const postsPromise = fetchData('posts');
+        
+        // Fetch both data concurrently
+        const [users, posts] = await Promise.all([usersPromise, postsPromise]);
+        
+        // Using Proxy to validate access to objects
+        const usersProxy = new Proxy(users, handler);
+        const postsProxy = new Proxy(posts, handler);
+        
+        // Display data with proxy
+        console.log('Users:', usersProxy);
+        console.log('Posts:', postsProxy);
+
+        // Complex operations
+        const userPosts = usersProxy.map(user => ({
+            ...user,
+            posts: postsProxy.filter(post => post.userId === user.id)
+        }));
+
+        console.log('User Posts:', userPosts);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+main();
+```

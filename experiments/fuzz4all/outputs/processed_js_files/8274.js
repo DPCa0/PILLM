@@ -1,0 +1,62 @@
+ 
+class Person {
+  #privateSecret;
+
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+    this.#privateSecret = `${name}'s secret`;
+  }
+
+  // Getter for the private field
+  getSecret() {
+    return this.#privateSecret;
+  }
+
+  // Static method
+  static createAnonymous() {
+    return new Person('Anonymous', 0);
+  }
+}
+
+// Use a Proxy to intercept operations on an object
+const handler = {
+  get(target, property) {
+    if (property === 'name') {
+      return `Mr. ${target[property]}`;
+    }
+    return target[property];
+  },
+};
+
+const john = new Person('John Doe', 30);
+const proxiedJohn = new Proxy(john, handler);
+
+// Use an IIFE (Immediately Invoked Function Expression) and destructuring assignment
+const { PI, E } = (() => {
+  const constants = { PI: Math.PI, E: Math.E };
+  return constants;
+})();
+
+// Use template literals and tagged templates
+function highlight(strings, ...values) {
+  return strings.reduce((acc, str, idx) => {
+    const val = values[idx] ? `<mark>${values[idx]}</mark>` : '';
+    return acc + str + val;
+  }, '');
+}
+
+const message = highlight`Person ${proxiedJohn.name} is ${john.age} years old.`;
+
+// Use async/await with a Promise
+async function fetchGreeting() {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve('Hello, asynchronous world!'), 1000)
+  );
+}
+
+(async () => {
+  print(`Math constants: PI=${PI}, E=${E}`);
+  print(message);
+  print(await fetchGreeting());
+})();

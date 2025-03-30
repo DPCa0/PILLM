@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+const crypto = require('crypto');
+
+ 
+const target = { secret: 'mySecret' };
+const handler = {
+  get: function(obj, prop) {
+    if (prop === 'secret') {
+      console.log('Access to secret property');
+      return obj[prop];
+    }
+    return Reflect.get(...arguments);
+  },
+  set: function(obj, prop, value) {
+    console.log(`Setting value '${value}' to '${prop}'`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+console.log(proxy.secret);  
+proxy.secret = 'newSecret';  
+
+ 
+async function complexTask() {
+  const asyncOperation = () => new Promise(resolve => {
+    setTimeout(() => {
+      const randomString = crypto.randomBytes(5).toString('hex');
+      resolve(randomString);
+    }, 1000);
+  });
+
+  console.log('Starting complex task...');
+  const result1 = await asyncOperation();
+  console.log(`Step 1 completed: ${result1}`);
+
+  const result2 = await asyncOperation();
+  console.log(`Step 2 completed: ${result2}`);
+
+  const result3 = await asyncOperation();
+  console.log(`Step 3 completed: ${result3}`);
+
+  console.log('Complex task finished.');
+}
+
+complexTask();
+```

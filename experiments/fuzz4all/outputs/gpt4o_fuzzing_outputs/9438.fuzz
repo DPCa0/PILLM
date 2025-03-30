@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+class Vehicle {
+  constructor({ type, brand, model, engine: { horsepower, fuelType }, features }) {
+    this.type = type;
+    this.brand = brand;
+    this.model = model;
+    this.engine = { horsepower, fuelType };
+    this.features = features;
+  }
+
+  displayInfo() {
+    console.log(`Vehicle Type: ${this.type}`);
+    console.log(`Brand: ${this.brand}`);
+    console.log(`Model: ${this.model}`);
+    console.log(`Engine: ${this.engine.horsepower} HP, ${this.engine.fuelType}`);
+    console.log(`Features: ${this.features.join(', ')}`);
+  }
+
+  *featureIterator() {
+    for (let feature of this.features) {
+      yield feature;
+    }
+  }
+}
+
+ 
+async function fetchVehicleData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        type: 'Car',
+        brand: 'Tesla',
+        model: 'Model S',
+        engine: { horsepower: 1020, fuelType: 'Electric' },
+        features: ['Autopilot', 'Electric', 'GPS', 'Smart Summon']
+      });
+    }, 1000);
+  });
+}
+
+(async () => {
+  try {
+    const vehicleData = await fetchVehicleData();
+    const myVehicle = new Vehicle(vehicleData);
+
+    myVehicle.displayInfo();
+
+    console.log('\nIterating over features using Generator:');
+    const featureGen = myVehicle.featureIterator();
+    for (let feature of featureGen) {
+      console.log(`Feature: ${feature}`);
+    }
+  } catch (error) {
+    console.error('Error fetching vehicle data:', error);
+  }
+})();
+```

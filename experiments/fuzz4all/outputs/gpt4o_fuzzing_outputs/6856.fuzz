@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncResourceLoader {
+  constructor(resources) {
+    this.resources = resources;
+  }
+
+  async fetchResource(resource) {
+    try {
+      const response = await fetch(resource);
+      if (!response.ok) throw new Error(`Failed to fetch ${resource}`);
+      return await response.json();
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  async loadResources() {
+    return Promise.all(this.resources.map(res => this.fetchResource(res)));
+  }
+}
+
+function* generateFibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield prev;
+  }
+}
+
+const processFibonacci = async (limit) => {
+  const fibonacciGenerator = generateFibonacci(limit);
+  for (const value of fibonacciGenerator) {
+    console.log(`Fibonacci value: ${value}`);
+    await new Promise(resolve => setTimeout(resolve, 500));  
+  }
+};
+
+(async () => {
+  const loader = new AsyncResourceLoader([
+    'https://api.github.com/users/octocat',
+    'https://api.github.com/users/defunkt'
+  ]);
+
+  const resources = await loader.loadResources();
+  console.log('Loaded Resources:', resources);
+
+  console.log('Starting Fibonacci calculation:');
+  await processFibonacci(10);
+})();
+```

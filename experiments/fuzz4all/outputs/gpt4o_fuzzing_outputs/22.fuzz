@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    #listeners = new Map();
+
+    on(event, listener) {
+        if (!this.#listeners.has(event)) {
+            this.#listeners.set(event, new Set());
+        }
+        this.#listeners.get(event).add(listener);
+    }
+
+    off(event, listener) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.get(event).delete(listener);
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+ 
+function log(target, key, descriptor) {
+    const original = descriptor.value;
+    descriptor.value = function(...args) {
+        console.log(`Calling ${key} with arguments: ${JSON.stringify(args)}`);
+        const result = original.apply(this, args);
+        console.log(`Result: ${JSON.stringify(result)}`);
+        return result;
+    };
+    return descriptor;
+}
+
+class AdvancedCalculator extends EventEmitter {
+    @log
+    add(a, b) {
+        const result = a + b;
+        this.emit('calculation', { operation: 'add', a, b, result });
+        return result;
+    }
+
+    @log
+    multiply(a, b) {
+        const result = a * b;
+        this.emit('calculation', { operation: 'multiply', a, b, result });
+        return result;
+    }
+
+    @log
+    fibonacci(n) {
+        const fib = (n, memo = {}) => {
+            if (n <= 1) return n;
+            if (memo[n]) return memo[n];
+            memo[n] = fib(n - 1, memo) + fib(n - 2, memo);
+            return memo[n];
+        };
+        const result = fib(n);
+        this.emit('calculation', { operation: 'fibonacci', n, result });
+        return result;
+    }
+}
+
+const calculator = new AdvancedCalculator();
+calculator.on('calculation', ({ operation, a, b, n, result }) => {
+    console.log(`Completed ${operation} with result: ${result}`);
+});
+
+console.log(calculator.add(5, 7));
+console.log(calculator.multiply(3, 4));
+console.log(calculator.fibonacci(10));
+```

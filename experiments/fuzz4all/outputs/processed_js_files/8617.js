@@ -1,0 +1,66 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(array) {
+    return new Matrix(array.length, array[0].length).map((_, i, j) => array[i][j]);
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    return new Matrix(a.data.length, b.data[0].length).map(
+      (_, i, j) => a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0)
+    );
+  }
+
+  static randomize(matrix, min = 0, max = 1) {
+    return matrix.map(() => Math.random() * (max - min) + min);
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function main() {
+  try {
+    const a = Matrix.fromArray([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
+    const b = Matrix.fromArray([
+      [7, 8],
+      [9, 10],
+      [11, 12],
+    ]);
+    
+    print('Matrix A:\n', a.toString());
+    print('Matrix B:\n', b.toString());
+
+    const result = Matrix.multiply(a, b);
+    print('A * B:\n', result.toString());
+
+    print('Randomizing matrix...');
+    Matrix.randomize(result, -10, 10);
+    print('Randomized Matrix:\n', result.toString());
+
+    print('Sleeping for 2 seconds...');
+    await sleep(2000);
+
+    print('Done!');
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+main();

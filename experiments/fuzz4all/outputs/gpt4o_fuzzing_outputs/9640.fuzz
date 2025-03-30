@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataStream() {
+    let id = 1;
+    while (true) {
+        yield { id: id++, value: Math.random() * 100 };
+    }
+}
+
+ 
+function fetchData(generator) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(generator.next().value);
+        }, 1000);
+    });
+}
+
+ 
+const dataHandler = {
+    get(target, property) {
+        if (property === 'latestValue') {
+            return target[target.length - 1]?.value || 'No data';
+        }
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Data added: ${JSON.stringify(value)}`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+ 
+async function processData() {
+    const generator = dataStream();
+    const dataStore = new Proxy([], dataHandler);
+
+    for (let i = 0; i < 5; i++) {
+        const data = await fetchData(generator);
+        dataStore.push(data);
+        console.log(`Processing data ID: ${data.id}, Value: ${data.value.toFixed(2)}`);
+        console.log(`Latest value in store: ${dataStore.latestValue}`);
+    }
+}
+
+ 
+processData().catch(console.error);
+```

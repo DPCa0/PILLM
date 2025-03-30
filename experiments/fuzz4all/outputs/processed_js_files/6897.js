@@ -1,0 +1,45 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataGenerator() {
+  const urls = [
+    'https://api1.example.com/data',
+    'https://api2.example.com/data',
+    'https://api3.example.com/data'
+  ];
+
+  for (const url of urls) {
+     
+    await delay(1000);
+    yield `Fetched data from ${url}`;
+  }
+}
+
+ 
+class DataProcessor {
+  #dataStore = [];
+
+  static async process(generator) {
+    const instance = new DataProcessor();
+    for await (const data of generator) {
+      instance.#dataStore.push(data);
+      print(`Processing: ${data}`);
+    }
+    return instance.getData();
+  }
+
+  getData() {
+    return this.#dataStore;
+  }
+}
+
+ 
+(async () => {
+  print('Starting data processing...');
+  const dataGenerator = fetchDataGenerator();
+  const processedData = await DataProcessor.process(dataGenerator);
+  print('All data processed:', processedData);
+})();

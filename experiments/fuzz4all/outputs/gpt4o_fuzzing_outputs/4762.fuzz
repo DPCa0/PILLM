@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+const crypto = require('crypto');
+
+class User {
+  #privateKey;
+  #publicKey;
+  
+  constructor(username) {
+    this.username = username;
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+    });
+    this.#publicKey = publicKey.export({ type: 'pkcs1', format: 'pem' });
+    this.#privateKey = privateKey.export({ type: 'pkcs1', format: 'pem' });
+  }
+
+  getPublicKey() {
+    return this.#publicKey;
+  }
+
+  signMessage(message) {
+    const sign = crypto.createSign('SHA256');
+    sign.update(message);
+    sign.end();
+    return sign.sign(this.#privateKey, 'base64');
+  }
+}
+
+const users = new Map();
+
+const createUser = (username) => {
+  if (users.has(username)) {
+    throw new Error('Username already exists.');
+  }
+  const user = new User(username);
+  users.set(username, user);
+  return user;
+};
+
+const sendMessage = (sender, receiver, message) => {
+  if (!users.has(sender) || !users.has(receiver)) {
+    throw new Error('Both users must be valid.');
+  }
+  
+  const user = users.get(sender);
+  const signature = user.signMessage(message);
+
+  const logMessage = {
+    from: sender,
+    to: receiver,
+    message,
+    signed: signature
+  };
+
+  console.log(JSON.stringify(logMessage, null, 2));
+};
+
+const alice = createUser('Alice');
+const bob = createUser('Bob');
+sendMessage('Alice', 'Bob', 'Hello, Bob!');
+```

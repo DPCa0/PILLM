@@ -1,0 +1,63 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const createValidatedObject = (target, validator) => {
+  return new Proxy(target, {
+    set(obj, prop, value) {
+      if (validator(prop, value)) {
+        obj[prop] = value;
+        print(`Property ${prop} set to ${value}`);
+        return true;
+      } else {
+        console.error(`Invalid value ${value} for property ${prop}`);
+        return false;
+      }
+    }
+  });
+};
+
+ 
+const validator = (prop, value) => {
+  if (prop === 'age') {
+    return typeof value === 'number' && value > 0;
+  }
+  return true;
+};
+
+ 
+let person = createValidatedObject({}, validator);
+
+ 
+async function fetchData() {
+  await delay(1000);  
+  return { name: "Alice", age: 30 };
+}
+
+ 
+(async () => {
+  try {
+    let data = await fetchData();
+    print(`Fetched Data: ${JSON.stringify(data)}`);
+
+    Object.entries(data).forEach(([key, value]) => {
+      person[key] = value;  
+    });
+
+    print(`Final Person Object: ${JSON.stringify(person)}`);
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+})();
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 3, 4]);
+print(`Unique Numbers: ${[...uniqueNumbers]}`);
+
+const userRoles = new Map();
+userRoles.set(person.name, 'admin');
+print(`User Roles: ${JSON.stringify([...userRoles.entries()])}`);
+
+ 
+let message = `User ${person.name} is ${person.age} years old and has a role of ${userRoles.get(person.name)}.`;
+print(message);

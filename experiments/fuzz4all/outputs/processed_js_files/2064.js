@@ -1,0 +1,45 @@
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then((response) => response.json());
+  }
+}
+
+async function processUrls(urls) {
+  try {
+    const dataGenerator = fetchDataGenerator(urls);
+    const results = [];
+    for await (const dataPromise of dataGenerator) {
+      const data = await dataPromise;
+      results.push(data);
+    }
+    return results;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return [];
+  }
+}
+
+function debounce(fn, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+const fetchAndLogData = debounce(async () => {
+  const results = await processUrls(urls);
+  print('Fetched Data:', results);
+}, 300);
+
+ 
+fetchAndLogData();
+fetchAndLogData();
+fetchAndLogData();

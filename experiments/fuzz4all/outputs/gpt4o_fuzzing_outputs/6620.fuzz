@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fillValue = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fillValue)
+    );
+  }
+
+  static fromArray(array) {
+    const mat = new Matrix(array.length, array[0].length);
+    mat.data = array;
+    return mat;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) =>
+      row.map((value, j) => fn(value, i, j))
+    );
+    return this;
+  }
+
+  static map(A, fn) {
+    return new Matrix(A.rows, A.cols).map((_, i, j) => fn(A.data[i][j], i, j));
+  }
+
+  get rows() {
+    return this.data.length;
+  }
+
+  get cols() {
+    return this.data[0].length;
+  }
+
+  print() {
+    console.table(this.data);
+  }
+
+  static multiply(A, B) {
+    if (A.cols !== B.rows) throw new Error('Columns of A must match rows of B.');
+    const result = new Matrix(A.rows, B.cols);
+    result.map((_, i, j) => A.data[i].reduce((sum, elem, k) => sum + elem * B.data[k][j], 0));
+    return result;
+  }
+}
+
+const sigmoid = x => 1 / (1 + Math.exp(-x));
+
+(async () => {
+  const inputLayer = Matrix.fromArray([
+    [1, 2],
+    [3, 4],
+    [5, 6],
+  ]);
+  const weights = Matrix.fromArray([
+    [0.5, -1.5],
+    [1.0, 2.0],
+  ]);
+
+  const computeLayer = async (input, weight) => {
+    const result = Matrix.multiply(input, weight);
+    return Matrix.map(result, sigmoid);
+  };
+
+  const outputLayer = await computeLayer(inputLayer, weights);
+  outputLayer.print();
+})();
+```

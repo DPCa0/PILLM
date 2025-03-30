@@ -1,0 +1,45 @@
+ 
+async function fetchAndProcessData(url) {
+    try {
+         
+        const response = await fetch(url);
+        const data = await response.json();
+
+         
+        const { users, ...rest } = data;
+        const updatedUsers = users.map(user => ({
+            ...user,
+            isActive: true
+        }));
+
+         
+        const results = await Promise.all(updatedUsers.map(async user => {
+            const processedUser = await processUserData(user);
+            return processedUser;
+        }));
+
+         
+        const uniqueResults = Array.from(new Set(results.map(JSON.stringify))).map(JSON.parse);
+
+         
+        uniqueResults.forEach(user => {
+            print(user.profile?.email ?? 'Email not available');
+        });
+        
+        return uniqueResults;
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+}
+
+ 
+function processUserData(user) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({ ...user, processed: true });
+        }, 1000);
+    });
+}
+
+ 
+fetchAndProcessData('https://api.example.com/data');

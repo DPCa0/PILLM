@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+    }
+    
+    *generateSeries() {
+        let a = 0, b = 1;
+        yield a;
+        yield b;
+        while (true) {
+            [a, b] = [b, a + b];
+            if (b > this.limit) break;
+            yield b;
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        console.log('Fetched Data:', data);
+
+        const fib = new Fibonacci(100);
+        console.log('Fibonacci Series up to 100:');
+        for (let num of fib.generateSeries()) {
+            console.log(num);
+        }
+
+        const numbers = [1, 2, 3, 4, 5];
+        const doubledNumbers = numbers.map(num => num * 2);
+        console.log('Doubled Numbers:', doubledNumbers);
+
+        const sum = doubledNumbers.reduce((acc, val) => acc + val, 0);
+        console.log('Sum of Doubled Numbers:', sum);
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

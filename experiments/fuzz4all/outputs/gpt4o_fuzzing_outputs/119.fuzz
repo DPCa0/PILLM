@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+function createProxiedObject() {
+  const obj = { name: "Advanced JS", year: 2023 };
+  return new Proxy(obj, handler);
+}
+
+ 
+async function processData() {
+  const proxiedObj = createProxiedObject();
+
+  console.log("Starting async processing...");
+  
+  await delay(1000);  
+  console.log(`Project: ${proxiedObj.name}`);
+  
+  await delay(1000);  
+  console.log(`Year: ${proxiedObj.year}`);
+
+  console.log("Async processing completed.");
+}
+
+ 
+processData().catch(error => console.error(error));
+```

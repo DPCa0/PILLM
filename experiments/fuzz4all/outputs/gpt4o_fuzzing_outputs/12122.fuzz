@@ -1,0 +1,83 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.set(event, this.events.get(event).filter(l => l !== listener));
+        }
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Property '${prop}' has been accessed.`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const data = new Proxy({
+    name: 'Advanced JavaScript',
+    year: 2023
+}, handler);
+
+const eventEmitter = new EventEmitter();
+
+ 
+async function* asyncGenerator() {
+    let i = 0;
+    while (i < 3) {
+        yield new Promise(resolve => setTimeout(() => resolve(`Value: ${i++}`), 1000));
+    }
+}
+
+ 
+function logExecution(target, name, descriptor) {
+    const original = descriptor.value;
+    descriptor.value = function(...args) {
+        console.log(`Executing ${name} with arguments ${JSON.stringify(args)}`);
+        return original.apply(this, args);
+    };
+    return descriptor;
+}
+
+class Example {
+    constructor(eventEmitter) {
+        this.eventEmitter = eventEmitter;
+        this.eventEmitter.on('example', this.doSomething.bind(this));
+    }
+
+    @logExecution
+    doSomething(message) {
+        console.log(`Event received with message: ${message}`);
+    }
+}
+
+const exampleInstance = new Example(eventEmitter);
+
+(async function() {
+    for await (let value of asyncGenerator()) {
+        console.log(value);
+    }
+
+    console.log(data.name);  
+    console.log(data.year);
+
+    eventEmitter.emit('example', 'Hello from event!');
+})();
+```

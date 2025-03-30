@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+class AsyncGenerator {
+  constructor(max = 10) {
+    this.max = max;
+  }
+
+  async *generateNumbers() {
+    for (let i = 1; i <= this.max; i++) {
+      yield new Promise(resolve => setTimeout(() => resolve(i), 100 * i));
+    }
+  }
+}
+
+const processNumbers = async () => {
+  const gen = new AsyncGenerator(5);
+  const arr = [];
+  
+  for await (const num of gen.generateNumbers()) {
+    arr.push(num);
+    console.log(`Processed number: ${num}`);
+  }
+
+  const squaredNumbers = arr.map(num => num ** 2);
+  console.log(`Squared numbers: ${squaredNumbers}`);
+
+  const sum = squaredNumbers.reduce((acc, curr) => acc + curr, 0);
+  console.log(`Sum of squared numbers: ${sum}`);
+};
+
+processNumbers();
+```

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+    yield 'Fetching data from API...';
+    yield new Promise(resolve => setTimeout(() => resolve('Data fetched: {"name": "John Doe", "age": 30}'), 2000));
+}
+
+ 
+async function processData() {
+    const generator = fetchDataGenerator();
+    console.log(generator.next().value);  
+
+    const dataPromise = generator.next().value;  
+    const data = await dataPromise;  
+    console.log(data);  
+
+    return JSON.parse(data);
+}
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            console.log(`Property "${prop}" accessed, value: ${obj[prop]}`);
+            return obj[prop];
+        } else {
+            console.warn(`Property "${prop}" not found!`);
+            return undefined;
+        }
+    }
+};
+
+ 
+async function main() {
+    try {
+        const data = await processData();
+
+         
+        const proxiedData = new Proxy(data, handler);
+
+         
+        console.log(`User Name: ${proxiedData.name}`);  
+        console.log(`User Age: ${proxiedData.age}`);  
+        console.log(`User Address: ${proxiedData.address}`);  
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+main();  
+```

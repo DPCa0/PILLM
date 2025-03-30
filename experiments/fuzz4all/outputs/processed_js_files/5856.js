@@ -1,0 +1,41 @@
+ 
+
+ 
+function* numberGenerator(max) {
+  for (let i = 1; i <= max; i++) {
+    yield new Promise((resolve) => setTimeout(() => resolve(i), 100 * i));
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Getting property: ${prop}`);
+    return prop in target ? target[prop] : 42;  
+  },
+  set(target, prop, value) {
+    print(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+async function processNumbers() {
+  const numbers = [];
+  const proxiedNumbers = new Proxy(numbers, handler);
+  
+  const gen = numberGenerator(5);
+  for await (const numberPromise of gen) {
+     
+    const [currentNumber] = await Promise.all([numberPromise]);
+    proxiedNumbers.push(currentNumber);
+  }
+  
+   
+  const [first, , , , last] = proxiedNumbers;
+  [proxiedNumbers[0], proxiedNumbers[4]] = [last, first];
+  
+  print('Final numbers:', proxiedNumbers);
+}
+
+processNumbers();

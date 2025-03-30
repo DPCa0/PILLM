@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+class Fibonacci {
+  #sequence = [0, 1];
+  
+  static #instance;
+
+  constructor() {
+    if (Fibonacci.#instance) {
+      return Fibonacci.#instance;
+    }
+    Fibonacci.#instance = this;
+  }
+
+   
+  *generate() {
+    let [a, b] = this.#sequence;
+    while (true) {
+      [a, b] = [b, a + b];
+      yield b;
+    }
+  }
+
+   
+  static async getFirstNNumbers(n) {
+    const fibInstance = new Fibonacci();
+    const fibGenerator = fibInstance.generate();
+    let result = [];
+    for (let i = 0; i < n; i++) {
+      const nextValue = fibGenerator.next().value;
+      await new Promise(resolve => setTimeout(resolve, 50));  
+      result.push(nextValue);
+    }
+    return result;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const firstTenFibs = await Fibonacci.getFirstNNumbers(10);
+    console.log('First 10 Fibonacci numbers:', firstTenFibs);
+
+     
+    const fallbackValue = firstTenFibs?.[20] ?? 'Value does not exist';
+    console.log('Value at index 20:', fallbackValue);
+  } catch (error) {
+    console.error('Error fetching Fibonacci numbers:', error);
+  }
+})();
+```

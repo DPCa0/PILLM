@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+
+ 
+function* dataGenerator() {
+  yield fetch('https://jsonplaceholder.typicode.com/posts/1').then(response => response.json());
+  yield fetch('https://jsonplaceholder.typicode.com/posts/2').then(response => response.json());
+}
+
+ 
+async function processData() {
+  const gen = dataGenerator();
+  let result;
+  do {
+     
+    const { value, done } = gen.next();
+    result = done ? result : await value;
+    if (!done) console.log(`Fetched Post: ${result.title}`);
+  } while (!result.done);
+}
+
+ 
+const targetObject = {
+  secret: 'This is a secret message',
+  reveal: 'This is a public message'
+};
+
+const handler = {
+  get: function(obj, prop) {
+    if (prop === 'secret') {
+      console.log('Attempted to access secret message');
+      return 'Access Denied';
+    } else {
+      return obj[prop];
+    }
+  }
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((acc, str, i) => `${acc}${str}<strong>${values[i] || ''}</strong>`, '');
+}
+
+ 
+const user = 'Alice';
+const accessLevel = 'Admin';
+console.log(highlight`Welcome, ${user}! Your access level is: ${accessLevel}.`);
+
+ 
+processData();
+console.log(proxyObject.secret);  
+console.log(proxyObject.reveal);
+```

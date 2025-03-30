@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+ 
+function* numberGenerator() {
+    let num = 1;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const logSymbol = Symbol('log');
+
+ 
+const logger = new Proxy(console, {
+    get(target, prop) {
+        if (prop === logSymbol) {
+            return target.log;
+        }
+        return Reflect.get(...arguments);
+    }
+});
+
+ 
+async function advancedFeatures() {
+    const gen = numberGenerator();
+    let count = 0;
+    
+    while (count < 5) {
+        const { value } = gen.next();
+        logger[logSymbol](`Generated Number: ${value}`);
+        
+         
+        await delay(1000);
+        
+        if (value === 3) {
+            logger[logSymbol]('Reached number 3, transforming proxy!');
+            
+             
+            Object.setPrototypeOf(logger, {
+                get(target, prop) {
+                    if (prop === logSymbol) {
+                        return msg => target.warn(`WARN: ${msg}`);
+                    }
+                    return Reflect.get(...arguments);
+                }
+            });
+        }
+        
+        count++;
+    }
+}
+
+ 
+advancedFeatures().catch(console.error);
+```

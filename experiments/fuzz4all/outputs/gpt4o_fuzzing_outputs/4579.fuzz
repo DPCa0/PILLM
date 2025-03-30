@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline');
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: 1, name: 'Advanced JavaScript', features: ['Promises', 'Async/Await', 'Modules'] });
+    }, 1000);
+  });
+}
+
+ 
+(async () => {
+  console.log('Fetching data...');
+
+   
+  const { id, name, features } = await fetchData();
+
+  console.log(`Data Fetched: ${id} - ${name}`);
+  console.log('Features:');
+  features.forEach((feature, index) => console.log(`${index + 1}. ${feature}`));
+
+   
+  const uniqueKey1 = Symbol('key1');
+  const uniqueKey2 = Symbol('key2');
+
+  const myObject = {
+    [uniqueKey1]: 'Value associated with uniqueKey1',
+    [uniqueKey2]: 'Value associated with uniqueKey2',
+  };
+
+  console.log('Unique Symbols in Object:');
+  console.log(myObject[uniqueKey1]);
+  console.log(myObject[uniqueKey2]);
+
+   
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+   
+  rl.question(`Type your name to interact (Type 'exit' to quit): `, function handleInput(name) {
+    if (name.toLowerCase() === 'exit') {
+      rl.close();
+    } else {
+      console.log(`Hello, ${name}! Explore more JavaScript features.`);
+      rl.question(`Type another name or 'exit' to quit: `, handleInput);
+    }
+  });
+
+  rl.on('close', function () {
+    console.log('Exiting the program. Bye!');
+    process.exit(0);
+  });
+})();
+```

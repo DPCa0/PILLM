@@ -1,0 +1,2 @@
+// Please write a short JavaScript program that uses advanced features in a complex way, and only give the code here.
+print('Hello, world!');

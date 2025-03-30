@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry', 'date']);
+        }, 1000);
+    });
+}
+
+ 
+const uniqueFruits = new Set(['apple', 'banana']);
+
+ 
+const fruitsProxy = new Proxy(uniqueFruits, {
+    get(target, prop) {
+        console.log(`Getting property ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    },
+    has(target, prop) {
+        console.log(`Checking if ${prop} exists`);
+        return target.has(prop);
+    }
+});
+
+ 
+async function processData() {
+    const data = await fetchData();
+    console.log('Fetched data:', data);
+
+     
+    const [first, second, ...others] = data;
+    console.log(`First: ${first}, Second: ${second}, Others: ${others}`);
+
+     
+    const upperCaseFruits = data.map(fruit => fruit.toUpperCase());
+
+     
+    const moreFruits = [...upperCaseFruits, ...others];
+    moreFruits.forEach(fruit => fruitsProxy.add(fruit));
+
+    console.log('All fruits:', [...fruitsProxy]);
+}
+
+processData();
+```

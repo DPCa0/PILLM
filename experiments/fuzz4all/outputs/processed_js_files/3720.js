@@ -1,0 +1,61 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  async enqueue(task) {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+      this.processQueue();
+    });
+  }
+
+  async processQueue() {
+    if (this.isProcessing || this.queue.length === 0) return;
+    this.isProcessing = true;
+    const currentTask = this.queue.shift();
+    await currentTask();
+    this.isProcessing = false;
+    this.processQueue();
+  }
+}
+
+const queue = new AsyncQueue();
+
+ 
+function* generatorTask(id) {
+  print(`Task ${id} started`);
+  const result = yield new Promise((resolve) =>
+    setTimeout(() => {
+      print(`Task ${id} completed`);
+      resolve(id * 2);
+    }, Math.random() * 2000)
+  );
+  return result;
+}
+
+async function runTaskWithGenerator(gen) {
+  const iterator = gen();
+  let result = iterator.next();
+  while (!result.done) {
+    result = iterator.next(await result.value);
+  }
+  return result.value;
+}
+
+(async () => {
+  const tasks = [1, 2, 3, 4, 5].map((id) =>
+    queue.enqueue(() => runTaskWithGenerator(() => generatorTask(id)))
+  );
+
+  const results = await Promise.all(tasks);
+  print('All tasks completed:', results);
+})();

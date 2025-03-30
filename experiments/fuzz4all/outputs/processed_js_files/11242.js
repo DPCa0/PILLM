@@ -1,0 +1,53 @@
+ 
+class CustomError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'CustomError';
+    }
+}
+
+ 
+async function complexOperation() {
+     
+    const promises = [
+        Promise.resolve('Resolved First'),
+        Promise.reject(new CustomError('Failed Second')),
+        Promise.resolve('Resolved Third')
+    ];
+
+    const results = await Promise.allSettled(promises);
+    
+     
+    const successMessages = new Set();
+    
+    results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+            successMessages.add(result.value);
+        } else if (result.status === 'rejected' && result.reason instanceof CustomError) {
+            console.error(result.reason.message);
+        }
+    });
+
+    return successMessages;
+}
+
+ 
+(async () => {
+    try {
+        const uniqueSuccesses = await complexOperation();
+        
+         
+        print('Success Messages:', ...uniqueSuccesses);
+        
+         
+        const unknownObject = null;
+        print(unknownObject?.property ?? 'Default Value');
+        
+         
+        const numberFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        print(numberFormatter.format(1234567.89));
+        
+    } catch (error) {
+        console.error('Unexpected Error:', error);
+    }
+})();

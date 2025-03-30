@@ -1,0 +1,59 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr);
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    const data = this.data;
+    return {
+      next() {
+        if (row < data.length && col < data[row].length) {
+          return { value: data[row][col++], done: false };
+        }
+        if (row < data.length) {
+          col = 0;
+          row++;
+          if (row < data.length) {
+            return { value: data[row][col++], done: false };
+          }
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  map(callback) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => callback(val, i, j))));
+  }
+
+  static multiply(m1, m2) {
+    if (m1.data[0].length !== m2.data.length) throw new Error('Incompatible matrix sizes');
+    let result = Array.from({ length: m1.data.length }, () => Array(m2.data[0].length).fill(0));
+    return new Matrix(result.map((row, i) =>
+      row.map((_, j) => m1.data[i].reduce((sum, _, n) => sum + m1.data[i][n] * m2.data[n][j], 0))
+    ));
+  }
+}
+
+ 
+const matrix1 = Matrix.fromArray([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const matrix2 = Matrix.fromArray([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const multipliedMatrix = Matrix.multiply(matrix1, matrix2);
+
+const mappedMatrix = multipliedMatrix.map(val => val * 2);
+
+print([...mappedMatrix]);  

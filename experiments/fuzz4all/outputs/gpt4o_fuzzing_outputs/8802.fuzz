@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+
+ 
+const API_URL = 'https://api.coindesk.com/v1/bpi/currentprice.json';
+const log = (message) => console.log(`[LOG] ${message}`);
+
+ 
+async function fetchBitcoinPrice() {
+  try {
+    log('Fetching Bitcoin price...');
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    const usdRate = data.bpi.USD.rate;
+    
+    log(`Current Bitcoin Price in USD: $${usdRate}`);
+    return usdRate;
+  } catch (error) {
+    console.error('Error fetching Bitcoin price:', error);
+  }
+}
+
+ 
+(async () => {
+  log('Initializing...');
+  const [usdPrice] = await Promise.all([fetchBitcoinPrice()]);
+
+  const priceInfo = {
+    currency: 'USD',
+    price: usdPrice,
+    time: new Date().toISOString(),
+  };
+
+  const { currency, ...rest } = priceInfo;
+  console.log(`Detailed Price Info (excl. currency):`, rest);
+})();
+
+ 
+const uniquePrices = new Set();
+
+const checkUniquePrice = (price) => {
+  if (!uniquePrices.has(price)) {
+    uniquePrices.add(price);
+    log('Price is unique');
+  } else {
+    log('Duplicate price detected');
+  }
+};
+
+ 
+checkUniquePrice('57301.42');  
+checkUniquePrice('57301.42');
+```

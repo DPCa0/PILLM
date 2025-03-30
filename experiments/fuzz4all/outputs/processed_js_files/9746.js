@@ -1,0 +1,40 @@
+ 
+ 
+
+async function getUserData(userId) {
+  const apiEndpoint = `https: 
+
+  try {
+    const response = await fetch(apiEndpoint);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const { name, email, address: { city } } = await response.json();
+
+    return { name, email, city };
+  } catch (error) {
+    console.error(`Failed to fetch user data: ${error}`);
+    return null;
+  }
+}
+
+function displayUserData({ name, email, city }) {
+  print(`Name: ${name}`);
+  print(`Email: ${email}`);
+  print(`City: ${city}`);
+}
+
+async function main() {
+  const userIds = [1, 2, 3, 4, 5];
+  const userDataPromises = userIds.map(id => getUserData(id));
+  
+  try {
+    const usersData = await Promise.all(userDataPromises);
+    usersData.forEach(data => {
+      if (data) displayUserData(data);
+    });
+  } catch (error) {
+    console.error('Error processing user data:', error);
+  }
+}
+
+main();

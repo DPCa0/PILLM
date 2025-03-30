@@ -1,0 +1,39 @@
+ 
+
+class DataFetcher {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+    return new Proxy(this, {
+      get: (target, prop) => (params = {}) => this._fetchData(prop, params)
+    });
+  }
+
+  async _fetchData(endpoint, params) {
+    const queryString = Object.entries(params)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    
+    const url = `${this.baseURL}/${endpoint}?${queryString}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(`Fetch error: ${error.message}`);
+    }
+  }
+}
+
+(async () => {
+  const api = new DataFetcher('https://jsonplaceholder.typicode.com');
+
+   
+  const posts = await api.posts({ userId: 1 });
+  print('User 1 Posts:', posts);
+
+   
+  const comments = await api.comments({ postId: 1 });
+  print('Post 1 Comments:', comments);
+})();

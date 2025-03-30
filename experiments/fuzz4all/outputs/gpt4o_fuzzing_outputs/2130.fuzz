@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexOperation {
+  constructor(data) {
+    this.data = data;
+    this.computedValues = new Map();
+  }
+
+   
+  async performComputation() {
+    for (const value of this.data) {
+      const result = await this.complexCalculation(value);
+      this.computedValues.set(value, result);
+    }
+  }
+
+   
+  complexCalculation(value) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(value * value);
+      }, Math.random() * 1000);
+    });
+  }
+
+   
+  *computedGenerator() {
+    for (let [key, value] of this.computedValues) {
+      yield { key, value };
+    }
+  }
+
+   
+  printResults() {
+    for (const { key, value } of this.computedGenerator()) {
+      console.log(`Value: ${key}, Computed: ${value}`);
+    }
+  }
+}
+
+ 
+(async () => {
+  const dataset = [1, 2, 3, 4, 5];
+  const operation = new ComplexOperation(dataset);
+  await operation.performComputation();
+  operation.printResults();
+})();
+```

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  add({ real, imaginary }) {
+    return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+  }
+
+  multiply({ real, imaginary }) {
+    return new ComplexNumber(
+      this.real * real - this.imaginary * imaginary,
+      this.real * imaginary + this.imaginary * real
+    );
+  }
+
+  toString() {
+    return `${this.real} + ${this.imaginary}i`;
+  }
+}
+
+const complex1 = new ComplexNumber(2, 3);
+const complex2 = new ComplexNumber(4, -1);
+
+const sum = complex1.add(complex2);
+const product = complex1.multiply(complex2);
+
+const processComplexNumbers = async (operation, complex1, complex2) => {
+  const operationsMap = {
+    sum: complex1.add.bind(complex1),
+    multiply: complex1.multiply.bind(complex1),
+  };
+
+  const result = operationsMap[operation](complex2);
+
+   
+  return new Promise((resolve) => setTimeout(() => resolve(result), 100));
+};
+
+(async () => {
+  const [asyncSum, asyncProduct] = await Promise.all([
+    processComplexNumbers('sum', complex1, complex2),
+    processComplexNumbers('multiply', complex1, complex2),
+  ]);
+
+  console.log(`Sum: ${asyncSum.toString()}`);  
+  console.log(`Product: ${asyncProduct.toString()}`);  
+})();
+```

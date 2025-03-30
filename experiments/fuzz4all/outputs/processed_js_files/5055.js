@@ -1,0 +1,49 @@
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    *generateData() {
+        for (let i = 0; i < this.data.length; i++) {
+            yield this.data[i];
+        }
+    }
+
+    static async fetchData(url) {
+        try {
+            let response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            let data = await response.json();
+            return new DataProcessor(data);
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    transformData(transformFn) {
+        return this.data.map(transformFn);
+    }
+
+    async *processDataAsync() {
+        for (let item of this.data) {
+            yield await new Promise(resolve => setTimeout(() => resolve(item * 2), 1000));
+        }
+    }
+}
+
+(async () => {
+    const url = 'https://api.example.com/data';  
+    const processor = await DataProcessor.fetchData(url);
+
+    if (processor) {
+        const generator = processor.generateData();
+        print('Generated Data:', generator.next().value);
+
+        const transformed = processor.transformData(x => x * 2);
+        print('Transformed Data:', transformed);
+
+        for await (const item of processor.processDataAsync()) {
+            print('Processed Data:', item);
+        }
+    }
+})();

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (urls) => {
+    try {
+         
+        const responses = await Promise.all(urls.map(url => fetch(url)));
+
+         
+        responses.forEach(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        });
+
+         
+        const dataPromises = responses.map(response => response.json());
+        const [data1, data2, data3] = await Promise.all(dataPromises);
+
+         
+        console.log(`Data 1: ${data1?.key ?? 'No data'}`);
+        console.log(`Data 2: ${data2?.key ?? 'No data'}`);
+        console.log(`Data 3: ${data3?.key ?? 'No data'}`);
+
+         
+        if (data1) {
+            const { analyzeData } = await import('./dataAnalyzer.js');
+            console.log('Analyzed Data:', analyzeData(data1));
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+fetchData([
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+]);
+```
+
+Note: Ensure you have a file named `dataAnalyzer.js` with an exported function `analyzeData` for this code to work completely, or modify it as necessary.

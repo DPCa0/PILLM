@@ -1,0 +1,41 @@
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+         
+        const response = await fetch(url);
+         
+        const data = await response.json();
+        yield data;  
+    }
+}
+
+ 
+function processWithCallback(generatorFn, callback) {
+    return async function(urls) {
+         
+        const generator = generatorFn(urls);
+        for await (const data of generator) {
+             
+            callback(data);
+        }
+    };
+}
+
+ 
+const logData = data => {
+    print('Received Data:', data);
+};
+
+ 
+const handler = {
+    apply: function(target, thisArg, argumentsList) {
+        print(`Called function ${target.name} with arguments: ${argumentsList}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+const proxiedProcess = new Proxy(processWithCallback(fetchData, logData), handler);
+
+ 
+proxiedProcess(['https://api.example.com/data1', 'https://api.example.com/data2']);

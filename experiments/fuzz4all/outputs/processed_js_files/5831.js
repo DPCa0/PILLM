@@ -1,0 +1,46 @@
+class DataProcessor {
+    #data;  
+    
+    constructor(initialData) {
+        this.#data = new Map(Object.entries(initialData));
+    }
+    
+    *processData() {
+        for (const [key, value] of this.#data) {
+            yield { key, transformedValue: await this.#transform(value) };
+        }
+    }
+    
+    #transform(value) {
+         
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(value.split('').reverse().join(''));
+            }, Math.random() * 1000);
+        });
+    }
+    
+    static async run(initialData) {
+        const instance = new DataProcessor(initialData);
+        const promises = [];
+        
+        for await (const result of instance.processData()) {
+            promises.push(Promise.resolve(result));
+        }
+        
+        const results = await Promise.all(promises);
+        print('Processed Data:', results);
+    }
+}
+
+ 
+(async () => {
+    const data = {
+        alpha: 'hello',
+        beta: 'world',
+        gamma: 'javascript',
+        delta: 'complexity'
+    };
+
+    await DataProcessor.run(data);
+})();

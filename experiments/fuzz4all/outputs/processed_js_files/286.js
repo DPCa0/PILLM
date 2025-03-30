@@ -1,0 +1,70 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(dimensions, callback) {
+    return new Matrix(
+      Array.from({ length: dimensions[0] }, (_, i) =>
+        Array.from({ length: dimensions[1] }, (_, j) => callback(i, j))
+      )
+    );
+  }
+
+  [Symbol.iterator]() {
+    let row = 0;
+    let col = 0;
+    const data = this.data;
+
+    return {
+      next() {
+        if (row < data.length) {
+          const value = data[row][col++];
+          if (col >= data[row].length) {
+            col = 0;
+            row++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      },
+    };
+  }
+
+  static async multiplyAsync(a, b) {
+    if (a.data[0].length !== b.data.length)
+      throw new Error("Incompatible matrix dimensions");
+
+    const result = Matrix.from([a.data.length, b.data[0].length], () => 0);
+
+    const tasks = [];
+    for (let i = 0; i < result.data.length; i++) {
+      for (let j = 0; j < result.data[i].length; j++) {
+        tasks.push(
+          new Promise((resolve) => {
+            setTimeout(() => {
+              for (let k = 0; k < a.data[i].length; k++) {
+                result.data[i][j] += a.data[i][k] * b.data[k][j];
+              }
+              resolve();
+            }, 0);
+          })
+        );
+      }
+    }
+
+    await Promise.all(tasks);
+    return result;
+  }
+}
+
+(async () => {
+  const matrixA = Matrix.from([2, 3], (i, j) => i + j + 1);
+  const matrixB = Matrix.from([3, 2], (i, j) => i * 2 + j);
+
+  const matrixC = await Matrix.multiplyAsync(matrixA, matrixB);
+  
+  for (const value of matrixC) {
+    print(value);
+  }
+})();

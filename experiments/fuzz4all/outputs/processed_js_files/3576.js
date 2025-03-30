@@ -1,0 +1,51 @@
+ 
+class DataProcessor {
+  constructor() {
+    this.data = new Map();
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      this.data.set(url, data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  processAll(urls = [], transformFn = data => data) {
+    const fetchPromises = urls.map(async url => {
+      const data = await this.fetchData(url);
+      return transformFn(data);
+    });
+
+    return Promise.all(fetchPromises)
+      .then(results => {
+        print('Processed results:', results);
+        return results;
+      })
+      .catch(error => console.error('Error processing all:', error));
+  }
+
+  *generatorFunction() {
+    for (const [key, value] of this.data) {
+      yield { url: key, data: value };
+    }
+  }
+}
+
+const processData = ({ data, multiplier = 1 }) => data.map(item => item * multiplier);
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+const processor = new DataProcessor();
+
+(async function () {
+  const results = await processor.processAll(urls, data => processData({ data, multiplier: 2 }));
+  const iterator = processor.generatorFunction();
+
+  for (const { url, data } of iterator) {
+    print(`Data from ${url}:`, data);
+  }
+})();

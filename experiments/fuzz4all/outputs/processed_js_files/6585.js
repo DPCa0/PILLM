@@ -1,0 +1,72 @@
+(async () => {
+     
+    const fetchData = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    };
+
+     
+    const createLoggerProxy = (target) => {
+        return new Proxy(target, {
+            get: (obj, prop) => {
+                print(`Accessed property: ${prop}`);
+                return obj[prop];
+            },
+            set: (obj, prop, value) => {
+                print(`Set property: ${prop} to ${value}`);
+                obj[prop] = value;
+                return true;
+            }
+        });
+    };
+
+     
+    function* numberSeries() {
+        let i = 0;
+        while (true) {
+            yield i++;
+        }
+    }
+
+     
+    const dataManager = {
+        data: [],
+        addData(...items) {
+            this.data.push(...items);
+        },
+        getData() {
+            return [...this.data];
+        },
+        filterData(criteriaFn) {
+            return this.data.filter(criteriaFn);
+        }
+    };
+
+     
+    import { difference } from 'lodash-es';  
+
+    try {
+         
+        let jsonData = await fetchData('https://jsonplaceholder.typicode.com/users');
+        let dataProxy = createLoggerProxy(dataManager);
+
+         
+        dataProxy.addData(...jsonData);
+
+         
+        const [first, ...rest] = dataProxy.getData();
+
+         
+        print('First User:', first);
+        print('Other Users:', rest);
+
+         
+        const { name: firstName = 'N/A', address: { city = 'Unknown' } = {} } = first;
+        print(`Name: ${firstName}, City: ${city}`);
+
+         
+        const series = numberSeries();
+        print('First three numbers from generator:', series.next().value, series.next().value, series.next().value);
+
+        const uniqueCities = difference([...new Set(dataProxy.filterData(user => user.address

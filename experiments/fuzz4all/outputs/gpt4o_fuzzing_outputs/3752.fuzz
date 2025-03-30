@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* dataGenerator() {
+    const data = ['first', 'second', 'third'];
+    for (let item of data) {
+        yield new Promise((resolve) => setTimeout(() => resolve(item), 1000));
+    }
+}
+
+async function fetchData(generator) {
+    const results = [];
+    for await (let value of generator) {
+        results.push(value);
+    }
+    return results;
+}
+
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'secret') {
+            throw new Error("Access denied");
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+const targetObject = { first: 'Hello', second: 'world', secret: 'hidden' };
+const proxyObject = new Proxy(targetObject, handler);
+
+(async () => {
+    console.log("Fetching data...");
+    const generator = dataGenerator();
+    const results = await fetchData(generator);
+    console.log("Fetched data:", results);
+
+    console.log("Accessing properties via Proxy:");
+    try {
+        console.log("first:", proxyObject.first);
+        console.log("second:", proxyObject.second);
+        console.log("secret:", proxyObject.secret);  
+    } catch (e) {
+        console.error(e.message);
+    }
+})();
+```

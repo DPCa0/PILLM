@@ -1,0 +1,78 @@
+ 
+
+ 
+const PRIVATE = Symbol('privateKey');
+
+ 
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+class ComplexSystem {
+  constructor() {
+    this[PRIVATE] = [];
+  }
+
+   
+  addToSystem(value) {
+    this[PRIVATE].push(value);
+  }
+
+   
+  async processValues() {
+    for (const value of this[PRIVATE]) {
+      await this.simulateAsyncProcess(value);
+    }
+  }
+
+   
+  simulateAsyncProcess(value) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        print(`Processed value: ${value}`);
+        resolve();
+      }, 1000);
+    });
+  }
+}
+
+ 
+const systemHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'getProcessedValues') {
+      return () => target[PRIVATE];
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+
+  set(target, prop, value, receiver) {
+    if (prop === 'addToSystem') {
+      print(`Adding value to the system: ${value}`);
+      target.addToSystem(value);
+      return true;
+    }
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+ 
+(async () => {
+  const system = new Proxy(new ComplexSystem(), systemHandler);
+  const fibonacci = fibonacciGenerator();
+
+   
+  for (let i = 0; i < 5; i++) {
+    system.addToSystem = fibonacci.next().value;
+  }
+
+   
+  await system.processValues();
+
+   
+  print('Values in system:', system.getProcessedValues());
+})();

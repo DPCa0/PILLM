@@ -1,0 +1,58 @@
+class AsyncIterable {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        if (this.current < this.max) {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve({ value: this.current++, done: false });
+            }, 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+}
+
+const asyncGeneratorFunction = async function* (asyncIterable) {
+  for await (let value of asyncIterable) {
+    yield value * value;
+  }
+};
+
+(async () => {
+  const maxNumber = 5;
+  const iterable = new AsyncIterable(maxNumber);
+
+  for await (let squared of asyncGeneratorFunction(iterable)) {
+    print(squared);
+  }
+
+  const proxyHandler = {
+    get(target, property) {
+      if (property in target) {
+        print(`Accessing property: ${property}`);
+        return target[property];
+      }
+      return `Property ${property} not found`;
+    },
+    set(target, property, value) {
+      print(`Setting property: ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const targetObject = { a: 1, b: 2 };
+  const proxyObject = new Proxy(targetObject, proxyHandler);
+
+  print(proxyObject.a);
+  proxyObject.c = 3;
+  print(proxyObject.c);
+})();

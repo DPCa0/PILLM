@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+async function complexAsyncOperation() {
+  const delayedPromise = (val) => new Promise(resolve => setTimeout(() => resolve(val), 1000));
+
+  try {
+     
+    const [result1, result2] = await Promise.all([
+      delayedPromise(42),
+      delayedPromise(58),
+    ]);
+
+     
+    const numbers = [result1, result2, 100, 200];
+    const squaredNumbers = numbers.map(num => num ** 2);
+    const [firstSquare, secondSquare, ...restSquares] = squaredNumbers;
+
+     
+    const uniqueSquares = [...new Set([...restSquares, firstSquare])];
+
+     
+    console.log(`Result 1 squared: ${firstSquare}`);
+    console.log(`Result 2 squared: ${secondSquare}`);
+    console.log(`Unique squares from array: ${uniqueSquares}`);
+
+     
+    const uniqueId = Symbol('id');
+    const complexObject = {
+      [uniqueId]: 'Unique Identifier',
+      originalNumbers: numbers,
+      squaredNumbers: uniqueSquares
+    };
+
+     
+    console.log(`Complex object unique ID: ${complexObject[uniqueId]}`);
+    console.log(`Complex object details:`, complexObject);
+
+  } catch (error) {
+    console.error(`Error occurred: ${error}`);
+  }
+}
+
+complexAsyncOperation();
+```

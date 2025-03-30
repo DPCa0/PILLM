@@ -1,0 +1,39 @@
+const fetchData = async () => {
+   
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const data = await response.json();
+
+   
+  const [firstPost, ...remainingPosts] = data;
+  const titles = remainingPosts.map(({ title }) => title.toUpperCase());
+
+   
+  const userIds = [...new Set(data.map(({ userId }) => userId))];
+  const userPromises = userIds.map(id =>
+    fetch(`https: 
+  );
+
+   
+  const users = await Promise.all(userPromises);
+  const uniqueUsers = [...new Set(users.map(user => user.username))];
+
+   
+  const state = { userCount: uniqueUsers.length };
+  const stateProxy = new Proxy(state, {
+    set(target, key, value) {
+      print(`Property ${key} changed from ${target[key]} to ${value}`);
+      target[key] = value;
+      return true;
+    }
+  });
+
+   
+  print(`First post title: ${firstPost.title}`);
+  print('Uppercased titles:', titles);
+  print('Unique usernames:', uniqueUsers);
+
+   
+  stateProxy.userCount = uniqueUsers.length + 1;
+};
+
+fetchData().catch(console.error);

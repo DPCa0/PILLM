@@ -1,0 +1,38 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *generate(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  memoizedFibonacci(n) {
+    if (n <= 1) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+    let value = this.memoizedFibonacci(n - 1) + this.memoizedFibonacci(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  const numbers = Array.from(fib.generate(10));
+  print('Generated Fibonacci:', numbers);
+
+  const double = numbers.map(async (num) => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return num * 2;
+  });
+
+  const doubledNumbers = await Promise.all(double);
+  print('Doubled Fibonacci:', doubledNumbers);
+
+  const asyncFib = async (n) => fib.memoizedFibonacci(n);
+  print('Memoized Fibonacci of 10:', await asyncFib(10));
+})();

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield await fetch(url).then(res => res.json());
+    }
+}
+
+ 
+const urls = new Proxy(['https://api.chucknorris.io/jokes/random', 'https://dog.ceo/api/breeds/image/random'], {
+    get(target, prop, receiver) {
+        console.log(`Accessing property '${prop}'`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        return Reflect.set(target, prop, value);
+    }
+});
+
+ 
+const dataStore = new Map();
+
+ 
+(async () => {
+    for await (const data of fetchData(urls)) {
+        const uniqueKey = Symbol();
+        dataStore.set(uniqueKey, data);
+        console.log(`Stored data under key ${uniqueKey.toString()}`);
+    }
+
+     
+    dataStore.forEach((value, key) => {
+        console.log(`Data for ${key.toString()}:`, value?.value ?? "No data available");
+    });
+})();
+```

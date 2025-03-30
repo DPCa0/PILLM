@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+    setTimeout(() => resolve({ id: 1, name: 'Sample Data', nested: { moreData: 'Interesting!' } }), 1000);
+});
+
+ 
+function* dataGenerator() {
+    yield fetchData();
+    yield fetchData();
+}
+
+ 
+async function processData() {
+    const gen = dataGenerator();
+
+    for (let promise of gen) {
+        try {
+            const data = await promise;
+            const { id, name, nested: { moreData } } = data;  
+            console.log(`ID: ${id}, Name: ${name}, More Data: ${moreData}`);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+}
+
+ 
+const config = { debug: true, version: '1.0', settings: { theme: 'dark' } };
+
+const configProxy = new Proxy(config, {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Accessing property "${prop}" with value: ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.warn(`Property "${prop}" does not exist.`);
+            return undefined;
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property "${prop}" to value: ${value}`);
+        target[prop] = value;
+        return true;
+    }
+});
+
+ 
+console.log('Debug Mode:', configProxy.debug);
+configProxy.version = '1.1';
+console.log('Updated Version:', configProxy.version);
+console.log('Non-existent Property:', configProxy.nonExistent);
+
+processData();  
+```

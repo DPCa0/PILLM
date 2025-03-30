@@ -1,0 +1,47 @@
+ 
+
+ 
+function* numberSequence() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const sequenceHandler = {
+    get: function(target, property) {
+        if (property === 'nextNumber') {
+            return target.next().value * 2;  
+        }
+        return Reflect.get(...arguments);
+    }
+};
+
+const sequence = numberSequence();
+const proxiedSequence = new Proxy(sequence, sequenceHandler);
+
+ 
+function asyncOperation(value) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            value % 2 === 0 ? resolve(`Success: ${value}`) : reject(`Failure: ${value}`);
+        }, 1000);
+    });
+}
+
+ 
+async function processSequence() {
+    try {
+        for (let i = 0; i < 5; i++) {
+            const number = proxiedSequence.nextNumber;
+            print(`Processing number: ${number}`);
+            const result = await asyncOperation(number);
+            print(result);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+processSequence();

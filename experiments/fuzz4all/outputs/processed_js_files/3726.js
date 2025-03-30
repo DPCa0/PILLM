@@ -1,0 +1,41 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncOperation(value) {
+    await delay(1000);
+    return value * 2;
+}
+
+async function processValues(values) {
+    const processed = await Promise.all(values.map(async (val) => {
+        const result = await asyncOperation(val);
+        return `Processed: ${result}`;
+    }));
+    return processed;
+}
+
+const values = [1, 2, 3, 4];
+processValues(values).then(results => {
+    const emitter = new EventEmitter();
+    emitter.on('result', message => print(message));
+
+    results.forEach(result => emitter.emit('result', result));
+});

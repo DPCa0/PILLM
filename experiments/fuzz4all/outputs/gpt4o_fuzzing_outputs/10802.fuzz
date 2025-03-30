@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+ 
+const fetchWithRetry = async (url, retries = 3, delayFactor = 1000) => {
+  let attempt = 0;
+  while (attempt <= retries) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      if (attempt === retries) throw error;
+      await delay((2 ** attempt) * delayFactor);  
+      attempt++;
+    }
+  }
+};
+
+ 
+async function* generateChunks(url) {
+  const response = await fetch(url);
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let done, value;
+  while (!done) {
+    ({ done, value } = await reader.read());
+    yield decoder.decode(value, { stream: true });
+  }
+}
+
+ 
+const processChunk = async (url) => {
+  for await (const chunk of generateChunks(url)) {
+    console.log('Received chunk:', chunk);
+     
+    await delay(500);
+  }
+};
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+
+   
+  try {
+    const data = await fetchWithRetry(url);
+    console.log('Fetched Data:', data);
+
+     
+    await processChunk(url);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  } finally {
+    console.log('Execution completed, cleaning up resources.');
+  }
+})();
+```

@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error: ", error);
+  }
+};
+
+class DataCache {
+  constructor() {
+    this.cache = new Map();
+  }
+
+  async get(url) {
+    if (this.cache.has(url)) {
+      print("Returning cached data...");
+      return this.cache.get(url);
+    }
+    print("Fetching new data...");
+    const data = await fetchData(url);
+    this.cache.set(url, data);
+    return data;
+  }
+}
+
+const dataCache = new DataCache();
+
+ 
+const validatedHandler = {
+  set(target, prop, value) {
+    if (prop === "url" && typeof value !== "string") {
+      throw new TypeError("URL must be a string");
+    }
+    target[prop] = value;
+    return true;
+  },
+};
+
+const config = new Proxy({ url: "https://jsonplaceholder.typicode.com/posts" }, validatedHandler);
+
+ 
+(async () => {
+  try {
+    const urls = new Set([config.url, "https://jsonplaceholder.typicode.com/comments"]);
+    for (const url of urls) {
+      const data = await dataCache.get(url);
+      print(`Data fetched from ${url}:`, data);
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+  }
+})();

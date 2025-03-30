@@ -1,0 +1,105 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  map(fn) {
+    return new Observable((observer) => {
+      return this.subscribe({
+        next: (value) => observer.next(fn(value)),
+        error: (err) => observer.error(err),
+        complete: () => observer.complete(),
+      });
+    });
+  }
+}
+
+function range(start, count) {
+  return new Observable((observer) => {
+    for (let i = start; i < start + count; i++) {
+      observer.next(i);
+    }
+    observer.complete();
+    return {
+      unsubscribe() {
+        console.log("Unsubscribed");
+      },
+    };
+  });
+}
+
+function asyncFilter(predicate) {
+  return (sourceObservable) =>
+    new Observable((observer) => {
+      let completed = false;
+      let buffer = [];
+      let pending = 0;
+
+      const checkBuffer = () => {
+        if (completed && pending === 0) {
+          observer.complete();
+        }
+      };
+
+      const flushBuffer = () => {
+        while (buffer.length > 0 && pending < 3) {
+          const value = buffer.shift();
+          pending++;
+          Promise.resolve(predicate(value))
+            .then((result) => {
+              if (result) {
+                observer.next(value);
+              }
+            })
+            .finally(() => {
+              pending--;
+              checkBuffer();
+              flushBuffer();
+            });
+        }
+      };
+
+      const subscription = sourceObservable.subscribe({
+        next(value) {
+          buffer.push(value);
+          flushBuffer();
+        },
+        error(err) {
+          observer.error(err);
+        },
+        complete() {
+          completed = true;
+          checkBuffer();
+        },
+      });
+
+      return {
+        unsubscribe() {
+          subscription.unsubscribe();
+        },
+      };
+    });
+}
+
+const isPrime = (num) => {
+  for (let i = 2, sqrt = Math.sqrt(num); i <= sqrt; i++) {
+    if (num % i === 0) return false;
+  }
+  return num > 1;
+};
+
+range(1, 30)
+  .map((x) => x * 2)
+  .pipe(asyncFilter(isPrime))
+  .subscribe({
+    next: (value) => console.log(`Prime double: ${value}`),
+    error: (err) => console.error(err),
+    complete: () => console.log('Done'),
+  });
+```

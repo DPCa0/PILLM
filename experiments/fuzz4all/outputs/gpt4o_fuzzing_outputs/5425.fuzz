@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = { id: 1, name: 'John Doe', occupation: 'Developer' };
+        Math.random() > 0.5 ? resolve(data) : reject('Data fetch failed');
+    }, 1000);
+});
+
+ 
+async function getUserData() {
+    try {
+        const { id, name, ...rest } = await fetchData();
+        console.log(`User ID: ${id}, Name: ${name}`);
+        console.log('Additional Data:', rest);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const userDefaults = { age: 25, country: 'Unknown' };
+const userCustom = { country: 'USA', likes: ['coding', 'chess'] };
+const userData = { ...userDefaults, ...userCustom };
+
+console.log('User Data:', userData);
+
+ 
+getUserData();
+```

@@ -1,0 +1,47 @@
+class FibonacciGenerator {
+    constructor(maxCount) {
+        this.maxCount = maxCount;
+        this.memo = new Map();
+        this.memo.set(0, 0);
+        this.memo.set(1, 1);
+    }
+
+    *[Symbol.iterator]() {
+        for (let count = 0; count < this.maxCount; count++) {
+            yield this.fib(count);
+        }
+    }
+
+    fib(n) {
+        if (this.memo.has(n)) {
+            return this.memo.get(n);
+        }
+        const value = this.fib(n - 1) + this.fib(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+(async function displayFibonacciSequence() {
+    const maxFibs = 10;
+    const fibs = new FibonacciGenerator(maxFibs);
+    for await (let num of fibs) {
+        print(`Fibonacci number: ${num}`);
+    }
+
+    const promiseWithTimeout = (promise, ms) => {
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout')), ms)
+        );
+        return Promise.race([promise, timeout]);
+    };
+
+    try {
+        await promiseWithTimeout(
+            new Promise(resolve => setTimeout(() => resolve("All done!"), 500)),
+            300
+        );
+    } catch (error) {
+        console.error('Operation timed out:', error.message);
+    }
+})();

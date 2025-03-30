@@ -1,0 +1,68 @@
+ 
+class ComplexFeatures {
+  #privateField;
+  
+  constructor(value) {
+    this.#privateField = value;
+    this.publicField = 'Public value';
+  }
+
+  getPrivateField() {
+    return this.#privateField;
+  }
+
+  async *fetchData(urls) {
+    for (const url of urls) {
+      const response = await fetch(url);
+      const data = await response.json();
+      yield data;
+    }
+  }
+
+  static #staticPrivateMethod() {
+    return 'Static Private Method Called';
+  }
+
+  static callStaticPrivateMethod() {
+    return this.#staticPrivateMethod();
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    return property in target ? target[property] : `No property "${property}" found`;
+  }
+};
+
+const proxy = new Proxy(new ComplexFeatures('Private value'), handler);
+
+ 
+print(proxy?.publicField ?? 'No publicField found');
+print(proxy?.nonExistentField ?? 'No nonExistentField found');
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((prev, curr, i) => `${prev}${curr}<${values[i] || ''}>`, '');
+}
+
+const name = 'JavaScript';
+const version = 2023;
+print(tag`Language: ${name}, Version: ${version}`);
+
+ 
+const { publicField, ...rest } = proxy;
+print(publicField);
+print(rest);
+
+ 
+(async () => {
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+  const complexFeaturesInstance = new ComplexFeatures();
+
+  for await (const data of complexFeaturesInstance.fetchData(urls)) {
+    print(data);
+  }
+})();
+
+print(ComplexFeatures.callStaticPrivateMethod());

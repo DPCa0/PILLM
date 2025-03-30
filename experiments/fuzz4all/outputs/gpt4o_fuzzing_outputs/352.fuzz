@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+const _internalState = Symbol('internalState');
+
+class AdvancedNumber {
+  constructor(value) {
+     
+    this[_internalState] = {
+      value: value,
+    };
+  }
+
+   
+  get value() {
+    return new Proxy(this[_internalState], {
+      get: (target, prop) => {
+        if (prop === 'value') {
+          return target[prop];
+        }
+        throw new Error('Invalid property access');
+      }
+    }).value;
+  }
+
+   
+  static async *sequence(start = 0, end = 10, step = 1) {
+    for (let i = start; i <= end; i += step) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield new AdvancedNumber(i);
+    }
+  }
+
+   
+  static parseTag(strings, ...values) {
+    return strings.reduce((acc, str, i) => {
+      return `${acc}${str}${values[i] ? `(${values[i]})` : ''}`;
+    }, '');
+  }
+}
+
+(async () => {
+   
+  const num = new AdvancedNumber(42);
+  console.log(`Initial value: ${num.value}`);
+
+   
+  for await (const n of AdvancedNumber.sequence(1, 5)) {
+    console.log(`Generated number: ${n.value}`);
+  }
+
+   
+  const taggedString = AdvancedNumber.parseTag`Value is: ${num.value}`;
+  console.log(taggedString);
+})();
+```

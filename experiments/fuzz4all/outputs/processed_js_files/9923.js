@@ -1,0 +1,43 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+async function processUrls(urls) {
+  const responses = fetchData(urls);
+  const results = [];
+  
+  for await (const dataPromise of responses) {
+    const [data] = await Promise.all([dataPromise]);
+    results.push(data);
+  }
+
+  return results;
+}
+
+ 
+const handler = {
+  set(target, prop, value) {
+    print(`Property ${prop} set to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj.name = "Advanced JS";  
+
+ 
+(async () => {
+  const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+  
+  try {
+    const data = await processUrls(urls);
+    print("Fetched Data:", data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

@@ -1,0 +1,49 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  }
+}
+
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist`);
+      return 'Property not found';
+    }
+  }
+};
+
+const dataHandler = new Proxy({}, handler);
+
+const processData = async (url) => {
+  const fetcher = new DataFetcher(url);
+  try {
+    const data = await fetcher.fetchData();
+    const filteredData = data.filter(item => item.isActive)
+                             .map(item => ({ ...item, upperName: item.name.toUpperCase() }))
+                             .reduce((acc, item) => {
+                               acc.names.push(item.upperName);
+                               return acc;
+                             }, { names: [] });
+
+    Object.assign(dataHandler, filteredData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+(async () => {
+  const apiURL = 'https://api.example.com/data';
+  await processData(apiURL);
+  print(dataHandler.names);
+})();

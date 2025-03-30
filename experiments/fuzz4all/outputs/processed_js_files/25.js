@@ -1,0 +1,42 @@
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+    this.index = 0;
+  }
+  
+  async next() {
+    if (this.index < this.data.length) {
+      return { value: await this.data[this.index++], done: false };
+    } else {
+      return { done: true };
+    }
+  }
+}
+
+async function* generateData() {
+  yield await new Promise(resolve => setTimeout(() => resolve('Data 1'), 1000));
+  yield await new Promise(resolve => setTimeout(() => resolve('Data 2'), 1000));
+  yield await new Promise(resolve => setTimeout(() => resolve('Data 3'), 1000));
+}
+
+async function processData() {
+  const asyncIter = new AsyncIterator(generateData());
+  
+  while (true) {
+    const { value, done } = await asyncIter.next();
+    if (done) break;
+    print('Processing:', value);
+  }
+}
+
+const complexOperation = (function*() {
+  let a = yield 1;
+  let b = yield 2;
+  return a + b;
+})();
+
+complexOperation.next();  
+complexOperation.next(10);
+print(complexOperation.next(20).value);  
+
+processData();

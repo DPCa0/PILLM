@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* fetchDataInChunks() {
+  yield delay(1000).then(() => "Data chunk 1");
+  yield delay(1000).then(() => "Data chunk 2");
+  yield delay(1000).then(() => "Data chunk 3");
+}
+
+ 
+async function processChunks() {
+  const generator = fetchDataInChunks();
+  for (let promise of generator) {
+    const chunk = await promise;
+    console.log(`Processed: ${chunk}`);
+  }
+}
+
+ 
+const targetObject = { value: 42 };
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Accessing property '${prop}'`);
+    return Reflect.get(...arguments);
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property '${prop}' to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(`Value: ${proxy.value}`);
+proxy.value = 100;
+
+ 
+processChunks();
+```

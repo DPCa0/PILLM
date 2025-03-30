@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static random(rows, cols, min = -1, max = 1) {
+    const matrix = new Matrix(rows, cols);
+    matrix.map(() => Math.random() * (max - min) + min);
+    return matrix;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Incompatible matrix sizes");
+    let result = new Matrix(a.rows, b.cols);
+    return result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+  }
+}
+
+ 
+async function complexOperation() {
+  const [a, b] = await Promise.all([
+    new Promise((resolve) => setTimeout(() => resolve(Matrix.random(3, 2)), 1000)),
+    new Promise((resolve) => setTimeout(() => resolve(Matrix.random(2, 3)), 1000))
+  ]);
+
+  console.log("Matrix A:");
+  console.table(a.data);
+
+  console.log("Matrix B:");
+  console.table(b.data);
+
+  const result = Matrix.multiply(a, b);
+  console.log("Result of A * B:");
+  console.table(result.data);
+}
+
+complexOperation();
+```

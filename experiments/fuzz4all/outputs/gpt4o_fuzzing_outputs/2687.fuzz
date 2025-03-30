@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+const getDataFromJson = async () => {
+    try {
+         
+        const data = await fs.readFile('./data.json', 'utf-8');
+        const jsonData = JSON.parse(data);
+
+         
+        const handler = {
+            get(target, prop) {
+                console.log(`Property '${prop}' has been accessed.`);
+                return prop in target ? target[prop] : 'Property not found';
+            },
+            set(target, prop, value) {
+                console.log(`Property '${prop}' is being set to '${value}'.`);
+                target[prop] = value;
+                return true;
+            }
+        };
+
+        const reactiveData = new Proxy(jsonData, handler);
+
+         
+        function* dataGenerator() {
+            for (let item of reactiveData.items) {
+                yield item;
+            }
+        }
+
+         
+        function bold(strings, ...values) {
+            return strings.reduce((result, string, i) => {
+                return `${result}${string}<b>${values[i] || ''}</b>`;
+            }, '');
+        }
+
+        const generator = dataGenerator();
+
+        console.log(bold`Data from JSON: ${reactiveData.name}`);
+
+        for (let item of generator) {
+            console.log(bold`Processing item: ${item}`);
+        }
+
+         
+        reactiveData.newProp = 'NewValue';
+        console.log(reactiveData.newProp);
+        
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+getDataFromJson();
+```
+
+This script showcases advanced JavaScript features: modules, asynchronous operations with top-level `await`, `Proxy` for reactive objects, `Generator` functions for iterators, and tagged template literals for customized string processing. You may need a `data.json` file with appropriate JSON structure for this script to run successfully.

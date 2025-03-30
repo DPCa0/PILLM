@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        return response.json();
+    } finally {
+        clearTimeout(id);
+    }
+}
+
+const memoize = (fn) => {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (!cache.has(key)) {
+            cache.set(key, fn(...args));
+        }
+        return cache.get(key);
+    };
+};
+
+const fibonacci = memoize((n) => {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    
+    eventEmitter.on('data', data => console.log('Received data:', data));
+    eventEmitter.on('error', error => console.error('Error:', error));
+
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1');
+        eventEmitter.emit('data', data);
+    } catch (error) {
+        eventEmitter.emit('error', error.message);
+    }
+    
+    console.log('Fibonacci of 10:', fibonacci(10));
+})();
+```

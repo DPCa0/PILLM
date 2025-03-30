@@ -1,0 +1,60 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncIterator = {
+    [Symbol.asyncIterator]: function() {
+        let count = 0;
+        return {
+            next: () => {
+                if (count < 5) {
+                    return Promise.resolve({ value: count++, done: false });
+                } else {
+                    return Promise.resolve({ done: true });
+                }
+            }
+        };
+    }
+};
+
+(async () => {
+    for await (const num of asyncIterator) {
+        print(`Async number: ${num}`);
+    }
+})();
+
+const pipeline = async (...fns) => value => {
+    return await fns.reduce(async (acc, fn) => fn(await acc), value);
+};
+
+const add = x => x + 10;
+const multiply = x => x * 3;
+const subtract = x => x - 5;
+
+const compute = pipeline(add, multiply, subtract);
+
+compute(5).then(result => print(`Pipeline result: ${result}`));
+
+const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
+const original = { a: { b: { c: 42 } } };
+const clone = deepClone(original);
+print(clone);
+print(clone !== original && clone.a !== original.a);
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('greet', name => print(`Hello, ${name}!`));
+eventEmitter.emit('greet', 'world');

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class AsyncHandler {
+    static delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    static async processArrayWithDelays(arr, fn, delayMs) {
+        const results = [];
+        for (const item of arr) {
+            const result = await fn(item);
+            results.push(result);
+            await this.delay(delayMs);
+        }
+        return results;
+    }
+}
+
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+const addTimestamp = item => ({ ...item, timestamp: new Date().toISOString() });
+
+const idGen = idGenerator();
+const data = Array.from({ length: 5 }, () => ({ id: idGen.next().value, value: Math.random() * 100 }));
+
+AsyncHandler.processArrayWithDelays(data, async item => {
+    console.log(`Processing item with id: ${item.id}`);
+    await AsyncHandler.delay(500);   
+    return addTimestamp(item);
+}, 1000).then(results => {
+    console.log('Processed results:', results);
+}).catch(error => console.error('Error processing:', error));
+```

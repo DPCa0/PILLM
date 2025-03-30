@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 2000));
+
+ 
+async function fetchDataAndTransform(url) {
+  try {
+     
+    const response = await fetch(url);
+    const data = await response.json();
+
+     
+    const { items } = data;
+
+     
+    const transformedData = items.map(({ name, details, id }) => ({
+      name: name.toUpperCase(),
+      summary: `${name} - ${details.substring(0, 50)}`,
+      identifier: `ID-${id}`
+    }));
+
+     
+    const uniqueNames = [...new Set(transformedData.map(item => item.name))];
+
+     
+    const handler = {
+      get: (target, property) => {
+        if (property in target) {
+          console.log(`Accessing property: ${property}`);
+          return target[property];
+        }
+        console.warn(`Property ${property} not found`);
+        return null;
+      }
+    };
+
+    const proxiedData = new Proxy(transformedData, handler);
+
+    return { transformedData: proxiedData, uniqueNames };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+(async () => {
+  await randomDelay();  
+  const result = await fetchDataAndTransform('https://api.example.com/data');
+  console.log('Transformed Data:', result.transformedData);
+  console.log('Unique Names:', result.uniqueNames);
+})();
+```

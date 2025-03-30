@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    url === 'https://api.example.com/data'
+      ? resolve({ data: { user: { name: 'John Doe', age: 30 } } })
+      : reject(new Error('URL not found'));
+  }, 1000);
+});
+
+ 
+const getUserData = async (url) => {
+  try {
+    const { data: { user: { name, age } } } = await fetchData(url);
+    print(`User Name: ${name}, Age: ${age}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+};
+
+ 
+const fetchMultipleData = async () => {
+  const urls = [
+    'https://api.example.com/data',
+    'https://api.example.com/invalid'
+  ];
+
+  const results = await Promise.allSettled(urls.map(url => getUserData(url)));
+  
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      print(`Request to URL ${urls[index]} succeeded.`);
+    } else {
+      console.warn(`Request to URL ${urls[index]} failed.`);
+    }
+  });
+};
+
+ 
+fetchMultipleData();

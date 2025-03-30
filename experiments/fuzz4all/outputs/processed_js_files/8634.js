@@ -1,0 +1,40 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexFeatureDemo() {
+   
+  await fs.writeFile('hello.txt', 'Hello, world!');
+
+   
+  const content = await fs.readFile('hello.txt', 'utf-8');
+
+   
+  function* charGenerator(str) {
+    for (let char of str) {
+      yield char;
+    }
+  }
+
+   
+  const charGenProxy = new Proxy(charGenerator(content), {
+    get(target, prop, receiver) {
+      if (prop === 'next') {
+        print('Accessing next character...');
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+
+   
+  for (let char of charGenProxy) {
+    print(char);
+    await delay(100);  
+  }
+}
+
+ 
+complexFeatureDemo().catch(console.error);

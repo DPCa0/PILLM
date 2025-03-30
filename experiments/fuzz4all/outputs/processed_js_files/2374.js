@@ -1,0 +1,47 @@
+class DeferredPromise {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(range) {
+  for (let i = 0; i < range; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(i), 100));
+  }
+}
+
+async function parallelTaskExecutor(tasks, concurrency = 2) {
+  const result = [];
+  const queue = tasks.map((task, index) => ({ task, index }));
+  const workers = new Array(concurrency).fill().map(() => new DeferredPromise());
+
+  workers.forEach(async (deferred) => {
+    while (queue.length) {
+      const { task, index } = queue.shift();
+      result[index] = await task();
+    }
+    deferred.resolve();
+  });
+
+  await Promise.all(workers.map(worker => worker.promise));
+  return result;
+}
+
+function fetchData(id) {
+  return new Promise(resolve => setTimeout(() => resolve(`Data ${id}`), 500));
+}
+
+(async function main() {
+  const generator = asyncGenerator(5);
+  const tasks = [];
+  
+  for await (const id of generator) {
+    tasks.push(() => fetchData(id));
+  }
+
+  const results = await parallelTaskExecutor(tasks, 2);
+  print('Results:', results);
+})();

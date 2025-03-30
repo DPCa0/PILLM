@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: [1, 2, 3, 4, 5] });
+            } else {
+                reject('Invalid URL');
+            }
+        }, 1000);
+    });
+};
+
+ 
+class DataProcessor {
+    constructor(data = []) {
+        this.data = data;
+    }
+
+     
+    process(...operations) {
+        let processedData = [...this.data];
+        operations.forEach((operation) => {
+            processedData = processedData.map(operation);
+        });
+        return processedData;
+    }
+
+     
+    static calculateAverage(data) {
+        const total = data.reduce((sum, value) => sum + value, 0);
+        return total / data.length;
+    }
+}
+
+ 
+const main = async () => {
+    try {
+         
+        const { data } = await fetchData('https://api.example.com/data');
+        const processor = new DataProcessor(data);
+
+         
+        const processedData = processor.process(
+            (x) => x * 2,  
+            (x) => x + 1   
+        );
+
+        print('Processed Data:', processedData);
+        print('Average:', DataProcessor.calculateAverage(processedData));
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+main();

@@ -1,0 +1,60 @@
+class Matrix {
+  #data;
+
+  constructor(rows, cols, filler = () => 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, filler)
+    );
+  }
+
+  static fromArray(arr) {
+    const rows = arr.length;
+    const cols = arr[0].length;
+    const mat = new Matrix(rows, cols);
+    mat.#data = arr;
+    return mat;
+  }
+
+  static identity(size) {
+    return new Matrix(size, size, (row, col) => (row === col ? 1 : 0));
+  }
+
+  map(callback) {
+    this.#data = this.#data.map((row, i) =>
+      row.map((val, j) => callback(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.cols !== other.rows) {
+        throw new Error('Incompatible matrix sizes for multiplication');
+      }
+      return new Matrix(this.rows, other.cols).map((_, i, j) =>
+        this.#data[i].reduce((sum, val, k) => sum + val * other.#data[k][j], 0)
+      );
+    } else if (typeof other === 'number') {
+      return this.map(val => val * other);
+    } else {
+      throw new Error('Unsupported multiplication operand');
+    }
+  }
+
+  print() {
+    print(this.#data.map(row => row.join('\t')).join('\n'));
+  }
+}
+
+ 
+const matA = Matrix.fromArray([
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+]);
+
+const matB = Matrix.identity(3);
+const result = matA.multiply(matB);
+result.multiply(2).print();

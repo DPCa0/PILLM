@@ -1,0 +1,45 @@
+ 
+
+ 
+async function* fetchDataAsync() {
+  const simulateFetch = (delay, data) => new Promise(resolve => setTimeout(() => resolve(data), delay));
+
+  yield await simulateFetch(1000, { id: 1, name: 'Alice', value: 42 });
+  yield await simulateFetch(1000, { id: 2, name: 'Bob', value: 36 });
+  yield await simulateFetch(1000, { id: 3, name: 'Charlie', value: 29 });
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      print(`Getting ${prop}: ${target[prop]}`);
+      return Reflect.get(...arguments);
+    } else {
+      console.error(`Property ${prop} does not exist`);
+      return undefined;
+    }
+  },
+  set: (target, prop, value) => {
+    if (prop === 'value' && typeof value !== 'number') {
+      throw new TypeError('Value must be a number');
+    }
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+async function processData() {
+  const asyncData = fetchDataAsync();
+
+  for await (const data of asyncData) {
+    const proxiedData = new Proxy(data, handler);
+    print(proxiedData.name);
+    proxiedData.value += 10;  
+    print(`Updated Value: ${proxiedData.value}`);
+  }
+}
+
+ 
+processData().catch(console.error);

@@ -1,0 +1,49 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+class Fibonacci {
+    #sequence;
+    
+    constructor() {
+        this.#sequence = [0, 1];
+    }
+    
+    #calculateNext() {
+        const length = this.#sequence.length;
+        const nextValue = this.#sequence[length - 1] + this.#sequence[length - 2];
+        this.#sequence.push(nextValue);
+        return nextValue;
+    }
+    
+    next(n = 1) {
+        return [...Array(n)].map(() => this.#calculateNext());
+    }
+    
+    static *generate(n) {
+        let a = 0, b = 1, current = 0;
+        while (n--) {
+            yield current;
+            [a, b] = [b, a + b];
+            current = a;
+        }
+    }
+}
+
+ 
+async function displayFibonacci() {
+    const fib = new Fibonacci();
+    await delay(1000);  
+    print("Generating Fibonacci series with class: ");
+    
+    const results = fib.next(10);
+    print(results);
+
+    const seriesLength = 5;
+    print(`Generating first ${seriesLength} Fibonacci numbers with generator: `);
+
+    const generator = Fibonacci.generate(seriesLength);
+    print([...generator]);
+}
+
+displayFibonacci();

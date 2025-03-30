@@ -1,0 +1,44 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok ' + response.statusText);
+  }
+  return response.json();
+}
+
+ 
+const handler = {
+  set(target, property, value) {
+    print(`Property ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+let data = new Proxy({}, handler);
+
+ 
+function* generateData() {
+  for (let i = 0; i < 5; i++) {
+    yield i;
+  }
+}
+
+ 
+(async function main() {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/todos/1';
+    const jsonData = await fetchData(url);
+    print('Fetched Data:', jsonData);
+
+    const dataGenerator = generateData();
+    for (const value of dataGenerator) {
+      data[`item${value}`] = value;
+    }
+
+    print('Final Data:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

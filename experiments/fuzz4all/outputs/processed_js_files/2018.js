@@ -1,0 +1,41 @@
+ 
+async function fetchDataAndProcess() {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+
+   
+  try {
+    let response = await fetch(url);
+    let data = await response.json();
+
+     
+    const processedData = data
+      .filter(post => post.id % 2 === 0)  
+      .map(post => ({
+         
+        title: post.title.toUpperCase(),  
+        content: post.body.slice(0, 50)  
+      }))
+      .reduce((acc, post, index) => {
+        acc[index] = post;
+        return acc;
+      }, {});  
+
+     
+    print(`Processed Data: ${JSON.stringify(processedData, null, 2)}`);
+  } catch (error) {
+    console.error(`Error fetching data: ${error.message}`);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Property '${prop}' accessed.`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxiedFunction = new Proxy(fetchDataAndProcess, handler);
+
+ 
+proxiedFunction();

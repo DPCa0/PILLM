@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(observer) {
+    this.subscribers.add(observer);
+  }
+
+  unsubscribe(observer) {
+    this.subscribers.delete(observer);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(observer => observer.update(data));
+  }
+}
+
+class Observer {
+  constructor(id) {
+    this.id = id;
+  }
+  
+  update(data) {
+    console.log(`Observer ${this.id}: Data received ->`, data);
+  }
+}
+
+const asyncOperation = async (data) => {
+  return new Promise(resolve => setTimeout(() => {
+    resolve(`Processed ${data}`);
+  }, 1000));
+};
+
+const pipeline = async function* (data) {
+  for (let item of data) {
+    yield await asyncOperation(item);
+  }
+};
+
+const observable = new Observable();
+const observer1 = new Observer(1);
+const observer2 = new Observer(2);
+
+observable.subscribe(observer1);
+observable.subscribe(observer2);
+
+(async () => {
+  const dataStream = ['a', 'b', 'c', 'd'];
+  for await (const processedData of pipeline(dataStream)) {
+    observable.notify(processedData);
+  }
+})();
+```

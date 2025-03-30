@@ -1,0 +1,66 @@
+ 
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+
+ 
+async function getFileContents(filePath) {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    return data;
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+}
+
+ 
+function processData(data) {
+  const words = data.split(/\W+/);
+  const wordSet = new Set(words);
+  const wordCountMap = new Map();
+
+  for (const word of wordSet) {
+    const count = words.filter(w => w === word).length;
+    wordCountMap.set(word, count);
+  }
+
+  return [...wordCountMap.entries()];
+}
+
+ 
+const generateUUID = (() => {
+  const template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+  return () => template.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+})();
+
+ 
+const createLoggedObject = target => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      print(`Accessing property "${prop}"`);
+      return obj[prop];
+    }
+  });
+};
+
+ 
+(async () => {
+  const filePath = './example.txt';
+  const data = await getFileContents(filePath);
+
+  if (data) {
+    const processedData = processData(data);
+    print('Word Count:', processedData);
+
+    const uuid = generateUUID();
+    print('Generated UUID:', uuid);
+
+    const testObj = createLoggedObject({ hello: 'world', test: 123 });
+    print(testObj.hello);   
+    print(testObj.test);    
+  }
+})();

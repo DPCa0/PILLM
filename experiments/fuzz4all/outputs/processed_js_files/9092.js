@@ -1,0 +1,43 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+class DataHandler {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  *filter(predicate) {
+    for (const item of this.data) {
+      if (predicate(item)) yield item;
+    }
+  }
+
+  async processAsync(generatorFunc) {
+    for await (const item of generatorFunc()) {
+      print(item);
+    }
+  }
+}
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    
+    const handler = new DataHandler(data);
+    const isEven = (num) => num % 2 === 0;
+    
+    const asyncGeneratorFunc = async function*() {
+      for (const value of handler.filter(isEven)) {
+        yield new Promise(resolve => setTimeout(() => resolve(value), 100));
+      }
+    };
+    
+    await handler.processAsync(asyncGeneratorFunc);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

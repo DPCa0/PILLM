@@ -1,0 +1,45 @@
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`);
+      if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  static process(data) {
+    return data.map(item => ({
+      ...item,
+      processed: true,
+      timestamp: new Date().toISOString()
+    }));
+  }
+}
+
+(async () => {
+  const apiURL = 'https://jsonplaceholder.typicode.com';
+  const fetcher = new DataFetcher(apiURL);
+  const rawData = await fetcher.fetchData('/posts');
+
+  const processAndLog = new Proxy(DataProcessor, {
+    apply(target, thisArg, argumentsList) {
+      print('Processing data...');
+      const result = Reflect.apply(target.process, thisArg, argumentsList);
+      print('Data processed:', result);
+      return result;
+    }
+  });
+
+  if (rawData) {
+    const processedData = processAndLog(rawData);
+    console.table(processedData.slice(0, 5));
+  }
+})();

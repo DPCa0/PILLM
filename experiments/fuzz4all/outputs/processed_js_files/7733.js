@@ -1,0 +1,31 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* asyncGenerator() {
+    yield delay(1000).then(() => 'First async operation complete');
+    yield delay(500).then(() => 'Second async operation complete');
+    yield delay(1500).then(() => 'Third async operation complete');
+}
+
+ 
+async function processGenerator(gen) {
+    let results = [];
+    for (const promise of gen) {
+        const result = await promise;
+        results.push(result);
+        print(result);
+    }
+    return results;
+}
+
+ 
+(async function main() {
+    const gen = asyncGenerator();
+    const [first, second, third] = await processGenerator(gen);
+    print('All operations finished');
+    print({ first, second, third });  
+})();
+

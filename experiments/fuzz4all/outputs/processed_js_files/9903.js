@@ -1,0 +1,50 @@
+ 
+
+ 
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+     
+    async fetchData() {
+        const response = await fetch(this.url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return await response.json();
+    }
+}
+
+ 
+const logData = async (url) => {
+    try {
+        const fetcher = new DataFetcher(url);
+        const data = await fetcher.fetchData();
+        
+         
+        const { id, title, body } = data;
+        print(`ID: ${id}\nTitle: ${title}\nBody: ${body}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+const apiUrl = 'https://jsonplaceholder.typicode.com/posts/1';
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Property '${prop}' has been accessed`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxyFetcher = new Proxy(new DataFetcher(apiUrl), handler);
+
+ 
+proxyFetcher.fetchData().then(data => print('Data fetched using proxy:', data));
+
+ 
+logData(apiUrl);

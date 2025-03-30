@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (userId) => {
+   
+  const userPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: `User${userId}`, role: 'admin' });
+    }, 1000);
+  });
+
+  return await userPromise;
+};
+
+const processUserData = ({ id, name, role }) => {
+   
+  console.log(`Processing data for ${name} (ID: ${id}), Role: ${role}`);
+};
+
+const run = async () => {
+  try {
+     
+    const userIds = [...Array(5).keys()].map((x) => x + 1);
+
+     
+    const users = await Promise.all(userIds.map(fetchUserData));
+
+     
+    for (const { role, ...userData } of users) {
+      if (role === 'admin') {
+        processUserData(userData);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+ 
+(async () => {
+  await run();
+})();
+```

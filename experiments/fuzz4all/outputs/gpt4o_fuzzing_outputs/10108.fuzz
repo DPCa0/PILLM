@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataSequence() {
+    yield new Promise(resolve => setTimeout(() => resolve('Data from API 1'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Data from API 2'), 2000));
+    yield new Promise(resolve => setTimeout(() => resolve('Data from API 3'), 1500));
+}
+
+ 
+async function processData() {
+    const generator = fetchDataSequence();
+    for (let promise of generator) {
+        try {
+            const data = await promise;
+            console.log(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+}
+
+ 
+const dataHandler = {
+    get(target, property) {
+        console.log(`Accessing property ${property}`);
+        return target[property];
+    },
+};
+
+const data = { api1: 'Data1', api2: 'Data2', api3: 'Data3' };
+const proxyData = new Proxy(data, dataHandler);
+
+ 
+(async () => {
+    console.log('Starting data processing...');
+    await processData();
+    console.log('Accessing data properties via Proxy...');
+    console.log(proxyData.api1);
+    console.log(proxyData.api2);
+    console.log(proxyData.api3);
+})();
+```

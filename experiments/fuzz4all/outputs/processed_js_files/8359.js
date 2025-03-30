@@ -1,0 +1,39 @@
+ 
+(async () => {
+  try {
+    const fetchJson = async url => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    };
+
+    const dataUrls = [
+      'https://jsonplaceholder.typicode.com/users',
+      'https://jsonplaceholder.typicode.com/posts'
+    ];
+
+     
+    const [users, posts] = await Promise.all(dataUrls.map(url => fetchJson(url)));
+
+     
+    const userPosts = users.map(user => {
+      const userPosts = posts.filter(post => post.userId === user.id);
+      return {
+        ...user,
+        postTitles: userPosts.map(post => post.title).sort()
+      };
+    });
+
+     
+    const formatUser = ({ name, postTitles }) => `
+      User: ${name}
+      Posts:
+      ${postTitles.map((title, i) => `  ${i + 1}. ${title}`).join('\n')}
+    `;
+
+     
+    userPosts.forEach(user => print(formatUser(user)));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

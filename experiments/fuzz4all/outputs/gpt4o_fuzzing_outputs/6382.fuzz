@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const dataHandler = {
+  get(target, property) {
+    console.log(`Accessing property ${property}`);
+    return target[property];
+  }
+};
+
+const data = new Proxy({
+  message: 'Hello from Async World!',
+  value: 42
+}, dataHandler);
+
+ 
+function* asyncGenerator() {
+  yield delay(1000).then(() => data.message);
+  yield delay(1000).then(() => data.value);
+}
+
+ 
+async function handleAsyncGenerator(gen) {
+  const generator = gen();
+  let result = generator.next();
+  while (!result.done) {
+    console.log(await result.value);
+    result = generator.next();
+  }
+}
+
+ 
+(async () => {
+  console.log('Fetching data...');
+  await handleAsyncGenerator(asyncGenerator);
+  console.log('Done!');
+})();
+```

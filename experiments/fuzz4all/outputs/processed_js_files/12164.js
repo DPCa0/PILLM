@@ -1,0 +1,46 @@
+ 
+
+ 
+function* promiseGenerator() {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  yield delay(1000).then(() => 'Result after 1 second');
+  yield delay(500).then(() => 'Result after 0.5 second');
+  yield delay(1500).then(() => 'Result after 1.5 seconds');
+}
+
+ 
+async function processGenerator(generator) {
+  const iterator = generator();
+  let result = iterator.next();
+  while (!result.done) {
+    print(await result.value);
+    result = iterator.next();
+  }
+}
+
+ 
+const myMap = new Map();
+myMap.set('firstKey', 'FirstValue');
+myMap.set('secondKey', 'SecondValue');
+
+ 
+const mapHandler = {
+  get: (target, key) => {
+    print(`Accessing key "${key}"`);
+    return target[key];
+  },
+  set: (target, key, value) => {
+    print(`Setting key "${key}" to value "${value}"`);
+    target[key] = value;
+    return true;
+  }
+};
+
+const proxiedMap = new Proxy(myMap, mapHandler);
+
+ 
+print(proxiedMap.get('firstKey'));  
+proxiedMap.set('thirdKey', 'ThirdValue');  
+
+ 
+processGenerator(promiseGenerator);

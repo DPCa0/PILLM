@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchAndProcessData(urls) {
+    try {
+         
+        const responses = await Promise.allSettled(urls.map(url => fetch(url)));
+
+         
+        const successfulResponses = responses
+            .filter(({ status }) => status === 'fulfilled')
+            .map(({ value }) => value.json());
+
+         
+        const data = await Promise.all(successfulResponses);
+
+         
+        return data.reduce((acc, { id, value }) => {
+            acc[id] = value;
+            return acc;
+        }, {});
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+}
+
+ 
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+ 
+(async () => {
+    const processedData = await fetchAndProcessData(urls);
+    console.log('Processed Data:', processedData);
+})();
+```

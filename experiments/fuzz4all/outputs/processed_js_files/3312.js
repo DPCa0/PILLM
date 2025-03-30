@@ -1,0 +1,46 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async () => {
+  const fetchData = async (url) => {
+    await delay(1000);
+    return `${url} data`;
+  };
+
+  const urls = ['api/endpoint1', 'api/endpoint2', 'api/endpoint3'];
+  
+   
+  const promises = urls.map(async (url) => {
+    const response = await fetchData(url);
+    return { url, data: response };
+  });
+
+   
+  const results = await Promise.all(promises);
+  const [result1, result2, result3] = results;
+  
+  print(result1, result2, result3);
+
+   
+  const uniqueData = new Set(results.map(r => r.data));
+  const dataMap = new Map();
+
+  uniqueData.forEach((data, index) => {
+    dataMap.set(index, data);
+  });
+
+   
+  for (const [key, value] of dataMap.entries()) {
+    print(`Key: ${key}, Value: ${value}`);
+  }
+
+   
+  const greeting = (strings, name, timeOfDay) => 
+    `${strings[0]}${name}${strings[1]}${timeOfDay}${strings[2]}`;
+
+  const userName = 'John';
+  const currentTime = 'morning';
+
+  print(greeting`Good ${userName}, and good ${currentTime}!`);
+})();

@@ -1,0 +1,49 @@
+class AsyncCounter {
+    #count = 0;
+    
+    constructor(limit) {
+        this.limit = limit;
+        this.listeners = new Set();
+    }
+    
+    increment() {
+        if (this.#count < this.limit) {
+            this.#count++;
+            this.#notify();
+        } else {
+            print('Limit reached');
+        }
+    }
+
+    #notify() {
+        this.listeners.forEach(listener => listener(this.#count));
+    }
+
+    onCountChange(listener) {
+        this.listeners.add(listener);
+    }
+    
+    async *[Symbol.asyncIterator]() {
+        while (this.#count < this.limit) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            yield this.#count;
+            this.increment();
+        }
+    }
+}
+
+async function processCounts() {
+    const counter = new AsyncCounter(5);
+
+    counter.onCountChange(count => {
+        print(`Count changed to: ${count}`);
+    });
+
+    for await (const count of counter) {
+        print(`Iterating count: ${count}`);
+    }
+
+    print('Counting complete');
+}
+
+processCounts();

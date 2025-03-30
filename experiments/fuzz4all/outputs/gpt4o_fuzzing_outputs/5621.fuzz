@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  greeting() {
+    return `Hello, my name is ${this.name} and I am ${this.age} years old.`;
+  }
+}
+
+const users = new Set([
+  new User('Alice', 25),
+  new User('Bob', 30),
+  new User('Carol', 27),
+]);
+
+async function fetchUserData(user) {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const userInfo = { ...user, country: 'Unknown' };
+      resolve(userInfo);
+    }, 1000);
+  });
+}
+
+async function getUsersData(usersSet) {
+  const userInfoMap = new Map();
+  for (const user of usersSet) {
+    const data = await fetchUserData(user);
+    userInfoMap.set(user.name, data);
+  }
+  return userInfoMap;
+}
+
+getUsersData(users).then((userInfoMap) => {
+  for (const [key, userData] of userInfoMap) {
+    console.log(`${key}:`, userData);
+  }
+});
+```

@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      url ? resolve(`Data from ${url}`) : reject('No URL provided');
+    }, 1000);
+  });
+};
+
+ 
+async function* asyncGenerator(urls) {
+  for (const url of urls) {
+    try {
+      const data = await fetchData(url);
+      yield data;
+    } catch (error) {
+      yield `Error: ${error}`;
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'urls') {
+      console.log('Accessing URLs');
+    }
+    return target[prop];
+  },
+  set(target, prop, value) {
+    if (prop === 'urls' && !Array.isArray(value)) {
+      throw new TypeError('URLs must be an array');
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+const dataManager = new Proxy({ urls: [] }, handler);
+
+ 
+(async () => {
+  const urls = ['http://example.com/api/1', 'http://example.com/api/2', null];
+  dataManager.urls = urls;
+
+  for await (const data of asyncGenerator(dataManager.urls)) {
+    console.log(data);
+  }
+
+  if (Math.random() > 0.5) {
+    const { logFeature } = await import('./feature.js');
+    logFeature();
+  }
+})();
+```
+
+Note: Ensure you have a `feature.js` file in the same directory with a function `logFeature` exported for the dynamic import to work.

@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fsPromises } from 'fs';
+import { EventEmitter } from 'events';
+
+ 
+async function readFileContents(path) {
+    try {
+         
+        const data = await fsPromises.readFile(path, 'utf8');
+        console.log('File content:', data);
+    } catch (err) {
+        console.error('Error reading file:', err);
+    }
+}
+
+ 
+class CustomEmitter extends EventEmitter {
+    emitMessage(message) {
+        this.emit('messageLogged', { id: Date.now(), text: message });
+    }
+}
+
+ 
+(async () => {
+    const emitter = new CustomEmitter();
+    
+     
+    emitter.on('messageLogged', ({ id, text }) => {
+        console.log(`Listener called: [ID: ${id}] - ${text}`);
+    });
+
+     
+    emitter.emitMessage('Hello, advanced JavaScript features!');
+
+     
+    const filePath = './example.txt';
+    console.log(`Attempting to read file: ${filePath}`);
+
+     
+    await readFileContents(filePath);
+
+     
+    const myMap = new Map([
+        ['key1', 'value1'],
+        ['key2', 'value2'],
+    ]);
+    const mapArray = Array.from(myMap, ([key, value]) => ({ key, value }));
+    console.log('Mapped Array:', mapArray);
+
+     
+    const promise1 = fsPromises.writeFile('./file1.txt', 'Hello from file 1');
+    const promise2 = fsPromises.writeFile('./file2.txt', 'Hello from file 2');
+    
+    Promise.all([promise1, promise2])
+        .then(() => console.log('Files written successfully'))
+        .catch(err => console.error('Error writing files:', err));
+})();
+```

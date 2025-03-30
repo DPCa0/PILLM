@@ -1,0 +1,67 @@
+ 
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      print(`Getting the value of ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new ReferenceError(`Property ${prop} does not exist.`);
+    }
+  },
+  set(target, prop, value, receiver) {
+    if (typeof value === 'number' && value >= 0) {
+      print(`Setting the value of ${prop} to ${value}`);
+      return Reflect.set(target, prop, value, receiver);
+    } else {
+      throw new TypeError('Property value must be a non-negative number');
+    }
+  }
+};
+
+const person = new Proxy({ age: 25, height: 175 }, handler);
+
+ 
+async function* fetchData() {
+  const urls = ['https://jsonplaceholder.typicode.com/users', 'https://jsonplaceholder.typicode.com/posts'];
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+ 
+const uniqueNames = new Set();
+uniqueNames.add('Alice').add('Bob').add('Charlie');
+
+const nameToIdMap = new Map();
+uniqueNames.forEach((name, index) => nameToIdMap.set(name, index + 1));
+
+ 
+(() => {
+  const [firstName, , thirdName] = Array.from(uniqueNames);
+  print(`The first name is ${firstName} and the third name is ${thirdName}.`);
+})();
+
+ 
+(async () => {
+  try {
+    const dataGen = fetchData();
+    for await (const data of dataGen) {
+      print('Fetched Data:', data);
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+
+ 
+try {
+  print(person.age);  
+  person.height = 180;  
+  print(person.height);
+  person.weight = -10;  
+} catch (error) {
+  console.error(error.message);
+}

@@ -1,0 +1,53 @@
+class Animal {
+  #name;
+  constructor(name) {
+    this.#name = name;
+  }
+  get name() {
+    return this.#name;
+  }
+  makeSound() {
+    print(`${this.name} makes a sound.`);
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name);
+    this.breed = breed;
+  }
+  makeSound() {
+    print(`${this.name}, the ${this.breed}, barks!`);
+  }
+  static async fetchDogs() {
+    return new Promise(resolve => setTimeout(() => resolve(["Labrador", "Poodle", "Bulldog"]), 1000));
+  }
+}
+
+(async () => {
+  const dogBreeds = await Dog.fetchDogs();
+  const dogs = dogBreeds.map(breed => new Dog('Buddy', breed));
+  
+  function* dogSoundGenerator() {
+    for (const dog of dogs) {
+      yield dog.makeSound();
+    }
+  }
+
+  const generator = dogSoundGenerator();
+  for (const _ of generator) {
+     
+  }
+
+  const getDogDetails = ({ name, breed }) => ({ [name]: breed });
+  const dogDetails = dogs.map(getDogDetails);
+
+  const displayDetails = details => {
+    details.forEach(detail => {
+      const [name, breed] = Object.entries(detail)[0];
+      print(`${name} is a ${breed}.`);
+    });
+  };
+
+  displayDetails(dogDetails);
+})();

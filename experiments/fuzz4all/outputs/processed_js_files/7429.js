@@ -1,0 +1,30 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  return data.map(({ id, value }) => ({
+    id,
+    calculatedValue: value * Math.random(),
+  }));
+};
+
+const displayData = (processedData) => {
+  console.group('Processed Data');
+  processedData.forEach(({ id, calculatedValue }) => {
+    print(`ID: ${id}, Calculated Value: ${calculatedValue.toFixed(2)}`);
+  });
+  console.groupEnd();
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+    displayData(processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

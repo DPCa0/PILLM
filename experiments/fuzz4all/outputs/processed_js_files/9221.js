@@ -1,0 +1,40 @@
+ 
+
+ 
+class UserFetcher {
+  constructor() {
+    this.users = [
+      { id: 1, name: 'Alice', age: 25 },
+      { id: 2, name: 'Bob', age: 30 },
+      { id: 3, name: 'Charlie', age: 35 }
+    ];
+  }
+
+   
+  fetchUser(id) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const user = this.users.find(user => user.id === id);
+        user ? resolve(user) : reject(new Error('User not found'));
+      }, 1000);
+    });
+  }
+}
+
+(async () => {
+  const userFetcher = new UserFetcher();
+  
+  try {
+     
+    const { name, age } = await userFetcher.fetchUser(2);  
+    print(`Found user: ${name}, Age: ${age}`);
+
+     
+    const userPromises = [1, 2, 3].map(id => userFetcher.fetchUser(id));
+    const users = await Promise.all(userPromises);
+
+    print('All users fetched:', users);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

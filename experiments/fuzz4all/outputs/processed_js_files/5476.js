@@ -1,0 +1,76 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+function createObservable(initialValue) {
+    let value = initialValue;
+    const observable = new Observable();
+    
+    const proxy = new Proxy({}, {
+        get(target, prop, receiver) {
+            if (prop === 'value') {
+                return value;
+            }
+            return Reflect.get(...arguments);
+        },
+        set(target, prop, newValue, receiver) {
+            if (prop === 'value') {
+                value = newValue;
+                observable.notify(value);
+                return true;
+            }
+            return Reflect.set(...arguments);
+        }
+    });
+
+    return { observable, proxy };
+}
+
+const { observable, proxy } = createObservable(10);
+
+observable.subscribe(val => print(`Subscriber 1: ${val}`));
+observable.subscribe(val => print(`Subscriber 2: ${val}`));
+
+setTimeout(() => proxy.value = 20, 1000);
+setTimeout(() => proxy.value = 30, 2000);
+
+ 
+async function* observableGenerator(observable, initialValue) {
+    let currentValue = initialValue;
+    
+    const asyncIterable = {
+        next: () => new Promise(resolve => {
+            observable.subscribe(value => {
+                currentValue = value;
+                resolve({ value, done: false });
+            });
+        })
+    };
+    
+    while (true) {
+        yield await asyncIterable.next();
+    }
+}
+
+(async function() {
+    const asyncGen = observableGenerator(observable, proxy.value);
+    
+    for await (const event of asyncGen) {
+        print(`Async iterator received: ${event.value}`);
+        if (event.value === 30) break;
+    }
+})();

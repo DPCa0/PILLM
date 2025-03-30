@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import { writeFile } from 'fs/promises';
+
+ 
+async function complexOperation() {
+   
+  let { first, ...rest } = { first: 'Hello', second: 'World', third: '!' };
+  
+   
+  let words = [first, ...Object.values(rest)].map(word => word.toUpperCase()).filter(word => word !== 'WORLD');
+
+   
+  const symbolKey = Symbol('dynamic');
+  const dynamicObject = new Proxy({}, {
+    get(target, prop) {
+      return target.hasOwnProperty(prop) ? target[prop] : `Property ${prop.toString()} does not exist`;
+    },
+    set(target, prop, value) {
+      target[prop] = value;
+      return true;
+    }
+  });
+  dynamicObject[symbolKey] = words.join(' ');
+
+   
+  const uniqueWords = new Set(words);
+  const wordMap = new Map([...uniqueWords].map((word, index) => [index, word]));
+
+  console.log([...uniqueWords]);   
+  console.log([...wordMap.entries()]);  
+
+   
+  try {
+    await writeFile('output.txt', dynamicObject[symbolKey]);
+    console.log('File written successfully');
+  } catch (error) {
+    console.error('Error writing file:', error);
+  }
+}
+
+ 
+(async () => {
+  await complexOperation();
+})();
+```

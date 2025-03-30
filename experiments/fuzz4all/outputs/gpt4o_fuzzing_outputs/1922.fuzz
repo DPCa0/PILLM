@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(...args));
+  }
+}
+
+const fetchWithTimeout = async (url, timeout = 5000) => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  const fetchPromise = fetch(url, { signal });
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetchPromise;
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    if (error.name === 'AbortError') throw new Error('Request timed out');
+    throw error;
+  }
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('data', data => {
+    console.log('Received data:', data);
+  });
+
+  eventEmitter.on('error', error => {
+    console.error('Error:', error);
+  });
+
+  try {
+    const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 3000);
+    const data = await response.json();
+    eventEmitter.emit('data', data);
+  } catch (error) {
+    eventEmitter.emit('error', error.message);
+  }
+})();
+```

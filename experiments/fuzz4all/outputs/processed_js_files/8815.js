@@ -1,0 +1,37 @@
+ 
+
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Fetch error: ", error);
+    }
+}
+
+function processUserData({ id, name, email, ...rest }) {
+    print(`ID: ${id}, Name: ${name}, Email: ${email}`);
+    return rest;
+}
+
+function deepClone(obj) {
+    return JSON.parse(JSON.stringify(obj));
+}
+
+const transformData = data => data.map(({ id, ...rest }) => ({ uniqueId: `user-${id}`, ...rest }));
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    let rawData = await fetchData(url);
+
+    if (!rawData) return;
+
+    const clonedData = deepClone(rawData);
+    const transformedData = transformData(clonedData);
+
+    transformedData.forEach(user => {
+        let remainingData = processUserData(user);
+        print("Additional info:", remainingData);
+    });
+})();

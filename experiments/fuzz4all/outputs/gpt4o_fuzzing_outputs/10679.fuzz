@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+    speak() {
+        console.log(`${this.name} makes a sound.`);
+    }
+}
+
+class Dog extends Animal {
+    speak() {
+        super.speak();
+        console.log(`${this.name} barks.`);
+    }
+}
+
+const runAsyncTasks = async () => {
+    const fetchData = () => new Promise((resolve) => {
+        setTimeout(() => resolve('Data fetched'), 1000);
+    });
+
+    const data = await fetchData();
+    console.log(data);
+};
+
+const main = async () => {
+    const dog = new Dog('Rex');
+    dog.speak();
+
+    const numbers = [1, 2, 3, 4, 5];
+    const doubled = numbers.map(n => n * 2);
+    console.log('Doubled:', doubled);
+
+    const [first, ...rest] = numbers;
+    console.log('First:', first, 'Rest:', rest);
+
+    const reducer = (acc, curr) => acc + curr;
+    console.log('Sum:', numbers.reduce(reducer, 0));
+
+    const filtered = numbers.filter(n => n > 2);
+    console.log('Filtered:', filtered);
+
+    await runAsyncTasks();
+};
+
+main();
+```

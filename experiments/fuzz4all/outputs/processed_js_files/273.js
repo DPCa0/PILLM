@@ -1,0 +1,51 @@
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry']);
+        }, 1000);
+    });
+};
+
+ 
+function* processItems(items) {
+    for (let item of items) {
+        yield item.toUpperCase();
+    }
+}
+
+ 
+(async () => {
+    try {
+         
+        const data = (await fetchData())?.filter(item => item.includes('a')) ?? [];
+        
+         
+        const processedItems = processItems(data);
+
+         
+        for (let processedItem of processedItems) {
+            print(processedItem);
+        }
+        
+         
+        const handler = {
+            get: (target, prop, receiver) => {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    console.warn(`Property ${prop} does not exist.`);
+                }
+            }
+        };
+
+        const fruits = new Proxy({}, handler);
+
+        fruits.apple = 'red';
+        print(fruits.apple);   
+        print(fruits.orange);  
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

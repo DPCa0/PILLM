@@ -1,0 +1,31 @@
+ 
+(async () => {
+  const { readFile } = await import('fs/promises');
+  try {
+     
+    const [filePath, encoding] = ['./example.txt', 'utf-8'];
+    const data = await readFile(filePath, { encoding });
+
+     
+    const words = data.match(/\b\w+\b/g);
+    const wordSet = new Set(words);
+    const wordMap = new Map();
+
+    for (const word of wordSet) {
+      wordMap.set(word, words.filter(w => w === word).length);
+    }
+
+     
+    const sortedWords = [...wordMap.entries()].sort((a, b) => b[1] - a[1]);
+
+     
+    const mostCommonWord = sortedWords[0]?.[0] ?? 'No words found';
+
+    print(`The most common word is: ${mostCommonWord}`);
+
+  } catch (error) {
+    console.error(`Error reading file: ${error.message}`);
+  }
+})();
+
+This JavaScript program demonstrates the use of several advanced features, including dynamic module imports, async functions, ES6 syntax (like destructuring, template literals, and sets/maps), and optional chaining with nullish coalescing. It reads a file, counts word occurrences, and outputs the most common word.

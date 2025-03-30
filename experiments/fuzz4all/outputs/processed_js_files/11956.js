@@ -1,0 +1,51 @@
+ 
+import _ from 'lodash';
+
+ 
+const generateRandomData = (length) => Array.from({ length }, () => _.random(0, 100));
+
+const processData = (data) => {
+     
+    const uniqueData = [...new Set(data)];
+    const squareRoots = uniqueData.map(Math.sqrt);
+
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const results = squareRoots.map((value, index) => {
+                return { index, value: value.toFixed(2) };
+            });
+            resolve(results);
+        }, 1000);
+    });
+};
+
+(async () => {
+     
+    class DataHandler {
+        static async handleData(length) {
+            const rawData = generateRandomData(length);
+            print(`Generated Data: ${rawData}`);
+            const processed = await processData(rawData);
+            print(`Processed Data: ${JSON.stringify(processed)}`);
+        }
+    }
+
+     
+    try {
+         
+        const config = new Proxy({ dataLength: 10 }, {
+            set(target, key, value) {
+                if (key === 'dataLength' && (typeof value !== 'number' || value <= 0)) {
+                    throw new Error('Invalid data length');
+                }
+                target[key] = value;
+                return true;
+            }
+        });
+
+        await DataHandler.handleData(config.dataLength);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

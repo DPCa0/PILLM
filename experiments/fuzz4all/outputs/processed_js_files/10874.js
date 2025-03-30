@@ -1,0 +1,32 @@
+ 
+async function fetchAndProcessData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        let data = await response.json();
+        
+         
+        let processedData = data.map(({ id, name }) => ({
+            uniqueId: `ID-${id}`,
+            uppercaseName: name.toUpperCase()
+        }));
+        
+         
+        let uniqueNames = [...new Set(processedData.map(item => item.uppercaseName))];
+        
+         
+        print(`Processed ${processedData.length} items:`);
+        console.table(processedData);
+        print(`Unique names: ${uniqueNames.join(', ')}`);
+        
+    } catch (error) {
+        console.error(`Fetch error: ${error.message}`);
+    }
+}
+
+ 
+(async () => {
+    const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+    await fetchAndProcessData(apiUrl);
+})();

@@ -1,0 +1,62 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Fetch error: ", error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  if (!data || !Array.isArray(data)) return [];
+  return data
+    .filter(item => item.active)
+    .map(item => ({ id: item.id, value: item.value * 2 }));
+};
+
+const displayData = (data) => {
+  data.forEach(item => print(`ID: ${item.id}, Value: ${item.value}`));
+};
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const rawData = await fetchData(url);
+  const processedData = processData(rawData);
+  displayData(processedData);
+})();
+
+class Singleton {
+  constructor(name = 'Singleton') {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+    this.name = name;
+    Singleton.instance = this;
+  }
+  getName() {
+    return this.name;
+  }
+}
+
+const instance1 = new Singleton();
+const instance2 = new Singleton('Another');
+
+print(instance1.getName());  
+print(instance2.getName());  
+
+const executeConcurrently = async (...tasks) => {
+  const results = await Promise.all(tasks.map(task => task()));
+  results.forEach((result, index) => print(`Task ${index + 1}:`, result));
+};
+
+const task1 = async () => {
+  return new Promise(resolve => setTimeout(() => resolve('Result 1'), 1000));
+};
+const task2 = async () => {
+  return new Promise(resolve => setTimeout(() => resolve('Result 2'), 2000));
+};
+
+executeConcurrently(task1, task2);

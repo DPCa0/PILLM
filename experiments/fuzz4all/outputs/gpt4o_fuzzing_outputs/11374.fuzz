@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* asyncNumberGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Accessing property: ${property}`);
+      return Reflect.get(target, property);
+    } else {
+      console.log(`Property ${property} doesn't exist, defaulting to 'unknown'`);
+      return 'unknown';
+    }
+  }
+};
+
+// Wrap an object in a Proxy to demonstrate dynamic behavior
+const proxyObject = new Proxy({ name: 'Advanced JavaScript' }, handler);
+
+// Self-executing async function to run the generator and utilize proxy
+(async () => {
+  const numGen = asyncNumberGenerator(5);
+  
+  console.log('Starting async iteration:');
+  for await (const num of numGen) {
+    console.log(`Generated number: ${num}`);
+  }
+
+  console.log('Accessing properties of a proxied object:');
+  console.log(`Name: ${proxyObject.name}`);
+  console.log(`Version: ${proxyObject.version}`);  
+})();
+```

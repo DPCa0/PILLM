@@ -1,0 +1,42 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this[Symbol.iterator] = this.iterator;
+    }
+
+    *iterator() {
+        let a = 0, b = 1, n = 0;
+        while (n < this.limit) {
+            yield a;
+            [a, b] = [b, a + b];
+            n++;
+        }
+    }
+}
+
+const asyncFunction = async () => {
+    const numbers = [...new Fibonacci(10)];
+    const doubledNumbers = numbers.map(num => num * 2);
+
+    print("Doubled Fibonacci Numbers:", doubledNumbers);
+
+    return new Promise(resolve => {
+        setTimeout(() => {
+            print("Async Process Complete");
+            resolve();
+        }, 1000);
+    });
+};
+
+asyncFunction().then(() => {
+    const person = {
+        name: "Alice",
+        age: 30,
+        location: "Wonderland"
+    };
+
+    const { name, ...rest } = person;
+    const newPerson = { ...rest, occupation: "Explorer" };
+
+    print("New Person Object:", newPerson);
+}).catch(error => console.error("Error:", error));

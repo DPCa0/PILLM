@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class AsyncIterator {
+    constructor(data) {
+        this.data = data;
+        this.index = 0;
+    }
+  
+    [Symbol.asyncIterator]() {
+        return {
+            next: async () => {
+                if (this.index < this.data.length) {
+                     
+                    await new Promise(res => setTimeout(res, Math.random() * 100));
+                    return { value: this.data[this.index++], done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    return await response.json();
+};
+
+const processItem = async (item) => {
+     
+    await new Promise(res => setTimeout(res, Math.random() * 50));
+    console.log(`Processed: ${item}`);
+};
+
+const main = async () => {
+    try {
+         
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos');
+        const asyncIterator = new AsyncIterator(data.slice(0, 5));  
+      
+        for await (const item of asyncIterator) {
+            await processItem(item.title);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+main();
+```

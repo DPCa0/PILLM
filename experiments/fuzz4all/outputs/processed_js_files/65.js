@@ -1,0 +1,45 @@
+class AsyncQueue {
+  constructor() {
+    this.tasks = [];
+    this.isProcessing = false;
+  }
+
+  async processQueue() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    while (this.tasks.length) {
+      const task = this.tasks.shift();
+      await task();
+    }
+    this.isProcessing = false;
+  }
+
+  enqueue(task) {
+    this.tasks.push(task);
+    this.processQueue();
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncQueue = new AsyncQueue();
+
+const complexComputation = async num => {
+  await sleep(1000);
+  const result = num * num;
+  print(`Processed: ${num} -> ${result}`);
+};
+
+for (let i = 1; i <= 5; i++) {
+  asyncQueue.enqueue(() => complexComputation(i));
+}
+
+const processData = async ([first, ...rest]) => {
+  if (!first) return;
+  print(`Initial Value: ${first}`);
+  await sleep(500);
+  processData(rest);
+};
+
+const inputData = [10, 20, 30, 40, 50];
+processData(inputData);

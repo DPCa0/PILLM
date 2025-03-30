@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Animal {
+  #privateData = 'This is private';  
+  constructor(name, sound) {
+    this.name = name;
+    this.sound = sound;
+  }
+  makeSound = () => console.log(`${this.name} says ${this.sound}`);  
+  static isAnimal = obj => obj instanceof Animal;  
+}
+
+function* idGenerator() {  
+  let id = 1;
+  while (true) yield id++;
+}
+
+const animals = [
+  { type: 'Dog', sound: 'Woof' },
+  { type: 'Cat', sound: 'Meow' }
+];
+
+const animalInstances = animals.flatMap(({ type, sound }) => [  
+  new Animal(type, sound),
+  new Animal(type + ' Clone', sound)
+]);
+
+const ids = idGenerator();
+
+const enhancedAnimals = animalInstances.map(animal => ({
+  ...animal,
+  id: ids.next().value,
+  speak: animal.makeSound
+}));
+
+const [firstAnimal, ...others] = enhancedAnimals;  
+
+firstAnimal.speak();
+
+const showAllAnimalSounds = async () => {
+  const promises = others.map(animal => Promise.resolve(animal.speak()));  
+  await Promise.all(promises);
+};
+
+if (Animal.isAnimal(firstAnimal)) showAllAnimalSounds();
+```

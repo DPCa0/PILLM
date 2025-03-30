@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield ++id;
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(id) {
+    await delay(500);  
+    return { id, data: `Data for ID ${id}` };
+}
+
+async function processData() {
+    const idGen = idGenerator();
+    let results = [];
+    
+    for (let i = 0; i < 5; i++) {
+        const { value: id } = idGen.next();
+        let data = await fetchData(id);
+        results.push(data);
+    }
+
+    return results;
+}
+
+processData().then(results => {
+    results.forEach(({ id, data }) => {
+        console.log(`ID: ${id}, Data: ${data}`);
+    });
+});
+```

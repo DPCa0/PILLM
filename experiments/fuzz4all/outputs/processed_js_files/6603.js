@@ -1,0 +1,44 @@
+class Observable {
+  constructor() {
+    this.subscribers = [];
+  }
+  
+  subscribe(fn) {
+    this.subscribers.push(fn);
+    return () => {
+      this.subscribers = this.subscribers.filter(sub => sub !== fn);
+    };
+  }
+
+  notify(data) {
+    this.subscribers.forEach(sub => sub(data));
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const dataObservable = new Observable();
+
+const observer1 = dataObservable.subscribe(data => {
+  print('Observer 1 received:', data);
+});
+
+const observer2 = dataObservable.subscribe(data => {
+  print('Observer 2 received:', data);
+});
+
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    dataObservable.notify(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+})();
+
+ 
+observer1();

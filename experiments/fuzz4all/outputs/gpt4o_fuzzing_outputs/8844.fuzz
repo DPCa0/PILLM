@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+class Observable {
+  constructor() {
+    this.subscribers = [];
+  }
+  
+  subscribe(callback) {
+    this.subscribers.push(callback);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+const processData = async (dataUrl, observable) => {
+  const data = await fetchData(dataUrl);
+  const processedData = data.map(item => ({
+    ...item,
+    timestamp: new Date().toISOString(),
+  }));
+  observable.notify(processedData);
+};
+
+const observable = new Observable();
+observable.subscribe(data => console.log('Data received:', data));
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const dataUrls = ['https://jsonplaceholder.typicode.com/posts', 'https://jsonplaceholder.typicode.com/comments'];
+
+(async () => {
+  for (const url of dataUrls) {
+    await processData(url, observable);
+    await delay(1000);
+  }
+})();
+```

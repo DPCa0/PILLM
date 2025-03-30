@@ -1,0 +1,36 @@
+ 
+const fetchData = () => new Promise((resolve) =>
+    setTimeout(() => resolve(['JavaScript', 'Python', 'Ruby', 'Java']), 1000)
+);
+
+ 
+const languagesHandler = {
+    get: (target, property) => {
+        print(`Accessing property ${property}`);
+        return property in target ? target[property] : 'Not Found';
+    }
+};
+
+ 
+const filterWithJ = (fn) => (data) => fn(data).filter((item) => item.startsWith('J'));
+
+ 
+const compose = (...fns) => (arg) => fns.reduce((acc, fn) => fn(acc), arg);
+
+ 
+const toUpperCase = (data) => data.map((item) => item.toUpperCase());
+
+ 
+(async () => {
+    try {
+        const data = await fetchData();
+        const proxyData = new Proxy(data, languagesHandler);
+
+         
+        const processLanguages = compose(filterWithJ((d) => d), toUpperCase);
+
+        print(processLanguages(proxyData));
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+function urlBuilder(strings, ...values) {
+    return strings.reduce((acc, str, i) => `${acc}${str}${values[i] || ''}`, '');
+}
+
+ 
+const loggingHandler = {
+    get(target, property) {
+        console.log(`Getting ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const data = new Proxy({}, loggingHandler);
+
+ 
+(async () => {
+    const urls = [
+        urlBuilder`https: 
+        urlBuilder`https: 
+    ];
+    for await (const result of fetchData(urls)) {
+        console.log(result);
+        data[result.id] = result;
+    }
+    
+     
+    const { id, ...otherData } = data[1];
+    console.log(`Data for ID ${id}:`, otherData);
+})();
+```

@@ -1,0 +1,43 @@
+const fetchUserData = async (id) => {
+  try {
+     
+    const response = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.1 ? resolve({ id, name: "John Doe", age: 30 }) : reject("Network Error");
+      }, 1000);
+    });
+    return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+class User {
+  constructor({ id, name, age }) {
+    this.id = id;
+    this.name = name;
+    this.age = age;
+  }
+
+  #privateMethod() {
+    return `${this.name} is ${this.age} years old.`;
+  }
+
+  getUserInfo() {
+    return this.#privateMethod();
+  }
+
+  static async getUserFromServer(id) {
+    const userData = await fetchUserData(id);
+    return new User(userData);
+  }
+}
+
+(async () => {
+  try {
+    const user = await User.getUserFromServer(1);
+    print(user.getUserInfo());
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();

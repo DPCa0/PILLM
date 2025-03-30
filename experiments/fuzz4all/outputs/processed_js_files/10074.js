@@ -1,0 +1,63 @@
+ 
+const handler = {
+    get(target, property, receiver) {
+        if (property in target) {
+            print(`Getting property: ${property}`);
+            return Reflect.get(target, property, receiver);
+        } else {
+            throw new ReferenceError(`Property "${property}" does not exist.`);
+        }
+    },
+    set(target, property, value, receiver) {
+        if (typeof value === 'number') {
+            print(`Setting property: ${property} to ${value}`);
+            return Reflect.set(target, property, value, receiver);
+        } else {
+            throw new TypeError(`Value for "${property}" must be a number.`);
+        }
+    }
+};
+
+ 
+const targetObject = { x: 10, y: 20 };
+
+ 
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function* fetchData() {
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+    const data = await response.json();
+    yield data;
+}
+
+ 
+const user = { name: "Alice", details: { age: null } };
+const age = user?.details?.age ?? 'No age specified';
+
+ 
+const arr = [1, 2, 3, 4, 5];
+const [first, second, ...rest] = arr;
+
+ 
+function highlight(strings, ...values) {
+    return strings.reduce((result, string, i) => `${result}${string}<strong>${values[i] || ''}</strong>`, '');
+}
+
+const name = "World";
+print(highlight`Hello, ${name}!`);
+
+(async () => {
+     
+    print(proxy.x);  
+    proxy.y = 30;  
+
+     
+    for await (const item of fetchData()) {
+        print('Fetched Data:', item);
+    }
+
+     
+    print(`First: ${first}, Second: ${second}, Rest: ${rest.join(', ')}`);
+    print(`Age: ${age}`);
+})();

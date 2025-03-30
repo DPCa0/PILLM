@@ -1,0 +1,67 @@
+ 
+
+ 
+const handler = {
+  get: function(target, property, receiver) {
+    if (property in target) {
+      print(`Getting ${property}`);
+      return target[property];
+    } else {
+      console.warn(`Property ${property} does not exist`);
+      return undefined;
+    }
+  },
+  set: function(target, property, value, receiver) {
+    print(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const targetObj = { foo: 'bar' };
+
+ 
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+proxyObj.foo;   
+proxyObj.foo = 'baz';   
+proxyObj.nonExistentProperty;   
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    const proxyData = new Proxy(data, handler);
+
+    print(proxyData.userId);   
+    print(proxyData.nonExistentProperty);   
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+ 
+const ids = idGenerator();
+print(ids.next().value);   
+print(ids.next().value);   
+print(ids.next().value);   

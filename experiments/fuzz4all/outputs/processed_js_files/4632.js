@@ -1,0 +1,55 @@
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+  }
+
+  addTask(time, callback) {
+    const task = {
+      time: new Date(time),
+      callback: callback
+    };
+    this.tasks.push(task);
+    this.scheduleTask(task);
+  }
+
+  scheduleTask({ time, callback }) {
+    const now = new Date();
+    const delay = time - now;
+    if (delay >= 0) {
+      setTimeout(() => {
+        callback();
+        this.removeTask(callback);
+      }, delay);
+    }
+  }
+
+  removeTask(callback) {
+    this.tasks = this.tasks.filter(task => task.callback !== callback);
+  }
+}
+
+const scheduler = new Scheduler();
+
+scheduler.addTask('2023-10-15T10:00:00', () => print('Task 1 executed!'));
+scheduler.addTask('2023-10-15T11:00:00', () => print('Task 2 executed!'));
+
+ 
+scheduler.addTask = new Proxy(scheduler.addTask, {
+  apply: (target, thisArg, argumentsList) => {
+    print(`Adding task for ${argumentsList[0]}`);
+    return target.apply(thisArg, argumentsList);
+  }
+});
+
+ 
+const TYPE_ONE = Symbol('TypeOne');
+const TYPE_TWO = Symbol('TypeTwo');
+
+const taskRegistry = {
+  [TYPE_ONE]: () => console.log('Executing type one task'),
+  [TYPE_TWO]: () => console.log('Executing type two task')
+};
+
+ 
+scheduler.addTask('2023-10-15T12:00:00', taskRegistry[TYPE_ONE]);
+scheduler.addTask('2023-10-15T13:00:00', taskRegistry[TYPE_TWO]);

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), 1000);
+    });
+}
+
+ 
+async function fetchMultipleData(urls) {
+    const fetchPromises = urls.map(url => fetchData(url));
+    const data = await Promise.all(fetchPromises);
+    return data;
+}
+
+ 
+const fibonacciHandler = {
+    get: (target, property) => {
+        console.log(`Accessing Fibonacci index: ${property}`);
+        return target[property];
+    }
+};
+
+ 
+async function main() {
+    const fibLimit = 100;
+    const fibSequence = Array.from(fibonacci(fibLimit));
+    const fibProxy = new Proxy(fibSequence, fibonacciHandler);
+
+    console.log("Fibonacci sequence up to", fibLimit, ":", fibProxy);
+
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const data = await fetchMultipleData(urls);
+
+    console.log("Fetched data:", data);
+}
+
+ 
+main();
+```

@@ -1,0 +1,49 @@
+ 
+const fs = require('fs').promises;
+const https = require('https');
+
+ 
+async function fetchDataAndProcess() {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  
+   
+  const data = await new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      
+       
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      
+       
+      res.on('end', () => {
+        resolve(JSON.parse(data));
+      });
+      
+    }).on('error', (e) => {
+      reject(e);
+    });
+  });
+
+   
+  const groupedData = data.reduce((map, item) => {
+    if (!map.has(item.userId)) {
+      map.set(item.userId, []);
+    }
+    map.get(item.userId).push(item);
+    return map;
+  }, new Map());
+
+   
+  const fileContent = [...groupedData.entries()].map(([userId, posts]) => {
+    return `User ID: ${userId}\n` +
+           posts.map(({ id, title, body }) => `  Post ID: ${id}\n  Title: ${title}\n  Body: ${body}`).join('\n');
+  }).join('\n\n');
+
+  await fs.writeFile('groupedPosts.txt', fileContent);
+  
+  print('Data has been processed and written to groupedPosts.txt');
+}
+
+fetchDataAndProcess().catch(console.error);

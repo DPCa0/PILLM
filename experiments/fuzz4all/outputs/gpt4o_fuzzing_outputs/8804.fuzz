@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (userId) => {
+  try {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = ({ name, email, address }) => {
+  const { street, city, zipcode } = address;
+  console.log(`Name: ${name}\nEmail: ${email}\nAddress: ${street}, ${city}, ${zipcode}`);
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const executeConcurrently = async (userIds) => {
+  await Promise.all(userIds.map(async (userId) => {
+    await delay(Math.random() * 1000);  
+    const data = await fetchUserData(userId);
+    processData(data);
+  }));
+};
+
+ 
+function* range(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+const customIterable = {
+  [Symbol.iterator]: function* () {
+    yield* range(1, 3);
+  }
+};
+
+executeConcurrently([...customIterable]);
+```

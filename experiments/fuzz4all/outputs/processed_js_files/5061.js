@@ -1,0 +1,42 @@
+class Person {
+  #name;
+  
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+  }
+  
+  getName() {
+    return this.#name;
+  }
+  
+  get ageInDogYears() {
+    return this.age * 7;
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function introduceWithDelay(person) {
+  await delay(1000);
+  print(`Hello, my name is ${person.getName()} and I am ${person.age} years old.`);
+}
+
+const john = new Person("John Doe", 30);
+
+const ages = [25, 30, 35, 40];
+const persons = ages.map(age => new Person(`Person ${age}`, age));
+
+const introduceAll = async (personArray) => {
+  for await (const person of personArray) {
+    await introduceWithDelay(person);
+  }
+};
+
+const avgDogYears = persons.reduce((total, person) => total + person.ageInDogYears, 0) / persons.length;
+
+print(`Average age in dog years: ${avgDogYears}`);
+
+introduceAll(persons);

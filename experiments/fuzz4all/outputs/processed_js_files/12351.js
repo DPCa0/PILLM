@@ -1,0 +1,30 @@
+ 
+
+class User {
+  constructor(name, delay) {
+    this.name = name;
+    this.delay = delay;
+  }
+
+  getNameWithDelay() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(this.name), this.delay);
+    });
+  }
+}
+
+async function fetchUsers() {
+  const users = [
+    new User('Alice', 1000),
+    new User('Bob', 500),
+    new User('Charlie', 1500),
+  ];
+
+  const userNames = await Promise.all(users.map(user => user.getNameWithDelay()));
+  
+   
+  const [firstUser, secondUser, thirdUser] = userNames;
+  print(`Hello, ${firstUser}, ${secondUser}, and ${thirdUser}!`);
+}
+
+fetchUsers().catch(console.error);

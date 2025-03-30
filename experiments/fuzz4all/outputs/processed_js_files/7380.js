@@ -1,0 +1,44 @@
+ 
+async function fetchDataAndProcess() {
+     
+    const mockApiCall = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { name: 'Advanced JS', value: 42 };
+            resolve(data);
+        }, 1000);
+    });
+
+    try {
+         
+        const data = await mockApiCall;
+        
+         
+        const { name, value } = data;
+
+         
+        function highlight(strings, ...values) {
+            return strings.reduce((result, string, i) => 
+                `${result}${string}<strong>${values[i] || ''}</strong>`, '');
+        }
+
+         
+        const uniqueId = Symbol('unique');
+
+         
+        const metaMap = new Map();
+        metaMap.set(uniqueId, { name, value });
+
+         
+        for (const [key, info] of metaMap) {
+            print(highlight`ID: ${String(key)}\nName: ${info.name}\nValue: ${info.value}`);
+        }
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+(async () => {
+    await fetchDataAndProcess();
+})();

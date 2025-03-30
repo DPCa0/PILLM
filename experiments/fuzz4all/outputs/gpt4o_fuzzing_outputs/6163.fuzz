@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch data from ${url}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const processUserData = ({ name, age, ...rest }) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!name || !age) {
+        reject('Name or age missing');
+      } else {
+        resolve(`Processed User: ${name}, Age: ${age}, Rest: ${JSON.stringify(rest)}`);
+      }
+    }, 1000);
+  });
+};
+
+const main = async () => {
+  const userApiUrl = 'https://jsonplaceholder.typicode.com/users/1';
+  
+  const userData = await fetchData(userApiUrl);
+  
+  if (userData) {
+    try {
+      const message = await processUserData(userData);
+      console.log(message);
+    } catch (processingError) {
+      console.error(processingError);
+    }
+  }
+};
+
+main();
+```

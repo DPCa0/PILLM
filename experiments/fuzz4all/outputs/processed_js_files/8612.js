@@ -1,0 +1,36 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+(async () => {
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+  const deferred = new Deferred();
+  
+  const asyncIterator = fetchData(urls);
+  
+  const results = [];
+  for await (let data of asyncIterator) {
+    results.push(data);
+    if (results.length === urls.length) {
+      deferred.resolve(results);
+    }
+  }
+  
+  const finalResults = await deferred.promise;
+  const transformedData = finalResults.map(({ id, title }) => ({ ID: id, Title: title.toUpperCase() }));
+
+  const totalLength = transformedData.reduce((acc, { Title }) => acc + Title.length, 0);
+  
+  print({ TransformedData: transformedData, TotalTitleLength: totalLength });
+})();

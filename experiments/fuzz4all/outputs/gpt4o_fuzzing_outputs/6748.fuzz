@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncCounter(max) {
+  for (let i = 0; i <= max; i++) {
+    await delay(500);   
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}"`);
+      return Reflect.get(...arguments);
+    }
+    console.warn(`Property "${prop}" not found!`);
+    return undefined;
+  }
+};
+
+ 
+const user = new Proxy({ name: "Alice", age: 30 }, handler);
+
+ 
+(async () => {
+  console.log('Starting async generator...');
+  for await (let num of asyncCounter(3)) {
+    console.log(num);
+  }
+  console.log('Async generator complete!');
+
+   
+  console.log(`User Name: ${user.name}`);
+  console.log(`User Age: ${user.age}`);
+  console.log(`User Email: ${user.email}`);   
+})();
+```

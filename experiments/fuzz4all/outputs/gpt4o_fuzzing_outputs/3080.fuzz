@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const loggerHandler = {
+    get: (target, property) => {
+        console.log(`Property '${property}' accessed.`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Property '${property}' set to ${value}.`);
+        target[property] = value;
+        return true;
+    }
+};
+
+let user = new Proxy({ name: 'Alice', age: 25 }, loggerHandler);
+
+ 
+function* valueGenerator() {
+    yield* [1, 2, 3, 4, 5];
+}
+
+const asyncIterateWithDelay = async (gen) => {
+    for (let value of gen) {
+        await delay(500);  
+        console.log(`Processed value: ${value}`);
+    }
+};
+
+(async () => {
+    console.log(`User name: ${user.name}`);  
+    user.age = 26;  
+
+    const generatorInstance = valueGenerator();
+    await asyncIterateWithDelay(generatorInstance);
+})();
+```

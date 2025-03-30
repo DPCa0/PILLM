@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        let data = await response.json();
+         
+        let { name, username, email } = data;
+        
+        console.log(`User Info:\nName: ${name}\nUsername: ${username}\nEmail: ${email}`);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const apiUrl = 'https://jsonplaceholder.typicode.com/users/1';
+fetchData(apiUrl);
+
+ 
+const arrayHandler = {
+    set(target, property, value) {
+        if (property === 'length') {
+            console.log(`Array length changed: ${target.length} -> ${value}`);
+        }
+        target[property] = value;
+        return true;
+    }
+};
+
+let numbers = [1, 2, 3];
+let proxyNumbers = new Proxy(numbers, arrayHandler);
+
+ 
+proxyNumbers.push(...[4, 5, 6]);
+
+console.log(proxyNumbers);
+```

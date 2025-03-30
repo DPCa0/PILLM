@@ -1,0 +1,84 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+ 
+const dataHandler = {
+    get(target, prop) {
+        console.log(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property "${prop}" to "${value}"`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+class Person {
+    #privateProperty = 'Private';
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+    getDetails() {
+        return `${this.name}, ${this.age} years old`;
+    }
+}
+
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const iterableObject = {
+    data: [1, 2, 3, 4, 5],
+    [Symbol.iterator]() {
+        let index = 0;
+        const { data } = this;
+        return {
+            next() {
+                if (index < data.length) {
+                    return { value: data[index++], done: false };
+                }
+                return { value: undefined, done: true };
+            }
+        };
+    }
+};
+
+ 
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    try {
+        const jsonData = await fetchData(url);
+        console.log('Fetched data:', jsonData);
+
+        const person = new Person('Alice', 30);
+        console.log('Person Details:', person.getDetails());
+
+        const idGen = idGenerator();
+        console.log('Generated IDs:', idGen.next().value, idGen.next().value);
+
+        const proxy = new Proxy(person, dataHandler);
+        proxy.name = 'Bob';
+        console.log('Proxy Name:', proxy.name);
+
+        console.log('Iterating over object:');
+        for (const value of iterableObject) {
+            console.log(value);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

@@ -1,0 +1,65 @@
+ 
+
+ 
+class User {
+   
+  #password;
+
+  constructor(name, password) {
+    this.name = name;
+    this.#password = password;
+  }
+
+   
+  #validatePassword(password) {
+     
+    return this.#password === password;
+  }
+
+  login(password) {
+    return this.#validatePassword(password) ? 'Login successful' : 'Login failed';
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    print('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop) {
+    return prop in target ? target[prop] : `Property ${prop} not found`;
+  }
+};
+
+const userProxy = new Proxy(new User('Alice', 'secret123'), handler);
+
+ 
+function* generateSequence() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 2, 1]);
+const numberMap = new Map([[1, 'one'], [2, 'two'], [3, 'three']]);
+
+ 
+print(userProxy.login('secret123'));  
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+const sequence = generateSequence();
+print(sequence.next().value);  
+print(sequence.next().value);  
+
+print(uniqueNumbers.has(3));  
+print(numberMap.get(2));  

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexAsyncFlow() {
+     
+    const dataMap = new Map([
+        ['name', 'Advanced JS'],
+        ['version', 'ES2023'],
+        ['features', ['Async/Await', 'Map', 'Set', 'Promise', 'Proxy', 'Generator']]
+    ]);
+
+     
+    const handler = {
+        get(target, property) {
+            if (property === 'features') {
+                return target.get(property).join(', ');
+            }
+            return target.get(property);
+        }
+    };
+    const proxyData = new Proxy(dataMap, handler);
+
+     
+    console.log(`Starting async operations...`);
+    await delay(1000);
+
+     
+    function* featureGenerator() {
+        for (let feature of dataMap.get('features')) {
+            yield feature;
+        }
+    }
+
+     
+    const featureGen = featureGenerator();
+    console.log(`Available Features:`);
+    let nextFeature = featureGen.next();
+    while (!nextFeature.done) {
+        console.log(`- ${nextFeature.value}`);
+        nextFeature = featureGen.next();
+    }
+
+     
+    console.log(`\nProxied Data:`);
+    console.log(`Name: ${proxyData.name}`);
+    console.log(`Version: ${proxyData.version}`);
+    console.log(`Features: ${proxyData.features}`);
+}
+
+ 
+complexAsyncFlow();
+```

@@ -1,0 +1,81 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new CustomError('Network response was not ok');
+    }
+    return await response.json();
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error('Custom error occurred:', error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
+    }
+  }
+}
+
+ 
+const target = {
+  name: 'Advanced JS',
+  version: '1.0'
+};
+
+const handler = {
+  get: (obj, prop) => {
+    print(`Getting property: ${prop}`);
+    return obj[prop];
+  },
+  set: (obj, prop, value) => {
+    print(`Setting property: ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(target, handler);
+proxy.name = 'Advanced JavaScript';
+print(proxy.name);
+
+ 
+function measureExecutionTime(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    const start = performance.now();
+    const result = originalMethod.apply(this, args);
+    const end = performance.now();
+    print(`Execution time for ${key}: ${end - start}ms`);
+    return result;
+  };
+  return descriptor;
+}
+
+ 
+class Calculator {
+  @measureExecutionTime
+  multiply(a, b) {
+    return a * b;
+  }
+}
+
+const calculator = new Calculator();
+print(calculator.multiply(5, 10));
+
+ 
+(function ({ a, b, ...rest }) {
+  print('Destructured parameters:', a, b);
+  print('Rest parameters:', rest);
+})({ a: 1, b: 2, c: 3, d: 4 });
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1').then(data => {
+  print('Fetched data:', data);
+});

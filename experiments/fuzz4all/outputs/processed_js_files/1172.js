@@ -1,0 +1,54 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(max) {
+  let i = 0;
+  while (i < max) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    yield i++;
+  }
+}
+
+function processData(data) {
+  return data.map((item) => ({
+    original: item,
+    squared: item ** 2,
+    timestamp: new Date().toISOString()
+  }));
+}
+
+async function fetchData() {
+  const deferred = new Deferred();
+  
+  setTimeout(() => {
+    const data = Array.from({ length: 5 }, (_, i) => i + 1);
+    deferred.resolve(data);
+  }, 300);
+
+  return deferred.promise;
+}
+
+async function main() {
+  try {
+    const data = await fetchData();
+    print('Fetched Data:', data);
+  
+    const processed = processData(data);
+    print('Processed Data:', processed);
+  
+    print('Async Generator Output:');
+    for await (const value of asyncGenerator(5)) {
+      print(value);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();

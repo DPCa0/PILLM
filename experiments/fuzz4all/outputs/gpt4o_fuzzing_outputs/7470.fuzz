@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+function* generatorExample() {
+    yield 'First';
+    yield 'Second';
+    yield 'Third';
+}
+
+async function asyncOperation(value) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(`Processed: ${value}`);
+        }, 1000);
+    });
+}
+
+async function runComplexAsync() {
+    const gen = generatorExample();
+    for (let value of gen) {
+        console.log(`Yielded: ${value}`);
+        const result = await asyncOperation(value);
+        console.log(result);
+    }
+
+     
+    const obj = { a: 1, b: 2, c: 3 };
+    const { a, ...rest } = obj;
+    console.log(`Extracted: a = ${a}, rest = `, rest);
+
+     
+    function tag(strings, ...values) {
+        return strings.reduce((acc, str, i) => acc + str + (values[i] ? `[${values[i]}]` : ''), '');
+    }
+    const dynamicString = tag`Values: ${a}, ${rest.b}, and ${rest.c}`;
+    console.log(dynamicString);
+
+     
+    const map = new Map();
+    map.set('key1', 'value1').set('key2', 'value2');
+    console.log(`Map value for 'key1': ${map.get('key1')}`);
+
+    const set = new Set(['apple', 'banana', 'orange']);
+    set.add('grape');
+    console.log('Set has banana:', set.has('banana'));
+
+     
+    const handler = {
+        get: (target, prop) => (prop in target ? target[prop] : `Property ${prop} not found`)
+    };
+    const proxy = new Proxy({ msg: 'Hello, Proxy!' }, handler);
+    console.log(proxy.msg);
+    console.log(proxy.nonExistentProp);
+}
+
+runComplexAsync();
+```

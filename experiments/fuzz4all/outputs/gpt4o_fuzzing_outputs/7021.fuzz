@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchDataGenerator(urls) {
+  for (let url of urls) {
+    yield new Promise((resolve) => setTimeout(() => resolve(`Data from ${url}`), 1000));
+  }
+}
+
+ 
+const fetchedDataHandler = {
+  get(target, property) {
+    console.log(`Accessing data at index ${property}`);
+    return Reflect.get(target, property);
+  }
+};
+
+ 
+(async function main() {
+  const urls = ['http://api.example.com/1', 'http://api.example.com/2', 'http://api.example.com/3'];
+  const dataCollector = [];
+
+  for await (const data of fetchDataGenerator(urls)) {
+    dataCollector.push(data);
+  }
+
+   
+  const proxiedData = new Proxy(dataCollector, fetchedDataHandler);
+
+   
+  console.log(proxiedData[0]);  
+  console.log(proxiedData[1]);  
+
+   
+  console.log(Reflect.has(proxiedData, '2'));  
+
+   
+  Reflect.set(proxiedData, '2', 'Modified Data from URL 3');
+  console.log(proxiedData[2]);  
+})();
+```

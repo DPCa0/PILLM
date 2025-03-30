@@ -1,0 +1,43 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            const filteredListeners = this.events.get(event).filter(l => l !== listener);
+            this.events.set(event, filteredListeners);
+        }
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* createAsyncGenerator() {
+    yield await delay(1000).then(() => 'Hello');
+    yield await delay(1000).then(() => 'World');
+    yield await delay(1000).then(() => '!');
+}
+
+const runAsyncTasks = async () => {
+    for await (const msg of createAsyncGenerator()) {
+        print(msg);
+    }
+}
+
+const appEvents = new EventEmitter();
+appEvents.on('start', runAsyncTasks);
+appEvents.emit('start');

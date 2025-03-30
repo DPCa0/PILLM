@@ -1,0 +1,66 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, 1);
+        m.map((_, i) => arr[i]);
+        return m;
+    }
+
+    static map(matrix, func) {
+        let result = new Matrix(matrix.data.length, matrix.data[0].length);
+        result.data = matrix.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+        return result;
+    }
+
+    map(func) {
+        this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+        return this;
+    }
+
+    add(other) {
+        return Matrix.map(this, (val, i, j) => val + other.data[i][j]);
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) {
+            throw "Columns of A must match rows of B";
+        }
+        return Matrix.map(new Matrix(a.data.length, b.data[0].length), (val, i, j) => {
+            return a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0);
+        });
+    }
+
+    static randomize(matrix) {
+        return matrix.map(() => Math.random() * 2 - 1);
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+class NeuralNetwork {
+    constructor(input_nodes, hidden_nodes, output_nodes) {
+        this.input_nodes = input_nodes;
+        this.hidden_nodes = hidden_nodes;
+        this.output_nodes = output_nodes;
+
+        this.weights_ih = Matrix.randomize(new Matrix(this.hidden_nodes, this.input_nodes));
+        this.weights_ho = Matrix.randomize(new Matrix(this.output_nodes, this.hidden_nodes));
+
+        this.bias_h = Matrix.randomize(new Matrix(this.hidden_nodes, 1));
+        this.bias_o = Matrix.randomize(new Matrix(this.output_nodes, 1));
+
+        this.learning_rate = 0.1;
+    }
+
+    feedforward(input_array) {
+        let inputs = Matrix.fromArray(input_array);
+
+        let hidden = Matrix.multiply(this.weights_ih, inputs);
+        hidden.add(this.bias_h).map(sigmoid);
+
+        let output = Matrix.multiply(this.weights_ho, hidden

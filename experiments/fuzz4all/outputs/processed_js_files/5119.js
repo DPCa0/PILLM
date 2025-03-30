@@ -1,0 +1,44 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [a, b, index] = [0, 1, 0];
+    while (index++ < this.limit) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+  
+  compute(n) {
+    if (n < 2) return n;
+    if (this.memo.has(n)) return this.memo.get(n);
+
+    const result = this.compute(n - 1) + this.compute(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function delayedPrint(value, delay) {
+  return new Promise(resolve => setTimeout(() => {
+    print(value);
+    resolve();
+  }, delay));
+}
+
+const fibLimit = 10;
+const fib = new Fibonacci(fibLimit);
+
+(async () => {
+  print(`First ${fibLimit} Fibonacci numbers:`);
+  for (let num of fib) {
+    await delayedPrint(num, 500);
+  }
+
+  print('Computing 20th Fibonacci number using memoization:');
+  const result = fib.compute(20);
+  print(`Fibonacci(20) = ${result}`);
+})();

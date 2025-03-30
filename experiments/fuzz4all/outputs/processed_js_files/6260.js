@@ -1,0 +1,37 @@
+class Fibonacci {
+  #memo = new Map();
+  
+  constructor() {
+    this.#memo.set(0, 0);
+    this.#memo.set(1, 1);
+  }
+
+  getNumber(n) {
+    if (this.#memo.has(n)) {
+      return this.#memo.get(n);
+    }
+
+    const result = this.getNumber(n - 1) + this.getNumber(n - 2);
+    this.#memo.set(n, result);
+    return result;
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncFibonacciSequence(n) {
+  const fib = new Fibonacci();
+  for (let i = 0; i <= n; i++) {
+    await delay(500);  
+    yield fib.getNumber(i);
+  }
+}
+
+(async () => {
+  const sequenceLimit = 10;
+  print(`First ${sequenceLimit} Fibonacci numbers:`);
+
+  for await (const number of asyncFibonacciSequence(sequenceLimit)) {
+    print(number);
+  }
+})();

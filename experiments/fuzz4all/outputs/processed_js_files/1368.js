@@ -1,0 +1,40 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    calculate(n) {
+        if (n < 0) throw new Error("Negative numbers are not allowed.");
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        let value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+async function fetchFibonacciSequence(n) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const fib = new Fibonacci();
+            const sequence = Array.from({ length: n }, (_, i) => fib.calculate(i));
+            resolve(sequence);
+        }, 1000);
+    });
+}
+
+async function* sequenceGenerator(limit) {
+    for (let i = 0; i < limit; i++) {
+        const sequence = await fetchFibonacciSequence(i + 1);
+        yield sequence;
+    }
+}
+
+(async () => {
+    const limit = 10;
+    print(`Generating Fibonacci sequences up to length ${limit}`);
+    for await (const sequence of sequenceGenerator(limit)) {
+        print(sequence);
+    }
+})();

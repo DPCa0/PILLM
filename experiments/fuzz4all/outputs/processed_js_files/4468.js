@@ -1,0 +1,42 @@
+ 
+const fetchData = async (url) => {
+     
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, Math.random() * 2000);
+    });
+};
+
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+const fetchAllData = async () => {
+    try {
+         
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        print('Fetched all data:', results);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Accessed property "${prop}"`);
+        return prop in target ? target[prop] : 'Property does not exist';
+    }
+};
+
+const dataProxy = new Proxy({ key1: 'value1', key2: 'value2' }, handler);
+
+ 
+fetchAllData();
+
+ 
+print(dataProxy.key1);
+print(dataProxy.key3);  

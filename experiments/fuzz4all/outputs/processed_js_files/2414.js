@@ -1,0 +1,63 @@
+class DataProcessor {
+    #privateData = new WeakMap();
+
+    constructor() {
+        this.data = [];
+    }
+
+    static async fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return [];
+        }
+    }
+
+    @logExecution
+    process(data) {
+        if (Array.isArray(data)) {
+            this.data = data.map(item => ({
+                ...item,
+                processed: true,
+                timestamp: new Date().toISOString(),
+            }));
+            this.#privateData.set(this, this.data);
+            return this.data;
+        } else {
+            throw new TypeError('Data must be an array');
+        }
+    }
+
+    async *dataIterator() {
+        for (const item of this.data) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield item;
+        }
+    }
+
+    static async main() {
+        const processor = new DataProcessor();
+        const dataUrl = 'https://jsonplaceholder.typicode.com/posts';
+        const data = await DataProcessor.fetchData(dataUrl);
+        processor.process(data);
+
+        for await (const item of processor.dataIterator()) {
+            print(item);
+        }
+    }
+}
+
+function logExecution(target, propertyKey, descriptor) {
+    const originalMethod = descriptor.value;
+    descriptor.value = function (...args) {
+        print(`Executing ${propertyKey} with arguments: ${JSON.stringify(args)}`);
+        const result = originalMethod.apply(this, args);
+        print(`Executed ${propertyKey}`);
+        return result;
+    };
+}
+
+DataProcessor.main();

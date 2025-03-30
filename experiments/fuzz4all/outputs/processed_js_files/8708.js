@@ -1,0 +1,29 @@
+ 
+
+ 
+function getData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+}
+
+ 
+async function fetchDataAndProcess(urls) {
+   
+  const dataPromises = urls.map(async url => {
+    const data = await getData(url);
+    return { url, data };
+  });
+
+   
+  const results = await Promise.all(dataPromises);
+  results.forEach(({ url, data }) => {
+    print(`Processed: ${data} from ${url}`);
+  });
+}
+
+ 
+const urlsArray = ['http://example.com/1', 'http://example.com/2', 'http://example.com/3'];
+fetchDataAndProcess(...urlsArray);

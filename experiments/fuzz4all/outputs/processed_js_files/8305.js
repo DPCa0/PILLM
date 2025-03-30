@@ -1,0 +1,36 @@
+ 
+(async () => {
+  const fetch = require('node-fetch');  
+  const url = 'https://official-joke-api.appspot.com/random_joke';
+
+  try {
+     
+    const response = await fetch(url);
+    const joke = await response.json();
+
+     
+    const { setup, punchline } = joke;
+
+     
+    print(`Here's a joke for you: \n${setup} \n...${punchline}`);
+
+    // Utilize a Map to store jokes and function closures for customized retrieval
+    const jokeMap = new Map();
+    jokeMap.set(1, { setup, punchline });
+
+    const getJokeById = (id) => {
+      const { setup, punchline } = jokeMap.get(id) || {};
+      return setup && punchline
+        ? `Fetched from Map: ${setup} ...${punchline}`
+        : 'Joke not found!';
+    };
+
+    // Use optional chaining and nullish coalescing operator
+    print(jokeMap.get(1)?.setup ?? 'No joke setup found!');
+    print(getJokeById(1));
+    
+  } catch (error) {
+    // Handle errors gracefully using try-catch
+    console.error('Error fetching joke:', error);
+  }
+})();

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    fetchData() {
+        return fetch(this.apiUrl).then(response => response.json());
+    }
+}
+
+class ProcessData {
+    static async transformData(apiUrl) {
+        try {
+            const fetcher = new DataFetcher(apiUrl);
+            const rawData = await fetcher.fetchData();
+            
+            const { data } = rawData;
+            return data.map(item => {
+                const { id, name, info: { description, value } } = item;
+                return {
+                    id,
+                    name: name.toUpperCase(),
+                    description: description ? description.toLowerCase() : 'no description',
+                    value: value * 2
+                };
+            });
+        } catch (error) {
+            console.error('Error fetching or transforming data:', error);
+            return [];
+        }
+    }
+}
+
+(async () => {
+    const apiEndpoint = 'https://api.example.com/data';
+    const processedData = await ProcessData.transformData(apiEndpoint);
+    
+    const outputData = processedData
+        .filter(({ value }) => value > 100)
+        .reduce((acc, { name, value }) => ({ ...acc, [name]: value }), {});
+
+    console.log('Filtered and transformed data:', outputData);
+})();
+```

@@ -1,0 +1,46 @@
+ 
+
+ 
+function fakeAPICall(url, ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.2) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject(`Error fetching data from ${url}`);
+      }
+    }, ms);
+  });
+}
+
+ 
+function* urlGenerator(urls) {
+  for (let url of urls) {
+    yield url;
+  }
+}
+
+ 
+async function fetchData(urls) {
+  const urlIterator = urlGenerator(urls);
+
+  for (let url of urlIterator) {
+    try {
+      const data = await fakeAPICall(url, 1000);
+      print(`Success: ${data}`);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+(async () => {
+  const urls = [
+    'https://api.example.com/endpoint1',
+    'https://api.example.com/endpoint2',
+    'https://api.example.com/endpoint3',
+  ];
+
+  await fetchData(urls);
+})();

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        if (this.events.has(event)) {
+            const newListeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+            this.events.set(event, newListeners);
+        }
+    }
+}
+
+const asyncFunction = async (data) => {
+    return new Promise(resolve => setTimeout(() => resolve(data * 2), 1000));
+};
+
+const processData = async (data) => {
+    try {
+        const result = await asyncFunction(data);
+        console.log(`Processed data: ${result}`);
+    } catch (error) {
+        console.error('Error processing data', error);
+    }
+};
+
+const eventEmitter = new EventEmitter();
+
+eventEmitter.on('data', processData);
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+    for (const value of [1, 2, 3, 4]) {
+        eventEmitter.emit('data', value);
+        await delay(500);
+    }
+})();
+```

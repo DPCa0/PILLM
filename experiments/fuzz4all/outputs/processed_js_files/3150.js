@@ -1,0 +1,42 @@
+ 
+class AdvancedFeatures {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async greet() {
+    const message = await this.getMessage();
+    print(`${message}, ${this.name}!`);
+  }
+
+  getMessage() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve('Hello');
+      }, 1000);
+    });
+  }
+}
+
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      print(`Getting property: ${prop}`);
+      return Reflect.get(...arguments);
+    } else {
+      console.warn(`Property "${prop}" does not exist on target`);
+    }
+  },
+  set: function(target, prop, value) {
+    print(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const advancedFeaturesProxy = new Proxy(new AdvancedFeatures('world'), handler);
+
+ 
+advancedFeaturesProxy.greet();
+advancedFeaturesProxy.name = 'JavaScript';
+print(advancedFeaturesProxy.nonExistentProp);   

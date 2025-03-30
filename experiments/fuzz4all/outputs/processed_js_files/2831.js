@@ -1,0 +1,49 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOp = (delay, result) => new Promise(resolve => setTimeout(() => resolve(result), delay));
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('data', data => {
+    print('Received data:', data);
+  });
+
+  eventEmitter.on('end', () => {
+    print('Stream ended');
+  });
+
+   
+  const operations = [
+    asyncOp(1000, 'Data 1'),
+    asyncOp(1500, 'Data 2'),
+    asyncOp(500, 'Data 3')
+  ];
+
+  const results = await Promise.allSettled(operations);
+  
+  results.forEach(result => {
+    if (result.status === 'fulfilled') {
+      eventEmitter.emit('data', result.value);
+    }
+  });
+  
+  eventEmitter.emit('end');
+})();

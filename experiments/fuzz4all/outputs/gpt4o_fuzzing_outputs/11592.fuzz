@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve("Data Loaded");
+    }, 1000);
+  });
+}
+
+ 
+const UNIQUE_KEY = Symbol('unique');
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Accessing ${property}: ${target[property]}`);
+      return target[property];
+    } else {
+      console.error(`Property ${property} not found!`);
+    }
+  }
+};
+
+ 
+const myMap = new Map([
+  ['foo', 'bar'],
+  [UNIQUE_KEY, 'baz']
+]);
+
+ 
+const proxyMap = new Proxy(myMap, handler);
+
+ 
+(async () => {
+  const data = await fetchData();
+  console.log(data);  
+
+   
+  console.log(proxyMap.get('foo'));  
+  console.log(proxyMap.get(UNIQUE_KEY));  
+  console.log(proxyMap.get('notFound'));  
+})();
+```

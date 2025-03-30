@@ -1,0 +1,81 @@
+ 
+const advancedModule = (() => {
+   
+  const privateData = new WeakMap();
+
+   
+  const _calculate = Symbol('_calculate');
+
+  class ComplexOperation {
+    constructor() {
+       
+      privateData.set(this, { value: 0 });
+    }
+
+     
+    setValue(val) {
+      if (typeof val === 'number') {
+        privateData.get(this).value = val;
+      } else {
+        throw new TypeError('Value must be a number');
+      }
+    }
+
+     
+    getValue() {
+      return privateData.get(this).value;
+    }
+
+     
+    [_calculate](factor) {
+      return privateData.get(this).value * factor;
+    }
+
+     
+    calculateAndLog(factor) {
+      const result = this[_calculate](factor);
+      print(`The result of multiplying ${this.getValue()} by ${factor} is ${result}`);
+    }
+  }
+
+   
+  function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+
+   
+  const handler = {
+    get(target, prop) {
+      print(`Getting property ${prop}`);
+      return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+      print(`Setting property ${prop} to ${value}`);
+      return Reflect.set(target, prop, value);
+    }
+  };
+
+  const proxiedObject = new Proxy(new ComplexOperation(), handler);
+
+   
+  proxiedObject.setValue(5);
+  proxiedObject.calculateAndLog(10);
+
+   
+  print("First 10 Fibonacci numbers:");
+  for (let num of fibonacci(10)) {
+    print(num);
+  }
+
+   
+  return {
+    proxiedObject,
+    fibonacci
+  };
+})();
+
+ 

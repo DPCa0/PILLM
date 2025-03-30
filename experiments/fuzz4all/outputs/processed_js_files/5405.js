@@ -1,0 +1,45 @@
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (id > 0) {
+        resolve({ id, name: 'Item ' + id, value: Math.random() * 100 });
+      } else {
+        reject(new Error('Invalid ID'));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const fetchItems = async (ids) => {
+  try {
+    const promises = ids.map(fetchData);
+    const results = await Promise.all(promises);
+    return results;
+  } catch (error) {
+    console.error('Error fetching items:', error);
+  }
+};
+
+ 
+const processData = ({ id, name, value }) => {
+  print(`Processing Item: ${id}, Name: ${name}, Value: ${value.toFixed(2)}`);
+};
+
+ 
+const processItems = (items, callback) => {
+  items.forEach(callback);
+};
+
+ 
+const main = async () => {
+  const ids = [1, 2, 3, 4, 5];
+  const items = await fetchItems(ids);
+  processItems(items, processData);
+};
+
+ 
+main();

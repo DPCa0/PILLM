@@ -1,0 +1,35 @@
+class FibonacciIterator {
+    constructor(limit) {
+        this.limit = limit;
+        this.count = 0;
+        this.prev = 0;
+        this.curr = 1;
+    }
+
+    [Symbol.iterator]() {
+        return this;
+    }
+
+    next() {
+        if (this.count >= this.limit) {
+            return { done: true };
+        }
+        let value = this.count < 2 ? this.count : this.prev + this.curr;
+        [this.prev, this.curr] = [this.curr, value];
+        this.count++;
+        return { value, done: false };
+    }
+}
+
+const fibonacciSequence = new FibonacciIterator(10);
+
+(async function processSequence(seq) {
+    const promises = [...seq].map((num, index) =>
+        new Promise(resolve => setTimeout(() => {
+            print(`Value at position ${index}: ${num}`);
+            resolve();
+        }, 500))
+    );
+    await Promise.all(promises);
+    print('Fibonacci sequence processed.');
+})(fibonacciSequence);

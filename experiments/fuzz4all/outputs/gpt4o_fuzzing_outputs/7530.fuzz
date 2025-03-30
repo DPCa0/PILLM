@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+    let i = 1;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function fetchData(num) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Data fetched for number ${num}`);
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Getting property ${prop}`);
+            return target[prop];
+        } else {
+            console.log(`Property ${prop} not found`);
+            return 42;  
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+let obj = { existingProperty: "I'm here!" };
+let proxyObj = new Proxy(obj, handler);
+
+ 
+async function processData() {
+    let gen = numberGenerator();
+    for (let i = 0; i < 5; i++) {
+        let number = gen.next().value;
+        proxyObj[number] = await fetchData(number);
+        console.log(proxyObj[number]);
+    }
+    console.log(proxyObj.missingProperty);  
+}
+
+ 
+processData();
+```

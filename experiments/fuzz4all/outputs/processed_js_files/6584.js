@@ -1,0 +1,62 @@
+ 
+
+ 
+const secretKey = Symbol('secret');
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property === 'secret') {
+      throw new Error('Access denied');
+    }
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value) {
+    if (property === 'secret') {
+      throw new Error('Modification denied');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const targetObject = {
+  [secretKey]: 'Hidden Value',
+  publicData: 'Visible Value'
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+async function* asyncDataFetcher() {
+  const data = [
+    Promise.resolve('Data 1'),
+    Promise.resolve('Data 2'),
+    Promise.resolve('Data 3')
+  ];
+
+  for await (const item of data) {
+    yield item;
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    print(proxiedObject.publicData);  
+    print(proxiedObject[secretKey]);  
+    print(proxiedObject.secret);  
+  } catch (e) {
+    console.error(e.message);
+  }
+
+  try {
+     
+    for await (const item of asyncDataFetcher()) {
+      print(item);
+    }
+  } catch (e) {
+    console.error(e.message);
+  }
+})();

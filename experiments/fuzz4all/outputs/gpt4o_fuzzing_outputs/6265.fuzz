@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function* asyncFibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    await delay(1000);  
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+function createLoggingProxy(target) {
+  return new Proxy(target, {
+    get(obj, prop) {
+      console.log(`Accessing property "${prop}" with value "${obj[prop]}"`);
+      return Reflect.get(obj, prop);
+    },
+    set(obj, prop, value) {
+      console.log(`Setting property "${prop}" to value "${value}"`);
+      return Reflect.set(obj, prop, value);
+    }
+  });
+}
+
+ 
+const user = createLoggingProxy({
+  name: 'John Doe',
+  age: 30
+});
+
+ 
+console.log(user.name);
+user.age = 31;
+
+ 
+(async function() {
+  const fibGenerator = asyncFibonacci();
+  console.log('Fibonacci Generator started. Printing first 5 numbers:');
+  for (let i = 0; i < 5; i++) {
+    console.log(`Fibonacci number ${i + 1}:`, await fibGenerator.next().value);
+  }
+  console.log('End of Fibonacci sequence.');
+})();
+```

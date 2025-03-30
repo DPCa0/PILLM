@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ user: { name: 'John Doe', age: 30, location: 'Earth' }, score: 100 });
+        }, 1000);
+    });
+};
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+(async () => {
+     
+    const data = await fetchData();
+    
+     
+    const proxyData = new Proxy(data, handler);
+    
+     
+    const { user: { name = 'Anonymous', age = 0, location = 'Unknown' }, score = 0 } = proxyData;
+    
+     
+    console.log(`Name: ${name}, Age: ${age}, Location: ${location}, Score: ${score}`);
+    
+     
+    proxyData.user.name = 'Jane Doe';
+    proxyData.score += 10;
+    
+     
+    console.log(proxyData.user.name);
+    console.log(proxyData.score);
+})();
+```

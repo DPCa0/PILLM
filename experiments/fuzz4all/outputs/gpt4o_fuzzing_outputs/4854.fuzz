@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+const { Transform } = require('stream');
+
+ 
+async function reverseFileContent(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return data.split('').reverse().join('');
+  } catch (error) {
+    console.error('Error reading file:', error);
+    throw error;
+  }
+}
+
+ 
+class UppercaseTransform extends Transform {
+  _transform(chunk, encoding, callback) {
+    this.push(chunk.toString().toUpperCase());
+    callback();
+  }
+}
+
+ 
+(async () => {
+  try {
+    const reversedContent = await reverseFileContent('sample.txt');
+    
+     
+    const readableStream = require('stream').Readable.from(reversedContent);
+    const uppercaseStream = new UppercaseTransform();
+    
+    readableStream
+      .pipe(uppercaseStream)
+      .on('data', chunk => {
+        console.log(`Processed Chunk: ${chunk}`);
+      });
+  } catch (error) {
+    console.error('Operation failed:', error);
+  }
+})();
+```
+
+Note: This program assumes that you have a file named `sample.txt` with some content in the same directory where you run the script. The script demonstrates the use of async/await with promises, custom transform streams, and Node.js file system operations.

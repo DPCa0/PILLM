@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchDataAndProcess() {
+   
+  console.log('Fetching data...');
+  await delay(1000);
+  const data = [1, 2, 3, 4, 5];
+
+   
+  for (let item of data) {
+    console.log(`Processing item ${item}`);
+    await delay(500);
+    yield item * 2;
+  }
+}
+
+ 
+(async () => {
+  for await (let processedItem of fetchDataAndProcess()) {
+    console.log(`Processed Item: ${processedItem}`);
+  }
+  console.log('All data processed');
+})();
+
+ 
+const targetObject = {
+  message: 'Hello, Proxy!'
+};
+
+const handler = {
+  set(target, key, value) {
+    console.log(`Property ${key} set to ${value}`);
+    target[key] = value;
+    return true;
+  }
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+proxyObject.message = 'Hello, World!';
+proxyObject.newProperty = 'This is a new property';
+```

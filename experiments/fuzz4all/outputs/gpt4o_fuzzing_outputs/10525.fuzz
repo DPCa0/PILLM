@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+const asyncGenerator = async function* () {
+  const values = [1, 2, 3, 4];
+  for (let value of values) {
+    yield new Promise((resolve) => setTimeout(() => resolve(value * 2), 1000));
+  }
+};
+
+async function processGenerator() {
+  const iter = asyncGenerator();
+  for await (let num of iter) {
+    console.log(`Processed value: ${num}`);
+  }
+}
+
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Getting value of ${prop}`);
+      return Reflect.get(...arguments);
+    }
+    throw new ReferenceError(`Property ${prop} does not exist.`);
+  },
+  set: function(target, prop, value) {
+    if (typeof value === 'number' && value > 0) {
+      console.log(`Setting value of ${prop} to ${value}`);
+      return Reflect.set(...arguments);
+    }
+    throw new TypeError('Property value should be a positive number.');
+  }
+};
+
+const obj = new Proxy({ a: 1, b: 2 }, handler);
+
+try {
+  obj.a = 3;   
+  console.log(obj.a);  
+  obj.b = -1;  
+} catch (error) {
+  console.error(error.message);
+}
+
+processGenerator();
+```

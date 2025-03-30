@@ -1,0 +1,43 @@
+ 
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function fetchFibonacci(gen, delay) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(gen.next().value), delay);
+    });
+}
+
+ 
+const fibonacciLogger = new Proxy({}, {
+    get(target, prop) {
+        print(`Getting ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+});
+
+ 
+async function main() {
+    const fibGen = fibonacci();
+    for (let i = 0; i < 5; i++) {
+        const fibNumber = await fetchFibonacci(fibGen, 1000);
+        fibonacciLogger[`fib${i + 1}`] = fibNumber;
+    }
+
+    print("Fibonacci numbers:", fibonacciLogger);
+}
+
+main();

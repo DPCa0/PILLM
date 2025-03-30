@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+}
+
+const proxyHandler = {
+    get: (target, prop) => {
+        console.log(`Property ${prop} has been accessed`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Property ${prop} has been set to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const data = new Proxy({ count: 0 }, proxyHandler);
+
+const events = new EventEmitter();
+events.on('increment', debounce(() => console.log(`Count is now ${data.count}`), 500));
+
+(async () => {
+    try {
+        const jsonData = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        console.log('Data fetched:', jsonData);
+    } catch (error) {
+        console.error('Fetching error:', error);
+    }
+})();
+
+data.count++;
+events.emit('increment');
+data.count++;
+events.emit('increment');
+```

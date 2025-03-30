@@ -1,0 +1,35 @@
+Certainly! Here's a JavaScript program that utilizes advanced features, including async/await, Promises, and higher-order functions:
+
+// A mock function to simulate an asynchronous API call
+function fetchData(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { id, value: Math.random() * 100 };
+      Math.random() > 0.2 ? resolve(data) : reject(`Error fetching data for ID: ${id}`);
+    }, 1000);
+  });
+}
+
+// An async function to fetch and process data
+async function processData(ids) {
+  try {
+    const results = await Promise.allSettled(ids.map(async (id) => {
+      const data = await fetchData(id);
+      return data.value * 2;
+    }));
+    
+    const successfulResults = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => result.value);
+
+    print('Processed Values:', successfulResults);
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+}
+
+ 
+const ids = Array.from({ length: 5 }, (_, i) => i + 1);
+processData(ids);
+
+This script simulates fetching data asynchronously for a set of IDs. It processes the data using advanced JavaScript features such as Promises, async/await, and higher-order functions to manage and transform collections.

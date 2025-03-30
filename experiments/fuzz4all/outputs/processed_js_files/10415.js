@@ -1,0 +1,70 @@
+ 
+
+ 
+function asyncOperation(value, delay) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (value % 2 === 0) resolve(value * 2);
+            else reject(new Error('Odd value error'));
+        }, delay);
+    });
+}
+
+ 
+async function asyncFunc(generator) {
+    const gen = generator();
+
+    async function handle(yielded) {
+        if (yielded.done) return yielded.value;
+        try {
+            const value = await yielded.value;
+            return handle(gen.next(value));
+        } catch (e) {
+            return handle(gen.throw(e));
+        }
+    }
+
+    try {
+        return await handle(gen.next());
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
+}
+
+ 
+function* generatorFunc() {
+    try {
+        const value1 = yield asyncOperation(2, 1000);
+        print('Value 1:', value1);
+        const value2 = yield asyncOperation(value1 + 1, 1000);
+        print('Value 2:', value2);
+        yield asyncOperation(value2, 1000);  
+    } catch (error) {
+        print('Caught an error inside generator:', error.message);
+        return 'Generator terminated with an error';
+    }
+}
+
+ 
+const targetObject = { a: 1, b: 2 };
+
+const handler = {
+    get(target, prop) {
+        print(`Getting property: ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.a;  
+proxy.b = 42;  
+
+ 
+asyncFunc(generatorFunc).then(result => print('Final Result:', result));

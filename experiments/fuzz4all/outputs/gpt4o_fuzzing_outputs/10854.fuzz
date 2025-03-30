@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        Math.random() > 0.5 ? resolve({ name: 'Alice', age: 30 }) : reject('Fetch error');
+    }, 1000);
+});
+
+ 
+async function getUserData() {
+    try {
+        let data = await fetchUserData();
+        console.log('User data fetched:', data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Property '${prop}' was accessed`);
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+function createUserProxy(userData) {
+    return new Proxy(userData, handler);
+}
+
+ 
+(async () => {
+    console.log('Starting data fetch...');
+    let userData = await getUserData();
+    if (userData) {
+        const user = createUserProxy(userData);
+        console.log(`User's name is ${user.name}`);
+        console.log(`User's age is ${user.age}`);
+    }
+})();
+```

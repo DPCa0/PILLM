@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const privateKey = Symbol('privateKey');
+
+ 
+function* numberSequence(start = 1) {
+  let current = start;
+  while (true) {
+    yield current++;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === privateKey) {
+      return 'Access Denied';
+    }
+    return property in target ? target[property] : 'Property does not exist';
+  },
+  set(target, property, value) {
+    if (property === privateKey) {
+      throw new Error('Cannot modify private property');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const person = {
+  name: 'John Doe',
+  age: 30,
+  [privateKey]: 'secretValue',
+  numberSequence: numberSequence(10),
+};
+
+const proxiedPerson = new Proxy(person, handler);
+
+ 
+async function complexOperation() {
+  try {
+    console.log(`Name: ${proxiedPerson.name}`);
+    console.log(`Age: ${proxiedPerson.age}`);
+
+     
+    console.log(`Private Key Access Attempt: ${proxiedPerson[privateKey]}`);
+
+     
+    proxiedPerson.name = 'Jane Doe';
+    console.log(`Updated Name: ${proxiedPerson.name}`);
+
+     
+    console.log('Sequence:');
+    for (let i = 0; i < 5; i++) {
+      console.log(proxiedPerson.numberSequence.next().value);
+    }
+
+     
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log('Async operation completed');
+
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+ 
+complexOperation();
+```

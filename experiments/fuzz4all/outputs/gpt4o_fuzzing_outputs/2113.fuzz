@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+import readline from 'readline';
+import { promises as fs } from 'fs';
+
+ 
+const arrayHandler = {
+  get(target, property) {
+    if (property === 'last') {
+      return target[target.length - 1];
+    }
+    return Reflect.get(target, property);
+  },
+};
+
+let complexArray = new Proxy([], arrayHandler);
+
+ 
+(async () => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+   
+  const fetchData = () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(Math.floor(Math.random() * 100)), 1000);
+    });
+  };
+
+  try {
+     
+    const data = await fetchData();
+    complexArray.push(data);
+
+     
+    await fs.writeFile('output.txt', `Fetched data: ${data}\n`, { flag: 'a' });
+
+    const userResponse = await question('Add a number to the array: ');
+    complexArray.push(parseInt(userResponse, 10));
+
+    console.log('Complex Array:', complexArray);
+    console.log('Last element in the array:', complexArray.last);
+
+    rl.close();
+  } catch (error) {
+    console.error('An error occurred:', error);
+    rl.close();
+  }
+})();
+```

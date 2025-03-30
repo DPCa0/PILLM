@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === "valid") {
+            resolve({ data: "Some data from " + url });
+        } else {
+            reject(new Error("Invalid URL"));
+        }
+    }, 1000);
+});
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('dataFetched', data => {
+        console.log('Data:', data);
+    });
+
+    eventEmitter.on('error', error => {
+        console.error('Error:', error.message);
+    });
+
+    try {
+        const data = await fetchData("valid");
+        eventEmitter.emit('dataFetched', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+
+    try {
+        const data = await fetchData("invalid");
+        eventEmitter.emit('dataFetched', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+})();
+```

@@ -1,0 +1,38 @@
+ 
+
+ 
+function* delayedNumbers() {
+  let count = 1;
+  while (true) {
+    yield new Promise((resolve) => setTimeout(() => resolve(count++), 1000));
+  }
+}
+
+ 
+async function printNumbers(generator) {
+  for await (let number of generator) {
+    print(`Number: ${number}`);
+    if (number >= 5) break;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        print(`Called method: ${prop}, with arguments: ${JSON.stringify(args)}`);
+        return target[prop].apply(target, args);
+      };
+    }
+    return target[prop];
+  },
+};
+
+const proxiedArray = new Proxy([], handler);
+proxiedArray.push(10);
+proxiedArray.push(20);
+proxiedArray.pop();
+
+ 
+printNumbers(delayedNumbers());

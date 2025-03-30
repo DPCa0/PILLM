@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function asyncOperation(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+  await asyncOperation(1000);  
+  return { data: 'Hello, world!', status: 200 };
+}
+
+ 
+const loggingHandler = {
+  get(target, property) {
+    console.log(`Property '${property}' has been accessed.`);
+    return target[property];
+  },
+};
+
+ 
+async function processData() {
+  const response = await fetchData();
+  const proxyResponse = new Proxy(response, loggingHandler);
+
+  if (proxyResponse.status === 200) {
+    console.log(proxyResponse.data);  
+  } else {
+    console.error('Failed to fetch data.');
+  }
+}
+
+ 
+processData();
+```

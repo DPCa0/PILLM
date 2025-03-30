@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+async function* asyncSquareGenerator(numbers) {
+  for (const num of numbers) {
+    await new Promise((resolve) => setTimeout(resolve, 100));  
+    yield num * num;
+  }
+}
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const numbersProxy = new Proxy(numbers, {
+  get(target, prop, receiver) {
+    console.log(`Accessing ${prop} in numbers array`);
+    return Reflect.get(target, prop, receiver);
+  },
+});
+
+ 
+const numMap = new Map(numbersProxy.map((n) => [n, n * 2]));
+
+ 
+function multiplyAndLog(first, second, ...rest) {
+  const product = first * second;
+  console.log(`Product of ${first} and ${second} is: ${product}`);
+  console.log(`Remaining numbers are: ${rest.join(", ")}`);
+}
+
+ 
+async function processNumbers() {
+   
+  for await (const square of asyncSquareGenerator(numbersProxy)) {
+    console.log(`Square: ${square}`);
+  }
+
+   
+  console.log("Num map values:", [...numMap.values()]);
+
+   
+  multiplyAndLog(...numbersProxy);
+}
+
+ 
+(async () => {
+  try {
+    console.log("Starting process...");
+    await processNumbers();
+    console.log("Process completed.");
+  } catch (error) {
+    console.error("Error during processing:", error);
+  }
+})();
+```

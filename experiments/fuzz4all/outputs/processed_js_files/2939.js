@@ -1,0 +1,45 @@
+ 
+(async () => {
+  try {
+    const [fs, os] = await Promise.all([
+      import('fs').then(module => module.promises),
+      import('os')
+    ]);
+
+     
+    const userInfo = os.userInfo();
+    const username = userInfo?.username ?? 'Anonymous';
+
+     
+    const taggedTemplate = (strings, ...values) => {
+      return strings.raw.reduce((acc, str, index) => {
+        const value = values[index - 1];
+        return acc + (value !== undefined ? String(value).toUpperCase() : '') + str;
+      });
+    };
+
+    const message = taggedTemplate`Hello, ${username}! Your homedir is ${userInfo?.homedir ?? '/home'}`;
+
+     
+    const files = await fs.readdir(userInfo.homedir);
+    const jsFiles = files.filter(file => file.endsWith('.js'));
+
+     
+    async function* getFilesInfo(files) {
+      for (const file of files) {
+        const stat = await fs.stat(`${userInfo.homedir}/${file}`);
+        yield { file, size: stat.size };
+      }
+    }
+
+     
+    print(message);
+    print(`JavaScript files in your home directory (${jsFiles.length} found):`);
+    for await (const { file, size } of getFilesInfo(jsFiles)) {
+      print(`- ${file}: ${size} bytes`);
+    }
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

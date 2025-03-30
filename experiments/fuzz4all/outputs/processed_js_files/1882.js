@@ -1,0 +1,54 @@
+class Observable {
+  constructor() {
+    this.observers = new Set();
+  }
+
+  subscribe(observer) {
+    this.observers.add(observer);
+  }
+
+  unsubscribe(observer) {
+    this.observers.delete(observer);
+  }
+
+  notify(data) {
+    this.observers.forEach(observer => observer.update(data));
+  }
+}
+
+class Observer {
+  constructor(name) {
+    this.name = name;
+  }
+
+  update(data) {
+    print(`${this.name} received data: ${data}`);
+  }
+}
+
+function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  while (limit--) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+async function processData(observer, observable, data) {
+  const response = await new Promise(resolve => 
+    setTimeout(() => resolve(data * 2), 1000)
+  );
+  observable.notify(response);
+}
+
+const observable = new Observable();
+const observer1 = new Observer('Observer 1');
+const observer2 = new Observer('Observer 2');
+
+observable.subscribe(observer1);
+observable.subscribe(observer2);
+
+const dataStream = fibonacci(5);
+for (let data of dataStream) {
+  processData(observer1, observable, data);
+}

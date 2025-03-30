@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(["apple", "banana", "cherry"]);
+        }, 1000);
+    });
+}
+
+ 
+function* fruitGenerator(fruits) {
+    for (const fruit of fruits) {
+        yield fruit;
+    }
+}
+
+ 
+const fruitHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessed property "${prop}": ${target[prop]}`);
+            return target[prop];
+        }
+        console.log(`Property "${prop}" does not exist.`);
+        return undefined;
+    }
+};
+
+ 
+const hiddenProperty = Symbol("hidden");
+
+ 
+(async function main() {
+    try {
+        const fruits = await fetchData();
+        const proxyFruits = new Proxy(fruits, fruitHandler);
+
+         
+        proxyFruits[hiddenProperty] = "This is hidden";
+
+        const fruitGen = fruitGenerator(proxyFruits);
+
+        for (const fruit of fruitGen) {
+            console.log(`Fruit: ${fruit}`);
+        }
+
+        console.log(proxyFruits[hiddenProperty]);  
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+})();
+```

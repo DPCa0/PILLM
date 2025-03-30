@@ -1,0 +1,60 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    yield 'Loading';
+    await delay(1000);
+    yield 'Fetching data';
+    await delay(1000);
+    yield 'Almost done';
+    await delay(1000);
+    yield 'Complete';
+  },
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  emitter.on('progress', console.log);
+
+  for await (const message of asyncIterable) {
+    emitter.emit('progress', message);
+  }
+})();
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist.`);
+      return () => {};
+    }
+  },
+};
+
+const targetObj = { greet: () => console.log('Hello, world!') };
+const proxiedObj = new Proxy(targetObj, proxyHandler);
+
+proxiedObj.greet();  
+proxiedObj.unknownMethod();  

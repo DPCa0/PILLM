@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const { default: axios } = await import('https://cdn.skypack.dev/axios');
+
+   
+  const fetchData = async (url) => {
+    try {
+      const { data } = await axios.get(url);
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+   
+  const url = 'https://jsonplaceholder.typicode.com/users/1';
+  const userData = await fetchData(url);
+  const { name, email, address: { city } } = userData || {};
+
+   
+  console.log(`User Info:
+  Name: ${name}
+  Email: ${email}
+  City: ${city}`);
+
+   
+  const handler = {
+    get: (target, property) => {
+      return property in target ? target[property] : `Property ${property} doesn't exist`;
+    },
+  };
+
+  const userProxy = new Proxy(userData, handler);
+  console.log(`Phone: ${userProxy.phone}`);  
+  console.log(`Company: ${userProxy.company}`);  
+})();
+```

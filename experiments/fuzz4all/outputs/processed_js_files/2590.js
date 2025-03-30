@@ -1,0 +1,38 @@
+ 
+(async () => {
+    if (typeof fetch !== 'function') {
+        const { default: fetch } = await import('node-fetch');
+        global.fetch = fetch;
+    }
+
+     
+    const handler = {
+        get: function(target, prop, receiver) {
+            if (prop in target) {
+                print(`Getting ${prop}: ${target[prop]}`);
+                return Reflect.get(...arguments);
+            } else {
+                throw new ReferenceError(`Property ${prop} does not exist.`);
+            }
+        },
+        set: function(target, prop, value, receiver) {
+            print(`Setting ${prop} to ${value}`);
+            return Reflect.set(...arguments);
+        }
+    };
+
+    let data = { message: "Hello, world!" };
+    let proxyData = new Proxy(data, handler);
+
+     
+    let response = await fetch('https://api.adviceslip.com/advice');
+    let adviceData = await response.json();
+    proxyData.message = adviceData.slip.advice;
+
+     
+    const { message, ...rest } = proxyData;
+    print(`Advice: ${message}`);
+
+     
+    print(`Additional data: ${JSON.stringify(rest)}`);
+})();

@@ -1,0 +1,49 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const getUserData = async () => {
+  const fakeApiUrl = 'https://jsonplaceholder.typicode.com/users';
+  return await fetchData(fakeApiUrl);
+};
+
+ 
+class UserOperations {
+  constructor(users) {
+    this.users = users;
+  }
+
+   
+  createUsernameEmailMap() {
+    return new Map(this.users.map(({ username, email }) => [username, email]));
+  }
+
+   
+  getUniqueCompanyNames() {
+    return new Set(this.users.map(({ company: { name } }) => name));
+  }
+}
+
+(async () => {
+  const users = await getUserData();
+  
+  if (users) {
+    const userOps = new UserOperations(users);
+    const usernameEmailMap = userOps.createUsernameEmailMap();
+    const uniqueCompanies = userOps.getUniqueCompanyNames();
+
+    print('Username-Email Map:', [...usernameEmailMap.entries()]);
+    print('Unique Companies:', [...uniqueCompanies]);
+  }
+})();

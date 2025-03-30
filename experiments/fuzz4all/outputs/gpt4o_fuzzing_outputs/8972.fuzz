@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class ComplexOperation {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async processData() {
+         
+        let result = await this.mockApiCall(this.data);
+        return this.enhanceData(result);
+    }
+
+    mockApiCall(data) {
+         
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const processedData = data.map(item => item * 2);
+                resolve(processedData);
+            }, 1000);
+        });
+    }
+
+    enhanceData(data) {
+         
+        return data.map(item => ({
+            original: item / 2,
+            doubled: item,
+            randomFactor: Math.random()
+        }));
+    }
+
+    *generateDataStream() {
+         
+        let enhancedData = this.enhanceData(this.data);
+        for (const item of enhancedData) {
+            yield item;
+        }
+    }
+
+    static logResults(results) {
+         
+        results.forEach(({ original, doubled, randomFactor }) => {
+            console.log(`Original: ${original}, Doubled: ${doubled}, Random: ${randomFactor.toFixed(2)}`);
+        });
+    }
+}
+
+ 
+const data = [1, 2, 3, 4, 5];
+const operation = new ComplexOperation(data);
+
+ 
+operation.processData().then(results => {
+    ComplexOperation.logResults(results);
+});
+
+ 
+const dataStream = operation.generateDataStream();
+for (const data of dataStream) {
+    console.log(data);
+}
+```

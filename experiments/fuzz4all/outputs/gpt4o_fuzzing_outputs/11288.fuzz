@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+ 
+function* counter() {
+  let count = 0;
+  while (true) {
+    yield count++;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Getting property ${prop}: ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.log(`Property ${prop} not found, returning default value`);
+      return 'default';
+    }
+  }
+};
+
+const proxy = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+const compose = (...functions) => args => functions.reduceRight((arg, fn) => fn(arg), args);
+
+ 
+const double = x => x * 2;
+const square = x => x * x;
+
+ 
+const doubleThenSquare = compose(square, double);
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched data:', data);
+
+     
+    const gen = counter();
+    console.log('Counter 1:', gen.next().value);
+    console.log('Counter 2:', gen.next().value);
+
+     
+    console.log('Proxy a:', proxy.a);
+    console.log('Proxy nonExistent:', proxy.nonExistent);
+
+     
+    console.log('Double then square 3:', doubleThenSquare(3));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

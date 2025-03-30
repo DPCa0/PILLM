@@ -1,0 +1,50 @@
+class User {
+  #name;  
+  constructor(name) {
+    this.#name = name;
+  }
+  getName() {
+    return this.#name;
+  }
+}
+
+const asyncGreeting = async (userName) => {
+  const user = new User(userName);
+  const greeting = await new Promise((resolve) => {
+    setTimeout(() => resolve(`Hello, ${user.getName()}!`), 1000);
+  });
+  print(greeting);
+};
+
+const proxyHandler = {
+  get: function (target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new Error(`Property ${prop} doesn't exist`);
+    }
+  },
+  set: function (target, prop, value) {
+    if (typeof value === 'string') {
+      return Reflect.set(target, prop, value);
+    } else {
+      throw new Error('Values must be strings');
+    }
+  },
+};
+
+const userObj = new Proxy({ name: 'John Doe' }, proxyHandler);
+
+(async () => {
+  try {
+    print(`Attempting to greet user: ${userObj.name}`);
+    await asyncGreeting(userObj.name);
+    
+    userObj.age = '30'; // works fine
+    print(`User's age set to: ${userObj.age}`);
+    
+    userObj.age = 30;  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

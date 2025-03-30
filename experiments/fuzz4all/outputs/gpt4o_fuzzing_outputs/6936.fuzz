@@ -1,0 +1,28 @@
+print('Hello, world!');
+```javascript
+const crypto = require('crypto');
+const fetch = require('node-fetch');
+
+(async () => {
+  const url = 'https://api.github.com/repos/nodejs/node';
+  
+   
+  const response = await fetch(url);
+  const data = await response.json();
+  const starCount = data.stargazers_count;
+
+   
+  const { name, owner: { login: owner }, created_at: createdAt } = data;
+
+   
+  const hash = crypto.createHash('sha256').update(name).digest('hex');
+
+   
+  const message = logMessage`Repo Name: ${name}, Owner: ${owner}, Created At: ${createdAt}, Star Count: ${starCount}, Hash: ${hash}`;
+  console.log(message);
+})();
+
+function logMessage(strings, ...values) {
+  return strings.reduce((prev, curr, i) => `${prev}${curr}${values[i] ? values[i].toUpperCase() : ''}`, '');
+}
+```

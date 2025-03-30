@@ -1,0 +1,69 @@
+ 
+const idSymbol = Symbol('id');
+
+ 
+const secureHandler = {
+  get: (target, property) => {
+    if (property === idSymbol) {
+      throw new Error('Access to private ID is restricted!');
+    }
+    return target[property];
+  },
+  set: (target, property, value) => {
+    if (property === idSymbol) {
+      throw new Error('Cannot modify private ID directly!');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Fetched Data'), 1000);
+  });
+};
+
+ 
+function* dataGenerator() {
+  yield 'Step 1: Initialize';
+  yield fetchData().then(data => `Step 2: ${data}`);
+  yield 'Step 3: Process data';
+}
+
+ 
+(async function() {
+  const userData = {
+    name: 'John Doe',
+    [idSymbol]: 12345
+  };
+
+  const userProxy = new Proxy(userData, secureHandler);
+
+  const generator = dataGenerator();
+  for (let step of generator) {
+    if (step instanceof Promise) {
+      print(await step);
+    } else {
+      print(step);
+    }
+  }
+
+   
+  const uniqueValues = new Set([1, 2, 3, 3, 4]);
+
+   
+  const map = new Map();
+  map.set('key1', 'value1');
+  map.set('key2', uniqueValues);
+
+  print('Map Size:', map.size);  
+  print('User Name:', userProxy.name);  
+
+  try {
+    print(userProxy[idSymbol]);  
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

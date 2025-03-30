@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const asyncIterable = {
+  async *[Symbol.asyncIterator]() {
+    for (let i = 1; i <= 3; i++) {
+      yield new Promise(resolve => setTimeout(() => resolve(i), 1000));
+    }
+  }
+};
+
+const fetchData = async url => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+const processNumbers = numbers => numbers.map(x => x ** 2);
+
+const performAdvancedOperations = async (url) => {
+  try {
+     
+    const data = await fetchData(url);
+    
+     
+    const numbers = data?.numbers ?? [];
+
+     
+    const [first, ...rest] = processNumbers(numbers);
+
+    console.log('First:', first, 'Rest:', rest);
+
+     
+    for await (const num of asyncIterable) {
+      console.log('Async Num:', num);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+performAdvancedOperations('https://example.com/api/data');
+```

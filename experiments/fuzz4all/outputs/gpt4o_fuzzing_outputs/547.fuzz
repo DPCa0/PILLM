@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+function* range(start, end, step = 1) {
+  for (let i = start; i < end; i += step) {
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Accessing property "${property}"`);
+      return target[property];
+    } else {
+      throw new ReferenceError(`Property "${property}" does not exist.`);
+    }
+  }
+};
+
+const monitoredObject = new Proxy({ a: 1, b: 2 }, handler);
+
+ 
+function asyncOperation(value) {
+  return new Promise(resolve => {
+    setTimeout(() => resolve(value * 2), 1000);
+  });
+}
+
+async function runAsyncOperations() {
+  const results = await Promise.all([1, 2, 3].map(asyncOperation));
+  console.log('Async operations result:', results);
+}
+
+ 
+function processNumbers(...numbers) {
+  const [first, ...rest] = numbers;
+  console.log(`First number: ${first}, Rest: ${rest.join(', ')}`);
+  return rest.reduce((a, b) => a + b, 0);
+}
+
+ 
+async function main() {
+   
+  console.log('Range from 1 to 5:');
+  for (let num of range(1, 5)) {
+    console.log(num);
+  }
+
+   
+  try {
+    console.log(monitoredObject.a);
+    console.log(monitoredObject.c);  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+   
+  await runAsyncOperations();
+
+   
+  console.log('Sum of remaining numbers:', processNumbers(10, 20, 30, 40));
+}
+
+main();
+```

@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, 1000);
+  });
+};
+
+ 
+const fetchConcurrently = async (urls) => {
+  const fetchPromises = urls.map(url => fetchData(url));
+  const results = await Promise.all(fetchPromises);
+  return results;
+};
+
+ 
+const [data1, data2] = await fetchConcurrently(['https://api.example1.com', 'https://api.example2.com']);
+print('Fetched:', data1, data2);
+
+ 
+const urlSet = new Set(['https://api.example3.com', 'https://api.example4.com', 'https://api.example1.com']);
+
+ 
+const logAccess = (url) => {
+  print(`Accessed: ${url}`);
+};
+
+ 
+const urlDataMap = new Map();
+
+ 
+const fetchAndStore = async (url) => {
+  if (urlDataMap.has(url)) {
+    return urlDataMap.get(url);
+  }
+  const data = await fetchData(url);
+  urlDataMap.set(url, data);
+  return data;
+};
+
+ 
+const proxyHandler = {
+  get: async (target, url) => {
+    logAccess(url);
+    return await fetchAndStore(url);
+  }
+};
+
+ 
+const proxyUrls = new Proxy({}, proxyHandler);
+
+ 
+for (const url of urlSet) {
+  const data = await proxyUrls[url];
+  print(`Stored Data for ${url}: ${data}`);
+}

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* asyncNumberGenerator() {
+    let num = 1;
+    while (true) {
+        await sleep(100);
+        yield num++;
+    }
+}
+
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        }
+        if (prop === 'stop') {
+            return () => target.done = true;
+        }
+        return () => console.log(`Property ${prop} does not exist.`);
+    },
+    set(target, prop, value) {
+        if (prop === 'done') {
+            console.log('Stopping the generator.');
+            return Reflect.set(target, prop, value);
+        }
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const generatorController = new Proxy({ done: false }, handler);
+
+async function runAsyncGenerator() {
+    const gen = asyncNumberGenerator();
+    while (!generatorController.done) {
+        const { value, done } = await gen.next();
+        if (done) break;
+        console.log(value);
+        if (value >= 5) generatorController.stop();
+    }
+}
+
+runAsyncGenerator();
+```

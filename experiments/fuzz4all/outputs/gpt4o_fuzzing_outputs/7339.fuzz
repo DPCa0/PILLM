@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+const methodLogger = {
+  get: function(target, property) {
+    if (typeof target[property] === 'function') {
+      return function(...args) {
+        console.log(`Method ${property} called with arguments: ${JSON.stringify(args)}`);
+        return target[property].apply(this, args);
+      };
+    }
+    return target[property];
+  }
+};
+
+ 
+async function complexAsyncOperation(data) {
+  try {
+     
+    let transformedData = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (data) {
+          resolve(data.split('').reverse().join(''));
+        } else {
+          reject(new CustomError('Invalid input data'));
+        }
+      }, 1000);
+    });
+
+     
+    transformedData = transformedData.toUpperCase();
+
+    return transformedData;
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`Custom error occurred: ${error.message}`);
+    } else {
+      console.error(`Unexpected error: ${error}`);
+    }
+  }
+}
+
+ 
+const exampleObject = {
+  greet(name) {
+    return `Hello, ${name}!`;
+  },
+  farewell(name) {
+    return `Goodbye, ${name}!`;
+  }
+};
+
+const proxyExampleObject = new Proxy(exampleObject, methodLogger);
+
+ 
+(async function() {
+  const result = await complexAsyncOperation('JavaScript');
+  console.log('Transformed Data:', result);
+
+  console.log(proxyExampleObject.greet('Alice'));
+  console.log(proxyExampleObject.farewell('Bob'));
+})();
+```

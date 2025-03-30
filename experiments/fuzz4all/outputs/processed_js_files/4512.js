@@ -1,0 +1,45 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      if (url) {
+        resolve({ data: `Data from ${url}` });
+      } else {
+        reject('URL not provided');
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processUrls = async (urls) => {
+  try {
+    const results = await Promise.all(urls.map(async (url) => {
+      const { data } = await fetchData(url);  
+      return data;
+    }));
+
+    return new Set(results);  
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+ 
+const urlConfig = new Map([
+  ['google', 'https://google.com'],
+  ['bing', 'https://bing.com'],
+  ['duckduckgo', 'https://duckduckgo.com']
+]);
+
+ 
+(async () => {
+  const urls = [...urlConfig.values()];  
+  const uniqueResults = await processUrls(urls);
+
+   
+  uniqueResults.forEach(result => print(result));
+})();

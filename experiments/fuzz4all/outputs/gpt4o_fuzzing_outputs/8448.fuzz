@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Observer {
+    constructor() {
+        this.subscribers = new Map();
+    }
+
+    subscribe(event, listener) {
+        if (!this.subscribers.has(event)) {
+            this.subscribers.set(event, []);
+        }
+        this.subscribers.get(event).push(listener);
+    }
+
+    notify(event, data) {
+        if (this.subscribers.has(event)) {
+            this.subscribers.get(event).forEach(listener => listener(data));
+        }
+    }
+}
+
+const asyncSquare = async (x) => {
+    return new Promise(resolve => setTimeout(() => resolve(x * x), 1000));
+};
+
+const log = (...msgs) => console.log(...msgs);
+
+const run = async function* () {
+    const results = [];
+    results.push(yield asyncSquare(2));
+    results.push(yield asyncSquare(3));
+    results.push(yield asyncSquare(4));
+
+    for (const result of results) {
+        yield result;
+    }
+};
+
+(async () => {
+    const observer = new Observer();
+    observer.subscribe('log', log);
+
+    const runner = run();
+    for await (const res of runner) {
+        observer.notify('log', `Result: ${res}`);
+    }
+})();
+```

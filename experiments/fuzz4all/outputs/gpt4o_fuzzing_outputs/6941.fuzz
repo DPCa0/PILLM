@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexCalculator {
+   
+  #precision;
+  #history;
+
+  constructor(precision = 2) {
+    this.#precision = precision;
+    this.#history = [];
+  }
+
+   
+  #formatResult(result) {
+    return result.toFixed(this.#precision);
+  }
+
+   
+  async calculate(operation, a, b) {
+    const result = await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        switch (operation) {
+          case 'add':
+            resolve(a + b);
+            break;
+          case 'subtract':
+            resolve(a - b);
+            break;
+          case 'multiply':
+            resolve(a * b);
+            break;
+          case 'divide':
+            b !== 0 ? resolve(a / b) : reject('Divide by zero error');
+            break;
+          default:
+            reject('Unknown operation');
+        }
+      }, 1000);
+    });
+
+    const formattedResult = this.#formatResult(result);
+    this.#history.push({ operation, a, b, result: formattedResult });
+    return formattedResult;
+  }
+
+   
+  *getHistory() {
+    for (let entry of this.#history) {
+      yield entry;
+    }
+  }
+}
+
+(async () => {
+  const calculator = new ComplexCalculator(3);
+  console.log('Starting calculations...');
+
+  try {
+    const results = await Promise.all([
+      calculator.calculate('add', 1, 2),
+      calculator.calculate('subtract', 5, 3),
+      calculator.calculate('multiply', 7, 2),
+      calculator.calculate('divide', 10, 2),
+    ]);
+
+    console.log('Results:', results);
+    
+    console.log('History:');
+    for (let entry of calculator.getHistory()) {
+      console.log(entry);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

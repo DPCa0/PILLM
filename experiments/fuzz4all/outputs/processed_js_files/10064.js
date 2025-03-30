@@ -1,0 +1,47 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static fromArray(arr) {
+    return new Matrix(arr.length, arr[0].length).map((_, i, j) => arr[i][j]);
+  }
+  
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+  
+  multiply(matrix) {
+    if (!(matrix instanceof Matrix) || this.data[0].length !== matrix.data.length) {
+      throw new Error('Invalid matrix dimensions for multiplication.');
+    }
+    
+    return new Matrix(this.data.length, matrix.data[0].length)
+      .map((_, i, j) => this.data[i].reduce((sum, val, k) => sum + val * matrix.data[k][j], 0));
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* fibonacci(n) {
+  let [a, b] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    yield a;
+    [a, b] = [b, a + b];
+    await sleep(100);  
+  }
+}
+
+(async () => {
+  print('Fibonacci Sequence:');
+  for await (const num of fibonacci(10)) {
+    print(num);
+  }
+
+  print('\nMatrix Multiplication:');
+  const a = Matrix.fromArray([[1, 2, 3], [4, 5, 6]]);
+  const b = Matrix.fromArray([[7, 8], [9, 10], [11, 12]]);
+  const c = a.multiply(b);
+  print(c.data);
+})();

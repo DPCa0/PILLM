@@ -1,0 +1,40 @@
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+}
+
+ 
+function* fruitGenerator(fruits) {
+  for (let fruit of fruits) {
+    yield fruit;
+  }
+}
+
+ 
+const loggingHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing property "${prop}"`);
+      return target[prop];
+    } else {
+      throw new ReferenceError(`Property "${prop}" does not exist.`);
+    }
+  },
+};
+
+ 
+async function main() {
+  const fruits = await fetchData();
+  const fruitGen = fruitGenerator(fruits);
+  const proxiedGen = new Proxy(fruitGen, loggingHandler);
+
+  for (const fruit of proxiedGen) {
+    print(`Yielding fruit: ${fruit}`);
+  }
+}
+
+main().catch(console.error);

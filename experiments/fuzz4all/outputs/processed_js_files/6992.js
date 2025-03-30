@@ -1,0 +1,70 @@
+ 
+function createMemoizedFunction(fn) {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      print(`Fetching from cache for args: ${args}`);
+      return cache.get(key);
+    }
+    print(`Calculating result for args: ${args}`);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+ 
+const fibonacci = createMemoizedFunction((n, a = 0, b = 1) => 
+  n === 0 ? a : fibonacci(n - 1, b, a + b)
+);
+
+ 
+async function asyncDemo() {
+  try {
+    const result = await new Promise((resolve, reject) => {
+      setTimeout(() => resolve('Hello, async world!'), 1000);
+    });
+    print(result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+const { a, b, ...rest } = { a: 1, b: 2, c: 3, d: 4 };
+print(a, b, rest);
+
+ 
+const target = { message: 'Hello, Proxy!' };
+const handler = {
+  get: (obj, prop) => (prop in obj ? obj[prop] : 'Property not found'),
+};
+const proxy = new Proxy(target, handler);
+print(proxy.message);  
+print(proxy.nonExistent);  
+
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+  
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+  
+  static fromString(str) {
+    const [real, imaginary] = str.match(/-?\d+/g).map(Number);
+    return new ComplexNumber(real, imaginary);
+  }
+  
+  toString() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+}
+
+const complexNum = ComplexNumber.fromString("3 + 4i");
+print(complexNum.toString());
+
+ 

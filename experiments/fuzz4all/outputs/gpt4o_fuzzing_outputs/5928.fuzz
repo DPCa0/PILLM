@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const urls = ['https://api.github.com/users/github', 'https://api.github.com/users/microsoft'];
+  const fetchUserData = url => fetch(url).then(response => response.json());
+
+  const results = await Promise.allSettled(urls.map(fetchUserData));
+
+   
+  const userData = results.map(result => ({
+    login: result.value?.login ?? 'Unknown',
+    id: result.value?.id ?? 'No ID'
+  }));
+
+   
+  userData.forEach(({ login, id }) => {
+    console.log(`User Login: ${login}, User ID: ${id}`);
+  });
+
+   
+  const handler = {
+    set(target, property, value) {
+      console.log(`Property '${property}' changed from '${target[property]}' to '${value}'`);
+      target[property] = value;
+      return true;
+    }
+  };
+
+  const user = new Proxy({ name: 'Alice', age: 30 }, handler);
+  user.name = 'Bob';
+  user.age = 31;
+
+   
+  const uniqueKey = Symbol('unique');
+  const obj = {
+    [uniqueKey]: 'This is a unique value'
+  };
+
+  console.log(obj[uniqueKey]);
+
+   
+  function* fibonacci(n) {
+    let [prev, current] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield current;
+      [prev, current] = [current, prev + current];
+    }
+  }
+
+  console.log([...fibonacci(5)]);
+
+   
+  const bigNumber = BigInt('1234567890123456789012345678901234567890');
+  console.log(bigNumber + BigInt(1));
+
+   
+  class Car {
+    #mileage;
+
+    constructor(mileage) {
+      this.#mileage = mileage;
+    }
+
+    get mileage() {
+      return this.#mileage;
+    }
+  }
+
+  const myCar = new Car(1000);
+  console.log(`Car mileage: ${myCar.mileage}`);
+})();
+```

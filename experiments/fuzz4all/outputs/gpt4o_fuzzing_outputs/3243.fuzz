@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+class DataStorage {
+  constructor() {
+     
+    this._data = new WeakMap();
+    this._data.set(this, {});
+  }
+
+   
+  get(key) {
+    const handler = {
+      get: (target, prop) => {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          throw new Error(`Property ${prop} not found`);
+        }
+      }
+    };
+    const proxyData = new Proxy(this._data.get(this), handler);
+    return proxyData[key];
+  }
+
+   
+  set(key, value) {
+    this._data.get(this)[key] = value;
+  }
+}
+
+ 
+async function delayedResponse(delay) {
+  await new Promise(resolve => setTimeout(resolve, delay));
+  return 'Data processed';
+}
+
+ 
+function mergeData(storage, ...newData) {
+  newData.forEach(data => {
+    for (let [key, value] of Object.entries(data)) {
+      storage.set(key, value);
+    }
+  });
+}
+
+ 
+(async function () {
+  const storage = new DataStorage();
+  mergeData(storage, { [uniqueKey]: 'Secret' }, { name: 'Alice' });
+
+  try {
+    console.log(storage.get(uniqueKey));  
+    console.log(storage.get('name'));  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  const response = await delayedResponse(1000);
+  console.log(response);  
+})();
+```

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const processedData = await Promise.all(this.data.map(async item => {
+        const result = await this.complexOperation(item);
+        return result;
+      }));
+      console.log('Processed Data:', processedData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async complexOperation(item) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > 0.2) {
+          resolve(`Processed: ${item}`);
+        } else {
+          reject(`Failed to process: ${item}`);
+        }
+      }, Math.random() * 1000);
+    });
+  }
+}
+
+function* dataGenerator() {
+  const data = ['a', 'b', 'c', 'd', 'e'];
+  let index = 0;
+  while (index < data.length) {
+    yield data[index++];
+  }
+}
+
+const generator = dataGenerator();
+const data = Array.from(generator);
+const processor = new AsyncProcessor(data);
+
+processor.processData();
+```

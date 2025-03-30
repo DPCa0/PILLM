@@ -1,0 +1,35 @@
+ 
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${this.apiUrl}/${endpoint}?${queryString}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    return response.json();
+  }
+}
+
+class DataProcessor {
+  static processData({ name, value }) {
+    return `${name.toUpperCase()}: ${value * 100}%`;
+  }
+}
+
+const displayProcessedData = async () => {
+  const dataFetcher = new DataFetcher('https://api.example.com/data');
+  try {
+    const data = await dataFetcher.fetchData('stats', { userId: 42 });
+    const processedData = data.map(item => DataProcessor.processData(item));
+    print('Processed Data:', ...processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+displayProcessedData();

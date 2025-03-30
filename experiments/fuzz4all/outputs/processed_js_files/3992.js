@@ -1,0 +1,48 @@
+class Polygon {
+  constructor(...sides) {
+    this.sides = sides;
+  }
+
+  *getPerimeter() {
+    yield this.sides.reduce((acc, side) => acc + side, 0);
+  }
+
+  [Symbol.iterator]() {
+    return this.sides.values();
+  }
+}
+
+const pentagon = new Polygon(3, 4, 5, 6, 7);
+
+ 
+const [a, b, c, d, e] = pentagon;
+
+ 
+const area = pentagon?.getArea?.() ?? 'Area not defined';
+
+print(`Sides: ${a}, ${b}, ${c}, ${d}, ${e}`);
+print(`Area: ${area}`);
+
+ 
+for (let side of pentagon) {
+  print(`Side: ${side}`);
+}
+
+ 
+async function calculatePerimeter() {
+  const { calculate } = await import('./mathUtils.js');
+  const perimeterGen = pentagon.getPerimeter();
+  const perimeter = perimeterGen.next().value;
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(calculate(perimeter));
+    }, 1000);
+  });
+}
+
+calculatePerimeter().then((perimeter) => {
+  print(`Perimeter: ${perimeter}`);
+});
+
+This program demonstrates various advanced JavaScript features such as classes, generators, destructuring, optional chaining, nullish coalescing, symbols, dynamic imports, and async/await with Promises. To test it fully, you would need a `mathUtils.js` module with an exported `calculate` function.

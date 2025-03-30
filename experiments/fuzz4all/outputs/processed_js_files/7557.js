@@ -1,0 +1,53 @@
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error;
+        }
+    }
+}
+
+function* idGenerator() {
+    let id = 0;
+    while (true) yield ++id;
+}
+
+function debounce(fn, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+const observable = new Proxy({}, {
+    set(target, property, value) {
+        print(`Property ${property} set to ${value}`);
+        target[property] = value;
+        return true;
+    }
+});
+
+ 
+(async function main() {
+    const api = new NetworkRequest('https://jsonplaceholder.typicode.com/todos/1');
+    const data = await api.fetchData();
+    
+    const gen = idGenerator();
+    print('Generated ID:', gen.next().value);
+
+    const debouncedLog = debounce((msg) => print(msg), 300);
+    debouncedLog('Hello');
+    debouncedLog('World');
+    
+    observable.newProperty = 'Some Value';
+})();

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const _data = Symbol('data');
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'getAll') {
+      return () => target[_data];
+    }
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    if (typeof value === 'number' && value > 0) {
+      return Reflect.set(...arguments);
+    }
+    throw new Error('Only positive numbers are allowed');
+  }
+};
+
+ 
+class ComplexNumberManager {
+  constructor() {
+    this[_data] = [];
+    return new Proxy(this, handler);
+  }
+  
+   
+  async addNumberAsync(num) {
+    await this.delay(1000);
+    this[_data].push(num);
+  }
+  
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+}
+
+ 
+(async () => {
+  const manager = new ComplexNumberManager();
+  try {
+    await manager.addNumberAsync(42);
+    await manager.addNumberAsync(7);
+    manager[0] = 15;  
+    console.log(manager.getAll());
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

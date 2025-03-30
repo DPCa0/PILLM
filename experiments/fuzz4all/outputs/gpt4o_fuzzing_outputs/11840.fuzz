@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* streamData() {
+  let count = 0;
+  while (count < 5) {
+    await delay(1000);  
+    yield `Data chunk ${++count}`;
+  }
+}
+
+ 
+const loggingHandler = {
+  get(target, prop) {
+    console.log(`Accessing property "${prop}"`);
+    return target[prop];
+  }
+};
+
+ 
+const proxyStreamData = new Proxy(streamData(), loggingHandler);
+
+ 
+async function processData() {
+  for await (const data of proxyStreamData) {
+    console.log(`Received: ${data}`);
+  }
+  console.log('Data stream processing complete.');
+}
+
+ 
+processData();
+```

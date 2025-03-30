@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = () => new Promise(resolve => {
+  setTimeout(() => {
+    resolve([
+      { id: 1, name: 'Alice', skills: ['JavaScript', 'React'] },
+      { id: 2, name: 'Bob', skills: ['Python', 'Django'] },
+      { id: 3, name: 'Charlie', skills: ['Java', 'Spring'] }
+    ]);
+  }, 1000);
+});
+
+ 
+function* dataGenerator(data) {
+  for (const item of data) {
+    yield item;
+  }
+}
+
+const processSkills = async () => {
+  const data = await fetchData();  
+  const skillSet = new Set();
+  const skillMap = new Map();
+  
+   
+  const generator = dataGenerator(data);
+  for (const { id, name, skills } of generator) {
+    skills.forEach(skill => {
+      skillSet.add(skill);  
+      if (!skillMap.has(skill)) {
+        skillMap.set(skill, []);
+      }
+      skillMap.get(skill).push(name);  
+    });
+  }
+  
+  return { skillSet, skillMap };
+};
+
+ 
+(async () => {
+  const { skillSet, skillMap } = await processSkills();
+  print('Unique Skills:', [...skillSet]);
+  print('Skill Map:', [...skillMap.entries()]);
+})();

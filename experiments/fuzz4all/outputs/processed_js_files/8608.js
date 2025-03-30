@@ -1,0 +1,47 @@
+ 
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const dataHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return `Property ${prop} does not exist`;
+    }
+  },
+  set(target, prop, value) {
+    if (typeof value === 'string') {
+      target[prop] = value.toUpperCase();  
+    } else {
+      target[prop] = value;
+    }
+    return true;
+  }
+};
+
+ 
+(async function() {
+  const url = 'https://api.chucknorris.io/jokes/random';
+  const data = await fetchData(url);
+
+  if (data) {
+    const jokeProxy = new Proxy(data, dataHandler);
+
+    print('Original Joke:', jokeProxy.value);
+    
+     
+    jokeProxy.value = 'chuck norris can divide by zero';
+    print('Updated Joke:', jokeProxy.value);
+  }
+})();

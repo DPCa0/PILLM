@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+import { interval, fromEvent } from 'rxjs';
+import { map, filter, takeUntil } from 'rxjs/operators';
+
+ 
+const counter$ = interval(1000).pipe(
+  map((val) => `Second: ${val + 1}`),  
+);
+
+ 
+const clicks$ = fromEvent(document, 'click').pipe(
+  map(() => 'Click detected!'),
+);
+
+ 
+const stopCounter$ = counter$.pipe(
+  takeUntil(clicks$)
+);
+
+ 
+stopCounter$.subscribe(console.log);
+
+ 
+async function fetchData(url) {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    console.log('Fetched data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+async function init() {
+  const { format } = await import('date-fns');
+  console.log('Current Date:', format(new Date(), 'yyyy-MM-dd'));
+}
+
+ 
+const target = { message: 'Hello' };
+const handler = {
+  get: (obj, prop) => (prop in obj ? obj[prop] : `No such property: ${prop}`),
+};
+
+const proxy = new Proxy(target, handler);
+console.log(proxy.message);  
+console.log(proxy.notHere);  
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+init();
+```
+
+This program demonstrates the use of reactive programming with RxJS, async/await for handling asynchronous operations, dynamic imports for code-splitting, and the Proxy object for intercepting and redefining operations on objects in JavaScript.

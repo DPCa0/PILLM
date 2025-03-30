@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._listeners = new Set();
+    }
+
+    subscribe(listener) {
+        this._listeners.add(listener);
+        listener(this._value);  
+    }
+
+    unsubscribe(listener) {
+        this._listeners.delete(listener);
+    }
+
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._notify();
+        }
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    _notify() {
+        this._listeners.forEach(listener => listener(this._value));
+    }
+}
+
+const firstObservable = new Observable(10);
+const secondObservable = new Observable(20);
+
+ 
+const combinedObservable = new Proxy({}, {
+    get: (_, prop) => {
+        if (prop === 'value') {
+            return firstObservable.value + secondObservable.value;
+        }
+    }
+});
+
+ 
+function* logger() {
+    while (true) {
+        yield console.log(`Sum of observables: ${combinedObservable.value}`);
+    }
+}
+
+const logGenerator = logger();
+
+firstObservable.subscribe(() => logGenerator.next());
+secondObservable.subscribe(() => logGenerator.next());
+
+ 
+firstObservable.value = 15;
+secondObservable.value = 25;
+firstObservable.value = 30;
+```

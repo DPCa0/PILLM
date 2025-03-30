@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class CustomArray extends Array {
+    flatMapAsync = async (callback) => {
+        const result = [];
+        for (let i = 0; i < this.length; i++) {
+            result.push(...await callback(this[i], i, this));
+        }
+        return result;
+    };
+}
+
+const processItems = async (item) => {
+    await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+    return item * 2;
+};
+
+(async () => {
+    const inputArray = new CustomArray(1, 2, 3, 4, 5);
+    
+    const mappedArray = await inputArray.flatMapAsync(async (x) => {
+        const result = await processItems(x);
+        return [result, result + 1];
+    });
+    
+    console.log('Input Array:', inputArray);
+    console.log('Mapped Array:', mappedArray);
+
+    const object = { name: 'Alice', age: 30, profession: 'Developer' };
+    const updatedObject = {
+        ...object,
+        age: 31,
+        ...{ city: 'Wonderland', hobby: 'Coding' }
+    };
+    
+    console.log('Updated Object:', updatedObject);
+
+    const { city, ...rest } = updatedObject;
+    console.log('City:', city);
+    console.log('Rest of the Object:', rest);
+
+    const numbers = [1, 2, 3];
+    const total = numbers.reduce((acc, number) => acc + number, 0);
+    console.log('Total:', total);
+
+    const fibonacci = (n, memo = {}) => {
+        if (n <= 1) return n;
+        if (n in memo) return memo[n];
+        return memo[n] = fibonacci(n - 1, memo) + fibonacci(n - 2, memo);
+    };
+    console.log('Fibonacci(10):', fibonacci(10));
+})();
+```

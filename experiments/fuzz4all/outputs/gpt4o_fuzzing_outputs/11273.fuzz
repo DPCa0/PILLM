@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+const dataFetcher = async (url) => {
+  return await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const mockData = { id: 1, name: "John Doe" };
+      resolve({ status: 200, data: mockData });
+    }, 1000);
+  });
+};
+
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      return obj[prop];
+    } else {
+      throw new Error(`Property ${prop} not found`);
+    }
+  }
+};
+
+(async () => {
+  try {
+    const response = await dataFetcher("https://api.example.com/user");
+    if (response.status === 200) {
+      const user = new Proxy(response.data, handler);
+      console.log(`User Name: ${user.name}`);   
+      console.log(`User ID: ${user.id}`);
+      console.log(`Nonexistent Property: ${user.age}`);  
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

@@ -1,0 +1,37 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+  return response.json();
+};
+
+const processData = (data) => {
+  return data.reduce((acc, { category, value }) => {
+    acc[category] = (acc[category] || 0) + value;
+    return acc;
+  }, {});
+};
+
+const createChart = (data) => {
+  const chart = Object.entries(data).map(([key, value]) => `${key}: ${'#'.repeat(value)}`);
+  print(chart.join('\n'));
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchData(url);
+    
+    const processedData = processData(rawData);
+
+    const proxy = new Proxy(processedData, {
+      get(target, property) {
+        return property in target ? target[property] : 'No data';
+      }
+    });
+
+    createChart(proxy);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,54 @@
+ 
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+   
+  const memoizeAsync = (fn) => {
+    const cache = new Map();
+    return async (...args) => {
+      const key = JSON.stringify(args);
+      if (cache.has(key)) {
+        return cache.get(key);
+      }
+      const result = await fn(...args);
+      cache.set(key, result);
+      return result;
+    };
+  };
+
+   
+  const curry = (fn) => 
+    (a) => 
+      (b) => 
+        (c) => 
+          fn(a, b, c);
+
+  const multiply = (a, b, c) => a * b * c;
+  const curriedMultiply = curry(multiply);
+  
+   
+  const processData = async (url) => {
+    try {
+      const memoizedFetchData = memoizeAsync(fetchData);
+      const data = await memoizedFetchData(url);
+
+       
+      const numbers = data.numbers;
+      const sum = numbers.reduce((acc, num) => acc + num, 0);
+      const product = curriedMultiply(...numbers.slice(0, 3));  
+      
+      print(`Sum: ${sum}, Product of first three: ${product}`);
+    } catch (error) {
+      console.error('Error fetching or processing data:', error);
+    }
+  };
+
+   
+  const exampleUrl = 'https://api.example.com/numbers';
+  await processData(exampleUrl);
+})();

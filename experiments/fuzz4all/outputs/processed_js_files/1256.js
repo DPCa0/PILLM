@@ -1,0 +1,30 @@
+ 
+ 
+
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 25 },
+        { id: 2, name: 'Bob', age: 30 },
+        { id: 3, name: 'Charlie', age: 35 },
+      ]);
+    }, 1000);
+  });
+};
+
+const processData = async () => {
+  try {
+    const data = await fetchData();
+    const formatPerson = ({ id, name, age }) => `ID: ${id}, Name: ${name}, Age: ${age}`;
+    const formattedData = data.map(formatPerson);
+    formattedData.forEach((person) => print(person));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+(async () => {
+  await processData();
+})();

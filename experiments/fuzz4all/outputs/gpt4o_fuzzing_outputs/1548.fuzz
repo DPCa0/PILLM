@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async () => {
+    await delay(1000);  
+    return { name: 'Alice', age: 30 };
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return Reflect.get(target, prop);
+        }
+        console.log(`Property ${prop} doesn't exist!`);
+        return undefined;
+    }
+};
+
+const main = async () => {
+    console.log("Fetching data...");
+    const data = await fetchData();
+    const proxyData = new Proxy(data, handler);
+
+    // Using Symbol for unique property access
+    const uniqueKey = Symbol('unique');
+    proxyData[uniqueKey] = 'This is a unique value';
+
+    console.log(`Name: ${proxyData.name}`);
+    console.log(`Age: ${proxyData.age}`);
+    console.log(`Unique: ${proxyData[uniqueKey]}`);
+    console.log(`Non-existent: ${proxyData.nonExistentProp}`);  
+};
+
+main();
+```

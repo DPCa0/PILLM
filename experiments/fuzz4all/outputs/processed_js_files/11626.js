@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetching error:', error);
+        throw error;
+    }
+};
+
+const processData = (data) => {
+    return data.map(({ id, title }) => ({ id, title })).filter(item => item.title.includes('keyword'));
+};
+
+const processWithWorker = (data) => {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(URL.createObjectURL(new Blob([`
+            onmessage = function(e) {
+                const processedData = e.data.map(({ id, title }) => ({ id, title }))
+                    .filter(item => item.title.includes('keyword'));
+                postMessage(processedData);
+            }
+        `], { type: 'application/javascript' })));
+
+        worker.onmessage = (e) => {
+            resolve(e.data);
+            worker.terminate();
+        };
+        worker.onerror = (e) => {
+            reject(e);
+            worker.terminate();
+        };
+        
+        worker.postMessage(data);
+    });
+};
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    try {
+        const data = await fetchData(url);
+        print('Original Data:', data.slice(0, 5));
+
+        const processedData = processData(data);
+        print('Processed Data:', processedData.slice(0, 5));
+
+        const processedDataInWorker = await processWithWorker(data);
+        print('Processed Data with Worker:', processedDataInWorker.slice(0, 5));
+    } catch (error) {
+        console.error('Error in processing:', error);
+    }
+})();

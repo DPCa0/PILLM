@@ -1,0 +1,39 @@
+ 
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+const fetchUserData = async (userId) => {
+  const users = {
+    1: { id: 1, name: 'Alice', hobbies: ['Reading', 'Gaming'] },
+    2: { id: 2, name: 'Bob', hobbies: ['Cycling', 'Cooking'] },
+  };
+
+  await delay(Math.random() * 1000);  
+  return users[userId] || { error: 'User not found' };
+};
+
+ 
+const getUserInfo = async (userId) => {
+  try {
+    const { name, hobbies, ...rest } = await fetchUserData(userId);
+    if (rest.error) throw new Error(rest.error);
+
+    return { name, hobbies: hobbies.map((hobby) => hobby.toUpperCase()), ...rest };
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+ 
+const main = async () => {
+  const [user1, user2, user3] = await Promise.all([getUserInfo(1), getUserInfo(2), getUserInfo(3)]);
+  
+  print('User 1 Info:', user1);
+  print('User 2 Info:', user2);
+  print('User 3 Info:', user3);
+};
+
+ 
+main();

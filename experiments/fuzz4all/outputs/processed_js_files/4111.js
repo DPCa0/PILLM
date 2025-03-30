@@ -1,0 +1,62 @@
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const gen = idGenerator();
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (typeof target[prop] === 'function') {
+            return (...args) => {
+                print(`Calling method: ${prop}`);
+                return Reflect.apply(target[prop], target, args);
+            };
+        }
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.warn(`Property '${prop}' does not exist, returning proxy.`);
+            return new Proxy({}, handler);
+        }
+    }
+};
+
+ 
+class ExampleClass {
+    constructor(name) {
+        this.id = gen.next().value;
+        this.name = name;
+    }
+
+    greet() {
+        print(`Hello, my name is ${this.name} and my ID is ${this.id}.`);
+    }
+}
+
+ 
+const exampleInstance = new Proxy(new ExampleClass("Alice"), handler);
+
+ 
+const { greet } = exampleInstance;
+greet();
+
+ 
+exampleInstance.nonExistentMethod();
+
+ 
+(async function() {
+    const delayedMessage = (msg, delay) => new Promise(resolve => setTimeout(() => resolve(msg), delay));
+
+    try {
+        const message = await delayedMessage("This is an async message!", 1000);
+        print(message);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

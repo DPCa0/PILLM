@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Logger {
+  constructor() {
+    if (Logger.instance) {
+      return Logger.instance;
+    }
+    this.logs = [];
+    Logger.instance = this;
+  }
+
+  log(message) {
+    const timeStamp = new Date().toISOString();
+    this.logs.push({ message, timeStamp });
+    console.log(`${timeStamp} - ${message}`);
+  }
+
+  getLogCount() {
+    return this.logs.length;
+  }
+}
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    Logger.instance.log(`Error: ${error.message}`);
+    throw error;
+  }
+};
+
+const processUserData = ({ name, age, address: { city } }) => {
+  Logger.instance.log(`Processing user: ${name}, Age: ${age}, City: ${city}`);
+  return { name, isAdult: age >= 18, city };
+};
+
+(async () => {
+  const logger = new Logger();
+  
+  try {
+    const userData = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    const user = processUserData(userData);
+    console.log(user);
+  } catch (error) {
+    logger.log('Failed to process user data');
+  }
+  
+  logger.log(`Total logs recorded: ${logger.getLogCount()}`);
+})();
+```

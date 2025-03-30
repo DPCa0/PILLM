@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+     
+    function* sequenceGenerator(start = 0, end = 10, step = 1) {
+        for (let i = start; i <= end; i += step) {
+            yield i;
+        }
+    }
+
+     
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+     
+    async function processData([first, second, ...rest]) {
+        await delay(1000);
+        return { first, second, rest };
+    }
+
+     
+    const generator = sequenceGenerator(1, 5);
+    const numbers = [...generator];  
+
+    console.log("Generated Numbers:", numbers);
+
+     
+    const { first, second, rest } = await processData(numbers);
+
+    console.log("First Number:", first);
+    console.log("Second Number:", second);
+    console.log("Rest of the Numbers:", rest);
+
+     
+    const info = new Map([
+        ['first', `First processed number is ${first}`],
+        ['second', `Second processed number is ${second}`],
+        ['rest', `Rest of the processed numbers are ${rest.join(', ')}`]
+    ]);
+
+    console.log("\nInformation:");
+    for (const [key, value] of info) {
+        console.log(`${key.toUpperCase()}: ${value}`);
+    }
+
+})();
+```

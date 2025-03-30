@@ -1,0 +1,46 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const memoize = fn => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      print('Fetching from cache:', key);
+      return cache.get(key);
+    }
+    print('Calculating result for:', key);
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+ 
+const fetchData = async (url, ms = 1000) => {
+  await delay(ms);
+  return `Data from ${url}`;
+};
+
+ 
+const createUrl = base => endpoint => `${base}/${endpoint}`;
+
+ 
+const uniqueKey = Symbol('unique');
+
+const demoComplexFeatures = async () => {
+  const getFromApi = memoize(fetchData);
+  
+  const baseApi = createUrl('https://api.example.com');
+  const getUserData = baseApi('user');
+  const getPostsData = baseApi('posts');
+
+  const data1 = await getFromApi(getUserData);
+  const data2 = await getFromApi(getUserData);  
+  const data3 = await getFromApi(getPostsData);
+
+  print({[uniqueKey]: 'Unique Key'}, data1, data2, data3);
+};
+
+demoComplexFeatures();

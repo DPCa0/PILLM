@@ -1,0 +1,46 @@
+ 
+async function* complexAsyncGenerator() {
+  const simulateAsyncOperation = (duration) => 
+    new Promise(resolve => setTimeout(() => resolve(Math.random()), duration));
+
+  for (let i = 0; i < 5; i++) {
+    const randomValue = await simulateAsyncOperation(500);
+    yield `Generated value: ${randomValue.toFixed(2)}`;
+  }
+}
+
+const processValues = async () => {
+  const processedValues = [];
+  for await (const value of complexAsyncGenerator()) {
+    const transformed = [...value].reverse().join('');  
+    processedValues.push(transformed);
+    print(`Processed value: ${transformed}`);
+  }
+  return processedValues;
+};
+
+ 
+const target = { key1: 'value1', key2: 'value2' };
+const handler = {
+  get: (obj, prop) => {
+    print(`Accessing ${prop}`);
+    return prop in obj ? obj[prop] : 'default';
+  },
+  set: (obj, prop, value) => {
+    print(`Setting ${prop} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const proxiedObject = new Proxy(target, handler);
+
+ 
+proxiedObject.key1;           
+proxiedObject.key3;           
+proxiedObject.key2 = 'new';   
+
+ 
+processValues().then(finalValues => {
+  print('Final reversed values:', finalValues);
+});

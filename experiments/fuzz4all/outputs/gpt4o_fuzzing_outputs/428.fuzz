@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+const asyncOperation = (ms, value) => {
+    return new Promise(resolve => setTimeout(() => resolve(value), ms));
+};
+
+(async () => {
+    const events = new EventEmitter();
+
+    events.on('data', async (data) => {
+        console.log('Received data:', data);
+        let transformed = await asyncOperation(500, data.toUpperCase());
+        events.emit('processed', transformed);
+    });
+
+    events.on('processed', (data) => {
+        console.log('Processed data:', data);
+    });
+
+    const dataBatch = ['hello', 'world', 'this', 'is', 'complex', 'js'];
+
+    for (const data of dataBatch) {
+        events.emit('data', data);
+        await asyncOperation(200, null);
+    }
+})();
+```

@@ -1,0 +1,54 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, 1000);
+    });
+};
+
+ 
+const createReactiveObject = (initialData) => {
+    return new Proxy(initialData, {
+        get(target, property) {
+            print(`Getting ${property}`);
+            return target[property];
+        },
+        set(target, property, value) {
+            print(`Setting ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        },
+    });
+};
+
+ 
+function* dataProcessor(dataArray) {
+    for (const data of dataArray) {
+        yield `Processed: ${data}`;
+    }
+}
+
+ 
+const main = async () => {
+    const reactiveData = createReactiveObject({ prop1: 'value1', prop2: 'value2' });
+
+     
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const fetchedData = await Promise.all(urls.map(fetchData));
+
+     
+    const processor = dataProcessor(fetchedData);
+    for (let result of processor) {
+        print(result);
+    }
+
+     
+    print(reactiveData.prop1);
+    reactiveData.prop2 = 'newValue';
+};
+
+ 
+(async () => {
+    await main();
+})();

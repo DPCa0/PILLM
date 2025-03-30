@@ -1,0 +1,37 @@
+ 
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === "https://api.example.com/data") {
+            resolve({ data: { id: 1, name: "John Doe", age: 30 }, meta: { timestamp: Date.now() } });
+        } else {
+            reject(new Error("Invalid URL"));
+        }
+    }, 1000);
+});
+
+ 
+const processData = async (url) => {
+    try {
+         
+        const response = await fetchData(url);
+        
+         
+        const { data: { name, age }, meta: { timestamp } } = response;
+
+         
+        return `Processed Data: Name - ${name}, Age - ${age}, Timestamp - ${new Date(timestamp).toISOString()}`;
+    } catch (error) {
+        return `Error: ${error.message}`;
+    }
+};
+
+ 
+(async () => {
+    const result1 = await processData("https://api.example.com/data");
+    print(result1);
+
+    const result2 = await processData("https://api.invalid.com/data");
+    print(result2);
+})();

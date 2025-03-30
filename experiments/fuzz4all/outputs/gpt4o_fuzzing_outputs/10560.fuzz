@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr);
+  }
+
+  toArray() {
+    return this.data;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static add(a, b) {
+    return a.map((val, i, j) => val + b.data[i][j]);
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length)
+      throw new Error('Columns of A must match rows of B.');
+    
+    let result = new Matrix(
+      Array.from({ length: a.data.length }, () =>
+        Array(b.data[0].length).fill(0)
+      )
+    );
+    
+    return result.map((_, i, j) =>
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+  }
+}
+
+ 
+const matrixA = Matrix.fromArray([
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9],
+]);
+
+const matrixB = Matrix.fromArray([
+  [9, 8, 7],
+  [6, 5, 4],
+  [3, 2, 1],
+]);
+
+const sumMatrix = Matrix.add(matrixA, matrixB);
+const productMatrix = Matrix.multiply(matrixA, matrixB);
+
+console.log('Sum Matrix:');
+console.log(sumMatrix.toArray());
+
+console.log('Product Matrix:');
+console.log(productMatrix.toArray());
+```

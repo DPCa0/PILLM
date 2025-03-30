@@ -1,0 +1,54 @@
+ 
+async function* fetchWithRetry(url, retries = 5) {
+    let attempts = 0;
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    
+    while (attempts < retries) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            yield data;
+            return;
+        } catch (error) {
+            attempts++;
+            console.warn(`Attempt ${attempts} failed, retrying...`);
+            await delay(2 ** attempts * 100);  
+        }
+    }
+    throw new Error('All fetch attempts failed');
+}
+
+ 
+const handler = {
+    set(target, property, value) {
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+const dataStore = new Proxy({}, handler);
+
+ 
+function processData({ id, ...rest }) {
+    print(`Processing ID: ${id}`);
+    print('Additional Data:', rest);
+}
+
+ 
+(async () => {
+    const apiDataGenerator = fetchWithRetry('https://jsonplaceholder.typicode.com/todos/1');
+    try {
+        const [apiData] = await apiDataGenerator.next();
+        print('Fetched Data:', apiData);
+
+         
+        dataStore.apiData = apiData;
+
+         
+        processData(apiData);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

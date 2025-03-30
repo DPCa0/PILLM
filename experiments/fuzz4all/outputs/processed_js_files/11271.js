@@ -1,0 +1,87 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.running = false;
+  }
+
+  async runTasks() {
+    if (this.running) return;
+    this.running = true;
+    while (this.queue.length) {
+      const task = this.queue.shift();
+      await task();
+    }
+    this.running = false;
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+    this.runTasks();
+  }
+}
+
+const asyncQueue = new AsyncQueue();
+
+const fetchWithTimeout = (url, timeout) => {
+  return Promise.race([
+    fetch(url).then(response => response.json()),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+  ]);
+};
+
+const task1 = async () => {
+  try {
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1', 3000);
+    print('Task 1:', data);
+  } catch (error) {
+    console.error('Task 1 Error:', error);
+  }
+};
+
+const task2 = async () => {
+  try {
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/2', 3000);
+    print('Task 2:', data);
+  } catch (error) {
+    console.error('Task 2 Error:', error);
+  }
+};
+
+asyncQueue.addTask(task1);
+asyncQueue.addTask(task2);
+
+const debouncedFunction = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
+};
+
+const handleResize = debouncedFunction(() => {
+  print('Window resized:', new Date().toLocaleTimeString());
+}, 500);
+
+window.addEventListener('resize', handleResize);
+
+const map = new Map([
+  ['key1', 'value1'],
+  ['key2', 'value2']
+]);
+
+for (let [key, value] of map) {
+  print(`Map entry: ${key} = ${value}`);
+}
+
+const set = new Set([1, 2, 3, 4, 5, 5, 4]);
+for (let value of set) {
+  print(`Set value: ${value}`);
+}
+
+const person = {
+  name: 'Alice',
+  age: 30,
+  occupation: 'Engineer'
+};
+
+const { name, ...rest } = person;

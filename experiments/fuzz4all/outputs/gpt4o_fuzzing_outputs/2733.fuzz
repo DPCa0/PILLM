@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+const handler = {
+    get: (target, prop, receiver) => {
+        if (typeof target[prop] === 'function') {
+            return (...args) => {
+                console.log(`Calling method: ${prop.toString()}`);
+                return Reflect.apply(target[prop], target, args);
+            };
+        }
+        console.log(`Accessing property: ${prop.toString()}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop.toString()} with value: ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+class ComplexSystem {
+    constructor() {
+        this[Symbol.for('logLevel')] = 'INFO';
+    }
+    
+    async initialize() {
+        console.log('Initializing system...');
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        console.log('System initialized.');
+    }
+    
+    [Symbol.for('log')](message) {
+        console.log(`[${this[Symbol.for('logLevel')]}] ${message}`);
+    }
+}
+
+const proxiedSystem = new Proxy(new ComplexSystem(), handler);
+
+(async () => {
+    await proxiedSystem.initialize();
+    proxiedSystem[Symbol.for('log')]('Hello, world!');
+    proxiedSystem[Symbol.for('logLevel')] = 'DEBUG';
+    proxiedSystem[Symbol.for('log')]('Debugging mode is now on.');
+})();
+```

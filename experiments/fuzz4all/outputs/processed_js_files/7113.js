@@ -1,0 +1,50 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+    this.memo.set(0, 0);
+    this.memo.set(1, 1);
+  }
+
+  *generate(n) {
+    let [a, b] = [0, 1];
+    yield a;
+    if (n > 0) yield b;
+    for (let i = 2; i <= n; i++) {
+      [a, b] = [b, a + b];
+      yield b;
+    }
+  }
+
+  memoized(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    const value = this.memoized(n - 1) + this.memoized(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+
+  async *asyncGenerate(n) {
+    for (let i = 0; i <= n; i++) {
+      yield new Promise(resolve => 
+        setTimeout(() => resolve(this.memoized(i)), 100)
+      );
+    }
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  const generator = fib.generate(10);
+  print("Synchronous Fibonacci up to 10:");
+  for (let num of generator) {
+    print(num);
+  }
+
+  print("Memoized Fibonacci 10:", fib.memoized(10));
+
+  print("Asynchronous Fibonacci up to 10:");
+  for await (let num of fib.asyncGenerate(10)) {
+    print(num);
+  }
+})();

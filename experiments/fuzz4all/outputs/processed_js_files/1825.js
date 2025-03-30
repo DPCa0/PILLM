@@ -1,0 +1,67 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  async emit(event, ...args) {
+    const handlers = this.events.get(event) || [];
+    for (let handler of handlers) {
+      await handler(...args);
+    }
+  }
+
+  on(event, handler) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(handler);
+  }
+
+  off(event, handler) {
+    if (!this.events.has(event)) return;
+    this.events.set(event, this.events.get(event).filter(h => h !== handler));
+  }
+}
+
+const createRangeIterator = (start = 0, end = Infinity, step = 1) => {
+  return {
+    [Symbol.iterator]() {
+      return this;
+    },
+    next() {
+      if (start < end) {
+        const value = start;
+        start += step;
+        return { value, done: false };
+      } else {
+        return { value: undefined, done: true };
+      }
+    }
+  };
+};
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    return await response.json();
+  } catch (error) {
+    throw new Error(`Failed to fetch data: ${error.message}`);
+  }
+};
+
+(async function main() {
+  const emitter = new AsyncEventEmitter();
+  emitter.on('data', async data => print('Received data:', data));
+  emitter.on('error', async error => console.error('Error:', error));
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    await emitter.emit('data', data);
+  } catch (error) {
+    await emitter.emit('error', error);
+  }
+
+  for (const number of createRangeIterator(1, 5)) {
+    print(`Range Number: ${number}`);
+  }
+})();

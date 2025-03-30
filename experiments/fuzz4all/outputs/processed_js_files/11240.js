@@ -1,0 +1,36 @@
+ 
+
+ 
+async function fetchDataAndProcess(url) {
+  try {
+     
+    const response = await fetch(url);
+    
+     
+    const data = await response?.json();
+    
+     
+    const summary = data?.reduce((acc, item) => {
+       
+      const { price: p, quantity: q } = item;
+      return acc + p * q;
+    }, 0);
+    
+     
+    print(`Total value of inventory: $${summary}`);
+  } catch (error) {
+     
+    console.error(errorMessage`Failed to fetch data: ${error.message}`);
+  }
+}
+
+ 
+function errorMessage(strings, error) {
+  return `${strings[0]}🔥 ${error} 🔥`;
+}
+
+ 
+const url = process.env.DATA_URL ?? 'https://api.example.com/inventory';
+
+ 
+fetchDataAndProcess(url);

@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+
+ 
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function(...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+ 
+const watchedObject = new Proxy({ a: 1, b: 2 }, {
+  set(target, property, value) {
+    console.log(`Property ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  }
+});
+
+ 
+const getApiData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.status}`);
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+ 
+async function* dataStream(dataArray) {
+  for (const data of dataArray) {
+    yield await Promise.resolve(data);
+  }
+}
+
+ 
+(async () => {
+   
+  const log = debounce(console.log, 500);
+  log("This will be logged after 500ms delay.");
+
+   
+  watchedObject.a = 3;
+
+   
+  await getApiData('https://jsonplaceholder.typicode.com/todos/1');
+
+   
+  const asyncDataStream = dataStream([1, 2, 3, 4, 5]);
+  for await (const data of asyncDataStream) {
+    console.log('Stream data:', data);
+  }
+})();
+```

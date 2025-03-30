@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => 
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  map(callback) {
+    this.data = this.data.map((row, i) => 
+      row.map((value, j) => callback(value, i, j))
+    );
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error("Columns of A must match rows of B");
+    }
+    return new Matrix(a.data.length, b.data[0].length).map((_, i, j) => 
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+class NeuralNetwork {
+  constructor(inputNodes, hiddenNodes, outputNodes) {
+    this.inputNodes = inputNodes;
+    this.hiddenNodes = hiddenNodes;
+    this.outputNodes = outputNodes;
+    
+    this.weightsIH = Matrix.fromArray(Array.from({length: hiddenNodes}, () => 
+      Array.from({length: inputNodes}, () => Math.random() * 2 - 1))
+    );
+    
+    this.weightsHO = Matrix.fromArray(Array.from({length: outputNodes}, () => 
+      Array.from({length: hiddenNodes}, () => Math.random() * 2 - 1))
+    );
+    
+    this.learningRate = 0.1;
+  }
+
+  feedforward(inputArray) {
+    let inputs = Matrix.fromArray([inputArray]).map(Math.tanh);
+
+    let hidden = Matrix.multiply(this.weightsIH, inputs).map(Math.tanh);
+
+    let outputs = Matrix.multiply(this.weightsHO, hidden).map(Math.tanh);
+
+    return outputs.data[0];
+  }
+}
+
+ 
+const nn = new NeuralNetwork(2, 2, 1);
+const result = nn.feedforward([1, 0]);
+console.log("Output:", result);
+```

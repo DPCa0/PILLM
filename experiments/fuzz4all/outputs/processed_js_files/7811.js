@@ -1,0 +1,68 @@
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      print(`Accessed property: ${property}`);
+      return Reflect.get(target, property);
+    } else {
+      return `Property ${property} does not exist`;
+    }
+  },
+  set: (target, property, value) => {
+    if (typeof value === 'number' && value > 0) {
+      print(`Setting positive value ${value} to property ${property}`);
+      return Reflect.set(target, property, value);
+    } else {
+      console.error(`Failed to set value ${value} to property ${property}, must be a positive number`);
+      return false;
+    }
+  }
+};
+
+ 
+const target = { a: 1, b: 2 };
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+proxy.a;              
+proxy.c;              
+
+proxy.a = 5;          
+proxy.b = -3;         
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+ 
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+const generator = numberGenerator();
+print(generator.next().value);  
+print(generator.next().value);  
+
+ 
+const promise1 = Promise.resolve(3);
+const promise2 = new Promise((resolve) => setTimeout(resolve, 100, 'foo'));
+const promise3 = Promise.reject(new Error('Oops!'));
+
+Promise.allSettled([promise1, promise2, promise3])
+  .then((results) => results.forEach((result) => print(result.status)));

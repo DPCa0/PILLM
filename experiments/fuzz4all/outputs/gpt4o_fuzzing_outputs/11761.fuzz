@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const handler = {
+    set(target, key, value) {
+        console.log(`Setting ${key} to ${value}`);
+        target[key] = value;
+        return true;
+    }
+};
+
+const user = new Proxy({}, handler);
+
+ 
+const secretKey = Symbol('secret');
+user.name = 'Alice';
+user[secretKey] = 'Shhh!';
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const generateId = idGenerator();
+
+ 
+function introduce({ name = 'Anonymous', age = 18 }, ...others) {
+    console.log(`Name: ${name}, Age: ${age}`);
+    console.log('Others:', others);
+}
+
+ 
+(async () => {
+    user.age = 30;
+    console.log('User:', user);
+    console.log('Secret Key:', user[secretKey]);
+
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    console.log('Fetched data:', data);
+
+    console.log('Generated IDs:', generateId.next().value, generateId.next().value);
+
+    introduce({ name: 'Bob', age: 25 }, 'Likes coding', 'Enjoys hiking');
+})();
+```

@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+}
+
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const userValidator = {
+    set: function(obj, prop, value) {
+        if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+            throw new TypeError('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const user = new Proxy({}, userValidator);
+
+ 
+(async () => {
+    try {
+        user.name = 'Alice';
+        user.age = 25;  
+         
+        console.log(`User: ${user.name}, Age: ${user.age}`);
+
+        const idGen = idGenerator();
+        console.log(`Generated IDs: ${idGen.next().value}, ${idGen.next().value}`);
+
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        console.log('Fetched Data:', data);
+
+        const { name, age } = user;  
+        const userInfo = { name, age };
+        const infoString = `User ${name} is ${age} years old`;
+
+         
+        const greet = (user = { name: 'Guest' }) => console.log(`Hello, ${user.name}!`);
+        greet(userInfo);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

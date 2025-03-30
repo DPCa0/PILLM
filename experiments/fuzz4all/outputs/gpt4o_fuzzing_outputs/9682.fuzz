@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data from ${url}`), 1000);
+  });
+};
+
+ 
+async function* fetchUrls(urls) {
+  for (const url of urls) {
+    yield await fetchData(url);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    console.log(`Accessing property: ${prop}`);
+    return target[prop];
+  },
+};
+
+ 
+const exampleObject = {
+  a: 1,
+  b: 2,
+  c: 3,
+};
+
+ 
+const proxyObject = new Proxy(exampleObject, handler);
+
+ 
+(async () => {
+   
+  console.log(proxyObject.a);  
+  console.log(proxyObject.b);  
+  
+   
+  const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+
+   
+  const urlIterator = fetchUrls(urls);
+  for await (const data of urlIterator) {
+    console.log(data);  
+  }
+})();
+```

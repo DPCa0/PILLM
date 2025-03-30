@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+class Animal {
+    constructor(name) {
+        this.name = name;
+    }
+
+    speak() {
+        console.log(`${this.name} makes a noise.`);
+    }
+}
+
+class Dog extends Animal {
+    constructor(name, breed) {
+        super(name);
+        this.breed = breed;
+    }
+
+    speak() {
+        super.speak();
+        console.log(`${this.name} barks.`);
+    }
+}
+
+const makePromise = async (message, delay) => {
+    return new Promise(resolve => setTimeout(() => resolve(message), delay));
+}
+
+(async () => {
+    const dog = new Dog('Rex', 'Labrador');
+    dog.speak();
+
+    const [msg1, msg2] = await Promise.all([
+        makePromise('Hello from promise 1', 1000),
+        makePromise('Hello from promise 2', 2000)
+    ]);
+
+    console.log(msg1, msg2);
+
+    const data = { name: "Alice", age: 30, location: "Wonderland" };
+    const handler = {
+        get(target, prop) {
+            return prop in target ? target[prop] : `Property ${prop} is not available`;
+        }
+    };
+
+    const proxy = new Proxy(data, handler);
+    console.log(proxy.name);
+    console.log(proxy.nonExistentProp);
+
+    const generateNumbers = function*() {
+        let i = 0;
+        while (true) {
+            yield i++;
+        }
+    };
+
+    const numbers = generateNumbers();
+    console.log(numbers.next().value);  
+    console.log(numbers.next().value);  
+    console.log(numbers.next().value);  
+
+    const doubleMap = new Map([
+        [1, 'one'],
+        [2, 'two'],
+        [3, 'three']
+    ]);
+
+    const doubledValues = new Map([...doubleMap].map(([k, v]) => [k * 2, v.toUpperCase()]));
+    console.log([...doubledValues]);  
+})();
+```

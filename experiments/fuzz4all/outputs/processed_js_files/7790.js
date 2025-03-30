@@ -1,0 +1,29 @@
+ 
+async function* greetGenerator() {
+  const greetings = ['Hello', 'Hi', 'Greetings', 'Salutations', 'Hola'];
+  for (const greeting of greetings) {
+    yield new Promise((resolve) => setTimeout(() => resolve(greeting), 1000));
+  }
+}
+
+const greetingProxy = new Proxy(greetGenerator(), {
+  get(target, prop) {
+    if (prop === 'getNext') {
+      return async () => {
+        const { value, done } = await target.next();
+        return done ? 'No more greetings.' : value;
+      };
+    }
+    return target[prop];
+  }
+});
+
+(async () => {
+  const greetings = [];
+  for (let i = 0; i < 6; i++) {
+    const greeting = await greetingProxy.getNext();
+    print(greeting);
+    greetings.push(greeting);
+  }
+  print(`All greetings: ${greetings.join(', ')}`);
+})();

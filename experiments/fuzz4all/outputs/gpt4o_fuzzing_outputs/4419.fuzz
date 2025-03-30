@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function processFile(filePath) {
+  try {
+     
+    const data = await fs.readFile(filePath, 'utf-8');
+
+     
+    const numbers = [...data.matchAll(/\d+/g)].map(match => Number(match[0]));
+
+     
+    const uniqueSortedNumbers = [...new Set(numbers)].sort((a, b) => a - b);
+
+     
+    const sum = uniqueSortedNumbers.reduce((acc, num) => acc + num, 0);
+
+    console.log(`Sorted unique numbers: ${uniqueSortedNumbers}`);
+    console.log(`Sum of unique numbers: ${sum}`);
+  } catch (err) {
+    console.error('Error reading the file:', err);
+  }
+}
+
+ 
+(async () => {
+  const filePath = './data.txt';  
+  await processFile(filePath);
+})();
+```

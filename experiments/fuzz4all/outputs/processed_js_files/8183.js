@@ -1,0 +1,40 @@
+ 
+(async () => {
+    const { v4: uuidv4 } = await import('https://cdn.skypack.dev/uuid');
+
+     
+    const loggerHandler = {
+        get: (obj, prop) => {
+            if (prop in obj) {
+                print(`Accessing property '${prop}': ${obj[prop]}`);
+                return obj[prop];
+            } else {
+                console.warn(`Property '${prop}' does not exist.`);
+                return undefined;
+            }
+        }
+    };
+
+     
+    const data = { name: 'Alice', age: 30 };
+    const proxyData = new Proxy(data, loggerHandler);
+
+     
+    const format = (strings, ...values) => {
+        return strings.reduce((prev, current, i) => prev + current + (values[i] !== undefined ? `[${values[i]}]` : ''), '');
+    };
+
+    print(format`User ${proxyData.name} is ${proxyData.age} years old. Generating UUID...`);
+
+     
+    const generateUUID = () => new Promise((resolve) => {
+        setTimeout(() => resolve(uuidv4()), 1000);
+    });
+
+    try {
+        const uuid = await generateUUID();
+        print(format`Generated UUID: ${uuid}`);
+    } catch (error) {
+        console.error('Failed to generate UUID:', error);
+    }
+})();

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this._listeners = new Set();
+  }
+
+  subscribe(callback) {
+    this._listeners.add(callback);
+    return () => this._listeners.delete(callback);  
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this._listeners.forEach(callback => callback(newValue));
+    }
+  }
+}
+
+ 
+const logChange = (label, value) => console.log(`${label}:`, value);
+
+ 
+class ComputedObservable extends Observable {
+  constructor(dependencies, computeFn) {
+    let value = computeFn();
+    super(value);
+
+    dependencies.forEach(dep => {
+      dep.subscribe(() => {
+        const newValue = computeFn();
+        if (newValue !== this._value) {
+          this._value = newValue;
+          this._listeners.forEach(callback => callback(newValue));
+        }
+      });
+    });
+  }
+}
+
+ 
+const temperatureC = new Observable(25);
+const temperatureF = new ComputedObservable(
+  [temperatureC],
+  () => (temperatureC.value * 9) / 5 + 32
+);
+
+ 
+const unsubscribeC = temperatureC.subscribe(value => logChange('Temperature °C', value));
+const unsubscribeF = temperatureF.subscribe(value => logChange('Temperature °F', value));
+
+ 
+temperatureC.value = 30;  
+temperatureC.value = 35;  
+
+ 
+unsubscribeC();
+unsubscribeF();
+
+ 
+temperatureC.value = 40;
+```

@@ -1,0 +1,30 @@
+class FibonacciSequence {
+  constructor(max) {
+    this.max = max;
+    this[Symbol.iterator] = function* () {
+      let [a, b] = [0, 1];
+      while (a <= this.max) {
+        yield a;
+        [a, b] = [b, a + b];
+      }
+    };
+  }
+}
+
+const asyncDouble = async (n) => new Promise((resolve) => setTimeout(() => resolve(n * 2), 100));
+
+const processSequence = async () => {
+  const fibSeq = new FibonacciSequence(50);
+  const promises = [];
+  
+  for (let num of fibSeq) {
+    promises.push(asyncDouble(num));
+  }
+  
+  const results = await Promise.all(promises);
+  const uniqueDoubledFib = new Set(results);
+  
+  print([...uniqueDoubledFib].sort((a, b) => a - b));
+};
+
+processSequence().catch(console.error);

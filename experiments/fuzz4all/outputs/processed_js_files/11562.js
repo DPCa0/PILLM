@@ -1,0 +1,47 @@
+ 
+
+async function* fetchPaginatedData(url, pages) {
+  for (let i = 1; i <= pages; i++) {
+    yield await fetch(`${url}?page=${i}`)
+      .then(response => response.json())
+      .then(data => data)
+      .catch(error => console.error(`Error fetching page ${i}:`, error));
+  }
+}
+
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    }
+    console.warn(`Property "${prop}" does not exist`);
+    return null;
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'number' && value > 0) {
+      target[prop] = value;
+      print(`Property "${prop}" set to ${value}`);
+      return true;
+    }
+    console.warn(`Failed to set property "${prop}". Value must be a positive number.`);
+    return false;
+  },
+};
+
+const config = new Proxy({ maxPages: 5 }, handler);
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const generator = fetchPaginatedData(url, config.maxPages);
+  let result = await generator.next();
+  
+  while (!result.done) {
+    print('Fetched data:', result.value);
+    result = await generator.next();
+  }
+})();
+
+ 
+config.maxPages = 3;  
+config.maxPages = -1;  
+config.unknownProp = 7;  

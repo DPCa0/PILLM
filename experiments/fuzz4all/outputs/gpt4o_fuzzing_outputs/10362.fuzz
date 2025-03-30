@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+}
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    processData() {
+         
+        return this.data
+            .filter(item => item.value > 10)
+            .map(item => ({ ...item, value: item.value * 2 }))
+            .reduce((acc, item) => acc + item.value, 0);
+    }
+}
+
+(async () => {
+    const url = 'https://api.example.com/data';
+    const fetcher = new DataFetcher(url);
+    const data = await fetcher.fetchData();
+
+    if (data) {
+        const processor = new DataProcessor(data);
+        const result = processor.processData();
+        console.log('Processed result:', result);
+    }
+})();
+```

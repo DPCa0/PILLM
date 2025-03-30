@@ -1,0 +1,63 @@
+class User {
+  #name;
+  
+  constructor(name) {
+    this.#name = name;
+  }
+  
+  get name() {
+    return this.#name;
+  }
+  
+  set name(newName) {
+    if (typeof newName === 'string' && newName.length > 0) {
+      this.#name = newName;
+    } else {
+      throw new Error('Invalid name');
+    }
+  }
+}
+
+const users = new Proxy([], {
+  get(target, property) {
+    if (property === 'length') {
+      return target.length;
+    }
+    if (!isNaN(property)) {
+      return target[property];
+    }
+    throw new Error('Property not accessible');
+  },
+  set(target, property, value) {
+    if (typeof value === 'object' && value instanceof User) {
+      target[property] = value;
+      return true;
+    }
+    throw new Error('Value must be a User instance');
+  }
+});
+
+async function fetchUserData() {
+  const response = await fetch('https://jsonplaceholder.typicode.com/users/1');
+  const data = await response.json();
+  const user = new User(data.name);
+  return user;
+}
+
+(async () => {
+  try {
+    const user = await fetchUserData();
+    users[0] = user;
+    print(users[0].name);  
+
+     
+    if (users[0].name.includes('Leanne')) {
+      const { greetUser } = await import('./greet.js');
+      greetUser(users[0].name);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
+**Note:** This code assumes the presence of a separate `greet.js` module with a `greetUser` function. Adjust the URL in `fetchUserData` to match the endpoint and data structure you intend to use.

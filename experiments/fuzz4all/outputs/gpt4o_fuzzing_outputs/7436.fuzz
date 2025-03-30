@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static multiply(A, B) {
+    if (A.data[0].length !== B.data.length) {
+      throw new Error('Matrices A and B cannot be multiplied');
+    }
+    const result = new Matrix(A.data.length, B.data[0].length);
+    result.data = result.data.map((row, i) =>
+      row.map(
+        (_, j) =>
+          A.data[i].reduce((sum, _, n) => sum + A.data[i][n] * B.data[n][j], 0)
+      )
+    );
+    return result;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+ 
+(async () => {
+  const A = new Matrix(3, 3).map(() => Math.floor(Math.random() * 10));
+  const B = new Matrix(3, 3).map(() => Math.floor(Math.random() * 10));
+  
+  console.log('Matrix A:');
+  A.print();
+  console.log('Matrix B:');
+  B.print();
+  
+  try {
+    const C = Matrix.multiply(A, B);
+    console.log('A x B:');
+    C.print();
+  } catch (error) {
+    console.error(error.message);
+  }
+
+   
+  const delayedComputation = (matrix, time) =>
+    new Promise((resolve) =>
+      setTimeout(() => {
+        matrix.map((val) => val * 2);
+        resolve(matrix);
+      }, time)
+    );
+
+  const D = await delayedComputation(A, 1000);
+  console.log('Doubled A after delay:');
+  D.print();
+})();
+```

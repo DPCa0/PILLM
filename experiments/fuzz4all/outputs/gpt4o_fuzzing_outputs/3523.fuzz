@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import readline from 'readline/promises';
+import { stdin as input, stdout as output } from 'node:process';
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fibonacci(maxCount) {
+    let [prev, curr] = [0, 1];
+    for (let count = 0; count < maxCount; count++) {
+        await delay(500);   
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+(async () => {
+    const rl = readline.createInterface({ input, output });
+
+    try {
+        const name = await rl.question('What is your name? ');
+        console.log(`Hello, ${name}! Here's a Fibonacci sequence for you:`);
+
+        const sequenceLength = await rl.question('How many numbers do you want to see? ');
+        const count = parseInt(sequenceLength);
+
+        if (isNaN(count) || count <= 0) {
+            console.log('Please enter a valid positive number.');
+            return;
+        }
+
+        const fibGen = fibonacci(count);
+        
+        for await (const num of fibGen) {
+            console.log(num);
+        }
+    } catch (err) {
+        console.error('Error occurred:', err);
+    } finally {
+        rl.close();
+    }
+})();
+```

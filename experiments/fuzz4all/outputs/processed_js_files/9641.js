@@ -1,0 +1,46 @@
+ 
+
+(async () => {
+   
+  const { default: axios } = await import('https://cdn.jsdelivr.net/npm/axios@latest/dist/axios.min.js');
+  
+   
+  const fetchData = async (url) => {
+    const { data } = await axios.get(url);
+    return data;
+  };
+
+   
+  function* randomHexColor() {
+    while (true) {
+      yield `#${Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0')}`;
+    }
+  }
+
+  const hexColorGenerator = randomHexColor();
+
+   
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    const { name, email } = data;
+    print(`Name: ${name}, Email: ${email}`);
+
+     
+    print(`Random Hex Color: ${hexColorGenerator.next().value}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+
+   
+  const uniqueEmails = new Set(['test@example.com', 'sample@example.com', 'test@example.com']);
+  const emailMap = new Map();
+
+  uniqueEmails.forEach((email, index) => {
+    emailMap.set(index, email);
+  });
+
+   
+  for (const [key, value] of emailMap) {
+    print(`Email ${key + 1}: ${value}`);
+  }
+})();

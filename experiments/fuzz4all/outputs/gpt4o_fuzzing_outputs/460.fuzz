@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ userId: 1, name: 'John Doe', age: 30 }), 1000)
+  );
+
+ 
+function* numberGenerator(limit) {
+  for (let i = 1; i <= limit; i++) {
+    yield i;
+  }
+}
+
+ 
+async function processUserData() {
+  try {
+    const { userId, name, age } = await fetchData();
+    console.log(`Fetched User: ID ${userId}, Name: ${name}, Age: ${age}`);
+
+    console.log('Numbers from generator:');
+    const generator = numberGenerator(5);
+    for (const num of generator) {
+      console.log(num);
+    }
+
+     
+    const complexObject = {
+      location: { city: 'Metropolis', state: 'Metro State' },
+      preferences: { likes: ['JavaScript', 'Node.js'], dislikes: ['PHP'] },
+    };
+
+    const {
+      location: { city, state },
+      preferences: { likes: [favorite, secondFavorite] },
+    } = complexObject;
+
+    console.log(`User Location: ${city}, ${state}`);
+    console.log(`User Preferences: Favorite - ${favorite}, Second Favorite - ${secondFavorite}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+processUserData();
+```

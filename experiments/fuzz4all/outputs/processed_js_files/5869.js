@@ -1,0 +1,64 @@
+ 
+const firstName = "John", lastName = "Doe", age = 30;
+
+const person = {
+  firstName,
+  lastName,
+  age,
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  },
+  set fullName(name) {
+    [this.firstName, this.lastName] = name.split(' ');
+  },
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+    }
+  }
+};
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Accessed property: ${property}`);
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    print(`Set property: ${property} to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+const proxiedPerson = new Proxy(person, handler);
+
+ 
+const { firstName: first = 'Anonymous', age: years = 0, ...rest } = proxiedPerson;
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((acc, str, i) => `${acc}${str}<b>${values[i] || ''}</b>`, '');
+}
+
+print(tag`Name: ${firstName}, Age: ${years}`);
+
+ 
+function* customIterator(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    if (i % 2 === 0) yield arr[i];  
+  }
+}
+
+const myArray = [1, 2, 3, 4, 5, 6];
+const iterator = customIterator(myArray);
+
+print([...iterator]);  
+
+ 
+proxiedPerson.fetchData('https://jsonplaceholder.typicode.com/posts/1').then(data => {
+  print(data);
+});

@@ -1,0 +1,65 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    return response.ok ? response.json() : Promise.reject(new Error('Fetch error'));
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+function* createIdGenerator(start = 0) {
+  let id = start;
+  while (true) {
+    yield id++;
+  }
+}
+
+async function processData() {
+  const idGenerator = createIdGenerator();
+  const dataPromise = new Deferred();
+
+  const handleData = async () => {
+    try {
+      const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts');
+      dataPromise.resolve(data);
+    } catch (error) {
+      dataPromise.reject(error);
+    }
+  };
+
+  const processChunk = async (data) => {
+    for (const item of data) {
+      const id = idGenerator.next().value;
+      print(`Processing item with id: ${id}`, item);
+      await new Promise((resolve) => setTimeout(resolve, 100));  
+    }
+  };
+
+  handleData();
+
+  try {
+    const data = await dataPromise.promise;
+    for (let i = 0; i < data.length; i += 10) {
+      const chunk = data.slice(i, i + 10);
+      await processChunk(chunk);
+    }
+    print('Processing complete.');
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+processData();

@@ -1,0 +1,50 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processNumbers = async (url) => {
+  const numbers = await fetchData(url);
+  if (!Array.isArray(numbers)) {
+    console.error('Invalid data');
+    return;
+  }
+
+  const [evens, odds] = numbers.reduce(
+    ([evens, odds], number) => {
+      (number % 2 === 0 ? evens : odds).push(number);
+      return [evens, odds];
+    },
+    [[], []]
+  );
+
+  const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
+
+  return {
+    evens,
+    odds,
+    sumOfEvens: sum(evens),
+    sumOfOdds: sum(odds),
+  };
+};
+
+const displayResults = async (url) => {
+  const results = await processNumbers(url);
+
+  if (results) {
+    const { evens, odds, sumOfEvens, sumOfOdds } = results;
+    print(`Evens: ${evens}`);
+    print(`Odds: ${odds}`);
+    print(`Sum of Evens: ${sumOfEvens}`);
+    print(`Sum of Odds: ${sumOfOdds}`);
+  }
+};
+
+const numbersApiUrl = 'https://api.example.com/numbers';
+displayResults(numbersApiUrl);

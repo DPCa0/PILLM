@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+const targetObject = {
+    name: 'JavaScript',
+    type: 'Programming Language',
+    details() {
+        return `${this.name} is a ${this.type}.`;
+    }
+};
+
+ 
+const privateMethod = Symbol('privateMethod');
+
+class Complex {
+    constructor(target) {
+        this.target = target;
+    }
+
+     
+    [privateMethod](data) {
+        return `${data} It's used for both front-end and back-end development.`;
+    }
+
+    // Proxy to intercept calls and modify behavior
+    get proxy() {
+        const handler = {
+            get: (obj, prop) => {
+                if (prop === 'enhancedDetails') {
+                    return this[privateMethod](obj.details());
+                }
+                return obj[prop];
+            },
+        };
+        return new Proxy(this.target, handler);
+    }
+}
+
+// Async function to demonstrate Promise with Proxy and Symbol
+async function getEnhancedDetails() {
+    const complex = new Complex(targetObject);
+    const proxiedObject = complex.proxy;
+
+    // Simulating an asynchronous operation
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(proxiedObject.enhancedDetails);
+        }, 1000);
+    });
+}
+
+(async () => {
+    try {
+        const message = await getEnhancedDetails();
+        console.log(message);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();
+```

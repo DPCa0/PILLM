@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class Employee {
+  #name;
+  #position;
+  #salary;
+
+  constructor(name, position, salary) {
+    this.#name = name;
+    this.#position = position;
+    this.#salary = salary;
+  }
+
+  static company = "Tech Innovations";
+
+  get details() {
+    return `${this.#name}, ${this.#position}`;
+  }
+
+  set updateSalary(amount) {
+    if (amount > this.#salary) {
+      this.#salary = amount;
+    }
+  }
+
+  async requestSalaryIncrease() {
+    const isApproved = await Employee.simulateApprovalProcess();
+    if (isApproved) {
+      console.log(`${this.#name}'s salary increase is approved.`);
+    } else {
+      console.log(`${this.#name}'s salary increase is denied.`);
+    }
+  }
+
+  static simulateApprovalProcess() {
+    return new Promise((resolve) => setTimeout(() => resolve(Math.random() > 0.5), 1000));
+  }
+}
+
+const employees = [
+  new Employee("Alice Johnson", "Developer", 60000),
+  new Employee("Bob Smith", "Manager", 75000),
+];
+
+employees.forEach((employee) => {
+  console.log(`Employee: ${employee.details}`);
+  employee.requestSalaryIncrease();
+});
+
+const employeeProxy = new Proxy(employees[0], {
+  get(target, prop) {
+    if (prop === "salary") {
+      throw new Error("Access to salary is restricted!");
+    }
+    return target[prop];
+  },
+  set(target, prop, value) {
+    if (prop === "updateSalary") {
+      console.log(`Attempting to update salary to: ${value}`);
+    }
+    target[prop] = value;
+    return true;
+  },
+});
+
+try {
+  console.log(employeeProxy.salary);
+} catch (error) {
+  console.log(error.message);
+}
+
+employeeProxy.updateSalary = 65000;
+```

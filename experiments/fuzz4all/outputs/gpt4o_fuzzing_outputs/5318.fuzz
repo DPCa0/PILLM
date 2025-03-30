@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { message: "Hello, Complex World!" };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+function* numberGenerator() {
+  let number = 1;
+  while (true) {
+    yield number++;
+  }
+}
+
+ 
+async function processData() {
+  try {
+    const data = await fetchData();
+    console.log(data.message);
+    
+    const gen = numberGenerator();
+    for (let i = 0; i < 5; i++) {
+      console.log(`Generated number: ${gen.next().value}`);
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Property '${prop}' was accessed.`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Property '${prop}' was set to '${value}'.`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const person = { name: "Alice", age: 30 };
+const proxyPerson = new Proxy(person, handler);
+
+ 
+console.log(proxyPerson.name);  
+proxyPerson.age = 31;           
+
+ 
+processData();
+```

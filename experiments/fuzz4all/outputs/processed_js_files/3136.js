@@ -1,0 +1,40 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fibonacciSequence() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+async function asyncFibonacci(limit, callback) {
+  const iterator = fibonacciSequence();
+  const deferred = new Deferred();
+
+  (async function iterate(index = 0) {
+    if (index >= limit) {
+      deferred.resolve('Done');
+      return;
+    }
+    const { value } = await iterator.next();
+    callback(value, index);
+    setTimeout(() => iterate(index + 1), 100);
+  })();
+
+  return deferred.promise;
+}
+
+(async function main() {
+  print('Fibonacci Sequence:');
+  await asyncFibonacci(10, (value, index) => {
+    print(`fib(${index + 1}) = ${value}`);
+  });
+})();

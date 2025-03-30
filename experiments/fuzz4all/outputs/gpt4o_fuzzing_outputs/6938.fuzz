@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+const compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x);
+
+const fetchData = url =>
+  new Promise((resolve, reject) =>
+    fetch(url)
+      .then(response => response.json())
+      .then(data => resolve(data))
+      .catch(err => reject(err))
+  );
+
+const filterByAge = ageThreshold => data =>
+  data.filter(person => person.age >= ageThreshold);
+
+const mapNames = data => data.map(person => person.name);
+
+const logResults = names => {
+  console.log('Filtered Names:');
+  names.forEach(name => console.log(name));
+  return names;
+};
+
+(async () => {
+  const processData = compose(logResults, mapNames, filterByAge(30));
+  try {
+    const data = await fetchData('https://api.example.com/people');
+    processData(data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

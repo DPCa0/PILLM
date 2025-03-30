@@ -1,0 +1,31 @@
+ 
+(async () => {
+  const { default: fetch } = await import('node-fetch');
+
+   
+  const getUserData = async ({ userId }) => {
+    try {
+       
+      const response = await fetch(`https: 
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+
+       
+      const name = data?.name ?? 'No name provided';
+      print(`User Name: ${name}`);
+
+       
+      const updatedData = {
+        ...data,
+        location: 'Earth',  
+      };
+
+      print('Updated User Data:', updatedData);
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
+
+   
+  getUserData({ userId: 1 });
+})();

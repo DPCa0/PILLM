@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncIterator {
+  constructor(max) {
+    this.current = 1;
+    this.max = max;
+  }
+  
+  [Symbol.asyncIterator]() {
+    return {
+      current: this.current,
+      max: this.max,
+      
+      async next() {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        if (this.current <= this.max) {
+          return { done: false, value: this.current++ };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+const delayLog = async (iterator) => {
+  for await (let num of iterator) {
+    console.log(num);
+  }
+};
+
+const asyncFunc = async () => {
+  let set = new Set([1, 2, 3, 4, 5]);
+  set = new Set([...set].filter(x => x % 2 === 0).map(x => x * x));
+  
+  const promise = Promise.resolve(set);
+  
+  promise
+    .then(data => [...data].reduce((a, b) => a + b, 0))
+    .then(console.log);
+  
+  await delayLog(new AsyncIterator(5));
+  
+  try {
+    throw new Error('Something went wrong!');
+  } catch (error) {
+    console.log(error.message);
+  }
+  
+  console.log('Done!');
+};
+
+asyncFunc();
+```

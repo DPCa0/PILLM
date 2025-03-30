@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+  console.log('Fetching data...');
+  await delay(2000);
+  return { data: 'Sample Data', timestamp: new Date() };
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Property '${property}' accessed`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting property '${property}' to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+function* dataGenerator() {
+  while (true) {
+    yield fetchData();
+  }
+}
+
+ 
+(async () => {
+  const dataStream = dataGenerator();
+  const dataStore = new Proxy({}, handler);
+
+  for (let i = 0; i < 3; i++) {
+    const { value: fetchDataPromise } = dataStream.next();
+    const data = await fetchDataPromise;
+
+     
+    dataStore['lastFetchedData'] = data.data;
+    console.log('Data:', dataStore['lastFetchedData']);
+    console.log('Timestamp:', data.timestamp);
+  }
+})();
+```

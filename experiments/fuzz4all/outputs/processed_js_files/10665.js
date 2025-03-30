@@ -1,0 +1,38 @@
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve({ user: { name: 'John Doe', age: 30 }, location: 'USA' });
+      } else {
+        reject(new Error('Invalid URL'));
+      }
+    }, 1000);
+  });
+};
+
+const userHandler = {
+  get: (target, prop) => {
+    if (prop === 'greeting') {
+      return `Hello, my name is ${target.name} and I live in ${target.location}`;
+    }
+    return target[prop];
+  },
+};
+
+(async () => {
+  try {
+    const response = await fetchData('https://api.example.com/data');
+    const { user, location } = response;
+
+    const userProxy = new Proxy({ ...user, location }, userHandler);
+
+    print(userProxy.greeting);  
+
+     
+    const { name, ...rest } = userProxy;
+    print(`User Details: Name - ${name}, Other Info -`, rest);
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+})();

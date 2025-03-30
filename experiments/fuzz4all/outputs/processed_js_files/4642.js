@@ -1,0 +1,63 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  add({ real, imaginary }) {
+    return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+  }
+
+  subtract({ real, imaginary }) {
+    return new ComplexNumber(this.real - real, this.imaginary - imaginary);
+  }
+
+  multiply({ real, imaginary }) {
+    return new ComplexNumber(
+      this.real * real - this.imaginary * imaginary,
+      this.real * imaginary + this.imaginary * real
+    );
+  }
+
+  magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+  static from(polarCoordinates) {
+    const [magnitude, angle] = polarCoordinates;
+    return new ComplexNumber(
+      magnitude * Math.cos(angle),
+      magnitude * Math.sin(angle)
+    );
+  }
+
+  toString() {
+    const sign = this.imaginary >= 0 ? "+" : "-";
+    return `${this.real} ${sign} ${Math.abs(this.imaginary)}i`;
+  }
+}
+
+const complex1 = new ComplexNumber(3, 4);
+const complex2 = new ComplexNumber(1, -2);
+const complex3 = ComplexNumber.from([5, Math.PI / 4]);
+
+const result1 = complex1.add(complex2);
+const result2 = complex1.multiply(complex3);
+const result3 = complex1.magnitude();
+
+print(`Addition Result: ${result1.toString()}`);
+print(`Multiplication Result: ${result2.toString()}`);
+print(`Magnitude of first complex number: ${result3.toFixed(2)}`);
+
+ 
+const complexHandler = {
+  get: (target, property) => {
+    print(`Accessing property "${property}" with value: ${target[property]}`);
+    return target[property];
+  }
+};
+
+const proxiedComplex = new Proxy(complex1, complexHandler);
+
+print(proxiedComplex.real);
+print(proxiedComplex.imaginary);

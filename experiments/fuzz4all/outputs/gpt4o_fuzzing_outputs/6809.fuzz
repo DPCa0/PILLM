@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class EventEmitter {
+  constructor() {
+    this.listeners = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.listeners.has(event)) this.listeners.set(event, []);
+    this.listeners.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.listeners.get(event);
+    if (listeners) listeners.forEach(listener => listener(...args));
+  }
+}
+
+class App {
+  constructor(dataURL) {
+    this.dataURL = dataURL;
+    this.eventEmitter = new EventEmitter();
+  }
+
+  async initialize() {
+    try {
+      const data = await fetchData(this.dataURL);
+      this.eventEmitter.emit('dataFetched', data);
+    } catch (error) {
+      this.eventEmitter.emit('error', error);
+    }
+  }
+
+  onDataFetched(callback) {
+    this.eventEmitter.on('dataFetched', callback);
+  }
+
+  onError(callback) {
+    this.eventEmitter.on('error', callback);
+  }
+}
+
+const app = new App('https://jsonplaceholder.typicode.com/posts');
+app.onDataFetched(data => {
+  console.log('Data fetched successfully:', data.slice(0, 3));  
+});
+
+app.onError(error => {
+  console.error('Error fetching data:', error);
+});
+
+app.initialize();
+```

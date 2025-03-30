@@ -1,0 +1,49 @@
+ 
+
+class DataProcessor {
+  constructor() {
+    this.dataStore = new Map();
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  }
+
+  async processData(url) {
+    try {
+      const data = await this.fetchData(url);
+      this.storeData(data);
+      this.displayData();
+    } catch (error) {
+      console.error(`Error processing data: ${error.message}`);
+    }
+  }
+
+  storeData(data) {
+    data.forEach(({ id, ...rest }) => this.dataStore.set(id, rest));
+  }
+
+  displayData() {
+    print(`Displaying data:`);
+    this.dataStore.forEach((value, key) => {
+      const { name, age } = value;
+      print(`ID: ${key}, Name: ${name}, Age: ${age}`);
+    });
+  }
+}
+
+const uniqueIds = new Set([1, 2, 3, 4, 5]);
+
+ 
+for (const id of uniqueIds) {
+  const [key, value] = [id, `Value${id}`];
+  print(`Destructuring and template literal example - Key: ${key}, Value: ${value}`);
+}
+
+const processor = new DataProcessor();
+processor.processData('https://jsonplaceholder.typicode.com/users');

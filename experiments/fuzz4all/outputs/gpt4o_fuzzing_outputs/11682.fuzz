@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncOperation = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(data * 2);
+    }, 1000);
+  });
+};
+
+ 
+function* fibonacciGenerator(limit) {
+  let a = 0, b = 1, index = 0;
+  while (index++ < limit) {
+    [a, b] = [b, a + b];
+    yield a;
+  }
+}
+
+ 
+const loggerHandler = {
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const user = new Proxy({ name: "Alice", age: 25 }, loggerHandler);
+user.name = "Bob";  
+
+(async () => {
+   
+  const uniqueNumbers = [...new Set([1, 2, 3, 3, 2, 1])];
+  console.log('Unique numbers:', uniqueNumbers);  
+
+   
+  const mapExample = new Map();
+  mapExample.set('key1', 'value1').set('key2', 'value2');
+  for (let [key, value] of mapExample) {
+    console.log(`${key}: ${value}`);
+  }
+
+   
+  const result = await asyncOperation(5);
+  console.log('Async operation result:', result);  
+
+   
+  const fibGen = fibonacciGenerator(5);
+  for (let value of fibGen) {
+    console.log('Fibonacci:', value);  
+  }
+
+   
+  const userProfile = { name: 'Alice', preferences: null };
+  console.log('User theme:', userProfile.preferences?.theme ?? 'Default Theme');  
+})();
+```

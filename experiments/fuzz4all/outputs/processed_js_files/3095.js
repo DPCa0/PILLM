@@ -1,0 +1,58 @@
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: "Alice" },
+                { id: 2, name: "Bob" },
+                { id: 3, name: "Charlie" }
+            ]);
+        }, 1000);
+    });
+}
+
+ 
+async function getData() {
+    print("Fetching data...");
+    const data = await fetchData();
+    print("Data fetched:", data);
+    return data;
+}
+
+ 
+function createLoggingMap() {
+    const targetMap = new Map();
+
+    return new Proxy(targetMap, {
+        get(target, property, receiver) {
+            const original = Reflect.get(target, property, receiver);
+            if (typeof original === 'function') {
+                return function(...args) {
+                    print(`Calling ${property} with arguments:`, args);
+                    return original.apply(target, args);
+                };
+            }
+            return original;
+        }
+    });
+}
+
+ 
+(async function() {
+    const data = await getData();
+
+     
+    const userMap = createLoggingMap();
+
+     
+    data.forEach(user => {
+        userMap.set(user.id, user.name);
+    });
+
+     
+    print("User with ID 2:", userMap.get(2));
+    userMap.delete(3);
+    print("User with ID 3 deleted. Remaining users:", Array.from(userMap.entries()));
+})();

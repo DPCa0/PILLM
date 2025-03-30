@@ -1,0 +1,58 @@
+ 
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function fetchData(url) {
+  await delay(1000);
+  return `Data from ${url}`;
+}
+
+ 
+function* dataGenerator(urls) {
+  for (const url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop === 'secret') return 'Not allowed!';
+    return target[prop];
+  },
+};
+
+const secureData = new Proxy(
+  { name: 'Alice', age: 30, secret: '1234' },
+  handler
+);
+
+ 
+const uniqueProperty = Symbol('unique');
+
+class DataProcessor {
+  constructor() {
+    this[uniqueProperty] = 'UniqueID-001';
+  }
+
+  process(urls) {
+    const gen = dataGenerator(urls);
+    const processNext = ({ done, value }) => {
+      if (done) return;
+      value.then((data) => {
+        print(data);
+        processNext(gen.next());
+      });
+    };
+    processNext(gen.next());
+  }
+}
+
+const urls = ['https://api.example.com/1', 'https://api.example.com/2'];
+const processor = new DataProcessor();
+
+processor.process(urls);
+print('Unique Property:', processor[uniqueProperty]);
+print('Secure Data Secret:', secureData.secret);

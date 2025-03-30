@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+
+ 
+function logExecution(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = async function (...args) {
+    console.log(`Calling ${propertyKey} with arguments:`, args);
+    const result = await originalMethod.apply(this, args);
+    console.log(`Result from ${propertyKey}:`, result);
+    return result;
+  };
+  return descriptor;
+}
+
+ 
+class DataProcessor {
+  #data = [];
+
+  constructor(filePath) {
+    this.filePath = filePath;
+  }
+
+  async initialize() {
+    const data = await readFile(this.filePath, 'utf8');
+    this.#data = JSON.parse(data);
+  }
+
+  @logExecution
+  async processData() {
+    const processed = this.#data.map(item => ({
+      ...item,
+      timestamp: new Date(item.timestamp).toLocaleString(),
+      processedValue: item.value * 2,
+    }));
+    this.#data = processed;
+    return processed;
+  }
+
+  getData() {
+    return [...this.#data];
+  }
+}
+
+ 
+(async () => {
+  const processor = new DataProcessor('./data.json');
+  await processor.initialize();
+  await processor.processData();
+  console.log('Processed Data:', processor.getData());
+})();
+```

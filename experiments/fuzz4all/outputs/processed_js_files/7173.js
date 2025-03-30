@@ -1,0 +1,35 @@
+class Fibonacci {
+  #memo = new Map([[0, 0], [1, 1]]);
+
+  *[Symbol.iterator]() {
+    let i = 0;
+    while (true) {
+      yield this.#fib(i++);
+    }
+  }
+
+  #fib(n) {
+    if (!this.#memo.has(n)) {
+      this.#memo.set(n, this.#fib(n - 1) + this.#fib(n - 2));
+    }
+    return this.#memo.get(n);
+  }
+}
+
+const limit = 10;
+const fibonacci = new Fibonacci();
+const result = [...fibonacci].slice(0, limit);
+
+print(`First ${limit} Fibonacci numbers:`, result);
+
+ 
+const asyncTask = () => new Promise(resolve => setTimeout(() => resolve('Task Complete!'), 1000));
+
+(async () => {
+  try {
+    const message = await asyncTask();
+    print(message);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

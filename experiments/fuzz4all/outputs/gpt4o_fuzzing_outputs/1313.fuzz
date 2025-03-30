@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class ComplexCalculator {
+  #history = [];
+
+  constructor() {
+    console.log('Complex Calculator Initialized');
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      console.log('Fetched Data:', data);
+      return data;
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+
+  *fibonacci(n) {
+    let a = 0, b = 1, i = 0;
+    while (i < n) {
+      yield a;
+      [a, b] = [b, a + b];
+      i++;
+    }
+  }
+
+  calculate(operation, ...numbers) {
+    const ops = {
+      'sum': (acc, val) => acc + val,
+      'multiply': (acc, val) => acc * val
+    };
+    const result = numbers.reduce(ops[operation]);
+    this.#addToHistory({ operation, numbers, result });
+    return result;
+  }
+
+  #addToHistory(entry) {
+    this.#history.push(entry);
+  }
+
+  get history() {
+    return [...this.#history];
+  }
+}
+
+const calculator = new ComplexCalculator();
+console.log(calculator.calculate('sum', 1, 2, 3, 4));
+console.log(calculator.calculate('multiply', 1, 2, 3, 4));
+
+for (const num of calculator.fibonacci(5)) {
+  console.log('Fibonacci:', num);
+}
+
+(async () => {
+  await calculator.fetchData('https://api.example.com/data');
+})();
+
+console.log('Calculation History:', calculator.history);
+```

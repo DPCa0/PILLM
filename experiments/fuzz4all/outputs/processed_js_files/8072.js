@@ -1,0 +1,44 @@
+ 
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    return await response.json();
+};
+
+const processData = (data) => {
+     
+    return data.map(({ id, title, completed }) => ({
+        id, title, completed,
+        metadata: `${title} is ${completed ? "done" : "pending"}`
+    }));
+};
+
+const main = async () => {
+    try {
+         
+        const urls = [
+            'https://jsonplaceholder.typicode.com/todos/1',
+            'https://jsonplaceholder.typicode.com/todos/2'
+        ];
+        
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        const processedData = processData(results);
+
+         
+        const uniqueTitles = new Set(processedData.map(item => item.title));
+        const statusCount = new Map();
+        processedData.forEach(item => {
+            statusCount.set(item.completed, (statusCount.get(item.completed) || 0) + 1);
+        });
+
+        print('Unique Titles:', uniqueTitles);
+        print('Completion Status Count:', Array.from(statusCount.entries()));
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+main();

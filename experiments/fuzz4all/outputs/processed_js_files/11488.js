@@ -1,0 +1,44 @@
+ 
+class APIHandler {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+    this.cache = new Map();
+    return new Proxy(this, {
+      get: (target, prop, receiver) => {
+        if (prop in target) {
+          return Reflect.get(target, prop, receiver);
+        } else {
+          return target.fetchData(prop);
+        }
+      }
+    });
+  }
+
+  async fetchData(endpoint) {
+    if (this.cache.has(endpoint)) {
+      print(`Fetching from cache: ${endpoint}`);
+      return Promise.resolve(this.cache.get(endpoint));
+    }
+    
+    const response = await fetch(`${this.apiUrl}/${endpoint}`);
+    const data = await response.json();
+    this.cache.set(endpoint, data);
+    return data;
+  }
+}
+
+const runComplexScenario = async () => {
+  const handler = new APIHandler('https://jsonplaceholder.typicode.com');
+
+   
+  const [posts, comments] = await Promise.all([handler.posts, handler.comments]);
+
+   
+  const popularPostTitles = posts
+    .filter(post => comments.filter(comment => comment.postId === post.id).length > 20)
+    .map(post => post.title);
+
+  print('Popular Posts:', popularPostTitles);
+};
+
+runComplexScenario();

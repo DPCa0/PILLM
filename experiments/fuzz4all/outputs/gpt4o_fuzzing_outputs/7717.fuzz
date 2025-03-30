@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Calculator {
+    constructor(...nums) {
+        this.nums = nums;
+    }
+
+    static add(...numbers) {
+        return numbers.reduce((acc, curr) => acc + curr, 0);
+    }
+
+    async multiplyAll(factor) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (typeof factor !== 'number') {
+                    reject('Factor must be a number');
+                } else {
+                    resolve(this.nums.map(num => num * factor));
+                }
+            }, 1000);
+        });
+    }
+
+    getNumbers() {
+        return [...this.nums];
+    }
+
+    setNumbers(...newNums) {
+        this.nums = [...newNums];
+    }
+}
+
+(async () => {
+    try {
+         
+        const calc = new Calculator(1, 2, 3, 4, 5);
+        const { nums } = calc;
+        console.log(`Initial numbers: ${nums.join(', ')}`);
+
+         
+        console.log(`Sum of numbers: ${Calculator.add(...nums)}`);
+
+         
+        const multipliedNums = await calc.multiplyAll(2);
+        console.log(`Numbers multiplied by 2: ${multipliedNums.join(', ')}`);
+
+         
+        calc.setNumbers(...multipliedNums, 20, 25);
+        console.log(`Updated numbers: ${calc.getNumbers().join(', ')}`);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+})();
+```

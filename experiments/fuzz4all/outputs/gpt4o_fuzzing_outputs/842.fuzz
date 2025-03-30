@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+     
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(['apple', 'banana', 'cherry', 'date']);
+        }, 2000);
+    });
+}
+
+ 
+function createLoggingProxy(array) {
+    return new Proxy(array, {
+        get(target, property) {
+            if (property in target) {
+                console.log(`Accessing element at index ${property}:`, target[property]);
+            }
+            return Reflect.get(...arguments);
+        },
+        set(target, property, value) {
+            console.log(`Setting element at index ${property} to:`, value);
+            return Reflect.set(...arguments);
+        }
+    });
+}
+
+async function main() {
+     
+    const fruits = await fetchData();
+    console.log("Fetched data:", fruits);
+    
+     
+    const proxyFruits = createLoggingProxy(fruits);
+    
+     
+    const firstFruit = proxyFruits?.[0] ?? 'No fruits available';
+    console.log("First fruit:", firstFruit);
+
+     
+    import('./greetingModule.js').then(module => {
+        module.greet('Welcome to the world of advanced JavaScript!');
+    });
+
+     
+    proxyFruits[2] = 'elderberry';
+}
+
+main();
+```
+
+To make this program complete, ensure there's a file named `greetingModule.js` in the same directory with the following content:
+
+```javascript
+export function greet(message) {
+    console.log(message);
+}
+```

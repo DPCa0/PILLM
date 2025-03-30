@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const target = {
+  message: "Hello, World",
+  getMessage: function() {
+    return this.message;
+  }
+};
+
+ 
+const handler = {
+  get: function(obj, prop) {
+    if (prop in obj) {
+      console.log(`Getting property '${prop}': ${obj[prop]}`);
+      return Reflect.get(...arguments);
+    }
+    console.log(`Property '${prop}' not found`);
+    return undefined;
+  },
+  set: function(obj, prop, value) {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+const asyncOperation = (message) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Operation complete: ${message}`);
+    }, 1000);
+  });
+};
+
+ 
+async function main() {
+  console.log(proxy.getMessage());  
+
+  proxy.message = "Hello, JavaScript";  
+
+   
+  const result = await asyncOperation(proxy.getMessage());
+  console.log(result);
+}
+
+ 
+main();
+```

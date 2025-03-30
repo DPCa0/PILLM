@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, elements = []) {
+        this.rows = rows;
+        this.cols = cols;
+        this.elements = elements.length ? elements : Array(rows * cols).fill(0);
+    }
+
+    static random(rows, cols) {
+        return new Matrix(rows, cols, Array.from({ length: rows * cols }, () => Math.random()));
+    }
+
+    *[Symbol.iterator]() {
+        for (let row = 0; row < this.rows; row++) {
+            yield this.elements.slice(row * this.cols, (row + 1) * this.cols);
+        }
+    }
+
+    map(callback) {
+        return new Matrix(
+            this.rows,
+            this.cols,
+            this.elements.map((value, index) => callback(value, Math.floor(index / this.cols), index % this.cols))
+        );
+    }
+
+    multiply(matrix) {
+        if (this.cols !== matrix.rows) throw new Error("Matrix dimensions do not match for multiplication.");
+        const result = new Matrix(this.rows, matrix.cols);
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < matrix.cols; j++) {
+                let sum = 0;
+                for (let k = 0; k < this.cols; k++) {
+                    sum += this.elements[i * this.cols + k] * matrix.elements[k * matrix.cols + j];
+                }
+                result.elements[i * result.cols + j] = sum;
+            }
+        }
+        return result;
+    }
+
+    log() {
+        console.table([...this].map(row => row.map(v => v.toFixed(2))));
+    }
+}
+
+(async function demo() {
+    const matrix1 = Matrix.random(3, 2);
+    const matrix2 = Matrix.random(2, 3);
+
+    console.log("Matrix 1:");
+    matrix1.log();
+
+    console.log("Matrix 2:");
+    matrix2.log();
+
+    const resultMatrix = matrix1.multiply(matrix2);
+    console.log("Result of Matrix 1 * Matrix 2:");
+    resultMatrix.log();
+
+    console.log("Result Matrix after applying Math.sqrt:");
+    const sqrtMatrix = resultMatrix.map(value => Math.sqrt(value));
+    sqrtMatrix.log();
+})();
+```

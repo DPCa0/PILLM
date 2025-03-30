@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+async function* dataStream(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      console.log(`Getting property: ${prop}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      return `Property ${prop} does not exist`;
+    }
+  },
+  set: (target, prop, value, receiver) => {
+    console.log(`Setting property: ${prop} to value: ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const targetObject = { foo: 'bar' };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+  
+  const stream = dataStream(urls);
+  
+  proxy.newProperty = "I am new here!";
+
+  for await (const dataPromise of stream) {
+    console.log(proxy.foo);
+    const data = await dataPromise;
+    console.log(data.title);
+  }
+
+  console.log(proxy.nonExistentProperty);  
+})();
+```

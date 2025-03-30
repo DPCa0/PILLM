@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+class TaskQueue {
+    constructor(concurrency) {
+        this.concurrency = concurrency;
+        this.running = 0;
+        this.queue = [];
+    }
+    
+    runTask(task) {
+        if (this.running < this.concurrency) {
+            this.running++;
+            task().finally(() => {
+                this.running--;
+                if (this.queue.length > 0) this.runTask(this.queue.shift());
+            });
+        } else {
+            this.queue.push(task);
+        }
+    }
+}
+
+async function asyncTask(name) {
+    console.log(`Starting task: ${name}`);
+    return new Promise(resolve => setTimeout(() => {
+        console.log(`Completed task: ${name}`);
+        resolve();
+    }, Math.random() * 2000));
+}
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    const taskQueue = new TaskQueue(2);
+    
+    eventEmitter.on('taskEvent', async (taskName) => {
+        await taskQueue.runTask(() => asyncTask(taskName));
+    });
+    
+    ['Task 1', 'Task 2', 'Task 3', 'Task 4'].forEach(taskName => {
+        eventEmitter.emit('taskEvent', taskName);
+    });
+})();
+```

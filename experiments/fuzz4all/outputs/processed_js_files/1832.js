@@ -1,0 +1,46 @@
+ 
+
+ 
+async function fetchData() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000);
+    });
+}
+
+ 
+async function* asyncGenerator() {
+    const { data } = await fetchData();
+    for (let item of data) {
+        yield Promise.resolve(item * 2);  
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            print(`Getting property ${prop}`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            throw new Error(`Property ${prop} doesn't exist`);
+        }
+    }
+};
+
+const dataProxy = new Proxy({ name: 'Alice', age: 25 }, handler);
+
+(async () => {
+    print(`Name: ${dataProxy.name}`);
+    
+    try {
+        print(`Location: ${dataProxy.location}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+    
+    const generator = asyncGenerator();
+    
+    for await (let value of generator) {
+        print(`Processed value: ${value}`);
+    }
+})();

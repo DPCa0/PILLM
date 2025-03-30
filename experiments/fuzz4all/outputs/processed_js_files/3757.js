@@ -1,0 +1,59 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event) || [];
+        listeners.forEach(listener => listener.apply(this, args));
+    }
+}
+
+const asyncDataFetcher = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok.');
+    return await response.json();
+};
+
+const cache = new WeakMap();
+
+const proxyHandler = {
+    get: (target, prop, receiver) => {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        }
+        throw new ReferenceError(`Property "${prop}" does not exist.`);
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'function') {
+            cache.set(value, new Date());
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+const secureData = new Proxy({}, proxyHandler);
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('dataFetched', (data) => {
+        print('Data:', data);
+    });
+
+    try {
+        const data = await asyncDataFetcher('https://jsonplaceholder.typicode.com/posts');
+        secureData.fetchedData = () => data;
+        emitter.emit('dataFetched', secureData.fetchedData());
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

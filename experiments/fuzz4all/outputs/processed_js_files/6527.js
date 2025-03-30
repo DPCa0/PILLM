@@ -1,0 +1,33 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const filePath = `./data_${new Date().toISOString().slice(0, 10)}.json`;
+
+     
+    const dataMap = new Map();
+    dataMap.set('name', 'Alice');
+    dataMap.set('age', 30);
+    dataMap.set('city', 'Wonderland');
+
+     
+    const dataObject = { ...Object.fromEntries(dataMap) };
+
+     
+    const jsonData = JSON.stringify(dataObject, null, 2);
+
+     
+    await fs.writeFile(filePath, jsonData, 'utf-8');
+
+     
+    const userAge = dataObject?.age ?? 'Age not available';
+
+    print(`Data written to ${filePath}`);
+    print(`User age is: ${userAge}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

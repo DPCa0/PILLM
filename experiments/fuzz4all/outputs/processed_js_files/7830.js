@@ -1,0 +1,68 @@
+ 
+const formatUser = ({ name, age, email }) => `${name}, Age: ${age}, Email: ${email}`;
+
+ 
+async function fetchData(apiEndpoint) {
+    try {
+        const response = await fetch(apiEndpoint);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const sumAll = (...numbers) => numbers.reduce((sum, n) => sum + n, 0);
+
+ 
+class User {
+    constructor(name, age, email) {
+        this.name = name;
+        this.age = age;
+        this.email = email;
+    }
+
+    get info() {
+        return formatUser(this);
+    }
+
+    static createUserFromData(data) {
+        return new User(data.name, data.age, data.email);
+    }
+}
+
+ 
+const userHandler = {
+    get(target, prop, receiver) {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const user = new User('Alice', 28, 'alice@example.com');
+const proxyUser = new Proxy(user, userHandler);
+
+ 
+(async () => {
+    const apiEndpoint = 'https://jsonplaceholder.typicode.com/users/1';
+    const userData = await fetchData(apiEndpoint);
+    const newUser = User.createUserFromData(userData);
+
+     
+    print(newUser.info);
+
+     
+    print(proxyUser.info);  
+    proxyUser.name = 'Bob';       
+    print(proxyUser.name);  
+
+     
+    print(`Sum: ${sumAll(1, 2, 3, 4, 5)}`);  
+})();

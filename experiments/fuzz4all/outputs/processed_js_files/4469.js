@@ -1,0 +1,39 @@
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = { name: 'John Doe', age: 30, occupation: 'Developer' };
+        resolve(data);
+    }, 1000);
+});
+
+ 
+(async () => {
+    try {
+        const { name, age, occupation } = await fetchData();
+
+         
+        const handler = {
+            set(target, key, value) {
+                if (key === 'age' && (typeof value !== 'number' || value <= 0)) {
+                    throw new TypeError('Age must be a positive number');
+                }
+                target[key] = value;
+                return true;
+            }
+        };
+
+        const person = new Proxy({ name, age, occupation }, handler);
+
+         
+        const formatOutput = (strings, ...values) => 
+            strings.reduce((acc, str, i) => `${acc}${str}<${values[i] || ''}>`, '');
+
+        print(formatOutput`Person Info: Name: ${person.name}, Age: ${person.age}, Occupation: ${person.occupation}`);
+
+         
+        person.age = -5;  
+
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();

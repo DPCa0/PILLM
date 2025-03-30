@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+    const grouped = data.reduce((acc, item) => {
+        const key = item.category;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(item);
+        return acc;
+    }, {});
+
+    return Object.entries(grouped).map(([key, items]) => ({
+        category: key,
+        total: items.reduce((sum, item) => sum + item.value, 0),
+        items: items.map(item => item.name)
+    }));
+};
+
+const main = async () => {
+    try {
+        const url = 'https://api.example.com/data';
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+
+        processedData.forEach(({ category, total, items }) => {
+            console.log(`Category: ${category}`);
+            console.log(`Total: ${total}`);
+            console.log(`Items: ${items.join(', ')}`);
+        });
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+};
+
+main();
+```

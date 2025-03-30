@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+const privateDataKey = Symbol('privateData');
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property === privateDataKey) {
+      return 'Access Denied';
+    }
+    const value = Reflect.get(target, property, receiver);
+    return typeof value === 'function' ? value.bind(target) : value;
+  },
+  set(target, property, value, receiver) {
+    if (property === privateDataKey) {
+      throw new Error('Cannot modify private data');
+    }
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+
+ 
+class AdvancedFeatures {
+  #privateField = 'This is private';
+
+  constructor(name) {
+    this.name = name;
+    this[privateDataKey] = this.#privateField;
+    return new Proxy(this, handler);
+  }
+
+  #privateMethod() {
+    return `Hello, ${this.name}. This is a private method.`;
+  }
+
+  publicMethod() {
+    return `Hello, ${this.name}. Welcome to advanced JavaScript features.`;
+  }
+
+  accessPrivateMethod() {
+    return this.#privateMethod();
+  }
+}
+
+ 
+async function advancedAsyncUsage() {
+  const instance = new AdvancedFeatures('Developer');
+  
+  console.log(instance.publicMethod());
+
+   
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  console.log(instance.accessPrivateMethod());
+  
+  try {
+    console.log(instance[privateDataKey]);  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  try {
+    instance[privateDataKey] = 'Attempted modification';  
+  } catch (error) {
+    console.error(error.message);
+  }
+}
+
+ 
+advancedAsyncUsage();
+```

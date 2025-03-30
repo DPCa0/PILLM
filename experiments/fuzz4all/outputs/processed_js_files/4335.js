@@ -1,0 +1,40 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        for (let i = 0; i < this.limit; i++) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    async compute(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+        
+        const fibN = await Promise.all([
+            this.compute(n - 1),
+            this.compute(n - 2)
+        ]).then(([a, b]) => a + b);
+
+        this.memo.set(n, fibN);
+        return fibN;
+    }
+}
+
+(async function() {
+    const fib = new Fibonacci(10);
+    
+    print("Fibonacci Sequence:");
+    for (const num of fib) {
+        print(num);
+    }
+
+    print("\nAsynchronous Fibonacci Computation:");
+    const result = await fib.compute(10);
+    print(`Fib(10) = ${result}`);
+})();

@@ -1,0 +1,51 @@
+ 
+async function fetchData() {
+    try {
+         
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+         
+        const [post1, post2, post3] = await response.json();
+        
+         
+        console.log(`First Post:
+Title: ${post1?.title}
+Body: ${post1?.body}
+
+Second Post:
+Title: ${post2?.title}
+Body: ${post2?.body}
+
+Third Post:
+Title: ${post3?.title}
+Body: ${post3?.body}`);
+
+         
+        const postSet = new Set([post1, post2, post3]);
+        const postMap = new Map();
+
+         
+        postSet.forEach((post, index) => {
+            postMap.set(post.id, { index, title: post.title });
+        });
+
+        print('Post Map:', postMap);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+async function execute() {
+    const promises = [fetchData(), fetchData(), fetchData()];
+    const results = await Promise.allSettled(promises);
+
+    results.forEach((result, index) => {
+        print(`Promise ${index + 1}:`, result.status);
+    });
+}
+
+ 
+(async () => {
+    await execute();
+})();

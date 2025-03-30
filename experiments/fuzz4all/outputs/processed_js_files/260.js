@@ -1,0 +1,36 @@
+ 
+
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 25 },
+        { id: 2, name: 'Bob', age: 30 },
+        { id: 3, name: 'Charlie', age: 35 }
+      ]);
+    }, 1000);
+  });
+};
+
+const processUser = ({ id, name, age }) => ({
+  id,
+  name: name.toUpperCase(),
+  canDrink: age >= 21,
+});
+
+const main = async () => {
+  try {
+    print('Fetching data...');
+    const data = await fetchData();
+    const processedData = data.map(processUser);
+
+    print('Processed Data:');
+    processedData.forEach(({ id, name, canDrink }) => {
+      print(`ID: ${id}, Name: ${name}, Can Drink: ${canDrink}`);
+    });
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+main();

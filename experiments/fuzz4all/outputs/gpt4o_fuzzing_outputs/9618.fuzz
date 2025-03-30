@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (endpoint) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (endpoint === '/data') {
+            resolve({ user: 'John Doe', age: 25, hobbies: ['coding', 'hiking', 'gaming'] });
+        } else {
+            reject('Invalid endpoint');
+        }
+    }, 1000);
+});
+
+ 
+const userProxyHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`Accessed property: ${prop}`);
+            return target[prop];
+        } else {
+            console.error(`Property ${prop} does not exist`);
+            return undefined;
+        }
+    }
+};
+
+async function main() {
+    try {
+        const endpoint = '/data';
+        const response = await fetchData(endpoint);
+        console.log(`Data fetched from ${endpoint}:`, response);
+        
+         
+        const { user: name, age = 18, hobbies: [firstHobby, ...otherHobbies] } = response;
+
+        console.log(`Name: ${name}, Age: ${age}`);
+        console.log(`First Hobby: ${firstHobby}, Other Hobbies: ${otherHobbies.join(', ')}`);
+        
+         
+        const proxiedData = new Proxy(response, userProxyHandler);
+        
+        console.log(proxiedData.user);     
+        console.log(proxiedData.age);      
+        console.log(proxiedData.email);    
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+main();
+```

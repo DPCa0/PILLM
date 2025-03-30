@@ -1,0 +1,77 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+    this.closed = false;
+  }
+
+  enqueue(item) {
+    if (this.closed) throw new Error('Queue is closed');
+    if (this.resolvers.length) {
+      const resolve = this.resolvers.shift();
+      resolve({ value: item, done: false });
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  async dequeue() {
+    if (this.queue.length) {
+      return { value: this.queue.shift(), done: false };
+    } else if (this.closed) {
+      return { value: undefined, done: true };
+    }
+    return new Promise(resolve => {
+      this.resolvers.push(resolve);
+    });
+  }
+
+  close() {
+    this.closed = true;
+    while (this.resolvers.length) {
+      const resolve = this.resolvers.shift();
+      resolve({ value: undefined, done: true });
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => this.dequeue()
+    };
+  }
+}
+
+async function* mergeAsyncIterables(...iterables) {
+  const asyncIterators = iterables.map(iterable => iterable[Symbol.asyncIterator]());
+  const promises = asyncIterators.map(iterator => iterator.next());
+  let active = promises.length;
+
+  while (active) {
+    const { value: { value, done }, index } = await Promise.race(
+      promises.map((p, index) => p.then(value => ({ value, index })))
+    );
+
+    if (!done) {
+      promises[index] = asyncIterators[index].next();
+      yield value;
+    } else {
+      active--;
+      promises[index] = Promise.resolve({ value: undefined, done: true });
+    }
+  }
+}
+
+(async () => {
+  const queue1 = new AsyncQueue();
+  const queue2 = new AsyncQueue();
+
+   
+  setTimeout(() => queue1.enqueue('A'), 100);
+  setTimeout(() => queue1.enqueue('B'), 200);
+  setTimeout(() => queue2.enqueue('1'), 150);
+  setTimeout(() => queue2.enqueue('2'), 300);
+  setTimeout(() => queue1.close(), 400);
+  setTimeout(() => queue2.close(), 350);
+
+  for await (const item of mergeAsyncIterables(queue1, queue2)) {
+    print(item);  

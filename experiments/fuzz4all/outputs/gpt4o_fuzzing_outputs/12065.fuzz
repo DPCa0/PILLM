@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async (id) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, name: `User${id}`, email: `user${id}@example.com` });
+        }, 1000);
+    });
+};
+
+ 
+const userMap = new Map();
+
+ 
+const getUserData = async (id) => {
+    if (!userMap.has(id)) {
+        const userData = await fetchUserData(id);
+        userMap.set(id, userData);
+    }
+    return userMap.get(id);
+};
+
+ 
+(async () => {
+    const userPromises = [1, 2, 3].map(id => getUserData(id));
+
+     
+    const users = await Promise.all(userPromises);
+
+     
+    users.forEach(({ id, name, email }) => {
+        console.log(`User ID: ${id}, Name: ${name}, Email: ${email}`);
+    });
+})();
+```

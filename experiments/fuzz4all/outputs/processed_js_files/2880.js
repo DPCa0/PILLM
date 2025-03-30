@@ -1,0 +1,39 @@
+ 
+ 
+
+const fetchData = async () => {
+   
+  const dataPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', score: 85 },
+        { id: 2, name: 'Bob', score: 92 },
+        { id: 3, name: 'Charlie', score: 88 },
+      ]);
+    }, 1000);
+  });
+  return await dataPromise;
+};
+
+const processData = async () => {
+  const data = await fetchData();
+
+   
+  const formattedData = data.map(({ id, name, score }) => ({
+    id,
+    description: `Student ${name} has scored ${score}.`,
+  }));
+
+   
+  formattedData.forEach(({ id, description }) => {
+    print(`ID: ${id}, Description: ${description}`);
+  });
+
+   
+  const averageScore =
+    data.reduce((acc, { score }) => acc + score, 0) / data.length;
+
+  print(`Average Score: ${averageScore.toFixed(2)}`);
+};
+
+processData();

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Temperature {
+    #celsius;
+    
+    constructor(celsius) {
+        this.#celsius = celsius;
+    }
+    
+    get fahrenheit() {
+        return this.#celsius * 9/5 + 32;
+    }
+    
+    set fahrenheit(f) {
+        this.#celsius = (f - 32) * 5/9;
+    }
+    
+    static fromFahrenheit(fahrenheit) {
+        return new Temperature((fahrenheit - 32) * 5/9);
+    }
+    
+    *[Symbol.iterator]() {
+        yield* ["Celsius", this.#celsius, "Fahrenheit", this.fahrenheit];
+    }
+}
+
+const apiMock = () => Promise.resolve({ data: { temp: 25 } });
+
+(async () => {
+    try {
+        const response = await apiMock();
+        const temp = new Temperature(response.data.temp);
+        
+        for (const [unit, value] of temp) {
+            console.log(`${unit}: ${value.toFixed(2)}`);
+        }
+        
+        const mapTemps = new Map([["Location1", new Temperature(30)], ["Location2", Temperature.fromFahrenheit(86)]]);
+        
+        const displayTemps = () => {
+            mapTemps.forEach((tempObj, location) => {
+                console.log(`${location} -> Celsius: ${tempObj.#celsius}, Fahrenheit: ${tempObj.fahrenheit}`);
+            });
+        };
+        
+        displayTemps();
+        
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+})();
+```

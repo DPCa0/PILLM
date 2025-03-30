@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+  
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+  
+  static fromEvent(element, event) {
+    return new Observable((observer) => {
+      const handler = (e) => observer.next(e);
+      element.addEventListener(event, handler);
+
+      return {
+        unsubscribe() {
+          element.removeEventListener(event, handler);
+        }
+      };
+    });
+  }
+}
+
+function debounceTime(time) {
+  let timeout;
+  return (observable) =>
+    new Observable((observer) => {
+      const subscription = observable.subscribe({
+        next(value) {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => observer.next(value), time);
+        }
+      });
+
+      return {
+        unsubscribe() {
+          clearTimeout(timeout);
+          subscription.unsubscribe();
+        }
+      };
+    });
+}
+
+const observer = {
+  next: (event) => console.log(`Mouse moved: X=${event.clientX}, Y=${event.clientY}`)
+};
+
+const mouseMoves = Observable.fromEvent(document, 'mousemove');
+const debouncedMouseMoves = debounceTime(300)(mouseMoves);
+
+const subscription = debouncedMouseMoves.subscribe(observer);
+
+ 
+ 
+```

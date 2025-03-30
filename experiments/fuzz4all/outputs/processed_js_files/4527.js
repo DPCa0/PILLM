@@ -1,0 +1,21 @@
+const { from } = require('rxjs');
+const { map, filter, reduce, switchMap } = require('rxjs/operators');
+
+const apiCall = () => new Promise((resolve) => 
+    setTimeout(() => resolve(Math.floor(Math.random() * 100)), 1000)
+);
+
+const fetchData = (id) => from(apiCall()).pipe(
+    map(data => ({ id, data })),
+    filter(obj => obj.data > 10),
+    switchMap(obj => from(apiCall()).pipe(
+        map(newData => ({ ...obj, extraData: newData })),
+    )),
+    reduce((acc, obj) => acc + obj.extraData, 0)
+);
+
+fetchData(1).subscribe(
+    total => console.log(`Total Extra Data for ID 1: ${total}`),
+    error => console.error(error),
+    () => console.log('Completed')
+);

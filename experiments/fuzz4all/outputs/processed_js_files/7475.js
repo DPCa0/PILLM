@@ -1,0 +1,37 @@
+class Fibonacci {
+  #memo = new Map([[0, 0], [1, 1]]);
+
+  *[Symbol.iterator]() {
+    let i = 0;
+    while (true) {
+      yield this.calculate(i++);
+    }
+  }
+
+  calculate(n) {
+    if (this.#memo.has(n)) return this.#memo.get(n);
+    let value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.#memo.set(n, value);
+    return value;
+  }
+}
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error("Network response was not ok");
+    return await response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+}
+
+(async () => {
+  let fib = new Fibonacci();
+  let iterator = fib[Symbol.iterator]();
+  print("First 10 Fibonacci numbers:");
+  print([...Array(10)].map(() => iterator.next().value));
+
+  let data = await fetchData("https://api.github.com");
+  print("GitHub API data:", data);
+})();

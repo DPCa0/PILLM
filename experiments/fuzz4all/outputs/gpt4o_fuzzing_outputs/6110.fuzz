@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+     
+    const fetchData = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    };
+
+     
+    function* idGenerator() {
+        let id = 1;
+        while (true) {
+            yield id++;
+        }
+    }
+
+    const idGen = idGenerator();
+
+     
+    const dataHandler = {
+        set(target, key, value) {
+            if (typeof value !== 'object') {
+                throw new Error('Data must be an object');
+            }
+            target[key] = value;
+            return true;
+        }
+    };
+
+     
+    const dataStore = new Map();
+    const dataSet = new Set();
+
+     
+    const displayData = (id, data) => console.log(`Data ${id}:`, JSON.stringify(data, null, 2));
+
+    try {
+        const data1 = await fetchData('https://api.example.com/data1');
+        const data2 = await fetchData('https://api.example.com/data2');
+
+         
+        const safeData1 = new Proxy({}, dataHandler);
+        const safeData2 = new Proxy({}, dataHandler);
+
+        safeData1['info'] = data1;
+        safeData2['info'] = data2;
+
+         
+        dataStore.set(idGen.next().value, safeData1);
+        dataStore.set(idGen.next().value, safeData2);
+
+        dataSet.add(safeData1);
+        dataSet.add(safeData2);
+
+         
+        for (const [id, data] of dataStore) {
+            displayData(id, data);
+        }
+
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+
+     
+    const UNIQUE_KEY = Symbol('uniqueKey');
+
+    const obj = {
+        [UNIQUE_KEY]: 'Unique Value'
+    };
+
+    console.log('Accessing unique key:', obj[UNIQUE_KEY]);
+
+})();
+```

@@ -1,0 +1,42 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+  return response.json();
+};
+
+const processData = (data) => {
+  const processed = data.map(item => ({
+    ...item,
+    isActive: item.status === 'active',
+    nameUpperCase: item.name.toUpperCase()
+  }));
+  
+  return new Proxy(processed, {
+    get: (target, property) => {
+      if (property === 'activeUsers') {
+        return target.filter(user => user.isActive);
+      }
+      return target[property];
+    }
+  });
+};
+
+const displayUsers = (users) => {
+  const container = document.createElement('div');
+  users.forEach(user => {
+    const userDiv = document.createElement('div');
+    userDiv.textContent = `${user.nameUpperCase} - ${user.isActive ? 'Active' : 'Inactive'}`;
+    container.appendChild(userDiv);
+  });
+  document.body.appendChild(container);
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const processedData = processData(data);
+    displayUsers(processedData.activeUsers);
+  } catch (error) {
+    console.error(error);
+  }
+})();

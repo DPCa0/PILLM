@@ -1,0 +1,46 @@
+ 
+async function* fetchJsonData(urls) {
+  for (const url of urls) {
+    try {
+       
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+      
+       
+      const data = await response.json();
+      yield data;  
+    } catch (error) {
+      console.error(`Error fetching data from ${url}:`, error);
+    }
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Accessing property ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: function(target, prop, value, receiver) {
+    print(`Setting property ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+ 
+const dataStore = new Proxy({}, handler);
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+(async () => {
+  for await (const data of fetchJsonData(urls)) {
+    print('Fetched data:', data);
+    dataStore[data.id] = data;  
+  }
+  print('DataStore:', dataStore);
+})();

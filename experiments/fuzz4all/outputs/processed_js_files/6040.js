@@ -1,0 +1,53 @@
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+function memoize(fn) {
+    const cache = new Map();
+    return function(...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+}
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        print(`Getting property: ${property}`);
+        return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+        print(`Setting property: ${property} to ${value}`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+ 
+const targetObject = { foo: 1, bar: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async function() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://jsonplaceholder.typicode.com/todos/2'
+    ];
+
+    const log = memoize(console.log);
+
+    for await (const data of fetchData(urls)) {
+        log('Fetched data:', data);
+    }
+
+    proxy.foo;   
+    proxy.bar = 3;   
+})();

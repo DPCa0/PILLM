@@ -1,0 +1,53 @@
+ 
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            throw new Error(`Property ${prop} doesn't exist.`);
+        }
+    }
+};
+
+// Create an object and wrap it with a proxy
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+// Create a symbol
+const uniqueSym = Symbol('unique');
+
+// Async function using promises and await
+async function fetchData() {
+    const promise = new Promise((resolve) => {
+        setTimeout(() => resolve({ [uniqueSym]: 42 }), 1000);
+    });
+    return await promise;
+}
+
+// Generator function
+function* idGenerator(start = 0) {
+    let id = start;
+    while (true) {
+        yield id++;
+    }
+}
+
+// Main function to combine the logic
+async function main() {
+    try {
+        print('Proxy access:', proxy.a); // Should print 1
+        print('Attempting invalid proxy access:', proxy.c); // Should throw an error
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    const data = await fetchData();
+    print('Fetched data:', data[uniqueSym]); // Should print 42
+
+    const ids = idGenerator();
+    print('Generated IDs:', ids.next().value, ids.next().value);  
+}
+
+main();

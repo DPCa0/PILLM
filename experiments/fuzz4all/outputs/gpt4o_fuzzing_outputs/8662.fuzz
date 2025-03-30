@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+ 
+export const users = [
+  { id: 1, name: 'Alice', skills: ['JavaScript', 'React'] },
+  { id: 2, name: 'Bob', skills: ['Java', 'Spring Boot'] }
+];
+
+ 
+import { users } from './module.js';
+
+ 
+const displayUserInfo = ({ id, name, skills }) => {
+  console.log(`User ID: ${id}, Name: ${name}, Skills: ${skills.join(', ')}`);
+};
+
+ 
+const fetchUserData = async (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const user = users.find(user => user.id === userId);
+      if (user) {
+        resolve(user);
+      } else {
+        reject('User not found');
+      }
+    }, 1000);
+  });
+};
+
+ 
+class UserService {
+  static async getUserInfo(userId) {
+    try {
+      const user = await fetchUserData(userId);
+      displayUserInfo(user);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+const userIds = [1, 2];
+userIds.forEach(id => UserService.getUserInfo(id));
+
+ 
+const allUsersData = userIds.map(id => fetchUserData(id));
+Promise.all(allUsersData)
+  .then(results => results.forEach(user => displayUserInfo(user)))
+  .catch(error => console.error(error));
+```
+
+Please note that the above code assumes a Node.js or modern browser environment supporting ES modules.

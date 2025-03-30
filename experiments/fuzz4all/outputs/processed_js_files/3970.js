@@ -1,0 +1,46 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map();
+  }
+
+   
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+
+   
+  *generate(max) {
+    let [prev, curr] = [0, 1];
+    while (curr <= max) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Accessed property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const fibonacciSequence = new Proxy(new FibonacciSequence(), handler);
+
+ 
+async function displayFibonacci(max) {
+  print(`Calculating Fibonacci up to ${max}`);
+  const sequence = [];
+  for (let num of fibonacciSequence.generate(max)) {
+    sequence.push(num);
+    await new Promise(resolve => setTimeout(resolve, 100));  
+  }
+  print(`Fibonacci sequence up to ${max}: ${sequence.join(', ')}`);
+}
+
+displayFibonacci(100);

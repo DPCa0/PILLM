@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(callback) {
+    this.subscribers.add(callback);
+    return () => this.subscribers.delete(callback);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+class Computed {
+  constructor(fn, observables) {
+    this.fn = fn;
+    this.observables = observables;
+    this.value = this.compute();
+    
+    this.observables.forEach(obs => obs.subscribe(() => {
+      const newValue = this.compute();
+      if (newValue !== this.value) {
+        this.value = newValue;
+        this.observable.notify(newValue);
+      }
+    }));
+
+    this.observable = new Observable();
+  }
+  
+  compute() {
+    return this.fn(...this.observables.map(obs => obs.value));
+  }
+
+  subscribe(callback) {
+    return this.observable.subscribe(callback);
+  }
+}
+
+class ReactiveValue extends Observable {
+  constructor(initialValue) {
+    super();
+    this._value = initialValue;
+  }
+  
+  get value() {
+    return this._value;
+  }
+  
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this.notify(newValue);
+    }
+  }
+}
+
+const firstName = new ReactiveValue('John');
+const lastName = new ReactiveValue('Doe');
+
+const fullName = new Computed(
+  (first, last) => `${first} ${last}`, 
+  [firstName, lastName]
+);
+
+fullName.subscribe(value => console.log('Full Name changed to:', value));
+
+firstName.value = 'Jane';
+lastName.value = 'Smith';
+```

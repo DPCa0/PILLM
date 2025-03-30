@@ -1,0 +1,62 @@
+class FibonacciSequence {
+    constructor(maxValue) {
+        this.maxValue = maxValue;
+        this.memo = new Map();
+    }
+  
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        while (a <= this.maxValue) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    memoizedFib(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n < 2) return n;
+        
+        const value = this.memoizedFib(n - 1) + this.memoizedFib(n - 2);
+        this.memo.set(n, value);
+        
+        return value;
+    }
+}
+
+const maxFiboValue = 1000;
+const fiboSeq = new FibonacciSequence(maxFiboValue);
+
+ 
+for (const num of fiboSeq) {
+    print(`Fibonacci number: ${num}`);
+}
+
+ 
+const n = 20;
+print(`Memoized Fibonacci of ${n}: ${fiboSeq.memoizedFib(n)}`);
+
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url === "https://api.example.com/data") resolve({ data: "Fake Data" });
+        else reject(new Error("404 Not Found"));
+    }, 1000);
+});
+
+const apiProxy = new Proxy(fetchData, {
+    apply: async (target, thisArg, argumentsList) => {
+        try {
+            const data = await target(...argumentsList);
+            print("API Data:", data);
+            return data;
+        } catch (error) {
+            console.error("API Error:", error);
+            return null;
+        }
+    }
+});
+
+(async () => {
+    await apiProxy("https://api.example.com/data");
+    await apiProxy("https://api.invalid.com/error");
+})();

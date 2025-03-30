@@ -1,0 +1,62 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return response.json();
+};
+
+const debounce = (func, delay) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  };
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncWithCallbacks = async (task, successCallback, failureCallback) => {
+  try {
+    const result = await task();
+    successCallback(result);
+  } catch (error) {
+    failureCallback(error);
+  }
+};
+
+ 
+const apiEmitter = new EventEmitter();
+
+apiEmitter.on('dataFetched', data => {
+  print('Data fetched successfully:', data);
+});
+
+apiEmitter.on('fetchError', error => {
+  console.error('Error fetching data:', error);
+});
+
+const fetchUserData = async () => fetchData('https://jsonplaceholder.typicode.com/users');
+
+const debouncedFetch = debounce(() => {
+  asyncWithCallbacks(
+    fetchUserData,
+    data => apiEmitter.emit('dataFetched', data),
+    error => apiEmitter.emit('fetchError', error)
+  );
+}, 300);
+
+debouncedFetch();  

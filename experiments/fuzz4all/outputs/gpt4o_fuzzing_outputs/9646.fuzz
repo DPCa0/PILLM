@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processItems = (items) => {
+  return items
+    .filter(({ active }) => active)
+    .map(({ id, name }) => ({ id, name: name.toUpperCase() }))
+    .reduce((acc, item) => ({ ...acc, [item.id]: item }), {});
+};
+
+const main = async () => {
+  try {
+    const data = await Promise.all([
+      fetchData('https://api.example.com/items'),
+      fetchData('https://api.example.com/extraItems')
+    ]);
+
+    const combinedData = data.flat();  
+    const processedData = processItems(combinedData);
+
+    console.log('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+main();
+```

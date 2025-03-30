@@ -1,0 +1,48 @@
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+
+  toString() {
+    return `Shape: ${this.name}`;
+  }
+}
+
+class Circle extends Shape {
+  #radius;
+  static PI = 3.14159;
+
+  constructor(radius) {
+    super("Circle");
+    this.#radius = radius;
+  }
+
+  get area() {
+    return Circle.PI * this.#radius ** 2;
+  }
+
+  static fromDiameter(diameter) {
+    return new Circle(diameter / 2);
+  }
+}
+
+const asyncSquareArea = async (side) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(side ** 2);
+    }, 1000);
+  });
+};
+
+const main = async () => {
+  const shapes = [new Circle(5), Circle.fromDiameter(10)];
+  for (const shape of shapes) {
+    print(shape.toString());
+    print(`Area: ${shape.area.toFixed(2)}`);
+  }
+
+  const squareArea = await asyncSquareArea(4);
+  print(`Square area: ${squareArea}`);
+};
+
+main().catch((e) => console.error(e));

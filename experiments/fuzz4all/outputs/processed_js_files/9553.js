@@ -1,0 +1,60 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* fibonacciSequence() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) {
+      cache.set(key, fn(...args));
+    }
+    return cache.get(key);
+  };
+};
+
+const fibMemoized = memoize((n) => {
+  if (n < 2) return n;
+  return fibMemoized(n - 1) + fibMemoized(n - 2);
+});
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncOperation(n) {
+  const deferred = new Deferred();
+  setTimeout(() => {
+    deferred.resolve(`Async operation result: ${n}`);
+  }, 1000);
+  return deferred.promise;
+}
+
+(async () => {
+  print('First 10 Fibonacci numbers using generator:');
+  const fibonacciGen = fibonacciSequence();
+  for (let i = 0; i < 10; i++) {
+    print((await fibonacciGen.next()).value);
+  }
+
+  print('\n10th Fibonacci number using memoization:', fibMemoized(10));
+
+  print('\nPerforming an async operation with delay:');
+  const result = await asyncOperation(42);
+  print(result);
+
+  print('\nUsing Promise.all with async operations:');
+  const results = await Promise.all([delay(500), asyncOperation(7), asyncOperation(14)]);
+  print(results);
+})();

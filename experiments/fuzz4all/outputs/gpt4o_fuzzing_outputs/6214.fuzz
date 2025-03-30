@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class Observer {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(event, callback) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
+    }
+    this.subscribers.get(event).push(callback);
+  }
+
+  notify(event, data) {
+    if (this.subscribers.has(event)) {
+      this.subscribers.get(event).forEach(callback => callback(data));
+    }
+  }
+}
+
+class Singleton {
+  constructor(name = 'Singleton') {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+    this.name = name;
+    Singleton.instance = this;
+  }
+
+  getName() {
+    return this.name;
+  }
+}
+
+async function* dataStream() {
+  let id = 0;
+  while (id < 5) {
+    yield await new Promise(resolve => 
+      setTimeout(() => resolve(`Data ${id++}`), 1000)
+    );
+  }
+}
+
+(async () => {
+  const observer = new Observer();
+  const singleton = new Singleton();
+
+  observer.subscribe('dataReceived', data => 
+    console.log(`${singleton.getName()} received: ${data}`)
+  );
+
+  for await (let data of dataStream()) {
+    observer.notify('dataReceived', data);
+  }
+})();
+```

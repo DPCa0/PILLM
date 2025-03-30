@@ -1,0 +1,44 @@
+ 
+
+ 
+const logger = new Proxy(console, {
+    get(target, prop) {
+        if (prop === 'log') {
+            return (...args) => target.log(new Date().toISOString(), ...args);
+        }
+        return target[prop];
+    }
+});
+
+ 
+function* fibonacciSequence() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, 1000);
+    });
+}
+
+ 
+(async function main() {
+    const fibonacci = fibonacciSequence();
+    logger.log('Fibonacci Numbers:', fibonacci.next().value, fibonacci.next().value, fibonacci.next().value);
+    
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const dataPromises = urls.map(url => fetchData(url));
+
+    for await (const data of dataPromises) {
+        logger.log('Fetched:', data);
+    }
+
+    logger.log('All operations completed.');
+})();

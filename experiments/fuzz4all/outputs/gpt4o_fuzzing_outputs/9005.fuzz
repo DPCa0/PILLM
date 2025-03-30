@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+
+   
+  const delayImport = (ms, module) => new Promise(resolve => setTimeout(() => resolve(module), ms));
+
+   
+  const logAccess = (target) => new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Accessed property: ${prop}`);
+      return obj[prop];
+    }
+  });
+
+   
+  const utils = await delayImport(2000, logAccess({
+    greet: (name) => `Hello, ${name}!`,
+    farewell: (name) => `Goodbye, ${name}!`
+  }));
+
+   
+  console.log(utils.greet('world'));
+  console.log(utils.farewell('world'));
+
+   
+  function* numberSequence() {
+    let num = 1;
+    while (true) {
+      yield num++;
+    }
+  }
+
+   
+  const sequence = numberSequence();
+  console.log(sequence.next().value);  
+  console.log(sequence.next().value);  
+  console.log(sequence.next().value);  
+
+   
+  const name = 'Alice';
+  console.log(`Length of the name "${name}" is ${name.length}`);
+})();
+```

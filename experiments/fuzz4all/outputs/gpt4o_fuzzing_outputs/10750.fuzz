@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = (val) => new Promise(resolve => setTimeout(() => resolve(val * 2), 1000));
+
+const processData = async function* (data) {
+    for (const item of data) {
+        yield await asyncOperation(item);
+    }
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', (result) => {
+        console.log(`Processed result: ${result}`);
+    });
+
+    const dataGenerator = processData([1, 2, 3, 4, 5]);
+    for await (const result of dataGenerator) {
+        emitter.emit('data', result);
+    }
+})();
+```

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { users: [{ name: "Alice" }, { name: "Bob" }] };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+ 
+function* processData(users) {
+    for (const user of users) {
+        yield `Processed user: ${user.name}`;
+    }
+}
+
+ 
+const asyncIterable = {
+    users: fetchData().then(data => data.users),
+    [Symbol.asyncIterator]: async function* () {
+        const users = await this.users;
+        for (const message of processData(users)) {
+            yield message;
+        }
+    }
+};
+
+ 
+(async () => {
+    for await (const message of asyncIterable) {
+        console.log(message);
+    }
+    console.log("All users processed.");
+})();
+```

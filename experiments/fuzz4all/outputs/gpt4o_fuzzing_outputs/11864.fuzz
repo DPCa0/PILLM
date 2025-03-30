@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class Secret {
+    #hiddenMessage = "Hello, world!";
+
+    revealSecret() {
+        return this.#hiddenMessage;
+    }
+}
+
+const asyncProcess = () => new Promise((resolve, reject) => {
+    setTimeout(() => resolve(new Secret().revealSecret()), 1000);
+});
+
+(async () => {
+    try {
+        const message = await asyncProcess();
+        const mapFunc = (char, index) => String.fromCharCode(char.charCodeAt(0) + index % 10);
+        
+        const fancyMessage = [...message]
+            .map((char, idx) => idx % 2 === 0 ? char.toUpperCase() : char.toLowerCase())
+            .map(mapFunc)
+            .join('');
+
+        console.log(fancyMessage);
+
+        const generator = function* () {
+            let idx = 0;
+            while (true) {
+                yield fancyMessage[idx % fancyMessage.length];
+                idx++;
+            }
+        };
+
+        const sequence = generator();
+        console.log([...Array(20)].map(() => sequence.next().value).join(''));
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

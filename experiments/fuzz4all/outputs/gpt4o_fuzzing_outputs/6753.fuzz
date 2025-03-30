@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+     
+    const fetchFromServer = (id) => new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, data: `data for ${id}` });
+        }, Math.random() * 2000);
+    });
+
+     
+    const promises = [1, 2, 3, 4, 5].map(id => fetchFromServer(id));
+
+     
+    const results = await Promise.all(promises);
+
+     
+    const processedData = results
+        .map(({ id, data }) => ({ id, data: data.toUpperCase() }))  
+        .reduce((acc, { id, data }) => ({ ...acc, [id]: data }), {});  
+
+    console.log('Processed Data:', processedData);
+}
+
+ 
+async function* numberGenerator() {
+    let num = 1;
+    while (num <= 5) {
+        yield num++;
+    }
+}
+
+ 
+(async function main() {
+     
+    await fetchData();
+
+    console.log('Streaming Data:');
+     
+    for await (const num of numberGenerator()) {
+        console.log(`Received number: ${num}`);
+    }
+})();
+```

@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchUserData(userId) {
+     
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(1000);   
+    
+    const users = {
+        1: { name: "Alice", age: 28 },
+        2: { name: "Bob", age: 34 },
+        3: { name: "Charlie", age: 25 }
+    };
+
+    return new Promise((resolve, reject) => {
+        if (users[userId]) {
+            resolve(users[userId]);
+        } else {
+            reject(new Error('User not found'));
+        }
+    });
+}
+
+async function displayUserInfo(userId) {
+    try {
+        const { name, age } = await fetchUserData(userId);
+        console.log(`User Info: ${name}, ${age} years old`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+}
+
+async function main() {
+    const userPromises = [1, 2, 3, 4].map(id => displayUserInfo(id));
+    await Promise.all(userPromises);   
+}
+
+main();
+```

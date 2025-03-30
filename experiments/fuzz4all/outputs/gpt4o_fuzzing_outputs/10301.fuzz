@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+class FetchManager {
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return response.json();
+  }
+}
+
+const dataPipeline = new Proxy([], {
+  get(target, property) {
+    if (typeof property === "string" && !isNaN(property)) {
+      console.log(`Accessing data at index ${property}`);
+    }
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    console.log(`Setting data at index ${property}`);
+    return Reflect.set(target, property, value);
+  }
+});
+
+const fetchAndProcessData = async (url) => {
+  try {
+    const data = await FetchManager.fetchData(url);
+    for (const item of data) {
+      dataPipeline.push(item);
+    }
+    const processedData = dataPipeline.map(({ id, title }) => ({ id, title: title.toUpperCase() }));
+    console.table(processedData);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+};
+
+ 
+fetchAndProcessData('https://jsonplaceholder.typicode.com/todos');
+```

@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) {
+      return this.memo.get(n);
+    }
+    let result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const fibonacciGenerator = new Fibonacci();
+
+const asyncFibonacci = async (n) => {
+  if (n < 0) throw new Error('Input must be a non-negative integer');
+  
+  const fibonacciNumbers = [...Array(n).keys()].map(i => fibonacciGenerator.calculate(i));
+
+  for await (const num of fibonacciNumbers) {
+    console.log(`Fibonacci: ${num}`);
+  }
+}
+
+(async () => {
+  try {
+    await asyncFibonacci(10);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

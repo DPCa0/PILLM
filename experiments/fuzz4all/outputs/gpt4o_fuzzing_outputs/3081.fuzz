@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const fibonacciAsyncIterable = {
+  [Symbol.asyncIterator]() {
+    let a = 0, b = 1;
+    return {
+      next() {
+         
+        return new Promise(resolve => {
+          setTimeout(() => {
+            [a, b] = [b, a + b];
+            resolve({ value: a, done: false });
+          }, 500);
+        });
+      }
+    };
+  }
+};
+
+ 
+const targetObject = { x: 42, y: 13, z: 99 };
+const proxyObject = new Proxy(targetObject, {
+  get(target, prop, receiver) {
+    console.log(`Accessed property "${prop}" with value: ${Reflect.get(target, prop, receiver)}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    console.log(`Setting property "${prop}" to value: ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+});
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    const value = values[i] ? `<strong>${values[i]}</strong>` : '';
+    return `${result}${str}${value}`;
+  }, '');
+}
+
+const name = 'Alice';
+const activity = 'coding';
+const sentence = highlight`${name} is currently ${activity}.`;
+console.log(sentence);
+
+ 
+async function logFibonacci(limit) {
+  let count = 0;
+  for await (const num of fibonacciAsyncIterable) {
+    console.log(`Fibonacci number ${count + 1}: ${num}`);
+    if (++count >= limit) break;
+  }
+}
+
+ 
+(async function main() {
+  proxyObject.x;  
+  proxyObject.y = 25;  
+  proxyObject.z;
+
+  await logFibonacci(5);
+})();
+```

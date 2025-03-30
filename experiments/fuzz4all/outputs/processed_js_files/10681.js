@@ -1,0 +1,47 @@
+class AdvancedExample {
+  #privateField = 42;  
+
+  constructor() {
+    this.name = "Complex JavaScript Example";
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return this.#processData(data);
+  }
+
+  #processData(data) {
+    return data.map(item => ({
+      ...item,
+      computedValue: item.value * this.#privateField
+    }));
+  }
+
+  static *generateSequence(limit) {  
+    for (let i = 0; i < limit; i++) {
+      yield i ** 2;
+    }
+  }
+}
+
+const example = new AdvancedExample();
+example.fetchData('https://api.example.com/data')
+  .then(processedData => {
+    print("Processed Data:", processedData);
+  })
+  .catch(error => {
+    console.error("Error fetching data:", error);
+  });
+
+const sequence = AdvancedExample.generateSequence(5);
+print("Generated Sequence:", [...sequence]);
+
+(async () => {
+  const dynamicImport = await import('./someModule.js');
+  dynamicImport.someFunction();
+})();
+
+const obj = { a: 1, b: 2 };
+const newObj = { ...obj, c: 3 };
+print("Spread Operator Example:", newObj);

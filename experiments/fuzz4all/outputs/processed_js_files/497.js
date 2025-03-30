@@ -1,0 +1,61 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { user: { name: 'Alice', age: 25 }, location: 'Wonderland' } });
+    }, 1000);
+  });
+};
+
+ 
+async function getUserInfo() {
+  try {
+     
+    const { data: { user: { name, age }, location } } = await fetchData();
+
+     
+    print(`Fetched User: ${name}, Age: ${age}, Location: ${location}`);
+
+     
+    return { name, location };
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+const userProxyHandler = {
+  get(target, prop) {
+    return prop in target ? target[prop] : `Property ${prop} does not exist`;
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+(async function main() {
+   
+  const { name, location } = await getUserInfo();
+
+   
+  const user = { name, location };
+
+   
+  const userProxy = new Proxy(user, userProxyHandler);
+
+   
+  print(userProxy.name);  
+  print(userProxy.age);   
+
+   
+  userProxy.age = 26;
+  print(userProxy.age);   
+
+   
+  const updatedUser = { ...userProxy, profession: 'Adventurer' };
+  print(updatedUser);     
+})();

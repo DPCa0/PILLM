@@ -1,0 +1,48 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Map();
+  }
+  
+  subscribe(event, callback) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
+    }
+    this.subscribers.get(event).push(callback);
+  }
+  
+  emit(event, data) {
+    const listeners = this.subscribers.get(event);
+    if (listeners) {
+      listeners.forEach(callback => callback(data));
+    }
+  }
+}
+
+const fetchData = (async function* () {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3'
+  ];
+  for (let url of urls) {
+    let response = await fetch(url);
+    let data = await response.json();
+    yield data;
+  }
+})();
+
+async function main() {
+  const observable = new Observable();
+  observable.subscribe('data', data => print('Received data:', data));
+  observable.subscribe('error', error => console.error('Error:', error));
+
+  try {
+    for await (let data of fetchData) {
+      observable.emit('data', data);
+    }
+  } catch (error) {
+    observable.emit('error', error);
+  }
+}
+
+main();

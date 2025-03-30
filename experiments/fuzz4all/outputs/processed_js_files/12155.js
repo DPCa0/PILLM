@@ -1,0 +1,43 @@
+class FetchWrapper {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async get(endpoint) {
+    const response = await fetch(this.baseURL + endpoint);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+async function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const fibonacciSequence = fibonacci();
+const fetchWrapper = new FetchWrapper('https://api.example.com/');
+
+(async () => {
+  try {
+    for (let i = 0; i < 5; i++) {
+      print(`Fibonacci number ${i + 1}:`, fibonacciSequence.next().value);
+    }
+
+    const data = await fetchWrapper.get('/data');
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+const factorial = (n, memo = {}) => {
+  if (n <= 1) return 1;
+  if (memo[n]) return memo[n];
+  return memo[n] = n * factorial(n - 1, memo);
+};
+
+print('Factorial of 5:', factorial(5));

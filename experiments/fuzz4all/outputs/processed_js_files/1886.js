@@ -1,0 +1,49 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+async function fetchDataUsingGenerator(urls) {
+    const iterator = dataGenerator(urls);
+
+    for (const promise of iterator) {
+        const data = await promise;
+        print(data);
+    }
+}
+
+ 
+const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+
+ 
+const handler = {
+    get(target, prop) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                print(`Calling ${prop} with arguments:`, args);
+                return target[prop].apply(this, args);
+            };
+        }
+        return target[prop];
+    }
+};
+
+ 
+const proxiedFetcher = new Proxy({ fetchDataUsingGenerator }, handler);
+
+ 
+proxiedFetcher.fetchDataUsingGenerator(urls);

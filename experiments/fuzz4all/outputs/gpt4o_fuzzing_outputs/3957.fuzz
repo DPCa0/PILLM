@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static identity(size) {
+    return new Matrix(Array.from({ length: size }, (_, i) =>
+      Array.from({ length: size }, (_, j) => (i === j ? 1 : 0))
+    ));
+  }
+
+  *[Symbol.iterator]() {
+    for (const row of this.data) {
+      yield row;
+    }
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Incompatible matrices');
+    }
+    const result = a.data.map(row =>
+      b.data[0].map((_, j) =>
+        row.reduce((sum, _, i) => sum + row[i] * b.data[i][j], 0)
+      )
+    );
+    return new Matrix(result);
+  }
+
+  print() {
+    console.log(this.data.map(row => row.join('\t')).join('\n'));
+  }
+}
+
+(async () => {
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
+  const matrixA = new Matrix([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ]);
+
+  const identityMatrix = Matrix.identity(3);
+
+  for await (const row of matrixA) {
+    console.log('Row:', row);
+    await delay(500);
+  }
+
+  console.log('Multiplying Matrix A with Identity Matrix:');
+  const result = Matrix.multiply(matrixA, identityMatrix);
+  result.print();
+})();
+```

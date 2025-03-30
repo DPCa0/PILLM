@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataFetcher() {
+  yield new Promise((resolve) => setTimeout(() => resolve('Data chunk 1'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data chunk 2'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Data chunk 3'), 1000));
+}
+
+ 
+async function processData(generator) {
+  for (const chunk of generator) {
+    console.log(await chunk);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const uniqueID = Symbol('id');
+
+ 
+const dataObject = new Proxy({
+  [uniqueID]: 12345,
+  name: 'SampleData'
+}, handler);
+
+ 
+console.log(`Unique ID: ${dataObject[uniqueID]}`);
+console.log(`Name: ${dataObject.name}`);
+
+ 
+processData(dataFetcher());
+```

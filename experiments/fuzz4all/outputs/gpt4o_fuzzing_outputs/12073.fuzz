@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(dim, fill = 0) {
+    return new Matrix(Array(dim).fill().map(() => Array(dim).fill(fill)));
+  }
+
+  static identity(dim) {
+    return new Matrix(Array(dim).fill().map((_, i) => {
+      return Array(dim).fill().map((__, j) => i === j ? 1 : 0);
+    }));
+  }
+
+  map(callback) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => callback(val, i, j))));
+  }
+
+  multiply(other) {
+    if (this.data[0].length !== other.data.length) throw new Error("Incompatible matrices");
+
+    let result = Matrix.from(this.data.length);
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < other.data[0].length; j++) {
+        for (let k = 0; k < this.data[0].length; k++) {
+          result.data[i][j] += this.data[i][k] * other.data[k][j];
+        }
+      }
+    }
+    return result;
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+const A = new Matrix([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const B = new Matrix([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const identity3x3 = Matrix.identity(3);
+const product = A.multiply(B);
+
+console.log("Identity Matrix (3x3):\n", identity3x3.toString());
+console.log("Product of A and B:\n", product.toString());
+```

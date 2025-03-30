@@ -1,0 +1,41 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+const fetchWithTimeout = async (url, timeout = 5000) => {
+    const controller = new AbortController();
+    const deferred = new Deferred();
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+        deferred.reject(new Error('Request timed out'));
+    }, timeout);
+
+    try {
+        const response = await Promise.race([
+            fetch(url, { signal: controller.signal }),
+            deferred.promise
+        ]);
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            throw new Error('Fetch aborted');
+        }
+        throw error;
+    }
+};
+
+(async () => {
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 2000);
+        print('Fetched data:', data);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();

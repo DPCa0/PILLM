@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+class TaskRunner {
+  constructor() {
+    this.tasks = [];
+  }
+
+  addTask(fn) {
+    this.tasks.push(fn);
+  }
+
+  async runTasks() {
+    const results = [];
+    for (const task of this.tasks) {
+      results.push(await task());
+    }
+    return results;
+  }
+}
+
+const createDelayedTask = (taskName, delay) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Task ${taskName} completed after ${delay}ms`);
+    }, delay);
+  });
+};
+
+(async () => {
+  const runner = new TaskRunner();
+
+  const tasks = [
+    { name: 'A', delay: 1000 },
+    { name: 'B', delay: 500 },
+    { name: 'C', delay: 1500 }
+  ];
+
+  tasks.forEach(({ name, delay }) => {
+    runner.addTask(() => createDelayedTask(name, delay));
+  });
+
+  const [first, ...rest] = await runner.runTasks();
+  console.log(`First completed: ${first}`);
+  console.log('Remaining:', ...rest);
+})();
+```

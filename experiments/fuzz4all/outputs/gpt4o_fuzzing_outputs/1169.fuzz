@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.observers = [];
+  }
+  
+  subscribe(fn) {
+    this.observers.push(fn);
+  }
+
+  notify(data) {
+    this.observers.forEach(fn => fn(data));
+  }
+}
+
+const advancedCalculator = (() => {
+  const observable = new Observable();
+
+  return {
+    calculate: async (expression) => {
+      try {
+        const result = new Function(`return ${expression}`)();
+        observable.notify({ expression, result });
+        return result;
+      } catch (error) {
+        console.error("Invalid Expression", error);
+      }
+    },
+
+    onResult: (callback) => {
+      observable.subscribe(callback);
+    }
+  };
+})();
+
+(async () => {
+  advancedCalculator.onResult(({ expression, result }) => {
+    console.log(`Result of ${expression} is ${result}`);
+  });
+
+  await advancedCalculator.calculate('5 * (3 + 7)');
+  await advancedCalculator.calculate('Math.pow(2, 3) + Math.sqrt(16)');
+})();
+```

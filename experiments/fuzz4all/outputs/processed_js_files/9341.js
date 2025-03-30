@@ -1,0 +1,62 @@
+class Observable {
+  constructor(value) {
+    this.handlers = [];
+    this._value = value;
+  }
+
+  subscribe(handler) {
+    this.handlers.push(handler);
+  }
+
+  set value(newValue) {
+    if (this._value !== newValue) {
+      this._value = newValue;
+      this.handlers.forEach(handler => handler(newValue));
+    }
+  }
+
+  get value() {
+    return this._value;
+  }
+}
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error("Network response was not ok");
+    return await response.json();
+  } catch (error) {
+    console.error("Fetching error: ", error);
+  }
+}
+
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+ 
+const data$ = new Observable([]);
+
+data$.subscribe((newData) => {
+  print("Data updated: ", newData);
+});
+
+const idGen = idGenerator();
+
+const addData = debounce(async () => {
+  const data = await fetchData("https://jsonplaceholder.typicode.com/posts");
+  if (data) data$.value = data.map(item => ({ id: idGen.next().value, ...item }));
+}, 500);
+
+document.querySelector("#fetchButton").addEventListener("click", addData);

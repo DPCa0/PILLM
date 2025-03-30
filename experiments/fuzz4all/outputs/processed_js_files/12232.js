@@ -1,0 +1,43 @@
+ 
+
+ 
+const fs = require('fs');
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
+
+ 
+async function processData(filePath) {
+  try {
+     
+    const data = await readFileAsync(filePath, 'utf8');
+    
+     
+    const jsonData = JSON.parse(data);
+
+     
+    const uniqueValues = [...new Set(jsonData.values)];
+    const squaredValuesMap = new Map(uniqueValues.map(value => [value, value ** 2]));
+
+     
+    const uniqueKey = Symbol('uniqueKey');
+
+    const processedData = {
+      [uniqueKey]: 'Processed Data',
+      squaredValues: Array.from(squaredValuesMap),
+    };
+
+    print(processedData);
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+(async () => {
+   
+  const filePath = './data.json';
+
+   
+  await processData(filePath);
+})();

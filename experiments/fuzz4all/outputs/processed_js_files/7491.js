@@ -1,0 +1,42 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const transformData = (data) =>
+  data.map(({ id, name, age }) => ({ id, name: name.toUpperCase(), age: age + 1 }));
+
+const processData = async (url) => {
+  try {
+    const rawData = await fetchData(url);
+    const transformedData = transformData(rawData);
+    const summary = transformedData.reduce(
+      (acc, { age }) => {
+        acc.totalAge += age;
+        acc.count += 1;
+        return acc;
+      },
+      { totalAge: 0, count: 0 }
+    );
+    summary.averageAge = summary.totalAge / summary.count;
+    print('Average Age:', summary.averageAge);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const logMessage = debounce((message) => print(message), 300);
+
+document.getElementById('myButton').addEventListener('click', () => logMessage('Button Clicked!'));
+
+ 
+processData('https://api.example.com/data');

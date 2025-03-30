@@ -1,0 +1,34 @@
+ 
+async function* asyncFibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    yield new Promise((resolve) => setTimeout(() => resolve(curr), 500));
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+const handler = {
+  get: async (target, prop) => {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      throw new Error(`Property ${prop} does not exist`);
+    }
+  },
+};
+
+const fibProxy = new Proxy(asyncFibonacci(10), handler);
+
+ 
+(async () => {
+  try {
+    print('Fetching Fibonacci numbers:');
+    for await (const num of fibProxy) {
+      print(num);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})();

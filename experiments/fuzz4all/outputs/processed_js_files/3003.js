@@ -1,0 +1,35 @@
+ 
+
+ 
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  greet() {
+    return `Hello, ${this.name}!`;
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const processUsers = async (url) => {
+  try {
+    const data = await fetchData(url);
+    const users = data.map(({ name }) => new User(name));
+    
+    users.forEach((user) => {
+      print(user.greet());
+    });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processUsers('https://jsonplaceholder.typicode.com/users');

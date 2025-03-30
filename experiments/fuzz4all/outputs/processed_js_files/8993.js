@@ -1,0 +1,28 @@
+ 
+async function fetchDataAndProcess() {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const users = await response.json();
+    
+     
+    const processedUsers = users.map(user => ({
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        company: user.company.name,
+    })).filter(user => user.name.startsWith('C'));
+
+     
+    const companyCount = processedUsers.reduce((acc, user) => {
+        acc[user.company] = (acc[user.company] || 0) + 1;
+        return acc;
+    }, {});
+
+     
+    print('Users:', processedUsers);
+    print('Company Count:', companyCount?.['Romaguera-Crona'] ?? 'No data');
+}
+
+ 
+Promise.allSettled([fetchDataAndProcess()])
+    .then(results => results.forEach(result => print(result.status)));

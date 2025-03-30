@@ -1,0 +1,36 @@
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async processData() {
+        const transformedData = await this._transformData();
+        return transformedData.reduce((acc, val) => acc + val, 0);
+    }
+
+    async _transformData() {
+        const promises = this.data.map(async (num) => {
+            await this._delay(100);
+            return Math.pow(num, 2);
+        });
+        return Promise.all(promises);
+    }
+
+    _delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+
+const main = async () => {
+    const processor = new AsyncProcessor([1, 2, 3, 4, 5]);
+    const result = await processor.processData();
+
+    print(`The result is: ${result}`);
+    const loggedDate = await new Promise((resolve) => {
+        const date = new Date();
+        setTimeout(() => resolve(date.toISOString()), 200);
+    });
+    print(`Logged on: ${loggedDate}`);
+};
+
+main().catch(console.error);

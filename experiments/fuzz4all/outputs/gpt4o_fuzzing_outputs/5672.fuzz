@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData() {
+    const dataPoints = [1, 2, 3, 4, 5];
+    for (let point of dataPoints) {
+        yield await new Promise(resolve => 
+            setTimeout(() => resolve(point), Math.random() * 1000)
+        );
+    }
+}
+
+ 
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Accessing property ${property}`);
+            return target[property];
+        } else {
+            throw new Error(`Property ${property} does not exist.`);
+        }
+    }
+};
+
+ 
+const targetObject = {a: 10, b: 20, c: 30};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function messageFormatter(strings, ...expressions) {
+    return strings.reduce((result, str, i) => 
+        result + str + (expressions[i] || ''), '');
+}
+
+ 
+Reflect.set(proxyObject, 'd', 40);
+
+(async () => {
+     
+    console.log("Fetching data:");
+    for await (let data of fetchData()) {
+        console.log(`Fetched data point: ${data}`);
+    }
+
+    console.log("\nAccessing Proxy object properties:");
+    try {
+        console.log(`Property a: ${proxyObject.a}`);
+        console.log(`Property d: ${proxyObject.d}`);
+        console.log(`Property nonExistent: ${proxyObject.nonExistent}`);
+    } catch (e) {
+        console.error(e.message);
+    }
+
+    console.log("\nFormatted message:");
+    const x = 10, y = 20;
+    const formattedMessage = messageFormatter`The values are x: ${x} and y: ${y}`;
+    console.log(formattedMessage);
+})();
+```

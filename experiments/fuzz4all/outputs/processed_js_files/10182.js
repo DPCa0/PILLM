@@ -1,0 +1,46 @@
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            print(`Property '${prop}' doesn't exist, defaulting to 'undefined'`);
+            return undefined;
+        }
+    },
+    set: function(target, prop, value) {
+        if (typeof value === 'number') {
+            target[prop] = value * 2;
+            print(`Property '${prop}' set to value: ${target[prop]}`);
+        } else {
+            throw new Error('Only numbers are allowed');
+        }
+    }
+};
+
+const magicObject = new Proxy({}, handler);
+
+const specialSymbol = Symbol('special');
+
+magicObject[specialSymbol] = 10; // Throws an error because value is not a number
+magicObject[specialSymbol] = 5;  // This works, but the value is doubled
+
+print(`Value of specialSymbol: ${magicObject[specialSymbol]}`); // 10
+
+async function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve('Data retrieved successfully!');
+        }, 2000);
+    });
+}
+
+(async () => {
+    print('Fetching data...');
+    try {
+        const result = await fetchData();
+        print(result);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

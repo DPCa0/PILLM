@@ -1,0 +1,59 @@
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    on(event, listener) {
+        (this.events[event] || (this.events[event] = [])).push(listener);
+        return () => this.off(event, listener);
+    }
+    off(event, listener) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(l => l !== listener);
+        }
+    }
+    emit(event, ...args) {
+        (this.events[event] || []).forEach(listener => listener(...args));
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const randomNumberInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const process = async (emitter, url) => {
+    try {
+        emitter.emit('start', `Fetching data from ${url}`);
+        await delay(randomNumberInRange(500, 1500));
+        const data = await fetchData(url);
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    } finally {
+        emitter.emit('end', `Completed processing for ${url}`);
+    }
+};
+
+(async () => {
+    const emitter = new EventEmitter();
+    
+    emitter.on('start', message => print(`Start: ${message}`));
+    emitter.on('data', data => print(`Data: ${JSON.stringify(data)}`));
+    emitter.on('error', error => console.error(`Error: ${error.message}`));
+    emitter.on('end', message => print(`End: ${message}`));
+
+    const urls = [
+        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://jsonplaceholder.typicode.com/todos/2',
+        'https://jsonplaceholder.typicode.com/todos/3'
+    ];
+
+    for (const url of urls) {
+        await process(emitter, url);
+    }
+})();

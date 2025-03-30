@@ -1,0 +1,34 @@
+ 
+
+const fetchData = async (url) => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', age: 28 },
+                { id: 2, name: 'Bob', age: 35 },
+                { id: 3, name: 'Charlie', age: 24 }
+            ]);
+        }, 1000);
+    });
+};
+
+const processUserData = async () => {
+    try {
+        const data = await fetchData('https://api.example.com/users');
+        
+        const processedData = data.map(({ id, name, age }) => {
+            const isAdult = age >= 18;
+            return { id, fullName: `${name} Smith`, isAdult };
+        });
+
+        processedData.forEach(user => {
+            print(`User: ${user.fullName}, Adult: ${user.isAdult}`);
+        });
+        
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+processUserData();

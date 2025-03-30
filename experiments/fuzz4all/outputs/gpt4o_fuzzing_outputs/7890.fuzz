@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.resolvers = [];
+    }
+
+    enqueue(item) {
+        if (this.resolvers.length) {
+            const resolve = this.resolvers.shift();
+            resolve({ value: item, done: false });
+        } else {
+            this.queue.push(item);
+        }
+    }
+
+    dequeue() {
+        return new Promise(resolve => {
+            if (this.queue.length) {
+                resolve({ value: this.queue.shift(), done: false });
+            } else {
+                this.resolvers.push(resolve);
+            }
+        });
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            queue: this,
+            async next() {
+                return this.queue.dequeue();
+            }
+        };
+    }
+}
+
+async function fetchData(endpoint) {
+    const response = await fetch(endpoint);
+    const data = await response.json();
+    return data;
+}
+
+async function* processItems(queue) {
+    for await (const item of queue) {
+        yield item * 2;
+    }
+}
+
+(async () => {
+    const queue = new AsyncIterableQueue();
+
+     
+    fetchData('https://jsonplaceholder.typicode.com/todos/1').then(data => {
+        queue.enqueue(data.id);
+    });
+
+     
+    for await (const processedItem of processItems(queue)) {
+        console.log(`Processed: ${processedItem}`);
+    }
+
+     
+    setTimeout(() => queue.enqueue(2), 1000);
+    setTimeout(() => queue.enqueue(3), 2000);
+
+     
+    for await (const processedItem of processItems(queue)) {
+        console.log(`Processed: ${processedItem}`);
+    }
+})();
+```

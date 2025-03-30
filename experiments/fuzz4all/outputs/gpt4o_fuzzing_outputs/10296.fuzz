@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchData() {
+    const data = [1, 2, 3, 4, 5];
+    for (const item of data) {
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        yield item;
+    }
+}
+
+ 
+const targetObject = {};
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function processData() {
+    const dataGenerator = fetchData();
+    for await (const value of dataGenerator) {
+        console.log(`Fetched value: ${value}`);
+         
+        proxy[`value_${value}`] = value * 2; 
+        console.log(`Transformed value stored in proxy: ${proxy[`value_${value}`]}`);
+    }
+}
+
+ 
+processData().then(() => console.log('Data processing complete.'));
+```

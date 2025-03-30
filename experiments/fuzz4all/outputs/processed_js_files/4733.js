@@ -1,0 +1,57 @@
+ 
+
+ 
+const fakeDatabase = new Map([
+    ['1', { id: '1', name: 'Alice', age: 30 }],
+    ['2', { id: '2', name: 'Bob', age: 25 }]
+]);
+
+ 
+const fetchData = async (id) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(fakeDatabase.get(id));
+        }, 1000);
+    });
+};
+
+ 
+const userProxyHandler = {
+    get: (target, prop, receiver) => {
+        print(`Accessing property '${prop}'`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+async function complexFeatureUsage() {
+     
+    const [user1, user2] = await Promise.all([fetchData('1'), fetchData('2')]);
+
+     
+    const userProxy1 = new Proxy(user1, userProxyHandler);
+    const userProxy2 = new Proxy(user2, userProxyHandler);
+
+     
+    const { name: name1, age: age1 } = userProxy1;
+    const { name: name2, age: age2 } = userProxy2;
+
+     
+    const userNamesSet = new Set([name1, name2]);
+
+     
+    const uniqueKey1 = Symbol('uniqueKey');
+    const uniqueKey2 = Symbol('uniqueKey');
+
+     
+    userProxy1[uniqueKey1] = `Data for ${name1}`;
+    userProxy2[uniqueKey2] = `Data for ${name2}`;
+
+     
+    print(`Fetched User 1: ${name1}, Age: ${age1}, Unique Data: ${userProxy1[uniqueKey1]}`);
+    print(`Fetched User 2: ${name2}, Age: ${age2}, Unique Data: ${userProxy2[uniqueKey2]}`);
+    print('Unique User Names:', [...userNamesSet]);
+}
+
+ 
+complexFeatureUsage().catch(console.error);

@@ -1,0 +1,41 @@
+class Matrix {
+  #matrix;
+  
+  constructor(rows, cols, fill = 0) {
+    this.#matrix = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static identity(size) {
+    const id = new Matrix(size, size);
+    id.#matrix.forEach((row, i) => row[i] = 1);
+    return id;
+  }
+
+  *[Symbol.iterator]() {
+    for (const row of this.#matrix) {
+      for (const value of row) {
+        yield value;
+      }
+    }
+  }
+
+  map(callback) {
+    return new Matrix(this.#matrix.length, this.#matrix[0].length, null)
+      .apply((_, i, j) => callback(this.#matrix[i][j], i, j));
+  }
+
+  apply(callback) {
+    this.#matrix.forEach((row, i) => row.forEach((_, j) => this.#matrix[i][j] = callback(_, i, j)));
+    return this;
+  }
+
+  toString() {
+    return this.#matrix.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+const transform = new Matrix(2, 2, null).apply((_, i, j) => i === j ? 1 : 2);
+const identity = Matrix.identity(3).map(x => x * 2);
+print(transform.toString());
+print([...identity]);   

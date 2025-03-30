@@ -1,0 +1,29 @@
+ 
+
+async function fetchData() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice', email: 'alice@example.com' },
+        stats: { posts: 42, likes: 256, followers: 1024 },
+      });
+    }, 1000);
+  });
+}
+
+async function processData() {
+  try {
+    const { user, stats } = await fetchData();
+
+    const processedData = (({ name, email }, { posts, likes, followers }) => ({
+      summary: `${name} has made ${posts} posts with ${likes} likes and has ${followers} followers.`,
+      contact: `You can reach ${name} at ${email}.`,
+    }))(user, stats);
+
+    print(`${processedData.summary}\n${processedData.contact}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+processData();

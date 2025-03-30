@@ -1,0 +1,56 @@
+ 
+const fetchUserData = async (userId) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: `User${userId}`, age: 20 + userId });
+    }, 1000);
+  });
+};
+
+ 
+const processUsers = async (userIds) => {
+  function* userIterator() {
+    for (const id of userIds) {
+      yield fetchUserData(id);
+    }
+  }
+
+  const results = [];
+  const iterator = userIterator();
+
+  for await (const userPromise of iterator) {
+    const user = await userPromise;
+    results.push({ ...user, isActive: user.age < 25 });
+  }
+
+  return results;
+};
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      print(`Accessed property ${String(prop)}:`, obj[prop]);
+      return obj[prop];
+    },
+  });
+};
+
+ 
+const userSettings = {};
+Reflect.defineProperty(userSettings, 'theme', { value: 'dark', writable: true });
+Reflect.defineProperty(userSettings, 'language', { value: 'en', writable: true });
+
+ 
+const proxiedUserSettings = createLoggingProxy(userSettings);
+
+ 
+(async () => {
+  const userIds = [1, 2, 3, 4, 5];
+  const users = await processUsers(userIds);
+  print('Processed Users:', users);
+
+   
+  print('Current Theme:', proxiedUserSettings.theme);
+  print('Current Language:', proxiedUserSettings.language);
+})();

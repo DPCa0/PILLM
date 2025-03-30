@@ -1,0 +1,33 @@
+ 
+const fetchAndProcessData = async () => {
+   
+  const uniqueData = new Set();
+  
+   
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const data = await response.json();
+    
+     
+    data.forEach(({ id, title }) => {
+      uniqueData.add({ id, title });
+    });
+    
+     
+    const processedData = Array.from(uniqueData).map(({ id, title }) => {
+       
+      return `Post ID: ${id} - Title: ${title}`;
+    });
+    
+     
+    print(...processedData);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  await fetchAndProcessData();
+})();

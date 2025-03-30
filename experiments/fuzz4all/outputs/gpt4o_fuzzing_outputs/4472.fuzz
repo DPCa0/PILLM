@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve('Data retrieved successfully!') : reject(new CustomError('Failed to fetch data'));
+    }, 1000);
+  });
+};
+
+ 
+function* processData() {
+  console.log('Step 1: Initialize process');
+  yield 'Step 2: Process data';
+  console.log('Step 3: Finalize process');
+}
+
+ 
+const loggerProxy = new Proxy(console, {
+  get: (target, property) => {
+    return (...args) => {
+      target[property](...args);
+      target.log(`Method ${property} called with arguments:`, args);
+    };
+  }
+});
+
+(async () => {
+  const logger = loggerProxy;
+  
+   
+  try {
+    const message = await fetchData();
+    logger.log(message);
+  } catch (error) {
+    if (error instanceof CustomError) {
+      logger.error('Caught a custom error:', error.message);
+    } else {
+      logger.error('An unexpected error occurred:', error);
+    }
+  }
+
+   
+  const steps = processData();
+  for (const step of steps) {
+    logger.log(step);
+  }
+
+   
+  const myMap = new Map([[1, 'a'], [2, 'b']]);
+  const mySet = new Set([...myMap.keys()]);
+  logger.log('Map:', myMap, 'Set:', mySet);
+})();
+```

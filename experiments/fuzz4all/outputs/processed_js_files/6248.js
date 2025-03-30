@@ -1,0 +1,38 @@
+class Logger {
+    #logs = [];
+  
+    log(message) {
+        const timestamp = new Date().toISOString();
+        this.#logs.push({ message, timestamp });
+        print(`[${timestamp}]: ${message}`);
+    }
+  
+    getLogs() {
+        return this.#logs;
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+    const items = ['apple', 'banana', 'cherry'];
+    for (const item of items) {
+        await delay(1000);
+        yield item;
+    }
+}
+
+(async () => {
+    const logger = new Logger();
+    logger.log('Starting async iteration');
+    try {
+        for await (const fruit of asyncGenerator()) {
+            logger.log(`Processing: ${fruit}`);
+        }
+    } catch (error) {
+        logger.log(`Error encountered: ${error}`);
+    } finally {
+        logger.log('Completed iteration');
+        print('All logs:', logger.getLogs());
+    }
+})();

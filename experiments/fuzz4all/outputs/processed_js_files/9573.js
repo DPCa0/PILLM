@@ -1,0 +1,56 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      print(`Accessing property "${prop}"`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      throw new ReferenceError(`Property "${prop}" does not exist.`);
+    }
+  },
+};
+
+ 
+const dataProxy = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+class Util {
+  static async getFormattedData(url) {
+    try {
+      const data = await fetchData(url);
+      return JSON.stringify(data, null, 2);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+ 
+function logDetails({ name, ...rest }) {
+  print(`Name: ${name}`);
+  print('Other details:', rest);
+}
+
+ 
+(async () => {
+  try {
+     
+    print(dataProxy.name);
+    print(dataProxy.age);
+
+     
+    const formattedData = await Util.getFormattedData('https://jsonplaceholder.typicode.com/users/1');
+    print('Fetched and formatted data:', formattedData);
+
+     
+    logDetails(dataProxy);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

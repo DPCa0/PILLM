@@ -1,0 +1,42 @@
+(async () => {
+     
+    const factorial = (n) => {
+        const cache = new Map();
+        const _factorial = (x) => {
+            if (x <= 1) return 1;
+            if (cache.has(x)) return cache.get(x);
+            const result = x * _factorial(x - 1);
+            cache.set(x, result);
+            return result;
+        };
+        return _factorial(n);
+    };
+
+     
+    const handler = {
+        get: (target, prop) => {
+            print(`Accessing property: ${prop}`);
+            return target[prop];
+        }
+    };
+
+    const data = new Proxy({ number: 5 }, handler);
+
+     
+    async function* asyncNumberProcessor(n) {
+        for (let i = 0; i <= n; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            yield `Processed: ${i}`;
+        }
+    }
+
+     
+    const main = async () => {
+        print(`Factorial of ${data.number}:`, factorial(data.number));
+        for await (let msg of asyncNumberProcessor(data.number)) {
+            print(msg);
+        }
+    };
+
+    await main();
+})();

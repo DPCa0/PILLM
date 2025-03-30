@@ -1,0 +1,61 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ data: "Sample Data" });
+            } else {
+                reject(new Error("404 Not Found"));
+            }
+        }, 1000);
+    });
+};
+
+ 
+const target = {
+    prop1: "value1",
+    prop2: "value2",
+};
+
+const handler = {
+    get: (obj, prop) => {
+        print(`Getting ${prop}`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        print(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    },
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+const multiplier = (factor) => {
+    return (number) => number * factor;
+};
+
+ 
+(async () => {
+    try {
+         
+        const response = await fetchData("https://api.example.com/data");
+        print(response.data);
+
+         
+        print(proxy.prop1);
+        proxy.prop2 = "newValue";
+
+         
+        const double = multiplier(2);
+        print(double(10));  
+
+         
+        const sym1 = Symbol("unique");
+        const sym2 = Symbol("unique");
+        print(sym1 === sym2);  
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

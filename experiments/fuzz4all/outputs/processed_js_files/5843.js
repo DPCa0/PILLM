@@ -1,0 +1,70 @@
+class Observable {
+    constructor() {
+        this.observers = new Set();
+    }
+
+    subscribe(observer) {
+        this.observers.add(observer);
+    }
+
+    unsubscribe(observer) {
+        this.observers.delete(observer);
+    }
+
+    notify(data) {
+        this.observers.forEach(observer => observer.update(data));
+    }
+}
+
+class Observer {
+    constructor(name) {
+        this.name = name;
+    }
+
+    update(data) {
+        print(`${this.name} received data:`, data);
+    }
+}
+
+const observable = new Observable();
+
+const observer1 = new Observer('Observer1');
+const observer2 = new Observer('Observer2');
+
+observable.subscribe(observer1);
+observable.subscribe(observer2);
+
+ 
+const data = { key: 'value' };
+const handler = {
+    get(target, property) {
+        print(`Getting property ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        observable.notify({ [property]: value });
+        return true;
+    }
+};
+
+const proxyData = new Proxy(data, handler);
+
+ 
+proxyData.key;  
+proxyData.key = 'newValue';  
+
+ 
+async function* asyncCounter() {
+    let i = 0;
+    while (i < 3) {
+        yield new Promise((resolve) => setTimeout(() => resolve(i++), 1000));
+    }
+}
+
+(async () => {
+    for await (const num of asyncCounter()) {
+        print(`Async counter value: ${num}`);
+    }
+})();

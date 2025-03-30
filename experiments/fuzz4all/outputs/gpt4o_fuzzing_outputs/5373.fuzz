@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  const data = await response.json();
+  return data;
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessing property: ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Setting property: ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const reactiveData = new Proxy({}, handler);
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+ 
+(async () => {
+  try {
+     
+    const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+    const fetchPromises = urls.map(url => fetchData(url));
+    const results = await Promise.all(fetchPromises);
+
+    results.forEach(result => {
+      const id = gen.next().value;  
+      reactiveData[id] = result;    
+    });
+
+    console.log('Reactive Data:', reactiveData);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

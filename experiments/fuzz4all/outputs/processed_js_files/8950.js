@@ -1,0 +1,58 @@
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  static fromPolar(radius, angle) {
+    return new ComplexNumber(
+      radius * Math.cos(angle),
+      radius * Math.sin(angle)
+    );
+  }
+
+  #formatNumber(num) {
+    return num.toFixed(2);
+  }
+
+  toString() {
+    const realPart = this.#formatNumber(this.#real);
+    const imaginaryPart = this.#formatNumber(this.#imaginary);
+    return `${realPart} + ${imaginaryPart}i`;
+  }
+
+  *[Symbol.iterator]() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+
+  async addAsync(otherComplex) {
+     
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return new ComplexNumber(
+      this.#real + otherComplex.#real,
+      this.#imaginary + otherComplex.#imaginary
+    );
+  }
+}
+
+ 
+(async () => {
+  const num1 = new ComplexNumber(3, 4);
+  const num2 = ComplexNumber.fromPolar(5, Math.PI / 3);
+
+  print(`Num1: ${num1.toString()}`);
+  print(`Num2: ${num2.toString()}`);
+
+   
+  const [real1, imag1] = num1;
+  print(`Destructured Num1: Real=${real1}, Imaginary=${imag1}`);
+
+   
+  const result = await num1.addAsync(num2);
+  print(`Result of async addition: ${result.toString()}`);
+})();

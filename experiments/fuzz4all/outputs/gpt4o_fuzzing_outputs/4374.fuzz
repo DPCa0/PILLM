@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve(['apple', 'banana', 'cherry', 'date']);
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processFruits = async () => {
+  try {
+    const fruits = await fetchData('https://api.example.com/data');
+    
+     
+    const processedFruits = fruits
+      .filter(fruit => fruit.length > 5)  
+      .map(fruit => fruit.toUpperCase())  
+      .reduce((acc, fruit) => {
+        const [firstLetter, ...rest] = fruit;
+        const capitalized = [firstLetter, ...rest].join('');
+        return [...acc, capitalized];  
+      }, []);
+    
+    console.log('Processed Fruits:', processedFruits);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+const fruitsHandler = {
+  get: (target, property) => {
+    return property in target ? target[property] : `Property '${property}' not found`;
+  }
+};
+
+const fruitsProxy = new Proxy(processFruits, fruitsHandler);
+
+ 
+fruitsProxy();
+```

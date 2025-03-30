@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    let data = await response.json();
+
+     
+    let [firstItem] = data;
+    
+     
+    let entries = Object.entries(firstItem);
+
+     
+    let result = entries.map(([key, value]) => `${key}: ${value}`).join(', ');
+
+     
+    console.log(`First item details: ${result}`);
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+  }
+};
+
+ 
+const userHandler = {
+  set: (obj, prop, value) => {
+    if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new Error('Invalid age value');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const user = new Proxy({}, userHandler);
+
+ 
+user.name = 'John Doe';
+user.age = 30;
+ 
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  await fetchData(url);
+})();
+```

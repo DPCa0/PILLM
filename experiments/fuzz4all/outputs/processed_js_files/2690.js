@@ -1,0 +1,46 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function complexAsyncOperation() {
+  const deferred = new Deferred();
+  setTimeout(() => deferred.resolve('Operation Completed'), 2000);
+  return deferred.promise;
+}
+
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+async function main() {
+  const fibSequence = fibonacciGenerator(10);
+  
+  for (const num of fibSequence) {
+    print(`Fibonacci: ${num}`);
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+
+  const result = await complexAsyncOperation();
+  print(result);
+
+  try {
+    const json = JSON.parse('{"key": "value"}');
+    print(json);
+  } catch (error) {
+    console.error('Failed to parse JSON', error);
+  }
+
+  const uniqueSet = new Set([1, 2, 3, 4, 3, 2, 1]);
+  print([...uniqueSet]);
+}
+
+main().catch(console.error);

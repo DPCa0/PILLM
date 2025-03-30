@@ -1,0 +1,39 @@
+ 
+ 
+
+function* dataGenerator(data) {
+  for (let item of data) {
+    yield new Promise((resolve) => {
+      setTimeout(() => resolve({ ...item, processed: true }), 100);
+    });
+  }
+}
+
+async function processData(dataGen) {
+  let result = [];
+  for (let promise of dataGen) {
+    const data = await promise;
+    result.push(data);
+  }
+  return result;
+}
+
+async function main() {
+  const rawData = [
+    { id: 1, value: 10 },
+    { id: 2, value: 20 },
+    { id: 3, value: 30 }
+  ];
+
+  const processedData = await processData(dataGenerator(rawData));
+
+   
+  for (const { id, value, ...rest } of processedData) {
+    print(`ID: ${id}, Value: ${value}, Additional Info:`, rest);
+  }
+}
+
+ 
+(async () => {
+  await main();
+})();

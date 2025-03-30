@@ -1,0 +1,53 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = [
+        { id: 1, value: 'apple' },
+        { id: 2, value: 'banana' },
+        { id: 3, value: 'apple' },
+        { id: 4, value: 'orange' }
+      ];
+      resolve(data);
+    }, 1000);
+  });
+};
+
+ 
+const validateData = (data) => {
+  return new Proxy(data, {
+    set(target, property, value) {
+      if (property === 'value' && typeof value !== 'string') {
+        throw new TypeError('Value must be a string');
+      }
+      target[property] = value;
+      return true;
+    }
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const rawData = await fetchData();
+    const uniqueValues = new Set();
+    const validatedData = rawData.map(item => {
+      const proxyItem = validateData(item);
+      proxyItem.value = item.value.toUpperCase();  
+      return proxyItem;
+    });
+
+    validatedData.forEach(item => {
+      uniqueValues.add(item.value);
+    });
+
+    print('Unique Values:', Array.from(uniqueValues));
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+processData();

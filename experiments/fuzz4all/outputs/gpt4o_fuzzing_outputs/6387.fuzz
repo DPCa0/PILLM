@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch Error:', error);
+    return null;
+  }
+};
+
+const processData = (data) => {
+  if (!data) return [];
+
+   
+  return data.map(({ id, name, email }) => ({
+    identifier: id,
+    fullName: name.toUpperCase(),
+    contact: email,
+  }));
+};
+
+const executeComplexLogic = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+
+   
+  let rawData = await fetchData(url);
+
+   
+  let processedData = processData(rawData);
+
+   
+  const filteredData = processedData.filter(({ identifier }) => identifier % 2 === 0);
+  const emailList = filteredData.reduce((acc, { contact }) => {
+    if (!acc.includes(contact)) acc.push(contact);
+    return acc;
+  }, []);
+
+  console.log('Processed and filtered data:', filteredData);
+  console.log('Unique Emails:', emailList);
+};
+
+ 
+executeComplexLogic();
+```

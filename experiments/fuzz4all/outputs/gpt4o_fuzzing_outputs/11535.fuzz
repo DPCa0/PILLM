@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+function i18n(strings, ...values) {
+  const translations = {
+    'Hello, world!': '¡Hola, mundo!',
+  };
+  return strings.reduce((acc, str, i) => 
+    acc + (translations[str] || str) + (values[i] || ''), '');
+}
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return await response.json();
+}
+
+ 
+const personHandler = {
+  set(target, property, value) {
+    if (property === 'age' && !Number.isInteger(value)) {
+      throw new TypeError('Age must be an integer');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const person = new Proxy({}, personHandler);
+person.name = 'John Doe';
+person.age = 30;
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+(async function main() {
+  console.log(i18n`Hello, world!`);  
+  
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    console.log(data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+
+  try {
+    person.age = 'not a number';  
+  } catch (error) {
+    console.error('Proxy error:', error);
+  }
+})();
+```

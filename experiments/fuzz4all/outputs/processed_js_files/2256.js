@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = (endpoint) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (endpoint === 'validEndpoint') {
+            resolve({ data: { user: 'John Doe', age: 30, location: 'Earth' }, status: 200 });
+        } else {
+            reject(new Error('Endpoint not found'));
+        }
+    }, 1000);
+});
+
+ 
+const processUserData = async (endpoint) => {
+    try {
+         
+        const { data: { user, age, location }, status } = await fetchData(endpoint);
+
+         
+        const outputUserDetails = () => `User: ${user}\nAge: ${age}\nLocation: ${location}\nStatus: ${status}`;
+        
+         
+        if (location === 'Earth') {
+            const { default: greeting } = await import('./greetingModule.js');
+            print(greeting());
+        }
+
+        print(outputUserDetails());
+
+    } catch (error) {
+        console.error(`Error fetching data: ${error.message}`);
+    }
+};
+
+ 
+processUserData('validEndpoint');
+
+Note: To fully implement this code, you'll need to create a `greetingModule.js` file that exports a default function returning a greeting string.

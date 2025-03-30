@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  *idGenerator() {
+    let id = 0;
+    while (true) {
+      yield id++;
+    }
+  }
+
+  processItem(item) {
+    const { value, type, ...rest } = item;
+    return { id: this.idGen.next().value, value, type: type.toUpperCase(), ...rest };
+  }
+
+  async processData() {
+    const processPromises = this.data.map(async item => {
+      await new Promise(res => setTimeout(res, 100));
+      return this.processItem(item);
+    });
+
+    return Promise.all(processPromises);
+  }
+}
+
+(async () => {
+  const rawData = [
+    { value: 10, type: 'fruit', name: 'apple' },
+    { value: 20, type: 'vegetable', name: 'carrot' }
+  ];
+  
+  const dataProcessor = new DataProcessor(rawData);
+  dataProcessor.idGen = dataProcessor.idGenerator();
+
+  const processedData = await dataProcessor.processData();
+  console.log(processedData);
+})();
+```

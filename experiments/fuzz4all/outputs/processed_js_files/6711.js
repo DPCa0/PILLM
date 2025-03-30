@@ -1,0 +1,52 @@
+class ApiError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch data', response.status);
+  }
+  return await response.json();
+}
+
+async function processData(url) {
+  try {
+    const data = await fetchData(url);
+    const processed = data.map(({ id, name, details }) => ({
+      id,
+      name,
+      ...details
+    }));
+    
+    const proxyHandler = {
+      get(target, prop) {
+        if (prop in target) {
+          print(`Accessing property: ${prop}`);
+          return target[prop];
+        } else {
+          throw new ReferenceError(`Property ${prop} not found`);
+        }
+      }
+    };
+    
+    const proxyData = new Proxy(processed, proxyHandler);
+    return proxyData;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error(`API Error (${error.code}): ${error.message}`);
+    } else {
+      console.error(`Unexpected Error: ${error.message}`);
+    }
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+processData(url).then((data) => {
+  if (data) {
+    print(data[0].name);
+  }
+}).catch(console.error);

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const _data = Symbol('data');
+
+ 
+async function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'all') {
+            return Array.from(target[_data]);  
+        }
+        return target[prop];
+    }
+};
+
+ 
+class FibonacciCollection {
+    constructor(n) {
+        this[_data] = [];
+        this.fetchNumbers(n);
+    }
+
+    async fetchNumbers(n) {
+        for await (let num of fibonacci(n)) {
+            this[_data].push(num);
+        }
+    }
+}
+
+ 
+const fibCollectionProxy = new Proxy(new FibonacciCollection(10), handler);
+
+ 
+setTimeout(() => {
+    console.log(fibCollectionProxy.all);  
+}, 2000);
+```

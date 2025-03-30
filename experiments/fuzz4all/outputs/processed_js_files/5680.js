@@ -1,0 +1,52 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.map(({ id, title, completed }) => ({
+    id,
+    title: title.toUpperCase(),
+    status: completed ? 'DONE' : 'PENDING',
+  }));
+};
+
+const displayData = (data) => {
+  data.forEach(({ id, title, status }) =>
+    console.log(`Task ${id}: ${title} - ${status}`)
+  );
+};
+
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos');
+  if (data) {
+    const processedData = processData(data);
+    displayData(processedData);
+  }
+})();
+
+const transformArray = (arr) => {
+  return arr.reduce((acc, val) => [...acc, ...val.map((x) => x * x)], []);
+};
+
+const sampleArray = [
+  [1, 2, 3],
+  [4, 5],
+  [6, 7, 8, 9],
+];
+print(transformArray(sampleArray));
+
+const fibonacci = (function* () {
+  let [a, b] = [0, 1];
+  while (true) {
+    [a, b] = [b, a + b];
+    yield a;
+  }
+})();
+
+print([...Array(10)].map(() => fibonacci.next().value));

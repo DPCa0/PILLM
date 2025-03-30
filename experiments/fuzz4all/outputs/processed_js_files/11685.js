@@ -1,0 +1,57 @@
+ 
+
+ 
+const _data = Symbol('data');
+
+class ComplexClass {
+  constructor() {
+    this[_data] = [1, 2, 3, 4, 5];
+  }
+
+   
+  static create() {
+    return new Proxy(new ComplexClass(), {
+      get(target, property, receiver) {
+        if (property === 'getData') {
+          return () => [...target[_data]];
+        }
+        return Reflect.get(...arguments);
+      },
+      set(target, property, value, receiver) {
+        if (property === 'addData') {
+          if (typeof value === 'number') {
+            target[_data].push(value);
+            return true;
+          }
+          throw new Error('Value must be a number');
+        }
+        return Reflect.set(...arguments);
+      }
+    });
+  }
+
+   
+  async *asyncGenerator() {
+    for (const num of this[_data]) {
+      yield await new Promise(resolve => 
+        setTimeout(() => resolve(num), 1000)
+      );
+    }
+  }
+}
+
+ 
+(async () => {
+  const complexInstance = ComplexClass.create();
+
+   
+  complexInstance.addData = 6;
+
+   
+  print('Data:', complexInstance.getData());
+
+   
+  for await (const value of complexInstance.asyncGenerator()) {
+    print('Async Value:', value);
+  }
+})();

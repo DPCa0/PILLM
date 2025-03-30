@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function readFileAsync(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    console.log('File content:', data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessed property: ${property}`);
+    return target[property];
+  },
+};
+
+const targetObject = {
+  a: 1,
+  b: 2,
+  c: 3,
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+function* numberGenerator(limit) {
+  let num = 1;
+  while (num <= limit) {
+    yield num++;
+  }
+}
+
+ 
+(async () => {
+   
+  const { a, ...rest } = proxy;
+  console.log('Destructured a:', a);
+  console.log('Rest of the object:', rest);
+
+   
+  await readFileAsync('example.txt');
+
+   
+  const gen = numberGenerator(5);
+  for (const value of gen) {
+    console.log('Generated number:', value);
+  }
+})();
+```

@@ -1,0 +1,48 @@
+class Calculator {
+  #history = [];
+
+  constructor() {
+    this.operations = {
+      add: (a, b) => a + b,
+      subtract: (a, b) => a - b,
+      multiply: (a, b) => a * b,
+      divide: (a, b) => (b !== 0 ? a / b : 'Cannot divide by zero'),
+    };
+  }
+
+  operate(operation, ...args) {
+    if (this.operations[operation]) {
+      const result = this.operations[operation](...args);
+      this.#history.push({ operation, args, result });
+      return result;
+    }
+    throw new Error('Invalid operation');
+  }
+
+  getHistory() {
+    return this.#history.map((entry) => {
+      const { operation, args, result } = entry;
+      return `${operation}(${args.join(', ')}) = ${result}`;
+    });
+  }
+}
+
+const asyncProcess = async (num) => {
+  const calc = new Calculator();
+  const operations = ['add', 'subtract', 'multiply', 'divide'];
+  
+  const results = await Promise.all(
+    operations.map((operation) =>
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(calc.operate(operation, num, 2));
+        }, Math.random() * 1000);
+      })
+    )
+  );
+
+  print(`Operations on ${num}:`, results);
+  print('History:', calc.getHistory());
+};
+
+asyncProcess(10);

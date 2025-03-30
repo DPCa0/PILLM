@@ -1,0 +1,37 @@
+class TaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.running = 0;
+  }
+
+  enqueue(promiseFunction) {
+    return new Promise((resolve, reject) => {
+      this.queue.push(() => promiseFunction().then(resolve, reject));
+      this.dequeue();
+    });
+  }
+
+  dequeue() {
+    if (this.running >= this.concurrency || this.queue.length === 0) return;
+    const task = this.queue.shift();
+    this.running++;
+    task().finally(() => {
+      this.running--;
+      this.dequeue();
+    });
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const taskQueue = new TaskQueue(3);
+
+const tasks = Array.from({ length: 10 }, (_, i) => () =>
+  taskQueue.enqueue(async () => {
+    await delay(Math.random() * 2000);
+    print(`Task ${i + 1} completed`);
+  })
+);
+
+tasks.forEach((task) => task());

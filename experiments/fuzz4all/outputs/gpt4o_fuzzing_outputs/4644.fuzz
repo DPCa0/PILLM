@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+function* numberGenerator() {
+    let num = 1;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+async function processNumbers() {
+    const generator = numberGenerator();
+    let results = [];
+
+    for (let i = 0; i < 5; i++) {
+        const nextNumber = generator.next().value;
+        console.log(`Processing number: ${nextNumber}`);
+
+         
+        const result = await delay(1000).then(() => nextNumber * 2);
+        results.push(result);
+    }
+
+    return results;
+}
+
+ 
+const resultsHandler = {
+    get: (target, property) => {
+        console.log(`Getting ${property} from results`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting ${property} to ${value} in results`);
+        target[property] = value;
+        return true;
+    }
+};
+
+(async () => {
+    const results = new Proxy([], resultsHandler);
+    const processedNumbers = await processNumbers();
+
+    processedNumbers.forEach((num, index) => {
+        results[index] = num;
+    });
+
+    console.log('Processed Results:', results);
+})();
+```

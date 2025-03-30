@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData() {
+     
+    const { data: { userId, id, title } } = await new Promise(resolve => {
+        setTimeout(() => resolve({
+            data: { userId: 1, id: 101, title: "Advanced JavaScript" }
+        }), 1000);
+    });
+
+    console.log(`Fetched Data -> UserID: ${userId}, ID: ${id}, Title: ${title}`);
+
+     
+    const handler = {
+        get: (obj, prop) => {
+            if (prop in obj) {
+                console.log(`Property '${prop}' accessed. Value: ${obj[prop]}`);
+                return obj[prop];
+            }
+            throw new ReferenceError(`Property '${prop}' does not exist.`);
+        }
+    };
+
+    const book = new Proxy({ title, author: "Unknown" }, handler);
+    try {
+        console.log(`Book Title: ${book.title}`);
+        console.log(`Book Author: ${book.author}`);
+        console.log(`Book Publisher: ${book.publisher}`);  
+    } catch (error) {
+        console.error(error.message);
+    }
+
+     
+    function* idGenerator(start) {
+        let id = start;
+        while (true) {
+            yield `ID_${id++}`;
+        }
+    }
+
+    const gen = idGenerator(id);
+
+    console.log(`Generated IDs: ${gen.next().value}, ${gen.next().value}, ${gen.next().value}`);
+}
+
+ 
+const dataMap = new Map([
+    [1, { name: 'Alice' }],
+    [2, { name: 'Bob' }]
+]);
+
+dataMap.forEach((value, key) => {
+    console.log(`Processing ID ${key}: ${value.name}`);
+});
+
+dataMap.set(3, { name: 'Charlie' });
+console.log(`Map size after addition: ${dataMap.size}`);
+
+ 
+class Utility {
+    static count = 0;
+
+    static incrementCount() {
+        this.count++;
+        console.log(`Count incremented to: ${this.count}`);
+    }
+}
+
+Utility.incrementCount();
+Utility.incrementCount();
+
+ 
+fetchData();
+```

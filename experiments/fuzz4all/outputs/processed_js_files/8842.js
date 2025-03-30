@@ -1,0 +1,55 @@
+ 
+class InvalidOperationError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "InvalidOperationError";
+  }
+}
+
+ 
+const secureData = {
+  secret: "42",
+  nonSecret: "publicInfo"
+};
+
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === "secret") {
+      throw new InvalidOperationError("Accessing secret directly is not allowed.");
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    if (prop === "secret") {
+      throw new InvalidOperationError("Modifying secret is not allowed.");
+    }
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const proxyData = new Proxy(secureData, handler);
+
+ 
+async function* fetchData() {
+  const data1 = await new Promise(resolve => setTimeout(() => resolve("Data1"), 1000));
+  yield data1;
+
+  const data2 = await new Promise(resolve => setTimeout(() => resolve("Data2"), 1000));
+  yield data2;
+
+  const data3 = await new Promise(resolve => setTimeout(() => resolve("Data3"), 1000));
+  yield data3;
+}
+
+ 
+(async () => {
+  try {
+    print(proxyData.nonSecret);  
+    for await (const data of fetchData()) {
+      print(data);
+    }
+    print(proxyData.secret);  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

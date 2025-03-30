@@ -1,0 +1,48 @@
+ 
+const fetchWeatherData = async (city) => {
+  const apiKey = 'your_api_key_here';
+  const response = await fetch(`https: 
+  const data = await response.json();
+  return data;
+};
+
+ 
+const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+ 
+const kelvinToCelsius = (temp) => (temp - 273.15).toFixed(2);
+
+ 
+const weatherHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Accessing ${prop}: ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist`);
+      return null;
+    }
+  }
+};
+
+ 
+(async () => {
+  try {
+    const city = capitalizeFirstLetter(prompt('Enter a city name: '));
+    const data = await fetchWeatherData(city);
+    if (data.cod !== 200) {
+      throw new Error(data.message);
+    }
+
+     
+    const { main: { temp = 273.15 }, weather: [{ description = 'No description available' }] = [{}] } = data;
+
+     
+    const weatherInfo = new Proxy({ temp: kelvinToCelsius(temp), description }, weatherHandler);
+
+    print(`Current temperature in ${city}: ${weatherInfo.temp}°C`);
+    print(`Weather condition: ${weatherInfo.description}`);
+  } catch (error) {
+    console.error('Error fetching weather data:', error);
+  }
+})();

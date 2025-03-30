@@ -1,0 +1,48 @@
+Certainly! Here's a JavaScript program that demonstrates some advanced features such as async/await, Promises, destructuring, spread/rest operators, and classes:
+
+ 
+class MathOperation {
+  constructor(...numbers) {
+    this.numbers = numbers;
+  }
+
+   
+  async sum() {
+    const result = await this.calculateSum();
+    return result;
+  }
+
+   
+  calculateSum() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const sum = this.numbers.reduce((acc, curr) => acc + curr, 0);
+        resolve(sum);
+      }, 1000);
+    });
+  }
+
+   
+  findMax() {
+    return Math.max(...this.numbers);
+  }
+}
+
+ 
+async function executeMathOperations() {
+   
+  const operation = new MathOperation(1, 2, 3, 4, 5);
+
+   
+  const { sum, findMax } = operation;
+
+  const total = await sum();  
+  const maximum = findMax();  
+
+  print(`Sum: ${total}`);
+  print(`Max: ${maximum}`);
+}
+
+executeMathOperations();
+
+This program defines a class `MathOperation` that can calculate the sum of numbers asynchronously and find the maximum number. The `executeMathOperations` function demonstrates the usage of these methods using async/await and destructuring.

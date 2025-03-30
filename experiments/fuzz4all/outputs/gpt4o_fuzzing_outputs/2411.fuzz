@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+}
+
+function createDataHandler(log = false) {
+  return {
+    get(target, property) {
+      const value = target[property];
+      if (log) {
+        console.log(`Accessing property ${property}: ${value}`);
+      }
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+    set(target, property, value) {
+      if (log) {
+        console.log(`Setting property ${property} to ${value}`);
+      }
+      target[property] = value;
+      return true;
+    }
+  };
+}
+
+async function main() {
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  const dataFetcher = new DataFetcher(url);
+
+  try {
+    const data = await dataFetcher.fetchData();
+    const dataProxy = new Proxy(data, createDataHandler(true));
+    
+     
+    console.log(`Title before change: ${dataProxy.title}`);
+    dataProxy.title = 'New Title!';
+    console.log(`Title after change: ${dataProxy.title}`);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+main();
+```

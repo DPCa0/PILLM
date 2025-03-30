@@ -1,0 +1,52 @@
+const users = [
+  { name: 'Alice', age: 30 },
+  { name: 'Bob', age: 25 },
+  { name: 'Charlie', age: 35 }
+];
+
+class UserProcessor {
+  #users;
+
+  constructor(users) {
+    this.#users = users;
+  }
+
+  static async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  async processUsers() {
+    const processedUsers = await Promise.all(
+      this.#users.map(async user => {
+        const data = await UserProcessor.fetchData(`https: 
+        return { ...user, data };
+      })
+    );
+
+    processedUsers.forEach(user => print(user));
+  }
+
+  *userIterator() {
+    for (const user of this.#users) {
+      yield user;
+    }
+  }
+}
+
+const userProcessor = new UserProcessor(users);
+userProcessor.processUsers();
+
+const userIter = userProcessor.userIterator();
+for (const user of userIter) {
+  print(`Iterating user: ${user.name}`);
+}
+
+(async () => {
+  const externalData = await UserProcessor.fetchData('https://api.example.com/externalData');
+  print('External Data:', externalData);
+})();

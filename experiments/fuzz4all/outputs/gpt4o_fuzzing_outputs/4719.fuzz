@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (typeof target[property] === 'function') {
+            return function (...args) {
+                console.log(`Called ${property} with arguments: ${args}`);
+                return target[property].apply(this, args);
+            }
+        }
+        return target[property];
+    }
+};
+
+const proxiedGenerator = new Proxy(numberGenerator(), handler);
+
+ 
+async function generateNumbers(limit) {
+    const numbers = [];
+    while (numbers.length < limit) {
+        const number = proxiedGenerator.next().value;
+        numbers.push(number);
+
+         
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return numbers;
+}
+
+ 
+(async function main() {
+    try {
+        const limit = 5;
+        const generatedNumbers = await generateNumbers(limit);
+        console.log(`Generated numbers: ${generatedNumbers.join(', ')}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();
+```

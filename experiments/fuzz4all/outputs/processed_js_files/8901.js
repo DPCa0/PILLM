@@ -1,0 +1,58 @@
+ 
+class UserData {
+    constructor(id) {
+        this.id = id;
+    }
+
+    async fetchData() {
+        try {
+            const userPromise = this.getUser();
+            const postsPromise = this.getPosts();
+
+            const [user, posts] = await Promise.all([userPromise, postsPromise]);
+
+            return {
+                ...user,
+                posts
+            };
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            throw error;
+        }
+    }
+
+    getUser() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const user = { id: this.id, name: 'John Doe', age: 30 };
+                resolve(user);
+            }, 1000);
+        });
+    }
+
+    getPosts() {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const posts = [
+                    { id: 1, title: 'Post One' },
+                    { id: 2, title: 'Post Two' }
+                ];
+                resolve(posts);
+            }, 1500);
+        });
+    }
+}
+
+(async () => {
+    const userId = 5;
+    const userData = new UserData(userId);
+
+    try {
+        const { name, age, posts } = await userData.fetchData();
+        print(`User: ${name}, Age: ${age}`);
+        print('Posts:');
+        posts.forEach(({ id, title }) => print(` - ${id}: ${title}`));
+    } catch (error) {
+        console.error('Failed to fetch user data:', error);
+    }
+})();

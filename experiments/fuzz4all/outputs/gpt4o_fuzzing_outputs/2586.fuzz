@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, data: `Data for ID: ${id}` });
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator(ids) {
+    for (let id of ids) {
+        yield fetchData(id);
+    }
+}
+
+ 
+const dataProxy = new Proxy([], {
+    get(target, prop) {
+        if (prop === 'process') {
+            return async function () {
+                let result = [];
+                for await (let dataPromise of target) {
+                    const data = await dataPromise;
+                    console.log(`Processing: ${data.data}`);
+                    result.push(data.data.toUpperCase());
+                }
+                return result;
+            };
+        }
+        return target[prop];
+    }
+});
+
+ 
+(async function main() {
+    const ids = [1, 2, 3];
+    const generator = dataGenerator(ids);
+    let dataPromises = dataProxy;
+
+    for (let promise of generator) {
+        dataPromises.push(promise);
+    }
+
+    const results = await dataPromises.process();
+    console.log('Final Processed Results:', results);
+})();
+```

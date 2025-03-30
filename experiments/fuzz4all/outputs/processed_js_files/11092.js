@@ -1,0 +1,44 @@
+class DataLoader {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Fetch error:', error);
+            return null;
+        }
+    }
+}
+
+const processData = (data) => {
+    return new Proxy(data, {
+        get: (target, prop) => (prop in target ? target[prop] : `Property '${prop}' is not available`),
+        set: (target, prop, value) => {
+            if (typeof value === 'number') {
+                target[prop] = value;
+                return true;
+            } else {
+                console.error(`Invalid value for ${prop}. It must be a number.`);
+                return false;
+            }
+        },
+    });
+};
+
+(async () => {
+    const dataLoader = new DataLoader('https://jsonplaceholder.typicode.com/users');
+    const data = await dataLoader.fetchData();
+    if (data) {
+        const proxiedData = processData(data[0]);
+        print(proxiedData.name);
+        proxiedData.id = 123;
+        print(proxiedData.id);
+        proxiedData.age = 'thirty';
+        print(proxiedData.nonExistentProperty);
+    }
+})();

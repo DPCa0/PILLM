@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { message: `Data from ${url}` } });
+    }, 1000);
+  });
+};
+
+ 
+async function getData() {
+  try {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    
+     
+    const [response1, response2] = await Promise.all(urls.map(fetchData));
+    const { data: { message: message1 } } = response1;
+    const { data: { message: message2 } } = response2;
+    
+    print('Fetched messages:', message1, message2);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop}' has been accessed`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const monitoredObject = new Proxy({ greeting: 'Hello, world!' }, handler);
+
+ 
+print(monitoredObject.greeting);
+
+ 
+getData();

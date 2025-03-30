@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData() {
+  const data = [1, 2, 3, 4, 5];
+  for (const item of data) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Accessed property ${property}`);
+    return property in target ? target[property] : 42;
+  },
+  set(target, property, value) {
+    console.log(`Setting property ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+let dataObject = new Proxy({}, handler);
+
+ 
+const privateData = new WeakMap();
+
+class DataProcessor {
+  constructor(data) {
+    privateData.set(this, { data });
+  }
+  
+  processData() {
+    const { data } = privateData.get(this);
+    return data.map(x => x * 2);
+  }
+}
+
+(async () => {
+  const processor = new DataProcessor([10, 20, 30]);
+  
+   
+  for await (let value of fetchData()) {
+    dataObject.currentValue = value;
+    console.log(`Processed value: ${processor.processData().map(x => x + dataObject.currentValue)}`);
+  }
+})();
+```

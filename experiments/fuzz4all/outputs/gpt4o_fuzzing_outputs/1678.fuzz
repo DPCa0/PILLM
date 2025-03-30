@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchAndProcessData(urls) {
+     
+    const fetchData = (url) => new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), Math.random() * 2000);
+    });
+
+    try {
+        const dataPromises = urls.map(url => fetchData(url));
+        const rawData = await Promise.all(dataPromises);
+        const uniqueData = new Set(rawData);
+
+        for (const [index, data] of [...uniqueData].entries()) {
+            console.log(`Data ${index + 1}: ${data}`);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+];
+
+fetchAndProcessData(urls);
+```

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacciGenerator() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    [prev, curr] = [curr, prev + curr];
+    yield new Promise((resolve) => setTimeout(() => resolve(curr), 100));
+  }
+}
+
+ 
+async function logFibonacciNumbers(n) {
+  const fibGenerator = fibonacciGenerator();
+  for (let i = 0; i < n; i++) {
+    const fibonacciPromise = fibGenerator.next().value;
+    const fibonacciNumber = await fibonacciPromise;
+    console.log(`Fibonacci number ${i + 1}: ${fibonacciNumber}`);
+  }
+}
+
+ 
+const consoleProxy = new Proxy(console, {
+  get(target, propKey) {
+    const originalMethod = target[propKey];
+    return function (...args) {
+      originalMethod.apply(target, args);
+      if (propKey === 'log') {
+        originalMethod.apply(target, ['[LOGGED]:', ...args]);
+      }
+    };
+  },
+});
+
+ 
+console = consoleProxy;
+
+ 
+(async () => {
+  const n = 10;  
+  console.log(`Generating the first ${n} Fibonacci numbers...`);
+  await logFibonacciNumbers(n);
+})();
+```

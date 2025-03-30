@@ -1,0 +1,38 @@
+ 
+import('node:fs/promises')
+  .then(fs => {
+     
+    const processFiles = async () => {
+      try {
+         
+        const files = ['./file1.txt', './file2.txt', './file3.txt'];
+        
+         
+        const readPromises = files.map(file => fs.readFile(file, 'utf8'));
+        const contents = await Promise.all(readPromises);
+        
+         
+        const allText = contents.reduce((acc, curr) => `${acc}\n---\n${curr}`, '');
+
+         
+        const { format } = await import('node:util');
+
+         
+        const formatter = (strings, ...values) => {
+          return strings.raw.reduce((acc, str, i) => {
+            return `${acc}${str}${values[i] ? format(values[i]) : ''}`;
+          }, '');
+        };
+
+         
+        print(formatter`Combined File Content:\n${allText}`);
+
+      } catch (error) {
+         
+        console.error(`Error: ${error.message}`, { stack: error.stack });
+      }
+    };
+
+    processFiles();
+  })
+  .catch(error => console.error(`Import error: ${error.message}`));

@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+            if (this.events.get(event).size === 0) {
+                this.events.delete(event);
+            }
+        }
+    }
+}
+
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchData(url) {
+    const cache = new Map();
+    
+    if (cache.has(url)) {
+        return cache.get(url);
+    }
+
+    const deferred = new Deferred();
+    cache.set(url, deferred.promise);
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        deferred.resolve(data);
+        return data;
+    } catch (error) {
+        deferred.reject(error);
+        cache.delete(url);
+        throw error;
+    }
+}
+
+async function main() {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => console.log('Received data:', data));
+    emitter.on('error', error => console.error('Error:', error));
+
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+    try {
+        const data = await fetchData(url);
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+}
+
+main();
+```

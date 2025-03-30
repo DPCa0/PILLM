@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+class UserData {
+    constructor() {
+        this.data = {};
+    }
+
+    fetchData(userId) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (userId === 1) {
+                    resolve({ name: 'Alice', age: 25 });
+                } else {
+                    reject('User not found');
+                }
+            }, 1000);
+        });
+    }
+}
+
+const userHandler = {
+    get: (target, prop) => {
+        if (prop === 'asyncGetData') {
+            return async (userId) => {
+                try {
+                    const data = await target.fetchData(userId);
+                    console.log('Fetched Data:', data);
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            };
+        }
+        return target[prop];
+    }
+};
+
+const userDataProxy = new Proxy(new UserData(), userHandler);
+
+(async () => {
+    await userDataProxy.asyncGetData(1);  
+    await userDataProxy.asyncGetData(2);  
+})();
+
+```

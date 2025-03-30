@@ -1,0 +1,54 @@
+class Fibonacci {
+    constructor(limit) {
+        this.limit = limit;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [prev, curr, index] = [0, 1, 0];
+        while (index++ < this.limit) {
+            yield prev;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+
+    fibMemo(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        const value = this.fibMemo(n - 1) + this.fibMemo(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const fibonacciSequence = new Fibonacci(10);
+
+print("Fibonacci Sequence:");
+for (const num of fibonacciSequence) {
+    print(num);
+}
+
+print("\nFibonacci with Memoization:");
+[...Array(10).keys()].forEach(n => {
+    print(`F(${n}) = ${fibonacciSequence.fibMemo(n)}`);
+});
+
+const asyncFunc = async () => {
+    const result = await new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const random = Math.random();
+            random > 0.5 ? resolve(`Success: ${random}`) : reject(`Failure: ${random}`);
+        }, 1000);
+    });
+
+    return result;
+};
+
+(async () => {
+    try {
+        const message = await asyncFunc();
+        print(`\nAsync operation completed: ${message}`);
+    } catch (error) {
+        console.error(`\nAsync operation error: ${error}`);
+    }
+})();

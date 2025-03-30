@@ -1,0 +1,45 @@
+class DataProcessor {
+    #secretKey = Symbol('secret');
+    
+    constructor(data) {
+        this.data = data;
+    }
+    
+    *[Symbol.iterator]() {
+        for (const item of this.data) {
+            yield item;
+        }
+    }
+    
+    #processData(item) {
+        return item.split('').reverse().join('');
+    }
+    
+    async processDataAsync() {
+        const processedData = [];
+        for await (let item of this) {
+            processedData.push(this.#processData(item));
+        }
+        return processedData;
+    }
+    
+    static async runDemo() {
+        const rawData = ['apple', 'banana', 'cherry'];
+        const processor = new DataProcessor(rawData);
+        const result = await processor.processDataAsync();
+        print(result);
+    }
+}
+
+const withTimeout = async (promise, ms) => {
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timed out')), ms));
+    return Promise.race([promise, timeout]);
+};
+
+(async () => {
+    try {
+        await withTimeout(DataProcessor.runDemo(), 2000);
+    } catch (error) {
+        console.error(error);
+    }
+})();

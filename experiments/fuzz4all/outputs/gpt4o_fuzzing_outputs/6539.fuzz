@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const fetchData = async (urls) => {
+    try {
+        const fetchPromises = urls.map(url => fetch(url).then(response => response.json()));
+        const results = await Promise.all(fetchPromises);
+        return results;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        throw error;
+    }
+};
+
+const processData = (data) => {
+    return data.map(({ name, age }) => ({
+        name,
+        age: age > 30 ? 'Above 30' : '30 or below'
+    }));
+};
+
+const printData = (formattedData) => {
+    formattedData.forEach(({ name, age }) => {
+        console.log(`Name: ${name}, Age Group: ${age}`);
+    });
+};
+
+ 
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/users/1',
+        'https://jsonplaceholder.typicode.com/users/2',
+         
+    ];
+
+    try {
+        const rawData = await fetchData(urls);
+        const formattedData = processData(rawData);
+        printData(formattedData);
+    } catch (error) {
+        console.error('An error occurred during the execution:', error);
+    }
+})();
+```

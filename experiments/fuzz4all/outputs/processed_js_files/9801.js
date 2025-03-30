@@ -1,0 +1,41 @@
+class AsyncResource {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async processData() {
+    try {
+      const processedData = await this.fetchData();
+      return this.transformData(processedData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async fetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve([...this.data, 10, 20, 30]), 1000);
+    });
+  }
+
+  transformData(data) {
+    return data.map((num) => num * 2).filter((num) => num > 10);
+  }
+}
+
+const dataProxy = new Proxy([1, 2, 3, 4, 5], {
+  get(target, prop) {
+    if (prop === 'average') {
+      return target.reduce((acc, val) => acc + val, 0) / target.length;
+    }
+    return target[prop];
+  },
+});
+
+(async () => {
+  const resource = new AsyncResource(dataProxy);
+  const processedData = await resource.processData();
+  print('Original Data:', dataProxy);
+  print('Average:', dataProxy.average);
+  print('Processed Data:', processedData);
+})();

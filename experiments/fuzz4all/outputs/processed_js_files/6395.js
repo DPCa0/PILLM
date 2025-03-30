@@ -1,0 +1,53 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+class Store {
+  constructor(initialState = {}) {
+    this.state = new Proxy(initialState, {
+      set: (target, property, value) => {
+        target[property] = value;
+        this.observer.notify(this.state);
+        return true;
+      }
+    });
+    this.observer = new Observer();
+  }
+  subscribe(fn) {
+    this.observer.subscribe(fn);
+  }
+  unsubscribe(fn) {
+    this.observer.unsubscribe(fn);
+  }
+}
+
+const asyncOperation = async (operation, delay) => {
+  return new Promise(resolve => setTimeout(() => resolve(operation()), delay));
+};
+
+const store = new Store({ count: 0 });
+
+store.subscribe(state => {
+  print(`State changed: ${JSON.stringify(state)}`);
+});
+
+async function complexOperation() {
+  print("Starting operation...");
+  await asyncOperation(() => store.state.count++, 1000);
+  await asyncOperation(() => store.state.count++, 1000);
+  await asyncOperation(() => store.state.count++, 1000);
+  print("Operation completed.");
+}
+
+complexOperation();

@@ -1,0 +1,32 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+    return data
+        .map(item => ({ ...item, price: item.price * 1.2 }))
+        .filter(item => item.stock > 0)
+        .reduce((acc, item) => {
+            acc[item.category] = acc[item.category] || [];
+            acc[item.category].push(item);
+            return acc;
+        }, {});
+};
+
+(async () => {
+    try {
+        const url = 'https://api.example.com/products';
+        const rawData = await fetchData(url);
+
+        const categories = processData(rawData);
+
+        Object.entries(categories).forEach(([category, items]) => {
+            print(`Category: ${category}`);
+            console.table(items, ['name', 'price', 'stock']);
+        });
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+})();

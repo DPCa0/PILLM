@@ -1,0 +1,37 @@
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+}
+
+const processData = (async function* (dataPromise) {
+    const data = await dataPromise;
+    for (const item of data) {
+        yield item;
+    }
+})(new DataFetcher('https://jsonplaceholder.typicode.com/posts').fetchData());
+
+(async () => {
+    for await (const item of processData) {
+        const { id, title } = item;
+        print(`Post #${id}: ${title}`);
+    }
+})();
+
+const enhancedLogger = (message, ...args) => {
+    const timestamp = new Date().toISOString();
+    print(`[${timestamp}] ${message}`, ...args);
+}
+
+enhancedLogger('Data processing complete!');

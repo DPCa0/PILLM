@@ -1,0 +1,49 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+        return this;
+    }
+    
+    emit(event, ...args) {
+        const listeners = this.listeners.get(event) || [];
+        return Promise.all(listeners.map(listener => listener(...args)));
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+    print(`Fetching data from ${url}...`);
+    await delay(1000);  
+    return { data: `Data from ${url}` };
+};
+
+(async () => {
+    const emitter = new AsyncEventEmitter();
+
+    emitter.on('dataReceived', async (data) => {
+        print(`Listener 1: Processing ${data}`);
+        await delay(500);
+        print(`Listener 1: Finished processing ${data}`);
+    });
+
+    emitter.on('dataReceived', async (data) => {
+        print(`Listener 2: Processing ${data}`);
+        await delay(300);
+        print(`Listener 2: Finished processing ${data}`);
+    });
+
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const fetchPromises = urls.map(url => fetchData(url));
+
+    for await (const result of fetchPromises) {
+        await emitter.emit('dataReceived', result.data);
+    }
+})();

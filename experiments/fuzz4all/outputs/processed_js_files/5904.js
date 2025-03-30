@@ -1,0 +1,43 @@
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const handler = {
+    get: function(target, property, receiver) {
+        print(`Property '${property}' has been accessed.`);
+        return Reflect.get(target, property, receiver);
+    },
+    set: function(target, property, value, receiver) {
+        print(`Property '${property}' is being set to '${value}'.`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+ 
+(async function() {
+    const url1 = 'https://jsonplaceholder.typicode.com/posts/1';
+    const url2 = 'https://jsonplaceholder.typicode.com/posts/2';
+
+    try {
+        let [data1, data2] = await Promise.all([fetchData(url1), fetchData(url2)]);
+
+         
+        const proxiedData1 = new Proxy(data1, handler);
+        const proxiedData2 = new Proxy(data2, handler);
+
+         
+        print(`Title of first data: ${proxiedData1.title}`);
+        proxiedData2.userId = 100;
+
+    } catch (error) {
+        console.error('Error in concurrent data fetching:', error);
+    }
+})();

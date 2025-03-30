@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+class FetchData {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetch() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+function* dataGenerator(dataArray) {
+  for (let data of dataArray) {
+    yield data;
+  }
+}
+
+(async () => {
+  const api = new FetchData('https://jsonplaceholder.typicode.com/posts');
+  const data = await api.fetch();
+  
+  if (data) {
+    const generator = dataGenerator(data);
+    const displayData = () => {
+      const { value: { id, title } = {}, done } = generator.next();
+      if (!done) {
+        console.log(`Post ID: ${id}, Title: ${title}`);
+        setTimeout(displayData, 1000);  
+      }
+    };
+    displayData();
+  }
+})();
+```

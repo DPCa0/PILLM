@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const cacheHandler = {
+    cache: new Map(),
+    get(target, prop) {
+      return this.cache.get(prop) || target[prop];
+    },
+    set(target, prop, value) {
+      this.cache.set(prop, value);
+      target[prop] = value;
+      return true;
+    },
+  };
+
+   
+  const apiEndpoint = "https://jsonplaceholder.typicode.com/posts";
+  
+   
+  const fetchData = new Proxy(async (id) => {
+    if (cacheHandler.cache.has(id)) {
+      return cacheHandler.cache.get(id);
+    } else {
+      const response = await fetch(`${apiEndpoint}/${id}`);
+      const data = await response.json();
+      cacheHandler.cache.set(id, data);
+      return data;
+    }
+  }, cacheHandler);
+
+   
+  function* dataGenerator(ids) {
+    for (const id of ids) {
+      yield fetchData(id);
+    }
+  }
+
+   
+  const ids = [1, 2, 3, 4, 5];  
+  const generator = dataGenerator(ids);
+
+  for await (const dataPromise of generator) {
+    const data = await dataPromise;
+    console.log(`Title: ${data.title}`);
+  }
+})();
+```

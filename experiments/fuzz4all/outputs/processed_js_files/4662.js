@@ -1,0 +1,49 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const asyncIterable = {
+  data: [1, 2, 3, 4, 5],
+  async *[Symbol.asyncIterator]() {
+    for (const item of this.data) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield item;
+    }
+  }
+};
+
+const processAsyncData = async () => {
+  for await (const value of asyncIterable) {
+    print(`Processed value: ${value}`);
+  }
+};
+
+const main = async () => {
+  const deferred = new Deferred();
+
+  fetchData('https://jsonplaceholder.typicode.com/todos/1')
+    .then(data => deferred.resolve(data))
+    .catch(error => deferred.reject(error));
+
+  try {
+    const todo = await deferred.promise;
+    print('Fetched Data:', todo);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+  await processAsyncData();
+};
+
+main().catch(console.error);

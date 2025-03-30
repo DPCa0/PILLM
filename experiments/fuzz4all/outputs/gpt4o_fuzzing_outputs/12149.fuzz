@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const targetObject = { a: 1, b: 2, c: 3 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+class AdvancedFeatures {
+    #privateField = 'secret';
+
+    constructor(data) {
+        this.data = data;
+        this.calculate = this.calculate.bind(this);
+    }
+
+    get privateData() {
+        return this.#privateField;
+    }
+
+    calculate(x) {
+        this.result = this.data.reduce((acc, val) => acc + val * x, 0);
+        return this;
+    }
+
+    logResult() {
+        console.log(`Result: ${this.result}`);
+        return this;
+    }
+}
+
+ 
+const { a, ...rest } = { ...proxy };
+console.log(`Destructured a: ${a}, rest: ${JSON.stringify(rest)}`);
+
+ 
+async function asyncExample() {
+    const uniqueNumbers = new Set([1, 2, 2, 3, 4, 5]);
+    const data = [...uniqueNumbers];
+
+    const asyncFunc = new Promise((resolve) =>
+        setTimeout(() => resolve('Async Operation Complete'), 1000)
+    );
+
+    console.log('Before await');
+    const message = await asyncFunc;
+    console.log(message);
+
+    const af = new AdvancedFeatures(data);
+    af.calculate(2).logResult();
+}
+
+asyncExample();
+```

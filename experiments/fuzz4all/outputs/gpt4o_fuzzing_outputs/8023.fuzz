@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  while (limit-- > 0) {
+    [prev, curr] = [curr, prev + curr];
+    yield curr;
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const reactiveHandler = {
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const reactiveObject = new Proxy({ name: 'World', count: 0 }, reactiveHandler);
+
+ 
+(async function main() {
+   
+  console.log(`Hello, ${reactiveObject.name}!`);
+  reactiveObject.name = 'JavaScript Enthusiast';
+
+   
+  console.log('First 5 Fibonacci numbers:');
+  for (let num of fibonacci(5)) {
+    console.log(num);
+  }
+
+   
+  const apiURL = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(apiURL);
+  console.log('Fetched Data:', data);
+
+   
+  reactiveObject.count += 1;
+  console.log(`Count is now: ${reactiveObject.count}`);
+})();
+```

@@ -1,0 +1,45 @@
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+function processResults(results) {
+  return results.map(result => result.data).flat();
+}
+
+function createHandler(fetchFunction) {
+  return {
+    apply(target, thisArg, args) {
+      const iterator = fetchFunction(...args);
+      const results = [];
+
+      return (async () => {
+        for await (const result of iterator) {
+          results.push(result);
+        }
+        return processResults(results);
+      })();
+    }
+  };
+}
+
+const dataFetcher = new Proxy(fetchData, createHandler(fetchData));
+
+(async () => {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3'
+  ];
+
+  try {
+    const processedData = await dataFetcher(urls);
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

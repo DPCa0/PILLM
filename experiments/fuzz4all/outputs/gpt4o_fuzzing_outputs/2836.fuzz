@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: { user: { name: 'Alice', age: 25 } } });
+    }, 1000);
+  });
+
+ 
+const loggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Accessed property "${prop}" with value:`, obj[prop]);
+      return Reflect.get(obj, prop);
+    },
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+     
+    const result = await fetchData();
+    
+     
+    const {
+      data: { user },
+    } = result;
+
+     
+    const proxiedUser = loggingProxy(user);
+
+     
+    console.log(`User Name: ${proxiedUser.name}`);
+    console.log(`User Age: ${proxiedUser.age}`);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processData();
+```

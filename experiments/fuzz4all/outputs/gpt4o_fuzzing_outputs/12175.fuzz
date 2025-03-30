@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+class DataHandler {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *filterData(predicate) {
+    for (const item of this.data) {
+      if (predicate(item)) yield item;
+    }
+  }
+
+  processData(predicate, transform) {
+    return Array.from(this.filterData(predicate), transform);
+  }
+}
+
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+  if (data) {
+    const handler = new DataHandler(data);
+    const processedData = handler.processData(
+      user => user.address.geo.lat > '0', 
+      user => ({ id: user.id, name: user.name.toUpperCase() })
+    );
+    console.log(processedData);
+  }
+})();
+```

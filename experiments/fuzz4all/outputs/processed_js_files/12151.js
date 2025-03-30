@@ -1,0 +1,60 @@
+ 
+
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+    
+    fetchData = async () => {
+        try {
+            let response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            throw error;
+        }
+    }
+}
+
+class DataProcessor {
+    process = (data) => {
+         
+        const [{ id, title, ...rest }] = data;
+        print(`Processing Item: ID=${id}, Title=${title}`);
+        print('Additional Info:', rest);
+    }
+}
+
+const execute = async () => {
+    const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+    const networkRequest = new NetworkRequest(apiURL);
+    try {
+        const data = await networkRequest.fetchData();
+        const processor = new DataProcessor();
+        processor.process(data);
+    } catch (error) {
+        console.error('Execution Error:', error);
+    }
+};
+
+execute();
+
+ 
+
+const handler = {
+    get: (target, property) => {
+        print(`Accessed property: ${property}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Setting property ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+let obj = new Proxy({ a: 10, b: 20 }, handler);
+print(obj.a);  
+obj.a = 30;  

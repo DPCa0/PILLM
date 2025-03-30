@@ -1,0 +1,57 @@
+ 
+
+const dataStore = {
+  data: [],
+};
+
+ 
+const storeHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'data') {
+      print('Accessing data');
+    }
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    if (prop === 'data') {
+      print('Setting new data');
+    }
+    return Reflect.set(...arguments);
+  },
+};
+
+const proxiedDataStore = new Proxy(dataStore, storeHandler);
+
+function* dataGenerator() {
+  let id = 1;
+  while (true) {
+    yield { id: id++, value: Math.random() };
+  }
+}
+
+const generator = dataGenerator();
+
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(generator.next().value);
+    }, 1000);
+  });
+}
+
+async function processAndStoreData() {
+  try {
+    const newData = await fetchData();
+    print('Fetched new data:', newData);
+    proxiedDataStore.data = [...proxiedDataStore.data, newData];
+    print('Current store:', proxiedDataStore.data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+(async function main() {
+  for (let i = 0; i < 5; i++) {
+    await processAndStoreData();
+  }
+})();

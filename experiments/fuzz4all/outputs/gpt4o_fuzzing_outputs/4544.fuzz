@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+class Observer {
+  constructor() {
+    this.subscribers = new Set();
+  }
+  
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+  
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+class Store {
+  constructor(initialState) {
+    this.state = { ...initialState };
+    this.observer = new Observer();
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  updateState(updater) {
+    this.state = { ...this.state, ...updater(this.state) };
+    this.observer.notify(this.state);
+  }
+}
+
+const userStore = new Store({ name: 'Alice', age: 25 });
+
+function createLogger(prefix) {
+  return new Proxy(console, {
+    get(target, prop) {
+      if (typeof target[prop] === 'function') {
+        return target[prop].bind(console, `[${prefix}]`);
+      }
+      return target[prop];
+    }
+  });
+}
+
+const logger = createLogger('UserStore');
+
+userStore.observer.subscribe(state => {
+  logger.log('New State:', state);
+});
+
+userStore.updateState(prevState => ({
+  age: prevState.age + 1,
+}));
+
+userStore.updateState(prevState => ({
+  name: prevState.name + ' B.',
+}));
+
+async function simulateAsyncUpdate(store, delay) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      store.updateState(() => ({ age: store.getState().age + 1 }));
+      resolve();
+    }, delay);
+  });
+}
+
+(async () => {
+  await simulateAsyncUpdate(userStore, 1000);
+})();
+```

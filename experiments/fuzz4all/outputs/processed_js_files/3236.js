@@ -1,0 +1,46 @@
+ 
+
+const asyncOperation = (input) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (typeof input === 'number') {
+        resolve(input * 2);
+      } else {
+        reject(new Error('Invalid input: must be a number'));
+      }
+    }, 1000);
+  });
+};
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist`);
+      return undefined;
+    }
+  },
+};
+
+async function complexOperation(input) {
+  try {
+    const data = new Map();
+    data.set('input', input);
+    
+    const proxyData = new Proxy(data, proxyHandler);
+
+    const result = await asyncOperation(proxyData.get('input'));
+    proxyData.set('result', result);
+    
+    const { result: finalResult } = { result: proxyData.get('result') };
+
+    print(`Final result: ${finalResult}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+complexOperation(5);
+complexOperation('Not a number');

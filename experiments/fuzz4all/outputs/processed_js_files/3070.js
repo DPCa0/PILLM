@@ -1,0 +1,54 @@
+ 
+async function fetchDataAndProcess() {
+  try {
+    const response = await fetch('https://api.example.com/data');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+
+     
+    const processedData = data
+      .filter(item => item.active)
+      .map(item => ({ id: item.id, value: item.value * 2 }))
+      .reduce((acc, item) => {
+        acc[item.id] = item.value;
+        return acc;
+      }, {});
+
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+ 
+const validator = {
+  set(target, key, value) {
+    if (key === 'age') {
+      if (!Number.isInteger(value)) {
+        throw new TypeError('The age must be an integer');
+      }
+      if (value < 0) {
+        throw new RangeError('The age cannot be negative');
+      }
+    }
+    return Reflect.set(target, key, value);
+  }
+};
+
+const person = new Proxy({}, validator);
+person.name = 'Alice';
+person.age = 25;
+print(person);  
+
+ 
+function createUserProfile({ name, age = 18, email }) {
+  return `User Profile:
+  Name: ${name}
+  Age: ${age}
+  Email: ${email}`;
+}
+
+print(createUserProfile({ name: 'Bob', email: 'bob@example.com' }));
+
+ 
+fetchDataAndProcess();

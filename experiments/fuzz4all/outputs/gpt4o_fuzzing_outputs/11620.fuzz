@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const target = { x: 10, y: 20 };
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting ${prop}`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        console.log('Fetched data:', data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const obj = {};
+Object.defineProperty(obj, 'dynamic', {
+    get() {
+        return `Random value: ${Math.random()}`;
+    }
+});
+
+ 
+(function execute() {
+    console.log('Fibonacci sequence up to 5 terms:');
+    for (let num of fibonacciGenerator(5)) {
+        console.log(num);
+    }
+
+    proxy.x = 30;
+    console.log(proxy.x);
+
+    fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+    console.log(obj.dynamic);
+})();
+```

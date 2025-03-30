@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* generateDataStream() {
+    for (let i = 0; i < 5; i++) {
+        yield `DataChunk${i}`;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessed property "${prop}"`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Set property "${prop}" to "${value}"`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const dataStore = new Proxy({}, handler);
+
+ 
+const UNIQUE_KEY = Symbol("uniqueKey");
+
+ 
+async function processData() {
+    const dataStream = generateDataStream();
+    let result = dataStream.next();
+
+    while (!result.done) {
+        const dataChunk = result.value;
+        console.log(`Processing: ${dataChunk}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        dataStore[UNIQUE_KEY] = dataChunk;
+        result = dataStream.next();
+    }
+
+    console.log("Processing complete", dataStore);
+}
+
+ 
+processData().then(() => console.log("All done!"));
+```

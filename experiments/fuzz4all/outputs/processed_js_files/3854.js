@@ -1,0 +1,38 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+         
+        const data = { 
+            users: [
+                { id: 1, name: 'Alice', age: 30 },
+                { id: 2, name: 'Bob', age: 24 },
+                { id: 3, name: 'Charlie', age: 28 }
+            ]
+        };
+        resolve(data);
+    }, 1000);
+});
+
+async function processUserData() {
+    try {
+        const { users } = await fetchData();   
+        
+         
+        const userDescriptions = users.map(({ id, name, age }) => `User [ID: ${id}] is ${name}, aged ${age}.`);
+
+         
+        const uniqueDescriptions = new Set(userDescriptions);
+
+         
+        return [...uniqueDescriptions];
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+}
+
+ 
+processUserData().then(result => {
+    print('Processed User Descriptions:', result);
+});

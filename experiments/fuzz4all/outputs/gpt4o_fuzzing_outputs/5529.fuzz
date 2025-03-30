@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+import { readFile } from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const [config, data] = await Promise.all([
+      readFile(new URL('./config.json', import.meta.url), 'utf8'),
+      fetch('https://jsonplaceholder.typicode.com/todos/1').then(res => res.json())
+    ]);
+
+     
+    const { title } = data;
+    const { greeting } = JSON.parse(config);
+
+     
+    function highlight(strings, ...values) {
+      return strings.reduce((prev, curr, i) => `${prev}${curr}<strong>${values[i] || ''}</strong>`, '');
+    }
+
+     
+    const output = highlight`Message: ${greeting?.text ?? 'Hello'}, Task: ${title}`;
+
+     
+    if (title.includes('delectus')) {
+      const { default: chalk } = await import('chalk');
+      console.log(chalk.green(output));
+    } else {
+      console.log(output);
+    }
+  } catch (error) {
+     
+    console.error('An error occurred');
+  }
+})();
+```

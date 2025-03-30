@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async process() {
+    const results = await Promise.all(
+      this.data.map(async (item) => {
+        const transformed = await this._transform(item);
+        return this._enhance(transformed);
+      })
+    );
+    return results.reduce((acc, val) => acc + val, 0);
+  }
+
+  async _transform(item) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(item * 2);
+      }, Math.random() * 100);
+    });
+  }
+
+  _enhance(value) {
+    return value + Math.random();
+  }
+
+  static async create(data) {
+    const processor = new AsyncProcessor(data);
+    const processed = await processor.process();
+    console.log(`Processed total: ${processed}`);
+  }
+}
+
+const data = Array.from({ length: 10 }, () => Math.floor(Math.random() * 10));
+AsyncProcessor.create(data);
+```

@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');
+
+(async () => {
+  try {
+     
+    const response = await fetch('https://randomuser.me/api/');
+    const data = await response.json();
+    const user = data.results[0];
+
+     
+    const { name: { first, last }, location: { city, country }, email } = user;
+
+     
+    const userDetails = {
+      fullName: `${first} ${last}`,
+      location: `${city}, ${country}`,
+      email,
+      getIntroduction() {
+        return `Hi, I am ${this.fullName} from ${this.location}. You can contact me at ${this.email}.`;
+      }
+    };
+
+     
+    const bold = (strings, ...values) => strings.raw.reduce((acc, str, i) => acc + `<b>${values[i - 1]}</b>` + str);
+    console.log(bold`User Introduction: ${userDetails.getIntroduction()}`);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+})();
+```

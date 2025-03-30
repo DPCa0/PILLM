@@ -1,0 +1,34 @@
+ 
+
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => {
+    const data = [
+        { id: 1, name: 'Alice', scores: [89, 95, 92] },
+        { id: 2, name: 'Bob', scores: [79, 81, 85] },
+        { id: 3, name: 'Charlie', scores: [95, 99, 100] }
+    ];
+    resolve(data);
+}, 1000));
+
+ 
+function* processScores(data) {
+    for (const { id, name, scores } of data) {
+        const averageScore = scores.reduce((acc, score) => acc + score, 0) / scores.length;
+        yield { id, name, averageScore };
+    }
+}
+
+ 
+const displayAverageScores = async () => {
+    try {
+        const data = await fetchData();
+        const processedData = processScores(data);
+        for (const { id, name, averageScore } of processedData) {
+            print(`Student: ${name} (ID: ${id}), Average Score: ${averageScore.toFixed(2)}`);
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+displayAverageScores();

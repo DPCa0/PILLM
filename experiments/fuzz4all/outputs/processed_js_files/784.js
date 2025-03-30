@@ -1,0 +1,39 @@
+ 
+
+ 
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Accessed property: ${prop}`);
+        return target[prop];
+    }
+};
+
+ 
+async function processUrls(urls) {
+    const urlProxy = new Proxy(urls, handler);
+
+    for await (const dataPromise of fetchData(urlProxy)) {
+        dataPromise.then(data => {
+             
+            const dataProxy = new Proxy(data, handler);
+            print(`Processed data: ${JSON.stringify(dataProxy)}`);
+        }).catch(error => {
+            console.error(`Error fetching data: ${error}`);
+        });
+    }
+}
+
+ 
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+processUrls(urls);

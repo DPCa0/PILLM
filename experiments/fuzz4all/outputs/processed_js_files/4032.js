@@ -1,0 +1,40 @@
+ 
+
+function* generateNumbers(limit) {
+    let number = 1;
+    while (number <= limit) {
+        yield number++;
+    }
+}
+
+function delayedNumber(n) {
+    return new Promise(resolve => setTimeout(() => resolve(n), n * 100));
+}
+
+async function processNumbers(gen) {
+    for (const n of gen) {
+        const delayedValue = await delayedNumber(n);
+        print(`Processed number: ${delayedValue}`);
+    }
+}
+
+const handler = {
+    get: function(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            console.warn(`Property "${prop}" doesn't exist. Defaulting to "default".`);
+            return 'default';
+        }
+    }
+};
+
+const config = {
+    max: 5,
+    message: "Processing numbers"
+};
+
+const proxyConfig = new Proxy(config, handler);
+
+print(proxyConfig.message);
+processNumbers(generateNumbers(proxyConfig.max));

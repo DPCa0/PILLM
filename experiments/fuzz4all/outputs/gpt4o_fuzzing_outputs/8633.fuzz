@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.resolvers = [];
+    }
+    
+    enqueue(item) {
+        if (this.resolvers.length) {
+            const resolve = this.resolvers.shift();
+            resolve(item);
+        } else {
+            this.queue.push(item);
+        }
+    }
+    
+    dequeue() {
+        return new Promise(resolve => {
+            if (this.queue.length) {
+                const item = this.queue.shift();
+                resolve(item);
+            } else {
+                this.resolvers.push(resolve);
+            }
+        });
+    }
+}
+
+(async () => {
+    const queue = new AsyncQueue();
+
+     
+    async function* producer() {
+        for (let i = 1; i <= 5; i++) {
+            await new Promise(res => setTimeout(res, 500));   
+            queue.enqueue(i);
+            console.log(`Produced: ${i}`);
+        }
+    }
+    
+     
+    async function consumer() {
+        for (let i = 1; i <= 5; i++) {
+            const item = await queue.dequeue();
+            console.log(`Consumed: ${item}`);
+        }
+    }
+
+     
+    const prod = producer();
+    const cons = consumer();
+
+    await Promise.all([prod, cons]);
+})();
+```

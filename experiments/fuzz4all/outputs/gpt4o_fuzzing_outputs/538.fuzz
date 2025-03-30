@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function displayFibonacci(limit) {
+    const fibGen = fibonacciGenerator(limit);
+    const results = [];
+    for await (let num of fibGen) {
+        results.push(delay(num * 100).then(() => console.log(num)));
+    }
+    await Promise.allSettled(results);
+    console.log('All Fibonacci numbers up to limit have been processed.');
+}
+
+ 
+const settingsHandler = {
+    get(target, prop) {
+        console.log(`Getting value of ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting value of ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const settings = new Proxy({ limit: 21 }, settingsHandler);
+
+ 
+displayFibonacci(settings.limit);
+```

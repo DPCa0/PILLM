@@ -1,0 +1,54 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  const sortedData = data.sort((a, b) => b.value - a.value);
+  return sortedData.reduce((acc, item) => {
+    acc[item.category] = acc[item.category] || [];
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+};
+
+class DataProcessor {
+  constructor(url) {
+    this.url = url;
+  }
+  
+  async getData() {
+    try {
+      const data = await fetchData(this.url);
+      return processData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+const exampleURL = 'https://api.example.com/data';
+
+const processor = new DataProcessor(exampleURL);
+processor.getData().then((processedData) => {
+  const flattenedData = Object.entries(processedData).flatMap(([category, items]) => {
+    return items.map(item => ({ category, ...item }));
+  });
+  console.table(flattenedData);
+});
+
+ 
+const dataProxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessing ${prop}:`, target[prop]);
+      return target[prop];
+    }
+    console.warn(`Property ${prop} does not exist on target`);
+    return undefined;
+  }
+};
+
+const proxyProcessor = new Proxy(processor, dataProxyHandler);
+proxyProcessor.getData();

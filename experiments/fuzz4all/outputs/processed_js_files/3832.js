@@ -1,0 +1,39 @@
+ 
+
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.apiEndpoint);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+    }
+  }
+}
+
+const processData = async () => {
+  const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+  const fetcher = new DataFetcher(apiEndpoint);
+  try {
+    const data = await fetcher.fetchData();
+    if (data && data.length > 0) {
+      const processed = data
+        .filter(item => item.userId % 2 === 0)  
+        .map(({ id, title }) => ({ id, title }))
+        .reduce((acc, { id, title }) => ({ ...acc, [id]: title }), {});
+      print('Processed Data:', processed);
+    } else {
+      print('No data to process');
+    }
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+processData();

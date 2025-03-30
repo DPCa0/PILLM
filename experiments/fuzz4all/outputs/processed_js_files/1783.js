@@ -1,0 +1,35 @@
+ 
+const fetchData = async (url) => {
+   
+  const simulateDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  await simulateDelay(1000);  
+
+   
+  const mockFetch = async (url) => {
+    if (url === "https://api.example.com/data") {
+      return {
+        json: async () => ({ data: [1, 2, 3, 4, 5] }),
+      };
+    } else {
+      throw new Error("Invalid URL");
+    }
+  };
+
+  try {
+    const response = await mockFetch(url);
+    const { data } = await response.json();
+
+     
+    const result = data
+      .filter((num) => num % 2 === 0)  
+      .reduce((acc, curr) => acc + curr, 0);  
+
+    print("Sum of even numbers:", result);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+ 
+fetchData("https://api.example.com/data");

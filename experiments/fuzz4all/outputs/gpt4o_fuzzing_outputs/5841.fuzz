@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async *processData() {
+        for (let item of this.data) {
+            yield await this.enhanceData(item);
+        }
+    }
+
+    async enhanceData(item) {
+         
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(`Enhanced: ${item.toUpperCase()}`);
+            }, 100);
+        });
+    }
+}
+
+function logEnhancedData() {
+    const processor = new AsyncProcessor(['apple', 'banana', 'cherry']);
+
+    (async () => {
+        const enhancedDataIterator = processor.processData();
+
+        for await (const enhancedItem of enhancedDataIterator) {
+            console.log(enhancedItem);
+        }
+    })();
+}
+
+class SingletonLogger {
+    constructor() {
+        if (!SingletonLogger.instance) {
+            this.logs = [];
+            SingletonLogger.instance = this;
+        }
+        return SingletonLogger.instance;
+    }
+
+    addLog(log) {
+        this.logs.push(log);
+    }
+
+    printLogs() {
+        this.logs.forEach(log => console.log(log));
+    }
+}
+
+const logger = new SingletonLogger();
+Object.freeze(logger);
+
+logEnhancedData();
+
+setTimeout(() => {
+    logger.addLog('All data processed and logged.');
+    logger.printLogs();
+}, 500);
+```

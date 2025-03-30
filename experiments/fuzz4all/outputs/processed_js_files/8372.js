@@ -1,0 +1,47 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  static from(dimensions, fill = 0) {
+    return new Matrix(Array.from({ length: dimensions[0] }, () =>
+      Array.from({ length: dimensions[1] }, () => fill)));
+  }
+
+  map(func) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => func(val, i, j))));
+  }
+
+  static zipWith(a, b, func) {
+    return new Matrix(a.data.map((row, i) => row.map((val, j) => func(val, b.data[i][j]))));
+  }
+
+  async* transpose() {
+    const { length: rows } = this.data;
+    const { length: cols } = this.data[0];
+    for (let i = 0; i < cols; i++) {
+      yield this.data.map(row => row[i]);
+    }
+  }
+
+  toString() {
+    return this.data.map(row => row.join(', ')).join('\n');
+  }
+}
+
+(async () => {
+  const matrixA = Matrix.from([3, 3], 1).map((val, i, j) => i + j);
+  const matrixB = Matrix.from([3, 3], 2);
+
+  const matrixC = Matrix.zipWith(matrixA, matrixB, (a, b) => a + b);
+
+  print("Matrix C:");
+  print(matrixC.toString());
+
+  print("\nTranspose of Matrix C:");
+  const transposedMatrixC = new Matrix([]);
+  for await (const col of matrixC.transpose()) {
+    transposedMatrixC.data.push(col);
+  }
+  print(transposedMatrixC.toString());
+})();

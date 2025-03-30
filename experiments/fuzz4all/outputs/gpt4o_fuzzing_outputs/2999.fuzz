@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexFeatureExample {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static async processData(data) {
+        try {
+            const result = await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    data.length ? resolve(data.map(item => item ** 2)) : reject('No data provided');
+                }, 1000);
+            });
+            return result;
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    async displayResult() {
+        try {
+            const results = await ComplexFeatureExample.processData(this.data);
+            results.forEach((result, index) => {
+                console.log(`Result ${index + 1}: ${result}`);
+            });
+        } catch (error) {
+            console.error(`Error: ${error}`);
+        }
+    }
+}
+
+ 
+const inputData = [1, 2, 3, 4, 5];
+const { length } = inputData;
+const example = new ComplexFeatureExample(length ? inputData : []);
+
+example.displayResult();
+```

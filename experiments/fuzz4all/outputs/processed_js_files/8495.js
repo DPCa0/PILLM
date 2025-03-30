@@ -1,0 +1,58 @@
+class Task {
+    constructor(name, duration) {
+        this.name = name;
+        this.duration = duration;
+    }
+
+     
+    get details() {
+        return `${this.name} takes ${this.duration}ms`;
+    }
+}
+
+ 
+const taskHandler = {
+    get: function(target, prop) {
+        if (typeof target[prop] === 'function') {
+            return function(...args) {
+                print(`Calling ${prop} with args: ${JSON.stringify(args)}`);
+                return target[prop].apply(target, args);
+            }
+        }
+        return target[prop];
+    }
+};
+
+ 
+async function processTasks(tasks) {
+    const execute = task => new Promise(resolve => {
+        setTimeout(() => {
+            print(`Completed: ${task.details}`);
+            resolve();
+        }, task.duration);
+    });
+
+    for (const task of tasks) {
+        await execute(task);
+    }
+}
+
+ 
+const taskList = new Proxy([
+    new Task('Task 1', 500),
+    new Task('Task 2', 300),
+    new Task('Task 3', 400)
+], taskHandler);
+
+(async function() {
+     
+    const [firstTask, ...remainingTasks] = taskList;
+    print(`First Task: ${firstTask.details}`);
+
+     
+    const taggedTemplate = (strings, ...values) => strings.reduce((prev, curr, i) => prev + curr + (values[i] || ''), '');
+    print(taggedTemplate`Processing ${taskList.length} tasks sequentially...`);
+
+     
+    await processTasks(taskList);
+})();

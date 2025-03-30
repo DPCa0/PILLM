@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+
+ 
+const generateRandomKey = (length = 32) => randomBytes(length).toString('hex').slice(0, length);
+
+ 
+const cryptographer = (algorithm = 'aes-256-cbc') => {
+  const iv = Buffer.from(randomBytes(16));  
+
+  return (key) => ({
+    encrypt: (plainText) => {
+      const cipher = createCipheriv(algorithm, Buffer.from(key), iv);
+      const encrypted = Buffer.concat([cipher.update(plainText), cipher.final()]);
+      return iv.toString('hex') + ':' + encrypted.toString('hex');
+    },
+    decrypt: (cipherText) => {
+      const [ivHex, encryptedText] = cipherText.split(':');
+      const decipher = createDecipheriv(algorithm, Buffer.from(key), Buffer.from(ivHex, 'hex'));
+      const decrypted = Buffer.concat([decipher.update(Buffer.from(encryptedText, 'hex')), decipher.final()]);
+      return decrypted.toString();
+    },
+  });
+};
+
+ 
+const secureObjectHandler = {
+  get: (target, property) => {
+    if (property in target) {
+      console.log(`Accessing property "${property}"`);
+      return target[property];
+    } else {
+      throw new Error(`Property "${property}" is not accessible`);
+    }
+  },
+};
+
+const secureObject = new Proxy(
+  { secretMessage: "Don't tell anyone!" },
+  secureObjectHandler
+);
+
+ 
+(async () => {
+  const key = generateRandomKey();
+  const crypto = cryptographer() (key);
+
+  const originalMessage = 'Hello, Advanced JavaScript!';
+  const encrypted = crypto.encrypt(originalMessage);
+  const decrypted = crypto.decrypt(encrypted);
+
+  console.log('Original:', originalMessage);
+  console.log('Encrypted:', encrypted);
+  console.log('Decrypted:', decrypted);
+
+  try {
+    console.log('Secret Message:', secureObject.secretMessage);
+    console.log('Attempting to access non-existent property:', secureObject.nonExistent);
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

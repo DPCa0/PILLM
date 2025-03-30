@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000)));
+
+ 
+function* numberGenerator(limit) {
+    for (let i = 0; i < limit; i++) {
+        yield i;
+    }
+}
+
+ 
+async function processNumbers(limit) {
+    const numbers = numberGenerator(limit);
+
+     
+    const results = await Promise.all([...numbers].map(async number => {
+        await randomDelay();
+        const squared = number ** 2;
+        console.log(`Number: ${number}, Squared: ${squared}`);
+        return squared;
+    }));
+
+     
+    const total = results.reduce((acc, cur) => acc + (cur ?? 0), 0);
+    console.log(`Total of squared numbers: ${total}`);
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessed property: ${prop}`);
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const data = new Proxy({a: 1, b: 2, c: 3}, handler);
+
+ 
+console.log(data.a);
+console.log(data.b);
+
+ 
+processNumbers(5);
+```

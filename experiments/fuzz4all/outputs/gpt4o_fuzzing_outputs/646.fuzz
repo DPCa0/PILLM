@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const asyncOperation = async (x) => {
+    return new Promise((resolve) => setTimeout(() => resolve(x * x), 1000));
+};
+
+const pipeline = function* () {
+    yield 2;
+    yield 3;
+    yield 4;
+};
+
+const processPipeline = async function* (gen) {
+    for (const value of gen) {
+        yield await asyncOperation(value);
+    }
+};
+
+const advancedFeatureDemo = async () => {
+    const results = [];
+    for await (const result of processPipeline(pipeline())) {
+        results.push(result);
+    }
+
+    const obj = { a: 1, b: 2, c: 3 };
+    const mappedResults = Object.entries(obj).map(([key, value]) => ({
+        [key]: results[value - 1]
+    }));
+
+    const proxyHandler = {
+        get: (target, prop) => (prop in target ? target[prop] : 'Not Found')
+    };
+
+    const proxiedResults = new Proxy(mappedResults.reduce((acc, curr) => ({ ...acc, ...curr }), {}), proxyHandler);
+
+    console.log(proxiedResults.a);  
+    console.log(proxiedResults.b);  
+    console.log(proxiedResults.c);  
+    console.log(proxiedResults.d);  
+};
+
+advancedFeatureDemo();
+```

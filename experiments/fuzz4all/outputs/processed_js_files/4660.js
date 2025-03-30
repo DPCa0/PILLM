@@ -1,0 +1,69 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class AsyncTaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.taskQueue = [];
+    this.activeTasks = 0;
+  }
+
+  addTask(task) {
+    this.taskQueue.push(task);
+    this.processQueue();
+  }
+
+  processQueue() {
+    if (this.activeTasks >= this.concurrency || this.taskQueue.length === 0) return;
+
+    this.activeTasks++;
+    const task = this.taskQueue.shift();
+    task().finally(() => {
+      this.activeTasks--;
+      this.processQueue();
+    });
+  }
+}
+
+const emitter = new EventEmitter();
+emitter.on('data', data => {
+  print(`Received data: ${data}`);
+});
+
+const queue = new AsyncTaskQueue(2);
+const tasks = [
+  () => new Promise(res => setTimeout(() => { emitter.emit('data', 'Task 1'); res(); }, 1000)),
+  () => new Promise(res => setTimeout(() => { emitter.emit('data', 'Task 2'); res(); }, 500)),
+  () => new Promise(res => setTimeout(() => { emitter.emit('data', 'Task 3'); res(); }, 200)),
+  () => new Promise(res => setTimeout(() => { emitter.emit('data', 'Task 4'); res(); }, 800)),
+];
+
+tasks.forEach(task => queue.addTask(task));
+
+(async () => {
+  const asyncIterable = {
+    async *[Symbol.asyncIterator]() {
+      yield await Promise.resolve(1);
+      yield await Promise.resolve(2);
+      yield await Promise.resolve(3);
+    }
+  };
+
+  for await (const num of asyncIterable) {
+    print(`Async iterable: ${num}`);
+  }
+})();

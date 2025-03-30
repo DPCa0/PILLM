@@ -1,0 +1,81 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      await Promise.all(listeners.map(listener => listener(...args)));
+    }
+  }
+
+  off(event, listener) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      this.events.set(event, listeners.filter(l => l !== listener));
+    }
+  }
+}
+
+const pipeline = (...functions) => async (input) =>
+  functions.reduce(async (chain, func) => func(await chain), Promise.resolve(input));
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  return response.json();
+};
+
+const processData = async (data) => {
+   
+  return data.map(item => ({ ...item, processed: true }));
+};
+
+const storeData = async (data) => {
+  localStorage.setItem('data', JSON.stringify(data));
+  return data;
+};
+
+const main = async () => {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('dataFetched', async (data) => {
+    print('Data fetched:', data);
+  });
+
+  emitter.on('dataProcessed', async (data) => {
+    print('Data processed:', data);
+  });
+
+  emitter.on('dataStored', async (data) => {
+    print('Data stored:', data);
+  });
+
+  const executePipeline = pipeline(
+    async (url) => {
+      const data = await fetchData(url);
+      await emitter.emit('dataFetched', data);
+      return data;
+    },
+    async (data) => {
+      const processedData = await processData(data);
+      await emitter.emit('dataProcessed', processedData);
+      return processedData;
+    },
+    async (data) => {
+      const storedData = await storeData(data);
+      await emitter.emit('dataStored', storedData);
+    }
+  );
+
+  await executePipeline('https://jsonplaceholder.typicode.com/todos');
+};
+
+main();

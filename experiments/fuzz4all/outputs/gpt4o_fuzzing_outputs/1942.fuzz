@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+ 
+async function fetchData(number) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(`Fetched data for number: ${number}`);
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: function(target, prop) {
+        console.log(`Accessed property: ${prop}`);
+        return target[prop];
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const data = { name: 'Proxy Test' };
+const proxyData = new Proxy(data, handler);
+
+ 
+async function processNumbers() {
+    const numbers = numberGenerator();
+    for (const num of numbers) {
+        const result = await fetchData(num);
+        console.log(result);
+    }
+}
+
+ 
+proxyData.name = 'Updated Name';   
+console.log(proxyData.name);       
+
+ 
+processNumbers();
+```

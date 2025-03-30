@@ -1,0 +1,51 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            await Promise.all(this.listeners.get(event).map(listener => listener(...args)));
+        }
+    }
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+    print(`Fetching data from ${url}`);
+    await sleep(1000);  
+    return { data: `Data from ${url}` };
+};
+
+const cache = new Map();
+
+const fetchWithCache = async (url) => {
+    if (cache.has(url)) {
+        print(`Cache hit for ${url}`);
+        return cache.get(url);
+    }
+    const data = await fetchData(url);
+    cache.set(url, data);
+    return data;
+};
+
+(async () => {
+    const emitter = new AsyncEventEmitter();
+
+    emitter.on('data', async (url) => {
+        const data = await fetchWithCache(url);
+        print(`Received: ${data.data}`);
+    });
+
+    await emitter.emit('data', 'https://api.example.com/resource1');
+    await emitter.emit('data', 'https://api.example.com/resource2');
+    await emitter.emit('data', 'https://api.example.com/resource1');  
+})();

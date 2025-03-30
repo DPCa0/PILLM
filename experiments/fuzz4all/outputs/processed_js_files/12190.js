@@ -1,0 +1,60 @@
+class AsyncCounter {
+  #value;
+  #callbacks;
+
+  constructor(initValue = 0) {
+    this.#value = initValue;
+    this.#callbacks = new Set();
+  }
+
+  increment() {
+    this.#value++;
+    this.#notify();
+  }
+
+  decrement() {
+    this.#value--;
+    this.#notify();
+  }
+
+  #notify() {
+    this.#callbacks.forEach(callback => callback(this.#value));
+  }
+
+  onChange(callback) {
+    this.#callbacks.add(callback);
+    return () => this.#callbacks.delete(callback);  
+  }
+
+  get value() {
+    return this.#value;
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function demoCounter() {
+  const counter = new AsyncCounter();
+
+  const unsubscribe = counter.onChange(value => {
+    print(`Counter updated: ${value}`);
+  });
+
+  for (let i = 0; i < 5; i++) {
+    await sleep(500);
+    counter.increment();
+  }
+
+  unsubscribe();
+  
+  print('Unsubscribed from updates.');
+
+  for (let i = 0; i < 3; i++) {
+    await sleep(500);
+    counter.decrement();
+  }
+
+  print(`Final Counter value: ${counter.value}`);
+}
+
+demoCounter();

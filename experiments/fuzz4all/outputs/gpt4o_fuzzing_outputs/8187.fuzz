@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+  const { default: axios } = await import('https://cdn.jsdelivr.net/npm/axios@1.3.5/+esm');
+  
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  async function fetchData(url) {
+    try {
+      const { data } = await axios.get(url);
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  }
+
+  function processUserData({ name, email, address: { city } }) {
+    console.log(`User: ${name}, Email: ${email}, City: ${city}`);
+  }
+
+  async function* dataGenerator(url) {
+    const data = await fetchData(url);
+    if (data) {
+      for (const user of data) {
+        yield user;
+        await delay(500);  
+      }
+    }
+  }
+
+  const url = 'https://jsonplaceholder.typicode.com/users';
+
+  for await (const user of dataGenerator(url)) {
+    processUserData(user);
+  }
+
+  console.log('All users processed.');
+})();
+```

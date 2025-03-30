@@ -1,0 +1,73 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      yield data;
+    } catch (error) {
+      console.error(`Fetch error: ${error}`);
+      yield null;
+    }
+  }
+}
+
+ 
+const dataHandler = {
+  get: (target, prop) => {
+    return prop in target ? target[prop] : `Property ${prop} not found`;
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'string') {
+      print(`Setting ${prop} to "${value}"`);
+      target[prop] = value;
+      return true;
+    }
+    console.error(`Failed to set ${prop}: value is not a string`);
+    return false;
+  }
+};
+
+ 
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  @logExecutionTime
+  processData() {
+     
+    const { name, ...rest } = { ...this.data };
+    print(`Processing: ${name}`);
+    return { name, details: rest };
+  }
+}
+
+ 
+function logExecutionTime(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function(...args) {
+    console.time(propertyKey);
+    const result = originalMethod.apply(this, args);
+    console.timeEnd(propertyKey);
+    return result;
+  };
+}
+
+ 
+async function main() {
+  const urls = new Set(['https://jsonplaceholder.typicode.com/users/1', 'https://jsonplaceholder.typicode.com/users/2']);
+  const dataProxy = new Proxy({}, dataHandler);
+  
+  for await (const data of fetchData(urls)) {
+    if (data) {
+      dataProxy.name = data.name;
+      const processor = new DataProcessor(data);
+      const result = processor.processData();
+      print('Processed Data:', result);
+    }
+  }
+}
+
+main();

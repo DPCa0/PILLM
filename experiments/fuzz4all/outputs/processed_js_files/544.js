@@ -1,0 +1,29 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await delay(1000);  
+  if (url === 'https://api.example.com/data') {
+    return Promise.resolve({ data: [1, 2, 3, 4, 5] });
+  } else {
+    return Promise.reject('Invalid URL');
+  }
+};
+
+ 
+const processData = async (fetchFunction, url) => {
+  try {
+    const { data } = await fetchFunction(url);
+    return data.map(num => num * 2).reduce((acc, curr) => acc + curr, 0);
+  } catch (error) {
+    return `Error: ${error}`;
+  }
+};
+
+ 
+(async () => {
+  const url = 'https://api.example.com/data';
+  const result = await processData(fetchData, url);
+  print(`Processed result: ${result}`);
+})();

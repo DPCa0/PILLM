@@ -1,0 +1,51 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+ 
+async function fetchData(url) {
+  const response = await new Promise(resolve => setTimeout(() => resolve(`Data from ${url}`), 1000));
+  return response;
+}
+
+ 
+const logger = {
+  get(target, propKey) {
+    const origMethod = target[propKey];
+    return function (...args) {
+      print(`Called method ${propKey} with arguments: ${JSON.stringify(args)}`);
+      return origMethod.apply(this, args);
+    };
+  }
+};
+
+ 
+(async () => {
+  const eventEmitter = new Proxy(new EventEmitter(), logger);
+
+  eventEmitter.on('data', (url, data) => {
+    print(`Received data from ${url}: ${data}`);
+  });
+
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  
+  for (let url of urls) {
+    const data = await fetchData(url);
+    eventEmitter.emit('data', url, data);
+  }
+})();

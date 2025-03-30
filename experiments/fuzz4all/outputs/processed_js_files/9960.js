@@ -1,0 +1,37 @@
+class FibonacciSequence {
+    constructor(limit) {
+        this.limit = limit;
+        this.sequence = [];
+    }
+
+    *generateSequence() {
+        let [prev, curr] = [0, 1];
+        while (curr <= this.limit) {
+            [prev, curr] = [curr, prev + curr];
+            yield prev;
+        }
+    }
+
+    async populateSequence() {
+        const gen = this.generateSequence();
+        for await (const num of gen) {
+            this.sequence.push(num);
+        }
+    }
+
+    logSequence() {
+        print(`Fibonacci sequence up to ${this.limit}:`, this.sequence);
+    }
+}
+
+const findMaxFibonacci = async (limit) => {
+    const fibSequence = new FibonacciSequence(limit);
+    await fibSequence.populateSequence();
+    fibSequence.logSequence();
+    
+    const maxFibonacci = Math.max(...fibSequence.sequence);
+    print(`Max Fibonacci number <= ${limit}:`, maxFibonacci);
+}
+
+const limit = 1000;
+findMaxFibonacci(limit);

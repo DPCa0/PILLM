@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncDataGenerator(items) {
+    for (const item of items) {
+        await delay(1000);  
+        yield item;
+    }
+}
+
+ 
+const targetObject = {
+    greet: name => `Hello, ${name}!`,
+    farewell: name => `Goodbye, ${name}!`
+};
+
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Calling method: ${property}`);
+            return target[property];
+        } else {
+            throw new Error(`Method ${property} does not exist on target.`);
+        }
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const processData = ({ name, age, city }) => {
+    const message = `Name: ${name}, Age: ${age}, City: ${city}`;
+    return message;
+};
+
+ 
+(async () => {
+    const people = [
+        { name: "Alice", age: 25, city: "New York" },
+        { name: "Bob", age: 30, city: "San Francisco" },
+        { name: "Charlie", age: 35, city: "London" }
+    ];
+
+    const setOfNames = new Set();
+    const asyncGen = asyncDataGenerator(people);
+
+    for await (const person of asyncGen) {
+        console.log(processData(person));
+        setOfNames.add(person.name);
+    }
+
+    console.log("Unique Names:", [...setOfNames].join(', '));
+
+     
+    try {
+        console.log(proxy.greet("Alice"));
+        console.log(proxy.farewell("Bob"));
+    } catch (error) {
+        console.error(error.message);
+    }
+})();
+```

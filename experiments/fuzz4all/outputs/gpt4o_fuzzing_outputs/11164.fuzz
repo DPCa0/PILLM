@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  #data;
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.#data = arr;
+    return m;
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        yield { value: this.#data[i][j], row: i, col: j };
+      }
+    }
+  }
+
+  map(callback) {
+    return Matrix.fromArray(this.#data.map((row, i) =>
+      row.map((value, j) => callback(value, i, j))));
+  }
+
+  static async multiplyAsync(m1, m2) {
+    if (m1.cols !== m2.rows) throw new Error("Incompatible matrices");
+
+    const result = new Matrix(m1.rows, m2.cols);
+    const promises = [];
+
+    for (let { value, row, col } of result) {
+      const promise = (async () => {
+        result.#data[row][col] = await m1.#data[row].reduce(
+          async (acc, _, i) => await acc + m1.#data[row][i] * m2.#data[i][col], Promise.resolve(0)
+        );
+      })();
+      promises.push(promise);
+    }
+
+    await Promise.all(promises);
+    return result;
+  }
+
+  toString() {
+    return this.#data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  const matrixA = new Matrix(2, 3).map(() => Math.random());
+  const matrixB = new Matrix(3, 2).map(() => Math.random());
+
+  console.log('Matrix A:\n' + matrixA);
+  console.log('Matrix B:\n' + matrixB);
+
+  const result = await Matrix.multiplyAsync(matrixA, matrixB);
+  console.log('Resultant Matrix:\n' + result);
+})();
+```

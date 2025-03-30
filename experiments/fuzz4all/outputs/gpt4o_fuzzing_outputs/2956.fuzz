@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+const path = require('path');
+
+ 
+(async () => {
+  try {
+     
+    const dir = path.dirname(process.argv[1]);
+    
+     
+    const { default: data } = await import(`${dir}/data.json`, {
+      assert: { type: 'json' }
+    });
+
+     
+    const updatedData = {
+      ...data,
+      timestamp: new Date().toISOString(),
+      greetings: 'Hello, advanced JavaScript!'
+    };
+
+     
+    const content = JSON.stringify(updatedData, null, 2);
+
+     
+    await fs.writeFile(path.join(dir, 'updatedData.json'), content);
+
+     
+    console.log(tag`File updated successfully with timestamp: ${updatedData.timestamp}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+
+ 
+function tag(strings, ...expressions) {
+  return strings.reduce((acc, string, i) => 
+    `${acc}${string}\x1b[32m${expressions[i] || ''}\x1b[0m`, '');
+}
+```

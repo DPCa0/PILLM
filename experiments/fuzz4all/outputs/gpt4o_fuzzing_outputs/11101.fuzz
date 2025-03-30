@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    if (response.ok) {
+      const data = await response.json();
+      yield data;
+    } else {
+      yield Promise.reject(new Error(`Failed to fetch ${url}`));
+    }
+  }
+}
+
+async function processData() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  const collectedData = [];
+
+  for await (const data of fetchData(urls)) {
+    try {
+      const { title, body } = data;
+      const processed = `${title.toUpperCase()}: ${body}`;
+      collectedData.push(processed);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  const formattedOutput = collectedData.reduce((acc, item, idx) => {
+    return `${acc}${idx + 1}. ${item}\n`;
+  }, 'Processed Data:\n');
+
+  console.log(formattedOutput);
+}
+
+processData().catch(error => console.error('Unhandled error:', error));
+```

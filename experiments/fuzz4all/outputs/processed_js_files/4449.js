@@ -1,0 +1,56 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    [Symbol.toPrimitive](hint) {
+        switch (hint) {
+            case 'number':
+                return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+            case 'string':
+                return `${this.real} + ${this.imaginary}i`;
+            default:
+                return null;
+        }
+    }
+
+    static from(iterable) {
+        const [real, imaginary] = [...iterable];
+        return new ComplexNumber(real, imaginary);
+    }
+
+    *[Symbol.iterator]() {
+        yield this.real;
+        yield this.imaginary;
+    }
+
+    static async fetchComplex(url) {
+        const response = await fetch(url);
+        const { real, imaginary } = await response.json();
+        return new ComplexNumber(real, imaginary);
+    }
+}
+
+(async () => {
+     
+    const { add } = await import('./mathOperations.js');
+
+    const num1 = new ComplexNumber(3, 4);
+    print(`Magnitude of num1: ${+num1}`);  
+    print(`String representation: ${String(num1)}`);  
+
+    const numArray = [5, 6];
+    const num2 = ComplexNumber.from(numArray);
+
+    const [real, imaginary] = num1;  
+    print(`Real: ${real}, Imaginary: ${imaginary}`);
+
+     
+    const num3 = await ComplexNumber.fetchComplex('https://api.example.com/complex');
+    print(`Fetched Complex Number: ${String(num3)}`);
+
+     
+    const result = add(num1, num2);
+    print(`Sum: ${String(result)}`);
+})();

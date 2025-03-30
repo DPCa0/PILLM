@@ -1,0 +1,37 @@
+ 
+const fetchData = async () => {
+     
+    const simulateAsyncOperation = (data, delay) => 
+        new Promise(resolve => setTimeout(() => resolve(data), delay));
+
+     
+    const getData = async () => {
+        try {
+            const response = await simulateAsyncOperation({ name: "John", age: 30 }, 2000);
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data");
+        }
+    };
+
+     
+    const processData = ({ name, age }) => {
+        const additionalData = { occupation: "Developer", location: "Remote" };
+        const completeData = { name, age, ...additionalData };
+        return `User: ${completeData.name}, Age: ${completeData.age}, Occupation: ${completeData.occupation}, Location: ${completeData.location}`;
+    };
+
+    try {
+        const data = await getData();
+        const processedData = processData(data);
+        print(processedData);  
+    } catch (error) {
+        console.error(error.message);  
+    }
+};
+
+ 
+(async () => {
+    print("Fetching data...");
+    await fetchData();
+})();

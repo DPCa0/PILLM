@@ -1,0 +1,57 @@
+class LazyEvaluator {
+  constructor(generator) {
+    this.generator = generator();
+  }
+
+  *filter(predicate) {
+    for (let value of this.generator) {
+      if (predicate(value)) yield value;
+    }
+  }
+
+  *map(transform) {
+    for (let value of this.generator) {
+      yield transform(value);
+    }
+  }
+
+  static *range(start = 0, end = Infinity, step = 1) {
+    for (let value = start; value < end; value += step) {
+      yield value;
+    }
+  }
+}
+
+(async () => {
+  const asyncTimeout = (time) => new Promise(resolve => setTimeout(resolve, time));
+
+  const fib = function* (limit) {
+    let [a, b] = [0, 1];
+    while (a < limit) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  };
+
+  const printValues = async (gen) => {
+    for (let value of gen) {
+      print(value);
+      await asyncTimeout(500);  
+    }
+  };
+
+  const lazyFib = new LazyEvaluator(() => fib(1000))
+    .filter(x => x % 2 === 0)
+    .map(x => x ** 2);
+
+  print('Even squares of Fibonacci numbers:');
+  await printValues(lazyFib);
+
+  const numbers = LazyEvaluator.range(1, 20);
+  const lazyNumbers = new LazyEvaluator(() => numbers)
+    .filter(x => x % 3 === 0)
+    .map(x => `Number: ${x}`);
+
+  print('\nMultiples of 3:');
+  await printValues(lazyNumbers);
+})();

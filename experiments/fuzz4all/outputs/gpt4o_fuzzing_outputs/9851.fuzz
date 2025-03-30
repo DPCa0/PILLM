@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.cache = new Map();
+  }
+  
+  *sequence(n) {
+    let a = 0, b = 1;
+    yield a;
+    yield b;
+    for (let i = 2; i < n; i++) {
+      [a, b] = [b, a + b];
+      yield b;
+    }
+  }
+  
+  async calculate(n) {
+    if (this.cache.has(n)) return this.cache.get(n);
+    
+    let fibValue;
+    if (n < 2) {
+      fibValue = n;
+    } else {
+      fibValue = (await this.calculate(n - 1)) + (await this.calculate(n - 2));
+    }
+    
+    this.cache.set(n, fibValue);
+    return fibValue;
+  }
+  
+  static *take(iterable, n) {
+    let count = 0;
+    for (const item of iterable) {
+      if (count++ === n) break;
+      yield item;
+    }
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci();
+  
+   
+  const seqGen = fib.sequence(10);
+  console.log([...Fibonacci.take(seqGen, 5)]);
+  
+   
+  const fibNum = await fib.calculate(10);
+  console.log(fibNum);
+})();
+```

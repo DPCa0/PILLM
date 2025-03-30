@@ -1,0 +1,55 @@
+class TaskScheduler {
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  addTask(name, interval, task) {
+    if (this.tasks.has(name)) {
+      throw new Error(`Task with name "${name}" already exists.`);
+    }
+
+    const taskWrapper = async () => {
+      try {
+        await task();
+      } catch (error) {
+        console.error(`Error executing task "${name}":`, error);
+      }
+    };
+
+    const id = setInterval(taskWrapper, interval);
+    this.tasks.set(name, id);
+  }
+
+  removeTask(name) {
+    if (!this.tasks.has(name)) {
+      throw new Error(`Task with name "${name}" does not exist.`);
+    }
+
+    clearInterval(this.tasks.get(name));
+    this.tasks.delete(name);
+  }
+
+  async runOnce(name) {
+    if (!this.tasks.has(name)) {
+      throw new Error(`Task with name "${name}" does not exist.`);
+    }
+
+    const task = this.tasks.get(name);
+    try {
+      await task();
+    } catch (error) {
+      console.error(`Error running task "${name}" once:`, error);
+    }
+  }
+}
+
+(async () => {
+  const scheduler = new TaskScheduler();
+
+  scheduler.addTask('sayHello', 2000, async () => {
+    const greeting = await Promise.resolve('Hello, world!');
+    print(greeting);
+  });
+
+  setTimeout(() => scheduler.removeTask('sayHello'), 10000);
+})();

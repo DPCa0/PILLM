@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* numberGenerator(max, delayTime) {
+    for (let i = 1; i <= max; i++) {
+        await delay(delayTime);
+        yield i;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Getting property '${prop}'`);
+        return prop in target ? target[prop] : undefined;
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const data = new Proxy({ result: [] }, handler);
+
+ 
+async function processNumbers(max) {
+    try {
+        const numbers = numberGenerator(max, 500);
+        for await (const num of numbers) {
+            console.log(`Processing number: ${num}`);
+            data.result.push(num);
+        }
+        console.log('Final Result:', data.result);
+    } catch (error) {
+        console.error('Error processing numbers:', error);
+    }
+}
+
+ 
+processNumbers(5);
+```

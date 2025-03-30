@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+  constructor(maxValue) {
+    this.maxValue = maxValue;
+    this.sequence = this._generateSequence();
+  }
+
+  *_fibonacciGenerator() {
+    let a = 0, b = 1;
+    while (a <= this.maxValue) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  _generateSequence() {
+    const fibSeq = [];
+    for (const num of this._fibonacciGenerator()) {
+      fibSeq.push(num);
+    }
+    return fibSeq;
+  }
+
+  get sequenceSum() {
+    return this.sequence.reduce((sum, num) => sum + num, 0);
+  }
+
+  [Symbol.iterator]() {
+    return this.sequence.values();
+  }
+
+  static async *asyncSequence(maxValue) {
+    let a = 0, b = 1;
+    while (a <= maxValue) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+const sequence = new FibonacciSequence(1000);
+
+console.log('Fibonacci Sequence up to 1000:');
+for (const num of sequence) {
+  console.log(num);
+}
+
+console.log('Sum of Fibonacci Sequence:', sequence.sequenceSum);
+
+(async () => {
+  console.log('Async Fibonacci Sequence up to 1000:');
+  for await (const num of FibonacciSequence.asyncSequence(1000)) {
+    console.log(num);
+  }
+})();
+```

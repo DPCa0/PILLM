@@ -1,0 +1,35 @@
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+  }
+
+  [Symbol.asyncIterator]() {
+    let index = 0;
+    const { data } = this;
+    return {
+      async next() {
+        if (index < data.length) {
+          const value = await new Promise((resolve) =>
+            setTimeout(() => resolve(data[index++]), 1000)
+          );
+          return { value, done: false };
+        }
+        return { done: true };
+      },
+    };
+  }
+}
+
+async function* generatorPipeline(data) {
+  for await (let value of data) {
+    yield value * 2;
+  }
+}
+
+(async () => {
+  const data = new AsyncIterator([1, 2, 3, 4, 5]);
+
+  for await (let value of generatorPipeline(data)) {
+    print(value);
+  }
+})();

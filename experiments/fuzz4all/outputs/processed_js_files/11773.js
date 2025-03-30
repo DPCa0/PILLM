@@ -1,0 +1,30 @@
+ 
+(async () => {
+  const fs = await import('fs').then(mod => mod.promises);
+
+   
+  async function processData(inputFile, outputFile) {
+    try {
+       
+      const data = await fs.readFile(inputFile, 'utf-8');
+
+       
+      const processedData = data.split('\n').map(line => {
+        const [key, value] = line.split(':');
+        return `${key.toUpperCase().trim()}: ${parseInt(value, 10) * 2}`;
+      }).join('\n');
+
+       
+      await fs.writeFile(outputFile, processedData, 'utf-8');
+      print(`Data processed and written to ${outputFile}`);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+   
+  const [input, output] = ['./input.txt', './output.txt'];
+
+   
+  processData(...[input, output]);
+})();

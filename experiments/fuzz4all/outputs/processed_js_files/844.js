@@ -1,0 +1,61 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        if (this.events.has(event)) {
+            const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+            this.events.set(event, listeners);
+        }
+    }
+}
+
+function* generateId() {
+    let id = 0;
+    while (true) {
+        yield `id-${++id}`;
+    }
+}
+
+const idGenerator = generateId();
+
+const asyncOperation = (data) => new Promise((resolve) => {
+    setTimeout(() => {
+        print(`Processing: ${data}`);
+        resolve(data);
+    }, Math.random() * 1000);
+});
+
+async function processData(dataArray) {
+    const processedData = [];
+    for (const data of dataArray) {
+        const result = await asyncOperation(data);
+        processedData.push(result);
+    }
+    return processedData;
+}
+
+const dataEventEmitter = new EventEmitter();
+dataEventEmitter.on('dataProcessed', (data) => {
+    print(`Data Processed: ${data}`);
+});
+
+(async () => {
+    const data = ['apple', 'banana', 'cherry'].map(item => ({ id: idGenerator.next().value, value: item }));
+    print("Starting data processing...");
+    const processedData = await processData(data);
+    processedData.forEach(item => dataEventEmitter.emit('dataProcessed', item.value));
+    print("All data processed.");
+})();

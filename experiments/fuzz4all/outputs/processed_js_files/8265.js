@@ -1,0 +1,53 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    off(event, listener) {
+        if (this.listeners.has(event)) {
+            const listeners = this.listeners.get(event);
+            const index = listeners.indexOf(listener);
+            if (index !== -1) {
+                listeners.splice(index, 1);
+            }
+        }
+    }
+
+    async emit(event, ...args) {
+        if (this.listeners.has(event)) {
+            const listeners = [...this.listeners.get(event)];
+            for (const listener of listeners) {
+                await listener(...args);
+            }
+        }
+    }
+}
+
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (data) => {
+    const processedData = await new Promise((resolve) => {
+        setTimeout(() => resolve(data.toUpperCase()), 1000);
+    });
+    print(`Processed Data: ${processedData}`);
+});
+
+emitter.on('error', async (err) => {
+    console.error(`Error: ${err.message}`);
+});
+
+(async function() {
+    try {
+        await emitter.emit('data', 'hello, world!');
+        throw new Error('Something went wrong');
+    } catch (err) {
+        await emitter.emit('error', err);
+    }
+})();

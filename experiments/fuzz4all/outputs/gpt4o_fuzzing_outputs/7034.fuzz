@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+class TaskRunner {
+  constructor(tasks) {
+    this.tasks = tasks;
+  }
+  
+   
+  async runTasks() {
+    const results = [];
+    for (let task of this.tasks) {
+       
+      let result = await task();
+      results.push(result);
+    }
+    return results;
+  }
+
+   
+  static *taskNumberGenerator() {
+    let taskNumber = 1;
+    while (true) {
+      yield taskNumber++;
+    }
+  }
+}
+
+ 
+function createTask(taskNum) {
+  return () => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Task ${taskNum} complete.`);
+    }, Math.random() * 1000);
+  });
+}
+
+ 
+const taskNumGenerator = TaskRunner.taskNumberGenerator();
+const tasks = Array.from({ length: 5 }, () => createTask(taskNumGenerator.next().value));
+
+ 
+const runner = new TaskRunner(tasks);
+
+ 
+runner.runTasks().then(results => {
+  results.forEach(result => console.log(result));
+});
+```

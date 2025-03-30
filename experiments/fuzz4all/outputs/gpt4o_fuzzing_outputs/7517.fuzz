@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const targetObject = { message: "Hello" };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+async function asyncOperation() {
+    console.log(proxyObject.message);
+    proxyObject.message = "Hello, Proxy!";
+
+    const promise = new Promise((resolve) => setTimeout(() => resolve("Async and Await!"), 2000));
+    console.log(await promise);
+}
+
+ 
+function* generatorFunction() {
+    yield "Starting Generator";
+    yield* delegateGenerator();
+    yield "Ending Generator";
+}
+
+function* delegateGenerator() {
+    proxyObject.message = "Yielding from Delegate";
+    yield proxyObject.message;
+}
+
+ 
+(async function run() {
+    await asyncOperation();
+
+    const gen = generatorFunction();
+    for (const value of gen) {
+        console.log(value);
+    }
+})();
+```

@@ -1,0 +1,45 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  async enqueue(asyncFn) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ asyncFn, resolve, reject });
+      this.processQueue();
+    });
+  }
+
+  async processQueue() {
+    if (this.processing || this.queue.length === 0) return;
+    this.processing = true;
+
+    const { asyncFn, resolve, reject } = this.queue.shift();
+    try {
+      const result = await asyncFn();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    } finally {
+      this.processing = false;
+      this.processQueue();
+    }
+  }
+}
+
+const queue = new AsyncQueue();
+
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
+(async () => {
+  const tasks = [
+    () => delay(1000).then(() => console.log('Task 1 finished')),
+    () => delay(500).then(() => console.log('Task 2 finished')),
+    () => delay(300).then(() => console.log('Task 3 finished')),
+  ];
+
+  for (const task of tasks) {
+    queue.enqueue(task).catch(console.error);
+  }
+})();

@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async () => {
+  try {
+    const data = {
+      user: 'Alice',
+      email: 'alice@example.com',
+      preferences: {
+        theme: 'dark',
+        notifications: {
+          email: true,
+          sms: false
+        }
+      }
+    };
+
+     
+    const {
+      user,
+      preferences: { theme, ...restPreferences }
+    } = data;
+
+     
+    const newData = {
+      ...data,
+      preferences: {
+        ...restPreferences,
+        theme: 'light'
+      }
+    };
+
+     
+    console.log(`User: ${user}, Theme: ${theme}`);
+
+     
+    await delay(2000);
+
+    console.log('Updated Data:', newData);
+
+     
+    const nums = [1, 2, 3, 4, 5];
+    const sum = nums.reduce((acc, val) => acc + val, 0);
+
+    console.log('Sum of array elements:', sum);
+
+     
+    const handler = {
+      get(target, prop) {
+        if (prop in target) {
+          console.log(`Accessing property '${prop}'`);
+          return target[prop];
+        }
+        return 'Property not found!';
+      }
+    };
+
+    const proxyData = new Proxy(data, handler);
+
+    console.log(proxyData.user);
+    console.log(proxyData.nonExistentProp);
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

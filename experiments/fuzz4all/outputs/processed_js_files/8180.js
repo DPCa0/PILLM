@@ -1,0 +1,52 @@
+ 
+import fs from 'fs';
+import crypto from 'crypto';
+
+ 
+const readFileAsync = (filePath) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) reject(err);
+            else resolve(data);
+        });
+    });
+};
+
+ 
+const processFile = async (inputFile, outputFile) => {
+    try {
+         
+        const fileContent = await readFileAsync(inputFile);
+
+         
+        const iv = crypto.randomBytes(16);
+
+         
+        const key = crypto.scryptSync('password', 'salt', 32);
+
+         
+        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+        let encrypted = cipher.update(fileContent, 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+
+         
+        const encryptedData = JSON.stringify({
+            iv: iv.toString('hex'),
+            content: encrypted
+        });
+
+         
+        await fs.promises.writeFile(outputFile, encryptedData);
+
+        print('File successfully encrypted and saved!');
+    } catch (error) {
+        console.error('Error processing the file:', error);
+    }
+};
+
+ 
+(async () => {
+    const inputFile = 'input.txt';
+    const outputFile = 'output.enc';
+    await processFile(inputFile, outputFile);
+})();

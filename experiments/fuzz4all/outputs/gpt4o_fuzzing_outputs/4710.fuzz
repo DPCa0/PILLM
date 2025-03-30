@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+
+ 
+async function* numberStream() {
+    let count = 0;
+    while (true) {
+        await randomDelay();
+        yield count++;
+    }
+}
+
+ 
+(async () => {
+    const numStream = numberStream();
+
+     
+    const [first, second, third] = await Promise.all([numStream.next(), numStream.next(), numStream.next()]);
+
+     
+    console.log(`Received numbers: ${first.value ?? "No value"}, ${second.value ?? "No value"}, ${third.value ?? "No value"}`);
+
+     
+    const handler = {
+        get(target, prop) {
+            console.log(`Accessed property ${String(prop)}`);
+            return target[prop] ?? 'Property does not exist';
+        }
+    };
+
+    const target = { message: "Advanced JavaScript!", year: 2023 };
+    const proxy = new Proxy(target, handler);
+
+     
+    console.log(`Message: ${proxy.message}`);
+    console.log(`Year: ${proxy.year}`);
+    console.log(`Non-existent: ${proxy.nonExistent}`);
+})();
+```

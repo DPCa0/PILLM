@@ -1,0 +1,58 @@
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event);
+        listeners.forEach(listener => listener(...args));
+    }
+
+    async emitAsync(event, ...args) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event).map(listener => {
+            return new Promise(resolve => resolve(listener(...args)));
+        });
+        await Promise.all(listeners);
+    }
+}
+
+const runInParallel = async (tasks, concurrency) => {
+    let results = [];
+    let executing = [];
+
+    for (const task of tasks) {
+        const p = Promise.resolve().then(() => task());
+        results.push(p);
+        
+        if (concurrency <= tasks.length) {
+            const e = p.then(() => executing.splice(executing.indexOf(e), 1));
+            executing.push(e);
+
+            if (executing.length >= concurrency) {
+                await Promise.race(executing);
+            }
+        }
+    }
+    return Promise.all(results);
+};
+
+(async () => {
+    const emitter = new AsyncEventEmitter();
+    emitter.on('data', async data => {
+        print(`Processing: ${data}`);
+        await new Promise(r => setTimeout(r, Math.random() * 2000));  
+    });
+
+    const tasks = Array.from({ length: 10 }, (_, i) => () => emitter.emitAsync('data', `Task ${i+1}`));
+    await runInParallel(tasks, 3);
+    print('All tasks completed!');
+})();

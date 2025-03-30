@@ -1,0 +1,53 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(callback) {
+    this.subscribers.add(callback);
+  }
+
+  unsubscribe(callback) {
+    this.subscribers.delete(callback);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+function* fibonacciSequence() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+async function fetchRandomUser() {
+  const response = await fetch('https://randomuser.me/api/');
+  if (!response.ok) throw new Error('Failed to fetch user');
+  const data = await response.json();
+  return data.results[0];
+}
+
+async function* userStream(interval = 1000) {
+  while (true) {
+    yield await fetchRandomUser();
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+}
+
+const observable = new Observable();
+const fibGen = fibonacciSequence();
+const userGen = userStream();
+
+observable.subscribe(fib => print(`Fibonacci number: ${fib}`));
+observable.subscribe(user => print(`Fetched user: ${user.name.first} ${user.name.last}`));
+
+setInterval(() => {
+  observable.notify(fibGen.next().value);
+  (async () => {
+    observable.notify(await userGen.next().value);
+  })();
+}, 2000);

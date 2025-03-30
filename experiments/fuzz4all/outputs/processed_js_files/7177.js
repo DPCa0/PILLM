@@ -1,0 +1,32 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+const processData = async () => {
+    try {
+         
+        const data = await fs.readFile('./data.json', 'utf8');
+        
+         
+        const jsonData = JSON.parse(data);
+
+         
+        const { users } = jsonData;
+        
+         
+        const userEmails = users.map(({ name, email }) => `Name: ${name}, Email: ${email}`);
+
+         
+        const output = `User Information:\n${userEmails.join('\n')}`;
+
+         
+        await fs.writeFile('./output.txt', output);
+
+        print('Data processed and saved to output.txt');
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+ 
+processData();

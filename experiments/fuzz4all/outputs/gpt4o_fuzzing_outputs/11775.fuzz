@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const target = {
+   
+  message: "Hello, World",
+  [Symbol.for('extraData')]: "Some Extra Data"
+};
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'message') {
+      return `Intercepted Message: ${Reflect.get(...arguments)}`;
+    } else if (prop === Symbol.iterator) {
+      return function* () {
+        yield* Reflect.ownKeys(obj);
+      };
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function* asyncGenerator() {
+  for (let key of proxy) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    yield proxy[key];
+  }
+}
+
+(async function() {
+  console.log(proxy.message);  
+  console.log(proxy[Symbol.for('extraData')]);  
+  
+   
+  for await (const value of asyncGenerator()) {
+    console.log(value);  
+  }
+})();
+```

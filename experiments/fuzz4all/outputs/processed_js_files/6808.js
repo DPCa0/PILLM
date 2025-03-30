@@ -1,0 +1,54 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = new Set();
+    }
+    this.events[event].add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listener) {
+    if (this.events[event]) {
+      this.events[event].delete(listener);
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+
+   
+  const metaMap = new WeakMap();
+  const object = { id: 1 };
+  metaMap.set(object, { created: new Date() });
+
+  emitter.on('greet', async (name) => {
+    await delay(1000);  
+    print(`Hello, ${name}!`);
+  });
+
+  emitter.on('greet', (name) => {
+    const meta = metaMap.get(object);
+    print(`Metadata: Created at ${meta.created}`);
+  });
+
+  emitter.emit('greet', 'world');
+
+   
+  const uniqueKey = Symbol('uniqueKey');
+  object[uniqueKey] = 'This is a unique property';
+  print(object[uniqueKey]);
+})();

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  async function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+   
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
+   
+  const processFibonacci = async (limit) => {
+    console.log(`Fibonacci numbers up to ${limit}:`);
+
+     
+    for await (const num of fibonacciGenerator(limit)) {
+      console.log(num);
+      await delay(500);  
+    }
+
+     
+    const fibonacciProperties = {
+      name: 'Fibonacci Sequence',
+      description: 'A sequence where each number is the sum of the two preceding ones.',
+    };
+
+    const handler = {
+      get: (target, property) => 
+        property in target ? target[property] : `Property "${property}" not found!`
+    };
+
+    const proxy = new Proxy(fibonacciProperties, handler);
+
+    console.log(proxy.name);
+    console.log(proxy.description);
+    console.log(proxy.history);  
+  };
+
+   
+  await processFibonacci(21);
+})();
+```

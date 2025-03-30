@@ -1,0 +1,49 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    
+    subscribe(subscriber) {
+        this.subscribers.add(subscriber);
+        return () => this.subscribers.delete(subscriber);
+    }
+    
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+const asyncFetch = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const fetchWithRetries = async (url, retries = 3) => {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            return await asyncFetch(url);
+        } catch (error) {
+            if (attempt === retries) throw error;
+        }
+    }
+};
+
+const dataObservable = new Observable();
+
+const unsubscribe = dataObservable.subscribe(data => print("Received data:", data));
+
+const fetchDataAndNotify = async (url) => {
+    try {
+        const data = await fetchWithRetries(url);
+        dataObservable.notify(data);
+    } catch (error) {
+        console.error("Failed to fetch data:", error);
+    }
+};
+
+ 
+ 
+
+ 
+ 

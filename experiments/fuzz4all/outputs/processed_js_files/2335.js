@@ -1,0 +1,31 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.sequence = this.#generateFibonacci();
+  }
+
+  #generateFibonacci() {
+    const seq = [0, 1];
+    for (let i = 2; i <= this.limit; i++) {
+      seq[i] = seq[i - 1] + seq[i - 2];
+    }
+    return seq;
+  }
+
+  *[Symbol.iterator]() {
+    for (let value of this.sequence) {
+      yield value;
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const fib = new Fibonacci(10);
+
+  for await (let num of fib) {
+    print(num);
+    await delay(500);
+  }
+})();

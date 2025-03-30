@@ -1,0 +1,38 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    calculate(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncFibonacciSequence(n) {
+    const fib = new Fibonacci();
+    const sequence = [];
+    
+    for (let i = 0; i <= n; i++) {
+        sequence.push(fib.calculate(i));
+        print(`Fibonacci(${i}) = ${sequence[i]}`);
+        await sleep(500);   
+    }
+
+    return sequence;
+}
+
+(async () => {
+    try {
+        const sequence = await asyncFibonacciSequence(10);
+        print('Fibonacci sequence:', sequence);
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+})();

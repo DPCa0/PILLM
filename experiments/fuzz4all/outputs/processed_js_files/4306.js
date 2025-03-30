@@ -1,0 +1,44 @@
+class Person {
+  #name;  
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+   
+  static from(obj) {
+    return new Person(obj.name);
+  }
+
+   
+  getName() {
+    return this.#name;
+  }
+}
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'Alice' });
+    }, 1000);
+  });
+};
+
+ 
+const transformData = (promise, transformFn) => {
+  return promise.then((data) => transformFn(data));
+};
+
+ 
+(async () => {
+  try {
+    const rawData = await fetchData();
+    const person = transformData(Promise.resolve(rawData), Person.from);
+    person.then((p) => {
+      print(`Hello, ${p.getName()}!`);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

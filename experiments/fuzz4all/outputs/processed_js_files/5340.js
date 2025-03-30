@@ -1,0 +1,83 @@
+ 
+
+ 
+function* range(start, end) {
+    for (let i = start; i <= end; yield i++) {}
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+async function processData(urls) {
+    try {
+        const dataPromises = urls.map(url => fetchData(url));
+        const results = await Promise.allSettled(dataPromises);
+
+        for (let result of results) {
+            if (result.status === 'fulfilled') {
+                print('Data:', result.value);
+            } else {
+                console.error('Error:', result.reason);
+            }
+        }
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            print(`Getting property ${prop}`);
+            return target[prop];
+        }
+        console.warn(`Property ${prop} not found`);
+    },
+    set(target, prop, value) {
+        print(`Setting property ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+const dataObject = new Proxy({}, handler);
+
+ 
+const UNIQUE_KEY = Symbol('uniqueKey');
+dataObject[UNIQUE_KEY] = 'This is a unique property';
+
+ 
+const privateData = new WeakMap();
+class Person {
+    constructor(name) {
+        privateData.set(this, { name });
+    }
+
+    getName() {
+        return privateData.get(this).name;
+    }
+}
+
+ 
+(async () => {
+     
+    const rangeGen = range(1, 5);
+    for (let value of rangeGen) {
+        print('Range value:', value);
+    }
+
+     
+    dataObject.name = 'Proxy Test';
+    print('Name:', dataObject.name);
+    print('Unique Property:', dataObject[UNIQUE_KEY]);
+
+     
+    const person = new Person('John Doe');
+    print('Person name:', person.getName());
+
+     
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];

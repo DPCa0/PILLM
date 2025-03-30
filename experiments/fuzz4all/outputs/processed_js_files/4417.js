@@ -1,0 +1,38 @@
+class Observable {
+    constructor() {
+        this.subscribers = [];
+    }
+    
+    subscribe(callback) {
+        this.subscribers.push(callback);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async () => {
+    await delay(1000);
+    return { message: 'Hello, complex JavaScript!' };
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+        while (true) {
+            yield await fetchData();
+        }
+    }
+};
+
+(async function main() {
+    const observable = new Observable();
+    observable.subscribe(data => print(data.message));
+
+    for await (const data of asyncIterable) {
+        observable.notify(data);
+        await delay(2000);  
+    }
+})();

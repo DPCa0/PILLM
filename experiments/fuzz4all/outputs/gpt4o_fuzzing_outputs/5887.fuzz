@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+class Advanced {
+  #privateField = 'This is a private field';
+  
+  #privateMethod() {
+    return `Accessing: ${this.#privateField}`;
+  }
+
+   
+  [uniqueKey]() {
+    return 'This is a method with a unique key';
+  }
+
+   
+  publicMethod() {
+    return this.#privateMethod();
+  }
+
+   
+  async demonstrateAsync() {
+    const promise = new Promise((resolve, reject) => {
+      setTimeout(() => resolve('Promise resolved after 1 second'), 1000);
+    });
+
+    const result = await promise;
+    return result;
+  }
+
+   
+  *generatorFunction() {
+    yield 'First yield';
+    yield 'Second yield';
+    return 'Generator complete';
+  }
+}
+
+ 
+const { publicMethod, ...rest } = new Advanced();
+console.log(publicMethod());  
+
+ 
+console.log(rest[uniqueKey]()); 
+
+ 
+const obj = { nested: { value: 42 } };
+console.log(obj.nested?.value ?? 'No value');
+
+ 
+const asyncDemo = new Advanced();
+asyncDemo.demonstrateAsync().then(console.log);
+
+ 
+const generator = asyncDemo.generatorFunction();
+console.log(generator.next().value);  
+console.log(generator.next().value);  
+console.log(generator.next().value);  
+```

@@ -1,0 +1,45 @@
+ 
+import fs from 'fs/promises';
+
+ 
+async function fetchData() {
+    try {
+        const data = await fs.readFile('data.json', 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading file:', error);
+    }
+}
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* dataStream(dataArray) {
+    for (const item of dataArray) {
+        yield delay(1000).then(() => item);
+    }
+}
+
+ 
+function createLoggerObject(obj) {
+    return new Proxy(obj, {
+        get(target, property) {
+            print(`Accessing property: ${property}`);
+            return target[property];
+        }
+    });
+}
+
+ 
+(async () => {
+    const rawData = await fetchData();
+    const loggedData = rawData.map(createLoggerObject);
+    const generator = dataStream(loggedData);
+
+    for await (const item of generator) {
+        print('Processed item:', item);
+    }
+})();
+
+Make sure you have a `data.json` file in the same directory with some JSON content for this code to work correctly.

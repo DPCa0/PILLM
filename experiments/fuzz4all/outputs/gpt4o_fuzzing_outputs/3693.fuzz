@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexFunction() {
+  try {
+     
+    await delay(1000);
+    console.log('Step 1: After 1 second delay');
+
+     
+    const { a, b } = { a: 1, b: 2 };
+    console.log(`Step 2: Destructuring - a: ${a}, b: ${b}`);
+
+     
+    const uniqueValues = new Set([1, 2, 3, 3, 4, 5]);
+    console.log('Step 3: Unique values using Set:', [...uniqueValues]);
+
+     
+    const squaredValues = [1, 2, 3, 4, 5].map(n => n ** 2);
+    console.log('Step 4: Squared values using map:', squaredValues);
+
+     
+    const person = { name: 'Alice', age: 30 };
+    const updatedPerson = { ...person, city: 'New York' };
+    console.log('Step 5: Spread operator with objects:', updatedPerson);
+
+     
+    console.log(`Step 6: Template literals - Name: ${person.name}, Age: ${person.age}`);
+
+     
+    const uniqueKey = Symbol('unique');
+    const objectWithSymbol = { [uniqueKey]: 'Symbolic value' };
+    console.log('Step 7: Symbol in object:', objectWithSymbol[uniqueKey]);
+
+     
+    const privateData = new WeakMap();
+    class SecretHolder {
+      constructor(secret) {
+        privateData.set(this, secret);
+      }
+      revealSecret() {
+        return privateData.get(this);
+      }
+    }
+
+    const holder = new SecretHolder('Super Secret');
+    console.log('Step 8: WeakMap for private data:', holder.revealSecret());
+
+     
+    async function* asyncGenerator() {
+      yield delay(500).then(() => 'Async item 1');
+      yield delay(500).then(() => 'Async item 2');
+    }
+
+    console

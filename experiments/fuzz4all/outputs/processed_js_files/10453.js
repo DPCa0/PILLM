@@ -1,0 +1,49 @@
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint, { method = 'GET', headers = {}, body = null } = {}) {
+        try {
+            const response = await fetch(`${this.apiUrl}${endpoint}`, { method, headers, body });
+            if (!response.ok) throw new Error(`Error: ${response.status}`);
+            return response.json();
+        } catch (error) {
+            console.error('Fetch Error:', error);
+        }
+    }
+}
+
+class UserService extends DataFetcher {
+    constructor(apiUrl) {
+        super(apiUrl);
+    }
+
+    async getUserData(userId) {
+        const { data: { user: { name, email } }, meta } = await this.fetchData(`/users/${userId}`);
+        return { name, email, fetchedAt: meta.timestamp };
+    }
+
+    async createUser(userDetails) {
+        const headers = { 'Content-Type': 'application/json' };
+        const body = JSON.stringify(userDetails);
+        const response = await this.fetchData('/users', { method: 'POST', headers, body });
+        return response;
+    }
+}
+
+ 
+(async () => {
+    const apiUrl = 'https://jsonplaceholder.typicode.com';
+    const userService = new UserService(apiUrl);
+    
+     
+    const userData = await userService.getUserData(1);
+    print('User Data:', userData);
+    
+     
+    const newUser = await userService.createUser({ name: 'John Doe', email: 'john.doe@example.com' });
+    print('New User:', newUser);
+})();

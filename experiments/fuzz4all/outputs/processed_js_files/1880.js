@@ -1,0 +1,47 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+  
+    static add(c1, c2) {
+        return new ComplexNumber(c1.real + c2.real, c1.imaginary + c2.imaginary);
+    }
+  
+    static multiply(c1, c2) {
+        const real = c1.real * c2.real - c1.imaginary * c2.imaginary;
+        const imaginary = c1.real * c2.imaginary + c1.imaginary * c2.real;
+        return new ComplexNumber(real, imaginary);
+    }
+  
+    toString() {
+        const sign = this.imaginary >= 0 ? '+' : '-';
+        return `${this.real} ${sign} ${Math.abs(this.imaginary)}i`;
+    }
+}
+
+async function fetchComplexNumbers(url) {
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data.map(num => new ComplexNumber(num.real, num.imaginary));
+    } catch (error) {
+        console.error('Error fetching complex numbers:', error);
+        return [];
+    }
+}
+
+(async function() {
+    const url = 'https://api.example.com/complex-numbers';
+    const complexNumbers = await fetchComplexNumbers(url);
+    
+    if (complexNumbers.length >= 2) {
+        const sum = ComplexNumber.add(complexNumbers[0], complexNumbers[1]);
+        const product = ComplexNumber.multiply(complexNumbers[0], complexNumbers[1]);
+        
+        print(`Sum: ${sum.toString()}`);
+        print(`Product: ${product.toString()}`);
+    } else {
+        print('Not enough complex numbers fetched.');
+    }
+})();

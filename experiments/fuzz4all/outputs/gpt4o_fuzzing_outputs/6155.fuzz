@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class AdvancedExample {
+  static #privateStaticMethod() {
+    return "Secret Message";
+  }
+
+  constructor() {
+    this.data = [10, 20, 30, 40, 50];
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch Error:', error);
+    }
+  }
+
+  *dataGenerator() {
+    for (const item of this.data) {
+      yield item * 2;
+    }
+  }
+
+  async *asyncDataGenerator(url) {
+    const data = await this.fetchData(url);
+    for (const item of data) {
+      yield item;
+    }
+  }
+
+  async processAsyncData(url) {
+    for await (const item of this.asyncDataGenerator(url)) {
+      console.log('Processed:', item);
+    }
+  }
+
+  static async runExample() {
+    const instance = new AdvancedExample();
+
+     
+    for (const value of instance.dataGenerator()) {
+      console.log('Doubled value:', value);
+    }
+
+     
+    try {
+      console.log(AdvancedExample.#privateStaticMethod());
+    } catch (error) {
+      console.error('Error accessing private static method:', error);
+    }
+
+     
+    const sampleUrl = 'https://jsonplaceholder.typicode.com/posts';
+    await instance.processAsyncData(sampleUrl);
+  }
+}
+
+ 
+AdvancedExample.runExample();
+```

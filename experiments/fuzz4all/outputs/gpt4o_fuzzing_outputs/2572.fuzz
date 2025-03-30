@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  *[Symbol.iterator]() {
+    let a = 0, b = 1;
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+}
+
+const fibSequence = new Fibonacci();
+const firstTenFibs = [...fibSequence].slice(0, 10);
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const factorial = memoize((n) => {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+});
+
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve('Async Done'), 1000));
+
+(async () => {
+  console.log(`First 10 Fibonacci numbers: ${firstTenFibs}`);
+  
+  console.log(`Factorial of 5 is: ${factorial(5)}`);
+  
+  const asyncResult = await asyncOperation();
+  console.log(asyncResult);
+})();
+
+ 
+const validator = {
+  set: (obj, prop, value) => {
+    if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+      throw new TypeError('Age must be a positive number');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const person = new Proxy({}, validator);
+try {
+  person.age = 25;  
+  console.log(`Age is set to: ${person.age}`);
+  person.age = -1;  
+} catch (error) {
+  console.error(error.message);
+}
+```

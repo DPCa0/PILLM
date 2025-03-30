@@ -1,0 +1,45 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < this.limit; i++) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+
+  get(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    const value = this.get(n - 1) + this.get(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+(async () => {
+  const fib = new Fibonacci(10);
+  
+  print('First 10 Fibonacci numbers:');
+  print([...fib]);
+
+  print('Get 10th Fibonacci number with memoization:');
+  print(fib.get(10));
+
+  const asyncFunction = async (num) => {
+    return new Promise(resolve => setTimeout(() => resolve(num * 2), 1000));
+  };
+
+  const processArray = async () => {
+    const numbers = [1, 2, 3, 4, 5];
+    const promises = numbers.map(async (num) => await asyncFunction(num));
+    const results = await Promise.all(promises);
+    print('Processed numbers:', results);
+  };
+
+  await processArray();
+})();

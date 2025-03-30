@@ -1,0 +1,44 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static identity(size) {
+        return new Matrix(size, size).map((_, row, col) => (row === col ? 1 : 0));
+    }
+
+    map(callback) {
+        this.data = this.data.map((row, i) => row.map((value, j) => callback(value, i, j)));
+        return this;
+    }
+
+    multiply(other) {
+        if (this.data[0].length !== other.data.length) {
+            throw new Error('Incompatible matrices');
+        }
+        let result = new Matrix(this.data.length, other.data[0].length);
+        return result.map((_, i, j) => 
+            this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+        );
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+function* fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+const fib = fibonacci();
+print(`First 10 Fibonacci numbers: ${Array.from({ length: 10 }, () => fib.next().value).join(', ')}`);
+
+const matrixA = new Matrix(3, 3, 2);
+const identityMatrix = Matrix.identity(3);
+const multipliedMatrix = matrixA.multiply(identityMatrix);
+print(`Matrix A:\n${matrixA}\n\nIdentity Matrix:\n${identityMatrix}\n\nA x I:\n${multipliedMatrix}`);

@@ -1,0 +1,52 @@
+ 
+import { readFile } from 'fs/promises';
+
+(async function () {
+  try {
+     
+    const lodash = await import('lodash');
+
+     
+    const data = await readFile(new URL('./data.json', import.meta.url), 'utf-8');
+    const jsonData = JSON.parse(data);
+
+     
+    const dataMap = new Map(Object.entries(jsonData));
+
+     
+    const mapHandler = {
+      get: (target, prop) => {
+        if (target.has(prop)) {
+          print(`Accessing ${prop}: ${target.get(prop)}`);
+          return target.get(prop);
+        } else {
+          print(`${prop} not found`);
+          return undefined;
+        }
+      },
+    };
+    const proxiedMap = new Proxy(dataMap, mapHandler);
+
+     
+    const modifiedData = lodash.mapKeys(proxiedMap, (value, key) => lodash.camelCase(key));
+
+     
+    const { oldKey, ...restData } = modifiedData;
+
+     
+    async function* asyncGenerator(data) {
+      for (const [key, value] of data) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield { [key]: value };
+      }
+    }
+
+    for await (const entry of asyncGenerator(restData)) {
+      print('Processed Entry:', entry);
+    }
+
+    print('Operation completed');
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+})();

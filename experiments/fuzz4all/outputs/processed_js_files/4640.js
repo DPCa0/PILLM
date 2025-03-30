@@ -1,0 +1,48 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function* idGenerator() {
+  let id = 0;
+  while (true) yield `id_${id++}`;
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const getData = async url => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  const gen = idGenerator();
+  const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+
+  emitter.on('data', data => print('Data received:', data));
+  emitter.on('error', err => console.error('Error:', err));
+
+  for (const url of urls) {
+    try {
+      const data = await getData(url);
+      emitter.emit('data', { id: gen.next().value, ...data });
+    } catch (error) {
+      emitter.emit('error', error);
+    }
+    await delay(1000);  
+  }
+})();

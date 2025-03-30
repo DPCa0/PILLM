@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(...args));
+  }
+}
+
+const asyncOperation = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve('Success') : reject('Failure');
+    }, 1000);
+  });
+};
+
+(async () => {
+  try {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('success', result => console.log(`Operation succeeded with: ${result}`));
+    eventEmitter.on('failure', error => console.log(`Operation failed with: ${error}`));
+
+    const result = await asyncOperation();
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('failure', error => console.log(`Operation failed with: ${error}`));
+    eventEmitter.emit('failure', error);
+  }
+})();
+
+function* generatorFunction() {
+  yield 'Step 1';
+  yield 'Step 2';
+  yield* anotherGenerator();
+  yield 'Step 4';
+}
+
+function* anotherGenerator() {
+  yield 'Step 3.1';
+  yield 'Step 3.2';
+}
+
+const generatorObject = generatorFunction();
+for (const value of generatorObject) {
+  console.log(value);
+}
+
+const proxy = new Proxy({}, {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    return `Property '${prop}' doesn't exist.`;
+  },
+  set(target, prop, value) {
+    if (typeof value === 'number') {
+      target[prop] = value;
+      return true;
+    } else {
+      console.warn(`Property '${prop}' can only be a number.`);
+      return false;
+    }
+  }
+});
+
+proxy.age = 30;
+console.log(proxy.age); // 30
+proxy.name = "John"; // Warning
+console.log(proxy.name); // Property 'name' doesn't exist.
+```

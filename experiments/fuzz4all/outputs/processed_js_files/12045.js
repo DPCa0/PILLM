@@ -1,0 +1,68 @@
+class CustomEventEmitter {
+  #listeners = new Map();
+
+  on(event, listener) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, []);
+    }
+    this.#listeners.get(event).push(listener);
+  }
+
+  off(event, listener) {
+    if (this.#listeners.has(event)) {
+      this.#listeners.set(event, this.#listeners.get(event).filter(l => l !== listener));
+    }
+  }
+
+  emit(event, ...args) {
+    if (this.#listeners.has(event)) {
+      this.#listeners.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class DataProcessor {
+  #data = [];
+
+  constructor(...initialData) {
+    this.#data.push(...initialData);
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let item of this.#data) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield item;
+    }
+  }
+
+  addData(...newData) {
+    this.#data.push(...newData);
+  }
+
+  transformData(transformFn) {
+    this.#data = this.#data.map(transformFn);
+  }
+
+  getData() {
+    return [...this.#data];  
+  }
+}
+
+const eventEmitter = new CustomEventEmitter();
+const dataProcessor = new DataProcessor(1, 2, 3, 4, 5);
+
+eventEmitter.on('dataReady', async () => {
+  print('Data processing started:');
+  for await (let value of dataProcessor) {
+    print(value);
+  }
+  print('Data processing finished');
+});
+
+dataProcessor.transformData(num => num * 2);
+eventEmitter.emit('dataReady');
+
+setTimeout(() => {
+  dataProcessor.addData(6, 7, 8);
+  eventEmitter.emit('dataReady');
+}, 1000);

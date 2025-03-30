@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+  return data.map(({ id, name, attributes }) => ({
+    id,
+    name: name.toUpperCase(),
+    attributes: attributes.reduce((acc, { key, value }) => {
+      acc[key] = value;
+      return acc;
+    }, {}),
+  }));
+};
+
+const main = async () => {
+  try {
+    const rawData = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const processedData = processData(rawData);
+    
+    const results = processedData.filter(({ id }) => id % 2 === 0);
+    
+    const output = results.reduce((str, { id, name, attributes }) => {
+      return `${str}\nID: ${id}\nName: ${name}\nAttributes: ${JSON.stringify(attributes, null, 2)}\n`;
+    }, 'Filtered Users:');
+
+    console.log(output);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();
+```

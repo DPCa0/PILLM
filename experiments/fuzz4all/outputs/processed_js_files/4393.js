@@ -1,0 +1,67 @@
+class DataManager {
+    #data = [];
+
+    constructor() {
+        this.#data = new Proxy([], {
+            get: (target, prop) => {
+                if (typeof prop === 'string' && !isNaN(prop)) {
+                    prop = Number(prop);
+                }
+                return target[prop];
+            },
+            set: (target, prop, value) => {
+                if (typeof prop === 'string' && !isNaN(prop)) {
+                    prop = Number(prop);
+                }
+                if (value < 0) {
+                    throw new Error("Negative values are not allowed");
+                }
+                target[prop] = value;
+                return true;
+            }
+        });
+    }
+
+    async fetchData() {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const jsonData = await response.json();
+        this.#data = jsonData.map(item => item.id);
+    }
+
+    * filterData(predicate) {
+        for (let value of this.#data) {
+            if (predicate(value)) {
+                yield value;
+            }
+        }
+    }
+
+    [Symbol.iterator]() {
+        return this.#data.values();
+    }
+}
+
+(async () => {
+    try {
+        const manager = new DataManager();
+        await manager.fetchData();
+
+        const filteredData = [...manager.filterData(id => id % 2 === 0)];
+
+        print("Filtered Data:", filteredData);
+
+        for (const id of manager) {
+            print("ID:", id);
+        }
+
+        print("Setting a new value:");
+        manager[2] = 42;
+        print("New ID at index 2:", manager[2]);
+
+        print("Attempting to set a negative value:");
+        manager[1] = -10;  
+
+    } catch (error) {
+        console.error("Error:", error.message);
+    }
+})();

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ data: 'Important Data', status: 200 }), 1000);
+    });
+};
+
+ 
+const privateDataSymbol = Symbol('private');
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop === privateDataSymbol) {
+            throw new Error('Access to private data is not allowed');
+        }
+        return target[prop];
+    },
+    set(target, prop, value) {
+        if (prop === privateDataSymbol) {
+            throw new Error('Modification of private data is not allowed');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+class DataManager {
+    constructor() {
+        this[privateDataSymbol] = {};
+        return new Proxy(this, handler);
+    }
+
+    async loadData() {
+        try {
+            const response = await fetchData();
+            this[privateDataSymbol] = response.data;
+            console.log('Data loaded:', this.getData());
+        } catch (error) {
+            console.error('Failed to load data:', error);
+        }
+    }
+
+    getData() {
+        return this[privateDataSymbol];
+    }
+}
+
+ 
+const manager = new DataManager();
+manager.loadData();
+```

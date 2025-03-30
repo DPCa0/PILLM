@@ -1,0 +1,62 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+
+    map(transformFn) {
+        return new Observable(observer => 
+            this.subscribe({
+                next: val => observer.next(transformFn(val)),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            })
+        );
+    }
+
+    filter(predicateFn) {
+        return new Observable(observer =>
+            this.subscribe({
+                next: val => predicateFn(val) && observer.next(val),
+                error: err => observer.error(err),
+                complete: () => observer.complete()
+            })
+        );
+    }
+}
+
+const interval = ms => new Observable(observer => {
+    let counter = 0;
+    const id = setInterval(() => observer.next(counter++), ms);
+    return () => clearInterval(id);
+});
+
+const take = (observable, count) => new Observable(observer => {
+    let taken = 0;
+    const subscription = observable.subscribe({
+        next: val => {
+            if (taken++ < count) observer.next(val);
+            if (taken >= count) observer.complete();
+        },
+        error: err => observer.error(err),
+        complete: () => observer.complete()
+    });
+    return () => subscription.unsubscribe();
+});
+
+const subscription = take(
+    interval(500)
+        .map(val => val * 2)
+        .filter(val => val % 3 === 0),
+    5
+).subscribe({
+    next: val => console.log(`Received: ${val}`),
+    error: err => console.error(`Error: ${err}`),
+    complete: () => console.log('Completed')
+});
+
+ 
+setTimeout(() => subscription.unsubscribe(), 5000);

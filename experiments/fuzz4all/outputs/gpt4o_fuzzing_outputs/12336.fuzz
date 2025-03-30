@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: 1, name: 'John Doe', job: 'Developer' });
+    }, 1000);
+  });
+};
+
+ 
+const secretKey = Symbol('secretKey');
+
+ 
+let user = {
+  details: {
+    id: 1,
+    name: 'Default User',
+    job: 'None'
+  },
+  [secretKey]: 'TopSecret'
+};
+
+ 
+const userProxy = new Proxy(user, {
+  get: (target, prop, receiver) => {
+    console.log(`Getting property: ${String(prop)}`);
+     
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property: ${String(prop)} to ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+});
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData();
+     
+    userProxy.details = data;
+     
+    console.log('User Details:', userProxy.details);
+     
+    console.log('Secret Key:', userProxy[secretKey]);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

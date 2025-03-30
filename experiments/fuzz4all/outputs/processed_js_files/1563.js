@@ -1,0 +1,49 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isProcessing = false;
+    }
+
+    enqueue(promiseFn) {
+        return new Promise((resolve, reject) => {
+            this.queue.push(() => promiseFn().then(resolve).catch(reject));
+            this.processQueue();
+        });
+    }
+
+    async processQueue() {
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+
+        while (this.queue.length) {
+            const task = this.queue.shift();
+            try {
+                await task();
+            } catch (error) {
+                console.error("Error processing task", error);
+            }
+        }
+
+        this.isProcessing = false;
+    }
+}
+
+ 
+
+const delay = (ms, value) => new Promise(resolve => setTimeout(() => resolve(value), ms));
+
+const taskA = () => delay(1000, 'Task A');
+const taskB = () => delay(500, 'Task B');
+const taskC = () => delay(800, 'Task C');
+
+const queue = new AsyncQueue();
+
+(async () => {
+    const results = await Promise.all([
+        queue.enqueue(taskA),
+        queue.enqueue(taskB),
+        queue.enqueue(taskC),
+    ]);
+
+    print('Results:', results);
+})();

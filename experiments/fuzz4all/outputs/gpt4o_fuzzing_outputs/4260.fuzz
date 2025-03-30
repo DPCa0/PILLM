@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const user = {
+  name: "Alice",
+  age: 30,
+};
+
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === "age") {
+      console.log("Accessing age property");
+    }
+    return Reflect.get(...arguments);
+  },
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+async function fetchData() {
+   
+  const promise = new Promise((resolve) =>
+    setTimeout(() => resolve({ data: { scores: [10, 20, 30] } }), 1000)
+  );
+  return await promise;
+}
+
+ 
+function* squared(numbers) {
+  for (let num of numbers) {
+    yield num * num;
+  }
+}
+
+(async function () {
+  console.log(proxyUser.name);
+  console.log(proxyUser.age);  
+
+  const { data: { scores } } = await fetchData();  
+  console.log("Fetched scores:", scores);
+
+   
+  const squares = squared(scores);
+  for (let square of squares) {
+    console.log("Square:", square);
+  }
+})();
+```

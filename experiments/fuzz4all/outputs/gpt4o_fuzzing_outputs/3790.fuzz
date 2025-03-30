@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class DataPipeline {
+    constructor(initialData) {
+        this.data = initialData;
+    }
+
+    transform(fn) {
+        this.data = this.data.map(fn);
+        return this;
+    }
+
+    filter(fn) {
+        this.data = this.data.filter(fn);
+        return this;
+    }
+
+    reduce(fn, initialValue) {
+        this.data = this.data.reduce(fn, initialValue);
+        return this;
+    }
+
+    async fetchData(url) {
+        const response = await fetch(url);
+        if (response.ok) {
+            const json = await response.json();
+            this.data = json;
+        }
+        return this;
+    }
+
+    async parallelProcess(fn) {
+        this.data = await Promise.all(this.data.map(fn));
+        return this;
+    }
+
+    log() {
+        console.log(this.data);
+        return this;
+    }
+}
+
+ 
+(async function() {
+    const processData = (async (datum) => {
+        return await new Promise(resolve => setTimeout(() => resolve(datum * 2), 100));
+    });
+
+    const dataPipeline = new DataPipeline([1, 2, 3, 4, 5]);
+
+    await dataPipeline
+        .transform(x => x + 1)
+        .filter(x => x % 2 === 0)
+        .reduce((acc, x) => acc + x, 0)
+        .parallelProcess(processData)
+        .log();
+})();
+```

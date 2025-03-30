@@ -1,0 +1,41 @@
+ 
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processUserData = async (userId) => {
+  try {
+    const data = await fetchData(`https: 
+    return { name: data.name, email: data.email, city: data.address.city };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+const displayData = ({ name, email, city }) => {
+  print(`Name: ${name}, Email: ${email}, City: ${city}`);
+};
+
+const performParallelFetch = async () => {
+  const userIds = [1, 2, 3];
+  const promises = userIds.map(id => processUserData(id));
+
+  const results = await Promise.allSettled(promises);
+
+  results.forEach(result => {
+    if (result.status === 'fulfilled') {
+      displayData(result.value);
+    } else {
+      console.warn('A promise was rejected:', result.reason);
+    }
+  });
+};
+
+ 
+(async () => {
+  await performParallelFetch();
+})();

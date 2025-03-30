@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class AsyncOperation {
+  constructor(delay) {
+    this.delay = delay;
+  }
+
+  async execute() {
+    console.log(`Starting async operation with ${this.delay}ms delay`);
+    return new Promise(resolve => setTimeout(() => {
+      console.log(`Completed async operation with ${this.delay}ms delay`);
+      resolve(this.delay);
+    }, this.delay));
+  }
+}
+
+async function* asyncGenerator(operations) {
+  for (const operation of operations) {
+    yield await operation.execute();
+  }
+}
+
+const operations = [
+  new AsyncOperation(1000),
+  new AsyncOperation(500),
+  new AsyncOperation(2000)
+];
+
+(async () => {
+  const results = [];
+  for await (const result of asyncGenerator(operations)) {
+    results.push(result);
+  }
+  console.log('Final Results:', results);
+
+  const delays = new Set(results);
+  console.log('Unique Delays:', [...delays].join(', '));
+
+  const doubledDelays = results.map(delay => delay * 2);
+  console.log('Doubled Delays:', doubledDelays);
+
+  const totalTime = doubledDelays.reduce((total, current) => total + current, 0);
+  console.log('Total Doubled Time:', totalTime);
+})();
+```

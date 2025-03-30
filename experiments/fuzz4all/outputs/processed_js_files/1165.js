@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.5 ? resolve({ data: [1, 2, 3, 4] }) : reject('Fetch Error');
+        }, 1000);
+    });
+};
+
+ 
+async function processData() {
+    try {
+        const { data } = await fetchData();  
+        const squares = [...data].map(num => num ** 2);  
+        for await (let value of generator(squares)) {  
+            print(value);  
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+function* generator(arr) {
+    for (const item of arr) {
+        yield new Promise(resolve => setTimeout(() => resolve(item), 500));
+    }
+}
+
+ 
+processData();

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchUserData(userIds) {
+  for (let id of userIds) {
+    yield fetch(`https: 
+  }
+}
+
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    console.warn(`Property ${prop} does not exist!`);
+    return null;
+  },
+  set: function(target, prop, value) {
+    if (typeof value === 'string' && prop === 'name') {
+      target[prop] = value.toUpperCase();
+    } else {
+      target[prop] = value;
+    }
+    return true;
+  }
+};
+
+(async () => {
+  const userIds = [1, 2, 3];
+  for await (let user of fetchUserData(userIds)) {
+    const userProxy = new Proxy(user, handler);
+    console.log(`Fetched User: ${userProxy.name}`);
+    userProxy.name = 'new name';   
+    console.log(`Updated User: ${userProxy.name}`);
+    console.log(`Non-existent property: ${userProxy.nonExistentProperty}`);  
+  }
+})();
+```

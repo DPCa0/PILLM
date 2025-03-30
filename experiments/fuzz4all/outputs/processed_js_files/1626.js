@@ -1,0 +1,69 @@
+ 
+(async () => {
+  const { randomBytes } = await import('crypto');
+  
+   
+  async function fetchUserData(userId) {
+    try {
+      const response = await fetch(`https: 
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  }
+
+   
+  const userDataMap = new Map();
+  const userMetadataWeakMap = new WeakMap();
+
+   
+  const userDataMapHandler = {
+    get(target, prop) {
+      print(`Accessed property "${prop}"`);
+      return target[prop];
+    },
+    set(target, prop, value) {
+      print(`Set property "${prop}"`);
+      target[prop] = value;
+      return true;
+    }
+  };
+  const proxiedUserDataMap = new Proxy(userDataMap, userDataMapHandler);
+
+   
+  function* idGenerator() {
+    let id = 1;
+    while (true) {
+      yield id++;
+    }
+  }
+
+  const idGen = idGenerator();
+
+   
+  async function manageUserData() {
+     
+    const userId = idGen.next().value;
+    const userData = await fetchUserData(userId);
+
+    if (userData) {
+       
+      proxiedUserDataMap.set(userId, userData);
+
+       
+      const metadata = { sessionToken: randomBytes(16).toString('hex') };
+
+       
+      userMetadataWeakMap.set(userData, metadata);
+
+       
+      print('User Data:', proxiedUserDataMap.get(userId));
+      print('User Metadata:', userMetadataWeakMap.get(userData));
+    }
+  }
+
+   
+  manageUserData();
+
+})();

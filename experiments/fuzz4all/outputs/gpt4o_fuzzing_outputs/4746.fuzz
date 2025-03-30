@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class API {
+  #url;
+  constructor(url) {
+    this.#url = url;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.#url}/${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+const cache = new WeakMap();
+
+const memoize = (func) => {
+  return async function(...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+
+    const result = await func(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const api = new API('https://jsonplaceholder.typicode.com');
+
+const getUserData = memoize(async (userId) => {
+  console.log(`Fetching data for user ${userId}...`);
+  return await api.fetchData(`users/${userId}`);
+});
+
+(async () => {
+  const [user1, user2, user1Again] = await Promise.all([
+    getUserData(1),
+    getUserData(2),
+    getUserData(1)
+  ]);
+
+  console.log({ user1, user2, user1Again });
+})();
+```

@@ -1,0 +1,44 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* asyncGenerator(array) {
+    for (let item of array) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield item;
+    }
+}
+
+const pipeline = (...fns) => x => fns.reduce((acc, fn) => acc.then(fn), Promise.resolve(x));
+
+const square = async num => {
+    print(`Squaring ${num}`);
+    return num * num;
+};
+
+const increment = async num => {
+    print(`Incrementing ${num}`);
+    return num + 1;
+};
+
+const display = async num => {
+    print(`Result: ${num}`);
+    return num;
+};
+
+const processNumbers = async numbers => {
+    const operations = pipeline(square, increment, display);
+    const generator = asyncGenerator(numbers);
+    
+    for await (let num of generator) {
+        await operations(num);
+    }
+};
+
+const numbers = [1, 2, 3, 4, 5];
+processNumbers(numbers);

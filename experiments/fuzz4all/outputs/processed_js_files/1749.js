@@ -1,0 +1,45 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncFunctionWithTimeout = (msg, timeout) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(msg), timeout);
+  });
+};
+
+(async function main() {
+  const emitter = new EventEmitter();
+  
+  emitter.on('greet', async (name) => {
+    const greeting = await asyncFunctionWithTimeout(`Hello, ${name}!`, 1000);
+    print(greeting);
+  });
+
+  emitter.on('farewell', async (name) => {
+    const farewell = await asyncFunctionWithTimeout(`Goodbye, ${name}!`, 500);
+    print(farewell);
+  });
+
+  const names = ['Alice', 'Bob', 'Charlie'];
+  
+  for (const name of names) {
+    emitter.emit('greet', name);
+    emitter.emit('farewell', name);
+  }
+})();

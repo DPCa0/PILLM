@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* createDataStream() {
+    yield 'Data packet 1';
+    yield 'Data packet 2';
+    yield 'Data packet 3';
+}
+
+ 
+async function asyncOperation(packet) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(`Processed: ${packet}`), 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property: ${prop}`);
+        return target[prop];
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const systemState = new Proxy({ status: 'idle', packetsProcessed: 0 }, handler);
+
+ 
+async function main() {
+    systemState.status = 'running';
+    const dataStream = createDataStream();
+
+    for (const packet of dataStream) {
+        console.log(`Received: ${packet}`);
+        const result = await asyncOperation(packet);
+        console.log(result);
+        systemState.packetsProcessed++;
+    }
+
+    systemState.status = 'completed';
+}
+
+ 
+main().then(() => console.log('All packets processed:', systemState.packetsProcessed));
+```

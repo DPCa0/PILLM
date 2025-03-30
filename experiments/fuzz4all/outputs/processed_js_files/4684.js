@@ -1,0 +1,52 @@
+ 
+
+ 
+function* numberGenerator(limit) {
+    for (let i = 0; i <= limit; i++) {
+        yield i;
+    }
+}
+
+ 
+async function processNumbers(generator, transform) {
+    let numbers = [];
+    for (let number of generator) {
+        numbers.push(await transform(number));
+    }
+    return numbers;
+}
+
+ 
+const loggerHandler = {
+    get(target, property) {
+        if (property in target) {
+            print(`Accessing property "${property}" with value ${target[property]}`);
+            return target[property];
+        } else {
+            throw new Error(`Property "${property}" does not exist.`);
+        }
+    },
+    set(target, property, value) {
+        print(`Setting property "${property}" to value ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+async function main() {
+     
+    const config = new Proxy({ multiplier: 2 }, loggerHandler);
+
+     
+    const transform = async (number) => {
+        return new Promise(resolve => setTimeout(() => resolve(number * config.multiplier), 100));
+    };
+
+     
+    const numbers = numberGenerator(5);
+    const results = await processNumbers(numbers, transform);
+    
+    print('Processed Numbers:', results);
+}
+
+main().catch(console.error);

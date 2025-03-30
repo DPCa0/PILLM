@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve) =>
+    setTimeout(() => resolve({ name: 'Alice', age: 30, location: 'Wonderland' }), 1000)
+  );
+
+ 
+async function getUserData() {
+  const data = await fetchData();
+  return data;
+}
+
+ 
+function* dataProcessor(data) {
+  const { name, age, location } = data;  
+  yield `Name: ${name}`;
+  yield `Age: ${age}`;
+  yield `Location: ${location}`;
+}
+
+ 
+const generatorHandler = {
+  get(target, prop, receiver) {
+    print(`Accessed property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+async function main() {
+  const userData = await getUserData();
+  const generator = dataProcessor(userData);
+  const proxyGenerator = new Proxy(generator, generatorHandler);
+
+  for (let info of proxyGenerator) {
+    print(info);
+  }
+}
+
+main().catch((err) => console.error(err));

@@ -1,0 +1,41 @@
+ 
+
+ 
+function* dataGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve(10), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(20), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(30), 1000));
+}
+
+ 
+async function processData(generator) {
+  const results = [];
+  for (let promise of generator) {
+    const result = await promise;  
+    results.push(result);
+  }
+  return results;
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property === 'average') {
+       
+      const sum = target.reduce((acc, val) => acc + val, 0);
+      return sum / target.length;
+    }
+    return target[property];
+  }
+};
+
+(async function() {
+  const generator = dataGenerator();
+  const results = await processData(generator);
+
+   
+  const proxyResults = new Proxy(results, handler);
+
+  print('Data processed:', proxyResults);  
+  print('Average:', proxyResults.average);  
+})();

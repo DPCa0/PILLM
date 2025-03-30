@@ -1,0 +1,54 @@
+ 
+class Observable {
+  constructor(value) {
+    this._value = value;
+    this._listeners = new Set();
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this._notify();
+    }
+  }
+
+  subscribe(listener) {
+    this._listeners.add(listener);
+    return () => this._listeners.delete(listener);
+  }
+
+  _notify() {
+    this._listeners.forEach(listener => listener(this._value));
+  }
+}
+
+const observe = (obj, onChange) => {
+  const handler = {
+    get(target, prop, receiver) {
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      const result = Reflect.set(target, prop, value, receiver);
+      onChange(prop, value);
+      return result;
+    }
+  };
+  return new Proxy(obj, handler);
+};
+
+ 
+let state = observe({
+  count: new Observable(0)
+}, (prop, value) => print(`Property ${prop} changed to ${value}`));
+
+ 
+state.count.subscribe(newValue => print(`Count is now ${newValue}`));
+
+ 
+state.count.value = 1;  
+                        
+state.count.value = 2;  

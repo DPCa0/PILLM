@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+function memoize(fn) {
+  const cache = new Map();
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if (!cache.has(key)) cache.set(key, fn(...args));
+    return cache.get(key);
+  };
+}
+
+const memoizedFetch = memoize(async url => await fetchData(url));
+
+(async () => {
+  const emitter = new EventEmitter();
+  
+  emitter.on('data', data => {
+    console.log('Data received:', data);
+  });
+  
+  try {
+    const data1 = await memoizedFetch('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('data', data1);
+    
+     
+    const data2 = await memoizedFetch('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('data', data2);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

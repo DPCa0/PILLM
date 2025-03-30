@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+import fetch from 'node-fetch';
+
+ 
+async function getUserData(userId) {
+  try {
+     
+    const response = await fetch(`https: 
+    
+     
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const { id, name, email, address: { city } } = await response.json();
+    
+     
+    const userInfo = new User(id, name, email, city);
+    console.log(userInfo.getInfo());
+  } catch (error) {
+    console.error('There has been a problem with your fetch operation:', error);
+  }
+}
+
+ 
+class User {
+  constructor(id, name, email, city) {
+    this.id = id;
+    this.name = name;
+    this.email = email;
+    this.city = city;
+  }
+  
+   
+  getInfo = () => `User Info: 
+    ID: ${this.id}
+    Name: ${this.name}
+    Email: ${this.email}
+    City: ${this.city}`;
+}
+
+ 
+getUserData(3);
+```

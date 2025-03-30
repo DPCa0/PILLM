@@ -1,0 +1,47 @@
+ 
+
+const fetchData = async () => {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    const users = await response.json();
+    return users;
+};
+
+const processUsers = (users) => {
+     
+    const userEmails = new Set();
+    users.map(user => userEmails.add(user.email));
+    
+     
+    const emailDomains = users.reduce((acc, user) => {
+        const domain = user.email.split('@')[1];
+        if (!acc[domain]) {
+            acc[domain] = 0;
+        }
+        acc[domain]++;
+        return acc;
+    }, {});
+
+    return { userEmails, emailDomains };
+};
+
+const displayResults = ({ userEmails, emailDomains }) => {
+     
+    print(`Unique Emails (${userEmails.size}):`, [...userEmails].join(', '));
+    print('Email Domains Count:', JSON.stringify(emailDomains, null, 2));
+};
+
+const main = async () => {
+    try {
+        const users = await fetchData();
+        const processedData = processUsers(users);
+        displayResults(processedData);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
+ 
+(async () => {
+    await main();
+})();

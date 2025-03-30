@@ -1,0 +1,47 @@
+ 
+import fs from 'fs';
+import { promisify } from 'util';
+import { EventEmitter } from 'events';
+
+ 
+const readFileAsync = promisify(fs.readFile);
+
+ 
+(async () => {
+    const filePath = './data.json';
+    try {
+         
+        const data = await readFileAsync(filePath, 'utf-8');
+
+         
+        const jsonData = JSON.parse(data);
+
+         
+        const namesMap = new Map();
+        jsonData.users.forEach(user => {
+            namesMap.set(user.id, user.name);
+        });
+
+         
+        const uniqueSkills = new Set();
+        jsonData.users.forEach(user => {
+            user.skills.forEach(skill => uniqueSkills.add(skill));
+        });
+
+         
+        print('User Names Map:', namesMap);
+        print('Unique Skills Set:', uniqueSkills);
+
+         
+        const eventEmitter = new EventEmitter();
+        eventEmitter.on('processed', () => {
+            print('Data processing complete.');
+        });
+
+         
+        eventEmitter.emit('processed');
+        
+    } catch (error) {
+        console.error('Error reading file:', error);
+    }
+})();

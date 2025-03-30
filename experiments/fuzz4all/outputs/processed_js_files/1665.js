@@ -1,0 +1,47 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const promiseTimeout = (ms) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+const asyncIterableExample = {
+  async *[Symbol.asyncIterator]() {
+    for (let i = 0; i < 5; i++) {
+      await promiseTimeout(1000);  
+      yield `Value ${i}`;
+    }
+  }
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('start', () => print('Iteration started'));
+  eventEmitter.on('data', data => print('Received:', data));
+  eventEmitter.on('end', () => print('Iteration ended'));
+
+  eventEmitter.emit('start');
+
+  for await (const value of asyncIterableExample) {
+    eventEmitter.emit('data', value);
+  }
+
+  eventEmitter.emit('end');
+})();

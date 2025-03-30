@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+import EventEmitter from 'events';
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return await response.json();
+}
+
+ 
+function* apiGenerator(apiList) {
+  for (let api of apiList) {
+    yield fetchData(api);
+  }
+}
+
+ 
+const eventEmitter = new EventEmitter();
+
+ 
+eventEmitter.on('dataReceived', (data) => {
+  console.log('Data received:', data);
+});
+
+eventEmitter.on('error', (error) => {
+  console.error('Error:', error);
+});
+
+ 
+const apiHandler = {
+  set(target, property, value) {
+    if (property === 'data') {
+      eventEmitter.emit('dataReceived', value);
+    }
+    return Reflect.set(target, property, value);
+  }
+};
+
+ 
+(async () => {
+  const apiList = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+  const iterator = apiGenerator(apiList);
+  const apiProxy = new Proxy({}, apiHandler);
+
+  for (let resultPromise of iterator) {
+    try {
+      const result = await resultPromise;
+      apiProxy.data = result;
+    } catch (error) {
+      eventEmitter.emit('error', error);
+    }
+  }
+})();
+```

@@ -1,0 +1,53 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.data = arr.map(row => [...row]);
+    return m;
+  }
+
+  static multiply(m1, m2) {
+    if (m1.data[0].length !== m2.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    let result = new Matrix(m1.data.length, m2.data[0].length);
+    result.data = result.data.map((row, i) =>
+      row.map((_, j) =>
+        m1.data[i].reduce((sum, elm, k) => sum + elm * m2.data[k][j], 0)
+      )
+    );
+    return result;
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+
+  static async fromFetch(url) {
+    try {
+      let response = await fetch(url);
+      let json = await response.json();
+      return Matrix.fromArray(json);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    let matrixA = await Matrix.fromFetch('your_matrix_url_1');
+    let matrixB = await Matrix.fromFetch('your_matrix_url_2');
+    let matrixC = Matrix.multiply(matrixA, matrixB);
+    print(matrixC.toString());
+  } catch (error) {
+    console.error("Error during matrix operations: ", error);
+  }
+})();

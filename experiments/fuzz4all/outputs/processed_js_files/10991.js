@@ -1,0 +1,55 @@
+ 
+async function fetchData(url) {
+   
+  const response = await fetch(url);
+   
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+   
+  return await response.json();
+}
+
+ 
+function* fibonacci() {
+  let [prev, curr] = [0, 1];
+  while (true) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+const validator = {
+  set: function (obj, prop, value) {
+    if (prop === 'age' && typeof value !== 'number') {
+      throw new TypeError('The age must be a number.');
+    }
+    obj[prop] = value;
+    return true;
+  },
+  get: function (obj, prop) {
+    return obj[prop] ? obj[prop] : 'Property not found';
+  }
+};
+
+ 
+const person = new Proxy({}, validator);
+
+ 
+(async () => {
+  try {
+     
+    person.name = 'Alice';
+    person.age = 30;
+    print(`Person: ${person.name}, Age: ${person.age}`);
+
+     
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched Data:', data);
+
+     
+    const fibGen = fibonacci();
+    print('First 5 Fibonacci numbers:', [...Array(5)].map(() => fibGen.next().value));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

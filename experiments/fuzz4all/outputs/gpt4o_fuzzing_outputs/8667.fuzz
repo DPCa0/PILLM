@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  #matrix;
+
+  constructor(rows, cols, filler = 0) {
+    this.#matrix = Array.from({ length: rows }, () => Array(cols).fill(filler));
+  }
+
+  set(row, col, value) {
+    if (this.#matrix[row]) this.#matrix[row][col] = value;
+  }
+
+  get(row, col) {
+    return this.#matrix[row]?.[col];
+  }
+
+  *[Symbol.iterator]() {
+    for (const row of this.#matrix) {
+      yield* row;
+    }
+  }
+
+  async mapAsync(callback) {
+    const results = await Promise.all(
+      this.#matrix.map((row, rIdx) =>
+        Promise.all(row.map((value, cIdx) => callback(value, rIdx, cIdx)))
+      )
+    );
+    this.#matrix = results;
+  }
+}
+
+(async () => {
+  const mtx = new Matrix(3, 3);
+  mtx.set(1, 1, 5);
+  mtx.set(0, 2, 3);
+
+  console.log("Original Matrix:");
+  console.table([...mtx]);
+
+  await mtx.mapAsync(async (value, row, col) => {
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(value * (row + 1) * (col + 1)), 100)
+    );
+  });
+
+  console.log("Transformed Matrix:");
+  console.table([...mtx]);
+})();
+```

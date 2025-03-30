@@ -1,0 +1,47 @@
+class AsyncRange {
+  constructor(start, end) {
+    this.current = start;
+    this.end = end;
+  }
+  
+  async *[Symbol.asyncIterator]() {
+    while (this.current <= this.end) {
+      yield await this.#delayedValue(this.current++);
+    }
+  }
+  
+  #delayedValue(value) {
+    return new Promise(resolve => setTimeout(() => resolve(value), 100));
+  }
+}
+
+(async () => {
+  try {
+    const log = (...args) => print(...args);
+    const range = new AsyncRange(1, 5);
+    
+    for await (const num of range) {
+      const result = ((num) => num * 2)(num);
+      log(`Processed: ${result}`);
+    }
+    
+    const asyncDouble = async x => x * 2;
+    const numbers = [1, 2, 3, 4, 5];
+    const doubled = await Promise.all(numbers.map(asyncDouble));
+    
+    log('Doubled Values:', doubled);
+
+    const proxyHandler = {
+      get(target, prop, receiver) {
+        return Reflect.get(target, prop, receiver) ?? 'Property does not exist';
+      }
+    };
+    
+    const data = new Proxy({ name: 'JavaScript' }, proxyHandler);
+    log('Name:', data.name);
+    log('Version:', data.version);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,46 @@
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint) {
+        try {
+            const response = await fetch(`${this.apiUrl}${endpoint}`);
+            if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+}
+
+const processData = async (fetcher, endpoint) => {
+    try {
+        const data = await fetcher.fetchData(endpoint);
+        return data.map(({ id, name, value }) => ({
+            id,
+            name,
+            computedValue: value * 2,
+        }));
+    } catch (error) {
+        console.error('Failed to process data:', error);
+    }
+};
+
+(async () => {
+    const API_URL = 'https://api.example.com';
+    const fetcher = new DataFetcher(API_URL);
+
+    try {
+        const data = await processData(fetcher, '/data');
+        data?.forEach(({ id, name, computedValue }) => {
+            print(`ID: ${id}, Name: ${name}, Computed Value: ${computedValue}`);
+        });
+    } catch (error) {
+        console.error('Error in async execution:', error);
+    }
+})();

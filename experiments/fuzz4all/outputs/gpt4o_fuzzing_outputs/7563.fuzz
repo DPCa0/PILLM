@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+const asyncOperation = () => new Promise(resolve => setTimeout(() => resolve(Math.random()), 1000));
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const main = async () => {
+  try {
+    const [value1, value2, value3] = await Promise.all([
+      asyncOperation(),
+      asyncOperation(),
+      asyncOperation()
+    ]);
+
+    const logRandomValues = () => {
+      console.log(`Value 1: ${value1}`);
+      console.log(`Value 2: ${value2}`);
+      console.log(`Value 3: ${value3}`);
+    };
+
+    const delay = Math.floor((value1 + value2 + value3) * 1000);
+    
+    if (value1 > 0.5) {
+      console.log("Random value1 is greater than 0.5, delaying by:", delay);
+      await timeout(delay);
+      logRandomValues();
+    } else {
+      console.log("Random value1 is not greater than 0.5, skipping delay.");
+      logRandomValues();
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+};
+
+main();
+```

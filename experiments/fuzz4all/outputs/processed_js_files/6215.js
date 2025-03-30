@@ -1,0 +1,42 @@
+ 
+(async () => {
+     
+    const fetchDataMap = new Map();
+
+     
+    function* fetchDataGenerator() {
+        yield fetch("https://jsonplaceholder.typicode.com/posts/1")
+            .then(response => response.json());
+        yield fetch("https://jsonplaceholder.typicode.com/posts/2")
+            .then(response => response.json());
+        yield fetch("https://jsonplaceholder.typicode.com/posts/3")
+            .then(response => response.json());
+    }
+
+     
+    const generator = fetchDataGenerator();
+
+     
+    for (let i = 0; i < 3; i++) {
+        const promise = generator.next().value;
+        fetchDataMap.set(`post${i + 1}`, promise);
+    }
+
+     
+    const posts = await Promise.all(fetchDataMap.values());
+
+     
+    const handler = {
+        get(target, property) {
+            print(`Accessing property "${property}"`);
+            return property in target ? target[property] : `No such property: ${property}`;
+        }
+    };
+
+    const proxiedPosts = posts.map(post => new Proxy(post, handler));
+
+     
+    for (const [index, { userId, title }] of proxiedPosts.entries()) {
+        print(`Post ${index + 1} by User ${userId}: ${title}`);
+    }
+})();

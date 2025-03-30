@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexNumber {
+    #real;  
+    #imaginary;  
+    
+    constructor(real, imaginary) {
+        this.#real = real;
+        this.#imaginary = imaginary;
+    }
+
+     
+    get magnitude() {
+        return Math.sqrt(this.#real ** 2 + this.#imaginary ** 2);
+    }
+
+     
+    static add(c1, c2) {
+        return new ComplexNumber(c1.#real + c2.#real, c1.#imaginary + c2.#imaginary);
+    }
+
+     
+    toString() {
+        const realPart = `${this.#real}`;
+        const imaginaryPart = `${Math.abs(this.#imaginary)}i`;
+        const sign = this.#imaginary >= 0 ? '+' : '-';
+        return `${realPart} ${sign} ${imaginaryPart}`;
+    }
+}
+
+ 
+async function calculateComplexOperations(c1, c2) {
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    await delay(500);  
+
+     
+    const [m1, m2] = [c1.magnitude, c2.magnitude];
+
+     
+    return { 
+        added: ComplexNumber.add(c1, c2).toString(), 
+        magnitude1: m1, 
+        magnitude2: m2 
+    };
+}
+
+ 
+(async () => {
+    const c1 = new ComplexNumber(3, 4);
+    const c2 = new ComplexNumber(1, -2);
+
+    const { added, magnitude1, magnitude2 } = await calculateComplexOperations(c1, c2);
+    
+    console.log(`Complex addition: ${added}`);
+    console.log(`Magnitude of first complex number: ${magnitude1}`);
+    console.log(`Magnitude of second complex number: ${magnitude2}`);
+})();
+```

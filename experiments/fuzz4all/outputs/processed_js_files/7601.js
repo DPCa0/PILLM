@@ -1,0 +1,42 @@
+class Fibonacci {
+    constructor(max = 10) {
+        this.max = max;
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+    
+    *sequence() {
+        let i = 0;
+        while (i < this.max) {
+            yield this.fib(i++);
+        }
+    }
+    
+    fib(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        
+        const value = this.fib(n - 1) + this.fib(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+async function asyncMap(arr, callback) {
+    const promises = arr.map(async (item, index) => callback(item, index));
+    return Promise.all(promises);
+}
+
+(async () => {
+    const fib = new Fibonacci(15);
+    const sequence = [...fib.sequence()];
+    
+    const squares = await asyncMap(sequence, async (num) => {
+        await new Promise(resolve => setTimeout(resolve, 50));  
+        return num ** 2;
+    });
+    
+    const result = new Set(squares.filter(num => num % 2 === 0));
+    
+    print('Fibonacci sequence:', sequence);
+    print('Squares of Fibonacci numbers:', squares);
+    print('Filtered even squares:', [...result]);
+})();

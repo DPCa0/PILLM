@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+        this.cache = new Map();
+        this.uniqueId = Symbol('id');  
+    }
+
+    async fetchData(endpoint) {
+        if (this.cache.has(endpoint)) {
+            console.log('Returning cached data for:', endpoint);
+            return this.cache.get(endpoint);
+        }
+
+        console.log('Fetching data from:', `${this.apiUrl}${endpoint}`);
+        const response = await fetch(`${this.apiUrl}${endpoint}`);
+        const data = await response.json();
+        this.cache.set(endpoint, data);
+        return data;
+    }
+
+    [Symbol.iterator]() {
+        let keys = Array.from(this.cache.keys());
+        let index = 0;
+        return {
+            next: () => ({
+                value: keys[index],
+                done: index++ >= keys.length
+            })
+        };
+    }
+}
+
+ 
+const dataFetcherHandler = {
+    get: (target, property) => {
+        if (property === 'fetchData') {
+            return async function (endpoint) {
+                console.time('fetchData');
+                const result = await target[property](endpoint);
+                console.timeEnd('fetchData');
+                return result;
+            };
+        }
+        return target[property];
+    }
+};
+
+(async () => {
+    const fetcher = new DataFetcher('https://api.example.com');
+    const proxiedFetcher = new Proxy(fetcher, dataFetcherHandler);
+
+    const data1 = await proxiedFetcher.fetchData('/data1');
+    console.log('Data1:', data1);
+
+    const data2 = await proxiedFetcher.fetchData('/data2');
+    console.log('Data2:', data2);
+
+    const cachedData1 = await proxiedFetcher.fetchData('/data1');
+    console.log('Cached Data1:', cachedData1);
+
+    console.log('Iterating over cached endpoints:');
+    for (const endpoint of proxiedFetcher) {
+        console.log(endpoint);
+    }
+})();
+```

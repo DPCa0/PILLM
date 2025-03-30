@@ -1,0 +1,58 @@
+ 
+import { readFile } from 'fs/promises';
+import { createServer } from 'http';
+
+ 
+const data = await readFile(new URL('./data.json', import.meta.url), 'utf-8');
+const jsonData = JSON.parse(data);
+
+ 
+const handler = {
+  get(target, property) {
+    if (property in target) {
+      print(`Accessing property ${property}`);
+      return target[property];
+    } else {
+      print(`Property ${property} does not exist`);
+    }
+  }
+};
+const proxyData = new Proxy(jsonData, handler);
+
+ 
+function* dataProcessor(data) {
+  for (const item of data) {
+    yield `Processed: ${item}`;
+  }
+}
+
+ 
+const server = createServer((req, res) => {
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    
+     
+    const [firstProcessed, ...rest] = dataProcessor(proxyData.items);
+    res.end(JSON.stringify({ firstProcessed, rest }));
+
+  } else {
+    res.writeHead(404);
+    res.end();
+  }
+});
+
+ 
+class App {
+  constructor(port) {
+    this.port = port;
+  }
+
+  start() {
+    server.listen(this.port, () => {
+      console.log(`Server running at http: 
+    });
+  }
+}
+
+ 
+new App(3000).start();

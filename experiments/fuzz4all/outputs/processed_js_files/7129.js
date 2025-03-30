@@ -1,0 +1,67 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+      if (this.events.get(event).size === 0) {
+        this.events.delete(event);
+      }
+    }
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+const emitter = new EventEmitter();
+const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+
+emitter.on('dataFetched', data => {
+  print('Data fetched successfully:', data);
+});
+
+emitter.on('fetchError', error => {
+  console.error('An error occurred:', error.message);
+});
+
+(async function fetchData() {
+  try {
+    const data = await fetchWithTimeout(apiURL);
+    emitter.emit('dataFetched', data);
+  } catch (error) {
+    emitter.emit('fetchError', error);
+  }
+})();

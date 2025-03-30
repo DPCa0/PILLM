@@ -1,0 +1,48 @@
+ 
+
+class User {
+    constructor(name, role) {
+        this.name = name;
+        this.role = role;
+    }
+    
+    static async fetchUsers() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                const usersData = [
+                    { name: 'Alice', role: 'Admin' },
+                    { name: 'Bob', role: 'User' },
+                    { name: 'Charlie', role: 'Guest' }
+                ];
+                resolve(usersData);
+            }, 1000);
+        });
+    }
+}
+
+class App {
+    constructor() {
+        this.users = [];
+    }
+    
+    async loadUsers() {
+        const usersData = await User.fetchUsers();
+        this.users = usersData.map(({ name, role }) => new User(name, role));
+    }
+    
+    displayUsers() {
+        this.users.forEach(({ name, role }) => {
+            print(`Name: ${name}, Role: ${role}`);
+        });
+    }
+    
+    async start() {
+        await this.loadUsers();
+        this.displayUsers();
+    }
+}
+
+(async () => {
+    const app = new App();
+    await app.start();
+})();

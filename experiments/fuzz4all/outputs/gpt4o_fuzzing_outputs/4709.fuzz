@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+};
+
+const processData = ({ data }) => {
+    return data.map(({ id, name, details }) => ({
+        id,
+        displayName: `${name.first} ${name.last}`,
+        details: {
+            age: details.age,
+            country: details.country || 'Unknown'
+        }
+    }));
+};
+
+const visualizeData = (data) => {
+    const container = document.createElement('div');
+    data.forEach(({ id, displayName, details }) => {
+        const item = document.createElement('div');
+        item.innerHTML = `
+            <h3>${displayName}</h3>
+            <p>ID: ${id}</p>
+            <p>Age: ${details.age}</p>
+            <p>Country: ${details.country}</p>
+        `;
+        container.appendChild(item);
+    });
+    document.body.appendChild(container);
+};
+
+(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/users');
+        const processedData = processData(data);
+        visualizeData(processedData);
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+})();
+```

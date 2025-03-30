@@ -1,0 +1,38 @@
+ 
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const idGen = idGenerator();
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(url) {
+    await delay(1000);  
+    const response = { data: { userId: idGen.next().value, name: "John Doe" } };  
+    const proxyHandler = {
+        get(target, property) {
+            if (property in target) {
+                print(`Accessing property "${property}" with value: ${target[property]}`);
+                return target[property];
+            } else {
+                console.warn(`Property "${property}" doesn't exist.`);
+                return null;
+            }
+        }
+    };
+
+    return new Proxy(response.data, proxyHandler);
+}
+
+async function processData() {
+    const url = 'https: 
+    const { userId, name } = await fetchData(url);  
+    print(`User ID: ${userId}, Name: ${name}`);
+}
+
+processData();

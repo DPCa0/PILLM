@@ -1,0 +1,45 @@
+class FibonacciGenerator {
+    #memo = new Map([[0, 0], [1, 1]]);  
+
+    *generate(limit) {  
+        for (let i = 0; i < limit; i++) {
+            yield this.#fibonacci(i);
+        }
+    }
+
+    #fibonacci(n) {  
+        if (this.#memo.has(n)) {
+            return this.#memo.get(n);
+        }
+        const value = this.#fibonacci(n - 1) + this.#fibonacci(n - 2);
+        this.#memo.set(n, value);
+        return value;
+    }
+}
+
+(async () => {
+    const gen = new FibonacciGenerator();
+    const limit = 10;
+    print(`First ${limit} Fibonacci numbers:`);
+
+     
+    for await (const number of {
+        [Symbol.asyncIterator]: async function* () {
+            yield* gen.generate(limit);
+        }
+    }) {
+        await new Promise((resolve) => setTimeout(resolve, 200));  
+        print(number);
+    }
+
+     
+    const fibArray = [...gen.generate(limit)];
+    const results = await Promise.all(
+        fibArray.map(async (num, index) => {
+            return `Fib[${index}] = ${await Promise.resolve(num)}`;
+        })
+    );
+    
+    print('Fibonacci numbers processed with Promise.all:');
+    print(results.join('\n'));
+})();

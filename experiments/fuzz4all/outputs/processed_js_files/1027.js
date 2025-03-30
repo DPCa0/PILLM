@@ -1,0 +1,58 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const emitter = new EventEmitter();
+
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    emitter.emit('data', data);
+  } catch (error) {
+    emitter.emit('error', error);
+  }
+};
+
+const processData = ({ results }) => {
+  const processed = results.map((item, index) => ({
+    id: index,
+    name: item.name,
+    population: item.population
+  }));
+  return processed;
+};
+
+const displayData = (data) => {
+  console.table(data);
+};
+
+emitter.on('data', (data) => {
+  const processed = processData(data);
+  displayData(processed);
+});
+
+emitter.on('error', (error) => console.error('Error fetching data:', error));
+
+const main = async () => {
+  const apiURL = 'https://swapi.dev/api/planets/';
+  await fetchData(apiURL);
+};
+
+main();

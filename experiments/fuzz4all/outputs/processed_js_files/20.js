@@ -1,0 +1,52 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'orange', 'apple', 'banana']);
+    }, 1000);
+  });
+};
+
+ 
+async function processData() {
+  const rawData = await fetchData();
+
+   
+  const uniqueData = new Set(rawData);
+
+   
+  const dataCount = new Map();
+  rawData.forEach(item => {
+    dataCount.set(item, (dataCount.get(item) || 0) + 1);
+  });
+
+  return { uniqueData, dataCount };
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    }
+    console.warn(`Property ${prop} does not exist on target.`);
+    return undefined;
+  }
+};
+
+ 
+(async () => {
+  const { uniqueData, dataCount } = await processData();
+  const proxyDataCount = new Proxy(dataCount, handler);
+
+  print('Unique data:', [...uniqueData]);
+  print('Data counts:');
+  for (let [key, value] of proxyDataCount) {
+    print(`${key}: ${value}`);
+  }
+
+   
+  print(proxyDataCount['mango']);   
+})();

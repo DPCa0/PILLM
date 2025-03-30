@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* fibonacci() {
+  let a = 0, b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    if (typeof value !== 'number') {
+      throw new TypeError('Value must be a number');
+    }
+    console.log(`Setting ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+const numbers = new Proxy({}, handler);
+
+ 
+async function main() {
+  try {
+    const fibGen = fibonacci();
+    
+     
+    const fibMap = new Map();
+
+    for (let i = 0; i < 10; i++) {
+      await delay(500);  
+      const num = fibGen.next().value;
+      fibMap.set(i, num);
+      console.log(`Fibonacci ${i}: ${num}`);
+    }
+    
+     
+    numbers.fibNumbers = [...fibMap.values()];
+    console.log('Fibonacci numbers stored:', numbers.fibNumbers);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+main();
+```

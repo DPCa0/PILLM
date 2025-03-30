@@ -1,0 +1,54 @@
+ 
+"use strict";
+
+ 
+const processData = ({ x, y, z }) => `Processed data: ${x * y + z}`;
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Fetch error:", error);
+  }
+};
+
+ 
+const targetObj = { message: "Hello, Proxy!" };
+const handler = {
+  get: (target, property) => {
+    print(`Property '${property}' has been accessed`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    print(`Setting property '${property}' to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxy = new Proxy(targetObj, handler);
+
+ 
+const uniqueKey = Symbol("uniqueKey");
+const objWithSymbol = {
+  [uniqueKey]: "Symbol Value",
+  normalKey: "Normal Value"
+};
+
+ 
+(async () => {
+  print(processData({ x: 2, y: 3, z: 4 }));
+
+  proxy.message = "Hi, Proxy!";
+  print(proxy.message);
+
+  print(objWithSymbol[uniqueKey]);
+  print(objWithSymbol.normalKey);
+
+  const data = await fetchData("https://jsonplaceholder.typicode.com/todos/1");
+  print("Fetched Data:", data);
+})();

@@ -1,0 +1,58 @@
+ 
+class ComplexProcessor {
+   
+  #data;
+  #results;
+
+  constructor(data) {
+    this.#data = data;
+    this.#results = [];
+  }
+
+   
+  async processData() {
+     
+    try {
+      const transformedData = await Promise.all(this.#data.map(this.#transformAsync));
+      this.#results = transformedData.filter(this.#isValid);
+      this.#logResults();
+    } catch (error) {
+      console.error("Error processing data:", error);
+    }
+  }
+
+   
+  static async #transformAsync(item) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(item * 2);
+      }, Math.random() * 1000);
+    });
+  }
+
+   
+  *getResults() {
+    for (const result of this.#results) {
+      yield result;
+    }
+  }
+
+   
+  #isValid(value) {
+    return value % 3 === 0;
+  }
+
+   
+  #logResults() {
+    print("Processed Results:", [...this.getResults()]);
+  }
+}
+
+ 
+(async () => {
+  const processor = new ComplexProcessor([1, 2, 3, 4, 5, 6]);
+  await processor.processData();
+
+   
+  print("Final Results:", [...processor.getResults()]);
+})();

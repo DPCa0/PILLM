@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    #queue = [];
+    #processing = false;
+
+    enqueue(asyncFunc) {
+        return new Promise((resolve, reject) => {
+            this.#queue.push({ asyncFunc, resolve, reject });
+            this.#processQueue();
+        });
+    }
+
+    async #processQueue() {
+        if (this.#processing) return;
+        this.#processing = true;
+        
+        while (this.#queue.length > 0) {
+            const { asyncFunc, resolve, reject } = this.#queue.shift();
+            try {
+                const result = await asyncFunc();
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        }
+
+        this.#processing = false;
+    }
+}
+
+const simulateAsyncTask = (id, delay) => () => 
+    new Promise((resolve) => 
+        setTimeout(() => {
+            console.log(`Task ${id} completed.`);
+            resolve(`Result from task ${id}`);
+        }, delay)
+    );
+
+(async function main() {
+    const asyncQueue = new AsyncQueue();
+
+    const taskPromises = [
+        asyncQueue.enqueue(simulateAsyncTask(1, 1000)),
+        asyncQueue.enqueue(simulateAsyncTask(2, 500)),
+        asyncQueue.enqueue(simulateAsyncTask(3, 1500)),
+        asyncQueue.enqueue(simulateAsyncTask(4, 200))
+    ];
+
+    const results = await Promise.all(taskPromises);
+    console.log('All tasks completed with results:', results);
+})();
+```

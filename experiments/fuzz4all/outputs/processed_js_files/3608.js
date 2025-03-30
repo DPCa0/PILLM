@@ -1,0 +1,48 @@
+ 
+
+ 
+function* delayedNumbers() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function processNumbers(generator) {
+    for (const num of generator) {
+        await delay(1000);
+        print(`Processed number: ${num}`);
+    }
+}
+
+ 
+const target = {
+    message: "Hello, world!",
+    greet() {
+        return this.message;
+    }
+};
+
+ 
+const handler = {
+    get(target, property, receiver) {
+        if (property === 'message') {
+            return Reflect.get(target, property, receiver) + ' Proxied!';
+        }
+        return Reflect.get(target, property, receiver);
+    }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+(async function() {
+    print(proxy.greet());  
+
+    const generator = delayedNumbers();  
+    await processNumbers(generator);     
+})();

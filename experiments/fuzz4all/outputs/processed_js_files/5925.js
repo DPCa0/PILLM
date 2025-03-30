@@ -1,0 +1,51 @@
+(async function complexJavaScript() {
+   
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+   
+  const fetchData = async () => {
+    const urls = ['https://api1.example.com/data', 'https://api2.example.com/data'];
+    try {
+      const responses = await Promise.all(urls.map(url => fetch(url)));
+      const data = await Promise.all(responses.map(res => res.json()));
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  };
+
+   
+  const targetObject = { key1: 'value1', key2: 'value2' };
+  const handler = {
+    get: (obj, prop) => {
+      print(`Getting property ${prop}: ${obj[prop]}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      print(`Setting property ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  };
+  const proxiedObject = new Proxy(targetObject, handler);
+  
+   
+  proxiedObject.key1;  
+  proxiedObject.key2 = 'newValue';  
+
+   
+  function taggedTemplate(strings, ...values) {
+    return strings.reduce((result, str, i) => result + str + (values[i] ? values[i].toUpperCase() : ''), '');
+  }
+  
+   
+  const name = 'world';
+  print(taggedTemplate`Hello, ${name}!`);
+
+   
+  await delay(1000);
+  const data = await fetchData();
+  print('Fetched data:', data);
+
+})();

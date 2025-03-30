@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const target = {
+  name: 'World',
+  greet() {
+    return `Hello, ${this.name}!`;
+  }
+};
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'name') {
+      return target[prop].toUpperCase();
+    }
+     
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    if (prop === 'name') {
+      console.log(`Changing name from ${target[prop]} to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+    return false;
+  }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+async function modifyMap() {
+  const map = new Map();
+  map.set(proxy.name, proxy.greet());
+
+  await new Promise(resolve => setTimeout(resolve, 1000));  
+
+  proxy.name = 'JavaScript';
+  map.set(proxy.name, proxy.greet());
+
+  return map;
+}
+
+ 
+(async () => {
+  const resultMap = await modifyMap();
+  for (let [key, value] of resultMap) {
+    console.log(`${key}: ${value}`);
+  }
+})();
+```

@@ -1,0 +1,62 @@
+class ComplexSystem {
+  #secret;
+  
+  constructor(name) {
+    this.name = name;
+    this.#secret = Symbol('secretKey');
+    this.data = new Map();
+  }
+
+  async fetchData(key) {
+    try {
+      const response = await fetch(`https: 
+      const data = await response.json();
+      this.data.set(key, data);
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+  get secretKey() {
+    return this.#secret;
+  }
+
+  *dataGenerator() {
+    for (let [key, value] of this.data) {
+      yield { key, value };
+    }
+  }
+  
+  static async handleTaskQueue(tasks) {
+    const results = [];
+    for (const task of tasks) {
+      try {
+        const result = await task();
+        results.push(result);
+      } catch (error) {
+        console.error('Task error:', error);
+      }
+    }
+    return results;
+  }
+}
+
+(async () => {
+  const system = new ComplexSystem('Advanced System');
+  print('System initialized:', system.name);
+
+  const dataTasks = [
+    () => system.fetchData('first-key'),
+    () => system.fetchData('second-key'),
+    () => system.fetchData('third-key')
+  ];
+
+  const results = await ComplexSystem.handleTaskQueue(dataTasks);
+  print('Fetched data:', results);
+
+  print('Data Entries:');
+  for (const entry of system.dataGenerator()) {
+    print(entry);
+  }
+})();

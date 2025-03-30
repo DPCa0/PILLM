@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+(async () => {
+   
+  const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  };
+
+   
+  const dataHandler = {
+    get(target, property) {
+      console.log(`Getting ${property}`);
+      return target[property];
+    },
+    set(target, property, value) {
+      console.log(`Setting ${property} to ${value}`);
+      target[property] = value;
+      return true;
+    },
+  };
+
+   
+  const privateData = new WeakMap();
+
+  class ComplexDataStructure {
+    constructor(data) {
+      const proxyData = new Proxy(data, dataHandler);
+      privateData.set(this, proxyData);
+    }
+
+    get data() {
+      return privateData.get(this);
+    }
+
+    async fetchDataAndMerge(url) {
+      try {
+        const externalData = await fetchData(url);
+        Object.assign(this.data, externalData);
+        console.log('Data merged:', this.data);
+      } catch (error) {
+        console.error('Fetching data failed:', error);
+      }
+    }
+  }
+
+   
+  const initialData = { name: 'Initial', value: 42 };
+  const complexData = new ComplexDataStructure(initialData);
+
+  console.log('Before merge:', complexData.data);
+  await complexData.fetchDataAndMerge('https://jsonplaceholder.typicode.com/todos/1');
+  console.log('After merge:', complexData.data);
+})();
+```

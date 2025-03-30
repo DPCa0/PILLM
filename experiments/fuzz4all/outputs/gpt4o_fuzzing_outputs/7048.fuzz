@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function processFile(filePath) {
+  try {
+     
+    const data = await readFile(filePath, 'utf8');
+    const processedData = processData(data);
+    console.log(formatOutput`Processed Data: ${processedData}`);
+  } catch (error) {
+    console.error(`Error reading file: ${error.message}`);
+  }
+}
+
+ 
+function formatOutput(strings, data) {
+  return `${strings[0]}***${data}***`;
+}
+
+ 
+function* dataGenerator(data) {
+  const lines = data.split('\n');
+  for (const line of lines) {
+    yield line.toUpperCase();
+  }
+}
+
+ 
+function processData(data) {
+  const generator = dataGenerator(data);
+  return [...generator].join('\n');
+}
+
+ 
+const fileSet = new Set(['file1.txt', 'file2.txt']);
+fileSet.forEach(file => processFile(file));
+
+ 
+ 
+const simulatedData = `line 1
+line 2
+line 3`;
+
+processData(simulatedData);
+```

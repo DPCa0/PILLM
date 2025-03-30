@@ -1,0 +1,47 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.running = false;
+    }
+
+    enqueue(promiseFn) {
+        return new Promise((resolve, reject) => {
+            this.queue.push(() => promiseFn().then(resolve).catch(reject));
+            this.runQueue();
+        });
+    }
+
+    async runQueue() {
+        if (this.running) return;
+        this.running = true;
+        while (this.queue.length) {
+            const fn = this.queue.shift();
+            await fn();
+        }
+        this.running = false;
+    }
+}
+
+const asyncTask = (msg, delay) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            print(msg);
+            resolve();
+        }, delay);
+    });
+};
+
+(async () => {
+    const asyncQueue = new AsyncQueue();
+    const randomDelay = () => Math.floor(Math.random() * 1000);
+
+    const tasks = [
+        () => asyncQueue.enqueue(() => asyncTask('Task 1', randomDelay())),
+        () => asyncQueue.enqueue(() => asyncTask('Task 2', randomDelay())),
+        () => asyncQueue.enqueue(() => asyncTask('Task 3', randomDelay())),
+        () => asyncQueue.enqueue(() => asyncTask('Task 4', randomDelay())),
+        () => asyncQueue.enqueue(() => asyncTask('Task 5', randomDelay())),
+    ];
+
+    await Promise.all(tasks.map(task => task()));
+})();

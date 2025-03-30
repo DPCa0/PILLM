@@ -1,0 +1,60 @@
+ 
+(async () => {
+     
+    const { readFile, writeFile } = await import('fs/promises');
+
+     
+    const handler = {
+        get(target, prop, receiver) {
+            if (prop in target) {
+                return Reflect.get(target, prop, receiver);
+            } else {
+                print(`Property ${String(prop)} does not exist.`);
+                return undefined;
+            }
+        }
+    };
+
+    const targetObj = { name: 'Advanced JavaScript', year: 2023 };
+    const proxy = new Proxy(targetObj, handler);
+
+     
+    const timeLogger = (fn) => {
+        return async function (...args) {
+            const start = performance.now();
+            const result = await fn(...args);
+            const end = performance.now();
+            print(`${fn.name} executed in ${end - start}ms`);
+            return result;
+        };
+    };
+
+     
+    async function* readLines(filePath) {
+        const content = await readFile(filePath, { encoding: 'utf-8' });
+        const lines = content.split('\n');
+        for (const line of lines) {
+            yield line;
+        }
+    }
+
+     
+    const logAndProcess = timeLogger(async (filePath) => {
+        await writeFile(filePath, 'This is the first line.\nThis is the second line.', 'utf-8');
+        for await (const line of readLines(filePath)) {
+            print(line);
+        }
+    });
+
+     
+    await logAndProcess('./sample.txt');
+
+     
+    print(proxy.name);
+    print(proxy.description);
+
+     
+    const numbers = [3, 5, 9, 12, 7];
+    const lastLargeNumber = numbers.findLast(n => n > 10);
+    print(`Last number greater than 10: ${lastLargeNumber}`);
+})();

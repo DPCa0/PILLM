@@ -1,0 +1,65 @@
+class Matrix {
+  constructor(rows, cols, defaultValue = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => defaultValue)
+    );
+  }
+
+  static fromArray(arr) {
+    const matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  map(callback) {
+    this.data = this.data.map((row, i) => row.map((val, j) => callback(val, i, j)));
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Incompatible matrices");
+    const result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+    return result;
+  }
+}
+
+ 
+async function matrixOperations() {
+  try {
+    const matrixA = Matrix.fromArray([
+      [1, 2, 3],
+      [4, 5, 6],
+    ]);
+    const matrixB = Matrix.fromArray([
+      [7, 8],
+      [9, 10],
+      [11, 12],
+    ]);
+
+    const result = await new Promise((resolve, reject) => {
+      try {
+        const multiplicationResult = Matrix.multiply(matrixA, matrixB);
+        resolve(multiplicationResult);
+      } catch (error) {
+        reject(error);
+      }
+    });
+
+    const uniqueElements = new Set();
+    result.map(value => uniqueElements.add(value));
+
+    print("Unique elements in result matrix:", [...uniqueElements]);
+  } catch (error) {
+    console.error("Error during matrix operations:", error);
+  }
+}
+
+matrixOperations();

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    async fetchData(endpoint) {
+        try {
+            let response = await fetch(`${this.apiUrl}${endpoint}`);
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Fetching error:', error);
+        }
+    }
+}
+
+const apiHandler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} does not exist`);
+        }
+    }
+};
+
+const fetcher = new DataFetcher('https://jsonplaceholder.typicode.com');
+const proxiedFetcher = new Proxy(fetcher, apiHandler);
+
+async function run() {
+    try {
+        const { name, email } = await proxiedFetcher.fetchData('/users/1');
+        console.log(`Name: ${name}, Email: ${email}`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+run();
+```

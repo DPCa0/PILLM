@@ -1,0 +1,89 @@
+print('Hello, world!');
+```javascript
+ 
+const App = (() => {
+   
+  const privateVar = 'I am a private variable';
+  const privateMethod = () => `Hello from privateMethod with ${privateVar}`;
+
+   
+  class AdvancedClass {
+    #privateField = 'I am a private class field';  
+
+    static #staticPrivateField = 'I am a static private field';
+
+    constructor(name) {
+      this.name = name;
+      this.cache = new Map();  
+    }
+
+     
+    get displayName() {
+      return `User: ${this.name}`;
+    }
+
+    set updateName(newName) {
+      if (typeof newName === 'string') {
+        this.name = newName;
+      }
+    }
+
+     
+    async fetchData(url) {
+      if (this.cache.has(url)) return this.cache.get(url);
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        this.cache.set(url, data);  
+        return data;
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+
+    static #logStaticPrivateField() {
+      console.log(this.#staticPrivateField);
+    }
+
+     
+    *generatorExample() {
+      yield 'First';
+      yield 'Second';
+      yield 'Third';
+    }
+
+     
+    logPrivateField() {
+      console.log(this.#privateField);
+    }
+
+     
+    callStaticPrivate() {
+      AdvancedClass.#logStaticPrivateField();
+    }
+  }
+
+   
+  return {
+    createInstance: (name) => new AdvancedClass(name),
+    privateApi: privateMethod,
+  };
+})();
+
+ 
+const myAppInstance = App.createInstance('Alice');
+console.log(myAppInstance.displayName);
+myAppInstance.updateName = 'Bob';
+console.log(myAppInstance.displayName);
+
+const generator = myAppInstance.generatorExample();
+console.log(generator.next().value);
+console.log(generator.next().value);
+console.log(generator.next().value);
+
+myAppInstance.logPrivateField();
+myAppInstance.callStaticPrivate();
+
+ 
+ 

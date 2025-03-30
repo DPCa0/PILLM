@@ -1,0 +1,32 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = ({ data }) => {
+  return data.map(({ id, value }) => ({
+    [Symbol.for(id)]: value * Math.random()
+  }));
+};
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    const processedData = processData({ data });
+    for (let item of processedData) {
+      yield item;
+    }
+  }
+};
+
+(async () => {
+  for await (let item of asyncIterable) {
+    for (let [key, value] of Object.entries(item)) {
+      console.log(`Key: ${Symbol.keyFor(key)}, Value: ${value.toFixed(2)}`);
+    }
+  }
+})().catch(e => console.error(e));
+```

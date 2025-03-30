@@ -1,0 +1,40 @@
+(async () => {
+   
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const posts = await response.json();
+
+     
+    const [firstPost, secondPost, ...restOfPosts] = posts;
+
+     
+    print(`First Post Title: ${firstPost.title}`);
+    print(`Second Post Title: ${secondPost.title}`);
+
+     
+    const allTitles = [
+      ...restOfPosts.map(post => post.title),
+      firstPost.title,
+      secondPost.title
+    ];
+
+     
+    const uniqueTitles = [...new Set(allTitles)];
+
+    print('Unique Titles:', uniqueTitles);
+
+     
+    const userPostCounts = posts.reduce((acc, post) => {
+      acc[post.userId] = (acc[post.userId] || 0) + 1;
+      return acc;
+    }, {});
+
+     
+    for (const [userId, count] of Object.entries(userPostCounts)) {
+      print(`User ${userId} has ${count} posts`);
+    }
+
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+  }
+})();

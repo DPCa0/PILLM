@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+import fetch from 'node-fetch';
+
+ 
+class DataFetcher {
+  #apiUrl;
+
+  constructor(apiUrl) {
+    this.#apiUrl = apiUrl;
+  }
+
+   
+  async #fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.#apiUrl}${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+
+   
+  async fetchMultipleEndpoints(endpoints) {
+    const promises = endpoints.map(endpoint => this.#fetchData(endpoint));
+    const results = await Promise.all(promises);
+    return results.filter(data => data !== undefined);
+  }
+}
+
+ 
+const apiProxy = new Proxy(new DataFetcher('https://jsonplaceholder.typicode.com'), {
+  get(target, prop, receiver) {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        console.log(`Calling ${prop} with arguments:`, args);
+        return target[prop].apply(this, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+ 
+const run = async () => {
+  const endpoints = ['/posts/1', '/users/1'];
+  const data = await apiProxy.fetchMultipleEndpoints(endpoints);
+  console.log('Fetched data:', data);
+};
+
+run();
+```

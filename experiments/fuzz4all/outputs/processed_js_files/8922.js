@@ -1,0 +1,49 @@
+class TaskQueue {
+  constructor(concurrency) {
+    this.queue = [];
+    this.concurrency = concurrency;
+    this.activeCount = 0;
+  }
+
+  addTask(task) {
+    return new Promise((resolve, reject) => {
+      const runTask = async () => {
+        this.activeCount++;
+        try {
+          const result = await task();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          this.activeCount--;
+          if (this.queue.length > 0) {
+            this.queue.shift()();
+          }
+        }
+      };
+
+      if (this.activeCount < this.concurrency) {
+        runTask();
+      } else {
+        this.queue.push(runTask);
+      }
+    });
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const queue = new TaskQueue(2);
+
+  const tasks = [
+    () => delay(1000).then(() => console.log('Task 1')),
+    () => delay(500).then(() => console.log('Task 2')),
+    () => delay(300).then(() => console.log('Task 3')),
+    () => delay(400).then(() => console.log('Task 4'))
+  ];
+
+  const promises = tasks.map(task => queue.addTask(task));
+  await Promise.all(promises);
+  print('All tasks completed');
+})();

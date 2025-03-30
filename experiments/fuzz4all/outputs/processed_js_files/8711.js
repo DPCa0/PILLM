@@ -1,0 +1,59 @@
+ 
+
+ 
+const dataSource = {
+  data: [1, 2, 3, 4, 5],
+  async fetchData() {
+    return new Promise(resolve => setTimeout(() => resolve(this.data), 1000));
+  }
+};
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === 'average') {
+      return async function() {
+        const data = await Reflect.get(target, 'fetchData', receiver).call(receiver);
+        return data.reduce((acc, val) => acc + val, 0) / data.length;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  },
+  
+  set(target, prop, value) {
+    if (prop === 'data' && Array.isArray(value)) {
+      print('Updating data...');
+      return Reflect.set(target, prop, value);
+    }
+    return false;
+  }
+};
+
+ 
+const proxyDataSource = new Proxy(dataSource, handler);
+
+ 
+function* dataGenerator(dataArray) {
+  for (let item of dataArray) {
+    yield item;
+  }
+}
+
+ 
+(async () => {
+   
+  const average = await proxyDataSource.average();
+  print('Average:', average);
+
+   
+  const dataArray = await proxyDataSource.fetchData();
+  const dataIterator = dataGenerator(dataArray);
+  print('Data elements:');
+  for (let value of dataIterator) {
+    print(value);
+  }
+
+   
+  proxyDataSource.data = [10, 20, 30, 40, 50];
+  print('Updated Data:', await proxyDataSource.fetchData());
+})();

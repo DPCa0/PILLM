@@ -1,0 +1,36 @@
+ 
+async function fetchDataAndProcess(urls) {
+  try {
+     
+    const responses = await Promise.all(
+      urls.map(url => fetch(url).then(response => response.json()))
+    );
+
+     
+    const processedData = responses.map(({ data, metadata }) => {
+       
+      const { id, name, ...rest } = data;
+       
+      return {
+        id,
+        name: name.toUpperCase(),
+        meta: metadata,
+        attributes: { ...rest },
+      };
+    });
+
+     
+    print('Processed Data:', processedData);
+    return processedData;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const apiEndpoints = [
+  'https://api.example.com/data/1',
+  'https://api.example.com/data/2',
+  'https://api.example.com/data/3',
+];
+fetchDataAndProcess(apiEndpoints);

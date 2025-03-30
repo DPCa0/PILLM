@@ -1,0 +1,48 @@
+ 
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, Math.random() * 2000 + 1000);
+    });
+};
+
+ 
+function* dataFetcher(urls) {
+    for (let url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const handleAsyncIterator = async (iterator) => {
+    const results = [];
+    for await (let data of iterator) {
+        results.push(data);
+    }
+    return results;
+};
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+
+ 
+const asyncIterator = {
+    async *[Symbol.asyncIterator]() {
+        for (let dataPromise of dataFetcher(urls)) {
+            yield await dataPromise;
+        }
+    }
+};
+
+ 
+(async () => {
+    try {
+        const results = await handleAsyncIterator(asyncIterator);
+        print('Fetched Data:', results);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

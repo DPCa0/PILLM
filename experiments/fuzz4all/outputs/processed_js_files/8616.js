@@ -1,0 +1,49 @@
+ 
+
+ 
+const fetchUserData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: 1,
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        posts: [
+          { id: 1, title: 'First Post', content: 'Hello World' },
+          { id: 2, title: 'Second Post', content: 'Another Post' }
+        ]
+      });
+    }, 1000);
+  });
+};
+
+ 
+const getUserProfile = async () => {
+  try {
+    const userData = await fetchUserData();
+
+     
+    const { name, email, posts } = userData;
+
+     
+    const processedPosts = posts.map(({ title, ...rest }) => {
+      return {
+        summary: `Title: ${title}`,
+        ...rest
+      };
+    });
+
+    return {
+      name,
+      email,
+      posts: processedPosts
+    };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+ 
+getUserProfile().then((profile) => {
+  print('User Profile:', profile);
+});

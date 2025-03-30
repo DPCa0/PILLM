@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}" with value: ${target[prop]}`);
+      return Reflect.get(...arguments);
+    } else {
+      console.warn(`Property "${prop}" does not exist.`);
+      return undefined;
+    }
+  },
+  set: function(target, prop, value) {
+    console.log(`Setting property "${prop}" with value: ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+ 
+const data = new Proxy({}, handler);
+
+ 
+async function processUrls(urls) {
+  const iterator = fetchDataGenerator(urls);
+  for await (const [index, response] of iterator.entries()) {
+     
+    const { userId, id, title } = response;
+    data[index] = { userId, id, title };
+    console.log(`Processed data for URL index ${index}:`, data[index]);
+  }
+}
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+processUrls(urls).then(() => console.log('All data processed.'));
+```

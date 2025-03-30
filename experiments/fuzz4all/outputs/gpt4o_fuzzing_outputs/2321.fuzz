@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    #listeners = new Map();
+
+    on(event, listener) {
+        if (!this.#listeners.has(event)) {
+            this.#listeners.set(event, new Set());
+        }
+        this.#listeners.get(event).add(listener);
+    }
+
+    off(event, listener) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.get(event).delete(listener);
+        }
+    }
+
+    emit(event, ...args) {
+        if (this.#listeners.has(event)) {
+            for (const listener of this.#listeners.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+}
+
+const asyncOperation = async (data) => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Processed: ${data}`), 1000);
+    });
+};
+
+const processData = async function*(dataArray) {
+    for (const data of dataArray) {
+        yield await asyncOperation(data);
+    }
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('data', (data) => console.log(data));
+
+    const dataArray = ['data1', 'data2', 'data3'];
+    const processor = processData(dataArray);
+
+    for await (const processedData of processor) {
+        eventEmitter.emit('data', processedData);
+    }
+})();
+```

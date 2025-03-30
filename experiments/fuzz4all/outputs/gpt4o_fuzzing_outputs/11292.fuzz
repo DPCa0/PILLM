@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+(async () => {
+  const algorithm = 'aes-256-cbc';
+  const password = 'supersecretpassword';
+
+   
+  const key = randomBytes(32);
+  const iv = randomBytes(16);
+
+   
+  const encryptText = (text) => {
+    const cipher = createCipheriv(algorithm, key, iv);
+    return Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]).toString('hex');
+  };
+
+   
+  const decryptText = (encryptedText) => {
+    const decipher = createDecipheriv(algorithm, key, iv);
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(encryptedText, 'hex')),
+      decipher.final(),
+    ]);
+    return decrypted.toString('utf8');
+  };
+
+   
+  const originalText = 'Hello, world! Advanced JavaScript is awesome!';
+  
+   
+  const encryptedText = encryptText(originalText);
+
+   
+  const decryptedText = decryptText(encryptedText);
+
+   
+  console.log(`Original Text: ${originalText}`);
+  console.log(`Encrypted Text: ${encryptedText}`);
+  console.log(`Decrypted Text: ${decryptedText}`);
+
+   
+  const [filename] = './output.txt'.split('/').reverse();
+
+   
+  try {
+    await fs.writeFile(`./${filename}`, `Original: ${originalText}\nEncrypted: ${encryptedText}\nDecrypted: ${decryptedText}`);
+    console.log(`Results written to ${filename}`);
+  } catch (err) {
+    console.error('Error writing to file', err);
+  }
+})();
+```

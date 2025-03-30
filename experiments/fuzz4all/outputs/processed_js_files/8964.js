@@ -1,0 +1,71 @@
+ 
+function* fibonacci(n) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+async function fetchWithTimeout(url, timeout) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return await response.json();
+  } catch (error) {
+    throw new Error('Request timed out');
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+async function* asyncGenerator(n) {
+  for (let i = 0; i < n; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(i), 100));
+  }
+}
+
+async function execute() {
+  try {
+    const fibonacciSeq = fibonacci(5);
+    print('Fibonacci Sequence:', [...fibonacciSeq]);
+
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1', 5000);
+    print('Fetched Data:', data);
+
+    const results = [];
+    for await (const num of asyncGenerator(5)) {
+      results.push(num);
+    }
+    print('Async Generated Numbers:', results);
+
+    const [sum, product] = await Promise.all([
+      asyncGeneratorSum(5),
+      asyncGeneratorProduct(5)
+    ]);
+
+    print(`Sum: ${sum}, Product: ${product}`);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+async function asyncGeneratorSum(n) {
+  let sum = 0;
+  for await (const num of asyncGenerator(n)) {
+    sum += num;
+  }
+  return sum;
+}
+
+async function asyncGeneratorProduct(n) {
+  let product = 1;
+  for await (const num of asyncGenerator(n)) {
+    product *= (num + 1);  
+  }
+  return product;
+}
+
+execute();

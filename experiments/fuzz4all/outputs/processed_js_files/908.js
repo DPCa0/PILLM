@@ -1,0 +1,47 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () =>
+            Array.from({ length: cols }, () => fill)
+        );
+    }
+
+    static multiply(m1, m2) {
+        if (m1.data[0].length !== m2.data.length) {
+            throw new Error("Incompatible matrices");
+        }
+        let result = new Matrix(m1.data.length, m2.data[0].length);
+        result.data = result.data.map((row, i) =>
+            row.map((_, j) =>
+                m1.data[i].reduce((sum, elm, k) => sum + elm * m2.data[k][j], 0)
+            )
+        );
+        return result;
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+const asyncRandomMatrix = async (rows, cols) => {
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    await delay(100);   
+    return new Matrix(rows, cols).data.map(row =>
+        row.map(() => Math.floor(Math.random() * 10))
+    );
+};
+
+(async () => {
+    const [rows, cols] = [3, 3];
+    let a = new Matrix(rows, cols, 1);
+    a.data = await asyncRandomMatrix(rows, cols);
+
+    let b = new Matrix(cols, rows, 1);
+    b.data = await asyncRandomMatrix(cols, rows);
+
+    print("Matrix A:\n" + a.toString());
+    print("\nMatrix B:\n" + b.toString());
+
+    let c = Matrix.multiply(a, b);
+    print("\nMatrix A * Matrix B:\n" + c.toString());
+})();

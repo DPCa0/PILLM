@@ -1,0 +1,62 @@
+ 
+
+class TaskScheduler {
+    constructor() {
+        this.tasks = [];
+    }
+
+    addTask(taskFn, delay) {
+        this.tasks.push({ taskFn, delay });
+    }
+
+    async run() {
+        const results = [];
+        
+        for (const { taskFn, delay } of this.tasks) {
+            results.push(
+                new Promise(resolve => {
+                    setTimeout(async () => {
+                        try {
+                            resolve(await taskFn());
+                        } catch (error) {
+                            resolve(`Error: ${error.message}`);
+                        }
+                    }, delay);
+                })
+            );
+        }
+        
+        return Promise.all(results);
+    }
+}
+
+const scheduler = new TaskScheduler();
+
+scheduler.addTask(async () => {
+    const data = await fetch('https://api.github.com').then(res => res.json());
+    return `Fetched API: ${data.current_user_url}`;
+}, 1000);
+
+scheduler.addTask(() => 'Quick Task Completed', 500);
+
+scheduler.addTask(() => {
+    throw new Error('Intentional Error');
+}, 2000);
+
+scheduler.addTask(async () => {
+    const double = (x) => new Promise((resolve) => resolve(x * 2));
+    const triple = async (x) => x * 3;
+
+    const [d, t] = await Promise.all([double(5), triple(3)]);
+    return `Doubled: ${d}, Tripled: ${t}`;
+}, 1500);
+
+scheduler.run().then(results => {
+    results.forEach(result => print(result));
+});
+
+ 
+ 
+ 
+ 
+ 

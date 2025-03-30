@@ -1,0 +1,66 @@
+class Observer {
+  constructor() {
+    this.listeners = new Map();
+  }
+
+  subscribe(eventType, callback) {
+    if (!this.listeners.has(eventType)) {
+      this.listeners.set(eventType, []);
+    }
+    this.listeners.get(eventType).push(callback);
+  }
+
+  unsubscribe(eventType, callback) {
+    if (this.listeners.has(eventType)) {
+      this.listeners.set(eventType, this.listeners.get(eventType).filter(fn => fn !== callback));
+    }
+  }
+
+  notify(eventType, data) {
+    if (this.listeners.has(eventType)) {
+      this.listeners.get(eventType).forEach(callback => callback(data));
+    }
+  }
+}
+
+const proxyHandler = {
+  set(target, property, value, receiver) {
+    print(`Property ${property} set to ${value}`);
+    return Reflect.set(target, property, value, receiver);
+  },
+  get(target, property, receiver) {
+    print(`Property ${property} accessed`);
+    return Reflect.get(target, property, receiver);
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, proxyHandler);
+
+const observer = new Observer();
+observer.subscribe('change', data => print(`Observed change: ${JSON.stringify(data)}`));
+
+function* generatorFunction() {
+  yield 1;
+  yield 2;
+  observer.notify('change', { message: 'Generator yielded 2' });
+  yield 3;
+}
+
+const asyncIterable = {
+  async *[Symbol.asyncIterator]() {
+    const generator = generatorFunction();
+    let result = generator.next();
+    while (!result.done) {
+      yield result.value;
+      result = generator.next();
+    }
+  }
+};
+
+(async () => {
+  for await (const num of asyncIterable) {
+    proxy.a = num;
+    print(proxy.a);
+  }
+})();

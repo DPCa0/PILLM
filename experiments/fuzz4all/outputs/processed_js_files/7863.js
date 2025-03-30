@@ -1,0 +1,45 @@
+class AsyncCalculator {
+    constructor() {
+        this.result = 0;
+    }
+
+    async add(value) {
+        this.result = await this._operate(this.result + value);
+        return this;
+    }
+
+    async subtract(value) {
+        this.result = await this._operate(this.result - value);
+        return this;
+    }
+
+    async multiply(value) {
+        this.result = await this._operate(this.result * value);
+        return this;
+    }
+
+    async divide(value) {
+        if (value === 0) throw new Error("Division by zero");
+        this.result = await this._operate(this.result / value);
+        return this;
+    }
+
+    async _operate(value) {
+         
+        return new Promise(resolve => setTimeout(() => resolve(value), 100));
+    }
+
+    getResult() {
+        return this.result;
+    }
+}
+
+(async () => {
+    try {
+        const calculator = new AsyncCalculator();
+        await calculator.add(5).subtract(2).multiply(3).divide(4);
+        print(`Final result: ${calculator.getResult()}`);
+    } catch (error) {
+        console.error(`Error: ${error.message}`);
+    }
+})();

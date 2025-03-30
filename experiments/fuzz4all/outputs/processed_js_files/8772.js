@@ -1,0 +1,56 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) this.events[event] = [];
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) this.events[event].forEach(listener => listener(...args));
+  }
+
+  off(event, listenerToRemove) {
+    if (!this.events[event]) return;
+    this.events[event] = this.events[event].filter(listener => listener !== listenerToRemove);
+  }
+}
+
+async function asyncFetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return await response.json();
+}
+
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  while (limit-- > 0) {
+    [prev, curr] = [curr, prev + curr];
+    yield prev;
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  const dataListener = async (url) => {
+    try {
+      const data = await asyncFetchData(url);
+      print('Fetched data:', data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  eventEmitter.on('data', dataListener);
+
+  const fibGen = fibonacciGenerator(5);
+  for (const num of fibGen) {
+    print('Fibonacci number:', num);
+  }
+
+  eventEmitter.emit('data', 'https://jsonplaceholder.typicode.com/todos/1');
+  eventEmitter.off('data', dataListener);
+})();

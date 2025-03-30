@@ -1,0 +1,53 @@
+ 
+
+ 
+const logger = (() => {
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop === 'log') {
+        return function(...args) {
+          print(`[LOG] ${new Date().toISOString()}:`, ...args);
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  };
+  
+  return new Proxy(console, handler);
+})();
+
+ 
+async function asyncOperation(delay, value) {
+  return new Promise((resolve) => setTimeout(() => resolve(value), delay));
+}
+
+const SYMBOL_TASKS = Symbol('tasks');
+
+class TaskManager {
+  constructor() {
+    this[SYMBOL_TASKS] = [];
+  }
+  
+  addTask(delay, value) {
+    this[SYMBOL_TASKS].push(async () => await asyncOperation(delay, value));
+  }
+  
+  async executeTasks() {
+    for (const task of this[SYMBOL_TASKS]) {
+      const result = await task();
+      logger.log('Task completed with result:', result);
+    }
+  }
+}
+
+ 
+(async () => {
+  const taskManager = new TaskManager();
+  taskManager.addTask(1000, 'Task 1 completed');
+  taskManager.addTask(500, 'Task 2 completed');
+  taskManager.addTask(2000, 'Task 3 completed');
+
+  logger.log('Starting task execution...');
+  await taskManager.executeTasks();
+  logger.log('All tasks finished.');
+})();

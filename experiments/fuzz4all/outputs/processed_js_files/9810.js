@@ -1,0 +1,33 @@
+ 
+
+ 
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+};
+
+const processData = async () => {
+    try {
+        const urls = [
+            'https://api.github.com/users/github',
+            'https://api.github.com/users/microsoft',
+            'https://api.github.com/users/google'
+        ];
+
+        const dataPromises = urls.map(url => fetchData(url));
+        const data = await Promise.all(dataPromises);
+
+        data.forEach(({ login, id, company }) => {
+            print(`User: ${login}, ID: ${id}, Company: ${company || 'N/A'}`);
+        });
+    } catch (error) {
+        console.error(`Failed to process data: ${error.message}`);
+    }
+};
+
+ 
+(async () => {
+    await processData();
+})();

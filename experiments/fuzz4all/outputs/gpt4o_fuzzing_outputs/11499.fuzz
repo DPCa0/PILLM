@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class Task {
+  constructor(description) {
+    this.description = description;
+    this.isCompleted = false;
+  }
+  
+  complete() {
+    this.isCompleted = true;
+  }
+}
+
+class TaskManager {
+  #tasks = new Set();  
+
+  addTask(task) {
+    if (task instanceof Task) {
+      this.#tasks.add(task);
+    } else {
+      throw new Error('Only instances of Task can be added.');
+    }
+  }
+
+  completeAllTasks() {
+    this.#tasks.forEach(task => task.complete());
+  }
+
+  *[Symbol.iterator]() {
+    yield* Array.from(this.#tasks).filter(task => !task.isCompleted);
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function() {
+  const manager = new TaskManager();
+  const tasks = [new Task('Learn JS'), new Task('Practice'), new Task('Build a project')];
+
+  tasks.forEach(task => manager.addTask(task));
+
+  for await (const task of manager) {
+    console.log(`Processing task: ${task.description}`);
+    await delay(1000);  
+    task.complete();
+  }
+
+  console.log('All tasks completed:', tasks.map(t => `${t.description} - ${t.isCompleted}`));
+})();
+```

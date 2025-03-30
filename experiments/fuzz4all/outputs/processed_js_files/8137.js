@@ -1,0 +1,39 @@
+ 
+ 
+
+const fetch = require('node-fetch');
+
+(async () => {
+  try {
+     
+    const response = await fetch('https://api.spacexdata.com/v4/launches/latest');
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+     
+    const { name, date_utc, links: { flickr: { original } }, ...rest } = await response.json();
+
+     
+    const launchDetails = {
+      name,
+      date: new Date(date_utc).toLocaleDateString(),
+      images: original.length ? original : ['No images available'],
+      ...rest,
+    };
+
+     
+    const processedImages = await Promise.all(
+      launchDetails.images.map(async (url) => {
+         
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return `Processed: ${url}`;
+      })
+    );
+
+     
+    print(`Launch Name: ${launchDetails.name}`);
+    print(`Launch Date: ${launchDetails.date}`);
+    print('Processed Image URLs:', processedImages);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

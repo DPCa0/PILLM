@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+  
+  subscribe(observer) {
+    const safeObserver = {
+      next: observer.next || function() {},
+      error: observer.error || function() {},
+      complete: observer.complete || function() {}
+    };
+    return this._subscribe(safeObserver);
+  }
+  
+  pipe(...operators) {
+    return operators.reduce((prev, operator) => operator(prev), this);
+  }
+}
+
+const map = transformFn => observable => new Observable(observer =>
+  observable.subscribe({
+    next: value => observer.next(transformFn(value)),
+    error: err => observer.error(err),
+    complete: () => observer.complete()
+  })
+);
+
+const filter = predicateFn => observable => new Observable(observer =>
+  observable.subscribe({
+    next: value => predicateFn(value) && observer.next(value),
+    error: err => observer.error(err),
+    complete: () => observer.complete()
+  })
+);
+
+const interval = intervalTime => new Observable(observer => {
+  let count = 0;
+  const intervalId = setInterval(() => {
+    observer.next(count++);
+  }, intervalTime);
+  
+  return {
+    unsubscribe: () => clearInterval(intervalId)
+  };
+});
+
+const take = limit => observable => new Observable(observer => {
+  let count = 0;
+  const subscription = observable.subscribe({
+    next: value => {
+      if (count++ < limit) {
+        observer.next(value);
+      } else {
+        observer.complete();
+        subscription.unsubscribe();
+      }
+    },
+    error: err => observer.error(err),
+    complete: () => observer.complete()
+  });
+  
+  return subscription;
+});
+
+const observable = interval(1000).pipe(
+  map(x => x * 2),
+  filter(x => x % 4 === 0),
+  take(5)
+);
+
+observable.subscribe({
+  next: x => console.log(`Next: ${x}`),
+  complete: () => console.log('Completed')
+});
+```

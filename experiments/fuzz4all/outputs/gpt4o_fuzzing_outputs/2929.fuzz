@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+class TaskQueue extends EventEmitter {
+    constructor(concurrency) {
+        super();
+        this.queue = [];
+        this.activeCount = 0;
+        this.concurrency = concurrency;
+    }
+
+    _next() {
+        if (this.queue.length === 0 || this.activeCount >= this.concurrency) {
+            return;
+        }
+        
+        this.activeCount++;
+        const task = this.queue.shift();
+
+        task().then(() => {
+            this.activeCount--;
+            this._next();
+            if (this.activeCount === 0 && this.queue.length === 0) {
+                this.emit('empty');
+            }
+        });
+    }
+
+    add(task) {
+        this.queue.push(task);
+        this._next();
+    }
+}
+
+ 
+const queue = new TaskQueue(2);
+
+queue.on('empty', () => {
+    console.log('All tasks are done');
+});
+
+const createTask = (name, duration) => () => new Promise(resolve => {
+    console.log(`Task ${name} started`);
+    setTimeout(() => {
+        console.log(`Task ${name} finished`);
+        resolve();
+    }, duration);
+});
+
+queue.add(createTask('A', 2000));
+queue.add(createTask('B', 1000));
+queue.add(createTask('C', 500));
+queue.add(createTask('D', 300));
+```

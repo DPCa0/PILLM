@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+  
+   
+  const fsProxy = new Proxy(fs, {
+    get(target, prop) {
+      if (prop === 'readFile') {
+        return async (...args) => {
+          console.log(`Reading file: ${args[0]}`);
+          return Reflect.apply(target[prop], target, args);
+        };
+      }
+      return Reflect.get(target, prop);
+    },
+  });
+
+   
+  async function* readLines(filePath) {
+    const data = await fsProxy.readFile(filePath, 'utf8');
+    const lines = data.split('\n');
+    for (const line of lines) {
+      yield line.trim();
+    }
+  }
+
+   
+  const results = await Promise.allSettled([
+    fsProxy.writeFile('hello.txt', 'Hello, Proxy!'),
+    fsProxy.readFile?.('hello.txt'),
+    fsProxy.unlink?.('hello.txt'),
+  ]);
+
+  results.forEach((result) => {
+    console.log(result.status === 'fulfilled' ? result.value : result.reason);
+  });
+
+   
+  for await (const line of readLines('package.json')) {
+    console.log(`Line: ${line}`);
+  }
+
+   
+  function sql(strings, ...values) {
+    return strings.reduce((prev, curr, i) => `${prev}${curr}${values[i] || ''}`, '');
+  }
+  
+  const tableName = 'users';
+  const query = sql`SELECT * FROM ${tableName} WHERE active = true`;
+  console.log(query);
+})();
+```

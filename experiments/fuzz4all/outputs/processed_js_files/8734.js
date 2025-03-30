@@ -1,0 +1,46 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = async (url) => {
+  const rawData = await fetchData(url);
+  return rawData?.map(({ id, title, body }) => ({
+    id,
+    title: title.toUpperCase(),
+    excerpt: body.slice(0, 50) + '...',
+  })) ?? [];
+};
+
+const run = async () => {
+  const apiURL = 'https://jsonplaceholder.typicode.com/posts';
+  const processedData = await processData(apiURL);
+
+  const [first, second, ...rest] = processedData;
+  console.table([first, second]);
+
+  const allIds = rest.flatMap(({ id }) => id);
+  print('Remaining IDs:', allIds);
+
+  const allTitles = rest.reduce((acc, { title }) => acc + title + ', ', '');
+  print('Titles:', allTitles);
+
+  print('Grouped by First Letter:', groupByFirstLetter(processedData));
+};
+
+const groupByFirstLetter = (data) => {
+  return data.reduce((acc, { title }) => {
+    const firstLetter = title[0];
+    if (!acc[firstLetter]) acc[firstLetter] = [];
+    acc[firstLetter].push(title);
+    return acc;
+  }, {});
+};
+
+run();

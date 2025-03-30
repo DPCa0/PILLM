@@ -1,0 +1,41 @@
+ 
+
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+    
+     
+    async processData() {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                 
+                const { id, ...rest } = this.data;
+                resolve({ id, processed: true, ...rest });
+            }, 1000);
+        });
+    }
+}
+
+ 
+function transformData(callback) {
+    return async function (data) {
+        try {
+            const result = await callback(data);
+            print('Transformed Data:', result);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+}
+
+ 
+const initialData = { id: 1, name: 'Sample', type: 'Test' };
+
+ 
+const processors = [initialData].map(data => new AsyncProcessor(data));
+
+ 
+Promise.all(
+    processors.map(processor => transformData(processor.processData.bind(processor))(processor.data))
+).then(() => print('Processing complete.'));

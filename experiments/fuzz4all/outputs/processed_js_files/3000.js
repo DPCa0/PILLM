@@ -1,0 +1,81 @@
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  get real() {
+    return this.#real;
+  }
+
+  get imaginary() {
+    return this.#imaginary;
+  }
+
+  static fromString(str) {
+    const [real, imaginary] = str.split(/[\+\-]/).map(Number);
+    const sign = str.includes('-') ? -1 : 1;
+    return new ComplexNumber(real, sign * imaginary);
+  }
+
+  *[Symbol.iterator]() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+
+  [Symbol.toPrimitive](hint) {
+    switch (hint) {
+      case 'string':
+        return `${this.#real} + ${this.#imaginary}i`;
+      case 'number':
+        return Math.sqrt(this.#real ** 2 + this.#imaginary ** 2);
+      default:
+        return null;
+    }
+  }
+}
+
+ 
+const validateComplexNumber = {
+  construct(target, args) {
+    if (!args[0] || isNaN(args[0]) || isNaN(args[1])) {
+      throw new Error('Invalid arguments');
+    }
+    return new target(...args);
+  },
+};
+
+const ComplexNumberProxy = new Proxy(ComplexNumber, validateComplexNumber);
+
+try {
+  const complex = new ComplexNumberProxy(3, 4);
+
+   
+  const [real, ...other] = complex;
+  print(`Real part: ${real}, Other parts: ${other}`);
+
+   
+  function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+      const value = values[i] ? `<em>${values[i]}</em>` : '';
+      return `${result}${str}${value}`;
+    }, '');
+  }
+
+  print(highlight`Complex Number: ${complex}`);  
+
+   
+  const fetchData = async (num) => {
+    const result = await new Promise((resolve) => {
+      setTimeout(() => resolve(`Fetched data for: ${num}`), 1000);
+    });
+    print(result);
+  };
+
+  fetchData(complex);
+
+} catch

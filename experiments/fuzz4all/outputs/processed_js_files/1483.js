@@ -1,0 +1,42 @@
+ 
+import { promises as fs } from 'fs';
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+const encrypt = (text, key) => {
+  const iv = randomBytes(16);  
+  const cipher = createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+  const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+  return iv.toString('hex') + ':' + encrypted.toString('hex');
+};
+
+ 
+const decrypt = (encryptedText, key) => {
+  const [iv, encrypted] = encryptedText.split(':').map(part => Buffer.from(part, 'hex'));
+  const decipher = createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+  const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+  return decrypted.toString();
+};
+
+ 
+const main = async () => {
+  const secretKey = randomBytes(32).toString('hex');  
+  const dataToEncrypt = 'Advanced JavaScript Programming!';
+
+   
+  const encryptedData = encrypt(dataToEncrypt, secretKey);
+  print('Encrypted:', encryptedData);
+
+   
+  await fs.writeFile('encryptedData.txt', encryptedData);
+
+   
+  const fileContent = await fs.readFile('encryptedData.txt', 'utf-8');
+
+   
+  const decryptedData = decrypt(fileContent, secretKey);
+  print('Decrypted:', decryptedData);
+};
+
+ 
+main().catch(console.error);

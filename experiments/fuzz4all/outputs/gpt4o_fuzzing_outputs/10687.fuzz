@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const result = await response.json();
+      this.data = result;
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+
+  transformData() {
+    return this.data
+      ?.map((item) => ({
+        ...item,
+        processedValue: item.value * Math.random(),
+      }))
+      .filter((item) => item.processedValue > 50);
+  }
+
+  static async processDataAndLog(url) {
+    const processor = new DataProcessor([]);
+    await processor.fetchData(url);
+    const transformedData = processor.transformData();
+    transformedData.forEach((item) => console.log(`ID: ${item.id}, Value: ${item.processedValue.toFixed(2)}`));
+  }
+}
+
+const exampleURL = 'https://jsonplaceholder.typicode.com/posts';
+DataProcessor.processDataAndLog(exampleURL);
+```

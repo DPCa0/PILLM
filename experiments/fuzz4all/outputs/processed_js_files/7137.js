@@ -1,0 +1,36 @@
+class AsyncOperation {
+    constructor(value) {
+        this.value = value;
+    }
+    async compute() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(this.value * 10), 1000);
+        });
+    }
+}
+
+async function* asyncGenerator(arr) {
+    for (const item of arr) {
+        yield new AsyncOperation(item).compute();
+    }
+}
+
+async function processData(arr) {
+    const results = [];
+    for await (const computedValue of asyncGenerator(arr)) {
+        results.push(computedValue);
+    }
+    return results;
+}
+
+(async () => {
+    const data = [1, 2, 3, 4, 5];
+    try {
+        const results = await processData(data);
+        const sum = results.reduce((acc, val) => acc + val, 0);
+        print(`The results are: ${results}`);
+        print(`The sum of results is: ${sum}`);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();

@@ -1,0 +1,61 @@
+ 
+const fetchData = async (urls) => {
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+    const dataPromises = responses.map(response => response.json());
+    return Promise.all(dataPromises);
+};
+
+ 
+const logHandler = {
+    get: (target, property) => {
+        print(`Accessing property: ${property}`);
+        return target[property];
+    }
+};
+
+ 
+class User {
+    #name;
+    #age;
+
+    constructor(name, age) {
+        this.#name = name;
+        this.#age = age;
+    }
+
+    #validateAge() {
+        if (this.#age < 0) throw new Error('Age cannot be negative');
+    }
+
+    get details() {
+        this.#validateAge();
+        return `Name: ${this.#name}, Age: ${this.#age}`;
+    }
+}
+
+ 
+const userSet = new Set();
+const userMap = new Map();
+
+const user1 = new User('Alice', 30);
+const user2 = new User('Bob', 25);
+
+userSet.add(user1);
+userSet.add(user2);
+
+userMap.set(user1.details, { active: true });
+userMap.set(user2.details, { active: false });
+
+ 
+const proxiedUserMap = new Proxy(userMap, logHandler);
+
+ 
+fetchData(['https://api.example.com/data1', 'https://api.example.com/data2'])
+    .then(data => {
+        print('Fetched Data:', data);
+
+         
+        print(proxiedUserMap.get(user1.details));
+        print(proxiedUserMap.get(user2.details));
+    })
+    .catch(error => console.error('Error fetching data:', error));

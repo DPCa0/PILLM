@@ -1,0 +1,55 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    await delay(1000);  
+    return { message: "Hello, advanced world!" };
+}
+
+ 
+const SECRET_KEY = Symbol("secret");
+
+ 
+let targetObject = {
+    [SECRET_KEY]: "This is a secret",
+    getMessage() {
+        return this[SECRET_KEY];
+    }
+};
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'getMessage') {
+            return () => "Intercepted: " + Reflect.get(obj, prop)();
+        }
+        return Reflect.get(obj, prop);
+    }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+async function main() {
+    print(await fetchData());  
+
+    print(proxiedObject.getMessage());  
+
+     
+    const iterableObject = {
+        *[Symbol.iterator]() {
+            yield 'a';
+            yield 'b';
+            yield 'c';
+        }
+    };
+
+    for (const value of iterableObject) {
+        print(value);  
+    }
+}
+
+main();

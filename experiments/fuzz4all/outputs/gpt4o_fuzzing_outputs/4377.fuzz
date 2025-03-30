@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const complexFeatureDemo = async () => {
+     
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
+     
+    const targetObj = {
+        [Symbol('id')]: 101,
+        name: 'ComplexObject',
+        count: 0
+    };
+  
+    const handler = {
+        get: (target, prop, receiver) => {
+            console.log(`GET property: ${String(prop)}`);
+            return Reflect.get(target, prop, receiver);
+        },
+        set: (target, prop, value, receiver) => {
+            console.log(`SET property: ${String(prop)} to ${value}`);
+            return Reflect.set(target, prop, value, receiver);
+        }
+    };
+  
+    const proxiedObject = new Proxy(targetObj, handler);
+
+     
+    proxiedObject.name = 'AdvancedObject';
+    console.log(`Object name is now: ${proxiedObject.name}`);
+    
+     
+    console.log('Waiting 2 seconds...');
+    await delay(2000);
+
+    proxiedObject.count += 1;
+    console.log(`Object count is now: ${proxiedObject.count}`);
+};
+
+complexFeatureDemo();
+```

@@ -1,0 +1,53 @@
+class Observable {
+  constructor() {
+    this.subscribers = [];
+  }
+  subscribe(fn) {
+    this.subscribers.push(fn);
+  }
+  notify(data) {
+    this.subscribers.forEach(subscriber => subscriber(data));
+  }
+}
+
+const observable = new Observable();
+
+function debounce(fn, delay) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+function fetchData(url) {
+  return fetch(url).then(response => response.json());
+}
+
+const debouncedNotify = debounce(data => {
+  print("Debounced Notification:", data);
+  observable.notify(data);
+}, 300);
+
+async function complexDataFetcher() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+  const promises = urls.map(url => fetchData(url));
+  const results = await Promise.all(promises);
+
+  results.forEach(result => debouncedNotify(result));
+}
+
+observable.subscribe(data => {
+  print("Subscriber 1 Received:", data);
+});
+
+observable.subscribe(data => {
+  print("Subscriber 2 Received:", data);
+});
+
+ 
+complexDataFetcher();

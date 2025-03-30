@@ -1,0 +1,41 @@
+ 
+async function* fetchData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield* data.items;
+}
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            print(`Property ${prop} doesn't exist on target.`);
+            return () => {};
+        }
+    }
+};
+
+// Proxy example with a nested object
+const targetObj = {
+    api: new Proxy({}, handler),
+    settings: {
+        theme: "dark",
+        version: "1.0.0"
+    }
+};
+
+const proxiedObj = new Proxy(targetObj, handler);
+
+(async () => {
+    const url = 'https: 
+    const dataIterator = fetchData(url);
+
+    for await (const item of dataIterator) {
+        print(`Item: ${item}`);
+    }
+
+     
+    print(proxiedObj.settings.theme);   
+    proxiedObj.api.getData();                 
+})();

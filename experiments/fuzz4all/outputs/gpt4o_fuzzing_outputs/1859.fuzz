@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  #data;
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static identity(size) {
+    return new Matrix(size, size).map((_, r, c) => (r === c ? 1 : 0));
+  }
+
+  map(callback) {
+    return new Matrix(this.rows, this.cols).map((_, r, c) => callback(this.#data[r][c], r, c));
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        yield this.#data[i][j];
+      }
+    }
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === "string") {
+      return this.#data.map(row => row.join(' ')).join('\n');
+    }
+    return null;
+  }
+  
+  transpose() {
+    return new Matrix(this.cols, this.rows).map((_, r, c) => this.#data[c][r]);
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Matrix dimensions do not match for multiplication.");
+    return new Matrix(a.rows, b.cols).map((_, r, c) =>
+      Array.from({ length: a.cols }, (_, i) => a.#data[r][i] * b.#data[i][c])
+           .reduce((sum, val) => sum + val, 0)
+    );
+  }
+}
+
+ 
+function matrix(strings, ...values) {
+  const [rows, cols, ...data] = values;
+  const m = new Matrix(rows, cols);
+  let index = 0;
+  return m.map(() => data[index++]);
+}
+
+const m1 = matrix`3 3 ${1} ${2} ${3} ${4} ${5} ${6} ${7} ${8} ${9}`;
+const m2 = Matrix.identity(3);
+
+console.log(`Matrix 1:\n${m1}`);
+console.log(`Identity Matrix:\n${m2}`);
+console.log(`Product:\n${Matrix.multiply(m1, m2)}`);
+```

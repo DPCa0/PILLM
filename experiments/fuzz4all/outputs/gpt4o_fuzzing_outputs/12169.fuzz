@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+  }
+
+  enqueue(item) {
+    if (this.resolvers.length) {
+      const resolve = this.resolvers.shift();
+      resolve({ value: item, done: false });
+    } else {
+      this.queue.push(item);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        if (this.queue.length) {
+          const value = this.queue.shift();
+          return Promise.resolve({ value, done: false });
+        }
+        return new Promise(resolve => this.resolvers.push(resolve));
+      }
+    };
+  }
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+const produce = async queue => {
+  for (let i = 1; i <= 5; i++) {
+    console.log(`Producing: ${i}`);
+    queue.enqueue(i);
+    await delay(1000);
+  }
+};
+
+const consume = async queue => {
+  for await (const item of queue) {
+    console.log(`Consuming: ${item}`);
+    if (item === 5) break;  
+  }
+};
+
+const queue = new AsyncIterableQueue();
+produce(queue);
+consume(queue);
+```

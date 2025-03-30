@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+class DataFetcher {
+  #url;  
+
+  constructor(url) {
+    this.#url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.#url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      this.#processData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  #processData(data) {  
+    console.log('Processed Data:', this.#transformData(data));
+  }
+
+  #transformData(data) {  
+     
+    return data.map(item => ({
+      ...item,
+      processed: true,
+    }));
+  }
+}
+
+ 
+const customTag = (strings, ...values) => {
+  return strings.reduce((result, str, i) => `${result}${str}<b>${values[i] || ''}</b>`, '');
+};
+
+ 
+const nums = [1, 2, 3, 4, 5];
+const sumOfSquares = nums
+  .filter(x => x % 2 === 0)
+  .map(x => x ** 2)
+  .reduce((total, x) => total + x, 0);
+
+console.log(customTag`Sum of squares of even numbers is: ${sumOfSquares}`);
+
+ 
+(async () => {
+  if (typeof someCondition !== 'undefined' && someCondition) {
+    const { additionalFunction } = await import('./additionalModule.js');
+    additionalFunction();
+  }
+})();
+
+ 
+const fetcher = new DataFetcher('https://jsonplaceholder.typicode.com/posts');
+fetcher.fetchData();
+```

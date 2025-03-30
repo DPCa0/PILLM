@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) this.#events.set(event, new Set());
+    this.#events.get(event).add(listener);
+  }
+
+  off(event, listener) {
+    if (this.#events.has(event)) this.#events.get(event).delete(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.#events.has(event)) {
+      const listeners = [...this.#events.get(event)];
+      return Promise.all(listeners.map(listener => listener(...args)));
+    }
+    return Promise.resolve();
+  }
+}
+
+async function* generateSequence(n) {
+  for (let i = 0; i < n; i++) {
+    yield new Promise(resolve => setTimeout(() => resolve(i), 1000));
+  }
+}
+
+(async function complexUsage() {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('numberGenerated', async (num) => {
+    console.log(`First listener: Number generated ${num}`);
+    if (num === 3) throw new Error('Intentional error');
+  });
+
+  emitter.on('numberGenerated', async (num) => {
+    console.log(`Second listener: Number generated ${num}`);
+  });
+
+  for await (const num of generateSequence(5)) {
+    try {
+      await emitter.emit('numberGenerated', num);
+    } catch (err) {
+      console.error(`Error caught: ${err.message}`);
+    }
+  }
+})();
+```

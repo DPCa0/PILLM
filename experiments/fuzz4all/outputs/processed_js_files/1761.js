@@ -1,0 +1,40 @@
+ 
+
+class DataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async fetchData() {
+    const fetchPromises = this.urls.map(url => fetch(url).then(response => response.json()));
+    return Promise.all(fetchPromises);
+  }
+}
+
+const processData = async ({ urls, processFn }) => {
+  try {
+    const fetcher = new DataFetcher(urls);
+    const data = await fetcher.fetchData();
+    return data.map(processFn);
+  } catch (error) {
+    console.error("Error processing data:", error);
+  }
+};
+
+const urls = [
+  "https://jsonplaceholder.typicode.com/posts/1",
+  "https://jsonplaceholder.typicode.com/posts/2"
+];
+
+const printProcessedData = async () => {
+  const processedData = await processData({
+    urls,
+    processFn: ({ title, body }) => ({ title, excerpt: body.slice(0, 50) })
+  });
+
+  processedData.forEach((data, index) => {
+    print(`Post ${index + 1}: ${data.title}\nExcerpt: ${data.excerpt}\n`);
+  });
+};
+
+printProcessedData();

@@ -1,0 +1,40 @@
+ 
+const apiSimulation = {
+  data: [10, 20, 30],
+  async fetchData(index) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (this.data[index] !== undefined) {
+          resolve(this.data[index]);
+        } else {
+          reject('Index out of bounds');
+        }
+      }, 1000);
+    });
+  }
+};
+
+const handler = {
+  get: function(target, prop) {
+    if (prop === 'fetch') {
+      return async function(index) {
+        try {
+          const result = await target.fetchData(index);
+          print(`Data fetched: ${result}`);
+        } catch (error) {
+          console.error(`Error: ${error}`);
+        }
+      };
+    }
+    return target[prop];
+  }
+};
+
+const apiProxy = new Proxy(apiSimulation, handler);
+
+const complexOperation = async () => {
+  await apiProxy.fetch(1);  
+  await apiProxy.fetch(10);  
+};
+
+complexOperation();

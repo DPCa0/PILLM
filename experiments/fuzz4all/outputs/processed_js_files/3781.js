@@ -1,0 +1,46 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  const mockData = {
+    'https://api.example.com/data': { id: 1, name: 'Alice' },
+    'https://api.example.com/info': { id: 2, name: 'Bob' },
+  };
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(mockData[url]), 1000)
+  );
+};
+
+ 
+const dataHandler = {
+  get: (target, prop) => {
+    print(`Fetching ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Setting ${prop} to`, value);
+    target[prop] = { ...value, timestamp: Date.now() };
+    return true;
+  },
+};
+
+ 
+function* apiUrlGenerator() {
+  yield 'https://api.example.com/data';
+  yield 'https://api.example.com/info';
+}
+
+ 
+(async () => {
+  const generator = apiUrlGenerator();
+  const proxyData = new Proxy({}, dataHandler);
+
+  for (let url of generator) {
+    const data = await fetchData(url);
+    proxyData[url] = data;  
+  }
+
+   
+  print(proxyData['https://api.example.com/data']);
+  print(proxyData['https://api.example.com/info']);
+})();

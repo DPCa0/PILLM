@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class ComplexSystem {
+    constructor() {
+        this.state = new Proxy({}, {
+            set: (target, prop, value) => {
+                console.log(`State change: ${prop} = ${value}`);
+                target[prop] = value;
+                return true;
+            }
+        });
+    }
+
+    async processData(data) {
+        try {
+            const parsedData = await this.#parseData(data);
+            const validatedData = await this.#validateData(parsedData);
+            this.state.processedData = this.#transformData(validatedData);
+        } catch (error) {
+            console.error('Error processing data:', error);
+        }
+    }
+
+    async #parseData(data) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log('Parsing data...');
+                try {
+                    resolve(JSON.parse(data));
+                } catch {
+                    reject('Invalid JSON data');
+                }
+            }, 1000);
+        });
+    }
+
+    async #validateData(data) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                console.log('Validating data...');
+                if (data && typeof data === 'object') {
+                    resolve(data);
+                } else {
+                    reject('Data validation failed');
+                }
+            }, 1000);
+        });
+    }
+
+    #transformData(data) {
+        console.log('Transforming data...');
+        return Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.toUpperCase()]));
+    }
+}
+
+(async () => {
+    const system = new ComplexSystem();
+    await system.processData('{"name":"Jane", "city":"New York"}');
+})();
+```

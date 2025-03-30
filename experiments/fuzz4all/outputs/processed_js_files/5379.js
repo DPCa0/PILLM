@@ -1,0 +1,42 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function factorial(n, acc = 1) {
+  if (n <= 1) return acc;
+  await delay(100);  
+  return factorial(n - 1, acc * n);
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    print(`Accessed property "${prop}" with value: ${obj[prop]}`);
+    return prop in obj ? obj[prop] : 42;
+  }
+};
+
+ 
+const settings = new Proxy({ theme: "dark", volume: 70 }, handler);
+
+ 
+(async ({ theme, ...rest }) => {
+  print(`Initial Theme: ${theme}`);
+  
+   
+  function format(strings, ...values) {
+    return strings.reduce((result, str, i) => result + str + (values[i] || ""), "");
+  }
+
+  const message = format`Volume set to ${rest.volume}. Calculating factorial of 5...`;
+  print(message);
+
+   
+  if (theme === "dark") {
+    const { addStyles } = await import("./styleModule.js");
+    addStyles({ color: "#fff", backgroundColor: "#333" });
+  }
+  
+  const result = await factorial(5);
+  print(`Factorial of 5 is: ${result}`);
+}) (settings);

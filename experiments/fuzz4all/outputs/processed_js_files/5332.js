@@ -1,0 +1,40 @@
+ 
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+ 
+const users = new Map();
+users.set('1', { name: 'Alice', age: 30 });
+users.set('2', { name: 'Bob', age: 25 });
+users.set('3', { name: 'Charlie', age: 35 });
+
+ 
+async function* fetchUserDetails(userMap) {
+  for (let [id, user] of userMap) {
+     
+    await new Promise(res => setTimeout(res, 1000));
+    yield { id, ...user };
+  }
+}
+
+ 
+async function displayUserDetails() {
+  const userDetails = fetchUserDetails(users);
+
+  for await (const { id, name, age } of userDetails) {
+    print(`User ID: ${id}, Name: ${name}, Age: ${age}`);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Accessing user: ${prop}`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxiedUsers = new Proxy(users, handler);
+
+ 
+displayUserDetails(proxiedUsers).catch(console.error);

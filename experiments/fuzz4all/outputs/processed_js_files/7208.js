@@ -1,0 +1,39 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(callback) {
+    this.subscribers.add(callback);
+    return () => this.subscribers.delete(callback);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(callback => callback(data));
+  }
+}
+
+const asyncOperation = (duration) => {
+  return new Promise((resolve) => setTimeout(() => resolve(`Completed in ${duration}ms`), duration));
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+const logUpdate = debounce(console.log, 100);
+
+(async () => {
+  const observable = new Observable();
+  observable.subscribe(logUpdate);
+
+  const operations = [1000, 2000, 1500].map(asyncOperation);
+
+  for await (const message of operations) {
+    observable.notify(await message);
+  }
+})();

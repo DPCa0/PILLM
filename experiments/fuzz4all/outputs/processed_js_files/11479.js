@@ -1,0 +1,49 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+        this.memo.set(0, 0);
+        this.memo.set(1, 1);
+    }
+
+    calculate(n) {
+        if (this.memo.has(n)) {
+            return this.memo.get(n);
+        }
+        let result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+function asyncOperation(n) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`Async operation complete: ${n}`);
+        }, Math.random() * 1000);
+    });
+}
+
+(async function main() {
+    const fib = new Fibonacci();
+    let results = [];
+    
+    for (let i = 0; i < 10; i++) {
+        results.push(asyncOperation(fib.calculate(i)));
+    }
+
+    for await (const result of results) {
+        print(result);
+    }
+
+    const proxyHandler = {
+        get(target, property) {
+            return property in target ? target[property] : `Property ${property} doesn't exist!`;
+        }
+    };
+
+    const obj = { name: 'Advanced JavaScript', year: 2023 };
+    const proxyObj = new Proxy(obj, proxyHandler);
+
+    print(proxyObj.name);
+    print(proxyObj.language);
+})();

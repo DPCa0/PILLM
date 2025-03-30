@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+  yield new Promise(resolve => setTimeout(() => resolve('Data 1'), 1000));
+  yield new Promise(resolve => setTimeout(() => resolve('Data 2'), 2000));
+  yield new Promise(resolve => setTimeout(() => resolve('Data 3'), 3000));
+}
+
+ 
+const handler = {
+  get: function(target, property, receiver) {
+    if (property in target) {
+      console.log(`Getting ${property}`);
+      return Reflect.get(target, property, receiver);
+    } else {
+      console.log(`Property ${property} not found.`);
+      return 'Not available';
+    }
+  }
+};
+
+ 
+async function fetchData() {
+  const generator = dataGenerator();
+
+  for await (const data of generator) {
+    console.log(`Fetched: ${data}`);
+  }
+}
+
+ 
+const dataObject = new Proxy({ key1: 'value1', key2: 'value2' }, handler);
+
+ 
+fetchData().then(() => {
+  console.log(`Object key1: ${dataObject.key1}`);
+  console.log(`Object key3: ${dataObject.key3}`);  
+});
+```

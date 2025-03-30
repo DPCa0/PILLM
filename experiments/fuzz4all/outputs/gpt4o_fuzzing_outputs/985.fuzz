@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class APIService {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.baseURL}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+    return response.json();
+  }
+}
+
+const api = new APIService('https://jsonplaceholder.typicode.com/');
+
+const fetchAndProcessData = async () => {
+  try {
+    const [users, posts] = await Promise.all([
+      api.fetchData('/users'),
+      api.fetchData('/posts'),
+    ]);
+
+    const userPosts = posts.reduce((acc, post) => {
+      acc[post.userId] = acc[post.userId] || [];
+      acc[post.userId].push(post.title);
+      return acc;
+    }, {});
+
+    const result = users.map(user => ({
+      name: user.name,
+      email: user.email,
+      posts: userPosts[user.id] || [],
+    }));
+
+    console.table(result);
+  } catch (error) {
+    console.error('Failed to fetch or process data:', error);
+  }
+};
+
+fetchAndProcessData();
+```

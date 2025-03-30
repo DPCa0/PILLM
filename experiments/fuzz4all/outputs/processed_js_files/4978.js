@@ -1,0 +1,42 @@
+class AsyncCache {
+    constructor() {
+        this.cache = new Map();
+    }
+
+    async fetchData(key, fetchFunction) {
+        if (this.cache.has(key)) {
+            return this.cache.get(key);
+        }
+
+         
+        const dataPromise = (async () => {
+            const data = await fetchFunction();
+            this.cache.set(key, data);
+            return data;
+        })();
+        
+        this.cache.set(key, dataPromise);
+        return dataPromise;
+    }
+}
+
+async function simulateNetworkRequest() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('Fetched Data');
+        }, 1000);
+    });
+}
+
+(async () => {
+    const cache = new AsyncCache();
+
+     
+    const results = await Promise.all([
+        cache.fetchData('key1', simulateNetworkRequest),
+        cache.fetchData('key2', simulateNetworkRequest),
+        cache.fetchData('key1', simulateNetworkRequest)  
+    ]);
+
+    print(results);  
+})();

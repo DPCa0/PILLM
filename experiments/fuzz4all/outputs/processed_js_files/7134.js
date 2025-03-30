@@ -1,0 +1,42 @@
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000);
+  });
+}
+
+ 
+function* dataGenerator(arr) {
+  for (const item of arr) {
+    yield item;
+  }
+}
+
+ 
+const generatorHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'next') {
+      print('Next value requested');
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+(async function main() {
+  try {
+    const { data } = await fetchData();  
+    const generator = new Proxy(dataGenerator(data), generatorHandler);
+
+     
+    let result = generator.next();
+    while (!result.done) {
+      print(`Value: ${result.value}`);
+      result = generator.next();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

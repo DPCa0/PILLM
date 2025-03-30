@@ -1,0 +1,57 @@
+ 
+const _name = Symbol('name');
+const _age = Symbol('age');
+
+class Person {
+  constructor(name, age) {
+    this[_name] = name;
+    this[_age] = age;
+  }
+
+   
+  static #calculateRetirement(age) {
+    return 65 - age;
+  }
+
+   
+  retirementYears() {
+    return Person.#calculateRetirement(this[_age]);
+  }
+
+   
+  get info() {
+    return new Proxy(this, {
+      get(target, prop) {
+        if (prop === 'name') return target[_name];
+        if (prop === 'age') return target[_age];
+        return undefined;
+      }
+    });
+  }
+}
+
+ 
+async function* asyncGenerator(names) {
+  for (const name of names) {
+    await new Promise((resolve) => setTimeout(resolve, 100));  
+    yield `Hello, ${name}!`;
+  }
+}
+
+ 
+(async () => {
+  const people = [new Person('Alice', 30), new Person('Bob', 45)];
+  const messages = asyncGenerator(people.map(p => p.info.name));
+
+  for await (const message of messages) {
+    print(message);
+  }
+
+  const results = await Promise.allSettled(
+    people.map(p => Promise.resolve(p.retirementYears()))
+  );
+
+  results.forEach((result, index) => {
+    print(`Person ${index + 1}:`, result?.value ?? 'Unknown');
+  });
+})();

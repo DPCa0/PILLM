@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const { from, zip, interval, of } = require('rxjs');
+const { map, filter, take, flatMap, reduce, catchError } = require('rxjs/operators');
+
+ 
+function* fibonacci() {
+    let [a, b] = [0, 1];
+    while (true) {
+        yield a;
+        [a, b] = [b, a + b];
+    }
+}
+
+ 
+function mockApiCall(n) {
+    return n % 5 === 0 ? Promise.reject(`Error on ${n}`) : Promise.resolve(n);
+}
+
+ 
+const fib$ = from(fibonacci()).pipe(take(15));  
+
+const apiCalls$ = fib$.pipe(
+    flatMap(n => from(mockApiCall(n)).pipe(
+        catchError(err => of(`Caught: ${err}`))
+    ))
+);
+
+ 
+const timedApiCalls$ = zip(apiCalls$, interval(500)).pipe(
+    map(([result, _]) => result)
+);
+
+ 
+timedApiCalls$.pipe(
+    filter(result => typeof result === 'number'),
+    reduce((acc, val) => [...acc, val], [])
+).subscribe({
+    next: result => console.log('Results:', result),
+    complete: () => console.log('Completed')
+});
+```

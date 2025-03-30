@@ -1,0 +1,56 @@
+ 
+
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} not found`);
+        }
+    }
+};
+
+const target = {
+    a: 1,
+    b: 2,
+    c: 3
+};
+
+const proxy = new Proxy(target, handler);
+
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+async function asyncGenerator(ng) {
+    const iterator = ng();
+    return {
+        [Symbol.asyncIterator]: async function* () {
+            while (true) {
+                yield new Promise((resolve) => {
+                    setTimeout(() => resolve(iterator.next().value), 1000);
+                });
+            }
+        }
+    };
+}
+
+async function processNumbers() {
+    try {
+        print('Property a:', proxy.a);  
+        print('Property z:', proxy.z);  
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    const asyncGen = await asyncGenerator(numberGenerator);
+    for await (const num of asyncGen) {
+        print('Number:', num);
+        if (num >= 5) break;  
+    }
+}
+
+processNumbers();

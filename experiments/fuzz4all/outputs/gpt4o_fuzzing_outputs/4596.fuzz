@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(endpoint) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve({ data: `Fetched data from ${endpoint}` });
+            } else {
+                reject(new Error(`Failed to fetch data from ${endpoint}`));
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* fetchGenerator(endpoints) {
+    for (const endpoint of endpoints) {
+        yield fetchData(endpoint);
+    }
+}
+
+ 
+async function fetchAllData(endpoints) {
+    const generator = fetchGenerator(endpoints);
+    const results = [];
+    for (const promise of generator) {
+        try {
+            const { data } = await promise;  
+            results.push(data);
+        } catch (error) {
+            results.push(error.message);
+        }
+    }
+    return results;
+}
+
+ 
+const endpoints = ['api/endpoint1', 'api/endpoint2', 'api/endpoint3', 'api/endpoint4'];
+
+ 
+fetchAllData(endpoints).then(results => {
+    console.log('Results:', results);
+}).catch(error => {
+    console.error('Error:', error);
+});
+```

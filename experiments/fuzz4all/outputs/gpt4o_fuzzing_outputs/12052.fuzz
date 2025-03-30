@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const fetchWithTimeout = async (url, timeout = 5000) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
+    return response.json();
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error('Fetch timeout');
+    }
+    throw error;
+  }
+};
+
+async function* dataFetcher(urls) {
+  for (const url of urls) {
+    yield await fetchWithTimeout(url);
+  }
+}
+
+const emitter = new EventEmitter();
+emitter.on('data', (data) => console.log('Data received:', data));
+emitter.on('error', (error) => console.error('Error:', error));
+
+const urls = ['https://api1.example.com/data', 'https://api2.example.com/data'];
+
+(async () => {
+  try {
+    for await (const data of dataFetcher(urls)) {
+      emitter.emit('data', data);
+    }
+  } catch (error) {
+    emitter.emit('error', error.message);
+  }
+})();
+```

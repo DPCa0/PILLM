@@ -1,0 +1,52 @@
+ 
+async function* fetchDataGenerator() {
+    const mockData = [1, 2, 3, 4, 5];
+    for (const item of mockData) {
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        yield item * 2;  
+    }
+}
+
+ 
+const createDynamicObject = (initialValues = {}) => {
+    return new Proxy(initialValues, {
+        get(target, property) {
+            return target.hasOwnProperty(property) ? target[property] : `Property ${property} not found`;
+        },
+        set(target, property, value) {
+            print(`Setting ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        }
+    });
+};
+
+ 
+async function main() {
+     
+    const dynamicObj = createDynamicObject({ existing: 42 });
+
+     
+    const processedData = await Promise.all(
+        Array.from(fetchDataGenerator()).map(async (dataPromise) => {
+            const data = await dataPromise;
+            dynamicObj[`doubled_${data / 2}`] = data;
+            return data;
+        })
+    );
+
+     
+    const squaredData = processedData.map(num => num ** 2);
+
+     
+    const log = (strings, ...values) => {
+        print(strings.reduce((result, string, i) => result + string + (values[i] || ''), ''));
+    };
+    log`Processed Data: ${processedData}`;
+    log`Squared Data: ${squaredData}`;
+    log`Dynamic Object: ${JSON.stringify(dynamicObj)}`;
+}
+
+ 
+main().catch(console.error);

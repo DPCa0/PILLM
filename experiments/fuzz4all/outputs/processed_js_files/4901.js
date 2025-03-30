@@ -1,0 +1,72 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, 1);
+    matrix.map((_, i) => arr[i]);
+    return matrix;
+  }
+
+  toArray() {
+    let arr = [];
+    this.map(e => arr.push(e));
+    return arr;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      console.error('Columns of A must match rows of B.');
+      return null;
+    }
+    return new Matrix(a.rows, b.cols).map((_, i, j) =>
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+  }
+
+  add(n) {
+    if (n instanceof Matrix) {
+      this.map((e, i, j) => e + n.data[i][j]);
+    } else {
+      this.map(e => e + n);
+    }
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+
+  static map(matrix, func) {
+    return new Matrix(matrix.rows, matrix.cols).map((_, i, j) =>
+      func(matrix.data[i][j], i, j)
+    );
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+class NeuralNetwork {
+  constructor(inputNodes, hiddenNodes, outputNodes) {
+    this.inputNodes = inputNodes;
+    this.hiddenNodes = hiddenNodes;
+    this.outputNodes = outputNodes;
+
+    this.weights_ih = new Matrix(this.hiddenNodes, this.inputNodes);
+    this.weights_ho = new Matrix(this.outputNodes, this.hiddenNodes);
+
+    this.weights_ih.map(() => Math.random() * 2 - 1);
+    this.weights_ho.map(() => Math.random() * 2 - 1);
+
+    this.bias_h = new Matrix(this.hiddenNodes, 1);
+    this.bias_o = new Matrix(this.outputNodes, 1);
+
+    this.bias_h.map(() => Math.random() * 2 - 1);
+    this.bias_o.map(() => Math.random() * 2 -

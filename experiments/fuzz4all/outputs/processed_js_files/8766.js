@@ -1,0 +1,39 @@
+(async function() {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  
+  class EventEmitter {
+    constructor() {
+      this.events = {};
+    }
+    on(event, listener) {
+      if (!this.events[event]) {
+        this.events[event] = [];
+      }
+      this.events[event].push(listener);
+    }
+    emit(event, ...args) {
+      if (this.events[event]) {
+        this.events[event].forEach(listener => listener(...args));
+      }
+    }
+  }
+  
+  const dataProcessor = async function*(data) {
+    for (const item of data) {
+      await delay(500);
+      yield item * 2;
+    }
+  };
+  
+  const processor = new EventEmitter();
+  processor.on('process', result => print(`Processed Result: ${result}`));
+  
+  const runProcessing = async () => {
+    const data = [1, 2, 3, 4, 5];
+    for await (const result of dataProcessor(data)) {
+      processor.emit('process', result);
+    }
+  };
+
+  await runProcessing();
+})();

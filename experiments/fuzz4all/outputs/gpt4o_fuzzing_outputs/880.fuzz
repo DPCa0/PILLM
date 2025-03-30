@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = ({ data }) => {
+  return data.map(({ id, name, age }) => ({
+    id,
+    name,
+    isAdult: age >= 18,
+  }));
+};
+
+(async () => {
+  try {
+    const dataUrl = 'https://api.example.com/data';
+    const rawData = await fetchData(dataUrl);
+    const processedData = processData(rawData);
+
+    console.log('Processed Data:', processedData);
+
+    const groupedData = processedData.reduce((acc, person) => {
+      const key = person.isAdult ? 'adults' : 'minors';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(person);
+      return acc;
+    }, {});
+
+    console.log('Grouped Data:', groupedData);
+
+    const uniqueNames = new Set(processedData.map(person => person.name));
+    console.log('Unique Names:', Array.from(uniqueNames));
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

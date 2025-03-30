@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} doesn't exist on target object`);
+      return null;
+    }
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+// Using Generators
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+// Using Map and Set
+const map = new Map();
+map.set('key1', 'value1');
+map.set('key2', 'value2');
+
+const set = new Set([1, 2, 3, 4]);
+
+// Composing async function with Proxy, Generators, Map, and Set
+(async () => {
+  try {
+    const url = 'https: 
+    const data = await fetchData(url);
+    console.log('Fetched Data:', data.slice(0, 1));  
+
+    console.log('Proxy get a:', proxy.a);  
+    console.log('Proxy get c:', proxy.c);  
+
+    console.log('Generator ID:', gen.next().value);  
+
+    console.log('Map key1:', map.get('key1'));  
+
+    console.log('Set has 3:', set.has(3));  
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

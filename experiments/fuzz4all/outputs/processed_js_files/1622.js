@@ -1,0 +1,36 @@
+ 
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === Symbol.asyncIterator) {
+            return async function*() {
+                for (let item of target) {
+                    yield new Promise(resolve => setTimeout(() => resolve(item * 2), 100));
+                }
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        print(`Setting value ${value} at position ${prop}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+
+ 
+const proxyNumbers = new Proxy(numbers, handler);
+
+ 
+(async () => {
+     
+    proxyNumbers[0] = 10;
+    
+     
+    for await (let num of proxyNumbers) {
+        print(num);  
+    }
+})();

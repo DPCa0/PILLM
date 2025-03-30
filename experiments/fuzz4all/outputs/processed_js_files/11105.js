@@ -1,0 +1,31 @@
+ 
+const { promises: fs } = await import('fs');
+const { platform, cpus } = await import('os');
+
+ 
+async function* cpuInfo() {
+  for (const cpu of cpus()) {
+    yield {
+      model: cpu.model,
+      speed: cpu.speed,
+    };
+  }
+}
+
+ 
+(async () => {
+  const filePath = './cpuInfo.json';
+
+   
+  const cpuDetails = [];
+  for await (const info of cpuInfo()) {
+    const { model, speed } = info;
+    cpuDetails.push({ model, speed });
+  }
+
+   
+  await fs.writeFile(filePath, JSON.stringify({ platform: platform(), cpus: cpuDetails }, null, 2));
+
+   
+  print(`CPU information has been saved to ${filePath}`);
+})();

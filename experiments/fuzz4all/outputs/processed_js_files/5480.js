@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve({
+          status: 200,
+          json: () => Promise.resolve({
+            user: { id: 1, name: 'John Doe', age: 30 },
+            posts: [
+              { id: 101, title: 'Async JS', content: 'Exploring async/await in JavaScript.' },
+              { id: 102, title: 'Destructuring', content: 'Using destructuring for better code readability.' }
+            ]
+          })
+        });
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+};
+
+ 
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const response = await fetchData(url);
+    
+    if (response.status === 200) {
+      const { user: { name }, posts } = await response.json();
+      posts.forEach(({ title, content }, index) => {
+        print(`Post #${index + 1}\nTitle: ${title}\nContent: ${content}\n\n`);
+      });
+      print(`Data retrieved successfully for user: ${name}`);
+    }
+  } catch (error) {
+    console.error(`Error fetching data: ${error}`);
+  }
+})();

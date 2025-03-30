@@ -1,0 +1,32 @@
+ 
+
+async function* fetchUserData(userIds) {
+  for (const id of userIds) {
+    yield fetch(`https: 
+      .then(response => response.json());
+  }
+}
+
+async function processUsers() {
+  const userIds = [1, 2, 3, 4, 5];
+  const results = [];
+
+  for await (const user of fetchUserData(userIds)) {
+    const userInfo = {
+      name: user.name,
+      email: user.email,
+      company: user.company.name
+    };
+    results.push(userInfo);
+  }
+
+  print('Processed User Information:', results);
+}
+
+(async () => {
+  try {
+    await processUsers();
+  } catch (error) {
+    console.error('Error processing users:', error);
+  }
+})();

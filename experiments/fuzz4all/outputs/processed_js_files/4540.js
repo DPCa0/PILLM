@@ -1,0 +1,35 @@
+class AsyncEventEmitter {
+  #listeners = new Map();
+
+  on(event, listener) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, []);
+    }
+    this.#listeners.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.#listeners.has(event)) return;
+    const listeners = this.#listeners.get(event);
+    return Promise.all(listeners.map(listener => listener(...args)));
+  }
+}
+
+const asyncTask = async (name) => {
+  await new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+  print(`Task ${name} completed`);
+};
+
+(async function complexUsage() {
+  const eventEmitter = new AsyncEventEmitter();
+
+  eventEmitter.on('taskCompleted', async (name) => {
+    await asyncTask(name);
+  });
+
+  const tasks = ['A', 'B', 'C'];
+  const promises = tasks.map(task => eventEmitter.emit('taskCompleted', task));
+
+  await Promise.all(promises);
+  print('All tasks completed');
+})();

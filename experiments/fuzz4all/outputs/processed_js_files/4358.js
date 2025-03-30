@@ -1,0 +1,41 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fetchData(urls) {
+    for (const url of urls) {
+        const response = await fetch(url);
+        yield response.json();
+    }
+}
+
+function mergeArrays(...arrays) {
+    return arrays.reduce((acc, array) => [...acc, ...array], []);
+}
+
+const observeData = (urls) => {
+    const deferred = new Deferred();
+    const intervalId = setInterval(async () => {
+        for await (const data of fetchData(urls)) {
+            deferred.resolve(data);
+        }
+    }, 1000);
+
+    return {
+        dataPromise: deferred.promise,
+        stop: () => clearInterval(intervalId)
+    };
+};
+
+const urls = ['https://api.exapmle1.com/data', 'https://api.example2.com/data'];
+const observer = observeData(urls);
+
+observer.dataPromise.then(data => {
+    const processedData = mergeArrays(...data);
+    print('Merged Data:', processedData);
+}).catch(err => console.error('Error fetching data:', err));

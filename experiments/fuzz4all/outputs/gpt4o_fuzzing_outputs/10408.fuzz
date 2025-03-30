@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const { parse, stringify } = JSON;
+
+     
+    const filePath = `./data_${new Date().toISOString().slice(0, 10)}.json`;
+
+     
+    const processData = (...data) => data.map(({ id, ...rest }) => ({ id, timestamp: new Date(), ...rest }));
+
+     
+    const handler = {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          throw new ReferenceError(`Property ${prop} does not exist.`);
+        }
+      }
+    };
+
+     
+    const rawData = await fs.readFile(filePath, 'utf8');
+    const records = parse(rawData);
+
+     
+    const transformedData = records
+      .filter(record => record.isActive)
+      .map(record => ({
+        ...record,
+        name: record.name.toUpperCase(),
+        metadata: { processedAt: new Date().toISOString() }
+      }));
+
+     
+    const uniqueData = [...new Set(transformedData.map(item => item.id))].map(id =>
+      transformedData.find(item => item.id === id)
+    );
+
+     
+    const proxiedData = new Proxy(uniqueData, handler);
+
+     
+    const processedData = processData(...proxiedData);
+    console.log(processedData);
+
+     
+    await fs.writeFile(filePath, stringify(processedData, null, 2), 'utf8');
+  } catch (error) {
+     
+    console.error(`Error: ${error?.message ?? 'Unknown error occurred'}`);
+  }
+})();
+```

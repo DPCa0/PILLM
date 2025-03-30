@@ -1,0 +1,66 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    print('Fetching data...');
+    await delay(1000);
+    return [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' },
+        { id: 3, name: 'Charlie' }
+    ];
+}
+
+ 
+function* createIdGenerator() {
+    let id = 4;
+    while (true) {
+        yield id++;
+    }
+}
+
+const idGenerator = createIdGenerator();
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        print(`Accessing property "${prop}"`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        print(`Setting property "${prop}" to "${value}"`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+ 
+(async function() {
+     
+    const data = await fetchData();
+
+     
+    const uniqueData = new Set(data.map(item => item.name));
+    
+     
+    print('Unique names:', [...uniqueData]);
+
+     
+    const userMap = new Map(data.map(user => [user.id, user.name]));
+    
+     
+    userMap.set(idGenerator.next().value, 'Dave');
+
+     
+    const proxyUserMap = new Proxy(userMap, handler);
+
+     
+    print('User 2:', proxyUserMap.get(2));
+    proxyUserMap.set(5, 'Eve');
+
+     
+    print('All users:', Array.from(proxyUserMap.entries()));
+})();

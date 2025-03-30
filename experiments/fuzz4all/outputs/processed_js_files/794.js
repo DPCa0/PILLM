@@ -1,0 +1,39 @@
+ 
+
+ 
+function fetchData(delay) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data fetched after ${delay}ms`);
+    }, delay);
+  });
+}
+
+ 
+function* dataGenerator() {
+  yield fetchData(1000);
+  yield fetchData(2000);
+  yield fetchData(3000);
+}
+
+ 
+async function asyncFetch() {
+  const generator = dataGenerator();
+  for (let promise of generator) {
+    const result = await promise;
+    print(result);
+  }
+}
+
+ 
+const handler = {
+  apply(target, thisArg, argumentsList) {
+    print(`Called ${target.name} with args: ${argumentsList}`);
+    return Reflect.apply(target, thisArg, argumentsList);
+  }
+};
+
+const proxyFetch = new Proxy(asyncFetch, handler);
+
+ 
+proxyFetch();

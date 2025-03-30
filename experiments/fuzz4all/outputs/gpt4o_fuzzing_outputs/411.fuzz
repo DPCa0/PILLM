@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: "Sample Data from Network" });
+        }, 1000);
+    });
+}
+
+ 
+const dataHandler = {
+    get: function(target, property) {
+        console.log(`Accessing property '${property}'`);
+        return target[property];
+    }
+};
+
+async function run() {
+     
+    const response = await fetchData();
+    
+     
+    const { data: fetchedData } = response;
+
+     
+    const proxyData = new Proxy({ fetchedData }, dataHandler);
+
+     
+    const taggedLiteral = (strings, value) => `${strings[0]}**${value}**${strings[1]}`;
+    console.log(taggedLiteral`Network data is: ${proxyData.fetchedData}`);
+
+     
+    const uniqueValues = new Set(['apple', 'banana', 'apple', 'orange']);
+    uniqueValues.add('banana');
+    console.log(`Unique Values: ${Array.from(uniqueValues).join(', ')}`);
+
+     
+    console.log(`Data: ${proxyData?.fetchedData ?? 'No data available'}`);
+
+     
+    await fs.writeFile('output.txt', `Output Data: ${proxyData.fetchedData}`, 'utf8');
+    console.log('Data written to file successfully');
+}
+
+run().catch(console.error);
+```

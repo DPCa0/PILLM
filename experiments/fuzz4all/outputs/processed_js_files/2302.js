@@ -1,0 +1,39 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map([[0, 0], [1, 1]]);
+    }
+
+    *sequence(limit) {
+        for (let i = 0; i <= limit; i++) {
+            yield this.calculate(i);
+        }
+    }
+
+    calculate(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        let value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const fib = new Fibonacci();
+const limit = 10;
+
+const sequenceArray = [...fib.sequence(limit)];
+
+const sum = sequenceArray.reduce((acc, val) => acc + val, 0);
+
+async function delayedLog(message, delay) {
+    return new Promise(resolve => setTimeout(() => {
+        print(message);
+        resolve();
+    }, delay));
+}
+
+(async () => {
+    for (const num of sequenceArray) {
+        await delayedLog(`Fibonacci: ${num}`, 500);
+    }
+    await delayedLog(`Sum of Fibonacci sequence up to ${limit}: ${sum}`, 500);
+})();

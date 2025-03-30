@@ -1,0 +1,39 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+    return null;
+  }
+};
+
+const processData = async (url) => {
+  const data = await fetchData(url);
+  if (!data) return;
+
+  const mappedData = data.map(({ id, name, age }) => ({
+    id,
+    name: name.toUpperCase(),
+    isAdult: age >= 18,
+  }));
+
+  const groupedData = mappedData.reduce((acc, { isAdult, ...rest }) => {
+    const key = isAdult ? 'adults' : 'minors';
+    acc[key] = acc[key] || [];
+    acc[key].push(rest);
+    return acc;
+  }, {});
+
+  return groupedData;
+};
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const result = await processData(url);
+  if (result) {
+    print('Adults:', result.adults);
+    print('Minors:', result.minors);
+  }
+})();

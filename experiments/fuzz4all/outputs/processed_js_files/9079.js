@@ -1,0 +1,73 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+const throttle = (func, limit) => {
+  let lastFunc;
+  let lastRan;
+  return (...args) => {
+    if (!lastRan) {
+      func.apply(this, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(() => {
+        if (Date.now() - lastRan >= limit) {
+          func.apply(this, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('data', debounce(data => {
+  print('Debounced data received:', data);
+}, 300));
+
+emitter.on('data', throttle(data => {
+  print('Throttled data received:', data);
+}, 1000));
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('data', data);
+    emitter.emit('data', data);
+    emitter.emit('data', data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

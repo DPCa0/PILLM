@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('URL not provided');
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* asyncDataFetcher(urls) {
+  for (let url of urls) {
+    try {
+      const data = yield fetchData(url);
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+async function runner(generator) {
+  const iterator = generator();
+  async function iterate(iteration) {
+    if (iteration.done) return;
+    try {
+      iterate(iterator.next(await iteration.value));
+    } catch (error) {
+      iterator.throw(error);
+    }
+  }
+  iterate(iterator.next());
+}
+
+ 
+const cacheHandler = {
+  cache: new Map(),
+  apply: async (target, thisArg, args) => {
+    const url = args[0];
+    if (cacheHandler.cache.has(url)) {
+      return `Cached: ${cacheHandler.cache.get(url)}`;
+    }
+    const result = await Reflect.apply(target, thisArg, args);
+    cacheHandler.cache.set(url, result);
+    return result;
+  }
+};
+
+ 
+const proxiedFetchData = new Proxy(fetchData, cacheHandler);
+
+ 
+runner(function* () {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+  yield* asyncDataFetcher(urls.map(url => proxiedFetchData(url)));
+});
+```

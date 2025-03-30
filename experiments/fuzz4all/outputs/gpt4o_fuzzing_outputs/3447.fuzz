@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class NetworkRequest {
+  #url;
+  #params;
+
+  constructor(url, params = {}) {
+    this.#url = url;
+    this.#params = params;
+  }
+
+  async *fetchData() {
+    const query = new URLSearchParams(this.#params);
+    const response = await fetch(`${this.#url}?${query.toString()}`);
+
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let { done, value } = await reader.read();
+
+    while (!done) {
+      yield decoder.decode(value, { stream: true });
+      ({ done, value } = await reader.read());
+    }
+  }
+}
+
+const proxyHandler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property "${prop}" with value: ${target[prop]}`);
+      return target[prop];
+    } else {
+      throw new ReferenceError(`Property "${prop}" does not exist.`);
+    }
+  }
+};
+
+(async () => {
+  const url = 'https://api.github.com/repos/javascript-tutorial/en.javascript.info/commits';
+  const request = new Proxy(new NetworkRequest(url), proxyHandler);
+
+  try {
+    for await (let chunk of request.fetchData()) {
+      console.log('Chunk received: ', chunk.substring(0, 100));
+      break;  
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

@@ -1,0 +1,54 @@
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://example.com/data") {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const handlerSymbol = Symbol("handler");
+
+ 
+const dataProxyHandler = {
+  get(target, prop) {
+    if (prop === handlerSymbol) {
+      return true;
+    }
+    if (prop in target) {
+      print(`Accessing ${prop}...`);
+      return target[prop];
+    } else {
+      throw new ReferenceError(`${prop} does not exist on target`);
+    }
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const main = async () => {
+  try {
+    const rawData = await fetchData("https://example.com/data");
+    const proxiedData = new Proxy(rawData, dataProxyHandler);
+
+    print(proxiedData.data);  
+    proxiedData.newData = [6, 7, 8];  
+    print(proxiedData.newData);
+  } catch (error) {
+    if (error instanceof ReferenceError) {
+      console.warn("ReferenceError handled by Proxy:", error.message);
+    } else {
+      console.error("An error occurred:", error.message);
+    }
+  }
+};
+
+main();

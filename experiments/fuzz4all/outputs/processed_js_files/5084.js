@@ -1,0 +1,57 @@
+ 
+
+ 
+
+ 
+async function fetchUserData(userId) {
+  const response = await fetch(`https: 
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return response.json();
+}
+
+ 
+const privateData = Symbol('privateData');
+
+ 
+class User {
+  constructor(id) {
+    this.id = id;
+    this[privateData] = {};
+  }
+
+   
+  async loadData() {
+    const data = await fetchUserData(this.id);
+    this[privateData] = data;
+  }
+
+   
+  get data() {
+    return new Proxy(this[privateData], {
+      get: (target, prop) => {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          console.warn(`Property ${prop} does not exist.`);
+          return undefined;
+        }
+      },
+    });
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const user = new User(1);
+    await user.loadData();
+
+     
+    print(user.data.name);
+    print(user.data.email);
+    print(user.data.nonExistentProp);  
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

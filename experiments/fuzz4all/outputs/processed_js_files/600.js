@@ -1,0 +1,30 @@
+ 
+(async function fetchAndProcessData() {
+    try {
+         
+        let response = await fetch('https://jsonplaceholder.typicode.com/users');
+        if (!response.ok) throw new Error('Network response was not ok');
+        let users = await response.json();
+
+         
+        let processedUsers = users.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email.toLowerCase(),
+            company: user.company.name
+        })).filter(user => user.name.startsWith('C'));
+
+         
+        let uniqueCompanies = new Set(processedUsers.map(user => user.company));
+
+         
+        let totalNameCharacters = processedUsers.reduce((acc, user) => acc + user.name.length, 0);
+
+         
+        print('Filtered Users:', processedUsers);
+        print('Unique Companies:', [...uniqueCompanies]);
+        print('Total Characters in User Names:', totalNameCharacters);
+    } catch (error) {
+        console.error('Error fetching or processing data:', error);
+    }
+})();

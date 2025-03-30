@@ -1,0 +1,67 @@
+ 
+
+ 
+const log = Symbol('log');
+
+class AdvancedLogger {
+  constructor() {
+    this[log] = [];
+  }
+
+  log(message) {
+    const timestamp = new Date().toISOString();
+    this[log].push({ message, timestamp });
+    print(`[${timestamp}] ${message}`);
+  }
+
+  get history() {
+    return this[log];
+  }
+}
+
+ 
+const loggerHandler = {
+  get: (target, prop) => {
+    if (prop === 'history') {
+      return target.history;
+    }
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    throw new Error('Cannot set properties on logger');
+  },
+};
+
+const loggerProxy = new Proxy(new AdvancedLogger(), loggerHandler);
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve('Data retrieved successfully!');
+    }, 1000);
+  });
+};
+
+ 
+(async () => {
+  loggerProxy.log('Starting data retrieval...');
+  try {
+    const data = await fetchData();
+    loggerProxy.log(`Data: ${data}`);
+  } catch (error) {
+    loggerProxy.log(`Error: ${error.message}`);
+  } finally {
+    loggerProxy.log('Retrieval process complete.');
+  }
+
+   
+  try {
+    loggerProxy.newProperty = 'This should fail';
+  } catch (error) {
+    loggerProxy.log(`Caught error: ${error.message}`);
+  }
+
+   
+  print('Log History:', loggerProxy.history);
+})();

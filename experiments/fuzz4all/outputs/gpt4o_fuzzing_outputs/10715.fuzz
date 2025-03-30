@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+    this[Symbol.iterator] = function* () {
+      let [prev, curr] = [0, 1];
+      while (curr <= this.limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+      }
+    };
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    const result = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const fibonacci = new Fibonacci(100);
+console.log([...fibonacci]);  
+
+const asyncDouble = async n => n * 2;
+const squareThenDouble = async n => {
+  const squared = n ** 2;
+  return await asyncDouble(squared);
+};
+
+(async () => {
+  const fibNumbers = [...fibonacci];
+  for (let num of fibNumbers) {
+    const result = await squareThenDouble(num);
+    console.log(`Number: ${num}, Squared and Doubled: ${result}`);
+  }
+})();
+```

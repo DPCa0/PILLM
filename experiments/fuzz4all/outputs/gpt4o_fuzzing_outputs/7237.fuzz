@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+   
+  static fromPolar(r, theta) {
+    return new ComplexNumber(r * Math.cos(theta), r * Math.sin(theta));
+  }
+
+   
+  get magnitude() {
+    return Math.sqrt(this.#real ** 2 + this.#imaginary ** 2);
+  }
+
+   
+  *[Symbol.iterator]() {
+    yield this.#real;
+    yield this.#imaginary;
+  }
+
+   
+  async fetchComplexInfo() {
+    const response = await fetch('https://api.example.com/complex?real=' + this.#real + '&imag=' + this.#imaginary);
+    const data = await response.json();
+    return data;
+  }
+
+   
+  static withValidation(real, imaginary) {
+    const handler = {
+      set(obj, prop, value) {
+        if ((prop === '#real' || prop === '#imaginary') && typeof value !== 'number') {
+          throw new Error('Both real and imaginary parts must be numbers.');
+        }
+        return Reflect.set(obj, prop, value);
+      }
+    };
+    return new Proxy(new ComplexNumber(real, imaginary), handler);
+  }
+
+   
+  toString() {
+    return `${this.#real} ${this.#imaginary >= 0 ? '+' : '-'} ${Math.abs(this.#imaginary)}i`;
+  }
+}
+
+ 
+const complexNum = ComplexNumber.withValidation(3, 4);
+console.log(complexNum.toString());  
+console.log([...complexNum]);  
+complexNum.fetchComplexInfo().then(data => console.log(data)).catch(err => console.error(err));
+```

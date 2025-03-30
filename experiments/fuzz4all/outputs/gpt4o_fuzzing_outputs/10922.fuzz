@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+function fetchWithRetry(url, retries = 3, delay = 1000) {
+    const deferred = new Deferred();
+
+    async function fetchAttempt(remainingRetries) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Fetch failed');
+            const data = await response.json();
+            deferred.resolve(data);
+        } catch (error) {
+            if (remainingRetries > 0) {
+                console.log(`Retrying... (${remainingRetries} attempts left)`);
+                setTimeout(() => fetchAttempt(remainingRetries - 1), delay);
+            } else {
+                deferred.reject('Fetch failed after retries');
+            }
+        }
+    }
+
+    fetchAttempt(retries);
+    return deferred.promise;
+}
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    try {
+        const data = await fetchWithRetry(url);
+        console.log('Data fetched:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+```

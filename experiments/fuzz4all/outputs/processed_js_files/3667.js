@@ -1,0 +1,41 @@
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve({ data: { user: { name: 'John Doe', age: 30 }, skills: ['JavaScript', 'React', 'Node.js'] } });
+      } else {
+        reject(new Error('Invalid URL'));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const logUserInfo = ({ name, age }, skills) => {
+  console.log(`User Info:
+  Name: ${name}
+  Age: ${age}
+  Skills: ${skills.join(', ')}`);
+};
+
+ 
+const main = async (url) => {
+  try {
+     
+    const { data: { user, skills } } = await fetchData(url);
+    
+     
+    const updatedSkills = [...skills, 'TypeScript', 'GraphQL'];
+    
+     
+    logUserInfo(user, updatedSkills);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+};
+
+ 
+main('https://api.example.com/user');

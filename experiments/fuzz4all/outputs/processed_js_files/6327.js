@@ -1,0 +1,30 @@
+const data = [
+  { name: 'Alice', scores: [95, 92, 88] },
+  { name: 'Bob', scores: [82, 79, 85] },
+  { name: 'Charlie', scores: [98, 99, 100] }
+];
+
+ 
+const averageScores = data.map(({ name, scores }) => {
+  const average = scores.reduce((acc, score) => acc + score, 0) / scores.length;
+  return { name, average };
+});
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(averageScores), 1000);
+  });
+}
+
+(async () => {
+  try {
+    const result = await fetchData();
+    const [topStudent] = result.sort((a, b) => b.average - a.average);
+
+     
+    print(`Top student is ${topStudent.name} with an average score of ${topStudent.average.toFixed(2)}.`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

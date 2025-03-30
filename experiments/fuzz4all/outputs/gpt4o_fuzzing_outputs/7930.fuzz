@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+
+(async () => {
+   
+  try {
+    const data = await readFile('example.json', 'utf8');
+    const jsonData = JSON.parse(data);
+    
+     
+    const uniqueValues = new Set(jsonData.values);
+    const valueMap = new Map();
+
+    uniqueValues.forEach(value => {
+      valueMap.set(value, jsonData.values.filter(v => v === value).length);
+    });
+
+     
+    const { name, details: { age, address } } = jsonData;
+    const newAddress = { ...address, city: 'New City' };
+
+     
+    const handler = {
+      set(target, property, value) {
+        console.log(`Property ${property} set to ${value}`);
+        target[property] = value;
+        return true;
+      }
+    };
+
+    const userDetails = new Proxy({ name, age, newAddress }, handler);
+    userDetails.age = 30;  
+
+     
+    console.log(`User ${userDetails.name} from ${userDetails.newAddress.city} is ${userDetails.age} years old.`);
+    console.log('Value Map:', valueMap);
+
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+})();
+```

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const asyncOperation = async (num) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            num % 2 === 0 ? resolve(num * 2) : reject(new Error('Odd number'));
+        }, 1000);
+    });
+};
+
+const retryAsyncOperation = async (fn, retries) => {
+    let lastError;
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error;
+        }
+    }
+    throw lastError;
+};
+
+const numbers = [1, 2, 3, 4, 5];
+const results = [];
+
+(async () => {
+    await Promise.all(numbers.map(async (num) => {
+        try {
+            const result = await retryAsyncOperation(() => asyncOperation(num), 3);
+            results.push(result);
+        } catch (error) {
+            console.error(`Failed to process number ${num}: ${error.message}`);
+        }
+    }));
+
+    const uniqueResults = [...new Set(results)].map((num) => ({
+        value: num,
+        timestamp: new Date(),
+    }));
+
+    console.log('Processed Results:', uniqueResults);
+})();
+```

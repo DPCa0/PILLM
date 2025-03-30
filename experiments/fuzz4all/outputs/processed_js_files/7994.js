@@ -1,0 +1,47 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    *generate(n) {
+        for (let i = 0; i < n; i++) {
+            yield this.calculate(i);
+        }
+    }
+
+    calculate(n) {
+        if (n <= 1) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+
+        const value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci();
+    const sequence = fib.generate(10);
+
+    for await (const num of sequence) {
+        print(`Fibonacci: ${num}`);
+    }
+
+    print('Transform and filter with functional programming:');
+    const results = Array.from({ length: 15 }, (_, i) => i)
+        .map(n => fib.calculate(n))
+        .filter(n => n % 2 === 0)
+        .reduce((acc, n) => acc + n, 0);
+
+    print(`Sum of even Fibonacci numbers up to 15th term: ${results}`);
+
+    print('Using Promise with async/await:');
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    const asyncTask = async () => {
+        await delay(1000);
+        print('Async task completed after 1 second delay.');
+    };
+
+    await asyncTask();
+})();

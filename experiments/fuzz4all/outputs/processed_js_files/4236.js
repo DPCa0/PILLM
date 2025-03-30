@@ -1,0 +1,52 @@
+ 
+
+ 
+function asyncOperation(duration, value) {
+  return new Promise(resolve => setTimeout(() => resolve(value), duration));
+}
+
+ 
+function* createValueGenerator() {
+  yield asyncOperation(1000, "Value 1");
+  yield asyncOperation(2000, "Value 2");
+  yield asyncOperation(3000, "Value 3");
+}
+
+ 
+async function processGenerator(gen) {
+  for (const promise of gen) {
+    print('Processing:', await promise);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Property '${prop}' accessed`);
+      return target[prop];
+    }
+    throw new Error(`Property '${prop}' does not exist`);
+  }
+};
+
+ 
+const target = {
+  start: async () => {
+    print("Starting processing");
+    await processGenerator(createValueGenerator());
+    print("Processing complete");
+  }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+  try {
+    await proxy.start();  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

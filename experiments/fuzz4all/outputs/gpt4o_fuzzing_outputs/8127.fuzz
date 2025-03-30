@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+const { createServer } = require('http');
+const url = require('url');
+const crypto = require('crypto');
+
+class PubSub {
+  constructor() {
+    this.topics = {};
+  }
+
+  subscribe(topic, callback) {
+    if (!this.topics[topic]) {
+      this.topics[topic] = [];
+    }
+    const id = crypto.randomBytes(16).toString('hex');
+    this.topics[topic].push({ id, callback });
+    return id;
+  }
+
+  unsubscribe(topic, id) {
+    if (!this.topics[topic]) return;
+    this.topics[topic] = this.topics[topic].filter(sub => sub.id !== id);
+  }
+
+  publish(topic, data) {
+    if (!this.topics[topic]) return;
+    this.topics[topic].forEach(sub => sub.callback(data));
+  }
+}
+
+const pubsub = new PubSub();
+
+const server = createServer((req, res) => {
+  const { pathname, query } = url.parse(req.url, true);
+
+  if (pathname === '/publish' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      const { topic, data } = JSON.parse(body);
+      pubsub.publish(topic, data);
+      res.end('Published');
+    });
+  } else if (pathname === '/subscribe' && req.method === 'GET') {
+    const { topic } = query;
+    const id = pubsub.subscribe(topic, data => {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    });
+    res.writeHead(200, { 'Content-Type': 'text/event-stream' });
+    req.on('close', () => pubsub.unsubscribe(topic, id));
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+server.listen(8080, () => {
+  console.log('Server listening on port 8080');
+});
+```

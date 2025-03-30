@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { user: { name: 'Jane Doe', age: 28 }, settings: { theme: 'dark', notifications: true } } });
+    }, 1000);
+  });
+}
+
+ 
+function logger(strings, ...expressions) {
+  const result = strings.reduce((acc, str, i) => acc + str + (expressions[i] || ''), '');
+  console.log(`Log: ${result}`);
+}
+
+ 
+function createMultiplier(multiplier) {
+  return (number) => number * multiplier;
+}
+
+const double = createMultiplier(2);
+const triple = createMultiplier(3);
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/userdata';
+    const { data: { user: { name, age }, settings: { theme, notifications } } } = await fetchData(url);
+    
+    logger`User ${name} is ${age} years old, prefers ${theme} theme, notifications are ${notifications ? 'enabled' : 'disabled'}.`;
+
+     
+    console.log(`Double 5: ${double(5)}, Triple 5: ${triple(5)}`);
+    
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

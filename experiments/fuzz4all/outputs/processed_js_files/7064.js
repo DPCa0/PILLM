@@ -1,0 +1,56 @@
+ 
+const fetchData = async () => {
+    try {
+         
+        const getPromise = () => new Promise((resolve, reject) => {
+            setTimeout(() => resolve({ status: 200, data: { user: 'John Doe', age: 30, location: 'Earth' } }), 1000);
+        });
+        
+         
+        const response = await getPromise();
+        
+        if (response.status === 200) {
+             
+            const { user, age, location } = response.data;
+            
+             
+            print(`User Info:\nName: ${user}\nAge: ${age}\nLocation: ${location}`);
+        } else {
+            print('Failed to fetch data');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+const processData = () => {
+    const data = [
+        { id: 1, scores: [80, 85, 90] },
+        { id: 2, scores: [70, 75, 80] },
+        { id: 3, scores: [60, 65, 70] }
+    ];
+
+     
+    const result = data.map(({ id, scores: [score1, , score3] }) => ({
+        id,
+        adjustedScores: [score1 * 1.1, score3 * 1.1]
+    }));
+    
+    console.table(result);
+};
+
+ 
+const handleNestedObject = () => {
+    const nestedObj = { name: 'Alice', address: { city: 'Wonderland', zip: null } };
+
+    const city = nestedObj.address?.city ?? 'Unknown City';
+    const zip = nestedObj.address?.zip ?? 'No Zip Code';
+
+    print(`City: ${city}, Zip: ${zip}`);
+};
+
+ 
+fetchData();
+processData();
+handleNestedObject();

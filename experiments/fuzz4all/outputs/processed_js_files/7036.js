@@ -1,0 +1,40 @@
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async process() {
+    try {
+      const processedData = await this._complexComputation(this.data);
+      const filteredData = processedData.filter((item) => item.value > 10);
+      return filteredData;
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  }
+
+  async _complexComputation(data) {
+    return new Promise((resolve, reject) => {
+      try {
+        setTimeout(() => {
+          resolve(data.map((item) => ({ ...item, value: item.value * 2 })));
+        }, 2000);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+}
+
+const data = [
+  { id: 1, value: 5 },
+  { id: 2, value: 15 },
+  { id: 3, value: 8 },
+  { id: 4, value: 20 },
+];
+
+(async () => {
+  const processor = new DataProcessor(data);
+  const result = await processor.process();
+  print('Processed Data:', result);
+})();

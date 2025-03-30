@@ -1,0 +1,47 @@
+ 
+
+class Weather {
+  constructor() {
+    this.apiKey = 'your_api_key';  
+    this.url = 'https://api.weatherapi.com/v1/current.json';
+  }
+
+  async fetchWeather(city) {
+    try {
+      const response = await fetch(`${this.url}?key=${this.apiKey}&q=${city}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch Weather Failed:', error);
+    }
+  }
+
+  displayWeather(weatherData) {
+    print(`Weather in ${weatherData.location.name}:`);
+    print(`Temperature: ${weatherData.current.temp_c}°C`);
+    print(`Condition: ${weatherData.current.condition.text}`);
+  }
+}
+
+const cities = ['London', 'New York', 'Tokyo'];
+const weatherApp = new Weather();
+
+(async () => {
+  try {
+    const weatherPromises = cities.map(city => weatherApp.fetchWeather(city));
+    const weatherResults = await Promise.all(weatherPromises);
+    weatherResults.forEach(data => weatherApp.displayWeather(data));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+
+This program uses several advanced JavaScript features:
+
+- **Class**: Defines a `Weather` class that encapsulates weather fetching functionality.
+- **Async/Await**: Handles asynchronous fetching of weather data.
+- **Promises**: Uses `Promise.all()` to handle multiple asynchronous operations.
+- **Fetch API**: Performs HTTP requests to a weather API.
+- **Template Literals**: Constructs strings with dynamic content.
+- **Error Handling**: Catches errors from asynchronous operations.

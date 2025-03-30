@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = (data) => {
+  return data
+    .map(({ id, value }) => ({ id, calculated: value * 2 }))
+    .filter(({ calculated }) => calculated > 10);
+};
+
+const performCalculations = (numbers) => {
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  return {
+    sum,
+    avg: sum / numbers.length,
+    max: Math.max(...numbers),
+    min: Math.min(...numbers)
+  };
+};
+
+const main = async () => {
+  try {
+    const rawData = await fetchData('https://api.example.com/data');
+    const processedData = processData(rawData);
+    const values = processedData.map(({ calculated }) => calculated);
+
+    const { sum, avg, max, min } = performCalculations(values);
+    console.log(`Sum: ${sum}, Average: ${avg}, Max: ${max}, Min: ${min}`);
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+};
+
+ 
+(() => {
+  main();
+})();
+```

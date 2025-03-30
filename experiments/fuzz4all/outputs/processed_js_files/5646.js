@@ -1,0 +1,63 @@
+(async () => {
+  const fetchData = url =>
+    new Promise((resolve, reject) =>
+      setTimeout(() => {
+        Math.random() > 0.2 ? resolve(`Data from ${url}`) : reject('Fetch error');
+      }, 1000)
+    );
+
+  const processData = async urls => {
+    try {
+      const results = await Promise.allSettled(urls.map(fetchData));
+      const successfulResults = results
+        .filter(({ status }) => status === 'fulfilled')
+        .map(({ value }) => value);
+
+      print('Successful results:', successfulResults);
+
+      const process = async data => {
+        const transformedData = data.split(' ').reverse().join(' ');
+        return new Promise(resolve => setTimeout(() => resolve(transformedData), 500));
+      };
+
+      const processedData = await Promise.all(successfulResults.map(process));
+      print('Processed results:', processedData);
+    } catch (error) {
+      console.error('Error processing data:', error);
+    }
+  };
+
+  const urls = ['url1', 'url2', 'url3', 'url4', 'url5'];
+  await processData(urls);
+
+  const multiply = (x, y, callback) => {
+    const result = x * y;
+    callback(result);
+  };
+
+  multiply(5, 4, result => {
+    print('Multiplication result:', result);
+
+    const withCurrying = x => y => z => x + y + z;
+    const addNumbers = withCurrying(10)(20)(30);
+    print('Curried sum:', addNumbers);
+
+    const destructureAndLog = ({ a, b, c }) => {
+      print(`Destructured values: ${a}, ${b}, ${c}`);
+    };
+
+    const obj = { a: 1, b: 2, c: 3 };
+    destructureAndLog(obj);
+
+    const uniqueArray = Array.from(new Set([1, 2, 3, 3, 4, 4, 5]));
+    print('Unique array:', uniqueArray);
+
+    const objArray = [
+      { id: 1, name: 'Alice' },
+      { id: 2, name: 'Bob' },
+      { id: 3, name: 'Charlie' },
+    ];
+
+    const objMap = objArray.reduce((map, obj) => {
+      map.set(obj.id, obj.name);
+      return

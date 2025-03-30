@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      url ? resolve(`Data from ${url}`) : reject('No URL provided');
+    }, 1000);
+  });
+}
+
+ 
+async function asyncFetchData(url) {
+  try {
+    const data = await fetchData(url);
+    console.log(data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+function* dataFlow() {
+  yield asyncFetchData('https://api.example.com/data1');
+  yield asyncFetchData('https://api.example.com/data2');
+  yield asyncFetchData('https://api.example.com/data3');
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    return property in target ? target[property] : asyncFetchData(property);
+  }
+};
+
+const proxy = new Proxy({}, handler);
+
+ 
+const iterator = dataFlow();
+let result = iterator.next();
+
+while (!result.done) {
+  result = iterator.next();
+}
+
+ 
+proxy['https://api.example.com/data4'];
+proxy['missingUrl'];  
+```

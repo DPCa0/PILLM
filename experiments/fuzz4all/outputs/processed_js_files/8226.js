@@ -1,0 +1,30 @@
+ 
+async function fetchDataAndProcess() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+
+     
+    const fetchPromises = urls.map(url => fetch(url).then(response => response.json()));
+    
+     
+    const [post1, post2] = await Promise.all(fetchPromises);
+
+     
+    const { title: title1, body: body1, ...rest1 } = post1;
+    const { title: title2, body: body2, ...rest2 } = post2;
+
+     
+    const postsMap = new Map();
+    postsMap.set(title1, body1);
+    postsMap.set(title2, body2);
+
+     
+    for (const [title, body] of postsMap) {
+        print({ ...rest1, title, body });
+    }
+}
+
+ 
+fetchDataAndProcess().catch(console.error);

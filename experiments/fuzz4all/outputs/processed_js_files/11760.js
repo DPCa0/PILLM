@@ -1,0 +1,49 @@
+ 
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+}
+
+ 
+function getUserData(userId) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            fetchData(`https: 
+                .then(data => resolve(data))
+                .catch(err => reject(err));
+        }, 1000);
+    });
+}
+
+ 
+const userValidator = {
+    set: function(obj, prop, value) {
+        if (prop === 'email' && !/^\S+@\S+\.\S+$/.test(value)) {
+            throw new TypeError('Invalid email address.');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+async function main() {
+    try {
+        let user = await getUserData(1);
+
+         
+        user = new Proxy(user, userValidator);
+
+         
+         
+
+        print("User data fetched successfully:", user);
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+}
+
+main();

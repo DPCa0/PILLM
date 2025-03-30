@@ -1,0 +1,46 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static random(rows, cols) {
+    return new Matrix(rows, cols).map(() => Math.random());
+  }
+  
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+  
+  multiply(b) {
+    if (b instanceof Matrix) {
+      if (this.cols !== b.rows) throw new Error('Incompatible matrices');
+      return new Matrix(this.rows, b.cols).map((_, i, j) => 
+        this.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0)
+      );
+    } else {
+      return this.map(val => val * b);
+    }
+  }
+}
+
+(async () => {
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+  const m1 = Matrix.random(2, 3);
+  const m2 = Matrix.random(3, 2);
+  
+  print('Initial Matrices:');
+  console.table(m1.data);
+  console.table(m2.data);
+
+  await delay(1000);
+  print('Multiplying matrices...');
+  
+  await delay(1000);
+  const result = m1.multiply(m2);
+  
+  print('Resultant Matrix:');
+  console.table(result.data);
+})();

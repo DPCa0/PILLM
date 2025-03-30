@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+const logAccess = (target, property) => {
+  console.log(`Accessed property: ${property}`);
+  return target[property];
+};
+
+const handler = {
+  get: (target, property, receiver) => {
+    if (Reflect.has(target, property)) {
+      return Reflect.get(target, property, receiver);
+    } else {
+      return logAccess(target, property);
+    }
+  },
+};
+
+const user = {
+  [Symbol.for('id')]: 123,
+  name: 'Alice',
+  age: 30,
+};
+
+const proxyUser = new Proxy(user, handler);
+
+const fetchData = (delay) =>
+  new Promise((resolve) => setTimeout(() => resolve('Data fetched!'), delay));
+
+async function getUserData() {
+  console.log('Fetching user data...');
+  const data = await fetchData(2000);
+  console.log(data);
+  console.log(`User: ${proxyUser.name}, ID: ${proxyUser[Symbol.for('id')]}`);
+}
+
+getUserData().catch((error) => console.error(error));
+```

@@ -1,0 +1,60 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        let m = new Matrix(arr.length, arr[0].length);
+        m.map((_, i, j) => arr[i][j]);
+        return m;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    multiply(matrix) {
+        if (matrix instanceof Matrix) {
+            if (this.data[0].length !== matrix.data.length) {
+                throw new Error('Columns of A must match rows of B.');
+            }
+            return this.map((_, i, j) => 
+                this.data[i].reduce((sum, elm, k) => sum + elm * matrix.data[k][j], 0)
+            );
+        } else {
+            return this.map(val => val * matrix);
+        }
+    }
+}
+
+async function fetchData(url) {
+    let response = await fetch(url);
+    return response.json();
+}
+
+function* fibonacci(n) {
+    let [a, b] = [0, 1];
+    while (n--) {
+        [a, b] = [b, a + b];
+        yield a;
+    }
+}
+
+(async () => {
+    try {
+        let data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        print('Fetched Data:', data);
+
+        let fibSeq = [...fibonacci(10)];
+        print('Fibonacci Sequence:', fibSeq);
+
+        let m1 = new Matrix(2, 3).map((_, i, j) => i + j);
+        let m2 = new Matrix(3, 2).map((_, i, j) => i * j);
+        let result = m1.multiply(m2);
+
+        print('Matrix Multiplication Result:', result.data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

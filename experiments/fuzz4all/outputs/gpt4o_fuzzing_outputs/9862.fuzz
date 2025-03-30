@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+    once(event, listener) {
+        const onceWrapper = (...args) => {
+            listener.apply(this, args);
+            this.off(event, onceWrapper);
+        };
+        this.on(event, onceWrapper);
+    }
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.set(event, this.events.get(event).filter(l => l !== listener));
+        }
+    }
+}
+
+class AdvancedCalc extends EventEmitter {
+    constructor() {
+        super();
+        this.history = [];
+    }
+    calculate(expression) {
+        try {
+            const result = new Function('return ' + expression)();
+            this.history.push({ expression, result });
+            this.emit('calculation', { expression, result });
+            return result;
+        } catch (e) {
+            this.emit('error', e);
+            return NaN;
+        }
+    }
+    async logHistory() {
+        for (let record of this.history) {
+            await new Promise(res => setTimeout(res, 1000));
+            console.log(`Expression: ${record.expression}, Result: ${record.result}`);
+        }
+    }
+}
+
+(async () => {
+    const calc = new AdvancedCalc();
+
+    calc.on('calculation', ({ expression, result }) => {
+        console.log(`Calculated: ${expression} = ${result}`);
+    });
+
+    calc.once('error', (err) => {
+        console.error('Calculation error:', err.message);
+    });
+
+    calc.calculate('5 * 5');
+    calc.calculate('Math.sqrt(64)');
+    calc.calculate('10 / 2');
+    calc.calculate('invalid-expression');
+    
+    await calc.logHistory();
+})();
+```

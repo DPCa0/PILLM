@@ -1,0 +1,35 @@
+ 
+ 
+
+ 
+function fetchData(apiUrl) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (apiUrl === 'https://api.example.com/data') {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject('Invalid API URL');
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function processApiData() {
+  try {
+    const apiData = await fetchData('https://api.example.com/data');
+    const multiplier = 2;
+
+     
+    const processData = (data) => data.map(num => num * multiplier);
+
+    const processedData = processData(apiData.data);
+    
+    print(`Processed Data: ${processedData.join(', ')}`);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+processApiData();

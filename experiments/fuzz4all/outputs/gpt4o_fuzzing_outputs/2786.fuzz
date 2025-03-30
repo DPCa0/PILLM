@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(...args));
+  }
+}
+
+const withLogging = target => {
+  return new Proxy(target, {
+    get(target, prop, receiver) {
+      const origMethod = target[prop];
+      if (typeof origMethod === 'function') {
+        return function(...args) {
+          console.log(`Called ${prop} with`, args);
+          return origMethod.apply(this, args);
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  });
+};
+
+class AdvancedCalculator extends EventEmitter {
+  constructor() {
+    super();
+    this.value = 0;
+  }
+
+  add(n) {
+    this.value += n;
+    this.emit('updated', this.value);
+  }
+
+  subtract(n) {
+    this.value -= n;
+    this.emit('updated', this.value);
+  }
+
+  multiply(n) {
+    this.value *= n;
+    this.emit('updated', this.value);
+  }
+
+  divide(n) {
+    if (n !== 0) {
+      this.value /= n;
+      this.emit('updated', this.value);
+    } else {
+      this.emit('error', 'Cannot divide by zero');
+    }
+  }
+}
+
+const calculator = withLogging(new AdvancedCalculator());
+
+calculator.on('updated', value => console.log(`Value updated: ${value}`));
+calculator.on('error', error => console.error(`Error: ${error}`));
+
+(async () => {
+  await new Promise(resolve => setTimeout(resolve, 100));  
+  calculator.add(5);
+  calculator.subtract(2);
+  calculator.multiply(3);
+  calculator.divide(0);
+  calculator.divide(2);
+})();
+```

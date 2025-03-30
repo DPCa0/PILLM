@@ -1,0 +1,49 @@
+class Matrix {
+    constructor(rows, cols, defaultValue = 0) {
+        this.data = Array.from({ length: rows }, () => 
+            Array.from({ length: cols }, () => defaultValue)
+        );
+    }
+    
+    static fromArray(arr) {
+        return new Matrix(arr.length, arr[0].length).map((_, i, j) => arr[i][j]);
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    add(matrix) {
+        return this.map((val, i, j) => val + matrix.data[i][j]);
+    }
+    
+    multiply(matrix) {
+        if (this.data[0].length !== matrix.data.length) throw "Columns of A must match rows of B";
+        return new Matrix(this.data.length, matrix.data[0].length).map((_, i, j) =>
+            this.data[i].reduce((sum, elm, k) => sum + (elm * matrix.data[k][j]), 0)
+        );
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+(async function() {
+    const asyncDataFetch = new Promise((resolve) => 
+        setTimeout(() => resolve([[1, 2], [3, 4]]), 100)
+    );
+
+    const asyncDataFetch2 = new Promise((resolve) => 
+        setTimeout(() => resolve([[5, 6], [7, 8]]), 200)
+    );
+
+    const [arr1, arr2] = await Promise.all([asyncDataFetch, asyncDataFetch2]);
+
+    const matrixA = Matrix.fromArray(arr1);
+    const matrixB = Matrix.fromArray(arr2);
+
+    const result = matrixA.add(matrixB).multiply(matrixB);
+    result.print();
+})();

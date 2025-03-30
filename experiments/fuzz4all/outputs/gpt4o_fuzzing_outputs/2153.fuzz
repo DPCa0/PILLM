@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async process() {
+    try {
+       
+      const fetchedData = await this.fetchData();
+      const [first, ...rest] = fetchedData;
+      
+      console.log(`First element processed: ${first}`);
+      console.log(`Rest of the data: ${rest.join(', ')}`);
+
+      const enrichedData = this.enrichData(rest);
+      console.log(`Enriched Data: ${JSON.stringify(enrichedData)}`);
+    } catch (error) {
+      console.error(`Error during processing: ${error.message}`);
+    }
+  }
+
+  fetchData() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([...this.data, 'extraData1', 'extraData2']);
+      }, 2000);
+    });
+  }
+
+  enrichData(data) {
+     
+    return data.map(item => ({ item, enriched: true }));
+  }
+}
+
+const dataProcessor = new DataProcessor(['data1', 'data2', 'data3']);
+dataProcessor.process();
+```

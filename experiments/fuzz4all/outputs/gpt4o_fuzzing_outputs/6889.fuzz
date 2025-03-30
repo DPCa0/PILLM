@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+
+class ReactiveVar {
+  #value;
+  #emitter = new EventEmitter();
+
+  constructor(initialValue) {
+    this.#value = initialValue;
+  }
+
+  set value(newValue) {
+    if (this.#value !== newValue) {
+      this.#value = newValue;
+      this.#emitter.emit('change', newValue);
+    }
+  }
+
+  get value() {
+    return this.#value;
+  }
+
+  subscribe(listener) {
+    this.#emitter.on('change', listener);
+  }
+}
+
+const proxyHandler = {
+  get(target, prop) {
+    if (typeof target[prop] === 'function') {
+      return target[prop].bind(target);
+    }
+    return target[prop];
+  },
+  set(target, prop, value) {
+    target[prop] = value;
+    console.log(`Property ${prop} set to ${value}`);
+    return true;
+  }
+};
+
+const obj = new Proxy({ a: 1, b: 2 }, proxyHandler);
+
+const reactiveValue = new ReactiveVar(0);
+reactiveValue.subscribe(newValue => {
+  console.log(`Reactive value changed to: ${newValue}`);
+});
+
+setInterval(() => {
+  reactiveValue.value = Math.floor(Math.random() * 100);
+  obj.a = reactiveValue.value;  
+}, 2000);
+```

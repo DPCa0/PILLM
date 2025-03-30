@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            let response = await fetch(this.url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return await response.json();
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+}
+
+function processData({ name, age, location }) {
+    console.log(`Name: ${name}, Age: ${age}, Location: ${location}`);
+}
+
+(async function main() {
+    const url = 'https://api.example.com/user';
+    const dataFetcher = new DataFetcher(url);
+
+    try {
+        let data = await dataFetcher.fetchData();
+        if (data) processData(data);
+    } catch (error) {
+        console.error('Failed to fetch or process data:', error);
+    }
+})();
+```

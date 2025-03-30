@@ -1,0 +1,42 @@
+class AsyncIterable {
+  constructor(data) {
+    this.data = data;
+  }
+  [Symbol.asyncIterator]() {
+    let index = 0;
+    const data = this.data;
+    return {
+      async next() {
+        if (index < data.length) {
+          const value = await new Promise((resolve) =>
+            setTimeout(() => resolve(data[index++]), 100)
+          );
+          return { value, done: false };
+        }
+        return { done: true };
+      },
+    };
+  }
+}
+
+const pipeline = async function* (iterable) {
+  for await (let value of iterable) {
+    yield value * 2;
+  }
+};
+
+(async () => {
+  const data = new AsyncIterable([1, 2, 3, 4, 5]);
+  const transformed = pipeline(data);
+
+  const results = [];
+  for await (let value of transformed) {
+    results.push(value);
+  }
+
+  const doubledAndFiltered = results
+    .map((x) => x + 1)
+    .filter((x) => x % 2 === 0);
+
+  print(doubledAndFiltered);
+})();

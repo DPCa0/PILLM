@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+async function* asyncCounter(max) {
+  let count = 0;
+  while (count < max) {
+    yield count++;
+    await delay(100);
+  }
+}
+
+async function run() {
+  const emitter = new EventEmitter();
+
+  emitter.on('count', num => {
+    console.log(`Current count: ${num}`);
+    if (num % 2 === 0) console.log('Even number found!');
+  });
+
+  for await (const num of asyncCounter(5)) {
+    emitter.emit('count', num);
+  }
+  
+  console.log('Counting completed.');
+}
+
+run();
+```

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+  #name;
+  
+  constructor(name) {
+    this.#name = name;
+  }
+  
+  getName() {
+    return this.#name;
+  }
+
+   
+  static fromJSON(json) {
+    const data = JSON.parse(json);
+    return new Person(data.name);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop, receiver) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+ 
+const person = new Proxy(new Person("Alice"), handler);
+
+ 
+const settings = { theme: "dark", language: "en" };
+const { theme, language, region = "US" } = settings;
+const newSettings = { ...settings, language: "es" };
+
+ 
+async function fetchData() {
+  const response = await new Promise((resolve) => {
+    setTimeout(() => resolve(JSON.stringify({ name: "Bob" })), 1000);
+  });
+  
+  const newPerson = Person.fromJSON(response);
+  console.log(`Fetched person name: ${newPerson.getName()}`);
+}
+
+ 
+fetchData();
+
+ 
+console.log(person.getName());
+console.log(`Current theme: ${theme}, language: ${language}, region: ${region}`);
+console.log(`Updated settings:`, newSettings);
+```

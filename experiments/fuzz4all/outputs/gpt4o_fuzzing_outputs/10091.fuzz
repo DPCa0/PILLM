@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ name: 'Alice', age: 30, occupation: 'Developer' }), 1000);
+    });
+};
+
+ 
+const processUserData = async () => {
+    const { name, ...rest } = await fetchData();
+    return { name: name.toUpperCase(), ...rest };
+};
+
+ 
+const logHandler = {
+    get: (target, property) => {
+        console.log(`Property "${property}" was accessed.`);
+        return target[property];
+    }
+};
+
+ 
+(async () => {
+    const userData = await processUserData();
+    const proxiedData = new Proxy(userData, logHandler);
+
+     
+    console.log(`User Name: ${proxiedData.name}`);
+    console.log(`User Age: ${proxiedData.age}`);
+    console.log(`User Occupation: ${proxiedData.occupation}`);
+})();
+```

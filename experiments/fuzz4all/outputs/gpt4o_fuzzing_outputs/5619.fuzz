@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+import readline from 'readline';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+   
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+   
+  const askQuestion = (query) => new Promise(resolve => rl.question(query, resolve));
+
+   
+  const userPreferences = { language: 'JavaScript', theme: 'Dark' };
+  const handler = {
+    get: (obj, prop) => {
+      console.log(`Accessed property "${prop}" with value "${obj[prop]}"`);
+      return obj[prop];
+    }
+  };
+  const preferencesProxy = new Proxy(userPreferences, handler);
+
+   
+  console.log(preferencesProxy.language);
+  console.log(preferencesProxy.theme);
+
+   
+  const mapExample = new Map();
+  mapExample.set('JavaScript', { rank: 1, stable: true });
+  mapExample.set('Python', { rank: 2, stable: true });
+  mapExample.set('Rust', { rank: 3, stable: false });
+
+   
+  console.log('Ranking of languages:');
+  for (const [key, value] of mapExample.entries()) {
+    console.log(`${key}: Rank ${value.rank}, Stable: ${value.stable}`);
+  }
+
+   
+  const name = await askQuestion('What is your name? ');
+  console.log(`Hello, ${name}!`);
+
+   
+  rl.close();
+
+   
+  console.log('Waiting for 2 seconds...');
+  await delay(2000);
+  console.log('Continuing after delay.');
+
+   
+  const weaksetExample = new WeakSet();
+  let user = { name: 'Alice' };
+  weaksetExample.add(user);
+  console.log('User added to WeakSet:', weaksetExample.has(user));
+
+   
+  user =

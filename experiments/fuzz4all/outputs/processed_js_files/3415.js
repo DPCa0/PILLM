@@ -1,0 +1,56 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function fetchData() {
+   
+  let response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+  let data = await response.json();
+
+   
+  const { title, completed } = data;
+  return { title, completed };
+}
+
+ 
+function multiplier(factor) {
+  return number => number * factor;
+}
+
+ 
+function* generateNumbers() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const result = await fetchData();
+    
+     
+    const message = tag`Task: ${result.title} - Completed: ${result.completed}`;
+    print(message);
+
+     
+    const double = multiplier(2);
+
+     
+    const numbers = generateNumbers();
+    print(double(numbers.next().value));  
+    print(double(numbers.next().value));  
+
+     
+    await fs.writeFile('output.txt', message);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+}

@@ -1,0 +1,54 @@
+ 
+
+ 
+async function* dataStream() {
+  let i = 0;
+  while (true) {
+    await new Promise(resolve => setTimeout(resolve, 100));  
+    yield i++;
+  }
+}
+
+ 
+async function processData() {
+  const dataGen = dataStream();
+
+   
+  const results = new Map();
+
+  for await (const num of dataGen) {
+    if (results.has(num)) {
+      print(`Retrieved from cache: ${num} -> ${results.get(num)}`);
+    } else {
+      const transformed = num * 2;
+      results.set(num, transformed);
+      print(`Processed: ${num} -> ${transformed}`);
+    }
+
+    if (num >= 10) break;  
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Getting property: ${prop}`);
+    return prop in target ? target[prop] : 'Property not found';
+  },
+  set(target, prop, value) {
+    print(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const targetObj = { a: 1, b: 2 };
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+proxyObj.a;         
+proxyObj.b = 10;    
+print(proxyObj.c);  
+
+ 
+processData();

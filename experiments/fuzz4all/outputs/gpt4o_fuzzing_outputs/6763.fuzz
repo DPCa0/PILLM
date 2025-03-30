@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    on(event, listener) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events[event]) this.events[event].forEach(listener => listener(...args));
+    }
+}
+
+const fetchData = (url) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (Math.random() > 0.2) {
+            resolve(`Data from ${url}`);
+        } else {
+            reject(`Failed to fetch data from ${url}`);
+        }
+    }, 1000);
+});
+
+(async () => {
+    const urls = ['url1', 'url2', 'url3', 'url4'];
+
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('success', (data) => console.log('Success:', data));
+    eventEmitter.on('error', (err) => console.error('Error:', err));
+
+    const fetchAllData = async (urls) => {
+        const results = urls.map(async url => {
+            try {
+                const data = await fetchData(url);
+                eventEmitter.emit('success', data);
+            } catch (err) {
+                eventEmitter.emit('error', err);
+            }
+        });
+        await Promise.all(results);
+    };
+
+    await fetchAllData(urls);
+})();
+```

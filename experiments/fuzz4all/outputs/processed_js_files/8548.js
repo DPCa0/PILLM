@@ -1,0 +1,45 @@
+class AsyncProcessor {
+  #data;
+
+  constructor(initialData) {
+    this.#data = new Map(initialData);
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let [key, promise] of this.#data) {
+      yield { key, value: await promise };
+    }
+  }
+
+  async processAll() {
+    const results = [];
+    for await (let { key, value } of this) {
+      results.push({ key, value });
+    }
+    return results;
+  }
+
+  static async parallelMap(entries, fn) {
+    return await Promise.all(entries.map(async ([key, value]) => [key, await fn(value)]));
+  }
+}
+
+const data = [
+  ['task1', Promise.resolve(42)],
+  ['task2', Promise.resolve('Hello')],
+  ['task3', Promise.resolve(true)]
+];
+
+const processor = new AsyncProcessor(data);
+
+(async () => {
+  const mappedData = await AsyncProcessor.parallelMap(data, async (value) => {
+    await new Promise(r => setTimeout(r, 100));  
+    return `${value} processed`;
+  });
+
+  const mappedProcessor = new AsyncProcessor(mappedData);
+
+  const results = await mappedProcessor.processAll();
+  print(results);  
+})();

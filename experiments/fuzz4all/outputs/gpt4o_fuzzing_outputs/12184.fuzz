@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Property '${prop}' was accessed`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value) {
+        console.log(`Property '${prop}' was set to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const obj = new Proxy({a: 1, b: 2}, handler);
+
+ 
+function* numberSequence() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function fetchData(number) {
+    console.log(`Fetching data for number: ${number}`);
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(`Data for ${number}`);
+        }, 1000);
+    });
+}
+
+async function main() {
+     
+    console.log(obj.a);   
+    obj.b = 10;           
+
+     
+    const gen = numberSequence();
+    const number = gen.next().value;
+
+     
+    const data = await fetchData(number);
+    console.log(data);
+}
+
+main();
+```

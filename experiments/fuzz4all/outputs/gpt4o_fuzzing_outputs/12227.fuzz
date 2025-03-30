@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, arr[0].length);
+    m.map((_, i, j) => arr[i][j]);
+    return m;
+  }
+
+  map(fn) {
+    return this.data.forEach((row, i) => row.forEach((_, j) => (this.data[i][j] = fn(_, i, j))));
+  }
+
+  static randomize(rows, cols) {
+    let m = new Matrix(rows, cols);
+    m.map(() => Math.random());
+    return m;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    let data = this.data.flat();
+    return {
+      next: () => ({
+        value: data[index++],
+        done: index > data.length,
+      }),
+    };
+  }
+
+  *entries() {
+    for (let i = 0; i < this.data.length; i++) {
+      for (let j = 0; j < this.data[i].length; j++) {
+        yield [i, j, this.data[i][j]];
+      }
+    }
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B.');
+    }
+    let result = new Matrix(a.data.length, b.data[0].length);
+    result.map((_, i, j) => 
+      a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+    );
+    return result;
+  }
+}
+
+ 
+const a = Matrix.randomize(3, 2);
+const b = Matrix.randomize(2, 3);
+const c = Matrix.multiply(a, b);
+
+for (const [i, j, value] of c.entries()) {
+  console.log(`c[${i}][${j}] = ${value.toFixed(2)}`);
+}
+```

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    async enqueue(asyncFunction) {
+        this.queue.push(asyncFunction);
+        if (!this.processing) {
+            this.processing = true;
+            while (this.queue.length > 0) {
+                const fn = this.queue.shift();
+                await fn();
+            }
+            this.processing = false;
+        }
+    }
+}
+
+function delayedLog(message, delay) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            console.log(message);
+            resolve();
+        }, delay);
+    });
+}
+
+const queue = new AsyncQueue();
+
+(async () => {
+    await queue.enqueue(() => delayedLog('First message', 1000));
+    await queue.enqueue(() => delayedLog('Second message', 500));
+    await queue.enqueue(() => delayedLog('Third message', 200));
+})();
+```

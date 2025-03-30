@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = (message) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.2) {
+        resolve(`Success: ${message}`);
+      } else {
+        reject(`Failure: ${message}`);
+      }
+    }, 1000);
+  });
+};
+
+const main = async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('success', console.log);
+  eventEmitter.on('failure', console.error);
+
+  try {
+    const message = await asyncOperation('Processing...');
+    eventEmitter.emit('success', message);
+  } catch (error) {
+    eventEmitter.emit('failure', error);
+  }
+};
+
+main();
+```

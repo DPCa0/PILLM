@@ -1,0 +1,38 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const processData = (data) => {
+  const processed = data.map(({ id, title, completed }) => ({
+    id,
+    description: title,
+    status: completed ? 'Completed' : 'Pending'
+  }));
+  
+  return processed;
+};
+
+const outputData = (data) => {
+  const container = document.querySelector('#output');
+  container.innerHTML = data.reduce((acc, { id, description, status }) => {
+    return acc + `<div class="task">
+      <span>${id}</span> 
+      <span>${description}</span>
+      <span class="${status.toLowerCase()}">${status}</span>
+    </div>`;
+  }, '');
+};
+
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos';
+  const rawData = await fetchData(url);
+  const processedData = processData(rawData);
+  outputData(processedData);
+})();

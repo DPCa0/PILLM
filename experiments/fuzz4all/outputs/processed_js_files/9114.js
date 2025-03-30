@@ -1,0 +1,41 @@
+ 
+function format(strings, ...keys) {
+    return function(...values) {
+        const dict = values[values.length - 1] || {};
+        const result = [strings[0]];
+        keys.forEach((key, i) => {
+            const value = Number.isInteger(key) ? values[key] : dict[key];
+            result.push(value, strings[i + 1]);
+        });
+        return result.join('');
+    };
+}
+
+ 
+async function* asyncGenerator(max) {
+    let i = 1;
+    while (i <= max) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 100));
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        print(`Accessing property "${prop}" with value: ${target[prop]}`);
+        return target[prop];
+    }
+};
+
+const data = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+(async function() {
+    const maxNumber = 5;
+    const numbers = asyncGenerator(maxNumber);
+
+    for await (const num of numbers) {
+        const messageTemplate = format`Number from generator: ${0}. Name: ${'name'}. Age: ${'age'}.`;
+        print(messageTemplate(num, data));
+    }
+})();

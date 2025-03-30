@@ -1,0 +1,55 @@
+ 
+
+class ApiSimulator {
+  constructor() {
+    this.data = {
+      users: [
+        { id: 1, name: "Alice", hobbies: ["reading", "swimming"] },
+        { id: 2, name: "Bob", hobbies: ["cycling", "hiking"] },
+      ],
+    };
+  }
+
+  fetchData(endpoint) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.data[endpoint] ? resolve(this.data[endpoint]) : reject("Data not found");
+      }, 1000);
+    });
+  }
+}
+
+class UserManager {
+  constructor(api) {
+    this.api = api;
+  }
+
+  async getUserInfo(userId) {
+    try {
+      const users = await this.api.fetchData("users");
+      const user = users.find(({ id }) => id === userId);
+      if (user) {
+        return user;
+      }
+      throw new Error("User not found");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+(async () => {
+  const api = new ApiSimulator();
+  const userManager = new UserManager(api);
+
+  try {
+    const userInfo = await userManager.getUserInfo(1);
+    if (userInfo) {
+      const { name, hobbies } = userInfo;
+      const hobbiesList = hobbies.map(hobby => `- ${hobby}`).join('\n');
+      print(`User Info:\nName: ${name}\nHobbies:\n${hobbiesList}`);
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

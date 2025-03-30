@@ -1,0 +1,55 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok.');
+  return await response.json();
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Property '${prop}' accessed`);
+    return prop in target ? target[prop] : `Property '${prop}' not found`;
+  },
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+class DataManager {
+  #data;
+  constructor(data) {
+    this.#data = data;
+  }
+  getData() {
+    return this.#data;
+  }
+  *dataIterator() {
+    for (const item of this.#data) {
+      yield item;
+    }
+  }
+}
+
+ 
+(async () => {
+  try {
+    const url = 'https://api.publicapis.org/entries';
+    const rawData = await fetchData(url);
+    const data = rawData.entries.slice(0, 5);  
+
+    const manager = new DataManager(data);
+    const iterator = manager.dataIterator();
+
+    for (const item of iterator) {
+      print(item.API);
+    }
+
+     
+    dataProxy['example'] = 'value';
+    print(dataProxy['example']);
+    print(dataProxy['nonExistent']);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

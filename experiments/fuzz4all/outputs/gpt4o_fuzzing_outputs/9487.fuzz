@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGen() {
+  const data = yield new Promise((resolve) => setTimeout(() => resolve("Data fetched!"), 1000));
+  return data;
+}
+
+ 
+async function runGenerator(genFunc) {
+  const iterator = genFunc();
+  async function handle(yielded) {
+    if (!yielded.done) {
+      const result = await yielded.value;
+      return handle(iterator.next(result));
+    }
+    return yielded.value;
+  }
+  return handle(iterator.next());
+}
+
+ 
+const handler = {
+  apply: (target, thisArg, argumentsList) => {
+    console.log(`Called function ${target.name} with arguments: ${argumentsList}`);
+    return target(...argumentsList);
+  }
+};
+
+ 
+function processData(data) {
+  return `Processing: ${data}`;
+}
+
+ 
+const proxyProcessData = new Proxy(processData, handler);
+
+ 
+(async function main() {
+  console.log("Starting main...");
+
+   
+  const data = await runGenerator(fetchDataGen);
+  console.log(data);
+
+   
+  const processedData = proxyProcessData(data);
+  console.log(processedData);
+
+  console.log("Finished main!");
+})();
+```

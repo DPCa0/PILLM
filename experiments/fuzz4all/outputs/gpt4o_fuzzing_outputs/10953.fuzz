@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const createLoggingProxy = (target, logFunc) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      const value = Reflect.get(obj, prop);
+      logFunc(`Accessed property ${prop.toString()}: ${value}`);
+      return typeof value === 'function' ? value.bind(obj) : value;
+    },
+    set: (obj, prop, value) => {
+      logFunc(`Set property ${prop.toString()} to ${value}`);
+      return Reflect.set(obj, prop, value);
+    }
+  });
+};
+
+ 
+class DataFetcher {
+  constructor() {
+    this.apiEndpoint = 'https://jsonplaceholder.typicode.com/posts/';
+  }
+
+  async *fetchPosts(limit) {
+    for (let i = 1; i <= limit; i++) {
+      const response = await fetch(`${this.apiEndpoint}${i}`);
+      const data = await response.json();
+      yield data;
+    }
+  }
+}
+
+ 
+(async () => {
+  const fetcher = createLoggingProxy(new DataFetcher(), console.log);
+
+   
+  const posts = [];
+  for await (const post of fetcher.fetchPosts(3)) {
+    posts.push(post);
+  }
+
+  console.log('Fetched posts:', posts);
+})();
+```

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => resolve(['alpha', 'beta', 'gamma', 'delta']), 1000);
+});
+
+ 
+const processData = (data) => {
+  return data
+    .map(item => item.toUpperCase())
+    .reduce((acc, current) => `${acc}-${current}`);
+};
+
+ 
+const main = async () => {
+  console.log("Fetching data...");
+  const data = await fetchData();
+  console.log("Data fetched:", data);
+
+  const processedData = processData(data);
+  console.log("Processed Data:", processedData);
+
+   
+  const uniqueData = [...new Set(data.concat(['alpha', 'zeta']))];
+  console.log("Unique Data:", uniqueData);
+
+   
+  console.log("First element (optional chaining):", uniqueData[0]?.toLowerCase() ?? 'No data');
+};
+
+ 
+(async () => {
+  try {
+    await main();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
+```

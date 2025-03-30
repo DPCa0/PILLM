@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+    await delay(1000);
+    return { name: 'Advanced JavaScript', version: 'ES2023' };
+}
+
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            return target[property];
+        } else {
+            console.log(`Property ${String(property)} does not exist!`);
+            return false;
+        }
+    }
+};
+
+const symbol = Symbol('unique');
+let data = { [symbol]: 'private data' };
+const proxyData = new Proxy(data, handler);
+
+(async () => {
+    console.log('Fetching data...');
+    const fetchedData = await fetchData();
+    console.log('Data fetched:', fetchedData);
+    proxyData[symbol] = 'new private data';
+    console.log(proxyData[symbol]);
+    console.log(proxyData.nonExistentProperty);
+})();
+```

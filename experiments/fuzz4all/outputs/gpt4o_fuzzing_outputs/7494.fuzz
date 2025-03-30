@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => resolve({ data: [1, 2, 3, 4, 5], meta: { fetchedAt: new Date() } }), 1000);
+});
+
+ 
+const createLoggingProxy = (target) => new Proxy(target, {
+    get: (obj, prop) => {
+        console.log(`Accessed property "${prop}"`);
+        return obj[prop];
+    }
+});
+
+async function main() {
+    try {
+        console.log("Fetching data...");
+        const response = await fetchData();
+        
+        const { data, meta } = createLoggingProxy(response);
+        
+        console.log(`Data fetched at: ${meta.fetchedAt}`);
+        console.log(`Data: ${data.map(num => num * num).join(", ")}`);
+        
+    } catch (error) {
+        console.error("An error occurred:", error);
+    }
+}
+
+main();
+```

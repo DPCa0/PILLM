@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+    return response.json();
+}
+
+function* fibonacci(n) {
+    let a = 0, b = 1, idx = 0;
+    while (idx < n) {
+        yield a;
+        [a, b] = [b, a + b];
+        idx++;
+    }
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => {
+        console.log('Received data:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('Error occurred:', error);
+    });
+
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+
+    const fibGen = fibonacci(10);
+    for (let num of fibGen) {
+        console.log('Fibonacci number:', num);
+    }
+})();
+```

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function* fetchDataWithDelay() {
+    const data = [1, 2, 3, 4, 5];
+    for (let item of data) {
+        await delay(1000);  
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Accessing ${prop}: ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.log(`Property ${prop} does not exist.`);
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const targetObject = { a: 1, b: 2 };
+
+ 
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+proxyObject.a;  
+proxyObject.c;  
+proxyObject.b = 3;  
+
+ 
+(async () => {
+    console.log('Fetching data:');
+    for await (let value of fetchDataWithDelay()) {
+        console.log(`Received: ${value}`);
+    }
+})();
+```

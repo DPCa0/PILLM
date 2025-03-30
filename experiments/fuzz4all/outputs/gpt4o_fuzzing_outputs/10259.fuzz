@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.#events.has(event)) {
+      this.#events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const withLogging = target => new Proxy(target, {
+  get(target, prop, receiver) {
+    const origMethod = target[prop];
+    if (typeof origMethod === 'function') {
+      return function(...args) {
+        console.log(`Called ${prop} with`, args);
+        return origMethod.apply(this, args);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncProcess = async function* (times) {
+  for (let i = 1; i <= times; i++) {
+    await wait(500);
+    yield i;
+  }
+};
+
+const run = async () => {
+  const emitter = new EventEmitter();
+  const loggedEmitter = withLogging(emitter);
+
+  loggedEmitter.on('progress', progress => console.log(`Progress: ${progress}`));
+
+  for await (const progress of asyncProcess(5)) {
+    loggedEmitter.emit('progress', progress);
+  }
+
+  console.log('Done!');
+};
+
+run();
+```

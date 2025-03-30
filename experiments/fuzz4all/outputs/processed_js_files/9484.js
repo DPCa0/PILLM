@@ -1,0 +1,49 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener.apply(this, args));
+        }
+    }
+}
+
+const fetchWithTimeout = (url, timeout) => {
+    return new Promise((resolve, reject) => {
+        const controller = new AbortController();
+        const signal = controller.signal;
+
+        fetch(url, { signal })
+            .then(response => response.json())
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+
+        setTimeout(() => controller.abort(), timeout);
+    });
+};
+
+const eventBus = new EventEmitter();
+
+eventBus.on('dataFetched', data => {
+    print('Data fetched successfully:', data);
+});
+
+eventBus.on('error', error => {
+    console.error('An error occurred:', error);
+});
+
+(async () => {
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1', 5000);
+        eventBus.emit('dataFetched', data);
+    } catch (error) {
+        eventBus.emit('error', error);
+    }
+})();

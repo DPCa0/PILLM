@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchUserData = async (userId) => {
+    console.log(`Fetching data for user: ${userId}`);
+    await delay(1000);  
+    return { id: userId, name: `User${userId}`, age: 20 + userId };
+};
+
+ 
+const userHandler = {
+    get: (target, prop) => {
+        console.log(`Accessing property "${prop}" of user ${target.id}`);
+        return target[prop];
+    }
+};
+
+ 
+const displayUsers = async (userIds) => {
+    for (const userId of userIds) {
+        const userData = await fetchUserData(userId);
+        const userProxy = new Proxy(userData, userHandler);
+        console.log(`User ID: ${userProxy.id}, Name: ${userProxy.name}, Age: ${userProxy.age}`);
+    }
+};
+
+ 
+displayUsers([1, 2, 3]);
+```

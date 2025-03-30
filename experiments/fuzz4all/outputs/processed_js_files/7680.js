@@ -1,0 +1,49 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  return await response.json();
+}
+
+ 
+const dataLogger = {
+  get: function(target, property) {
+    print(`Property '${property}' accessed.`);
+    return target[property];
+  },
+  set: function(target, property, value) {
+    print(`Property '${property}' set to '${value}'.`);
+    target[property] = value;
+    return true;
+  }
+};
+
+ 
+function* objectProperties(obj) {
+  for (let key of Object.keys(obj)) {
+    yield key;
+  }
+}
+
+ 
+(async () => {
+  try {
+     
+    const [data1, data2] = await Promise.all([
+      fetchData('https://api.example.com/data1'),
+      fetchData('https://api.example.com/data2')
+    ]);
+
+     
+    const proxiedData = new Proxy({ ...data1, ...data2 }, dataLogger);
+
+     
+    for (let property of objectProperties(proxiedData)) {
+      print(`${property}: ${proxiedData[property]}`);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error.message);
+  }
+})();

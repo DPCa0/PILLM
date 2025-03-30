@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class ComplexFeatureExample {
+  constructor(name) {
+    this.name = name;
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching data from ${url}`);
+    return await response.json();
+  }
+
+  get greeting() {
+    return `Hello, ${this.name}!`;
+  }
+
+  *dataProcessor(data) {
+    for (const item of data) {
+      yield `Processed: ${item}`;
+    }
+  }
+
+  async processAndLogData(url) {
+    try {
+      const data = await ComplexFeatureExample.fetchData(url);
+      const processor = this.dataProcessor(data);
+
+      for (const processedItem of processor) {
+        console.log(processedItem);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+}
+
+(async () => {
+  const example = new ComplexFeatureExample('Advanced JS User');
+  console.log(example.greeting);
+
+  const url = 'https://jsonplaceholder.typicode.com/posts';  
+  await example.processAndLogData(url);
+})();
+```

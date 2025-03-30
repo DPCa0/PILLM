@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.pending = [];
+    }
+
+    enqueue(value) {
+        if (this.pending.length > 0) {
+            this.pending.shift()(value);
+        } else {
+            this.queue.push(value);
+        }
+    }
+
+    async *[Symbol.asyncIterator]() {
+        while (true) {
+            if (this.queue.length > 0) {
+                yield this.queue.shift();
+            } else {
+                yield await new Promise(resolve => this.pending.push(resolve));
+            }
+        }
+    }
+}
+
+async function fetchData(url) {
+     
+    return new Promise(resolve => setTimeout(() => resolve(`Data from ${url}`), Math.random() * 3000));
+}
+
+async function* fetchUrls(urls) {
+    for (const url of urls) {
+        yield await fetchData(url);
+    }
+}
+
+(async () => {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+    const queue = new AsyncIterableQueue();
+
+    fetchUrls(urls).then(async (iterable) => {
+        for await (const data of iterable) {
+            queue.enqueue(data);
+        }
+    });
+
+    for await (const data of queue) {
+        console.log(`Received: ${data}`);
+        if (data.endsWith('3')) break;
+    }
+})();
+```

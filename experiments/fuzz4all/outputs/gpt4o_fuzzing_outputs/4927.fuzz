@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+const mergeAndFilter = (...arrays) => {
+  return arrays
+    .flat()
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .map((num) => num * 2);
+};
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    return prop in target ? target[prop] : `Property "${prop}" not found.`;
+  }
+};
+
+const target = { message: 'Hello, Proxy!' };
+const proxy = new Proxy(target, handler);
+
+(async () => {
+  console.log(mergeAndFilter([1, 2, 3], [3, 4, 5], [5, 6, 7]));  
+
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  console.log('Fetched data:', data);
+
+  console.log(proxy.message);  
+  console.log(proxy.nonExistentProp);  
+})();
+```

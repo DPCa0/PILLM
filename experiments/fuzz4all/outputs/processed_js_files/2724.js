@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { data: `Data from ${url}` };
+      Math.random() > 0.1 ? resolve(data) : reject(new Error('Failed to fetch'));
+    }, 1000);
+  });
+}
+
+ 
+function* fetchGenerator(urls) {
+  for (const url of urls) {
+    yield fetchData(url);
+  }
+}
+
+ 
+async function processUrls(urls) {
+  const generator = fetchGenerator(urls);
+  const results = [];
+
+  for (const promise of generator) {
+    try {
+      const result = await promise;
+      print('Fetched:', result);
+      results.push(result);
+    } catch (error) {
+      console.error(error.message);
+      results.push(null);
+    }
+  }
+
+  return results;
+}
+
+ 
+const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+
+processUrls(urls).then(results => {
+  print('Final Results:', results);
+});

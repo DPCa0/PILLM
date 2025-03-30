@@ -1,0 +1,58 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve({ data: `Data from ${url}` });
+      } else {
+        reject('No URL provided');
+      }
+    }, 1000);
+  });
+};
+
+ 
+const processData = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Processed: ${data}`);
+    }, 1000);
+  });
+};
+
+ 
+const apiHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Fetching ${prop}...`);
+      return target[prop];
+    } else {
+      throw new Error(`No method named ${prop} found`);
+    }
+  },
+};
+
+const api = new Proxy(
+  {
+    fetchData,
+    processData,
+  },
+  apiHandler
+);
+
+ 
+const main = async () => {
+  try {
+     
+    const data = await api.fetchData('https://api.example.com/resource');
+    const processedData = await api.processData(data.data);
+
+    print(processedData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+main();

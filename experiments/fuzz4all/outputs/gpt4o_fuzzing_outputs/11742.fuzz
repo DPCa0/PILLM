@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* asyncFibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+        await delay(100);  
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const target = { x: 1, y: 2 };
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting property ${prop}`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+const proxy = new Proxy(target, handler);
+
+ 
+const processArray = ([first, ...rest]) => ({
+    first,
+    sum: rest.reduce((acc, num) => acc + num, 0)
+});
+
+ 
+(function() {
+    const obj = { a: 10, b: 20 };
+    const { a, b } = obj;
+    console.log(`Values from IIFE: a = ${a}, b = ${b}`);
+})();
+
+ 
+(async function main() {
+     
+    console.log(`x: ${proxy.x}`);
+    proxy.y = 10;
+
+     
+    const result = processArray([1, 2, 3, 4, 5]);
+    console.log(`First: ${result.first}, Sum: ${result.sum}`);
+
+     
+    console.log('Fibonacci Sequence:');
+    for await (let num of asyncFibonacci(5)) {
+        console.log(num);
+    }
+})();
+```

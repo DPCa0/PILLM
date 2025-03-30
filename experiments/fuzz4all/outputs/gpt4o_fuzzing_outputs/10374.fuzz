@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class MySingleton {
+    constructor(name) {
+        if (MySingleton.instance) return MySingleton.instance;
+        this.name = name;
+        MySingleton.instance = this;
+    }
+
+    static getInstance(name) {
+        return new MySingleton(name);
+    }
+
+    greet() {
+        console.log(`Hello, ${this.name}`);
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncTask(n) {
+    for (let i = 0; i < n; i++) {
+        console.log(`Iteration ${i + 1}`);
+        await sleep(1000);  
+    }
+    console.log('Task Complete');
+}
+
+function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+const observable = new Proxy({}, {
+    set(target, key, value) {
+        console.log(`Property ${key} set to ${value}`);
+        target[key] = value;
+        return true;
+    },
+    get(target, key) {
+        console.log(`Property ${key} accessed`);
+        return target[key];
+    }
+});
+
+const person = MySingleton.getInstance('World');
+person.greet();
+
+(async () => {
+    await asyncTask(3);
+    console.log([...fibonacci(5)]);
+
+    observable.name = 'John Doe';
+    console.log(observable.name);
+})();
+```

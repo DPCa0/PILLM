@@ -1,0 +1,35 @@
+ 
+
+ 
+async function* fetchData(ids) {
+  for (const id of ids) {
+     
+    const data = await new Promise((resolve) => 
+      setTimeout(() => resolve({ id, value: Math.random() * 100 }), 100)
+    );
+    yield data;
+  }
+}
+
+ 
+async function processData(ids) {
+  const results = new Map();
+
+   
+  for await (const { id, value } of fetchData(ids)) {
+     
+    results.set(id, value);
+    print(`Fetched data for ID ${id}: ${value.toFixed(2)}`);
+  }
+
+  return results;
+}
+
+ 
+(async () => {
+  const ids = [1, 2, 3, 4, 5];
+  const dataMap = await processData(ids);
+
+   
+  print("Final results:", [...dataMap.entries()].map(([id, val]) => `ID ${id}: ${val.toFixed(2)}`));
+})();

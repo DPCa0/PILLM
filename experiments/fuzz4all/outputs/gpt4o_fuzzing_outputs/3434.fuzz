@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    let m = new Matrix(arr.length, 1);
+    m.map((_, i, j) => arr[i]);
+    return m;
+  }
+
+  static toArray(matrix) {
+    let arr = [];
+    matrix.map((val, i, j) => arr.push(val));
+    return arr;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static map(a, fn) {
+    let result = new Matrix(a.rows, a.cols);
+    result.map((_, i, j) => fn(a.data[i][j], i, j));
+    return result;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    let result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+    return result;
+  }
+
+  static randomize(matrix) {
+    matrix.map(() => Math.random() * 2 - 1);
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+ 
+const m1 = new Matrix(2, 3);
+Matrix.randomize(m1);
+console.log("Matrix 1:");
+m1.print();
+
+const m2 = new Matrix(3, 2);
+Matrix.randomize(m2);
+console.log("Matrix 2:");
+m2.print();
+
+console.log("Multiplication Result:");
+const result = Matrix.multiply(m1, m2);
+result.print();
+```

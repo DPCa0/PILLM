@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+class DataHandler {
+  #data;
+  constructor(initialData) {
+    this.#data = new WeakMap();
+    this.#data.set(this, initialData);
+  }
+  
+  get data() {
+    return this.#data.get(this);
+  }
+
+  async fetchData(url) {
+    try {
+      let response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      let result = await response.json();
+      this.#data.set(this, result);
+      console.log('Data updated from fetch:', this.data);
+    } catch (error) {
+      console.error('Fetching error:', error);
+    }
+  }
+
+  processData(callback) {
+    const data = this.data;
+    if (!data) return;
+
+    const result = callback(data);
+    console.log('Processed data:', result);
+  }
+}
+
+const handleComplexData = async () => {
+  const url = 'https://api.example.com/data';
+  const dataHandler = new DataHandler({ default: 'value' });
+
+  console.log('Initial data:', dataHandler.data);
+  
+  await dataHandler.fetchData(url);
+  
+  dataHandler.processData((data) => {
+    return Object.keys(data).reduce((acc, key) => {
+      acc[key] = `${data[key]} processed`;
+      return acc;
+    }, {});
+  });
+};
+
+handleComplexData();
+```

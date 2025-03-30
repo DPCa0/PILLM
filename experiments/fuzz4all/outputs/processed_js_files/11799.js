@@ -1,0 +1,58 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static from(array) {
+    let m = new Matrix(array.length, array[0].length);
+    m.data = array.map(row => [...row]);
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error('Incompatible matrices');
+    return new Matrix(a.rows, b.cols).map((_, i, j) => 
+      a.data[i].reduce((sum, val, k) => sum + val * b.data[k][j], 0)
+    );
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+const matrixA = Matrix.from([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const matrixB = Matrix.from([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const resultMatrix = Matrix.multiply(matrixA, matrixB);
+print(resultMatrix.toString());
+
+ 
+async function fetchAndLog(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    let data = await response.json();
+    print(data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+ 

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        return null;
+    }
+};
+
+const processData = ({ users, posts }) => {
+    return users.map(user => {
+        const userPosts = posts.filter(post => post.userId === user.id);
+        return { ...user, posts: userPosts };
+    });
+};
+
+const displayData = (data) => {
+    const userTemplate = ({ id, name, posts }) => `
+        <div class="user">
+            <h2>${name} (ID: ${id})</h2>
+            <ul>${posts.map(post => `<li>${post.title}</li>`).join('')}</ul>
+        </div>`;
+    
+    document.body.innerHTML = data.map(userTemplate).join('');
+};
+
+(async () => {
+    const [users, posts] = await Promise.all([
+        fetchData('https://jsonplaceholder.typicode.com/users'),
+        fetchData('https://jsonplaceholder.typicode.com/posts')
+    ]);
+    
+    if (users && posts) {
+        const enrichedData = processData({ users, posts });
+        displayData(enrichedData);
+    }
+})();
+```

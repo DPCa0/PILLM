@@ -1,0 +1,53 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    await delay(1000);  
+    return { user: 'John Doe', age: 28 };
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const ids = idGenerator();
+
+ 
+const userHandler = {
+    set(target, property, value) {
+        if (property === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new Error('Age must be a positive number');
+        }
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+(async () => {
+     
+    let userData = await fetchData();
+
+     
+    const user = new Proxy(userData, userHandler);
+
+     
+    user.id = ids.next().value;
+
+    print('User Data:', user);
+
+     
+    try {
+        user.age = 29;   
+        user.age = -5;   
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

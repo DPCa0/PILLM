@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class AsyncDataHandler {
+    #data = [];  
+    static instanceCount = 0;  
+
+    constructor(url) {
+        this.url = url;
+        this.init();
+        AsyncDataHandler.instanceCount++;
+    }
+
+    async init() {
+        try {
+            this.#data = await this.fetchData(this.url);
+            console.log('Data initialized:', this.#data);
+        } catch (error) {
+            console.error('Failed to initialize data:', error);
+        }
+    }
+
+    async fetchData(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
+    }
+
+    static async processDataHandler(url) {
+        const handler = new this(url);
+        await handler.ready;
+        return handler;
+    }
+
+    get ready() {
+        return new Promise(resolve => {
+            const checkData = setInterval(() => {
+                if (this.#data.length > 0) {
+                    clearInterval(checkData);
+                    resolve(this.#data);
+                }
+            }, 100);
+        });
+    }
+
+    *dataGenerator() {  
+        for (const item of this.#data) {
+            yield item;
+        }
+    }
+
+    processData(callback) {
+        const processor = async () => {
+            for (const item of this.dataGenerator()) {
+                await callback(item);
+            }
+        };
+        processor();
+    }
+
+    static getInstanceCount() {
+        return AsyncDataHandler.instanceCount;
+    }
+}
+
+ 
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos';
+    const handler = await AsyncDataHandler.processDataHandler(url);
+
+    handler.processData(async (item) => {
+        console.log('Processing item:', item);
+        await new Promise(resolve => setTimeout(resolve, 50));  
+    });
+
+    console.log('Instances created:', AsyncDataHandler.getInstanceCount());
+})();
+```

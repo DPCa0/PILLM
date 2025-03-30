@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+const { readFile } = require('fs').promises;
+const { EventEmitter } = require('events');
+const axios = require('axios');
+
+class DataLoader extends EventEmitter {
+  constructor(url) {
+    super();
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const { data } = await axios.get(this.url);
+      this.emit('dataReceived', data);
+    } catch (error) {
+      this.emit('error', error);
+    }
+  }
+}
+
+async function main() {
+  const dataLoader = new DataLoader('https://api.coindesk.com/v1/bpi/currentprice.json');
+  dataLoader.on('dataReceived', (data) => {
+    console.log('Bitcoin Price Index:', data.bpi.USD.rate);
+  });
+
+  dataLoader.on('error', (error) => {
+    console.error('Error fetching data:', error);
+  });
+
+  await dataLoader.fetchData();
+
+   
+  try {
+    const fileContent = await readFile('./example.txt', 'utf8');
+    console.log('File Content:', fileContent);
+  } catch (error) {
+    console.error('Error reading file:', error);
+  }
+
+   
+  const createCounter = () => {
+    let count = 0;
+    return {
+      increment: () => ++count,
+      getCount: () => count
+    };
+  };
+
+  const counter = createCounter();
+  console.log('Initial count:', counter.getCount());
+  console.log('After increment:', counter.increment());
+  console.log('After another increment:', counter.increment());
+}
+
+main();
+```

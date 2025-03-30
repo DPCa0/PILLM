@@ -1,0 +1,55 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class DataPipeline {
+    constructor(data) {
+      this.data = data;
+    }
+
+    async transform(fn) {
+      this.data = await fn(this.data);
+      return this;
+    }
+
+    filter(fn) {
+      this.data = this.data.filter(fn);
+      return this;
+    }
+
+    reduce(fn, initial) {
+      this.data = this.data.reduce(fn, initial);
+      return this;
+    }
+
+    async display() {
+      for (const item of this.data) {
+        print(item);
+        await delay(500);  
+      }
+    }
+  }
+
+  const fetchData = async () => {
+     
+    await delay(1000);
+    return Array.from({ length: 10 }, (_, i) => i + 1);
+  };
+
+  const doubleValues = data => data.map(x => x * 2);
+
+  const sumReducer = (acc, value) => acc + value;
+
+  const data = await fetchData();
+
+  const pipeline = new DataPipeline(data);
+
+  await pipeline
+    .transform(doubleValues)
+    .filter(x => x > 10)
+    .reduce(sumReducer, 0)
+    .transform(async total => {
+      print('Total:', total);
+      return [total];
+    })
+    .display();
+})();

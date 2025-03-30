@@ -1,0 +1,42 @@
+class AsyncLimiter {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.activeCount = 0;
+    this.queue = [];
+  }
+
+  async enqueue(fn) {
+    return new Promise((resolve, reject) => {
+      this.queue.push(() => fn().then(resolve, reject));
+      this.dequeue();
+    });
+  }
+
+  dequeue() {
+    if (this.activeCount < this.concurrency && this.queue.length > 0) {
+      this.activeCount++;
+      const fn = this.queue.shift();
+      fn().finally(() => {
+        this.activeCount--;
+        this.dequeue();
+      });
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const limited = new AsyncLimiter(2);
+
+const tasks = [...Array(5).keys()].map((i) => () =>
+  limited.enqueue(async () => {
+    print(`Task ${i + 1} started`);
+    await delay(1000);
+    print(`Task ${i + 1} completed`);
+  })
+);
+
+(async () => {
+  await Promise.all(tasks.map((task) => task()));
+  print('All tasks completed');
+})();

@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+ 
+async function fetchUserData(userId) {
+    await delay(1000);  
+    const users = {
+        1: { name: 'Alice', age: 25 },
+        2: { name: 'Bob', age: 30 }
+    };
+    return users[userId] || { name: 'Unknown', age: 0 };
+}
+
+ 
+const PRIVATE_ID = Symbol('privateId');
+
+ 
+const userHandler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Getting ${String(prop)}: ${target[prop]}`);
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${String(prop)} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+(async () => {
+    const userData = await fetchUserData(1);
+
+     
+    const user = new Proxy(userData, userHandler);
+
+     
+    user[PRIVATE_ID] = 12345;
+
+    console.log(`User ID (private): ${user[PRIVATE_ID]}`);
+    console.log(`Name: ${user.name}`);
+    console.log(`Age: ${user.age}`);
+
+     
+    user.name = 'Charlie';
+
+    console.log(`Updated Name: ${user.name}`);
+})();
+```

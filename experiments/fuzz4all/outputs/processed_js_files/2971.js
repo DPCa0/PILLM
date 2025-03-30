@@ -1,0 +1,36 @@
+class DataFetcher {
+  static async fetchJson(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+}
+
+const processData = async ({ url, transformFn }) => {
+  try {
+    let data = await DataFetcher.fetchJson(url);
+    return transformFn(data);
+  } catch (error) {
+    console.error("Error fetching or processing data:", error);
+  }
+};
+
+const main = async () => {
+  const url = 'https://api.example.com/data';
+  const transformFn = data => {
+    return data.map(item => ({
+      ...item,
+      timestamp: new Date().toISOString()
+    }));
+  };
+
+  const processedData = await processData({ url, transformFn });
+  print("Processed Data:", processedData);
+};
+
+main();
+
+ 
+ 
+ 
+ 
+ 

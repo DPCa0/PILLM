@@ -1,0 +1,59 @@
+ 
+
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                name: 'John Doe',
+                age: 30,
+                occupation: 'Developer'
+            };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+ 
+const displayUserInfo = async (url) => {
+    try {
+        const user = await fetchData(url);
+        const { name, age, occupation } = user;  
+
+         
+        console.log(`User Info:
+        Name: ${name}
+        Age: ${age}
+        Occupation: ${occupation}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+displayUserInfo('https://api.example.com/user');
+
+ 
+const uniqueSet = new Set([1, 2, 3, 4, 4, 5]);
+print('Unique values from Set:', Array.from(uniqueSet));
+
+const userMap = new Map();
+userMap.set('name', 'Alice');
+userMap.set('age', 28);
+
+for (const [key, value] of userMap) {
+    print(`${key}: ${value}`);
+}
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const moreNumbers = [6, 7, ...numbers];
+print('Spread operator result:', moreNumbers);
+
+const sum = (...args) => args.reduce((acc, curr) => acc + curr, 0);
+print('Sum using rest parameters:', sum(...numbers));
+
+ 
+const greet = (name = 'Stranger') => print(`Hello, ${name}!`);
+greet();
+greet('Bob');

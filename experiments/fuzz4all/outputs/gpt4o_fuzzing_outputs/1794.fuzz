@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* numberGenerator(max) {
+  for (let i = 0; i < max; i++) {
+    await delay(100);  
+    yield i;
+  }
+}
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      console.log(`Getting property '${prop}'`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      return `Property '${prop}' doesn't exist`;
+    }
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+async function main() {
+  const generator = numberGenerator(5);
+  const obj = { message: 'Hello', count: 0 };
+  const proxyObj = new Proxy(obj, handler);
+
+  for await (const num of generator) {
+    console.log(`Generated number: ${num}`);
+    proxyObj.count = num;
+    console.log(`Count is now: ${proxyObj.count}`);
+  }
+}
+
+main();
+```

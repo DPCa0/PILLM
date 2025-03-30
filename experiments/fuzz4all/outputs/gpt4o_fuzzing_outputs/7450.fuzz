@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+import fs from 'fs/promises';
+
+ 
+const processData = async (filePath) => {
+  try {
+     
+    const data = await fs.readFile(filePath, 'utf8');
+
+     
+    const lines = data.split('\n');
+    const filteredLines = lines.filter(line => line.includes('TODO'));
+
+     
+    const uniqueLines = new Set(filteredLines);
+
+     
+    const result = Array.from(uniqueLines)
+      .map(line => line.trim())
+      .reduce((acc, line) => {
+        const [task, ...rest] = line.split(':');
+        acc.push({ task, description: rest.join(':').trim() });
+        return acc;
+      }, []);
+
+     
+    console.log(`Processed ${result.length} TODOs:`);
+    result.forEach(({ task, description }) =>
+      console.log(`- ${task}: ${description}`)
+    );
+
+  } catch (error) {
+     
+    console.error('Error processing file:', error);
+  }
+};
+
+ 
+(async () => {
+  const filePath = './tasks.txt';  
+  await processData(filePath);
+})();
+```

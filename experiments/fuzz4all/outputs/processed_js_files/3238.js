@@ -1,0 +1,34 @@
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield await fetch(url).then(response => response.json());
+  }
+}
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+const generator = fetchData(urls);
+
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Accessing property: ${prop}`);
+      return target[prop];
+    }
+    return `Property ${prop} does not exist.`;
+  }
+};
+
+const proxiedObject = new Proxy({}, handler);
+
+(async () => {
+  for await (const data of generator) {
+    Object.assign(proxiedObject, data);
+    print(proxiedObject);
+  }
+})();

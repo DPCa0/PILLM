@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+import { readFile } from 'fs/promises';
+import { EventEmitter } from 'events';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function readJSON(filePath) {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading JSON:', error);
+  }
+}
+
+ 
+const emitter = new EventEmitter();
+
+ 
+(async () => {
+   
+  const data = await readJSON('./data.json');
+
+   
+  const config = data?.config ?? {};
+
+   
+  const { retries = 3, interval = 1000 } = config;
+
+  console.log(`Starting process with ${retries} retries and ${interval}ms interval`);
+
+   
+  emitter.on('process', async () => {
+    for (let i = 0; i < retries; i++) {
+       
+      console.log(String.raw`Attempt ${i + 1} of ${retries}`);
+
+       
+      await delay(interval);
+
+       
+      try {
+        if (Math.random() > 0.7) {
+          throw new Error('Random process error');
+        }
+        console.log('Process succeeded');
+        break;
+      } catch (error) {
+        console.error('Error in process:', error);
+        if (i === retries - 1) {
+          console.log('Max retries reached, process failed');
+        }
+      }
+    }
+  });
+
+   
+  emitter.emit('process');
+})();
+```
+
+This code leverages several advanced JavaScript and Node.js features, including asynchronous programming with `async/await`, file handling with promises, event emitters, destructuring assignment, modern operators like optional chaining and nullish coalescing, and template literals. It simulates a simple process with retries based on configuration from a JSON file.

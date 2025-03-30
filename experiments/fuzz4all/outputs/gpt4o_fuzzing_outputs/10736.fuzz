@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchUser = async (id) => {
+    await delay(1000);  
+    const users = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+    return users.find(user => user.id === id) || { error: 'User not found' };
+};
+
+ 
+const fetchPosts = async (userId) => {
+    await delay(500);  
+    const posts = {
+        1: [{ id: 1, title: 'Alice\'s First Post' }, { id: 2, title: 'Alice\'s Second Post' }],
+        2: [{ id: 3, title: 'Bob\'s Only Post' }]
+    };
+    return posts[userId] || [];
+};
+
+ 
+const main = async () => {
+    try {
+        const user = await fetchUser(1);
+        if (user.error) throw new Error(user.error);
+        
+        console.log('User:', user.name);
+
+        const posts = await fetchPosts(user.id);
+        if (posts.length === 0) {
+            console.log('No posts found for this user.');
+        } else {
+            console.log('User\'s Posts:');
+            posts.forEach(post => console.log(`- ${post.title}`));
+        }
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+    }
+};
+
+main();
+```

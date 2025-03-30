@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+  
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+  
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+async function* asyncRange(start, end) {
+    for (let i = start; i <= end; i++) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        yield i;
+    }
+}
+
+function memoize(fn) {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (!cache.has(key)) {
+            cache.set(key, fn(...args));
+        }
+        return cache.get(key);
+    };
+}
+
+const fibonacci = memoize(n => {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+});
+
+const observer = new Observable();
+
+observer.subscribe(console.log);
+
+(async () => {
+    for await (const num of asyncRange(0, 10)) {
+        const fibValue = fibonacci(num);
+        observer.notify(`Fib(${num}) = ${fibValue}`);
+    }
+})();
+```

@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class ComplexObject {
+  #privateValue;
+  
+  constructor(value) {
+    this.#privateValue = value;
+  }
+  
+  get value() {
+    return this.#privateValue;
+  }
+  
+  async *generateAsyncSquares(upTo) {
+    for (let i = 1; i <= upTo; i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield i * i;
+    }
+  }
+
+  static fromArray(arr) {
+    const obj = new ComplexObject(arr.reduce((sum, val) => sum + val, 0));
+    return obj;
+  }
+}
+
+const processValues = async (object) => {
+  for await (let square of object.generateAsyncSquares(5)) {
+    console.log(`Square: ${square}`);
+  }
+};
+
+const destructuredFunction = ({ value }) => {
+  console.log(`Destructured value: ${value}`);
+};
+
+(async () => {
+  const obj1 = new ComplexObject(42);
+  destructuredFunction(obj1);
+
+  const obj2 = ComplexObject.fromArray([1, 2, 3, 4]);
+  destructuredFunction(obj2);
+
+  await processValues(obj1);
+
+  const mappedValues = [1, 2, 3].map(n => n ** 3);
+  console.log(`Mapped values (cubes): ${mappedValues}`);
+
+  const promiseChain = Promise.resolve(5)
+    .then(n => n * 2)
+    .finally(() => console.log('Completed promise chain'))
+    .catch(console.error);
+
+  console.log(await promiseChain);
+})();
+```

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  #listeners = new Map();
+
+  on(event, listener) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, []);
+    }
+    this.#listeners.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.#listeners.has(event)) {
+      for (const listener of this.#listeners.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* asyncNumbers(limit) {
+  for (let i = 0; i < limit; i++) {
+    await delay(100);
+    yield i;
+  }
+}
+
+(async () => {
+  const emitter = new EventEmitter();
+  
+  emitter.on('number', (n) => console.log(`Received: ${n}`));
+  emitter.on('complete', () => console.log('All numbers emitted'));
+
+  for await (const number of asyncNumbers(5)) {
+    emitter.emit('number', number);
+  }
+  emitter.emit('complete');
+})();
+```

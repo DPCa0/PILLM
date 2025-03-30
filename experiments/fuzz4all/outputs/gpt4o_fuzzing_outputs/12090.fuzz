@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  get size() {
+    return [this.data.length, this.data[0].length];
+  }
+
+   
+  static add(A, B) {
+    if (A.size[0] !== B.size[0] || A.size[1] !== B.size[1]) {
+      throw new Error('Matrices must have the same dimensions');
+    }
+    return new Matrix(
+      A.data.map((row, i) => row.map((val, j) => val + B.data[i][j]))
+    );
+  }
+
+   
+  static multiplyAsync(A, B) {
+    return new Promise((resolve, reject) => {
+      if (A.size[1] !== B.size[0]) {
+        reject(new Error('Number of columns of A must match number of rows of B'));
+      }
+
+      const result = new Array(A.size[0]).fill(0).map(() => new Array(B.size[1]).fill(0));
+
+      result.forEach((row, i) =>
+        row.forEach((_, j) => {
+          result[i][j] = A.data[i].reduce(
+            (sum, _, k) => sum + A.data[i][k] * B.data[k][j],
+            0
+          );
+        })
+      );
+
+      resolve(new Matrix(result));
+    });
+  }
+
+   
+  toString() {
+    return this.data.map(row => row.join(', ')).join('\n');
+  }
+
+   
+  [Symbol.iterator]() {
+    let i = 0;
+    let j = 0;
+    return {
+      next: () => {
+        if (i < this.data.length && j < this.data[i].length) {
+          const value = this.data[i][j];
+          if (j === this.data[i].length - 1) {
+            i++;
+            j = 0;
+          } else {
+            j++;
+          }
+          return { value, done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+ 
+(async () => {
+  const A = new Matrix([
+    [1, 2, 3],
+    [4, 5, 6],

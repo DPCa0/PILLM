@@ -1,0 +1,77 @@
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = new Set();
+    }
+    this.events[event].add(listener);
+  }
+
+  off(event, listener) {
+    if (this.events[event]) {
+      this.events[event].delete(listener);
+    }
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+const throttle = (func, limit) => {
+  let lastFunc;
+  let lastRan;
+  return function (...args) {
+    if (!lastRan) {
+      func.apply(this, args);
+      lastRan = Date.now();
+    } else {
+      clearTimeout(lastFunc);
+      lastFunc = setTimeout(() => {
+        if (Date.now() - lastRan >= limit) {
+          func.apply(this, args);
+          lastRan = Date.now();
+        }
+      }, limit - (Date.now() - lastRan));
+    }
+  };
+};
+
+const eventEmitter = new EventEmitter();
+const logData = debounce(data => print('Data:', data), 300);
+
+eventEmitter.on('dataLoaded', logData);
+eventEmitter.on('error', error => console.error('Error:', error));
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    eventEmitter.emit('dataLoaded', data);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+})();
+
+window.addEventListener('resize', throttle(() => {
+  print('Resized window:', window.innerWidth, window.innerHeight);
+}, 500));

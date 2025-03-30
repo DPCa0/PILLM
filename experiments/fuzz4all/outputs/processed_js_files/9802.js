@@ -1,0 +1,47 @@
+ 
+class ComplexSystem {
+    #privateValue = 42;  
+
+     
+    static #computeComplexResult(value) {
+        return value * 2 + Math.random();
+    }
+
+     
+    async compute() {
+        const result = await Promise.resolve(this.#getPrivateValue());
+        return ComplexSystem.#computeComplexResult(result);
+    }
+
+     
+    #getPrivateValue() {
+        return this.#privateValue;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        const origMethod = target[prop];
+        if (prop === 'compute' && typeof origMethod === 'function') {
+            return function (...args) {
+                print(`Intercepted call to: ${prop}`);
+                return origMethod.apply(this, args);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const complexInstance = new ComplexSystem();
+const proxiedInstance = new Proxy(complexInstance, handler);
+
+ 
+const maybeNull = null;
+print(maybeNull?.notARealProperty ?? 'Default Value');
+
+ 
+(async () => {
+    const complexResult = await proxiedInstance.compute();
+    print(`Complex Result: ${complexResult}`);
+})();

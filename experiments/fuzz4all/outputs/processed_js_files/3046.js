@@ -1,0 +1,61 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomError";
+  }
+}
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://valid.url") {
+        resolve({ data: "Valid Data" });
+      } else {
+        reject(new CustomError("Invalid URL"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  }
+};
+
+ 
+async function main() {
+  try {
+    const data = await fetchData("https://valid.url");
+    print("Data fetched:", data);
+
+     
+    const obj = new Proxy({ key: "value" }, handler);
+    print(obj.key);
+
+     
+    function* numberGenerator() {
+      yield 1;
+      yield 2;
+      yield 3;
+    }
+
+     
+    const [first, ...rest] = [...numberGenerator()];
+    print("First number:", first);
+    print("Rest of numbers:", rest);
+
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error("Custom error occurred:", error.message);
+    } else {
+      console.error("An error occurred:", error.message);
+    }
+  }
+}
+
+main();

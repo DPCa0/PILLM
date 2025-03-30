@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._listeners = new Set();
+    }
+
+    subscribe(listener) {
+        this._listeners.add(listener);
+        listener(this._value);
+    }
+
+    unsubscribe(listener) {
+        this._listeners.delete(listener);
+    }
+
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._notify();
+        }
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    _notify() {
+        this._listeners.forEach(listener => listener(this._value));
+    }
+}
+
+const reactive = new Proxy(new Observable(10), {
+    set(target, property, value) {
+        if (property === 'value') {
+            target.value = value;
+            return true;
+        }
+        return false;
+    },
+    get(target, property) {
+        return property === 'value' ? target.value : target[property];
+    }
+});
+
+function logger(value) {
+    console.log(`Current value: ${value}`);
+}
+
+function doubleLogger(value) {
+    console.log(`Double value: ${value * 2}`);
+}
+
+reactive.subscribe(logger);
+reactive.subscribe(doubleLogger);
+
+setInterval(() => {
+    reactive.value = Math.floor(Math.random() * 100);
+}, 2000);
+
+setTimeout(() => {
+    reactive.unsubscribe(logger);
+    console.log('Unsubscribed logger');
+}, 10000);
+```

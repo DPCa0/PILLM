@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+import { promisify } from 'util';
+
+ 
+const loggerHandler = {
+  get: (target, prop, receiver) => {
+    const origMethod = target[prop];
+    if (typeof origMethod === 'function') {
+      return function (...args) {
+        console.log(`Calling method ${prop} with arguments: ${JSON.stringify(args)}`);
+        const result = Reflect.apply(origMethod, receiver, args);
+        console.log(`Method ${prop} returned: ${result}`);
+        return result;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+class BookCollection {
+  constructor() {
+    this.books = [];
+  }
+
+  addBook(title, author) {
+    this.books.push({ title, author });
+    return `Added book: ${title}`;
+  }
+
+  listBooks() {
+    return this.books;
+  }
+}
+
+ 
+async function readBooksFromFile(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error(`Error reading file from disk: ${error}`);
+    return [];
+  }
+}
+
+ 
+(async () => {
+   
+  const myBooks = new Proxy(new BookCollection(), loggerHandler);
+
+   
+  myBooks.addBook('1984', 'George Orwell');
+  myBooks.addBook('Brave New World', 'Aldous Huxley');
+
+   
+  console.log('Current book collection:', myBooks.listBooks());
+
+   
+  const fileBooks = await readBooksFromFile('./books.json');
+  fileBooks.forEach(book => myBooks.addBook(book.title, book.author));
+
+  console.log('Updated book collection:', myBooks.listBooks());
+})();
+```

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function asyncTimeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const fetchResource = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  return await response.json();
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 
+                'https://jsonplaceholder.typicode.com/posts/2'];
+
+  emitter.on('dataReceived', data => console.log(`Data Received: ${data.title}`));
+  emitter.on('error', error => console.error(`Error: ${error}`));
+
+  for (const url of urls) {
+    try {
+      await asyncTimeout(1000);  
+      const data = await fetchResource(url);
+      emitter.emit('dataReceived', data);
+    } catch (error) {
+      emitter.emit('error', error);
+    }
+  }
+})();
+```

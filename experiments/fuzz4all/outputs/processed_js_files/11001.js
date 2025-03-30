@@ -1,0 +1,48 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  async process() {
+    if (this.processing) return;
+    this.processing = true;
+    while (this.queue.length > 0) {
+      const task = this.queue.shift();
+      try {
+        await task();
+      } catch (error) {
+        console.error('Task failed:', error);
+      }
+    }
+    this.processing = false;
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+    this.process();
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async url => {
+  print(`Fetching data from ${url}`);
+  await delay(1000);
+  if (Math.random() < 0.3) throw new Error('Random fetch error');
+  return `{ "data": "Response from ${url}" }`;
+};
+
+const asyncQueue = new AsyncQueue();
+
+['/api/data1', '/api/data2', '/api/data3'].forEach(url => {
+  asyncQueue.addTask(async () => {
+    try {
+      const response = await fetchData(url);
+      print('Received:', response);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  });
+});

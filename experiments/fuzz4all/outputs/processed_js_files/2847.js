@@ -1,0 +1,47 @@
+ 
+
+const fetchData = async (url) => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: { id: 1, name: 'John Doe', interests: ['coding', 'music'] } });
+    }, 1000);
+  });
+};
+
+const processUserData = async () => {
+  const url = 'https://example.com/api/user';
+  
+  try {
+     
+    const { user: { name, interests } } = await fetchData(url);
+    
+    print(`User Name: ${name}`);
+    
+     
+    const moreInterests = [...interests, 'reading', 'gaming'];
+    
+    print(`User Interests: ${moreInterests.join(', ')}`);
+
+     
+    const userProxy = new Proxy({ name, moreInterests }, {
+      set(target, property, value) {
+        print(`Property ${property} set to ${value}`);
+        target[property] = value;
+        return true;
+      }
+    });
+
+     
+    userProxy.name = 'Jane Doe';
+    userProxy.moreInterests = [...moreInterests, 'traveling'];
+
+    print(`Updated User Name: ${userProxy.name}`);
+    print(`Updated User Interests: ${userProxy.moreInterests.join(', ')}`);
+
+  } catch (error) {
+    console.error(`Error fetching user data: ${error}`);
+  }
+};
+
+processUserData();

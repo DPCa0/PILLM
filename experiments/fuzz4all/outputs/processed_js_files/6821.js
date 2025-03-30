@@ -1,0 +1,45 @@
+ 
+
+ 
+async function* fetchData() {
+    const mockData = [
+        { id: 1, value: 'Data 1' },
+        { id: 2, value: 'Data 2' },
+        { id: 3, value: 'Data 3' }
+    ];
+    for (const item of mockData) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        yield item;
+    }
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'size') {
+            return Reflect.get(target, Symbol.iterator).call(target).length;
+        }
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number') {
+            value *= 2;  
+        }
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+(async function() {
+    const data = [];
+    const proxiedData = new Proxy(data, handler);
+
+    const dataGenerator = fetchData();
+    for await (const item of dataGenerator) {
+        proxiedData.push(item);
+    }
+
+    print(`Proxied Data Size: ${proxiedData.size}`);  
+    proxiedData.push({ id: 4, value: 100 });
+    print('Modified Data:', proxiedData);  
+})();

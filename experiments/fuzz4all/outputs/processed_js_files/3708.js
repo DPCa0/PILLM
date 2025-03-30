@@ -1,0 +1,42 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CustomError';
+  }
+}
+
+ 
+async function complexOperation() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = Math.random() > 0.5;
+      success ? resolve('Operation succeeded!') : reject(new CustomError('Operation failed!'));
+    }, 1000);
+  });
+}
+
+ 
+async function* dataGenerator() {
+  try {
+    yield await complexOperation();
+    yield await complexOperation();
+    yield await complexOperation();
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`Custom error occurred: ${error.message}`);
+    } else {
+      console.error('An unknown error occurred:', error);
+    }
+  }
+}
+
+ 
+(async () => {
+  print('Starting complex operations...');
+  const generator = dataGenerator();
+  for await (const result of generator) {
+    print(result);
+  }
+  print('All operations completed.');
+})();

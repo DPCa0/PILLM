@@ -1,0 +1,61 @@
+ 
+const fs = require('fs');
+const crypto = require('crypto');
+
+ 
+async function complexProcess() {
+  try {
+     
+    const randomData = await new Promise((resolve, reject) => {
+      crypto.randomBytes(256, (err, buffer) => {
+        if (err) reject(err);
+        resolve(buffer.toString('hex'));
+      });
+    });
+
+     
+    const uniqueKey = Symbol('unique');
+
+     
+    class DataProcessor {
+      #data;
+      constructor(data) {
+        this.#data = data;
+      }
+
+      [uniqueKey]() {
+        return this.#data.split('').reverse().join('');
+      }
+    }
+
+    const processor = new DataProcessor(randomData);
+
+     
+    const handler = {
+      get(target, prop, receiver) {
+        print(`Accessing property: ${String(prop)}`);
+        return Reflect.get(target, prop, receiver);
+      },
+    };
+
+    const proxiedProcessor = new Proxy(processor, handler);
+
+     
+    function logTemplate(strings, ...values) {
+      return strings.reduce((prev, current, i) => {
+        return `${prev}${current}${values[i] ? `[${values[i]}]` : ''}`;
+      }, '');
+    }
+
+    print(logTemplate`Processed data: ${proxiedProcessor[uniqueKey]()}`);
+
+     
+    await fs.promises.writeFile('randomData.txt', randomData);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+complexProcess();

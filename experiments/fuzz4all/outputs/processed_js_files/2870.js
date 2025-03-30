@@ -1,0 +1,69 @@
+ 
+class Person {
+  #age;  
+
+  constructor(name, age) {
+    this.name = name;
+    this.#age = age;
+  }
+
+  get details() {
+    return `${this.name}, Age: ${this.#age}`;
+  }
+
+   
+  static compareAge(person1, person2) {
+    return person1.#age - person2.#age;
+  }
+}
+
+ 
+const fetchData = async (url) => {
+   
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const personMap = new Map();
+const uniqueNames = new Set(['Alice', 'Bob', 'Charlie']);
+
+uniqueNames.forEach((name, index) => {
+  const person = new Person(name, Math.floor(Math.random() * 100));
+  personMap.set(index, person);
+});
+
+ 
+const [firstPerson, ...otherPersons] = [...personMap.values()];
+
+print(`First person: ${firstPerson.details}`);
+print('Other persons:', otherPersons.map(p => p.details));
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+const obj = {
+  [uniqueKey]: 'This is a unique key value'
+};
+
+print('Symbol key value:', obj[uniqueKey]);
+
+ 
+(() => {
+  print('This code runs immediately');
+})();
+
+ 
+const nestedObject = {
+  level1: {
+    level2: {
+      level3: 'Deeply nested value'
+    }
+  }
+};
+
+print('Optional chaining:', nestedObject.level1?.level2?.level3 ?? 'Default Value');

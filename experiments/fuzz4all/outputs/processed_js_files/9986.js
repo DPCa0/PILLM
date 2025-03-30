@@ -1,0 +1,44 @@
+class Observable {
+    constructor(subscribe) {
+        this._subscribe = subscribe;
+    }
+
+    subscribe(observer) {
+        return this._subscribe(observer);
+    }
+
+    static from(array) {
+        return new Observable((observer) => {
+            array.forEach(value => observer.next(value));
+            observer.complete();
+        });
+    }
+
+    map(transform) {
+        return new Observable((observer) => {
+            return this.subscribe({
+                next: (value) => observer.next(transform(value)),
+                complete: () => observer.complete()
+            });
+        });
+    }
+}
+
+const asyncOperation = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(Math.random()), 1000);
+    });
+};
+
+async function run() {
+    const values = await Promise.all([asyncOperation(), asyncOperation(), asyncOperation()]);
+
+    Observable.from(values)
+        .map(value => value * 100)
+        .subscribe({
+            next: (value) => console.log(`Transformed Value: ${value.toFixed(2)}`),
+            complete: () => console.log('All values processed.')
+        });
+}
+
+run();

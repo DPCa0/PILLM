@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+ 
+"use strict";
+
+ 
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  speak() {
+    console.log(`${this.name} makes a sound.`);
+  }
+}
+
+ 
+class Dog extends Animal {
+  speak() {
+    console.log(`${this.name} barks.`);
+  }
+}
+
+ 
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      console.log(`Property '${prop}' accessed with value: ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.log(`Property '${prop}' does not exist.`);
+      return undefined;
+    }
+  },
+  set: function(target, prop, value) {
+    if (prop === 'name' && typeof value === 'string') {
+      console.log(`Setting '${prop}' to '${value}'`);
+      target[prop] = value;
+      return true;
+    } else {
+      console.log(`Cannot set '${prop}' to '${value}'`);
+      return false;
+    }
+  }
+};
+
+ 
+let myDog = new Dog('Rex');
+myDog = new Proxy(myDog, handler);
+
+ 
+function* randomMessageGenerator() {
+  const messages = ["Hello", "Woof", "Growl"];
+  while (true) {
+    yield messages[Math.floor(Math.random() * messages.length)];
+  }
+}
+
+const messageGen = randomMessageGenerator();
+
+ 
+async function showRandomMessages(times) {
+  for (let i = 0; i < times; i++) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    console.log(messageGen.next().value);
+  }
+}
+
+ 
+myDog.speak();
+myDog.name = 'Buddy';
+myDog.speak();
+
+showRandomMessages(3);
+```

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+async function processUrls(urls) {
+  const results = [];
+  try {
+    for await (const data of fetchData(urls)) {
+      const { id, value } = data;  
+      results.push({ id, value });
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+  return results;
+}
+
+ 
+function fetch(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        json: () => Promise.resolve({ id: url, value: Math.random() }),
+      });
+    }, 1000);
+  });
+}
+
+const urls = ['url1', 'url2', 'url3'];
+
+processUrls(urls).then((data) => {
+  console.log('Processed data:', data);
+});
+```

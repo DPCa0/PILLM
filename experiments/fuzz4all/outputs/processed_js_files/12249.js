@@ -1,0 +1,37 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData(id) {
+  await delay(1000);  
+  return { id, name: `Item ${id}`, value: Math.random() * 100 };
+}
+
+ 
+function* dataFetcher(ids) {
+  for (let id of ids) {
+    yield fetchData(id);
+  }
+}
+
+ 
+async function processData(ids) {
+  const generator = dataFetcher(ids);
+  const results = [];
+  for (let promise of generator) {
+    const { id, name, value } = await promise;  
+    results.push({ id, name, value: value.toFixed(2) });
+  }
+  return results;
+}
+
+ 
+(async () => {
+  const ids = [1, 2, 3, 4, 5];
+  const results = await processData(ids);
+
+   
+  print(...results.map(({ id, name, value }) => `${name}: $${value}`));
+})();

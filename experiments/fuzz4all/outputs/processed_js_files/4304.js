@@ -1,0 +1,39 @@
+ 
+
+const handler = {
+  get: function(target, property, receiver) {
+    if (typeof target[property] === 'function') {
+      return async function(...args) {
+        print(`Calling async method: ${property.toString()}`);
+        let result = await Reflect.apply(target[property], receiver, args);
+        print(`Result of ${property.toString()}:`, result);
+        return result;
+      };
+    }
+    return Reflect.get(target, property, receiver);
+  },
+};
+
+class AdvancedFeatures {
+  constructor(name) {
+    this.name = name;
+    this[sayHelloSymbol] = async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+      return `Hello, ${this.name}!`;
+    };
+  }
+
+  async computeSquare(number) {
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    return number * number;
+  }
+}
+
+const sayHelloSymbol = Symbol('sayHello');
+
+const advancedInstance = new Proxy(new AdvancedFeatures('World'), handler);
+
+(async () => {
+  print(await advancedInstance[sayHelloSymbol]());
+  print(await advancedInstance.computeSquare(5));
+})();

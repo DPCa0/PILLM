@@ -1,0 +1,40 @@
+class AsyncNumberProcessor {
+  #numbers;
+
+  constructor(...numbers) {
+    this.#numbers = numbers;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (const number of this.#numbers) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield number ** 2;
+    }
+  }
+
+  static async mapAsync(iterable, callback) {
+    const results = [];
+    for await (const item of iterable) {
+      results.push(await callback(item));
+    }
+    return results;
+  }
+
+  async process() {
+    const results = await AsyncNumberProcessor.mapAsync(this, async num => {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return num + 10;
+    });
+    return results;
+  }
+}
+
+(async () => {
+  const processor = new AsyncNumberProcessor(1, 2, 3, 4, 5);
+  for await (const squared of processor) {
+    print('Squared:', squared);
+  }
+
+  const processedResults = await processor.process();
+  print('Processed:', processedResults);
+})();

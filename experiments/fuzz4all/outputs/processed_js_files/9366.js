@@ -1,0 +1,51 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchDataWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(id);
+    return response.ok ? await response.json() : Promise.reject(response.statusText);
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
+  }
+}
+
+ 
+(async function() {
+   
+  const { generateData } = await import('./dataModule.js');
+
+   
+  async function* processData() {
+    try {
+      const data = await fetchDataWithTimeout('https://api.example.com/data', 3000);
+      for (const item of data) {
+        yield item;
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+   
+  for await (const item of processData()) {
+    print('Processed item:', item);
+  }
+
+   
+  const user = generateData()?.user ?? 'Guest';
+  print(`Hello, ${user}!`);
+
+   
+  const propertyName = 'status';
+  const obj = { status: 'active' };
+  print(`Current status: ${obj[propertyName]}`);
+})();
+

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.apiEndpoint);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return this.processData(data);
+  }
+
+  processData(data) {
+     
+    const { results } = data;
+    return results.map(({ name, url }) => ({ name, url }));
+  }
+}
+
+class App {
+  constructor(apiEndpoint) {
+    this.dataFetcher = new DataFetcher(apiEndpoint);
+  }
+
+  async run() {
+    try {
+      const processedData = await this.dataFetcher.fetchData();
+      this.displayData(processedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  displayData(data) {
+     
+    const content = data.map(({ name, url }) => `<li><a href="${url}">${name}</a></li>`).join('');
+    document.body.innerHTML = `<ul>${content}</ul>`;
+  }
+}
+
+const apiEndpoint = 'https://pokeapi.co/api/v2/pokemon?limit=10';  
+const app = new App(apiEndpoint);
+app.run();
+```

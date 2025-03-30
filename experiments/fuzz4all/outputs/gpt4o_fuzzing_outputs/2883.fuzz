@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class DataManager {
+  #data = new Map();
+
+  constructor(initialData = []) {
+    initialData.forEach(([key, value]) => this.#data.set(key, value));
+  }
+
+  async *asyncIterator() {
+    for (let [key, value] of this.#data) {
+      await new Promise((resolve) => setTimeout(resolve, 100));  
+      yield { key, value };
+    }
+  }
+
+  updateData(key, callback) {
+    if (this.#data.has(key)) {
+      const newValue = callback(this.#data.get(key));
+      this.#data.set(key, newValue);
+    } else {
+      console.warn(`Key "${key}" not found.`);
+    }
+  }
+
+  static fromJson(jsonStr) {
+    const data = JSON.parse(jsonStr, (key, value) =>
+      typeof value === 'string' ? value.trim() : value
+    );
+    return new DataManager(Object.entries(data));
+  }
+}
+
+const sampleJson =
+  '{"user1": " Alice ", "user2": " Bob ", "user3": " Charlie "}';
+const manager = DataManager.fromJson(sampleJson);
+
+manager.updateData('user2', (value) => value.toUpperCase());
+
+(async () => {
+  for await (const { key, value } of manager.asyncIterator()) {
+    console.log(`Key: ${key}, Value: ${value}`);
+  }
+})();
+```

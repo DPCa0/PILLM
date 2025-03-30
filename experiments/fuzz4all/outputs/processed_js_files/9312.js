@@ -1,0 +1,40 @@
+ 
+class AdvancedGreeting {
+  #greeting = "Hello";
+  #target = "world";
+
+  constructor(extra = "") {
+    this.#extra = extra;
+  }
+
+  #formatGreeting() {
+    return `${this.#greeting}, ${this.#target}${this.#extra}!`;
+  }
+
+   
+  static async getGreetingWithDelay(delay = 1000) {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    return new AdvancedGreeting().#formatGreeting();
+  }
+
+   
+  *characterGenerator() {
+    for (const char of this.#formatGreeting()) {
+      yield char;
+    }
+  }
+}
+
+(async () => {
+   
+  const greetingObj = new AdvancedGreeting() ?? new AdvancedGreeting("fallback");
+  
+   
+  for (const char of greetingObj.characterGenerator()) {
+    process.stdout.write(char);
+  }
+  print();
+
+   
+  print(await AdvancedGreeting.getGreetingWithDelay(2000));
+})();

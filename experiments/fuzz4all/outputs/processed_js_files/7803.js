@@ -1,0 +1,36 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+      yield curr;
+      [prev, curr] = [curr, this.fibonacci(curr)];
+    }
+  }
+
+  fibonacci(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this.fibonacci(n - 1) + this.fibonacci(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const asyncPrintFibonacci = async function*(iterable, limit) {
+  for (const num of iterable) {
+    if (limit-- <= 0) return;
+    yield new Promise(resolve => setTimeout(() => resolve(num), 500));
+  }
+};
+
+(async () => {
+  const fibSeq = new FibonacciSequence();
+  const asyncFib = asyncPrintFibonacci(fibSeq, 10);
+
+  for await (const number of asyncFib) {
+    print(number);
+  }
+})();

@@ -1,0 +1,24 @@
+ 
+const fetchData = async (urls) => {
+  try {
+     
+    const simulateFetch = url => new Promise((resolve) => {
+      setTimeout(() => resolve(`Data from ${url}`), Math.random() * 2000);
+    });
+
+     
+    const promises = urls.map(url => simulateFetch(url));
+    const results = await Promise.all(promises);
+
+     
+    const [data1, data2, data3] = results;
+
+     
+    print(`Received:\n1. ${data1}\n2. ${data2}\n3. ${data3}`);
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+};
+
+ 
+fetchData(...[['https://api1.com', 'https://api2.com', 'https://api3.com']]);

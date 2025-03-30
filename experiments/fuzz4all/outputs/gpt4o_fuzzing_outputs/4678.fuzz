@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+class Task {
+  #name;
+  #priority;
+  
+  constructor(name, priority = 'normal') {
+    this.#name = name;
+    this.#priority = priority;
+  }
+  
+  get details() {
+    return `${this.#name} [${this.#priority}]`;
+  }
+  
+  static *priorityGenerator() {
+    const priorities = ['low', 'normal', 'high'];
+    let index = 0;
+    while (true) {
+      yield priorities[index % priorities.length];
+      index++;
+    }
+  }
+}
+
+async function processTasks(taskList) {
+  const taskPromises = taskList.map(task => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        console.log(`Processed: ${task.details}`);
+        resolve(task);
+      }, Math.random() * 2000);
+    });
+  });
+  return Promise.all(taskPromises);
+}
+
+(async () => {
+  const priorityGen = Task.priorityGenerator();
+  
+  const tasks = [
+    new Task('Task 1', priorityGen.next().value),
+    new Task('Task 2', priorityGen.next().value),
+    new Task('Task 3', priorityGen.next().value),
+    new Task('Task 4', priorityGen.next().value),
+    new Task('Task 5', priorityGen.next().value)
+  ];
+  
+  console.log('Starting task processing...');
+  await processTasks(tasks);
+  console.log('All tasks processed.');
+})();
+```

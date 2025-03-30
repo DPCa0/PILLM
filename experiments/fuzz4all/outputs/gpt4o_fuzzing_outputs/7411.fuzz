@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+class ApiHandler {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+  async fetchData(endpoint, params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${this.baseURL}${endpoint}?${queryString}`;
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  static process(data) {
+    return data.map(item => {
+      const { id, ...rest } = item;  
+      return { identifier: id, details: { ...rest } };  
+    });
+  }
+}
+
+(async () => {
+  const api = new ApiHandler('https://jsonplaceholder.typicode.com');
+  const rawData = await api.fetchData('/users');
+  
+  const processedData = DataProcessor.process(rawData);
+  console.log(processedData);
+})();
+```

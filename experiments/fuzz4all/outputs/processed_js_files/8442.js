@@ -1,0 +1,37 @@
+ 
+ 
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async () => {
+  await delay(1000);
+  return { id: 1, name: 'Data', values: [10, 20, 30] };
+};
+
+const processData = ({ id, name, values }) => {
+  const sum = values.reduce((acc, value) => acc + value, 0);
+  return `Processed ${name} (ID: ${id}) with sum of values: ${sum}`;
+};
+
+const symbolKey = Symbol('uniqueKey');
+
+const app = async () => {
+  try {
+    const data = await fetchData();
+    const processed = processData(data);
+    
+    const dataStore = {
+      [symbolKey]: processed,
+      timestamp: new Date().toISOString(),
+    };
+
+    const { [symbolKey]: result, ...meta } = dataStore;
+    
+    print(`Result: ${result}`);
+    print(`Metadata: ${JSON.stringify(meta, null, 2)}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+app();

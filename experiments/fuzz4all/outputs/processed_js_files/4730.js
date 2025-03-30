@@ -1,0 +1,40 @@
+class CustomEventEmitter extends EventTarget {
+  on(type, listener) {
+    this.addEventListener(type, listener);
+  }
+
+  off(type, listener) {
+    this.removeEventListener(type, listener);
+  }
+
+  emit(type, detail) {
+    this.dispatchEvent(new CustomEvent(type, { detail }));
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncCounter(limit, interval) {
+  for (let i = 0; i <= limit; i++) {
+    yield i;
+    await delay(interval);
+  }
+}
+
+(async () => {
+  const emitter = new CustomEventEmitter();
+
+  emitter.on('count', event => {
+    print(`Count: ${event.detail}`);
+  });
+
+  emitter.on('finished', () => {
+    print('Counting finished.');
+  });
+
+  for await (const count of asyncCounter(5, 500)) {
+    emitter.emit('count', count);
+  }
+
+  emitter.emit('finished');
+})();

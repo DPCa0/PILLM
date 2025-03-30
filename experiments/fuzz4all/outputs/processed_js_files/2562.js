@@ -1,0 +1,47 @@
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+
+ 
+const complexOperation = async () => {
+     
+    const tasks = new Map([
+        ['Task 1', randomDelay()],
+        ['Task 2', randomDelay()],
+        ['Task 3', randomDelay()],
+        ['Task 4', randomDelay()],
+        ['Task 5', randomDelay()],
+    ]);
+
+    print('Starting complex operation...');
+
+     
+    console.time('Execution Time');
+    const results = await Promise.all(
+        Array.from(tasks, async ([name, task]) => {
+            await task;
+             
+            const formatResult = (strings, taskName, status) => `${taskName}: ${status}`;
+            return formatResult`${name} completed`;
+        })
+    );
+    console.timeEnd('Execution Time');
+
+     
+    const resultSet = new Set(results);
+
+     
+    print('Results:', ...resultSet);
+
+     
+    const metadataKey = Symbol('metadata');
+    tasks[metadataKey] = { completedTasks: tasks.size };
+
+     
+    print('Metadata:');
+    for (const [key, value] of Object.entries(tasks[metadataKey])) {
+        print(`${key}: ${value}`);
+    }
+};
+
+ 
+complexOperation();

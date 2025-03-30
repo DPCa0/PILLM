@@ -1,0 +1,70 @@
+ 
+class Person {
+  #name;   
+  constructor(name, age) {
+    this.#name = name;
+    this.age = age;
+  }
+
+   
+  get name() {
+    return this.#name;
+  }
+
+   
+  ['set' + 'Age'](newAge) {
+    if (newAge > 0) {
+      this.age = newAge;
+    } else {
+      throw new Error('Age must be a positive number');
+    }
+  }
+}
+
+ 
+const sumAges = (...ages) => ages.reduce((acc, age) => acc + age, 0);
+
+ 
+async function fetchUserData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const data = await response.json();
+  return data;
+}
+
+ 
+const personProxyHandler = {
+  get: (target, property) => {
+    print(`Accessing property ${property}`);
+    return target[property];
+  }
+};
+
+ 
+const person = new Proxy(new Person('Alice', 30), personProxyHandler);
+
+ 
+print(`Person's name is: ${person.name}`);
+print(`Person's age is: ${person.age}`);
+
+ 
+person.setAge(31);
+print(`Updated age is: ${person.age}`);
+
+ 
+(async () => {
+  try {
+    const [user1, user2] = await Promise.all([
+      fetchUserData('https://jsonplaceholder.typicode.com/users/1'),
+      fetchUserData('https://jsonplaceholder.typicode.com/users/2')
+    ]);
+    print('Fetched user data:', user1, user2);
+    
+     
+    const { name: name1, age: age1 } = user1;
+    const { name: name2, age: age2 } = user2;
+    print(`User 1: ${name1}, Age: ${age1}`);
+    print(`User 2: ${name2}, Age: ${age2}`);
+  }

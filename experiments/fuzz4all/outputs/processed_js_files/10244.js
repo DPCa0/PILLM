@@ -1,0 +1,44 @@
+class WeatherStation {
+  constructor(location) {
+    this.location = location;
+    this.dataPoints = [];
+  }
+
+  async fetchData() {
+     
+    return new Promise((resolve) =>
+      setTimeout(() => resolve(Math.random() * 40), 1000)
+    );
+  }
+
+  async recordData() {
+    const data = await this.fetchData();
+    this.dataPoints.push({ timestamp: new Date(), temperature: data });
+  }
+
+  *generateReport() {
+    for (const point of this.dataPoints) {
+      yield `Recorded at ${point.timestamp}: ${point.temperature.toFixed(2)}°C`;
+    }
+  }
+
+  get averageTemperature() {
+    return (
+      this.dataPoints.reduce((acc, cur) => acc + cur.temperature, 0) /
+      this.dataPoints.length
+    );
+  }
+}
+
+(async () => {
+  const station = new WeatherStation('City Park');
+
+  await Promise.all([station.recordData(), station.recordData(), station.recordData()]);
+
+  const reportGenerator = station.generateReport();
+  for (const report of reportGenerator) {
+    print(report);
+  }
+
+  print(`Average Temperature: ${station.averageTemperature.toFixed(2)}°C`);
+})();

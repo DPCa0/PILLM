@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+class AsyncNumberGenerator {
+  constructor() {
+    this.number = 0;
+  }
+
+  async *generateNumbers(max) {
+    while (this.number < max) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield this.number++;
+    }
+  }
+}
+
+const processNumbers = async () => {
+  const generator = new AsyncNumberGenerator();
+  const doubleNumbers = [];
+  
+  for await (const num of generator.generateNumbers(10)) {
+    doubleNumbers.push(num * 2);
+  }
+
+  return doubleNumbers.reduce((sum, val) => sum + val, 0);
+};
+
+(async () => {
+  const sum = await processNumbers();
+  console.log(`The sum of doubled numbers is: ${sum}`);
+})();
+```

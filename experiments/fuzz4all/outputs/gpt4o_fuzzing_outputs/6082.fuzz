@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+async function retrieveData(urls) {
+  const dataPromises = urls.map((url) => fetchData(url));
+  const responses = await Promise.all(dataPromises);
+  return responses.map(({ data }) => data);
+}
+
+ 
+class DataManager {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async displayData() {
+    try {
+      const data = await retrieveData(this.urls);
+      data.forEach((item, index) => {
+        console.log(`Source ${index + 1}: ${item}`);
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+ 
+const urls = ['http://api1.com', 'http://api2.com', 'http://api3.com'];
+const [url1, url2, url3] = urls;
+
+const manager = new DataManager([url1, url2, url3]);
+manager.displayData();
+```

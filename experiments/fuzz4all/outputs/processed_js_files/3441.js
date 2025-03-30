@@ -1,0 +1,32 @@
+ 
+
+ 
+function* dataStream() {
+  let count = 0;
+  while (count < 10) {
+    yield new Promise(resolve => setTimeout(() => resolve(count++), 500));
+  }
+}
+
+ 
+async function asyncIteratorExample() {
+  const iterator = dataStream();
+  
+  const proxy = new Proxy(iterator, {
+    get: (target, prop) => {
+      if (prop === 'next') {
+        return async () => {
+          const result = target.next();
+          return result.done ? result : { value: await result.value, done: false };
+        }
+      }
+      return Reflect.get(target, prop);
+    }
+  });
+
+  for await (const value of proxy) {
+    print(`Received value: ${value}`);
+  }
+}
+
+asyncIteratorExample();

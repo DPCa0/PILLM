@@ -1,0 +1,44 @@
+ 
+
+ 
+function* fetchData() {
+    yield new Promise((resolve) => setTimeout(() => resolve(10), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve(20), 500));
+    yield new Promise((resolve) => setTimeout(() => resolve(30), 1500));
+}
+
+ 
+async function processGenerator(gen) {
+    const resultMap = new Map();
+    let result = gen.next();
+    while (!result.done) {
+        const value = await result.value;
+        resultMap.set(Date.now(), value);
+        result = gen.next();
+    }
+    return resultMap;
+}
+
+ 
+const logHandler = {
+    get(target, prop, receiver) {
+        print(`Accessed property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const gen = fetchData();
+
+ 
+processGenerator(gen).then((map) => {
+    const proxiedMap = new Proxy(map, logHandler);
+
+     
+    proxiedMap.forEach((value, key) => {
+        print(`Key: ${key}, Value: ${value}`);
+    });
+
+     
+    print(`Size of Map: ${proxiedMap.size}`);
+});

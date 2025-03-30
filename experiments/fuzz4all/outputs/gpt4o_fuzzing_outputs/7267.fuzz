@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+const encrypt = (text, secretKey) => {
+  const iv = randomBytes(16);  
+  const cipher = createCipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), iv);
+  
+  const encryptedText = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+  return `${iv.toString('hex')}:${encryptedText.toString('hex')}`;
+};
+
+ 
+const decrypt = (encryptedText, secretKey) => {
+  const [ivHex, encryptedHex] = encryptedText.split(':');
+  const iv = Buffer.from(ivHex, 'hex');
+  const encryptedBuffer = Buffer.from(encryptedHex, 'hex');
+  
+  const decipher = createDecipheriv('aes-256-cbc', Buffer.from(secretKey, 'hex'), iv);
+  const decryptedText = Buffer.concat([decipher.update(encryptedBuffer), decipher.final()]);
+  return decryptedText.toString('utf8');
+};
+
+ 
+const measureTime = (fn) => async (...args) => {
+  console.time(fn.name);
+  const result = await fn(...args);
+  console.timeEnd(fn.name);
+  return result;
+};
+
+ 
+const processData = async (data) => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Processed: ${data}`);
+    }, 1000);
+  });
+};
+
+ 
+const main = async () => {
+  const secretKey = randomBytes(32).toString('hex');  
+  
+  const encryptedMessage = encrypt('Hello, complex world!', secretKey);
+  console.log('Encrypted Message:', encryptedMessage);
+
+  const decryptedMessage = decrypt(encryptedMessage, secretKey);
+  console.log('Decrypted Message:', decryptedMessage);
+
+   
+  const processedData = await measureTime(processData)('Advanced JavaScript features');
+  console.log(processedData);
+};
+
+ 
+main().catch(console.error);
+```

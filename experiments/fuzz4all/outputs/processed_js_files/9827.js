@@ -1,0 +1,55 @@
+class EventEmitter {
+  #listeners = new Map();
+
+  on(event, listener) {
+    if (!this.#listeners.has(event)) {
+      this.#listeners.set(event, new Set());
+    }
+    this.#listeners.get(event).add(listener);
+  }
+
+  off(event, listener) {
+    if (this.#listeners.has(event)) {
+      this.#listeners.get(event).delete(listener);
+    }
+  }
+
+  emit(event, ...args) {
+    if (this.#listeners.has(event)) {
+      for (const listener of this.#listeners.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const asyncOperation = (param) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        resolve(`Success with ${param}`);
+      } else {
+        reject(`Failure with ${param}`);
+      }
+    }, 1000);
+  });
+};
+
+const handleSuccess = (message) => print(`Success Event: ${message}`);
+const handleFailure = (message) => print(`Failure Event: ${message}`);
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('success', handleSuccess);
+eventEmitter.on('failure', handleFailure);
+
+(async () => {
+  const results = await Promise.allSettled(['Task 1', 'Task 2', 'Task 3'].map(asyncOperation));
+
+  for (const { status, value, reason } of results) {
+    if (status === 'fulfilled') {
+      eventEmitter.emit('success', value);
+    } else {
+      eventEmitter.emit('failure', reason);
+    }
+  }
+})();

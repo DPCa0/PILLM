@@ -1,0 +1,62 @@
+ 
+
+ 
+function timeLogger(target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    console.time(`${propertyKey} execution time`);
+    const result = originalMethod.apply(this, args);
+    console.timeEnd(`${propertyKey} execution time`);
+    return result;
+  };
+  return descriptor;
+}
+
+ 
+async function* fetchDataSimulator() {
+  const data = [1, 2, 3, 4, 5];
+  for (const item of data) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));  
+    yield item;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Getting ${prop}`);
+      return target[prop];
+    }
+    return `Property ${prop} does not exist`;
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+ 
+class ComplexSystem {
+  constructor() {
+    this.state = new Proxy({}, handler);
+  }
+
+  @timeLogger
+  updateState(prop, value) {
+    this.state[prop] = value;
+  }
+
+  @timeLogger
+  async processData() {
+    for await (const data of fetchDataSimulator()) {
+      print(`Processing: ${data}`);
+      this.updateState(`item${data}`, data);
+    }
+  }
+}
+
+ 
+const system = new ComplexSystem();
+system.processData();

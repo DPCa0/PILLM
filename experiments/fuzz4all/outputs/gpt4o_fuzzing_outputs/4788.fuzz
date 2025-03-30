@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+async function* asyncNumberGenerator() {
+  for (let i = 0; i < 5; i++) {
+     
+    await new Promise(resolve => setTimeout(resolve, 100 * i));
+    yield i;
+  }
+}
+
+ 
+const targetObject = { message: "Hello, world!" };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' was accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+const privateData = new WeakMap();
+
+class DataContainer {
+  constructor(value) {
+    privateData.set(this, { value });
+  }
+  
+  getValue() {
+    return privateData.get(this).value;
+  }
+}
+
+ 
+function tag(strings, ...expressions) {
+  return strings.reduce((acc, str, idx) => `${acc}${str}${expressions[idx] || ''}`, '');
+}
+
+(async () => {
+  console.log(tag`Generated Number: ${await asyncNumberGenerator().next().then(res => res.value)}`);
+  
+  const container = new DataContainer(42);
+  console.log(`Private Value: ${container.getValue()}`);
+
+  console.log(proxy.message);
+})();
+```

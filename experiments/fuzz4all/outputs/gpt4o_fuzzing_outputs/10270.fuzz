@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = [1, 2, 3, 4, 5];
+        resolve(data);
+    }, 1000);
+});
+
+ 
+const processData = async (operation) => {
+    try {
+        const data = await fetchData();
+        return operation(data);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+ 
+const complexOperation = (data) => {
+    return data
+        .map(num => num * 2)
+        .filter(num => num > 5)
+        .reduce((acc, num) => acc + num, 0);
+};
+
+ 
+(async () => {
+    const result = await processData(complexOperation);
+    console.log('Result of complex operation:', result);
+})();
+```

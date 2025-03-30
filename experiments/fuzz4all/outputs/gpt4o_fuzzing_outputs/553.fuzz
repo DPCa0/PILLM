@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+class ComplexCalculator {
+  constructor() {
+    this.cache = new Map();
+  }
+  
+  async fetchValue(key) {
+     
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const value = Math.random();
+        this.cache.set(key, value);
+        resolve(value);
+      }, 1000);
+    });
+  }
+  
+  async calculate(inputs) {
+    const result = [];
+
+     
+    for (const { key, operation } of inputs) {
+      let value = this.cache.get(key);
+      
+      if (!value) {
+        value = await this.fetchValue(key);
+      }
+
+      switch (operation) {
+        case 'square':
+          result.push(value ** 2);
+          break;
+        case 'sqrt':
+          result.push(Math.sqrt(value));
+          break;
+        default:
+          result.push(value);
+      }
+    }
+    
+    return result;
+  }
+}
+
+(async () => {
+  const calculator = new ComplexCalculator();
+  const inputs = [
+    { key: 'a', operation: 'square' },
+    { key: 'b', operation: 'sqrt' },
+    { key: 'c', operation: 'none' }
+  ];
+
+  const results = await calculator.calculate(inputs);
+  
+   
+  const uniqueResults = [...new Set(results)];
+  console.log(uniqueResults);
+})();
+```

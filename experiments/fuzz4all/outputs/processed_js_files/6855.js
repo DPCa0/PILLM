@@ -1,0 +1,44 @@
+class FibonacciSequence {
+  *[Symbol.iterator]() {
+    let [prev, curr] = [0, 1];
+    for (;;) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const asyncProcess = async (data) => {
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(data.split('').reverse().join('')), 1000)
+  );
+};
+
+(async () => {
+  const fibGen = FibonacciSequence.prototype[Symbol.iterator]();
+  const fibSequence = [...Array(10)].map(() => fibGen.next().value);
+
+  const calcFactorial = memoize((n) =>
+    n <= 1 ? 1 : n * calcFactorial(n - 1)
+  );
+
+  const data = 'Hello, Async JS!';
+  const reversedData = await asyncProcess(data);
+
+  print('First 10 Fibonacci numbers:', fibSequence);
+  print('Factorial of 5:', calcFactorial(5));
+  print('Reversed Data:', reversedData);
+})();

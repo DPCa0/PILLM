@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+  constructor(apiEndpoint) {
+    this.apiEndpoint = apiEndpoint;
+  }
+
+  async *fetchData() {
+    const response = await fetch(this.apiEndpoint);
+    const data = await response.json();
+    for (const item of data) {
+      yield item;
+    }
+  }
+}
+
+const processFetchedData = async (apiEndpoint) => {
+  const dataFetcher = new DataFetcher(apiEndpoint);
+  const processor = async ({ name, value }) => {
+    return new Promise((resolve) => setTimeout(() => resolve(`${name}: ${value * 2}`), 500));
+  };
+
+  const results = [];
+  for await (const item of dataFetcher.fetchData()) {
+    const result = await processor(item);
+    results.push(result);
+  }
+
+  return results;
+};
+
+const debouncedLog = (fn, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+};
+
+const log = debouncedLog(console.log, 300);
+
+processFetchedData('https://api.example.com/data')
+  .then(results => results.forEach(log))
+  .catch(error => console.error('Error fetching data:', error));
+```

@@ -1,0 +1,53 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.processing = false;
+    }
+
+    enqueue(asyncFn) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ asyncFn, resolve, reject });
+            this.processQueue();
+        });
+    }
+
+    async processQueue() {
+        if (this.processing || this.queue.length === 0) return;
+        this.processing = true;
+
+        const { asyncFn, resolve, reject } = this.queue.shift();
+        try {
+            const result = await asyncFn();
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        } finally {
+            this.processing = false;
+            this.processQueue();
+        }
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function simulateAsyncTask(taskNumber, duration) {
+    print(`Task ${taskNumber} started.`);
+    await delay(duration);
+    print(`Task ${taskNumber} completed.`);
+    return `Result of task ${taskNumber}`;
+}
+
+const queue = new AsyncQueue();
+
+(async () => {
+    const tasks = [
+        () => simulateAsyncTask(1, 3000),
+        () => simulateAsyncTask(2, 1000),
+        () => simulateAsyncTask(3, 2000),
+    ];
+
+    const results = await Promise.all(tasks.map(task => queue.enqueue(task)));
+    print('All tasks completed:', results);
+})();

@@ -1,0 +1,47 @@
+ 
+
+ 
+class APIClient {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+
+   
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.baseURL}${endpoint}`);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return null;
+    }
+  }
+}
+
+ 
+async function processData() {
+  const client = new APIClient('https://jsonplaceholder.typicode.com');
+
+  try {
+     
+    const [users, posts] = await Promise.all([
+      client.fetchData('/users'),
+      client.fetchData('/posts')
+    ]);
+
+     
+    if (users && posts) {
+      users.forEach(({ id, name }) => {
+        const userPosts = posts.filter(post => post.userId === id);
+        print(`${name} has ${userPosts.length} posts`);
+      });
+    }
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+processData();

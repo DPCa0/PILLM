@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+    #data = [];
+
+    constructor(data) {
+        this.#data = data;
+    }
+
+    async *processData() {
+        for (const item of this.#data) {
+            yield await this.#processItem(item);
+        }
+    }
+
+    #processItem(item) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(item * item);
+            }, 100);
+        });
+    }
+}
+
+const run = async () => {
+    const processor = new DataProcessor([1, 2, 3, 4, 5]);
+    const results = [];
+
+    for await (const result of processor.processData()) {
+        results.push(result);
+    }
+
+    console.log(results);
+};
+
+run().catch(console.error);
+```

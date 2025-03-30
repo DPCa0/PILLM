@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    return await response.json();
+}
+
+ 
+function* numberGenerator(start = 0) {
+    let num = start;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const loggerProxyHandler = {
+    get(target, property) {
+        console.log(`Accessing property "${property}"`);
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Setting property "${property}" to "${value}"`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+ 
+const obj = new Proxy({}, loggerProxyHandler);
+
+ 
+const gen = numberGenerator();
+
+ 
+obj.name = "Advanced JavaScript";
+console.log(obj.name);
+
+ 
+(async () => {
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        console.log(data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+
+ 
+for (let i = 0; i < 5; i++) {
+    console.log(gen.next().value);
+}
+```

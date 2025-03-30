@@ -1,0 +1,44 @@
+ 
+
+ 
+function fetchData(id) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        userId: id,
+        name: `User${id}`,
+        age: Math.floor(Math.random() * 50) + 20
+      };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+function* dataGenerator(ids) {
+  for (let id of ids) {
+    yield fetchData(id);
+  }
+}
+
+ 
+async function processUserData(ids) {
+  const gen = dataGenerator(ids);
+  let result = gen.next();
+
+  while (!result.done) {
+    try {
+      const { userId, name, age } = await result.value;
+      print(`Fetched User - ID: ${userId}, Name: ${name}, Age: ${age}`);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+    result = gen.next();
+  }
+}
+
+ 
+const userIds = [1, 2, 3, 4, 5];
+
+ 
+processUserData(userIds);

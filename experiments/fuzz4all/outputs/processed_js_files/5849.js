@@ -1,0 +1,53 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(subscriber) {
+    this.subscribers.add(subscriber);
+  }
+
+  unsubscribe(subscriber) {
+    this.subscribers.delete(subscriber);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(subscriber => subscriber(data));
+  }
+}
+
+const observable = new Observable();
+
+function debounce(func, wait) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+function* fibonacci(limit) {
+  let [a, b] = [0, 1];
+  while (limit-- > 0) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const debouncedLog = debounce(console.log, 200);
+
+observable.subscribe(debouncedLog);
+
+(async function() {
+  for (const num of fibonacci(10)) {
+    observable.notify(num);
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+})();
+
+ 
+ 
+ 
+ 
+ 
+ 

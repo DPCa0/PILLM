@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const { default: fetch } = await import('node-fetch');
+
+   
+  async function getData(url) {
+    const response = await fetch(url);
+    return await response.json();
+  }
+
+   
+  const apiHandler = {
+    get: function (target, property) {
+      console.log(`Accessing property ${property}`);
+      if (property in target) {
+        return target[property];
+      } else {
+        return () => console.warn(`No API method for ${property}`);
+      }
+    },
+  };
+
+  const api = new Proxy(
+    {
+      getUser: () => getData('https://jsonplaceholder.typicode.com/users/1'),
+      getPost: () => getData('https://jsonplaceholder.typicode.com/posts/1'),
+    },
+    apiHandler
+  );
+
+   
+  const user = await api.getUser();
+  console.log(`User Name: ${user.name}`);
+
+   
+  const { title, body } = await api.getPost();
+  console.log(`Post Title: ${title}`);
+  console.log(`Post Body: ${body}`);
+
+   
+  const numbers = [1, 2, 3];
+  const doubleNumbers = numbers.map(n => n * 2);
+  console.log(...doubleNumbers);
+
+   
+  const complexResult = Object.entries(user)
+    .filter(([key]) => key.startsWith('a'))
+    .map(([key, value]) => `${key.toUpperCase()}: ${value}`)
+    .join('; ');
+
+  console.log(`Filtered User Info: ${complexResult}`);
+
+   
+  console.log(user.address?.city || 'City not available');
+
+   
+  function* range(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield i;
+    }
+  }
+
+  console.log([...range(1, 5)]);
+})();
+```

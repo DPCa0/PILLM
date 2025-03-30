@@ -1,0 +1,42 @@
+class TaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.runningTasks = 0;
+  }
+
+  async run(task) {
+    if (this.runningTasks >= this.concurrency) {
+      await new Promise(resolve => this.queue.push(resolve));
+    }
+    this.runningTasks++;
+    try {
+      await task();
+    } finally {
+      this.runningTasks--;
+      if (this.queue.length > 0) {
+        this.queue.shift()();
+      }
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const randomTask = async (id) => {
+  const time = Math.floor(Math.random() * 2000);
+  print(`Task ${id} started, will take ${time}ms`);
+  await delay(time);
+  print(`Task ${id} completed`);
+};
+
+const main = async () => {
+  const taskQueue = new TaskQueue(3);
+
+  const tasks = Array.from({ length: 10 }, (_, i) => () => taskQueue.run(() => randomTask(i + 1)));
+
+  await Promise.all(tasks.map(task => task()));
+  print('All tasks completed');
+};
+
+main();

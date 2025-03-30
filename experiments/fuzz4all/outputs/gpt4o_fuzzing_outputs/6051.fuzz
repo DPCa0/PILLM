@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function advancedJsFeaturesDemo() {
+  try {
+     
+    const data = `
+    {
+      "users": [
+        { "id": 1, "name": "John Doe" },
+        { "id": 2, "name": "Jane Doe" }
+      ]
+    }`;
+
+     
+    await fs.writeFile('users.json', data);
+
+     
+    const fileContent = await fs.readFile('users.json', 'utf8');
+    const { users } = JSON.parse(fileContent);
+
+     
+    const updatedUsers = users.map(({ id, name }) => ({
+      id,
+      name: name.toUpperCase(),
+      timestamp: new Date().toISOString()
+    }));
+
+     
+    const result = { ...updatedUsers };
+
+     
+    console.log('First User:', result?.[0] ?? 'No users found');
+
+     
+    for (const user of updatedUsers) {
+      console.log('User:', user);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+ 
+(async () => {
+  await advancedJsFeaturesDemo();
+})();
+```

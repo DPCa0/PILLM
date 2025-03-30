@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncMap = async (arr, callback) => {
+    return Promise.all(arr.map(async (item, index) => callback(item, index, arr)));
+};
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+class AdvancedArray extends Array {
+    async asyncFilter(callback) {
+        const results = await asyncMap(this, callback);
+        return this.filter((_, index) => results[index]);
+    }
+}
+
+(async () => {
+    const array = new AdvancedArray(1, 2, 3, 4, 5);
+    const eventEmitter = new EventEmitter();
+
+    eventEmitter.on('start', () => console.log('Filtering started...'));
+    eventEmitter.on('finish', (filteredArray) => console.log('Filtered Array:', filteredArray));
+
+    eventEmitter.emit('start');
+
+    const isEven = async number => {
+        await delay(500);
+        return number % 2 === 0;
+    };
+
+    const filteredArray = await array.asyncFilter(isEven);
+    eventEmitter.emit('finish', filteredArray);
+})();
+```

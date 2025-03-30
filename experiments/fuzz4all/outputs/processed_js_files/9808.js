@@ -1,0 +1,50 @@
+class DataProcessor {
+  static #processData(data) {
+    return data.map(({ value, id }) => ({ [id]: value * 2 }));
+  }
+
+  constructor(data) {
+    this.data = data;
+    this.processedData = DataProcessor.#processData(data);
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const data = this.processedData;
+    return {
+      next() {
+        if (index < data.length) {
+          return { value: data[index++], done: false };
+        }
+        return { done: true };
+      },
+    };
+  }
+
+  async *asyncGenerator() {
+    for (const item of this.processedData) {
+      await new Promise((resolve) => setTimeout(resolve, 100));  
+      yield item;
+    }
+  }
+}
+
+(async () => {
+  const data = [
+    { id: 'a', value: 1 },
+    { id: 'b', value: 2 },
+    { id: 'c', value: 3 },
+  ];
+
+  const processor = new DataProcessor(data);
+
+  print('Synchronous iteration:');
+  for (const item of processor) {
+    print(item);
+  }
+
+  print('Asynchronous iteration:');
+  for await (const item of processor.asyncGenerator()) {
+    print(item);
+  }
+})();

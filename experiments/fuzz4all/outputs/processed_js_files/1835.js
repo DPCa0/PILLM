@@ -1,0 +1,56 @@
+class Vector {
+  #components;
+  constructor(...components) {
+    this.#components = components;
+  }
+
+  static fromArray(arr) {
+    return new Vector(...arr);
+  }
+
+  add(vector) {
+    return new Vector(...this.#components.map((val, i) => val + vector.#components[i]));
+  }
+
+  subtract(vector) {
+    return new Vector(...this.#components.map((val, i) => val - vector.#components[i]));
+  }
+
+  dot(vector) {
+    return this.#components.reduce((sum, val, i) => sum + val * vector.#components[i], 0);
+  }
+
+  get magnitude() {
+    return Math.sqrt(this.#components.reduce((sum, val) => sum + val * val, 0));
+  }
+
+  *[Symbol.iterator]() {
+    yield* this.#components;
+  }
+
+  toString() {
+    return `Vector(${this.#components.join(', ')})`;
+  }
+}
+
+const vec1 = new Vector(1, 2, 3);
+const vec2 = Vector.fromArray([4, 5, 6]);
+
+print(`vec1: ${vec1}`);
+print(`vec2: ${vec2}`);
+
+const sum = vec1.add(vec2);
+print(`vec1 + vec2: ${sum}`);
+
+const diff = vec1.subtract(vec2);
+print(`vec1 - vec2: ${diff}`);
+
+const dotProduct = vec1.dot(vec2);
+print(`vec1 . vec2: ${dotProduct}`);
+
+print(`|vec1|: ${vec1.magnitude}`);
+
+print('Iterating over vec1:');
+for (const component of vec1) {
+  print(component);
+}

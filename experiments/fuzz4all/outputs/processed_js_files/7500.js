@@ -1,0 +1,51 @@
+class Observer {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(eventType, callback) {
+    if (!this.subscribers.has(eventType)) {
+      this.subscribers.set(eventType, []);
+    }
+    this.subscribers.get(eventType).push(callback);
+  }
+
+  emit(eventType, data) {
+    if (this.subscribers.has(eventType)) {
+      this.subscribers.get(eventType).forEach(callback => callback(data));
+    }
+  }
+}
+
+const createDebouncedFunction = (func, delay) => {
+  let timeoutId;
+  return function(...args) {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+(async () => {
+  const observer = new Observer();
+  
+  observer.subscribe('dataFetched', data => print('Data received:', data));
+  observer.subscribe('error', error => console.error('Error occurred:', error));
+
+  const debouncedFetchData = createDebouncedFunction(async (url) => {
+    try {
+      const data = await fetchData(url);
+      observer.emit('dataFetched', data);
+    } catch (error) {
+      observer.emit('error', error);
+    }
+  }, 500);
+
+  debouncedFetchData('https://jsonplaceholder.typicode.com/posts/1');
+  debouncedFetchData('https://jsonplaceholder.typicode.com/posts/2');
+})();

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Response from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+async function* apiCaller(urls) {
+  for (let url of urls) {
+    yield await fetchData(url);
+  }
+}
+
+ 
+const loggingHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}' with value: ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.error(`Property '${prop}' not found`);
+    }
+  },
+};
+
+ 
+const dataObject = {
+  user: "John Doe",
+  age: 30,
+  role: "developer",
+};
+
+ 
+const proxyDataObject = new Proxy(dataObject, loggingHandler);
+
+ 
+(async () => {
+  console.log("Starting API calls...\n");
+
+  const urls = ["http://api.example.com/data1", "http://api.example.com/data2"];
+  for await (const response of apiCaller(urls)) {
+    console.log(response.data);
+  }
+
+  console.log("\nInteracting with Proxy:\n");
+  console.log(proxyDataObject.user);
+  console.log(proxyDataObject.age);
+  console.log(proxyDataObject.nonExistentProperty);
+})();
+```

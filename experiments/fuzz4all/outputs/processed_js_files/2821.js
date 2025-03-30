@@ -1,0 +1,37 @@
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *generate(n) {
+    for (let i = 0; i <= n; i++) {
+      yield this.fib(i);
+    }
+  }
+
+  fib(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    let value = this.fib(n - 1) + this.fib(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+(async () => {
+  try {
+    const fib = new Fibonacci();
+    print([...fib.generate(10)]);  
+    
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print(data);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

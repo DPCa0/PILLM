@@ -1,0 +1,50 @@
+ 
+
+class Developer {
+  #name;
+  #skills;
+  
+  constructor(name, skills = []) {
+    this.#name = name;
+    this.#skills = skills;
+  }
+
+  learn(skill) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (skill) {
+          this.#skills.push(skill);
+          resolve(`${this.#name} learned ${skill}`);
+        } else {
+          reject('No skill provided');
+        }
+      }, 1000);
+    });
+  }
+
+  get profile() {
+    return {
+      name: this.#name,
+      skills: this.#skills
+    };
+  }
+
+  static async collaborate(dev1, dev2) {
+    const jointSkills = new Set([...dev1.profile.skills, ...dev2.profile.skills]);
+    return [...jointSkills];
+  }
+}
+
+const developer1 = new Developer('Alice');
+const developer2 = new Developer('Bob', ['React', 'Node.js']);
+
+(async () => {
+  try {
+    print(await developer1.learn('JavaScript'));
+    print(await developer2.learn('TypeScript'));
+    const skills = await Developer.collaborate(developer1, developer2);
+    print('Combined Skills:', skills);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexFeatures {
+    constructor(data) {
+         
+        const { message, values } = data;
+        this.message = message;
+        this.values = values;
+    }
+
+     
+    static *generateSequence(limit) {
+        for (let i = 0; i < limit; i++) {
+            yield i;
+        }
+    }
+
+     
+    async fetchData() {
+         
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve(this.values);
+            }, 1000);
+        });
+    }
+
+     
+    processValues(...newValues) {
+        this.values = [...this.values, ...newValues];
+        return this.values;
+    }
+
+     
+    get formattedMessage() {
+        return `Message: ${this.message}`;
+    }
+
+    set updateMessage(newMsg) {
+        this.message = newMsg;
+    }
+}
+
+ 
+(async function main() {
+    const instance = new ComplexFeatures({ 
+        message: 'Hello, advanced JavaScript!', 
+        values: [1, 2, 3] 
+    });
+
+     
+    console.log('Sequence:', [...ComplexFeatures.generateSequence(5)]);
+
+     
+    const data = await instance.fetchData();
+    console.log('Fetched data:', data);
+
+     
+    console.log(instance.formattedMessage);
+    instance.updateMessage = 'Updated message!';
+    console.log(instance.formattedMessage);
+
+    console.log('Processed Values:', instance.processValues(4, 5, 6));
+})();
+```

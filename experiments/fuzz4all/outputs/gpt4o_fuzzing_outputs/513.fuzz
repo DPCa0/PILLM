@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+class AsyncDataFetcher {
+  constructor(urls) {
+    this.urls = urls;
+  }
+
+  async *fetchData() {
+    for (const url of this.urls) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}`);
+      }
+      yield response.json();
+    }
+  }
+}
+
+const processData = async () => {
+  const urls = ['https://jsonplaceholder.typicode.com/posts', 'https://jsonplaceholder.typicode.com/comments'];
+  const fetcher = new AsyncDataFetcher(urls);
+  const allData = [];
+
+  for await (const dataChunk of fetcher.fetchData()) {
+    allData.push(...dataChunk);
+  }
+
+  const filteredData = allData.filter(item => item.id < 50);
+  console.log('Filtered Data:', filteredData);
+};
+
+(async () => {
+  try {
+    await processData();
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();
+```

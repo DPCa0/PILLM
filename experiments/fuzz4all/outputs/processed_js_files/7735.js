@@ -1,0 +1,47 @@
+ 
+
+ 
+function* randomNumberGenerator() {
+    while (true) {
+        yield Math.floor(Math.random() * 100);
+    }
+}
+
+ 
+const loggingHandler = {
+    get(target, property) {
+        const value = target[property];
+        print(`Getting property '${property}': ${value}`);
+        return value;
+    },
+    set(target, property, value) {
+        print(`Setting property '${property}' to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const proxyObject = new Proxy({}, loggingHandler);
+
+ 
+const asyncSymbol = Symbol('asyncMethod');
+
+ 
+proxyObject[asyncSymbol] = async function() {
+    const generator = randomNumberGenerator();
+    const randomNumber = generator.next().value;
+    
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Generated random number: ${randomNumber}`);
+        }, 1000);
+    });
+};
+
+(async () => {
+     
+    proxyObject.name = "Complex JS Example";
+    print(await proxyObject[asyncSymbol]());
+})();

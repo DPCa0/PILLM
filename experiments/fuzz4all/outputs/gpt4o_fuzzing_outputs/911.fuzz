@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ name: 'Alice', age: 30, location: 'Wonderland' });
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      console.log(`Property ${prop} accessed with value: ${target[prop]}`);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      console.log(`Property ${prop} is not found.`);
+      return undefined;
+    }
+  },
+};
+
+(async () => {
+  try {
+    const data = await fetchData();
+    const { name, age } = data;  
+    console.log(`Destructured data: Name - ${name}, Age - ${age}`);
+
+    const proxyData = new Proxy(data, handler);
+
+     
+    console.log(`Name: ${proxyData.name}`);
+    console.log(`Age: ${proxyData.age}`);
+    console.log(`Location: ${proxyData.location}`);
+    console.log(`Occupation: ${proxyData.occupation}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

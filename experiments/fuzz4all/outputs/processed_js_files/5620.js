@@ -1,0 +1,60 @@
+ 
+
+ 
+function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', age: 30 },
+                { id: 2, name: 'Bob', age: 25 },
+                { id: 3, name: 'Charlie', age: 35 }
+            ]);
+        }, 1000);
+    });
+}
+
+ 
+async function processUserData() {
+    try {
+        const data = await fetchData();
+        const adults = data.filter(user => user.age >= 30);
+        return adults;
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+}
+
+ 
+function* userGenerator(users) {
+    for (let user of users) {
+        yield `${user.name} is ${user.age} years old.`;
+    }
+}
+
+ 
+async function mockFetchRequest() {
+    try {
+        const response = await fetch('https://jsonplaceholder.typicode.com/users');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        print('Fetched Data:', data);
+    } catch (error) {
+        console.error('Fetch Error:', error);
+    }
+}
+
+ 
+(async () => {
+    print('Processing User Data...');
+    const users = await processUserData();
+    
+    if (users) {
+        const userIterator = userGenerator(users);
+        for (let userDescription of userIterator) {
+            print(userDescription);
+        }
+    }
+
+    print('Performing a mock fetch request...');
+    await mockFetchRequest();
+})();

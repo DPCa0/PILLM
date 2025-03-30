@@ -1,0 +1,54 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.isProcessing = false;
+  }
+
+  async enqueue(promiseFactory) {
+    this.queue.push(promiseFactory);
+    if (!this.isProcessing) {
+      this.processQueue();
+    }
+  }
+
+  async processQueue() {
+    this.isProcessing = true;
+    while (this.queue.length) {
+      const promiseFactory = this.queue.shift();
+      try {
+        print(await promiseFactory());
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    this.isProcessing = false;
+  }
+}
+
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.3) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject(`Failed to fetch from ${url}`);
+      }
+    }, 1000);
+  });
+}
+
+function main() {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3',
+  ];
+
+  const queue = new AsyncQueue();
+
+  for (const url of urls) {
+    queue.enqueue(() => fetchData(url));
+  }
+}
+
+main();

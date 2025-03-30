@@ -1,0 +1,45 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve({ data: { users: ['Alice', 'Bob', 'Charlie'] }, error: null });
+    }, 1000);
+});
+
+ 
+function* dataProcessor() {
+    try {
+        const { data, error } = yield fetchData();
+        if (error) {
+            console.error("Error fetching data:", error);
+        } else {
+            const { users } = data;
+            for (const user of users) {
+                yield `Processed User: ${user}`;
+            }
+        }
+    } catch (err) {
+        console.error("Unexpected error:", err);
+    }
+}
+
+ 
+async function processUsers() {
+    const generator = dataProcessor();
+    let result = generator.next();
+
+    while (!result.done) {
+        if (result.value instanceof Promise) {
+             
+            const data = await result.value;
+            result = generator.next(data);
+        } else {
+            print(result.value);
+            result = generator.next();
+        }
+    }
+}
+
+ 
+processUsers();

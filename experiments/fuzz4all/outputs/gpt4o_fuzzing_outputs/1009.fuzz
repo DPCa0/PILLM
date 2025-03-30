@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor(value) {
+        this._value = value;
+        this._subscribers = new Set();
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    set value(newValue) {
+        if (this._value !== newValue) {
+            this._value = newValue;
+            this._notify();
+        }
+    }
+
+    subscribe(callback) {
+        this._subscribers.add(callback);
+        return () => this._subscribers.delete(callback);
+    }
+
+    _notify() {
+        this._subscribers.forEach(callback => callback(this._value));
+    }
+}
+
+const debounce = (fn, delay) => {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+    };
+};
+
+const fetchData = async (query) => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Results for query: ${query}`);
+        }, 500);
+    });
+};
+
+const observableQuery = new Observable('');
+
+observableQuery.subscribe(debounce(async (query) => {
+    const result = await fetchData(query);
+    console.log(result);
+}, 300));
+
+const input = document.createElement('input');
+input.placeholder = 'Type your query...';
+document.body.appendChild(input);
+
+input.addEventListener('input', (event) => {
+    observableQuery.value = event.target.value;
+});
+```

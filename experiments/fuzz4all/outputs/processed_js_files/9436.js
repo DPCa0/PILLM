@@ -1,0 +1,49 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncHandler = fn => (...args) => Promise.resolve(fn(...args));
+
+const fetchData = asyncHandler(async (url) => {
+  const response = await fetch(url);
+  return response.json();
+});
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const getCachedData = memoize(fetchData);
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataReceived', data => {
+    print('Data received:', data);
+  });
+
+  const data = await getCachedData('https://jsonplaceholder.typicode.com/todos/1');
+  eventEmitter.emit('dataReceived', data);
+})();

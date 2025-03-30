@@ -1,0 +1,55 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+    }
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = async (duration) => {
+  return new Promise(resolve => setTimeout(resolve, duration));
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  const listener1 = (message) => print('Listener 1:', message);
+  const listener2 = (message) => print('Listener 2:', message);
+
+  emitter.on('data', listener1);
+  emitter.on('data', listener2);
+
+  await asyncOperation(1000);
+  emitter.emit('data', 'First event fired!');
+
+  emitter.off('data', listener2);
+
+  await asyncOperation(1000);
+  emitter.emit('data', 'Second event fired!');
+
+   
+  try {
+    const { default: _ } = await import('lodash');
+    const array = [1, 2, 3, 4];
+    print('Shuffled array:', _.shuffle(array));
+  } catch (error) {
+    console.error('Lodash module could not be loaded:', error);
+  }
+})();

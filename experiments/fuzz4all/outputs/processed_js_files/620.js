@@ -1,0 +1,40 @@
+ 
+(async () => {
+     
+    const fetchUserData = async (userId) => {
+         
+        const users = [
+            { id: 1, name: 'Alice', roles: ['admin', 'editor'] },
+            { id: 2, name: 'Bob', roles: ['editor', 'user'] },
+            { id: 3, name: 'Charlie', roles: ['user'] }
+        ];
+        
+         
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+         
+        return users.find(user => user.id === userId);
+    };
+
+     
+    const [user1, user2] = await Promise.all([fetchUserData(1), fetchUserData(2)]);
+    
+     
+    const { name: name1, roles: roles1 } = user1;
+    const { name: name2, roles: roles2 } = user2;
+    
+     
+    const roleStrings = [roles1, roles2].map((roles, index) => 
+        `User ${index + 1} Roles: ${roles.join(', ')}`
+    );
+
+     
+    console.log(`Fetched Users:
+    - ${name1}: ${roleStrings[0]}
+    - ${name2}: ${roleStrings[1]}
+    `);
+
+     
+    const newRoles1 = [...roles1, 'superuser'];
+    print(`Updated Roles for ${name1}: ${newRoles1.join(', ')}`);
+})();

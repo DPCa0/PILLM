@@ -1,0 +1,59 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    return response.json();
+};
+
+const memoize = (fn) => {
+    const cache = new Map();
+    return async function(...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = await fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+};
+
+const fetchAndLogData = memoize(async (url) => {
+    const data = await fetchData(url);
+    print(`Data from ${url}:`, data);
+    return data;
+});
+
+const main = async () => {
+    const emitter = new EventEmitter();
+    
+    emitter.on('dataReady', (data) => {
+        print('Data Ready Event Triggered:', data);
+    });
+
+    const data = await fetchAndLogData('https://jsonplaceholder.typicode.com/todos/1');
+    emitter.emit('dataReady', data);
+    
+    await fetchAndLogData('https://jsonplaceholder.typicode.com/todos/1');  
+};
+
+main().catch(err => console.error('Error:', err));

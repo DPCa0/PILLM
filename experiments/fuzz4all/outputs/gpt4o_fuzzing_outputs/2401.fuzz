@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+const loggerProxy = (target) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      console.log(`Getting ${prop}`);
+      return Reflect.get(obj, prop);
+    },
+    set(obj, prop, value) {
+      console.log(`Setting ${prop} to ${value}`);
+      return Reflect.set(obj, prop, value);
+    }
+  });
+};
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ data: 'Sample Data' }), 1000);
+  });
+};
+
+ 
+async function* dataGenerator() {
+  for (let i = 0; i < 3; i++) {
+    const data = await fetchData();
+    yield data.data + ` ${i}`;
+  }
+}
+
+ 
+(async () => {
+  const data = { prop1: 'value1', prop2: 'value2' };
+  const proxiedData = loggerProxy(data);
+
+  proxiedData.prop1 = 'newValue1';
+  console.log(proxiedData.prop2);
+
+  for await (const item of dataGenerator()) {
+    console.log(item);
+  }
+})();
+```

@@ -1,0 +1,41 @@
+class AsyncEventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.#events.get(event) || [];
+    return Promise.all(listeners.map(listener => listener(...args)));
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+(async function main() {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('data', async (data) => {
+    print('Received data:', data);
+    await timeout(1000);  
+    print('Processing complete.');
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    await emitter.emit('data', data);
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();

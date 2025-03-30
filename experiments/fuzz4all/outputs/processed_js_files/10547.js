@@ -1,0 +1,48 @@
+class Task {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async execute() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        print(`Executing: ${this.name}`);
+        resolve(`Result of ${this.name}`);
+      }, Math.random() * 1000);
+    });
+  }
+}
+
+class TaskScheduler {
+  constructor() {
+    this.queue = [];
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+  }
+
+  async *taskGenerator() {
+    for (let task of this.queue) {
+      yield task.execute();
+    }
+  }
+
+  async run() {
+    const results = [];
+    for await (let result of this.taskGenerator()) {
+      results.push(result);
+    }
+    return results;
+  }
+}
+
+const taskScheduler = new TaskScheduler();
+taskScheduler.addTask(new Task('Task 1'));
+taskScheduler.addTask(new Task('Task 2'));
+taskScheduler.addTask(new Task('Task 3'));
+
+(async () => {
+  const results = await taskScheduler.run();
+  print('All tasks completed:', results);
+})();

@@ -1,0 +1,58 @@
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    return data;
+}
+
+ 
+function* chunkData(data, chunkSize) {
+    for (let i = 0; i < data.length; i += chunkSize) {
+        yield data.slice(i, i + chunkSize);
+    }
+}
+
+ 
+const dataLogger = {
+    get(target, property) {
+        print(`Accessing property: ${property}`);
+        return target[property];
+    },
+    set(target, property, value) {
+        print(`Setting property: ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const _privateData = Symbol('privateData');
+
+ 
+(async function main() {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/posts';
+        let data = await fetchData(url);
+
+         
+        data = new Proxy(data, dataLogger);
+
+         
+        data[_privateData] = { lastAccessed: new Date() };
+
+         
+        const chunks = chunkData(data, 5);
+        for (let chunk of chunks) {
+            print('Chunk:', chunk);
+        }
+
+         
+        print('Private data:', data[_privateData]);
+
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

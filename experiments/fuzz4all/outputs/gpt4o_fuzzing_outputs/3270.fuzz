@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+const targetObject = { name: 'JavaScript', version: 'ES2023' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+function* numberGenerator() {
+    for (let i = 0; i < 5; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(i), 1000));
+    }
+}
+
+ 
+async function processNumbers(gen) {
+    for await (let num of gen) {
+        console.log(`Processed number: ${num}`);
+    }
+}
+
+ 
+proxyObject.name = 'Advanced JavaScript';
+console.log(proxyObject.name);
+
+const gen = numberGenerator();
+processNumbers(gen);
+```

@@ -1,0 +1,55 @@
+class Observer {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+class ReactiveStore {
+    constructor(initialState) {
+        this.state = new Proxy(initialState, {
+            set: (target, property, value) => {
+                target[property] = value;
+                this.observer.notify(this.state);
+                return true;
+            }
+        });
+        this.observer = new Observer();
+    }
+    subscribe(fn) {
+        this.observer.subscribe(fn);
+    }
+    setState(property, value) {
+        this.state[property] = value;
+    }
+}
+
+const asyncFetchData = async (url) => {
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Fetch error: ", error);
+    }
+};
+
+const main = async () => {
+    const store = new ReactiveStore({ message: 'Hello, world!' });
+    store.subscribe((state) => print('State updated:', state));
+
+    store.setState('message', 'Hello, Reactive Programming!');
+
+    let data = await asyncFetchData('https://jsonplaceholder.typicode.com/todos/1');
+    store.setState('apiData', data);
+};
+
+main();

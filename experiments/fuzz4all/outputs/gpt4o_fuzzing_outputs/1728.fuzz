@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+  calculate(n) {
+    if (!this.memo.has(n)) {
+      this.memo.set(n, this.calculate(n - 1) + this.calculate(n - 2));
+    }
+    return this.memo.get(n);
+  }
+}
+
+async function fetchWithTimeout(url, timeout) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`Request timed out after ${timeout} ms`);
+    }
+    throw error;
+  }
+}
+
+(async function main() {
+  const fib = new Fibonacci();
+  console.log(`10th Fibonacci number is: ${fib.calculate(10)}`);
+
+  try {
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 3000);
+    console.log('Fetched data:', data);
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+
+  const numbers = [1, 2, 3, 4, 5];
+  const sum = numbers.reduce((acc, curr) => acc + curr, 0);
+  console.log(`Sum of [1, 2, 3, 4, 5] is: ${sum}`);
+
+  const asyncIterator = {
+    async *[Symbol.asyncIterator]() {
+      for (let i = 1; i <= 3; i++) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        yield i;
+      }
+    }
+  };
+
+  for await (const num of asyncIterator) {
+    console.log(`Async num: ${num}`);
+  }
+})();
+```

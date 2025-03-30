@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      console.log(`Getting the property "${prop}": ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.warn(`Property "${prop}" not found!`);
+      return undefined;
+    }
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property "${prop}" to "${value}"`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const targetObject = {
+  message: 'Hello, world!'
+};
+
+ 
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(proxy.message);   
+proxy.message = 'Hello, Proxy!';  
+console.log(proxy.message);
+
+ 
+async function fetchMessage() {
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  await delay(1000);  
+  return proxy.message;  
+}
+
+ 
+(async () => {
+  const message = await fetchMessage();
+  console.log(`Fetched message: ${message}`);
+})();
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const squaredNumbers = numbers.map((num) => num ** 2);
+const sumOfSquares = squaredNumbers.reduce((acc, val) => acc + val, 0);
+
+console.log(`Squared Numbers: ${squaredNumbers}`);
+console.log(`Sum of Squares: ${sumOfSquares}`);
+
+ 
+const [first, second, ...rest] = squaredNumbers;
+console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+```

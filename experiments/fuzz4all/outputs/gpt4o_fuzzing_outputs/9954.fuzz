@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+function memoize(fn) {
+    const cache = new Map();
+    return async function (...args) {
+        const key = JSON.stringify(args);
+        if (!cache.has(key)) {
+            cache.set(key, await fn(...args));
+        }
+        return cache.get(key);
+    };
+}
+
+const fetchWithCache = memoize(fetchData);
+
+async function* asyncGenerator(data) {
+    for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        yield item;
+    }
+}
+
+async function processData(url) {
+    try {
+        const deferred = new Deferred();
+        fetchWithCache(url).then(deferred.resolve).catch(deferred.reject);
+
+        const data = await deferred.promise;
+        const gen = asyncGenerator(data);
+
+        for await (const item of gen) {
+            console.log('Processed:', item);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+const url = 'https://api.example.com/data';
+processData(url);
+```

@@ -1,0 +1,89 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`GET: ${prop}`);
+      return Reflect.get(target, prop);
+    } else {
+      throw new Error(`Property ${prop} does not exist.`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`SET: ${prop} = ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log('Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+}
+
+ 
+const uniqueID = Symbol('id');
+
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+class User {
+  constructor(name) {
+    this.name = name;
+    this[uniqueID] = gen.next().value;
+  }
+
+  getID() {
+    return this[uniqueID];
+  }
+}
+
+ 
+const eventEmitter = new EventEmitter();
+eventEmitter.on('greet', name => console.log(`Hello, ${name}`));
+eventEmitter.emit('greet', 'World');
+
+proxy.a = 10;
+console.log(proxy.a);
+
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+
+const user1 = new User('Alice');
+const user2 = new User('Bob');
+console.log(user1.getID(), user2.getID());
+```

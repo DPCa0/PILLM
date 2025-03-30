@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+  
+  static identity(size) {
+    let matrix = new Matrix(size, size);
+    for (let i = 0; i < size; i++) {
+      matrix.data[i][i] = 1;
+    }
+    return matrix;
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row < this.data.length) {
+          let value = this.data[row][col++];
+          if (col >= this.data[row].length) {
+            row++;
+            col = 0;
+          }
+          return { value, done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+
+  map(func) {
+    return this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+  }
+
+  static fromArray(arr) {
+    let matrix = new Matrix(arr.length, arr[0].length);
+    matrix.data = arr;
+    return matrix;
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+const identityMatrix = Matrix.identity(3);
+console.log('Identity Matrix:');
+console.log(identityMatrix.toString());
+
+const randomMatrix = new Matrix(3, 3, () => Math.floor(Math.random() * 10));
+console.log('\nRandom Matrix:');
+console.log(randomMatrix.toString());
+
+console.log('\nIterating through Identity Matrix:');
+for (let value of identityMatrix) {
+  console.log(value);
+}
+
+const doubledMatrix = Matrix.fromArray(randomMatrix.map(val => val * 2));
+console.log('\nDoubled Matrix:');
+console.log(doubledMatrix.toString());
+```

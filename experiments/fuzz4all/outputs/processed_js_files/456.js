@@ -1,0 +1,37 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('tick', msg => print(`Tick: ${msg}`));
+  emitter.on('boom', msg => print(`Boom: ${msg}`));
+  
+  let countdown = 3;
+
+  while (countdown > 0) {
+    emitter.emit('tick', countdown);
+    await sleep(1000);
+    countdown--;
+  }
+
+  emitter.emit('boom', 'Time is up!');
+})();

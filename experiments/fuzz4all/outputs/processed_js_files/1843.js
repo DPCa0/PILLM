@@ -1,0 +1,51 @@
+ 
+
+ 
+function* numberGenerator() {
+  for (let i = 0; i < 5; i++) {
+    yield new Promise((resolve) =>
+      setTimeout(() => resolve(i), Math.random() * 1000)
+    );
+  }
+}
+
+ 
+async function handleNumbers(generator) {
+  const numbers = [];
+  for await (const number of generator) {
+    numbers.push(number);
+  }
+  return numbers;
+}
+
+ 
+async function fetchData(...urls) {
+  const responses = await Promise.all(
+    urls.map((url) => fetch(url).then((response) => response.json()))
+  );
+  return responses;
+}
+
+ 
+async function main() {
+  const gen = numberGenerator();
+  const numbers = await handleNumbers(gen);
+  print("Generated numbers:", numbers);
+
+   
+  const fakeAPI = "https://jsonplaceholder.typicode.com/todos";
+  const [data1, data2] = await fetchData(fakeAPI + "/1", fakeAPI + "/2");
+
+   
+  const { title: title1 } = data1;
+  const { title: title2 } = data2;
+
+  print("Fetched data titles:", title1, title2);
+
+   
+  const mergedData = { ...data1, ...data2 };
+  print("Merged data object:", mergedData);
+}
+
+ 
+main().catch(console.error);

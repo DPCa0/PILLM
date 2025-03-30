@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (let listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+const asyncDataFetcher = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch');
+  return response.json();
+};
+
+const transformData = function* (data) {
+  for (let item of data) {
+    yield { ...item, transformed: true };
+  }
+};
+
+(async function main() {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataFetched', (data) => {
+    console.log('Data fetched:', data);
+  });
+
+  eventEmitter.on('dataTransformed', (data) => {
+    console.log('Data transformed:', [...data]);
+  });
+
+  try {
+    const data = await asyncDataFetcher('https://jsonplaceholder.typicode.com/posts');
+    eventEmitter.emit('dataFetched', data);
+
+    const transformedData = transformData(data);
+    eventEmitter.emit('dataTransformed', transformedData);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

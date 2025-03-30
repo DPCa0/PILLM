@@ -1,0 +1,44 @@
+ 
+
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      print(`Accessing property "${prop}" with value:`, target[prop]);
+      return target[prop];
+    } else {
+      print(`Property "${prop}" not found`);
+      return undefined;
+    }
+  },
+  set: function(target, prop, value) {
+    print(`Setting property "${prop}" to value:`, value);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const dynamicObject = new Proxy({}, handler);
+
+const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+
+(async () => {
+  const dataGen = fetchDataGenerator(urls);
+
+  for await (const dataPromise of dataGen) {
+    dataPromise.then(data => {
+      dynamicObject[data.id] = data.title;
+    });
+  }
+})();
+
+ 
+setTimeout(() => {
+  print(dynamicObject[1]);   
+  print(dynamicObject[3]);   
+}, 2000);

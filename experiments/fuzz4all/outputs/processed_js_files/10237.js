@@ -1,0 +1,54 @@
+ 
+
+ 
+const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url) {
+                resolve({ data: `Data from ${url}` });
+            } else {
+                reject('URL not provided');
+            }
+        }, 1000);
+    });
+};
+
+ 
+function* dataFlow() {
+    try {
+        const response1 = yield fetchData('https://api.example.com/resource1');
+        print('Response 1:', response1.data);
+        
+        const response2 = yield fetchData('https://api.example.com/resource2');
+        print('Response 2:', response2.data);
+        
+        const response3 = yield fetchData('https://api.example.com/resource3');
+        print('Response 3:', response3.data);
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+const asyncRunner = (generator) => {
+    const iterator = generator();
+
+    function handle(iteratorResult) {
+        if (iteratorResult.done) return;
+        
+        const promise = Promise.resolve(iteratorResult.value);
+        promise
+            .then(res => handle(iterator.next(res)))
+            .catch(err => iterator.throw(err));
+    }
+    
+    try {
+        handle(iterator.next());
+    } catch (error) {
+        console.error('Generator threw an error:', error);
+    }
+};
+
+ 
+asyncRunner(dataFlow);

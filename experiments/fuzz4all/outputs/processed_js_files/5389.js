@@ -1,0 +1,52 @@
+ 
+
+ 
+function* asyncGenerator() {
+    yield new Promise(resolve => setTimeout(() => resolve(10), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve(20), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve(30), 1000));
+}
+
+ 
+const privateData = Symbol('privateData');
+
+ 
+async function processData(generator) {
+    let result = 0;
+    for await (const value of generator()) {
+        result += value;
+        print(`Processed value: ${value}, running total: ${result}`);
+    }
+    return result;
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop === 'total') {
+            return Reflect.get(target, privateData);
+        }
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        if (prop === 'total') {
+            print(`Attempted to directly set total to ${value}. This is not allowed.`);
+            return false;
+        }
+        return Reflect.set(target, prop, value);
+    }
+};
+
+(async () => {
+    const obj = { [privateData]: 0 };
+    const proxy = new Proxy(obj, handler);
+
+    proxy.name = "AsyncProcessor";
+    print(`Name of processor: ${proxy.name}`);
+
+     
+    proxy[privateData] = await processData(asyncGenerator);
+    
+    print(`Final total: ${proxy.total}`);
+    proxy.total = 100;  
+})();

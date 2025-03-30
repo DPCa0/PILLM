@@ -1,0 +1,25 @@
+ 
+const delayedMessage = (msg, delay) => new Promise(resolve => setTimeout(() => resolve(msg), delay));
+
+ 
+(async () => {
+  try {
+    const [msg1, msg2] = await Promise.all([
+      delayedMessage('Hello', 1000),
+      delayedMessage('World', 500)
+    ]);
+
+     
+    const formatter = (strings, ...values) => strings.reduce((acc, str, i) => `${acc}${str}${values[i] ? values[i] : ''}`, '');
+
+    const proxyHandler = {
+      get: (target, prop) => prop in target ? target[prop] : 'N/A'
+    };
+
+    const user = new Proxy({ name: 'JavaScript Enthusiast', title: 'Developer' }, proxyHandler);
+
+    print(formatter`🔔 ${msg1}, ${msg2}! - ${user.title}: ${user.name} (${user.age})`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

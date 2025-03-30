@@ -1,0 +1,66 @@
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) resolve(`Data from ${url}`);
+      else reject("No URL provided");
+    }, 1000);
+  });
+};
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      print(`Getting ${prop}`);
+      return obj[prop];
+    },
+    set(obj, prop, value) {
+      print(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    },
+  });
+};
+
+ 
+const FETCH_SYMBOL = Symbol("fetchStatus");
+
+ 
+class DataHandler {
+  #data = null;
+
+  constructor(url) {
+    this.url = url;
+    this[FETCH_SYMBOL] = false;
+  }
+
+  async fetchAndProcess() {
+    try {
+      this[FETCH_SYMBOL] = true;
+      this.#data = await fetchData(this.url);
+      print(`Processed: ${this.processData(this.#data)}`);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this[FETCH_SYMBOL] = false;
+    }
+  }
+
+  processData(data) {
+    return data.toUpperCase();
+  }
+}
+
+ 
+async function* asyncGenerator(handler) {
+  yield await handler.fetchAndProcess();
+}
+
+ 
+const handler = createLoggingProxy(new DataHandler("https://example.com"));
+(async () => {
+  for await (const _ of asyncGenerator(handler)) {
+    print("Data processed.");
+  }
+})();

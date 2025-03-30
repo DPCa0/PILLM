@@ -1,0 +1,33 @@
+class AsyncIterator {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+  }
+  
+  async *[Symbol.asyncIterator]() {
+    while (this.current < this.max) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield this.current++;
+    }
+  }
+}
+
+const processData = async () => {
+  const data = {
+    a: { nested: { value: 1 } },
+    b: { nested: { value: 2 } },
+    c: { nested: { value: 3 } }
+  };
+
+  const iterator = new AsyncIterator(3);
+
+  for await (const number of iterator) {
+    const { [`${String.fromCharCode(97 + number)}`]: { nested: { value } } } = data;
+    print(`Processed value: ${value}`);
+  }
+};
+
+(async () => {
+  await processData();
+  print('All data processed!');
+})();

@@ -1,0 +1,58 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.running = false;
+    }
+
+    async run(task, ...args) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ task, args, resolve, reject });
+            this.start();
+        });
+    }
+
+    async start() {
+        if (this.running) return;
+        this.running = true;
+        while (this.queue.length) {
+            const { task, args, resolve, reject } = this.queue.shift();
+            try {
+                const result = await task(...args);
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        }
+        this.running = false;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch: ${response.statusText}`);
+    return await response.json();
+}
+
+function logData(data) {
+    print("Data fetched:", data);
+}
+
+ 
+function* urlGenerator(urls) {
+    for (let url of urls) {
+        yield url;
+    }
+}
+
+(async () => {
+    const queue = new AsyncQueue();
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+    const urlGen = urlGenerator(urls);
+    
+    for (let url of urlGen) {
+        queue.run(async () => {
+            const data = await fetchData(url);
+            logData(data);
+        }).catch(console.error);
+    }
+})();

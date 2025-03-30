@@ -1,0 +1,60 @@
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+ 
+const dataHandler = {
+  get: (target, property) => {
+    print(`Property ${property} accessed`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    print(`Property ${property} set to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+ 
+const user = {
+  name: 'Alice',
+  age: 25,
+};
+
+ 
+const proxiedUser = new Proxy(user, dataHandler);
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3',
+];
+
+ 
+const fetchDataInParallel = async () => {
+  try {
+    const results = await Promise.all(urls.map(url => fetchData(url)));
+    print('Fetched data:', results);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  try {
+     
+    print(proxiedUser.name);
+    proxiedUser.age = 26;
+
+     
+    await fetchDataInParallel();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

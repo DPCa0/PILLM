@@ -1,0 +1,40 @@
+ 
+
+const fetchData = async (url) => {
+     
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { message: 'Fetched data from ' + url };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+const processData = async (url) => {
+    try {
+        const { message } = await fetchData(url);
+        print(`Processing: ${message}`);
+        return message.toUpperCase();
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+(async () => {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+    const processedDataPromises = urls.map(url => processData(url));
+    const processedData = await Promise.all(processedDataPromises);
+
+     
+    const dataMap = new Map();
+    urls.forEach((url, index) => dataMap.set(url, processedData[index]));
+
+    for (const [url, data] of dataMap.entries()) {
+        print(`URL: ${url}, Processed Data: ${data}`);
+    }
+
+     
+    const uniqueData = new Set(processedData);
+    print('Unique processed data:', [...uniqueData]);
+})();

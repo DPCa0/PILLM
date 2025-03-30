@@ -1,0 +1,38 @@
+ 
+async function complexFeatureDemo() {
+     
+    const fetchData = (url) => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ status: 200, data: { user: 'Alice', age: 30, city: 'Wonderland' } });
+            } else {
+                reject(new Error('Failed to fetch data.'));
+            }
+        }, 1000);
+    });
+
+    try {
+        const response = await fetchData('https://api.example.com/data');
+        const { status, data: { user, age, city } } = response;
+
+        if (status === 200) {
+            print(`User: ${user}, Age: ${age}, City: ${city}`);
+            
+             
+            let uniqueAttributes = new Set(['Alice', 'Bob', 'Alice']);
+            uniqueAttributes = new Set([...uniqueAttributes, 'Charlie']);
+            print(`Unique Names: ${[...uniqueAttributes].join(', ')}`);
+
+             
+            if (age > 25) {
+                const { greet } = await import('./greetModule.js');
+                greet(user);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+ 
+complexFeatureDemo();

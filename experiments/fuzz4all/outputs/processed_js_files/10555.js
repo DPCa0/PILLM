@@ -1,0 +1,48 @@
+ 
+
+ 
+async function* fetchUserData(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield* data.results.map(user => processUser(user));
+}
+
+ 
+function processUser(user) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const processedUser = {
+                fullName: `${user.name.first} ${user.name.last}`,
+                email: user.email,
+                location: `${user.location.city}, ${user.location.country}`
+            };
+            resolve(processedUser);
+        }, Math.random() * 1000);  
+    });
+}
+
+ 
+const userValidationHandler = {
+    set: (target, key, value) => {
+        if (key === 'email' && !value.includes('@')) {
+            throw new Error('Invalid email address');
+        }
+        target[key] = value;
+        return true;
+    }
+};
+
+ 
+(async function main() {
+    try {
+        const userGenerator = fetchUserData('https://randomuser.me/api/?results=5');
+        for await (let userPromise of userGenerator) {
+            userPromise.then(user => {
+                const proxiedUser = new Proxy(user, userValidationHandler);
+                print(proxiedUser);
+            }).catch(console.error);
+        }
+    } catch (error) {
+        console.error('Error fetching or processing user data:', error);
+    }
+})();

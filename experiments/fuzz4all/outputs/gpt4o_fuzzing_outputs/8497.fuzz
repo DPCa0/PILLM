@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchUserData(userId) {
+   
+  const fetchData = (id) => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, name: `User${id}`, age: 20 + id });
+    }, 1000);
+  });
+
+  try {
+     
+    const { id, name, age } = await fetchData(userId);
+    console.log(`Fetched Data: ${name}, ${age} years old.`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+ 
+const userHandler = {
+  get(target, property) {
+    if (property in target) {
+      console.log(`Getting property '${property}'`);
+      return Reflect.get(target, property);
+    }
+    console.warn(`Property '${property}' does not exist`);
+    return null;
+  }
+};
+
+ 
+const user = { id: 1, name: 'Alice', age: 25 };
+const proxyUser = new Proxy(user, userHandler);
+
+ 
+console.log(proxyUser?.name ?? 'Unknown User');
+console.log(proxyUser?.address ?? 'Address not available');
+
+ 
+fetchUserData(3);
+
+ 
+(() => {
+  const message = 'User Information';
+  console.log(`--- ${message} ---`);
+})();
+
+ 
+const userSet = new Set([1, 2, 3]);
+const userMap = new Map();
+userMap.set('id', 1);
+userMap.set('name', 'John');
+
+ 
+for (const id of userSet) {
+  console.log(`User Set contains: ${id}`);
+}
+
+for (const [key, value] of userMap) {
+  console.log(`User Map contains: ${key} = ${value}`);
+}
+```

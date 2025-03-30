@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.1
+        ? resolve("Data fetched successfully!")
+        : reject("Fetch error occurred!");
+    }, 1000);
+  });
+
+ 
+async function asyncFetch() {
+  try {
+    const data = await fetchData();
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const gen = idGenerator();
+
+ 
+const targetObject = { value: 42 };
+
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Getting ${prop}`);
+    return obj[prop];
+  },
+  set: (obj, prop, val) => {
+    console.log(`Setting ${prop} to ${val}`);
+    obj[prop] = val;
+    return true;
+  },
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+console.log(proxy.value);  
+proxy.value = 24;          
+console.log(proxy.value);  
+
+ 
+(async function main() {
+  console.log("Async fetch example:");
+  await asyncFetch();
+
+  console.log("\nID Generator example:");
+  console.log("Generated ID:", gen.next().value);
+  console.log("Generated ID:", gen.next().value);
+
+  console.log("\nProxy interaction example:");
+  console.log(`Final value in proxy object: ${proxy.value}`);
+})();
+```

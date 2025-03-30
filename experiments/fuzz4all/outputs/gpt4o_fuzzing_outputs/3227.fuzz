@@ -1,0 +1,74 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        for (const listener of this.events.get(event)) {
+            listener(...args);
+        }
+    }
+    
+    off(event, listener) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event).filter(l => l !== listener);
+        this.events.set(event, listeners);
+    }
+}
+
+class App {
+    constructor() {
+        this.eventEmitter = new EventEmitter();
+    }
+
+    fetchData(url) {
+        return fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                this.eventEmitter.emit('data', data);
+                return data;
+            })
+            .catch(error => {
+                this.eventEmitter.emit('error', error);
+            });
+    }
+}
+
+const app = new App();
+
+ 
+const handler = {
+    get(target, prop) {
+        if (typeof target[prop] === 'function') {
+            return function (...args) {
+                console.log(`Calling ${prop} with arguments:`, args);
+                return target[prop].apply(this, args);
+            };
+        }
+        return target[prop];
+    }
+};
+
+const proxiedApp = new Proxy(app, handler);
+
+proxiedApp.eventEmitter.on('data', (data) => {
+    console.log('Received data:', data);
+});
+
+proxiedApp.eventEmitter.on('error', (error) => {
+    console.error('Error occurred:', error);
+});
+
+ 
+proxiedApp.fetchData('https://jsonplaceholder.typicode.com/todos/1');
+```

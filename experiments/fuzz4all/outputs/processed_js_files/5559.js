@@ -1,0 +1,41 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return await response.json();
+};
+
+const processData = (data) => {
+  return Object.entries(data).reduce((acc, [key, value]) => {
+    if (typeof value === 'number') {
+      acc[key] = value * 2;
+    } else if (typeof value === 'string') {
+      acc[key] = value.toUpperCase();
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+};
+
+const debounce = (func, wait) => {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+const logData = debounce((data) => {
+  print('Processed Data:', data);
+}, 300);
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    const processedData = processData(data);
+    logData(processedData);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

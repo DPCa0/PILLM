@@ -1,0 +1,47 @@
+ 
+
+ 
+function* dataFetcher(urls) {
+    for (let url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+async function fetchDataSequentially(urls) {
+    const dataGen = dataFetcher(urls);
+    let result = [];
+    for (let promise of dataGen) {
+        try {
+            let data = await promise;
+            print(`Fetched data from ${data.url}:`, data);
+            result.push(data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+    return result;
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Accessed property "${prop}" with value:`, target[prop]);
+        return Reflect.get(...arguments);
+    }
+};
+
+ 
+const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2'
+];
+
+ 
+(async () => {
+    let fetchedData = await fetchDataSequentially(urls);
+    const proxyData = new Proxy(fetchedData, handler);
+
+     
+    proxyData.forEach(item => print('Todo:', item.title));
+})();

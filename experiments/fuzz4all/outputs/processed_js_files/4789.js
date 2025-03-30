@@ -1,0 +1,43 @@
+(async () => {
+   
+  const fetchData = async () => {
+    return new Promise(resolve => setTimeout(() => resolve({ value: 42 }), 1000));
+  };
+
+   
+  const processData = ({ value } = { value: 0 }) => `Processed value is ${value * 2}`;
+
+   
+  const id = Symbol('uniqueID');
+  const handler = {
+    get: (target, prop) => {
+      if (prop === 'call' && typeof target[prop] === 'function') {
+        print('Intercepted a function call');
+        return (...args) => Reflect.apply(target[prop], target, args);
+      }
+      return Reflect.get(target, prop);
+    }
+  };
+
+   
+  function* dataGenerator(processedData) {
+    yield `Yielded: ${processedData}`;
+    yield* [1, 2, 3].map(n => `Number: ${n}`);
+  }
+
+   
+  const main = async () => {
+    const data = await fetchData();
+    const processed = processData(data);
+
+    const proxy = new Proxy({ [id]: processed }, handler);
+    print(proxy[id]);  
+    const generator = dataGenerator(proxy.call(processData, data));
+
+    for (const value of generator) {
+      print(value);  
+    }
+  };
+
+  main().catch(console.error);
+})();

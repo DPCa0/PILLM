@@ -1,0 +1,54 @@
+class Lazy {
+    constructor(fn) {
+        this.fn = fn;
+        this.result = null;
+        this.executed = false;
+    }
+
+    get value() {
+        if (!this.executed) {
+            this.result = this.fn();
+            this.executed = true;
+        }
+        return this.result;
+    }
+}
+
+const fetchData = async (url) => {
+     
+    const response = await new Promise(resolve => 
+        setTimeout(() => resolve({ data: 'Fetched Data' }), 1000)
+    );
+    return response.data;
+};
+
+ 
+const apiProxy = new Proxy(fetchData, {
+    cache: new Map(),
+    apply(target, thisArg, args) {
+        const [url] = args;
+        if (!this.cache.has(url)) {
+            this.cache.set(url, target.apply(thisArg, args));
+        }
+        return this.cache.get(url);
+    }
+});
+
+(async () => {
+    const lazyData = new Lazy(() => apiProxy('http://example.com'));
+    
+     
+    const expensiveCalculation = new Proxy((a, b) => a + b, {
+        apply(target, thisArg, args) {
+            print(`Computing: ${args[0]} + ${args[1]}`);
+            return target.apply(thisArg, args);
+        }
+    });
+    
+    print(expensiveCalculation(5, 10));  
+    print(expensiveCalculation(5, 10));  
+
+    print('Data will be fetched lazily:');
+    print(await lazyData.value);  
+    print(await lazyData.value);  
+})();

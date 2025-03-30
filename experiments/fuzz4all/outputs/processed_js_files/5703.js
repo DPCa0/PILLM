@@ -1,0 +1,42 @@
+class DataProcessor {
+  #privateData = new WeakMap();
+
+  constructor(data) {
+    this.id = Symbol("id");
+    this.data = Array.isArray(data) ? data : [data];
+    this.#privateData.set(this.id, data);
+  }
+
+  async processData(transformFn) {
+    if (typeof transformFn !== 'function') throw new Error('Transform function required');
+    
+    return await Promise.all(this.data.map(async (item) => {
+      const result = await transformFn(item);
+      return { original: item, transformed: result };
+    }));
+  }
+  
+  static logResults(processedData) {
+    processedData.forEach(({ original, transformed }, index) => {
+      print(`Data ${index + 1}:`, { original, transformed });
+    });
+  }
+}
+
+ 
+const dataSet = [1, 2, 3, 4, 5];
+const processor = new DataProcessor(dataSet);
+
+(async () => {
+  try {
+    const results = await processor.processData(async (number) => {
+       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return number * 2;
+    });
+
+    DataProcessor.logResults(results);
+  } catch (err) {
+    console.error("Error processing data:", err);
+  }
+})();

@@ -1,0 +1,75 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            const listeners = this.events.get(event).filter(l => l !== listener);
+            this.events.set(event, listeners);
+        }
+    }
+}
+
+async function fetchWithTimeout(url, timeout = 5000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        return await response.json();
+    } catch (error) {
+        throw new Error('Fetch timeout or error');
+    } finally {
+        clearTimeout(id);
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]: function() {
+        let i = 0;
+        return {
+            next() {
+                if (i < 5) {
+                    return Promise.resolve({ value: i++, done: false });
+                }
+                return Promise.resolve({ done: true });
+            }
+        };
+    }
+};
+
+async function main() {
+    const emitter = new EventEmitter();
+    emitter.on('greet', name => console.log(`Hello, ${name}!`));
+    emitter.emit('greet', 'world');
+
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1');
+        console.log('Fetched data:', data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
+    for await (const num of asyncIterable) {
+        console.log(`Async Iteration ${num}`);
+    }
+}
+
+main();
+```

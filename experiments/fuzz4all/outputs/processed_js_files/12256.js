@@ -1,0 +1,32 @@
+ 
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+  await delay(1000);  
+  return { data: { message: 'Hello, advanced JavaScript world!' } };
+}
+
+ 
+const handler = {
+  get(target, property) {
+    print(`Accessing property: ${property}`);
+    return target[property];
+  }
+};
+
+ 
+(async function main() {
+  try {
+    print('Fetching data...');
+    const rawData = await fetchData();
+    
+     
+    const proxiedData = new Proxy(rawData, handler);
+    print(proxiedData.data.message);  
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

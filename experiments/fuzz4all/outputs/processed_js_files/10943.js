@@ -1,0 +1,41 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.executing = false;
+    }
+
+    async runTask(task) {
+        this.queue.push(task);
+        if (!this.executing) {
+            this.executing = true;
+            while (this.queue.length > 0) {
+                const nextTask = this.queue.shift();
+                await nextTask();
+            }
+            this.executing = false;
+        }
+    }
+}
+
+function fetchData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${url}`);
+        }, Math.random() * 1000);
+    });
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+
+(async function main() {
+    const asyncQueue = new AsyncQueue();
+
+    const tasks = urls.map(url => async () => {
+        const data = await fetchData(url);
+        print(data);
+    });
+
+    for (const task of tasks) {
+        asyncQueue.runTask(task);
+    }
+})();

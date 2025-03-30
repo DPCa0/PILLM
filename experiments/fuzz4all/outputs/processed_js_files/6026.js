@@ -1,0 +1,43 @@
+ 
+
+ 
+async function asyncOperation(value) {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Processed: ${value}`), 1000);
+  });
+}
+
+ 
+function* createTasks() {
+  for (let i = 1; i <= 3; i++) {
+    yield asyncOperation(i);
+  }
+}
+
+ 
+async function executeTasks(taskGenerator) {
+  const results = [];
+  for (const task of taskGenerator) {
+    const result = await task;
+    results.push(result);
+  }
+  return results;
+}
+
+ 
+const resultsHandler = {
+  get(target, prop, receiver) {
+    print(`Accessing ${prop} of results`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+(async function main() {
+  const tasks = createTasks();
+  let results = await executeTasks(tasks);
+  results = new Proxy(results, resultsHandler);
+
+  print(results[0]);  
+  print(results.length);  
+})();

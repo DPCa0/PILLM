@@ -1,0 +1,43 @@
+ 
+
+ 
+const fetchData = async (url) => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', scores: [85, 88, 92] },
+        { id: 2, name: 'Bob', scores: [78, 74, 81] },
+        { id: 3, name: 'Charlie', scores: [95, 90, 89] },
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+const calculateAverageScore = (scores) =>
+  scores.reduce((acc, score) => acc + score, 0) / scores.length;
+
+ 
+const processStudentData = async () => {
+  try {
+     
+    const students = await fetchData('https://example.com/api/students');
+
+     
+    const results = students.map(({ id, name, scores }) => {
+      const averageScore = calculateAverageScore(scores);
+      return { id, name, averageScore };
+    });
+
+     
+    results.forEach(({ id, name, averageScore }) => {
+      print(`Student ${name} (ID: ${id}) has an average score of ${averageScore.toFixed(2)}`);
+    });
+  } catch (error) {
+    console.error('Error processing student data:', error);
+  }
+};
+
+ 
+processStudentData();

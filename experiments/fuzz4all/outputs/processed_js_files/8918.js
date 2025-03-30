@@ -1,0 +1,47 @@
+class Fibonacci {
+    constructor(maxTerms) {
+        this.maxTerms = maxTerms;
+        this.memo = new Map();
+    }
+
+    *generator() {
+        let [a, b, n] = [0, 1, 1];
+        while (n <= this.maxTerms) {
+            yield a;
+            [a, b] = [b, a + b];
+            n++;
+        }
+    }
+
+    calculate(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+        let result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return await response.json();
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+    print('Fibonacci Sequence using Generator:');
+    for (const num of fib.generator()) {
+        print(num);
+    }
+
+    print('Fibonacci Sequence using Memoization:');
+    print(Array.from({ length: 10 }, (_, i) => fib.calculate(i)));
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        print('Fetched Data:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

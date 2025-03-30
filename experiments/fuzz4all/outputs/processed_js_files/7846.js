@@ -1,0 +1,28 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+};
+
+const processData = (data) => {
+    return data
+        .map(({ id, name }) => ({ id, name, nameLength: name.length }))
+        .filter(({ nameLength }) => nameLength > 5)
+        .reduce((acc, { id, name }) => {
+            acc.push(`${id}: ${name}`);
+            return acc;
+        }, []);
+};
+
+const execute = async () => {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/users';
+        const data = await fetchData(url);
+        const results = processData(data);
+        print('Processed Results:', results);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+execute();

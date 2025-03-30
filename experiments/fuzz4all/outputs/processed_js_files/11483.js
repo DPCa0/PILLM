@@ -1,0 +1,46 @@
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+    this.cache = new Map();
+    this.proxy = new Proxy(this, {
+      get(target, prop) {
+        if (target.cache.has(prop)) {
+          return Promise.resolve(target.cache.get(prop));
+        }
+        return target[prop];
+      }
+    });
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.apiUrl}/${endpoint}`);
+    const data = await response.json();
+    this.cache.set(endpoint, data);
+    return data;
+  }
+
+  get proxyHandler() {
+    return this.proxy;
+  }
+}
+
+ 
+
+(async () => {
+  const apiFetcher = new DataFetcher('https://api.example.com');
+
+   
+  const { users, posts } = await Promise.all([
+    apiFetcher.proxyHandler.fetchData('users'),
+    apiFetcher.proxyHandler.fetchData('posts')
+  ]);
+
+  print('Users:', users);
+  print('Posts:', posts);
+  
+   
+  const cachedUsers = await apiFetcher.proxyHandler.users;
+  print('Cached Users:', cachedUsers);
+})();

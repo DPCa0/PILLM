@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async (userId) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: 'John Doe' });
+    }, 1000);
+  });
+};
+
+const fetchUserPosts = async (userId) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { postId: 1, content: 'Post 1 content' },
+        { postId: 2, content: 'Post 2 content' },
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+const displayUserAndPosts = async (userId) => {
+  try {
+     
+    const [user, posts] = await Promise.all([fetchUserData(userId), fetchUserPosts(userId)]);
+    
+    console.log(`User: ${user.name}`);
+    
+     
+    const postMap = new Map(posts.map(({ postId, content }) => [postId, content]));
+    
+    for (const [postId, content] of postMap) {
+      console.log(`Post ${postId}: ${content}`);
+    }
+  } catch (error) {
+    console.error('Error fetching user or posts:', error);
+  }
+};
+
+ 
+displayUserAndPosts(1);
+```

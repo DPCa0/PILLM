@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+const fetch = require('node-fetch');
+const fs = require('fs').promises;
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+  return response.json();
+}
+
+ 
+const dataHandler = {
+  set: (obj, prop, value) => {
+    console.log(`Property '${prop}' set to '${value}'`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  try {
+    const urls = [
+      'https://jsonplaceholder.typicode.com/posts/1',
+      'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+    
+     
+    const results = await Promise.all(urls.map(url => fetchData(url)));
+
+     
+    function* dataGenerator(data) {
+      for (const item of data) {
+        yield item;
+      }
+    }
+
+    const dataGen = dataGenerator(results);
+
+     
+    const mappedData = new Map();
+
+    for (const data of dataGen) {
+      const proxiedData = new Proxy(data, dataHandler);
+      proxiedData.title = proxiedData.title.toUpperCase();   
+      mappedData.set(proxiedData.id, proxiedData);
+    }
+
+     
+    await fs.writeFile('output.json', JSON.stringify(Object.fromEntries(mappedData)), 'utf8');
+    console.log('Data saved to output.json');
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();
+```

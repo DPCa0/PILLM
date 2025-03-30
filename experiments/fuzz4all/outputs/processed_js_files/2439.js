@@ -1,0 +1,29 @@
+ 
+class SecretAgent {
+    constructor(name) {
+        this.name = name;
+    }
+
+    async revealIdentity() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(`The agent is ${this.name}`), 1000);
+        });
+    }
+}
+
+const handler = {
+    get(target, prop, receiver) {
+        if (prop === 'revealIdentity') {
+            print('Intercepted call to revealIdentity');
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const createSpy = (name) => new Proxy(new SecretAgent(name), handler);
+
+(async () => {
+    const agent = createSpy('007');
+    const identity = await agent.revealIdentity();
+    print(identity);
+})();

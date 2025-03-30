@@ -1,0 +1,51 @@
+ 
+
+class Reactive {
+  constructor(value) {
+    this._value = value;
+    this._listeners = new Set();
+  }
+  
+  get value() {
+    this.depend();
+    return this._value;
+  }
+  
+  set value(newValue) {
+    if (newValue !== this._value) {
+      this._value = newValue;
+      this.notify();
+    }
+  }
+  
+  depend() {
+    if (Reactive.target) {
+      this._listeners.add(Reactive.target);
+    }
+  }
+  
+  notify() {
+    this._listeners.forEach(listener => listener());
+  }
+}
+
+Reactive.target = null;
+
+function autorun(runner) {
+  const wrappedRunner = () => {
+    Reactive.target = wrappedRunner;
+    runner();
+    Reactive.target = null;
+  };
+  wrappedRunner();
+}
+
+ 
+const state = new Reactive(10);
+
+autorun(() => {
+  print(`The current state is: ${state.value}`);
+});
+
+state.value = 20;   
+state.value = 30;   

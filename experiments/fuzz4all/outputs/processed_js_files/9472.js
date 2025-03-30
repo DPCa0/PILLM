@@ -1,0 +1,78 @@
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+  }
+};
+
+ 
+const processData = (data) => {
+  return data
+    .map(item => ({
+      ...item,
+      calculatedField: item.value * 2
+    }))
+    .filter(item => item.calculatedField > 10)
+    .reduce((acc, item) => acc + item.calculatedField, 0);
+};
+
+ 
+function* generateSequence(start, end) {
+  for (let i = start; i <= end; i++) {
+    yield i;
+  }
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop in obj) {
+      print(`Accessing ${prop}`);
+      return obj[prop];
+    }
+    throw new ReferenceError(`Property ${prop} does not exist.`);
+  }
+};
+
+const protectedObject = new Proxy({ a: 10, b: 20 }, handler);
+
+ 
+const createCounter = () => {
+  let count = 0;
+  return () => {
+    count += 1;
+    return count;
+  };
+};
+
+ 
+(async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+
+  if (data) {
+    const result = processData(data);
+    print('Processed Result:', result);
+  }
+
+  const sequence = generateSequence(1, 5);
+  for (const num of sequence) {
+    print('Generated Number:', num);
+  }
+
+  try {
+    print('Access b:', protectedObject.b);
+    print('Access c:', protectedObject.c);  
+  } catch (err) {
+    console.error(err);
+  }
+
+  const counter = createCounter();
+  print('Counter:', counter());
+  print('Counter:', counter());
+})();

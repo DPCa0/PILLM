@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+  setTimeout(() => {
+    resolve([
+      { id: 1, name: "Alice", scores: [10, 20, 30] },
+      { id: 2, name: "Bob", scores: [20, 30, 40] },
+      { id: 3, name: "Charlie", scores: [30, 40, 50] }
+    ]);
+  }, 1000);
+});
+
+ 
+const processData = async () => {
+   
+  const data = await fetchData();
+
+   
+  const results = data.map(({ id, name, scores }) => {
+    const totalScore = scores.reduce((sum, score) => sum + score, 0);
+    return { id, name, totalScore };
+  });
+
+   
+  (() => {
+    const threshold = 90;
+    results.forEach(({ name, totalScore }) => {
+      if (totalScore > threshold) {
+        print(`${name} passed with a total score of ${totalScore}`);
+      } else {
+        print(`${name} did not pass. Total score: ${totalScore}`);
+      }
+    });
+  })();
+};
+
+ 
+processData();

@@ -1,0 +1,50 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = (data) => {
+     
+    return data.map(item => ({
+        ...item,
+        processed: true
+    }));
+};
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const observable = new Observable();
+
+    const unsubscribe = observable.subscribe((data) => {
+        print('Data received:', data);
+    });
+
+    try {
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+
+        setTimeout(() => {
+            observable.notify(processedData);
+            unsubscribe();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();

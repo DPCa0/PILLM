@@ -1,0 +1,51 @@
+ 
+
+ 
+function* fetchData() {
+  yield new Promise((resolve) => setTimeout(() => resolve(10), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(20), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(30), 1000));
+}
+
+ 
+async function processData(generator) {
+  const results = [];
+  for (let promise of generator) {
+    const data = await promise;
+    results.push(data);
+  }
+  return results;
+}
+
+ 
+const mapHandler = {
+  get(target, property) {
+    print(`Accessing property: ${property}`);
+    return target[property];
+  },
+  set(target, property, value) {
+    print(`Setting property: ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  },
+};
+
+ 
+const dataMap = new Proxy(new Map(), mapHandler);
+
+ 
+(async function main() {
+  const gen = fetchData();
+  const results = await processData(gen);
+
+   
+  results.forEach((result, index) => {
+    dataMap.set(`item${index}`, result);
+  });
+
+   
+  print('Data in Map:');
+  for (let [key, value] of dataMap) {
+    print(`${key}: ${value}`);
+  }
+})();

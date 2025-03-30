@@ -1,0 +1,42 @@
+ 
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice' },
+        posts: [
+          { id: 101, title: 'Advanced JS Techniques', content: '...' },
+          { id: 102, title: 'Understanding Asynchronous JavaScript', content: '...' },
+        ],
+      });
+    }, 1000);
+  });
+};
+
+ 
+const processUserData = async () => {
+  try {
+     
+    const data = await fetchData();
+
+     
+    const { user, posts } = data;
+
+     
+    const { name } = user;
+
+     
+    const postTitles = posts.map(({ title }) => `Post: ${title}`);
+
+     
+    print(`User: ${name}`);
+    postTitles.forEach(title => print(title));
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+processUserData();

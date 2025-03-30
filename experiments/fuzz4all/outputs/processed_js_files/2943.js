@@ -1,0 +1,41 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+  try {
+     
+    const user = { name: 'Alice', age: 25, city: 'Wonderland' };
+    const { name, ...rest } = user;
+    print(`Hello, ${name}!`);
+    print('Additional Info:', rest);
+
+     
+    const map = new Map();
+    map.set('name', 'Alice');
+    map.set('age', 25);
+
+     
+    function* generateFibonacci(limit) {
+      let [prev, curr] = [0, 1];
+      while (limit-- > 0) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+      }
+    }
+
+     
+    const fibonacci = [...generateFibonacci(10)];
+    const evens = fibonacci.filter(n => n % 2 === 0).map(n => n * 2);
+
+    print('Processed Fibonacci Sequence:', evens);
+
+     
+    await fs.writeFile('output.txt', evens.join(', '), 'utf-8');
+    const data = await fs.readFile('output.txt', 'utf-8');
+    print('File Content:', data);
+
+  } catch (err) {
+    console.error('Error:', err);
+  }
+})();

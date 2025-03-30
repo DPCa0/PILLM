@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return await response.json();
+}
+
+ 
+const dataHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        }
+        console.log(`Property ${prop} doesn't exist, fetching data...`);
+        return fetchData(`https: 
+            .then(data => {
+                target[prop] = data;
+                return data;
+            });
+    }
+};
+
+ 
+const apiData = new Proxy({}, dataHandler);
+
+ 
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+const idGen = idGenerator();
+
+function createUser(name) {
+    return {
+        id: Reflect.apply(idGen.next, idGen, []).value,
+        name
+    };
+}
+
+ 
+const users = [createUser("Alice"), createUser("Bob"), createUser("Charlie")];
+
+ 
+const userSet = new Set(users.map(user => user.name));
+const userMap = new Map(users.map(user => [user.name, user]));
+
+ 
+console.log("User Map:", userMap);
+console.log("User Set:", userSet);
+
+ 
+apiData.posts
+    .then(data => console.log("Fetched Posts:", data))
+    .catch(err => console.error("Error fetching posts:", err));
+```

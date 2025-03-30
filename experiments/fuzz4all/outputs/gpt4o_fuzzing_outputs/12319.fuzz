@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class Observer {
+  constructor() {
+    this.subscribers = [];
+  }
+
+  subscribe(fn) {
+    this.subscribers.push(fn);
+  }
+
+  unsubscribe(fnToRemove) {
+    this.subscribers = this.subscribers.filter(fn => fn !== fnToRemove);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+class ReactiveState {
+  #state;
+  #observers = new Observer();
+
+  constructor(initialState = {}) {
+    this.#state = new Proxy(initialState, {
+      set: (target, key, value) => {
+        target[key] = value;
+        this.#observers.notify(this.#state);
+        return true;
+      }
+    });
+  }
+
+  get state() {
+    return this.#state;
+  }
+
+  subscribe(fn) {
+    this.#observers.subscribe(fn);
+  }
+
+  unsubscribe(fn) {
+    this.#observers.unsubscribe(fn);
+  }
+}
+
+function debounce(fn, delay) {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  };
+}
+
+ 
+const state = new ReactiveState({ count: 0 });
+
+const logState = debounce((state) => {
+  console.log('Current State:', state);
+}, 300);
+
+state.subscribe(logState);
+
+setInterval(() => {
+  state.state.count += 1;
+}, 500);
+
+setTimeout(() => {
+  state.unsubscribe(logState);
+  console.log("Unsubscribed from state updates.");
+}, 5000);
+```

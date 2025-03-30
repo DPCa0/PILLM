@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+   
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+   
+  return {
+    name: "Advanced JS",
+    features: ["Promises", "Async/Await", "ES6+", "Generators"],
+    details: {
+      year: 2023,
+      status: "active",
+      getSummary() {
+        return `Project: ${this.name}, Year: ${this.year}`;
+      }
+    }
+  };
+}
+
+ 
+function* dataHandler() {
+  const url = "https://api.example.com/data";
+  const data = yield fetchData(url);
+
+  console.log(`Name: ${data.name}`);
+  console.log(`Features: ${data.features.join(", ")}`);
+  console.log(`Summary: ${data.details.getSummary()}`);
+}
+
+ 
+const handler = dataHandler();
+const fetchPromise = handler.next().value;
+
+fetchPromise.then(data => {
+  handler.next(data);
+}).catch(error => {
+  console.error("Error fetching data:", error);
+});
+```

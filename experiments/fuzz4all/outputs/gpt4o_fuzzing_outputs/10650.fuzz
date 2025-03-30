@@ -1,0 +1,30 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        const data = {
+            users: [
+                { id: 1, name: 'Alice', age: 25 },
+                { id: 2, name: 'Bob', age: 30 }
+            ]
+        };
+        resolve(data);
+    }, 2000);
+});
+
+async function processUserData() {
+    try {
+        const { users } = await fetchData();
+        const userDetails = users.map(({ id, ...details }) => ({ id, ...details, isActive: true }));
+
+        console.log("Processed User Details:");
+        console.table(userDetails);
+    } catch (error) {
+        console.error("Error processing data:", error);
+    }
+}
+
+processUserData();
+```

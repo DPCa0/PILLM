@@ -1,0 +1,50 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+async function processData(filePath) {
+  try {
+     
+    const { data } = JSON.parse(await readFile(filePath, 'utf8'));
+
+     
+    const uniqueItems = [...new Set(data)];
+
+     
+    const processedData = uniqueItems.map((item, index) => {
+      return {
+        id: index,
+        value: item,
+        isEven: item.length % 2 === 0
+      };
+    });
+
+     
+    const dataSummary = processedData.reduce((summary, item) => {
+      if (item.isEven) {
+        summary.even.push(item);
+      } else {
+        summary.odd.push(item);
+      }
+      return summary;
+    }, { even: [], odd: [] });
+
+     
+    console.log(`Processed Data Summary:
+    Total Even: ${dataSummary.even?.length ?? 0}
+    Total Odd: ${dataSummary.odd?.length ?? 0}`);
+
+     
+    await Promise.all(dataSummary.even.map(async (item) => {
+       
+      await new Promise(res => setTimeout(res, 100));
+      print(`Processed Even Item: ${item.value}`);
+    }));
+
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+}
+
+ 
+processData('./example.json');

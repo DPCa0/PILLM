@@ -1,0 +1,57 @@
+ 
+
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add({ real, imaginary }) {
+        return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+const complexHandler = {
+    get(target, prop) {
+        if (prop === 'magnitude') {
+            return Math.sqrt(target.real ** 2 + target.imaginary ** 2);
+        }
+        return target[prop];
+    }
+};
+
+const asyncOperation = async (complexNumbers) => {
+    const responses = await Promise.allSettled(complexNumbers.map(async (cn, index) => {
+        return new Promise((resolve) => setTimeout(() => {
+            const modified = cn.add({ real: index + 1, imaginary: index + 1 });
+            resolve(`Modified Complex Number: ${modified}`);
+        }, Math.random() * 1000));
+    }));
+    return responses;
+};
+
+(async () => {
+    const complexNumbers = [
+        new ComplexNumber(1, 2),
+        new ComplexNumber(3, 4),
+        new ComplexNumber(5, 6)
+    ].map(cn => new Proxy(cn, complexHandler));
+
+    print('Original Complex Numbers:');
+    complexNumbers.forEach(cn => print(cn.toString(), '| Magnitude:', cn.magnitude));
+
+    print('\nPerforming async operations on Complex Numbers...\n');
+    const results = await asyncOperation(complexNumbers);
+
+    results.forEach(result => {
+        if (result.status === 'fulfilled') {
+            print(result.value);
+        } else {
+            console.error('Failed to process:', result.reason);
+        }
+    });
+})();

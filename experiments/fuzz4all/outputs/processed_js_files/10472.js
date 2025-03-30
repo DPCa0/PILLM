@@ -1,0 +1,41 @@
+class AsyncPool {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.running = 0;
+  }
+
+  async runTask(task) {
+    this.running++;
+    try {
+      await task();
+    } finally {
+      this.running--;
+      this.next();
+    }
+  }
+
+  next() {
+    if (this.queue.length > 0 && this.running < this.concurrency) {
+      const task = this.queue.shift();
+      this.runTask(task);
+    }
+  }
+
+  enqueue(task) {
+    this.queue.push(task);
+    this.next();
+  }
+}
+
+const pool = new AsyncPool(3);
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const tasks = Array.from({ length: 10 }, (_, i) => async () => {
+  print(`Task ${i} started`);
+  await wait(Math.random() * 2000);
+  print(`Task ${i} completed`);
+});
+
+tasks.forEach(task => pool.enqueue(task));

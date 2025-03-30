@@ -1,0 +1,51 @@
+ 
+class Person {
+  #name;
+
+  constructor(name) {
+    this.#name = name;
+  }
+
+   
+  #getName() {
+    return this.#name;
+  }
+
+  introduce() {
+     
+    print(formatMessage`Hello, my name is ${this.#getName()}.`);
+  }
+}
+
+ 
+function formatMessage(strings, ...values) {
+  const [greeting, intro] = strings;
+  const name = values[0].toUpperCase();
+  return `${greeting.trim()}${name.trim()}${intro.trim()}`;
+}
+
+ 
+async function delayedIntroduction(person) {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+  await delay(1000);
+  person.introduce();
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'secret') {
+      return 'This is a secret value!';
+    }
+    return target[prop];
+  }
+};
+
+const person = new Person('Alice');
+const proxiedPerson = new Proxy(person, handler);
+
+ 
+(async () => {
+  await delayedIntroduction(proxiedPerson);
+  print(proxiedPerson.secret);
+})();

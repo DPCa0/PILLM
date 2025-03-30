@@ -1,0 +1,36 @@
+class CustomIterable {
+    constructor(limit) {
+        this.limit = limit;
+    }
+
+    *[Symbol.iterator]() {
+        for (let i = 1; i <= this.limit; i++) {
+            yield i;
+        }
+    }
+}
+
+const asyncOperation = async num => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(`Processed ${num}`);
+        }, Math.random() * 1000);
+    });
+};
+
+(async function main() {
+    const iterable = new CustomIterable(5);
+    const results = [];
+
+    for await (const num of iterable) {
+        const result = await asyncOperation(num);
+        print(result);
+        results.push(result);
+    }
+
+    const finalResult = results
+        .map(str => str.match(/\d+/)[0])
+        .reduce((sum, num) => sum + parseInt(num, 10), 0);
+
+    print(`Final Sum: ${finalResult}`);
+})();

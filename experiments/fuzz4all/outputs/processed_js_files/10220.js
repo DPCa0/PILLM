@@ -1,0 +1,34 @@
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ name: "Alice", age: 30, location: "Wonderland" }), 1000);
+    });
+};
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Property '${prop}' accessed`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+    const data = await fetchData();
+    
+     
+    const { name, age, location } = new Proxy(data, handler);
+
+     
+    const taggedGreeting = (strings, ...values) => {
+        return strings.reduce((result, string, i) => {
+            return result + string + (values[i] ? `[${values[i].toUpperCase()}]` : '');
+        }, '');
+    };
+
+     
+    print(taggedGreeting`Hello, ${name}! You are ${age} years old and live in ${location}.`);
+})();

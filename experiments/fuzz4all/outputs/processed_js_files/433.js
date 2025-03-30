@@ -1,0 +1,61 @@
+ 
+const processData = async (data) => {
+   
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const posts = await response.json();
+
+   
+  const userPostTitle = data?.user?.posts?.[0]?.title ?? 'No post title available';
+
+   
+  function* postGenerator(posts) {
+    for (let post of posts) {
+      yield post;
+    }
+  }
+
+  const postsIterator = postGenerator(posts);
+  let currentPost = postsIterator.next();
+
+   
+  while (!currentPost.done) {
+    const { id, title } = currentPost.value;
+
+     
+    print(`Post ID: ${id}, Title: ${title}`);
+    currentPost = postsIterator.next();
+  }
+
+   
+  const userIds = new Set(posts.map(post => post.userId));
+  print('Unique User IDs:', [...userIds]);
+
+   
+  return Promise.resolve(userPostTitle);
+};
+
+ 
+const [firstUser, secondUser, ...otherUsers] = [
+  { name: 'Alice', age: 30 },
+  { name: 'Bob', age: 24 },
+  { name: 'Charlie', age: 35 },
+  { name: 'Dave', age: 27 }
+];
+
+ 
+const allUsers = [...otherUsers, firstUser, secondUser];
+
+ 
+const userGreetings = allUsers.map(({ name }) => `Hello, ${name}!`);
+
+(async () => {
+  print('User Greetings:', userGreetings);
+
+   
+  const postTitle = await processData({
+    user: {
+      posts: [{ title: 'Advanced JavaScript Patterns' }]
+    }
+  });
+  print('User Post Title:', postTitle);
+})();

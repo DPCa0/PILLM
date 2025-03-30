@@ -1,0 +1,39 @@
+ 
+
+ 
+const randomDelay = () => new Promise(resolve => setTimeout(resolve, Math.random() * 1000));
+
+ 
+async function complexOperation(data) {
+    print(`Starting operation on: ${data}`);
+    await randomDelay();
+    return data.split('').reverse().join('');
+}
+
+ 
+function* dataGenerator() {
+    yield* ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon'];
+}
+
+ 
+const logHandler = {
+    apply: function(target, thisArg, argumentsList) {
+        print(`Calling function with args: ${argumentsList}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+const proxiedOperation = new Proxy(complexOperation, logHandler);
+
+ 
+async function processData() {
+    const gen = dataGenerator();
+    for (let data of gen) {
+        let result = await proxiedOperation(data);
+        print(`Processed result: ${result}`);
+    }
+}
+
+ 
+processData();

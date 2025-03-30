@@ -1,0 +1,28 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, defaultValue = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+  }
+  
+  map(callback) {
+    return this.data.map((row, i) => row.map((value, j) => callback(value, i, j)));
+  }
+
+  static multiply(A, B) {
+    if (A.data[0].length !== B.data.length) throw new Error('Incompatible matrices');
+    let result = new Matrix(A.data.length, B.data[0].length);
+    result.data = result.map((_, i, j) => 
+      A.data[i].reduce((sum, val, k) => sum + val * B.data[k][j], 0)
+    );
+    return result;
+  }
+}
+
+ 
+const matrixA = new Matrix(2, 3).map((_, i, j) => i + j);
+const matrixB = new Matrix(3, 2).map((_, i, j) => i - j);
+
+const resultMatrix = Matrix.multiply(matrixA, matrixB);
+console.log('Resultant Matrix:', resultMatrix.data);
+```

@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.executing = false;
+  }
+
+  enqueue(promiseFn) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ promiseFn, resolve, reject });
+      this.dequeue();
+    });
+  }
+
+  async dequeue() {
+    if (this.executing || !this.queue.length) return;
+    const { promiseFn, resolve, reject } = this.queue.shift();
+    this.executing = true;
+
+    try {
+      const result = await promiseFn();
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    } finally {
+      this.executing = false;
+      this.dequeue();
+    }
+  }
+}
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const fetchData = async (id) => {
+  await delay(1000);
+  return `Data for ID: ${id}`;
+};
+
+const queue = new AsyncQueue();
+
+const ids = [1, 2, 3, 4, 5];
+
+(async () => {
+  await Promise.all(
+    ids.map((id) =>
+      queue.enqueue(() => fetchData(id)).then(console.log)
+    )
+  );
+  console.log("All data fetched");
+})();
+```

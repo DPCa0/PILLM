@@ -1,0 +1,53 @@
+class EventEmitter {
+  constructor() {
+    this.listeners = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, []);
+    }
+    this.listeners.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.listeners.has(event)) {
+      this.listeners.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function asyncFetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve({ data: 'Success Data' }) : reject('Error');
+    }, 1000);
+  });
+}
+
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    try {
+      const data = await asyncFetchData(url);
+      yield data;
+    } catch (error) {
+      yield { error: `Failed to fetch ${url}` };
+    }
+  }
+}
+
+(async () => {
+  const urls = ['url1', 'url2', 'url3'];
+  const emitter = new EventEmitter();
+
+  emitter.on('data', data => print('Data received:', data));
+  emitter.on('error', error => console.error('Error:', error));
+
+  for await (const result of fetchDataGenerator(urls)) {
+    if (result.data) {
+      emitter.emit('data', result.data);
+    } else if (result.error) {
+      emitter.emit('error', result.error);
+    }
+  }
+})();

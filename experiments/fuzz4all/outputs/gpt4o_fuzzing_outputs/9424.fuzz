@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs');
+const path = require('path');
+
+ 
+(async () => {
+  try {
+     
+    const { dir, base } = path.parse(__filename);
+    console.log(`Current Directory: ${dir}\nFile Name: ${base}`);
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const squaredEvenNumbers = numbers
+      .map(num => num * num)
+      .filter(num => num % 2 === 0);
+
+    console.log('Squared Even Numbers:', squaredEvenNumbers);
+
+     
+    const arrayWithDuplicates = [1, 2, 2, 3, 4, 4, 5];
+    const uniqueArray = [...new Set(arrayWithDuplicates)];
+    console.log('Unique Array:', uniqueArray);
+
+     
+    const filePath = path.join(__dirname, 'example.txt');
+    const fileData = await fs.promises.readFile(filePath, 'utf8');
+    console.log('File Content:', fileData);
+
+     
+    if (typeof require !== 'function') {
+      const { default: lodash } = await import('lodash');
+      console.log('Shuffled Array:', lodash.shuffle(numbers));
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

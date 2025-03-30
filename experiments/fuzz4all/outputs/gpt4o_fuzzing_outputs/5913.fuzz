@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData(endpoint) {
+  console.log(`Fetching data from ${endpoint}...`);
+  await delay(1000);  
+  return { data: 'Sample Data from ' + endpoint };
+}
+
+const createEndpointProxy = (baseURL) => {
+  return new Proxy({}, {
+    get: (target, endpoint) => {
+      return async () => {
+        const response = await fetchData(`${baseURL}/${endpoint}`);
+        return response.data;
+      }
+    }
+  });
+};
+
+const api = createEndpointProxy('https://api.example.com');
+
+ 
+(async () => {
+  try {
+    const userData = await api.users();
+    console.log('User Data:', userData);
+
+    const postData = await api.posts();
+    console.log('Post Data:', postData);
+
+    const commentData = await api.comments();
+    console.log('Comment Data:', commentData);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

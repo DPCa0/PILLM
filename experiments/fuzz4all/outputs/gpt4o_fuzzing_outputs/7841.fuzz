@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+(async () => {
+     
+    const getRandomInt = ({ min = 0, max = 100 }) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+     
+    const operations = new Map([
+        ['add', (a, b) => a + b],
+        ['subtract', (a, b) => a - b],
+        ['multiply', (a, b) => a * b],
+        ['divide', (a, b) => a / b],
+    ]);
+
+     
+    const operationsProxy = new Proxy(operations, {
+        get(target, property) {
+            if (target.has(property)) {
+                return (...args) => {
+                    console.log(`Performing ${property} on arguments:`, args);
+                    return target.get(property)(...args);
+                };
+            }
+            throw new Error(`Operation ${property} not found`);
+        }
+    });
+
+     
+    for (let op of operations.keys()) {
+        const a = getRandomInt({ min: 1, max: 10 });
+        const b = getRandomInt({ min: 1, max: 10 });
+        console.log(`Result of ${op}:`, operationsProxy[op](a, b));
+        await delay(1000);   
+    }
+})();
+```

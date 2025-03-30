@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+(async function complexJavaScriptProgram() {
+  try {
+     
+    const obj = { a: 1, b: 2, c: 3, d: 4 };
+    const { a, b, ...rest } = obj;
+    console.log(`Destructured values: a = ${a}, b = ${b}, rest =`, rest);
+
+     
+    const message = `Advanced JS features include destructuring, async/await, promises, and more.`;
+    console.log(message);
+
+     
+    const asyncOperation = () =>
+      new Promise((resolve) => setTimeout(() => resolve("Data fetched!"), 1000));
+    
+    console.log("Fetching data...");
+    const result = await asyncOperation();
+    console.log(result);
+
+     
+    const data = { user: { name: "Jane Doe" } };
+    console.log(`User's name: ${data.user?.name ?? "Default User"}`);
+
+    // Dynamic import
+    const { version } = await import('os');
+    console.log(`Node.js Version (via os): ${version()}`);
+
+    // Working with files using the fs/promises API
+    const filePath = './example.txt';
+    await fs.writeFile(filePath, 'Hello, world!', 'utf8');
+    const fileContent = await fs.readFile(filePath, 'utf8');
+    console.log(`Content of the file: ${fileContent}`);
+
+     
+    await fs.unlink(filePath);
+
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();
+```

@@ -1,0 +1,47 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ success: true, data: [1, 2, 3, 4, 5] });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* valueGenerator(array) {
+    for (let value of array) {
+        yield value;
+    }
+}
+
+ 
+async function main() {
+    try {
+        const { success, data } = await fetchData("https://api.example.com/data");
+        if (success) {
+            print("Data fetched successfully:", data);
+
+             
+            const gen = valueGenerator(data);
+            let result = gen.next();
+            while (!result.done) {
+                print("Generated Value:", result.value);
+                result = gen.next();
+            }
+
+             
+            const newData = [...data, 6, 7, 8];
+            print("Modified Data:", newData);
+        }
+    } catch (error) {
+        console.error("An error occurred:", error.message);
+    }
+}
+
+main();

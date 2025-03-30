@@ -1,0 +1,40 @@
+ 
+
+ 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+ 
+async function* asyncGenerator(max) {
+  for (let i = 0; i <= max; i++) {
+    await delay(500);  
+    yield i;
+  }
+}
+
+ 
+const target = { message: 'Hello, world!' };
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop}' accessed`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    print(`Property '${prop}' set to '${value}'`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function main() {
+  for await (const num of asyncGenerator(5)) {
+    print(`Generated number: ${num}`);
+  }
+
+  print(proxy.message);  
+  proxy.message = "Hello, Proxy!";  
+  print(proxy.message);  
+}
+
+main();

@@ -1,0 +1,44 @@
+ 
+
+class DataProcessor {
+    #data;  
+
+    constructor() {
+        this.#data = [];
+    }
+
+     
+    async fetchData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            const jsonData = await response.json();
+            this.#data = jsonData.results;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+
+     
+    processAndLogData() {
+        this.#data.forEach(({ name, value }) => {
+            const processedValue = this.#complexCalculation(value);
+            print(`Processed ${name}: ${processedValue}`);
+        });
+    }
+
+     
+    #complexCalculation(value) {
+        return ((x) => x * x)(value);
+    }
+
+     
+    static async processDataFromUrl(url) {
+        const processor = new DataProcessor();
+        await processor.fetchData(url);
+        processor.processAndLogData();
+    }
+}
+
+ 
+DataProcessor.processDataFromUrl('https://api.example.com/data');

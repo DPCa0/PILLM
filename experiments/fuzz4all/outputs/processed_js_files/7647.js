@@ -1,0 +1,48 @@
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: [1, 2, 3, 4, 5] });
+    }, 1000);
+  });
+};
+
+ 
+(async () => {
+  try {
+     
+    const { data } = await fetchData();
+
+     
+    const squaredSum = data
+      .map((num) => num ** 2)
+      .reduce((acc, num) => acc + num, 0);
+
+     
+    print(`The sum of squares is: ${squaredSum}`);
+
+     
+    function* squareGenerator(arr) {
+      for (const num of arr) {
+        yield num ** 2;
+      }
+    }
+
+     
+    const squares = [...squareGenerator(data)];
+
+     
+    const uniqueSquares = new Set(squares);
+
+     
+    const user = { name: "Alice", age: 30, country: "Wonderland" };
+    const updatedUser = { ...user, age: 31, ...{ occupation: "Adventurer" } };
+
+    print(updatedUser);
+
+     
+    print("Unique squares:", [...uniqueSquares]);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();

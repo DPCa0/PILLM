@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get: function(target, property, receiver) {
+    console.log(`Getting property '${property}'`);
+    return Reflect.get(...arguments);
+  },
+  set: function(target, property, value, receiver) {
+    console.log(`Setting property '${property}' to '${value}'`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const targetObject = { name: 'Alice', age: 30 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.name;         
+proxy.age = 31;     
+
+ 
+function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  while (curr <= limit) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const fibSeq = fibonacci(100);
+console.log([...fibSeq]);  
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncSequence() {
+  console.log('Start');
+  await delay(1000);   
+  console.log('1 second passed');
+  await delay(2000);   
+  console.log('3 seconds in total passed');
+}
+
+asyncSequence();
+
+ 
+const uniqueValues = new Set([1, 2, 3, 4, 4, 5]);
+uniqueValues.add(6);
+uniqueValues.delete(1);
+console.log(Array.from(uniqueValues));  
+
+const keyValueStore = new Map();
+keyValueStore.set('name', 'Bob');
+keyValueStore.set('age', 25);
+
+for (const [key, value] of keyValueStore) {
+  console.log(`${key}: ${value}`);
+}
+
+ 
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    console.log(`${this.name} makes a noise.`);
+  }
+
+  static info() {
+    console.log('Animals are multicellular eukaryotic organisms.');
+  }
+}
+
+class Dog extends Animal {
+  speak() {

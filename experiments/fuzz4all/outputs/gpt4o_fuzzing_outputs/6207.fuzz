@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* fetchConcurrently(urls) {
+    const results = new Map();
+    const deferreds = new Map();
+
+    urls.forEach((url) => {
+        const deferred = new Deferred();
+        deferreds.set(url, deferred);
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => deferred.resolve({ url, data }))
+            .catch(error => deferred.reject({ url, error }));
+    });
+
+    while (urls.length > 0) {
+        const promises = Array.from(deferreds.values()).map(d => d.promise);
+        const result = await Promise.race(promises);
+
+        urls = urls.filter(url => url !== result.url);
+        results.set(result.url, result.data || result.error);
+
+        yield { url: result.url, data: result.data, error: result.error };
+    }
+}
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2',
+        'https://jsonplaceholder.typicode.com/posts/3'
+    ];
+
+    try {
+        for await (let result of fetchConcurrently(urls)) {
+            console.log(`Fetched from ${result.url}:`, result.data || result.error);
+        }
+    } catch (error) {
+        console.error('Error during fetching:', error);
+    }
+})();
+```

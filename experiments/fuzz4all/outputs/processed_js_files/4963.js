@@ -1,0 +1,39 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => resolve({id: 1, name: 'John Doe', details: { age: 30, job: 'Developer' }}), 1000);
+});
+
+ 
+function* dataProcessor(data) {
+    const {id, name, details: { age, job }} = data;
+    yield `ID: ${id}`;
+    yield `Name: ${name}`;
+    yield `Age: ${age}`;
+    yield `Job: ${job}`;
+    yield `Thank you for using our service!`;
+}
+
+async function handleData() {
+    try {
+        const data = await fetchData();
+        
+         
+        const {name, ...rest} = data;
+        print(`Fetched data for ${name}. Processing...`);
+
+         
+        const processedData = {...rest, user: name, timestamp: new Date().toLocaleString()};
+        
+         
+        const processor = dataProcessor(processedData);
+        for (const info of processor) {
+            print(info);
+        }
+    } catch (error) {
+        console.error(`An error occurred: ${error.message}`);
+    }
+}
+
+handleData();

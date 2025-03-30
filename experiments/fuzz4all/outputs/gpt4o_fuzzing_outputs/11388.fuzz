@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+     
+    const initialSet = new Set([1, 2, 3]);
+
+     
+    function* generateSetValues(set) {
+        for (let value of set) {
+            yield value;
+        }
+    }
+
+     
+    async function fetchData() {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(4), 1000);  
+        });
+    }
+
+     
+    const proxySet = new Proxy(initialSet, {
+        get(target, property, receiver) {
+            if (property === 'addAsync') {
+                return async (value) => {
+                    const data = await fetchData();
+                    Reflect.apply(Set.prototype.add, receiver, [data + value]);
+                };
+            }
+            return Reflect.get(target, property, receiver);
+        },
+    });
+
+     
+    await proxySet.addAsync(1);
+
+     
+    const valueGenerator = generateSetValues(proxySet);
+    for (let value of valueGenerator) {
+        console.log(value);
+    }
+})();
+```

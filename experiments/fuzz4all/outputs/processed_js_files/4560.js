@@ -1,0 +1,60 @@
+ 
+class ComplexNumber {
+  #real;  
+  #imaginary;  
+  static count = 0;  
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+    ComplexNumber.count++;
+  }
+
+  get magnitude() {
+    return Math.sqrt(this.#real ** 2 + this.#imaginary ** 2);
+  }
+
+  static createFromPolar(magnitude, angle) {
+    return new ComplexNumber(
+      magnitude * Math.cos(angle),
+      magnitude * Math.sin(angle)
+    );
+  }
+
+   
+  *powers(n) {
+    for (let i = 1; i <= n; i++) {
+      yield ComplexNumber.createFromPolar(
+        this.magnitude ** i,
+        Math.atan2(this.#imaginary, this.#real) * i
+      );
+    }
+  }
+}
+
+ 
+const handler = {
+  construct(target, args) {
+    const [real, imaginary] = args;
+    if (typeof real !== 'number' || typeof imaginary !== 'number') {
+      throw new TypeError('Complex numbers must have numeric real and imaginary parts.');
+    }
+    return new target(...args);
+  }
+};
+
+const ComplexNumberProxy = new Proxy(ComplexNumber, handler);
+
+try {
+  const complex1 = new ComplexNumberProxy(3, 4);
+  print(`Complex count: ${ComplexNumber.count}`);
+  print(`Magnitude: ${complex1.magnitude}`);
+
+   
+  const powersIterator = complex1.powers(3);
+  for (const power of powersIterator) {
+    print(`Power: (${power.#real.toFixed(2)}, ${power.#imaginary.toFixed(2)}i)`);
+  }
+} catch (error) {
+  console.error(error);
+}

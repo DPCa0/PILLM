@@ -1,0 +1,48 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  enqueue(promiseFunc) {
+    this.queue.push(promiseFunc);
+    this.process();
+  }
+
+  async process() {
+    if (this.processing) return;
+    this.processing = true;
+    while (this.queue.length) {
+      const current = this.queue.shift();
+      try {
+        const result = await current();
+        print('Processed:', result);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    this.processing = false;
+  }
+}
+
+function randomAsyncTask(id, failRate = 0.3) {
+  return () =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() > failRate) {
+          resolve(`Task ${id} completed`);
+        } else {
+          reject(`Task ${id} failed`);
+        }
+      }, Math.floor(Math.random() * 1000));
+    });
+}
+
+(async () => {
+  const queue = new AsyncQueue();
+  const tasks = Array.from({ length: 10 }, (_, i) => randomAsyncTask(i));
+  tasks.forEach(task => queue.enqueue(task));
+
+   
+  setTimeout(() => queue.enqueue(randomAsyncTask('dynamic')), 2000);
+})();

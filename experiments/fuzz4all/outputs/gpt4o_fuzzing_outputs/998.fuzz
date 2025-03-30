@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ id, name: `User${id}`, age: 20 + id });
+        }, 1000);
+    });
+}
+
+ 
+class User {
+    #id;
+    #name;
+    #age;
+
+    constructor({ id, name, age }) {
+        this.#id = id;
+        this.#name = name;
+        this.#age = age;
+    }
+
+     
+    getUserInfo() {
+        const info = { id: this.#id, name: this.#name, age: this.#age };
+        return `User Info: ${JSON.stringify({ ...info })}`;
+    }
+
+     
+    static fromData(data) {
+        const { id, name, age } = data;
+        return new User({ id, name, age });
+    }
+}
+
+ 
+async function fetchAndCreateUser(userId) {
+    try {
+        const data = await fetchData(userId);
+        const user = User.fromData(data);
+        console.log(user.getUserInfo());
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+    }
+}
+
+ 
+(async () => {
+    await Promise.all([1, 2, 3].map(fetchAndCreateUser));
+})();
+```

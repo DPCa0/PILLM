@@ -1,0 +1,50 @@
+ 
+async function* fetchData() {
+    const data = [1, 2, 3, 4, 5];
+    for (const item of data) {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        yield item * item;  
+    }
+}
+
+ 
+async function processData() {
+    const results = [];
+    
+    for await (const dataChunk of fetchData()) {
+        results.push(dataChunk);
+    }
+
+     
+    const finalResults = await Promise.all(results.map(async num => {
+        await new Promise(resolve => setTimeout(resolve, 50));  
+        return num + 10;  
+    }));
+
+    return finalResults;
+}
+
+ 
+const dataHandler = {
+    get(target, prop) {
+        if (prop === 'sum') {
+            return target.reduce((acc, curr) => acc + curr, 0);
+        }
+        return target[prop];
+    },
+    set(target, prop, value) {
+        if (typeof value !== 'number') {
+            throw new TypeError('Values must be numbers');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+(async () => {
+    const data = await processData();
+    const proxiedData = new Proxy(data, dataHandler);
+
+    print('Processed Data:', proxiedData);
+    print('Sum of Data:', proxiedData.sum);
+})();

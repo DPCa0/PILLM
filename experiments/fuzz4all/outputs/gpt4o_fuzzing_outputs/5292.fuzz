@@ -1,0 +1,80 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+   
+  *[Symbol.iterator]() {
+    for (const row of this.data) {
+      for (const val of row) {
+        yield val;
+      }
+    }
+  }
+
+   
+  static fromArray(arr, rows, cols) {
+    if (arr.length !== rows * cols) throw new Error("Array length does not match dimensions.");
+    let matrixData = [];
+    for (let i = 0; i < arr.length; i += cols) {
+      matrixData.push(arr.slice(i, i + cols));
+    }
+    return new Matrix(matrixData);
+  }
+
+   
+  static createProxy(matrix) {
+    return new Proxy(matrix, {
+      get(target, prop, receiver) {
+        if (!isNaN(prop)) {
+          prop = Number(prop);
+          prop = prop >= 0 ? prop : target.data.length + prop;
+        }
+        return Reflect.get(target, prop, receiver);
+      }
+    });
+  }
+
+  map(callback) {
+    return new Matrix(this.data.map((row, i) => row.map((val, j) => callback(val, i, j))));
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+}
+
+ 
+const matrixData = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
+
+let matrix = Matrix.createProxy(new Matrix(matrixData));
+
+console.log("Original Matrix:");
+console.log(matrix.toString());
+
+console.log("\nIterating over all values:");
+for (const value of matrix) {
+  console.log(value);
+}
+
+let mappedMatrix = matrix.map(val => val * 2);
+
+console.log("\nMapped Matrix (each element * 2):");
+console.log(mappedMatrix.toString());
+
+const flatArray = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+let newMatrix = Matrix.fromArray(flatArray, 3, 3);
+
+console.log("\nMatrix from Array:");
+console.log(newMatrix.toString());
+
+ 
+console.log("\nAccessing last row with negative index:");
+console.log(matrix[-1]);
+```

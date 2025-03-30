@@ -1,0 +1,45 @@
+ 
+const fetchUserData = async () => {
+   
+  const url = `https: 
+  
+  try {
+     
+    const response = await fetch(url);
+    
+     
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+     
+    const users = await response.json();
+    
+     
+    const userNames = users.map(user => ({
+      name: user.name,
+      email: user.email,
+    }));
+    
+     
+    const uniqueUserNames = new Set(userNames.map(user => user.name));
+    
+     
+    const resultArray = [...uniqueUserNames];
+    
+     
+    const firstUserCompanyName = users[0]?.company?.name ?? 'Unknown Company';
+    
+    print(`First user's company name: ${firstUserCompanyName}`);
+    print('Unique User Names:', resultArray);
+
+  } catch (error) {
+     
+    console.error(`There was a problem with fetching the user data: ${error}`);
+  }
+};
+
+ 
+(async () => {
+  await fetchUserData();
+})();

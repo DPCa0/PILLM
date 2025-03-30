@@ -1,0 +1,55 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+function fetchData(url) {
+  return new Promise(async (resolve, reject) => {
+    const response = await fetch(url);
+    if (response.ok) {
+      const data = await response.json();
+      resolve(data);
+    } else {
+      reject(`Failed to fetch data from ${url}`);
+    }
+  });
+}
+
+async function* fetchWithExponentialBackoff(urls) {
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+  
+  for (let url of urls) {
+    let attempt = 0;
+    let maxAttempts = 5;
+    while (attempt < maxAttempts) {
+      try {
+        let data = await fetchData(url);
+        yield { url, data };
+        break;
+      } catch (error) {
+        attempt++;
+        if (attempt < maxAttempts) {
+          await delay(Math.pow(2, attempt) * 100);
+        } else {
+          yield { url, error };
+        }
+      }
+    }
+  }
+}
+
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  for await (let result of fetchWithExponentialBackoff(urls)) {
+    print(result);
+  }
+})();

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const fibonacciAsyncIterable = {
+  [Symbol.asyncIterator]: function() {
+    let [prev, current] = [0, 1];
+    return {
+      next: async function() {
+        await new Promise(resolve => setTimeout(resolve, 100));  
+        [prev, current] = [current, prev + current];
+        return { value: current, done: false };
+      }
+    };
+  }
+};
+
+ 
+const loggerHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}': ${target[prop]}`);
+      return target[prop];
+    } else {
+      throw new Error(`Property '${prop}' does not exist.`);
+    }
+  },
+  set(target, prop, value) {
+    console.log(`Setting property '${prop}' to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const object = new Proxy({ count: 0 }, loggerHandler);
+
+ 
+(async () => {
+  let countLimit = 5;
+  for await (const num of fibonacciAsyncIterable) {
+    console.log(`Fibonacci number: ${num}`);
+    object.count += 1;
+    if (object.count >= countLimit) break;
+  }
+})();
+```

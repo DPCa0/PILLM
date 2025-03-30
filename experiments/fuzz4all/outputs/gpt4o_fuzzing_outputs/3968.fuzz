@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchUserData(userIds) {
+     
+    const fetchUser = (id) => new Promise(resolve => 
+        setTimeout(() => resolve({ id, name: `User${id}` }), Math.random() * 1000)
+    );
+
+     
+    const userPromises = userIds.map(id => fetchUser(id));
+    return await Promise.all(userPromises);
+}
+
+ 
+const createUserLogger = (user) => new Proxy(user, {
+    get(target, property) {
+        console.log(`Accessing property '${property}' with value '${target[property]}'`);
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Setting property '${property}' to '${value}'`);
+        return Reflect.set(target, property, value);
+    }
+});
+
+ 
+(async () => {
+    const userIds = [1, 2, 3, 4, 5];
+    const users = await fetchUserData(userIds);
+
+     
+    const [firstUser, ...restUsers] = users;
+
+     
+    const proxiedUser = createUserLogger(firstUser);
+    console.log(proxiedUser.name);  
+    proxiedUser.age = 30;  
+
+    console.log('All Users:', users);
+    console.log('Rest of Users:', restUsers);
+})();
+```

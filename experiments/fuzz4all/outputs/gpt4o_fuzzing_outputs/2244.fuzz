@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function asyncNumberPrinter(generator, count) {
+    for (let i = 0; i < count; i++) {
+        const { value } = generator.next();
+        console.log(`Number: ${value}`);
+        await delay(500);
+    }
+}
+
+const handler = {
+    get: (obj, prop) => {
+        if (prop === 'nextNumber') {
+            return obj.generator.next().value;
+        }
+        return obj[prop];
+    }
+};
+
+const generator = numberGenerator();
+const proxiedGenerator = new Proxy({ generator }, handler);
+
+async function main() {
+    console.log(`Next Number via Proxy: ${proxiedGenerator.nextNumber}`);
+    await asyncNumberPrinter(generator, 5);
+    console.log(`Another Number via Proxy: ${proxiedGenerator.nextNumber}`);
+}
+
+main();
+```

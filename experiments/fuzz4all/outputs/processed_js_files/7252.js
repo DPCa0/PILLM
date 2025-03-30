@@ -1,0 +1,35 @@
+ 
+
+ 
+const fetchUserData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        id: 1,
+        name: 'Jane Doe',
+        email: 'jane.doe@example.com',
+        friends: [
+          { name: 'John', age: 25 },
+          { name: 'Doe', age: 22 },
+          { name: 'Smith', age: 30 },
+        ],
+      });
+    }, 1000);
+  });
+};
+
+const processData = async () => {
+  try {
+    const { name, email, friends } = await fetchUserData();
+
+    print(`User Info: ${name} (${email})`);
+
+    const friendDetails = friends.map(({ name, age }) => `${name} (${age})`);
+    
+    print('Friends:', ...friendDetails);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+processData();

@@ -1,0 +1,52 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        status: 200,
+        data: { users: [{ name: 'Alice' }, { name: 'Bob' }] },
+      });
+    }, 1000);
+  });
+};
+
+ 
+const userHandler = {
+  get: (target, prop, receiver) => {
+    print(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+ 
+function* dataProcessor(data) {
+  for (const user of data.users) {
+    yield new Proxy(user, userHandler);
+  }
+}
+
+ 
+const processData = async () => {
+  try {
+     
+    const { status, data } = await fetchData();
+
+    if (status === 200) {
+       
+      const { users } = data;
+
+       
+      const generator = dataProcessor({ users });
+      for (const user of generator) {
+        print(`User: ${user.name}`);
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+processData();

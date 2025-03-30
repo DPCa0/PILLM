@@ -1,0 +1,45 @@
+ 
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+async function processNumbers(url) {
+  const data = await fetchData(url);
+  const { numbers, ...meta } = data;
+
+  const gen = numberGenerator();
+  const processedNumbers = numbers.map(num => num * gen.next().value);
+
+  return { processedNumbers, meta };
+}
+
+(async () => {
+  try {
+    const data = {
+      numbers: [1, 2, 3, 4, 5],
+      info: 'Sample data for processing',
+      timestamp: Date.now()
+    };
+
+    const mockFetch = async () => new Promise(resolve => setTimeout(() => resolve({ json: () => data }), 1000));
+    
+    globalThis.fetch = mockFetch;  
+
+    const url = 'https://api.example.com/data';
+    const { processedNumbers, meta } = await processNumbers(url);
+
+    print('Processed Numbers:', processedNumbers);
+    print('Metadata:', meta);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

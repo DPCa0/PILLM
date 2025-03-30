@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, property, receiver) {
+        console.log(`Getting ${property}`);
+        if (property in target) {
+            return Reflect.get(target, property, receiver);
+        } else {
+            return 42;  
+        }
+    },
+    set(target, property, value, receiver) {
+        console.log(`Setting ${property} to ${value}`);
+        return Reflect.set(target, property, value, receiver);
+    },
+    has(target, property) {
+        console.log(`Checking existence of ${property}`);
+        return Reflect.has(target, property);
+    },
+    deleteProperty(target, property) {
+        console.log(`Deleting ${property}`);
+        return Reflect.deleteProperty(target, property);
+    }
+};
+
+ 
+const obj = new Proxy({}, handler);
+
+ 
+async function* asyncGen() {
+    let i = 0;
+    while (i < 3) {
+        yield await new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+    }
+}
+
+async function processAsyncGenerator() {
+    for await (let num of asyncGen()) {
+        console.log(`Generated number: ${num}`);
+        obj[`key${num}`] = num;
+    }
+    console.log('Done generating');
+    console.log('Properties in proxy object:', Object.keys(obj));
+}
+
+ 
+function tag(strings, ...values) {
+    return strings.reduce((result, string, i) => {
+        return result + string + (values[i] ? values[i].toUpperCase() : '');
+    }, '');
+}
+
+const name = 'world';
+console.log(tag`Hello, ${name}!`);
+
+ 
+processAsyncGenerator().then(() => {
+     
+    console.log(obj.key0);  
+    console.log(obj.key5);  
+    console.log('key2' in obj);  
+    delete obj.key1;  
+});
+```

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve(Math.random()), 1000));
+
+ 
+function* asyncGenerator() {
+    console.log('Fetching data...');
+    const data = yield fetchData();
+    console.log(`Fetched data: ${data}`);
+    console.log('Processing data...');
+    const processedData = yield data * 10;
+    console.log(`Processed data: ${processedData}`);
+    yield processedData;
+}
+
+ 
+const runGenerator = async (genFunc) => {
+    const generator = genFunc();
+    let result = generator.next();
+    
+    while (!result.done) {
+        const value = await result.value;
+        result = generator.next(value);
+    }
+    return result.value;
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Accessing property "${prop}"`);
+        return Reflect.get(target, prop);
+    }
+};
+
+ 
+const target = {
+    value: 42,
+    message: 'Hello Proxy!',
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+(async () => {
+    console.log(proxy.message);  
+
+    const finalResult = await runGenerator(asyncGenerator);
+    console.log(`Final Result: ${finalResult}`);
+})();
+```

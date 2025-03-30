@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* promiseGenerator() {
+  yield new Promise(resolve => setTimeout(() => resolve("First Promise Resolved!"), 1000));
+  yield new Promise(resolve => setTimeout(() => resolve("Second Promise Resolved!"), 1000));
+  yield new Promise(resolve => setTimeout(() => resolve("Third Promise Resolved!"), 1000));
+}
+
+ 
+async function asyncFunction(gen) {
+  for await (let promise of gen) {
+    console.log(promise);
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop, receiver) => {
+    console.log(`Getting ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: (target, prop, value, receiver) => {
+    console.log(`Setting ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const targetObj = { message: "Hello Proxy!" };
+const proxy = new Proxy(targetObj, handler);
+
+ 
+class MyClass {
+  static staticMethod() {
+    console.log("This is a static method.");
+  }
+
+  instanceMethod() {
+    console.log("This is an instance method.");
+  }
+}
+
+ 
+MyClass.staticMethod();
+const myInstance = new MyClass();
+myInstance.instanceMethod();
+
+ 
+proxy.message = "New message!";
+console.log(proxy.message);
+
+ 
+const gen = promiseGenerator();
+asyncFunction(gen);
+```

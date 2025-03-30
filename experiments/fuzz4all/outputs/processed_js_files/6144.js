@@ -1,0 +1,51 @@
+const fetchUserData = async (userId) => {
+  try {
+    const userResponse = await fetch(`https: 
+    const user = await userResponse.json();
+
+    const postsResponse = await fetch(`https: 
+    const posts = await postsResponse.json();
+
+    return { ...user, posts };
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return null;
+  }
+};
+
+const processUserData = async (userId) => {
+  const userData = await fetchUserData(userId);
+
+  if (userData) {
+    const { name, email, posts } = userData;
+    
+    console.group(`User: ${name}`);
+    print(`Email: ${email}`);
+    console.group('Posts');
+    
+    posts.forEach(({ title, body }, index) => {
+      console.groupCollapsed(`Post #${index + 1}: ${title}`);
+      print(body);
+      console.groupEnd();
+    });
+
+    console.groupEnd();
+    console.groupEnd();
+  }
+};
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+const main = async () => {
+  const debouncedProcessUserData = debounce(processUserData, 300);
+
+  [1, 2, 3, 4, 5].forEach(debouncedProcessUserData);
+};
+
+main();

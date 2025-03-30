@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class AsyncProcess {
+    constructor() {
+        this.data = new Map();
+    }
+
+     
+    *processData() {
+        for (let i = 0; i < 5; i++) {
+            console.log(`Processing item ${i}...`);
+            yield new Promise((resolve) => setTimeout(() => resolve(i * i), 1000));
+        }
+    }
+
+    async startProcessing() {
+        const processIterator = this.processData();
+        for await (const processedItem of processIterator) {
+            console.log(`Processed result: ${processedItem}`);
+            this.data.set(processedItem, `Result for ${processedItem}`);
+        }
+    }
+
+     
+    createDataProxy() {
+        return new Proxy(this.data, {
+            get: (target, prop) => {
+                if (prop in target) {
+                    return target[prop];
+                } else {
+                    console.log(`Property ${prop} does not exist`);
+                    return 'Property not found';
+                }
+            },
+        });
+    }
+}
+
+(async () => {
+    const process = new AsyncProcess();
+    await process.startProcessing();
+    const dataProxy = process.createDataProxy();
+    console.log(dataProxy.get(0));  
+    console.log(dataProxy.get(10));  
+})();
+```

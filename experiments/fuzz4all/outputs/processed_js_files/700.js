@@ -1,0 +1,64 @@
+ 
+async function advancedJavaScript() {
+   
+  const fetchData = (url) =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (url) resolve(`Data from ${url}`);
+        else reject(new Error('Invalid URL'));
+      }, 1000);
+    });
+
+   
+  try {
+    const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+    const dataResponses = await Promise.all(urls.map(fetchData));
+
+     
+    function* dataGenerator(dataArray) {
+      for (const data of dataArray) {
+        yield data;
+      }
+    }
+
+    const generator = dataGenerator(dataResponses);
+
+     
+    for (const data of generator) {
+      print(`Processed: ${data}`);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const user = { name: 'Alice', age: 25, location: 'Wonderland' };
+const { name, age, location } = user;
+
+print(`User Info: ${name} is ${age} years old and lives in ${location}.`);
+
+ 
+const nestedObject = { a: { b: { c: 42 } } };
+print(nestedObject?.a?.b?.c ?? 'Default Value');  
+
+ 
+class Counter {
+  count = 0;
+
+  increment() {
+    this.count++;
+  }
+
+  getCount() {
+    return this.count;
+  }
+}
+
+const counter = new Counter();
+counter.increment();
+print(`Counter value: ${counter.getCount()}`);  
+
+ 
+advancedJavaScript();

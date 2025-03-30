@@ -1,0 +1,51 @@
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+
+  async processQueue() {
+    if (this.processing) return;
+    this.processing = true;
+    while (this.queue.length) {
+      const [resolve, fn] = this.queue.shift();
+      try {
+        resolve(await fn());
+      } catch (error) {
+        resolve(Promise.reject(error));
+      }
+    }
+    this.processing = false;
+  }
+
+  enqueue(fn) {
+    return new Promise((resolve) => {
+      this.queue.push([resolve, fn]);
+      this.processQueue();
+    });
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const dataStreamSimulator = async (maxNumber) => {
+  const results = [];
+  for (let i = 1; i <= maxNumber; i++) {
+    await delay(500);
+    results.push(i);
+    print(`Produced: ${i}`);
+  }
+  return results;
+};
+
+(async () => {
+  const asyncQueue = new AsyncQueue();
+  const producer = asyncQueue.enqueue(() => dataStreamSimulator(5));
+  const consumer = asyncQueue.enqueue(async () => {
+    const data = await producer;
+    return data.map(num => num * 2);
+  });
+
+  const results = await consumer;
+  print('Processed results:', results);
+})();

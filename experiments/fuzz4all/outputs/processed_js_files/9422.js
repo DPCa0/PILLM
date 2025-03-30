@@ -1,0 +1,41 @@
+ 
+
+ 
+function fetchData(id) {
+  return new Promise((resolve) => {
+    const time = Math.floor(Math.random() * 2000) + 500;
+    setTimeout(() => resolve(`Data for ID: ${id}`), time);
+  });
+}
+
+ 
+async function getAllData(ids) {
+  const dataPromises = ids.map(async (id) => {
+    const data = await fetchData(id);
+    print(data);
+    return data;
+  });
+  return Promise.all(dataPromises);
+}
+
+ 
+const targetObject = {};
+const handler = {
+  set(obj, prop, value) {
+    print(`Property ${prop} set to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  const ids = [1, 2, 3, 4, 5];
+  const data = await getAllData(ids);
+  print('All data fetched:', data);
+
+   
+  proxyObject.name = 'AdvancedJS';
+  proxyObject.version = '1.0';
+})();

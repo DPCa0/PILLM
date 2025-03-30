@@ -1,0 +1,59 @@
+ 
+
+ 
+const apiResponse = {
+    user: {
+        id: 1,
+        name: 'Jane Doe',
+        preferences: {
+            theme: 'dark',
+            language: 'en-US'
+        }
+    },
+    posts: [
+        { id: 101, title: 'Post One', content: 'Content of post one' },
+        { id: 102, title: 'Post Two', content: 'Content of post two' }
+    ]
+};
+
+ 
+const {
+    user: {
+        name,
+        preferences: { theme }
+    },
+    posts
+} = apiResponse;
+
+ 
+const fetchComments = async (postId) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { userId: 1, comment: 'Great post!' },
+                { userId: 2, comment: 'Thanks for the info!' }
+            ]);
+        }, 1000);
+    });
+};
+
+ 
+const processPosts = async (posts) => {
+     
+    const postsWithComments = await Promise.all(
+        posts.map(async (post) => {
+            const comments = await fetchComments(post.id);
+            return { ...post, comments };
+        })
+    );
+    return postsWithComments;
+};
+
+ 
+(async () => {
+    print(`User: ${name}, prefers ${theme} theme.`);
+
+    const enrichedPosts = await processPosts(posts);
+    
+    print('Enriched Posts:', enrichedPosts);
+})();

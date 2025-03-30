@@ -1,0 +1,33 @@
+class QuantumParticle {
+    #state;
+    constructor() {
+        this.#state = Math.random() > 0.5 ? '0' : '1';  
+    }
+    
+    static async superposition() {
+        const particles = [new QuantumParticle(), new QuantumParticle()];
+        return particles.map(p => p.measure());
+    }
+
+    measure() {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                this.#state = Math.random() > 0.5 ? '0' : '1';  
+                resolve(this.#state);
+            }, 1000);
+        });
+    }
+}
+
+(async () => {
+     
+    const measurements = await Promise.all(await QuantumParticle.superposition());
+    
+     
+    const [first, second] = measurements;
+    print(`Measurements are: ${first}, ${second}`);
+
+     
+    const result = measurements?.join(', ') ?? 'No measurements';
+    print(`Final result: ${result}`);
+})();

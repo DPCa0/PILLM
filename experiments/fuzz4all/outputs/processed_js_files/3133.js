@@ -1,0 +1,38 @@
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+async function processData() {
+    try {
+        const data = await Promise.all([
+            fetchData('https://jsonplaceholder.typicode.com/posts'),
+            fetchData('https://jsonplaceholder.typicode.com/users'),
+        ]);
+
+        const [posts, users] = data;
+
+        const enrichedPosts = posts.map(post => {
+            const user = users.find(user => user.id === post.userId);
+            return {
+                ...post,
+                username: user ? user.username : 'Unknown'
+            };
+        });
+
+        const sortedPosts = enrichedPosts.sort((a, b) => a.title.localeCompare(b.title));
+
+        const topFivePosts = sortedPosts.slice(0, 5);
+
+        topFivePosts.forEach(post => {
+            print(`Title: ${post.title}, Author: ${post.username}`);
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+processData();

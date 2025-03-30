@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    const fs = await import('fs/promises');
+    
+     
+    const handler = {
+        get(target, property) {
+            console.log(`Accessing property: ${property}`);
+            return Reflect.get(target, property);
+        },
+        set(target, property, value) {
+            console.log(`Setting property: ${property} to ${value}`);
+            return Reflect.set(target, property, value);
+        }
+    };
+
+    const obj = new Proxy({name: 'JavaScript', version: 'ES2023'}, handler);
+
+     
+    function* numberGenerator(limit) {
+        for (let i = 1; i <= limit; i++) {
+            yield i;
+        }
+    }
+
+    const gen = numberGenerator(5);
+    const numbers = Array.from(gen);
+
+     
+    const asyncReadFile = async (filename) => {
+        try {
+            const data = await fs.readFile(filename, 'utf-8');
+            return data;
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+     
+    const writeNumbersToFile = async (filename, numbers) => {
+        const data = numbers.join(', ');
+        await fs.writeFile(filename, data, 'utf-8');
+    };
+
+     
+    const squaredSum = numbers.map(num => num ** 2).reduce((acc, val) => acc + val, 0);
+
+    obj.version = `ES2023, Squared Sum: ${squaredSum}`;
+    console.log(obj.version);
+
+    await writeNumbersToFile('numbers.txt', numbers);
+    const fileContent = await asyncReadFile('numbers.txt');
+    console.log(`File content: ${fileContent}`);
+
+     
+    const uniqueNumbers = new Set([1, 1, 2, 2, 3, 4, 5]);
+    console.log(`Unique numbers: ${[...uniqueNumbers].join(', ')}`);
+})();
+```

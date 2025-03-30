@@ -1,0 +1,60 @@
+ 
+import { readFileSync } from 'fs';
+
+ 
+async function fetchData(fileName) {
+  try {
+    const data = await new Promise((resolve, reject) => {
+       
+      setTimeout(() => {
+        try {
+          const data = readFileSync(fileName, 'utf8');
+          resolve(data);
+        } catch (err) {
+          reject('Error reading file');
+        }
+      }, 1000);
+    });
+    return data;
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+ 
+function* dataProcessor(data) {
+  const lines = data.split('\n');
+  for (let line of lines) {
+    yield line.trim();
+  }
+}
+
+ 
+const handler = {
+  get: function(target, property) {
+    return property in target ? target[property] : 'Property does not exist';
+  },
+};
+
+const config = {
+  maxLines: 5,
+};
+
+const proxiedConfig = new Proxy(config, handler);
+
+ 
+(async () => {
+  try {
+    const fileData = await fetchData('example.txt');
+    const processor = dataProcessor(fileData);
+
+    let count = 0;
+    for (let line of processor) {
+      if (count >= proxiedConfig.maxLines) break;
+      print(`Processed Line ${count + 1}: ${line}`);
+      count++;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+})();

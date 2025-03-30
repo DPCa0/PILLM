@@ -1,0 +1,30 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    calculate(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        if (n <= 1) return n;
+        const value = this.calculate(n - 1) + this.calculate(n - 2);
+        this.memo.set(n, value);
+        return value;
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncFibonacciSequence(n) {
+    const fib = new Fibonacci();
+    for (let i = 0; i <= n; i++) {
+        await sleep(200);  
+        yield fib.calculate(i);
+    }
+}
+
+(async () => {
+    const fibSeq = asyncFibonacciSequence(10);
+    for await (const num of fibSeq) {
+        print(num);
+    }
+})();

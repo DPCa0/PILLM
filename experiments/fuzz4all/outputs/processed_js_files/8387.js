@@ -1,0 +1,50 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    subscribe(callback) {
+        this.subscribers.add(callback);
+        return () => this.subscribers.delete(callback);
+    }
+    notify(data) {
+        this.subscribers.forEach(callback => callback(data));
+    }
+}
+
+const debounce = (func, delay) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), delay);
+    };
+};
+
+const fetchUserData = async (userId) => {
+    const response = await fetch(`https: 
+    return response.json();
+};
+
+const userObservable = new Observable();
+
+const debouncedFetchUserData = debounce(async (userId) => {
+    const data = await fetchUserData(userId);
+    userObservable.notify(data);
+}, 300);
+
+userObservable.subscribe(data => {
+    print('User Data:', data);
+});
+
+['1', '2', '3'].forEach(userId => debouncedFetchUserData(userId));
+
+(async () => {
+    try {
+        const user = await Promise.race([
+            fetchUserData(1),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 2000))
+        ]);
+        print('Fastest User Data:', user);
+    } catch (error) {
+        console.error(error.message);
+    }
+})();

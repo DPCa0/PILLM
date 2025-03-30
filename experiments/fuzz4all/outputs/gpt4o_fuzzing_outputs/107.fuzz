@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`GET ${prop}: ${target[prop]}`);
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} does not exist.`);
+        }
+    },
+    set(target, prop, value) {
+        if (typeof value === 'number') {
+            console.log(`SET ${prop} = ${value}`);
+            target[prop] = value;
+            return true;
+        } else {
+            throw new Error('Value must be a number');
+        }
+    }
+};
+
+const data = { score: 10, level: 1 };
+const proxyData = new Proxy(data, handler);
+
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+const fibGen = fibonacci();
+
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const scores = new Map();
+scores.set('Alice', 90);
+scores.set('Bob', 85);
+
+const uniqueLevels = new Set([1, 2, 3, 4, 4, 3]);
+
+ 
+proxyData.score = 20;
+console.log('Fibonacci:', fibGen.next().value);  
+console.log('Unique Levels:', [...uniqueLevels]);  
+console.log('Alice\'s Score:', scores.get('Alice'));  
+
+fetchData('https://jsonplaceholder.typicode.com/todos/1');
+```

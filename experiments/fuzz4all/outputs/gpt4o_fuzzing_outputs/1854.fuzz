@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+import { writeFileSync } from 'fs';
+import crypto from 'crypto';
+
+ 
+(async () => {
+  try {
+     
+    const asyncTask = () => new Promise((resolve) => setTimeout(() => resolve('Task Completed'), 1000));
+
+    const taskResult = await asyncTask();
+    console.log(taskResult);  
+
+     
+    const user = { name: 'Alice', age: 30 };
+    const { name, age } = user;
+    console.log(`User: ${name}, Age: ${age}`);
+
+     
+    const numbers = [1, 2, 3];
+    const square = (num) => num * num;
+    const squaredNumbers = numbers.map((num) => square(num));
+    console.log('Squared Numbers:', ...squaredNumbers);
+
+     
+    const duplicateNumbers = [1, 2, 2, 3, 3, 4];
+    const uniqueNumbers = Array.from(new Set(duplicateNumbers));
+    console.log('Unique Numbers:', ...uniqueNumbers);
+
+     
+    const hash = crypto.createHash('sha256').update('Hello, world!').digest('hex');
+    console.log('SHA-256 Hash:', hash);
+
+     
+    writeFileSync('result.txt', `Result: ${taskResult}\nHash: ${hash}`);
+    console.log('File Written Successfully');
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

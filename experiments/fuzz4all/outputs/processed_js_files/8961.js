@@ -1,0 +1,41 @@
+class Fibonacci {
+  constructor(limit) {
+    this.limit = limit;
+    this.memo = new Map();
+  }
+
+  *generate() {
+    let a = 0, b = 1, i = 0;
+    while (i < this.limit) {
+      yield a;
+      [a, b] = [b, a + b];
+      i++;
+    }
+  }
+}
+
+async function processFibonacci(limit) {
+  const fibonacci = new Fibonacci(limit);
+  const results = [];
+  for (let num of fibonacci.generate()) {
+    results.push(num);
+  }
+  return results;
+}
+
+async function main() {
+  try {
+    const limit = 10;
+    const fibSequence = await processFibonacci(limit);
+    const doubled = fibSequence.map(num => num * 2);
+
+    const result = doubled.filter(num => num % 4 === 0)
+                          .reduce((acc, curr) => acc + curr, 0);
+
+    print(`Sum of doubled Fibonacci numbers divisible by 4: ${result}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+}
+
+main();

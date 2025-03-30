@@ -1,0 +1,55 @@
+ 
+
+ 
+function* dataProducer() {
+    yield* ['Apple', 'Banana', 'Cherry'];
+}
+
+ 
+async function fetchData(item) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Fetched ${item}`), 1000);
+    });
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        }
+        return `Property ${prop} not found`;
+    },
+};
+
+ 
+const PROCESS_DATA = Symbol('processData');
+
+ 
+class DataProcessor {
+    constructor() {
+        this.results = [];
+        return new Proxy(this, handler);
+    }
+
+     
+    async [PROCESS_DATA](dataGenerator) {
+        for (const item of dataGenerator) {
+            const result = await fetchData(item);
+            this.results.push(result);
+        }
+    }
+
+    async process() {
+        const dataGen = dataProducer();
+        await this[PROCESS_DATA](dataGen);
+        print(this.results);
+    }
+}
+
+ 
+const processor = new DataProcessor();
+processor.process();
+
+ 
+print(processor.nonExistingProperty);  

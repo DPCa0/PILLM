@@ -1,0 +1,46 @@
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve('Data fetched!'), 1000);
+  });
+}
+
+ 
+class Processor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+
+  process() {
+    return `Processed: ${this.#data}`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'process') {
+      return function() {
+        print('Intercepted process call');
+        return target[prop]();
+      }
+    }
+    return target[prop];
+  }
+};
+
+ 
+(async () => {
+  const data = await fetchData();
+  const processor = new Processor(data);
+
+   
+  const proxy = new Proxy(processor, handler);
+
+   
+  const tag = (strings, expr) => `${strings[0]}***${expr.toUpperCase()}***${strings[1]}`;
+  
+  print(tag`Result: ${proxy.process()}`);
+})();

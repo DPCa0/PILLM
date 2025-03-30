@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+class RandomNumberStream {
+  constructor(limit) {
+    this.limit = limit;
+    this.count = 0;
+  }
+
+  [Symbol.asyncIterator]() {
+    return {
+      next: () => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            if (this.count < this.limit) {
+              this.count++;
+              resolve({ value: Math.random(), done: false });
+            } else {
+              resolve({ done: true });
+            }
+          }, 1000);
+        });
+      },
+    };
+  }
+}
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    }
+    return () => console.log(`Property ${String(prop)} does not exist`);
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'number' && value > 0) {
+      return Reflect.set(target, prop, value);
+    }
+    throw new TypeError('Value must be a positive number');
+  },
+};
+
+const proxy = new Proxy(new RandomNumberStream(3), handler);
+
+(async () => {
+  try {
+    proxy.limit = 5;  
+    for await (const number of proxy) {
+      console.log(`Random number: ${number.toFixed(2)}`);
+    }
+
+    proxy.nonExistentMethod();  
+
+    proxy.limit = -1;  
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

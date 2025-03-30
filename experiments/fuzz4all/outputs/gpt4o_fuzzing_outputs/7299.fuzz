@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const fetchData = async () => {
+    console.log("Fetching data...");
+    await delay(1000);
+    const data = { message: "Hello, async world!", timestamp: new Date().toISOString() };
+    console.log("Data fetched");
+    return data;
+  };
+
+  const processData = data => {
+    const { message, timestamp } = data;
+    const formattedMessage = `${message} (Received at: ${new Date(timestamp).toLocaleTimeString()})`;
+    return formattedMessage;
+  };
+
+  const displayData = formattedMessage => {
+    const container = document.createElement('div');
+    container.style.fontSize = '20px';
+    container.style.margin = '20px';
+    container.style.padding = '10px';
+    container.style.border = '1px solid #ccc';
+    container.style.backgroundColor = '#f9f9f9';
+    container.textContent = formattedMessage;
+    document.body.appendChild(container);
+  };
+
+  try {
+    const data = await fetchData();
+    const formattedMessage = processData(data);
+    displayData(formattedMessage);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();
+```

@@ -1,0 +1,41 @@
+ 
+class AsyncIterator {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = 0; i < this.data.length; i++) {
+       
+      await new Promise(resolve => setTimeout(resolve, 100));
+      yield this.data[i];
+    }
+  }
+}
+
+const processData = async (data) => {
+  const asyncIterator = new AsyncIterator(data);
+  let results = [];
+
+  for await (const item of asyncIterator) {
+    results.push(item ** 2);
+  }
+
+  return results;
+};
+
+const main = async () => {
+  const data = Array.from({ length: 5 }, (_, i) => i + 1);  
+  const squaredData = await processData(data);
+  
+  const formatResult = ({ label, values }) => ({
+    label,
+    values: values.map((value, index) => ({ index, value }))
+  });
+
+  const result = formatResult({ label: 'Squared Numbers', values: squaredData });
+
+  print(JSON.stringify(result, null, 2));
+};
+
+main();

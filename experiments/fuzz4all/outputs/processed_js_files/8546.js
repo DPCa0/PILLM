@@ -1,0 +1,33 @@
+ 
+
+function* numberGenerator(limit) {
+    for (let i = 0; i <= limit; i++) {
+        yield i;
+    }
+}
+
+async function fetchNumberFact(number) {
+    const response = await fetch(`http: 
+    if (!response.ok) throw new Error('Failed to fetch number fact');
+    const data = await response.json();
+    return data;
+}
+
+const processNumbers = async (limit) => {
+    const generator = numberGenerator(limit);
+    let result = generator.next();
+    while (!result.done) {
+        try {
+            const { number, text: fact } = await fetchNumberFact(result.value);
+            print(`Number: ${number}, Fact: ${fact}`);
+        } catch (error) {
+            console.error(error.message);
+        }
+        result = generator.next();
+    }
+};
+
+(async () => {
+    const limit = 5;
+    await processNumbers(limit);
+})();

@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching data failed:', error);
+    throw error;
+  }
+};
+
+const processData = (data) => {
+  const { title, author, publication_date } = data;
+  return { title, author, publishedYear: new Date(publication_date).getFullYear() };
+};
+
+const displayData = ({ title, author, publishedYear }) => {
+  console.log(`Title: ${title}`);
+  console.log(`Author: ${author}`);
+  console.log(`Published Year: ${publishedYear}`);
+};
+
+const main = async () => {
+  const urls = [
+    'https://api.example.com/book1',
+    'https://api.example.com/book2',
+    'https://api.example.com/book3'
+  ];
+
+  try {
+    const fetchPromises = urls.map(url => fetchData(url));
+    const results = await Promise.all(fetchPromises);
+
+    const processedResults = results.map(result => processData(result));
+    processedResults.forEach(displayData);
+  } catch (error) {
+    console.error('Error in main execution:', error);
+  }
+};
+
+main();
+```

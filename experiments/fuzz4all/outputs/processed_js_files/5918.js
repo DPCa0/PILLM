@@ -1,0 +1,71 @@
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        let data = await response.json();
+        print('Fetched Data:', data);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const handler = {
+    set: function(target, property, value) {
+        if (property === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new TypeError('Age must be a positive number');
+        }
+        target[property] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, handler);
+
+try {
+    person.name = 'Alice';
+    person.age = 30;
+    print('Person:', person);
+    person.age = -1;  
+} catch (error) {
+    console.error(error);
+}
+
+ 
+function* numberGenerator() {
+    let number = 1;
+    while (true) {
+        yield number++;
+    }
+}
+
+const gen = numberGenerator();
+print('Generated Numbers:', gen.next().value, gen.next().value, gen.next().value);
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const [first, second, ...rest] = numbers;
+print('First:', first, 'Second:', second, 'Rest:', rest);
+
+ 
+const map = new Map([
+    ['key1', 'value1'],
+    ['key2', 'value2']
+]);
+
+const set = new Set([1, 2, 3, 4, 4]);
+print('Map:', map, 'Set:', set);
+
+ 
+function tag(strings, ...expressions) {
+    const result = strings.reduce((acc, str, i) => acc + str + (expressions[i] || ''), '');
+    return result.toUpperCase();
+}
+
+const name = 'John';
+const greeting = tag`Hello, ${name}! Welcome to the world of JavaScript.`;
+print('Tagged Template:', greeting);
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');

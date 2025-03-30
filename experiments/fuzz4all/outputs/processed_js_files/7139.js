@@ -1,0 +1,37 @@
+ 
+(async () => {
+  const { readFileSync } = await import('fs');
+
+   
+  const packageJson = JSON.parse(readFileSync('./package.json', 'utf8'));
+
+   
+  const loggerProxy = new Proxy(packageJson, {
+    get(target, prop, receiver) {
+      print(`Property '${prop.toString()}' accessed.`);
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+   
+  async function fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2',
+    'https://jsonplaceholder.typicode.com/posts/3',
+  ];
+
+  const results = await Promise.all(urls.map(fetchData));
+
+   
+  results.forEach(({ id, title }) =>
+    console.log(`Fetched Post ID: ${id}, Title: "${title}"`)
+  );
+
+   
+  print(`Package Name: ${loggerProxy.name}`);
+})().catch(console.error);

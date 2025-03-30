@@ -1,0 +1,39 @@
+ 
+const fetchUserData = async (userId) => {
+     
+    const fetchData = (id) => new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                id,
+                name: `User${id}`,
+                email: `user${id}@example.com`
+            };
+             
+            Math.random() > 0.1 ? resolve(data) : reject('Failed to fetch data');
+        }, 1000);
+    });
+
+    try {
+         
+        const user = await fetchData(userId);
+        print(`User Data: ${JSON.stringify(user, null, 2)}`);
+    } catch (error) {
+        console.error(`Error fetching user data: ${error}`);
+    }
+};
+
+ 
+const userPromises = Array.from({ length: 5 }, (_, index) => fetchUserData(index + 1));
+
+ 
+Promise.allSettled(userPromises)
+    .then(results => {
+        results.forEach((result, idx) => {
+            if (result.status === 'fulfilled') {
+                print(`Fetch successful for User${idx + 1}`);
+            } else {
+                print(`Fetch failed for User${idx + 1}: ${result.reason}`);
+            }
+        });
+    })
+    .catch(error => console.error(`Unexpected error: ${error}`));

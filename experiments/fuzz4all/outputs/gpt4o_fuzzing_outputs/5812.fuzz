@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+async function* fetchData() {
+    const data = [1, 2, 3, 4, 5];
+    for (const item of data) {
+        yield new Promise(resolve => setTimeout(() => resolve(item), 1000));
+    }
+}
+
+ 
+const target = {
+    data: []
+};
+
+const handler = {
+    set(obj, prop, value) {
+        if (prop === 'data') {
+            console.log(`Data being set: ${value}`);
+            obj[prop] = value.map(x => x * 2);  
+            return true;
+        }
+        return Reflect.set(obj, prop, value);
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+(async () => {
+    const dataStream = fetchData();
+    for await (const num of dataStream) {
+        console.log(`Received: ${num}`);
+        proxy.data = [...proxy.data, num];  
+        console.log(`Processed Data: ${proxy.data}`);
+    }
+})();
+```

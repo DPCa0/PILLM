@@ -1,0 +1,44 @@
+ 
+
+ 
+import { complexOperation } from './complexModule.js';
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+};
+
+ 
+const advancedFunction = async (urlList) => {
+  try {
+     
+    const dataPromises = urlList.map((url) => fetchData(url));
+    const results = await Promise.all(dataPromises);
+
+     
+    const formattedResults = results.map(({ data }) => data);
+
+     
+    const summary = complexOperation(...formattedResults);
+    print(`Summary of fetched data: ${summary}`);
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+};
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+ 
+advancedFunction(urls);
+
+ 
+ 
+ 
+ 
+
+This program showcases the usage of ES6+ features like modules, async/await, destructuring, and template literals in a structured manner. It assumes that `complexModule.js` is another JavaScript file in the same directory, exporting the `complexOperation` function.

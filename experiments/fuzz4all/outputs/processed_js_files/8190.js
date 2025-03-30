@@ -1,0 +1,47 @@
+class Fibonacci {
+  #sequenceCache = new Map();
+
+  constructor(maxLimit) {
+    this.maxLimit = maxLimit;
+    this.#generateSequence();
+  }
+
+  *[Symbol.iterator]() {
+    for (let value of this.#sequenceCache.values()) {
+      yield value;
+    }
+  }
+
+  #generateSequence() {
+    const calculateFib = (n) => {
+      if (n <= 1) return n;
+      if (this.#sequenceCache.has(n)) return this.#sequenceCache.get(n);
+      const result = calculateFib(n - 1) + calculateFib(n - 2);
+      this.#sequenceCache.set(n, result);
+      return result;
+    };
+
+    let n = 0;
+    let fib;
+    do {
+      fib = calculateFib(n);
+      this.#sequenceCache.set(n, fib);
+      n++;
+    } while (fib <= this.maxLimit);
+  }
+
+  static async processFibonacci(maxLimit, callback) {
+    const fibInstance = new Fibonacci(maxLimit);
+    for await (let value of fibInstance) {
+      callback(value);
+    }
+  }
+}
+
+(async () => {
+  const logValue = (value) => {
+    print(`Fibonacci value: ${value}`);
+  };
+
+  await Fibonacci.processFibonacci(1000, logValue);
+})();

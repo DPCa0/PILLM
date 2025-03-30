@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* generateNumbers() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function getRandomDelayNumber(generator) {
+    const num = generator.next().value;
+     
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 1000));
+    return num;
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set: (target, prop, value) => {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+ 
+const obj = { count: 0 };
+
+ 
+const proxyObj = new Proxy(obj, handler);
+
+ 
+async function main() {
+    const generator = generateNumbers();
+
+     
+    for (let i = 0; i < 5; i++) {
+        const num = await getRandomDelayNumber(generator);
+        proxyObj.count = num;
+        console.log(`Generated number: ${proxyObj.count}`);
+    }
+}
+
+ 
+main();
+```

@@ -1,0 +1,45 @@
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *filterData(criteria) {
+    for (const item of this.data) {
+      if (criteria(item)) {
+        yield item;
+      }
+    }
+  }
+
+  async processData() {
+    const [first, ...rest] = this.data;
+    const fetchedData = await this.fetchAdditionalData(first.id);
+    return [...rest, ...fetchedData];
+  }
+
+  async fetchAdditionalData(id) {
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('Network response was not ok');
+    const result = await response.json();
+    return result;
+  }
+}
+
+(async () => {
+  const initialData = [{ id: 1, value: 'a' }, { id: 2, value: 'b' }, { id: 3, value: 'c' }];
+  const processor = new DataProcessor(initialData);
+
+  const criteria = (item) => item.value !== 'b';
+  for (const item of processor.filterData(criteria)) {
+    print('Filtered Item:', item);
+  }
+
+  try {
+    const processedData = await processor.processData();
+    print('Processed Data:', processedData);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();

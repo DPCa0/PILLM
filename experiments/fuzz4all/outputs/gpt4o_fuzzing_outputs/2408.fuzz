@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { readFile } = await import('fs/promises');
+
+   
+  async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  }
+
+   
+  const displayUserInfo = ({ name, age, location }) => {
+    console.log(`User: ${name} is ${age} years old and lives in ${location}.`);
+  };
+
+   
+  function* numberGenerator() {
+    let num = 0;
+    while (true) {
+      yield num++;
+    }
+  }
+
+   
+  (async () => {
+    const [userData, fileContent] = await Promise.all([
+      fetchData('https://jsonplaceholder.typicode.com/users/1'),
+      readFile('./sample.txt', 'utf8')
+    ]);
+
+    displayUserInfo({ name: userData.name, age: 30, location: 'Unknown' });
+
+    const numbers = numberGenerator();
+    console.log(`Next number: ${numbers.next().value}`);
+
+    console.log(`File content: ${fileContent}`);
+  })();
+})();
+```

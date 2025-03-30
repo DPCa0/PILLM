@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => setTimeout(() => resolve("Data loaded!"), 1000));
+
+ 
+function* dataGenerator() {
+    yield fetchData();
+    yield fetchData();
+    yield fetchData();
+}
+
+ 
+const handler = {
+    get(target, property) {
+        console.log(`Accessed property "${property}"`);
+        return target[property];
+    },
+    apply(target, thisArg, argumentsList) {
+        console.log(`Called function with args: ${argumentsList}`);
+        return target.apply(thisArg, argumentsList);
+    }
+};
+
+ 
+async function processData(gen) {
+    for (let promise of gen) {
+        const data = await promise;
+        console.log(data);
+    }
+}
+
+ 
+const proxiedGenerator = new Proxy(dataGenerator, handler);
+const generatorInstance = proxiedGenerator();
+
+ 
+processData(generatorInstance);
+```

@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async *asyncGenerator() {
+        for (let item of this.data) {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            yield item * 2;
+        }
+    }
+
+    static #privateHelperMethod(value) {
+        return value ** 2;
+    }
+
+    async processData() {
+        const results = [];
+        for await (let value of this.asyncGenerator()) {
+            results.push(AsyncProcessor.#privateHelperMethod(value));
+        }
+        return results;
+    }
+}
+
+const runComplexFeatures = async () => {
+    const data = [1, 2, 3, 4, 5];
+    const processor = new AsyncProcessor(data);
+
+    try {
+        const result = await processor.processData();
+        console.log(result);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+runComplexFeatures();
+```

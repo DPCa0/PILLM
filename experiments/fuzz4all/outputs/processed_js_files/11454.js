@@ -1,0 +1,45 @@
+ 
+
+ 
+const database = new Map([
+  [1, { id: 1, name: 'Alice', age: 30 }],
+  [2, { id: 2, name: 'Bob', age: 25 }],
+  [3, { id: 3, name: 'Charlie', age: 35 }],
+]);
+
+ 
+const fetchUserData = (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const user = database.get(userId);
+      if (user) {
+        resolve(user);
+      } else {
+        reject(new Error('User not found'));
+      }
+    }, 1000);
+  });
+};
+
+ 
+const formatUserData = ({ id, name, age }) => {
+  return `User Info:\nID: ${id}\nName: ${name}\nAge: ${age}`;
+};
+
+ 
+(async () => {
+  try {
+    const userIds = [1, 2, 3];
+    const userPromises = userIds.map((id) => fetchUserData(id));
+
+     
+    const usersData = await Promise.all(userPromises);
+
+     
+    usersData.forEach((userData) => {
+      print(formatUserData(userData));
+    });
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

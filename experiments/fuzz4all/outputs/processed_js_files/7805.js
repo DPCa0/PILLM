@@ -1,0 +1,48 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+const debounce = (func, delay) => {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  emitter.on('dataReceived', debounce(data => print('Data:', data), 300));
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts');
+    emitter.emit('dataReceived', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+
+  await sleep(500);  
+  emitter.emit('dataReceived', { title: 'Delayed Event Triggered' });
+})();

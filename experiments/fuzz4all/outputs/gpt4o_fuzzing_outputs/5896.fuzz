@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { users: [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }] } });
+    }, 1000);
+  });
+}
+
+ 
+function* userFetcher(url) {
+  const response = yield fetchData(url);
+  return response.data.users;
+}
+
+ 
+const loggerHandler = {
+  get(target, prop) {
+    if (typeof target[prop] === 'function') {
+      return (...args) => {
+        console.log(`Calling method: ${prop}`);
+        return target[prop](...args);
+      };
+    }
+    return target[prop];
+  }
+};
+
+const logger = new Proxy(console, loggerHandler);
+
+(async function main() {
+  logger.log('Starting fetch...');
+  const url = 'https://api.example.com/users';
+
+  const iterator = userFetcher(url);
+  const { value: fetchPromise } = iterator.next();
+
+  try {
+    const users = await fetchPromise;
+    const { value: usersArray } = iterator.next(users);
+
+     
+    const userNames = usersArray.map(({ name }) => name);
+    logger.log('User Names:', userNames);
+
+  } catch (error) {
+    logger.error('Fetch Error:', error);
+  }
+})();
+```

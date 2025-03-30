@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const ID = Symbol('id');
+
+ 
+async function fetchData(url) {
+  const cache = new Map();
+
+   
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop === 'get') {
+        return async function (key) {
+          if (cache.has(key)) {
+            console.log('Serving from cache:', key);
+            return cache.get(key);
+          } else {
+            console.log('Fetching:', key);
+            const response = await fetch(url + key);
+            const data = await response.json();
+            cache.set(key, data);
+            return data;
+          }
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  const proxy = new Proxy({}, handler);
+  return proxy;
+}
+
+ 
+(async () => {
+  const api = await fetchData('https://jsonplaceholder.typicode.com/posts/');
+  
+  const ids = [1, 2, 3, 1];  
+
+   
+  for (let id of ids) {
+    const post = await api.get(id);
+    post[ID] = id;  
+    console.log(`Post ID [${post[ID]}]:`, post);
+  }
+})();
+```

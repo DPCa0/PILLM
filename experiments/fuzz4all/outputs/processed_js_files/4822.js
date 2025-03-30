@@ -1,0 +1,43 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const withRetry = async (fn, retries = 3, delay = 1000) => {
+  let lastError;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      console.warn(`Retry attempt ${i + 1} failed. Retrying in ${delay}ms...`);
+      await timeout(delay);
+    }
+  }
+  throw lastError;
+};
+
+const processData = (data) => {
+  const result = data.map(item => ({
+    id: item.id,
+    name: item.name.toUpperCase(),
+    isActive: item.isActive ? 'Yes' : 'No',
+  }));
+  return result.reduce((acc, curr) => {
+    acc[curr.isActive] = (acc[curr.isActive] || 0) + 1;
+    return acc;
+  }, {});
+};
+
+(async () => {
+  try {
+    const data = await withRetry(() => fetchData('https://jsonplaceholder.typicode.com/users'));
+    const processed = processData(data);
+    print(processed);
+  } catch (error) {
+    console.error('Failed to fetch or process data:', error);
+  }
+})();

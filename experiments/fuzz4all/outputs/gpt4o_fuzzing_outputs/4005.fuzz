@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    const matrix = new Matrix(arr.length, arr[0].length);
+    matrix.map((_, i, j) => arr[i][j]);
+    return matrix;
+  }
+
+  static multiply(a, b) {
+    if (a.data[0].length !== b.data.length) {
+      throw new Error('Columns of A must match rows of B');
+    }
+    return new Matrix(a.data.length, b.data[0].length)
+      .map((_, i, j) => a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0));
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  static identity(size) {
+    return new Matrix(size, size).map((_, i, j) => i === j ? 1 : 0);
+  }
+
+  print() {
+    console.table(this.data);
+  }
+}
+
+const applyActivation = (matrix, activation = x => 1 / (1 + Math.exp(-x))) => {
+  return matrix.map((val) => activation(val));
+};
+
+const main = () => {
+  const A = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6]
+  ]);
+
+  const B = Matrix.fromArray([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+  ]);
+
+  try {
+    const C = Matrix.multiply(A, B);
+    C.print();
+
+    const activated = applyActivation(C);
+    activated.print();
+
+    const I = Matrix.identity(3);
+    I.print();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+main();
+```

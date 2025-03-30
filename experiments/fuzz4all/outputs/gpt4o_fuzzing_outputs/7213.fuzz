@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+ 
+const _id = Symbol('id');
+
+ 
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+        this[_id] = Math.random().toString(36).substring(2);
+    }
+
+     
+    getId() {
+        return this[_id];
+    }
+
+     
+    static compareAge(user1, user2) {
+        return user1.age - user2.age;
+    }
+}
+
+ 
+const userValidator = {
+    set: (obj, prop, value) => {
+        if (prop === 'age' && (typeof value !== 'number' || value <= 0)) {
+            throw new TypeError('Age must be a positive number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+ 
+async function fetchUserData(user) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ message: `User data for ${user.name} fetched!` });
+        }, 1000);
+    });
+}
+
+ 
+const user1 = new Proxy(new User('Alice', 30), userValidator);
+const user2 = new Proxy(new User('Bob', 25), userValidator);
+
+ 
+(async () => {
+    const results = await Promise.all([fetchUserData(user1), fetchUserData(user2)]);
+    results.forEach(result => console.log(result.message));
+
+     
+    const { name: name1, age: age1 } = user1;
+    const { name: name2, age: age2 } = user2;
+
+    console.log(`Comparing ages: ${name1} (${age1}) vs ${name2} (${age2})`);
+    console.log(`Result: ${User.compareAge(user1, user2)}`);
+})();
+
+ 
+const userExtras = new Map();
+userExtras.set(user1, { hobby: 'Cycling', city: 'New York' });
+userExtras.set(user2, { hobby: 'Reading', city: 'Los Angeles' });
+
+ 
+for (const [user, extras] of userExtras) {
+    console.log(`${user.name}'s hobby is ${extras.hobby}

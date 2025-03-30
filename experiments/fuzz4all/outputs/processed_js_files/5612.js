@@ -1,0 +1,40 @@
+ 
+
+ 
+export const add = (a, b) => a + b;
+export const multiply = (a, b) => a * b;
+
+ 
+export const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+import { add, multiply } from './mathUtils.js';
+import { fetchData } from './fetchData.js';
+
+const processNumbers = (numbers) => {
+  const [first, second, third] = numbers;
+  return `Sum: ${add(first, second)}, Product: ${multiply(second, third)}`;
+};
+
+const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+(async () => {
+  const data = await fetchData(url);
+  if (data) {
+    const { userId, id, title } = data;
+    print(`Data from API - UserID: ${userId}, ID: ${id}, Title: ${title}`);
+
+    const numbers = [3, 7, 2];
+    print(processNumbers(numbers));
+  }
+})();
+Note: Make sure to run this code in an environment that supports ES6 modules and has access to the internet for the fetch API call to work.

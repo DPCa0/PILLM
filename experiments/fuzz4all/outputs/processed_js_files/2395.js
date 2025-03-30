@@ -1,0 +1,55 @@
+class Matrix {
+  constructor(rows, cols, defaultValue = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(defaultValue));
+  }
+
+  static fromArray(arr) {
+    return new Matrix(arr.length, 1, arr);
+  }
+
+  static map(matrix, func) {
+    return new Matrix(matrix.rows, matrix.cols).map((_, i, j) => func(matrix.data[i][j], i, j));
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) =>
+      row.map((val, j) => func(val, i, j))
+    );
+    return this;
+  }
+
+  multiply(other) {
+    if (other instanceof Matrix) {
+      if (this.cols !== other.rows) throw new Error('Columns of A must match rows of B.');
+      return new Matrix(this.rows, other.cols).map((_, i, j) =>
+        this.data[i].reduce((sum, el, k) => sum + el * other.data[k][j], 0)
+      );
+    } else {
+      return this.map(val => val * other);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    print(`Accessing property: ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    print(`Setting property: ${prop} with value:`, value);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const matrixA = new Proxy(new Matrix(2, 3), handler);
+const matrixB = new Proxy(new Matrix(3, 2), handler);
+
+matrixA.map(() => Math.random() * 10);
+matrixB.map(() => Math.random() * 10);
+
+const result = matrixA.multiply(matrixB);
+print('Result Matrix:', result.data);

@@ -1,0 +1,34 @@
+ 
+
+ 
+const fakeApiCall = (response, delay) => new Promise(resolve => setTimeout(() => resolve(response), delay));
+
+ 
+function* fetchUserData() {
+    yield fakeApiCall({ id: 1, name: 'Alice' }, 1000);
+    yield fakeApiCall({ id: 2, name: 'Bob' }, 2000);
+    yield fakeApiCall({ id: 3, name: 'Charlie' }, 1500);
+}
+
+ 
+async function getUserData() {
+    const iterator = fetchUserData();
+    let results = [];
+    for (let result = iterator.next(); !result.done; result = iterator.next()) {
+         
+        const userData = await result.value;
+        const { id, name } = userData;
+        results.push({ id, name });
+    }
+    return results;
+}
+
+ 
+(async () => {
+    try {
+        const data = await getUserData();
+        print('Fetched user data:', data);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+})();

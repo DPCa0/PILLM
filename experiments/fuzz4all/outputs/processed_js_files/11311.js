@@ -1,0 +1,35 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url)
+      .then(response => response.json())
+      .catch(error => ({ error: `Failed to fetch ${url}: ${error}` }));
+  }
+}
+
+async function processUrls(urls) {
+  const results = [];
+
+   
+  for await (const dataPromise of fetchData(urls)) {
+    const { error, data } = dataPromise;
+    if (error) {
+      print(error);
+    } else {
+      const { name, age } = data;
+      results.push({ name, age });
+    }
+  }
+
+  return results;
+}
+
+const urls = [
+  'https://api.example.com/user/1',
+  'https://api.example.com/user/2',
+  'https://api.example.com/user/3',
+];
+
+processUrls(urls)
+  .then(results => console.log('Processed Data:', results))
+  .catch(err => console.error('Error processing URLs:', err));

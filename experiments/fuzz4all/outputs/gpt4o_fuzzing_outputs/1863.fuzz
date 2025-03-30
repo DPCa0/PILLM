@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+const api = {
+    fetchUserData: async () => {
+         
+        return new Promise((resolve) => {
+            setTimeout(() => resolve({ name: 'John Doe', age: 30, email: 'john@example.com' }), 1000);
+        });
+    }
+};
+
+ 
+const createUserProxy = (user) => {
+    return new Proxy(user, {
+        get: (target, property) => {
+            console.log(`Accessing property: ${property}`);
+            return target[property];
+        },
+        set: (target, property, value) => {
+            console.log(`Setting property: ${property} to ${value}`);
+            target[property] = value;
+            return true;
+        }
+    });
+};
+
+ 
+const processUserData = async () => {
+    const userData = await api.fetchUserData();
+    
+     
+    const { name, ...rest } = userData;
+    
+     
+    const userProxy = createUserProxy(rest);
+    
+    console.log(`User Name: ${name}`);
+    console.log(`User Details (Proxied): ${JSON.stringify(userProxy)}`);
+    
+     
+    userProxy.email = 'john.doe@example.com';
+};
+
+processUserData();
+```

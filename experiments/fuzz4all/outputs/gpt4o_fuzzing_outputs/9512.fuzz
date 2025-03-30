@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+const randomDelay = (msg) => new Promise((resolve) => {
+    const delay = Math.floor(Math.random() * 1000);
+    setTimeout(() => resolve(msg), delay);
+});
+
+ 
+async function* asyncGenerator() {
+    for (const msg of ["Hello", "World", "from", "JavaScript"]) {
+        yield await randomDelay(msg);
+    }
+}
+
+ 
+(async () => {
+    console.log("Starting async iteration:");
+    for await (const msg of asyncGenerator()) {
+        console.log(msg);
+    }
+    console.log("Async iteration complete!");
+})();
+
+ 
+const nums = [1, 2, 3, 4, 5];
+const advancedManipulation = nums
+    .map(num => ({ original: num, squared: num ** 2 }))
+    .filter(obj => obj.squared % 2 === 0)
+    .reduce((acc, obj) => acc + obj.squared, 0);
+
+console.log("Advanced manipulation result:", advancedManipulation);
+
+ 
+const handler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : `Property "${prop}" not found`),
+    set: (obj, prop, value) => {
+        console.log(`Setting value ${value} to property "${prop}"`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+console.log(proxy.a);  
+console.log(proxy.nonExistent);  
+proxy.c = 3;  
+console.log(proxy.c);  
+```

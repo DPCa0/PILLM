@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    Math.random() > 0.5 ? resolve('Success!') : reject('Failure!');
+  }, 1000);
+});
+
+const complexFunction = async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('done', (message) => {
+    console.log('Event Received:', message);
+  });
+
+  eventEmitter.on('error', (error) => {
+    console.error('Error:', error);
+  });
+
+  try {
+    const result = await asyncOperation();
+    eventEmitter.emit('done', result);
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+};
+
+complexFunction();
+```

@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('Invalid URL');
+      }
+    }, 1000);
+  });
+};
+
+ 
+async function displayData(urls) {
+  try {
+    const results = [];
+    for (let url of urls) {
+      const data = await fetchData(url);
+      console.log(data);
+      results.push(data);
+    }
+    return results;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+const urls = new Set(['https://api.example.com/data1', 'https://api.example.com/data2']);
+
+ 
+const urlStatusMap = new Map();
+
+ 
+const statusHandler = {
+  set(target, property, value) {
+    console.log(`Setting status of ${property} to ${value}`);
+    target.set(property, value);
+    return true;
+  },
+  get(target, property) {
+    console.log(`Getting status of ${property}`);
+    return target.get(property);
+  },
+};
+
+const proxyUrlStatusMap = new Proxy(urlStatusMap, statusHandler);
+
+(async () => {
+  for (let url of urls) {
+    proxyUrlStatusMap[url] = 'Fetching';
+  }
+  const results = await displayData(urls);
+  if (results) {
+    for (let url of urls) {
+      proxyUrlStatusMap[url] = 'Fetched';
+    }
+  }
+})();
+
+ 
+console.log(proxyUrlStatusMap['https://api.example.com/data1']);
+```

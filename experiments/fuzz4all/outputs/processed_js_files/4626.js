@@ -1,0 +1,49 @@
+ 
+class DataFetcher {
+  constructor() {
+    this.dataCache = new Map();
+  }
+
+  fetchData(url) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const data = { data: `Fetched data from ${url}` };
+        this.dataCache.set(url, data);
+        resolve(data);
+      }, 1000);
+    });
+  }
+}
+
+function* urlGenerator(urls) {
+  for (let url of urls) {
+    yield url;
+  }
+}
+
+const fetcher = new DataFetcher();
+
+const proxyFetcher = new Proxy(fetcher, {
+  get(target, propKey) {
+    const origMethod = target[propKey];
+    return function(...args) {
+      print(`Called method ${propKey} with args: ${args}`);
+      return origMethod.apply(target, args);
+    };
+  },
+});
+
+async function main() {
+  const urls = urlGenerator(["/api/data1", "/api/data2", "/api/data3"]);
+
+  for (const url of urls) {
+    try {
+      const data = await proxyFetcher.fetchData(url);
+      print(data);
+    } catch (error) {
+      console.error("Failed to fetch data:", error);
+    }
+  }
+}
+
+main();

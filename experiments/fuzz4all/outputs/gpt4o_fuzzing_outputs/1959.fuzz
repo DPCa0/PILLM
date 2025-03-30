@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    for (const listener of this.events.get(event)) {
+      listener(...args);
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchWithTimeout = (url, ms) => {
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  const fetchPromise = fetch(url, { signal });
+  const timeoutPromise = delay(ms).then(() => {
+    controller.abort();
+    throw new Error('Request timed out');
+  });
+
+  return Promise.race([fetchPromise, timeoutPromise]);
+};
+
+(async () => {
+  const emitter = new EventEmitter();
+  
+  emitter.on('data', async data => {
+    console.log('Data received:', data);
+    const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts', 3000);
+    const posts = await response.json();
+    console.log('Fetched posts:', posts.slice(0, 5));
+  });
+
+  emitter.on('error', error => {
+    console.error('An error occurred:', error);
+  });
+
+  try {
+    console.log('Emitting data event...');
+    emitter.emit('data', { name: 'Sample Data', value: 42 });
+  } catch (error) {
+    emitter.emit('error', error);
+  }
+})();
+```

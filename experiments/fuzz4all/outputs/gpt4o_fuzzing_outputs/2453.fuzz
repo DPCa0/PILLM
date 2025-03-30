@@ -1,0 +1,78 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fs } from 'fs';
+import { promisify } from 'util';
+import { createServer } from 'http';
+import { pipeline } from 'stream';
+import { finished } from 'stream/promises';
+
+ 
+const delay = promisify(setTimeout);
+
+ 
+function* idGenerator() {
+  let id = 0;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`GET ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`SET ${prop} = ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function readAndLogFile(filename) {
+  try {
+    const data = await fs.readFile(filename, 'utf-8');
+    console.log(data);
+  } catch (error) {
+    console.error(`Error reading file: ${error.message}`);
+  }
+}
+
+ 
+const server = createServer((req, res) => {
+  pipeline(
+    req,
+    res,
+    (err) => {
+      if (err) {
+        console.error('Pipeline failed.', err);
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+      } else {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Success');
+      }
+    }
+  );
+});
+
+ 
+(async function main() {
+  await delay(1000);  
+  const idGen = idGenerator();
+  console.log(`Generated ID: ${idGen.next().value}`);
+  
+  proxy.a = 10;  
+  console.log(proxy.b);  
+  
+  readAndLogFile('example.txt');  
+
+  server.listen(3000, () => console.log('Server running on port 3000'));
+})();
+```

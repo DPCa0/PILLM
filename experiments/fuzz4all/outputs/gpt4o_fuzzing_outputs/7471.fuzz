@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* asyncGenerator(arr) {
+    for (const item of arr) {
+        await delay(500);  
+        yield item;
+    }
+}
+
+(async () => {
+    const tasks = [
+        { id: 1, time: 1000 },
+        { id: 2, time: 2000 },
+        { id: 3, time: 500 }
+    ];
+
+    const results = [];
+
+    const workers = tasks.map(async (task) => {
+        await delay(task.time);
+        return `Task ${task.id} completed`;
+    });
+
+    const workerPromises = workers.map(async worker => {
+        try {
+            const result = await worker;
+            results.push(result);
+        } catch (error) {
+            console.error('Worker error:', error);
+        }
+    });
+
+    const deferred = new Deferred();
+
+    setTimeout(() => {
+        deferred.resolve('Deferred message resolved!');
+    }, 1500);
+
+    const iterable = [1, 2, 3, 4, 5];
+    const asyncGen = asyncGenerator(iterable);
+
+    for await (const value of asyncGen) {
+        console.log('Generated value:', value);
+    }
+
+    await Promise.all(workerPromises);
+
+    console.log('All tasks completed with results:', results);
+    console.log(await deferred.promise);
+})();
+```

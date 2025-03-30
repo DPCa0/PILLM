@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class AsyncCollection extends Map {
+  async *asyncMap(transformFunc) {
+    for (let [key, value] of this) {
+      yield [key, await transformFunc(value, key)];
+    }
+  }
+
+  async asyncReduce(reduceFunc, initialValue) {
+    let accumulator = initialValue;
+    for (let [key, value] of this) {
+      accumulator = await reduceFunc(accumulator, value, key);
+    }
+    return accumulator;
+  }
+
+  static async fromAsyncIter(asyncIter, transformFunc) {
+    const collection = new AsyncCollection();
+    for await (let item of asyncIter) {
+      const [key, value] = await transformFunc(item);
+      collection.set(key, value);
+    }
+    return collection;
+  }
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
+  return response.json();
+}
+
+async function main() {
+  const asyncCollection = await AsyncCollection.fromAsyncIter(
+    ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'][Symbol.iterator](),
+    async url => [url, await fetchJson(url)]
+  );
+
+  console.log('Mapped Collection:');
+  for await (let [url, data] of asyncCollection.asyncMap(async data => data.title.toUpperCase())) {
+    console.log(url, data);
+  }
+
+  const reducedValue = await asyncCollection.asyncReduce(async (acc, data) => acc + data.id, 0);
+  console.log('Reduced Value:', reducedValue);
+}
+
+main();
+```

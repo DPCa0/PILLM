@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+import { createCipheriv, randomBytes, createDecipheriv } from 'crypto';
+
+ 
+const key = randomBytes(32);  
+const iv = randomBytes(16);  
+
+ 
+const textToEncrypt = 'Hello, world! This is an advanced JavaScript feature demonstration.';
+
+ 
+function encrypt(text) {
+    const cipher = createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+}
+
+ 
+function decrypt(encryptedText) {
+    const decipher = createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+}
+
+ 
+async function demoCrypto() {
+    console.log('Original Text:', textToEncrypt);
+
+    const encryptedText = encrypt(textToEncrypt);
+    console.log('Encrypted Text:', encryptedText);
+
+    const decryptedText = await new Promise((resolve) => {
+         
+        setTimeout(() => {
+            resolve(decrypt(encryptedText));
+        }, 1000);
+    });
+
+    console.log('Decrypted Text:', decryptedText);
+}
+
+ 
+demoCrypto();
+
+ 
+const target = {
+    message1: "Hello, world!",
+    message2: "Hello, Proxy!"
+};
+
+const handler = {
+    get: function(obj, prop) {
+        return prop in obj ? obj[prop] : `Property ${prop} not found.`;
+    },
+    set: function(obj, prop, value) {
+        if (typeof value === 'string') {
+            return Reflect.set(obj, prop, value);
+        } else {
+            console.error('Property value must be a string');
+            return false;
+        }
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+console.log(proxy.message1);  
+console.log(proxy.message3);  
+
+proxy.message1 = "New Hello, world!";
+console.log(proxy.message1);  
+proxy

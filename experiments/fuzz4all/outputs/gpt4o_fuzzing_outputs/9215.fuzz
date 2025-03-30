@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'validURL') {
+        resolve({ data: 'Sample Data' });
+      } else {
+        reject(new Error('Invalid URL'));
+      }
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      console.warn(`Property ${prop} does not exist on target`);
+      return null;
+    }
+  }
+};
+
+const dataProxy = new Proxy({ user: 'John Doe', age: 30 }, handler);
+
+ 
+(async () => {
+  try {
+     
+    const result = (await fetchData('validURL'))?.data ?? 'No Data Found';
+    console.log('Fetched Data:', result);
+
+     
+    console.log('User:', dataProxy.user);
+    console.log('Non-existent Property:', dataProxy.address);
+
+     
+    console.log(`User's age is ${dataProxy.age}`);
+
+    // Use a Map for data storage
+    const dataMap = new Map();
+    dataMap.set('key1', 'value1');
+    dataMap.set('key2', 'value2');
+
+    // Use destructuring and spread syntax
+    const [first, second] = dataMap.values();
+    console.log('Map Values:', first, second);
+
+    const dataArray = [...dataMap.keys()];
+    console.log('Map Keys:', dataArray);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

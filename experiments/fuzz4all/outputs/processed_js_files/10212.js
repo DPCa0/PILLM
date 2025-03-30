@@ -1,0 +1,55 @@
+ 
+const asyncOperation = (delay, value) => new Promise((resolve) => {
+  setTimeout(() => resolve(value), delay);
+});
+
+ 
+const runComplexAsyncTask = async () => {
+  try {
+    const task1 = asyncOperation(2000, 'Task 1 Completed');
+    const task2 = asyncOperation(1000, 'Task 2 Completed');
+    const task3 = asyncOperation(3000, 'Task 3 Completed');
+
+     
+    const fastestTask = await Promise.race([task1, task2, task3]);
+    print(fastestTask);
+
+     
+    const person = { name: 'Alice', age: 30, skills: ['JS', 'React'] };
+    const { name, age, skills: [firstSkill] } = person;
+
+     
+    print(`${name}, age ${age}, is skilled in ${firstSkill}.`);
+
+     
+    function* numberGenerator() {
+      let num = 0;
+      while (true) {
+        yield num++;
+      }
+    }
+
+    const gen = numberGenerator();
+
+     
+    for (const n of gen) {
+      print(`Generated number: ${n}`);
+      if (n >= 3) break;
+    }
+    
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const processedNumbers = numbers
+      .map(n => n * 2)
+      .filter(n => n > 5)
+      .reduce((sum, n) => sum + n, 0);
+
+    print(`Processed numbers sum: ${processedNumbers}`);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+runComplexAsyncTask();

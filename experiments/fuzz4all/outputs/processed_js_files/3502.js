@@ -1,0 +1,50 @@
+ 
+
+ 
+function fetchData(data) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (data) {
+                resolve(`Data fetched: ${data}`);
+            } else {
+                reject('No data available');
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function getData() {
+    try {
+        const result = await fetchData("Advanced Features");
+        print(result);
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+}
+
+ 
+const target = {
+    value: 42
+};
+
+const handler = {
+    get(target, prop, receiver) {
+        print(`Getting property ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting property ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+proxy.value;  
+proxy.value = 100;  
+print(proxy.value);  
+
+ 
+getData();

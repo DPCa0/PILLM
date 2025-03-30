@@ -1,0 +1,60 @@
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Getting property ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    print(`Setting property ${prop} to ${value}`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const targetObject = { name: 'Proxy', age: 25 };
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    yield response.json();
+  }
+}
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2',
+  'https://jsonplaceholder.typicode.com/posts/3'
+];
+
+async function processFetch() {
+  const generator = fetchData(urls);
+  const promises = [];
+
+  for await (const dataPromise of generator) {
+    promises.push(dataPromise);
+  }
+
+  const results = await Promise.allSettled(promises);
+
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      print(`Data from URL ${index + 1}:`, result.value);
+    } else {
+      console.error(`Failed to fetch data from URL ${index + 1}`, result.reason);
+    }
+  });
+}
+
+ 
+const uniqueValues = new Set([1, 2, 3, 4, 5]);
+const objectKeyedMap = new WeakMap();
+const someObject = {};
+
+uniqueValues.add(5).add(6);  
+objectKeyedMap.set(someObject, { info: 'Some data' });
+
+proxy.name = 'Advanced Proxy';
+print(proxy.name);
+processFetch();

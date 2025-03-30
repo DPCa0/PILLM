@@ -1,0 +1,34 @@
+class DataProcessor {
+  #privateData;
+
+  constructor(data) {
+    this.#privateData = data;
+  }
+
+  async *processData() {
+    for (let i = 0; i < this.#privateData.length; i++) {
+      yield await this.#computeAsync(this.#privateData[i]);
+    }
+  }
+
+  #computeAsync(data) {
+    return new Promise((resolve) => setTimeout(() => resolve(data * data), 100));
+  }
+
+  static aggregateResults(results) {
+    return results.reduce((acc, val) => acc + val, 0);
+  }
+}
+
+async function main() {
+  const processor = new DataProcessor([1, 2, 3, 4, 5]);
+  const results = [];
+  for await (const result of processor.processData()) {
+    results.push(result);
+  }
+
+  const total = DataProcessor.aggregateResults(results);
+  print(`Total sum of squares: ${total}`);
+}
+
+main();

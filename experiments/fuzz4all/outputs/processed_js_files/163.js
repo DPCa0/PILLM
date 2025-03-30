@@ -1,0 +1,57 @@
+ 
+(async () => {
+     
+    const data = new Proxy({}, {
+        set(target, property, value) {
+            if (typeof value !== 'string') {
+                throw new Error('Only strings are allowed');
+            }
+            target[property] = value.toUpperCase();  
+            return true;
+        }
+    });
+
+     
+    function* idGenerator() {
+        let id = 1;
+        while (true) {
+            yield id++;
+        }
+    }
+
+    const gen = idGenerator();
+
+     
+    const dataStore = new Map();
+
+     
+    async function fetchData() {
+        return new Promise(resolve => {
+            setTimeout(() => resolve('fetched data'), 1000);
+        });
+    }
+
+     
+    async function process() {
+        try {
+             
+            const results = await Promise.all([fetchData(), fetchData(), fetchData()]);
+            print('Async Fetch Results:', results);
+
+             
+            data.name = 'John Doe';
+            data.occupation = 'Developer';
+            print('Proxy Data:', data);
+
+             
+            dataStore.set(gen.next().value, { ...data });
+            dataStore.set(gen.next().value, { name: 'Jane Smith', occupation: 'Designer' });
+            print('DataStore:', Array.from(dataStore.entries()));
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
+
+     
+    await process();
+})();

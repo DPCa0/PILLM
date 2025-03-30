@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+function logCalls(fn) {
+  return function (...args) {
+    console.log(`Calling ${fn.name} with arguments:`, args);
+    const result = fn(...args);
+    console.log(`Result:`, result);
+    return result;
+  };
+}
+
+ 
+const fibonacci = new Proxy(function (n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}, {
+  apply(target, thisArg, argumentsList) {
+    const n = argumentsList[0];
+    if (typeof n !== 'number' || n < 0 || !Number.isInteger(n)) {
+      throw new TypeError('Fibonacci function requires a non-negative integer');
+    }
+    return Reflect.apply(target, thisArg, argumentsList);
+  }
+});
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function main() {
+  const loggedFibonacci = logCalls(fibonacci);
+
+  console.log('Starting calculation...');
+  await delay(1000);  
+
+   
+  try {
+    const result = loggedFibonacci(10);
+    console.log(`Fibonacci(10): ${result}`);
+  } catch (e) {
+    console.error(e);
+  }
+
+  console.log('Calculation complete.');
+}
+
+main();
+```

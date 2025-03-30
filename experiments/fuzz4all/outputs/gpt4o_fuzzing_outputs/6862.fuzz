@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const [fs, EventEmitter] = await Promise.all([
+    import('fs/promises'), 
+    import('events')
+  ]);
+
+   
+  class FileWatcher extends EventEmitter {
+    constructor() {
+      super();
+    }
+
+    async watchFiles(directory) {
+      try {
+         
+        const files = await fs.readdir(directory);
+        files.forEach(file => {
+          this.emit('fileFound', file);
+        });
+      } catch (err) {
+        this.emit('error', err);
+      }
+    }
+  }
+
+   
+  const config = {
+    directory: './'
+  };
+
+  const handler = {
+    get(target, prop) {
+      return prop in target ? target[prop] : 'Property does not exist';
+    }
+  };
+
+  const proxiedConfig = new Proxy(config, handler);
+
+   
+  async function* fileContentsGenerator(directory, files) {
+    for (const file of files) {
+      const content = await fs.readFile(`${directory}/${file}`, 'utf-8');
+      yield { file, content };
+    }
+  }
+
+  const fileWatcher = new FileWatcher();
+
+   
+  fileWatcher.on('fileFound', file => {
+    console.log(`File found: ${file}`);
+  });
+
+  fileWatcher.on('error', err => {
+    console.error('Error reading directory:', err.message);
+  });
+
+   
+  const directory = proxiedConfig.directory;
+  await fileWatcher.watchFiles(directory);
+
+   
+  const files = ['file1.txt', 'file2.txt'];  
+  for await (const { file, content } of fileContentsGenerator(directory, files)) {
+    console.log(`Content of ${file}:`);
+    console.log(content);
+  }
+})();
+```

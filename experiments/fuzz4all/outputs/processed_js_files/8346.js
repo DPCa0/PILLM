@@ -1,0 +1,37 @@
+ 
+async function fetchDataAndProcess() {
+    try {
+         
+        let response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        let data = await response.json();
+
+         
+        let titles = data.map(post => post.title);
+
+         
+        let uniqueTitles = new Set(titles);
+
+         
+        let uniqueTitlesArray = [...uniqueTitles];
+
+         
+        uniqueTitlesArray.sort((a, b) => a.localeCompare(b));
+
+         
+        let [first, second, third] = uniqueTitlesArray;
+
+         
+        print('Top 3 unique titles:', first, second, third);
+    } catch (error) {
+         
+        console.error('An error occurred:', error);
+    }
+}
+
+ 
+(async () => {
+    await fetchDataAndProcess();
+})();

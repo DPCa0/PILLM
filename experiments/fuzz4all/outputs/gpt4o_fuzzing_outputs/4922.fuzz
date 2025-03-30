@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(0));
+  }
+
+  static from(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  map(func) {
+    this.data = this.data.map((row, i) => row.map((val, j) => func(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error('Columns of A must match rows of B.');
+    const result = new Matrix(a.rows, b.cols);
+    return result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+  }
+
+  toString() {
+    return this.data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/users');
+    const matrix1 = Matrix.from([
+      [1, 2, 3],
+      [4, 5, 6]
+    ]);
+    const matrix2 = Matrix.from([
+      [7, 8],
+      [9, 10],
+      [11, 12]
+    ]);
+    const productMatrix = Matrix.multiply(matrix1, matrix2);
+    console.log('Matrix Multiplication Result:');
+    console.log(productMatrix.toString());
+
+    console.log('\nFetched Data:');
+    console.table(data.slice(0, 3));  
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

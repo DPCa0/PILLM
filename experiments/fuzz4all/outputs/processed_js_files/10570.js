@@ -1,0 +1,59 @@
+ 
+const EventEmitter = require('events');
+const crypto = require('crypto');
+const fetch = require('node-fetch');
+
+ 
+class DataFetcher extends EventEmitter {
+  constructor(url) {
+    super();
+    this.url = url;
+  }
+
+   
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      
+      const data = await response.json();
+      
+       
+      this.emit('dataReceived', data);
+
+       
+      const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
+      this.emit('dataHashed', hash);
+      
+    } catch (error) {
+      this.emit('error', error);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(...arguments);
+  },
+};
+
+ 
+const dataFetcher = new Proxy(new DataFetcher('https://jsonplaceholder.typicode.com/posts'), handler);
+
+ 
+dataFetcher.on('dataReceived', data => {
+  print('Data fetched successfully:', data.slice(0, 1));  
+});
+
+dataFetcher.on('dataHashed', hash => {
+  print('Data hash:', hash);
+});
+
+dataFetcher.on('error', error => {
+  console.error('Error fetching data:', error);
+});
+
+ 
+dataFetcher.fetchData();

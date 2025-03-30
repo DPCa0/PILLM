@@ -1,0 +1,53 @@
+ 
+
+const fetchData = async (url) => {
+  try {
+     
+    let response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+     
+    const data = await response.json();
+
+     
+    const { userId, id, title, body } = data;
+    
+     
+    console.log(`
+      Post ID: ${id}
+      User ID: ${userId}
+      Title: ${title}
+      Body: ${body}
+    `);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1');
+
+ 
+const fetchMultiple = async (urls) => {
+  try {
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+    const jsonData = await Promise.all(responses.map(resp => resp.json()));
+
+    jsonData.forEach((data, index) => {
+      print(`Data from URL ${index + 1}:`, data);
+    });
+
+  } catch (error) {
+    console.error('Error with fetching multiple data:', error);
+  }
+};
+
+ 
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+ 
+fetchMultiple(urls);

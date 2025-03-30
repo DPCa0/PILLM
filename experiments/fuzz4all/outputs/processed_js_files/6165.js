@@ -1,0 +1,64 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  return data;
+};
+
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+  
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+  
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const debounce = (func, delay) => {
+  let timerId;
+  return (...args) => {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => func(...args), delay);
+  };
+};
+
+const calculate = (a, b) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const result = a + b;
+      resolve(`Result is ${result}`);
+    }, 1000);
+  });
+};
+
+ 
+(async () => {
+  const eventEmitter = new EventEmitter();
+  
+  eventEmitter.on('dataFetched', (data) => {
+    print('Data fetched:', data);
+  });
+
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    eventEmitter.emit('dataFetched', data);
+  } catch (error) {
+    console.error(error);
+  }
+
+  const debouncedCalculation = debounce(async () => {
+    const result = await calculate(5, 10);
+    print(result);
+  }, 2000);
+
+  debouncedCalculation();
+  debouncedCalculation();  
+})();

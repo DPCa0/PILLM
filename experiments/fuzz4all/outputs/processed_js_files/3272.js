@@ -1,0 +1,36 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+const complexFeatureDemo = async () => {
+    const filePath = './example.json';
+
+     
+    const dynamicKey = 'runtime';
+    const complexObject = {
+        [dynamicKey]: Date.now(),
+        data: Array.from({ length: 5 }, (_, i) => i * 2),
+        nested: {
+            condition: true,
+            details: {
+                ...{ name: 'JavaScript', type: 'Dynamic Language' }
+            }
+        }
+    };
+
+     
+    const value = complexObject.nested?.details?.version ?? '1.0.0';
+    print('Version:', value);
+
+     
+    await fs.writeFile(filePath, JSON.stringify(complexObject, null, 2));
+
+     
+    const content = await fs.readFile(filePath, 'utf-8');
+    print(`Content from ${filePath}:\n`, content);
+
+     
+    await fs.unlink(filePath);
+};
+
+complexFeatureDemo().catch(console.error);

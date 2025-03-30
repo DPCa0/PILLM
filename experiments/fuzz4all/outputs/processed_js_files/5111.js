@@ -1,0 +1,29 @@
+ 
+
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', score: 85 },
+                { id: 2, name: 'Bob', score: 92 },
+                { id: 3, name: 'Charlie', score: 88 }
+            ]);
+        }, 1000);
+    });
+};
+
+const processScores = async () => {
+    try {
+        const data = await fetchData();
+        const highScorers = data.map(({ name, score }) => `${name}: ${score}`)
+                                 .filter(scoreStr => {
+                                     const [, score] = scoreStr.split(': ');
+                                     return parseInt(score) > 86;
+                                 });
+        print('High Scorers:', highScorers);
+    } catch (error) {
+        console.error('Error processing scores:', error);
+    }
+};
+
+processScores();

@@ -1,0 +1,66 @@
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  static description() {
+    return "A Shape is a geometric figure.";
+  }
+
+  [Symbol.iterator]() {
+    const properties = Object.entries(this);
+    let index = 0;
+    return {
+      next() {
+        if (index < properties.length) {
+          return { value: properties[index++], done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+class Circle extends Shape {
+  #radius;  
+
+  constructor(radius) {
+    super('Circle');
+    this.#radius = radius;
+  }
+
+  get area() {
+    return Math.PI * this.#radius ** 2;
+  }
+
+  toString() {
+    return `A ${this.name} with radius ${this.#radius}`;
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function calculateAndLog(circle) {
+  for (let i = 0; i < 5; i++) {
+    await delay(500);  
+    print(`Iteration ${i + 1}: ${circle} has an area of ${circle.area.toFixed(2)}`);
+  }
+}
+
+ 
+const circle = new Circle(5);
+const handler = {
+  get(target, property) {
+    print(`Accessing property: ${property}`);
+    return target[property];
+  }
+};
+
+const proxiedCircle = new Proxy(circle, handler);
+
+calculateAndLog(proxiedCircle).catch(console.error);
+
+print([...proxiedCircle]);  
+print(Shape.description());

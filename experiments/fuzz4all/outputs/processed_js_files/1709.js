@@ -1,0 +1,48 @@
+ 
+function processData({a, b, ...rest}) {
+    return {...rest, result: a * b};
+}
+
+ 
+function createMultiplier(multiplier) {
+    return function(number) {
+        return number * multiplier;
+    };
+}
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+ 
+const handler = {
+    set(target, key, value) {
+        print(`Property ${key} changed from ${target[key]} to ${value}`);
+        target[key] = value;
+        return true;
+    }
+};
+
+const observedObject = new Proxy({name: 'John', age: 30}, handler);
+
+ 
+(async () => {
+    try {
+        const data = processData({a: 5, b: 10, x: 1, y: 2});
+        print('Processed Data:', data);
+
+        const triple = createMultiplier(3);
+        print('Triple of 5:', triple(5));
+
+        const jsonData = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+        print('Fetched Data:', jsonData);
+
+        observedObject.age = 31;  
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

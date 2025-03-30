@@ -1,0 +1,69 @@
+ 
+
+ 
+function fetchData(endpoint) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { data: `Data from ${endpoint}` };
+            Math.random() > 0.2 ? resolve(data) : reject('Fetch error');
+        }, 1000);
+    });
+}
+
+ 
+function* dataFetcher(endpoints) {
+    for (let endpoint of endpoints) {
+        try {
+            const data = yield fetchData(endpoint);
+            print('Data received:', data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+ 
+async function runDataFetcher(gen, endpoints) {
+    const generator = gen(endpoints);
+    let result = generator.next();
+    while (!result.done) {
+        try {
+            const data = await result.value;
+            result = generator.next(data);
+        } catch (error) {
+            result = generator.throw(error);
+        }
+    }
+}
+
+ 
+const logHandler = {
+    get: function(target, prop) {
+        if (prop in target) {
+            print(`Getting property: ${prop}`);
+            return target[prop];
+        } else {
+            print(`Property ${prop} not found`);
+        }
+    },
+    set: function(target, prop, value) {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const dataStorage = new Proxy({}, logHandler);
+
+ 
+function manipulateData() {
+    dataStorage.info = 'New Info';
+    print(dataStorage.info);
+    print(dataStorage.nonExistent);
+}
+
+ 
+const endpoints = ['api/endpoint1', 'api/endpoint2', 'api/endpoint3'];
+runDataFetcher(dataFetcher, endpoints);
+manipulateData();

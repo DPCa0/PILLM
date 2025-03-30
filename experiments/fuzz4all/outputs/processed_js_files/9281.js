@@ -1,0 +1,42 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static random(rows, cols, min = 0, max = 1) {
+        const matrix = new Matrix(rows, cols);
+        matrix.map(() => Math.random() * (max - min) + min);
+        return matrix;
+    }
+
+    map(callback) {
+        this.data = this.data.map((row, i) => row.map((val, j) => callback(val, i, j)));
+        return this;
+    }
+
+    multiply(other) {
+        if (!(other instanceof Matrix)) throw new Error("Parameter must be a Matrix instance");
+        if (this.data[0].length !== other.data.length) throw new Error("Matrix dimensions must agree");
+        let result = new Matrix(this.data.length, other.data[0].length);
+        return result.map((_, i, j) => this.data[i].reduce((sum, el, k) => sum + el * other.data[k][j], 0));
+    }
+
+    toString() {
+        return this.data.map(row => row.join(' ')).join('\n');
+    }
+}
+
+(async () => {
+    const mat1 = Matrix.random(3, 2, 1, 10);
+    const mat2 = Matrix.random(2, 3, 1, 10);
+    
+    print('Matrix 1:\n', mat1.toString());
+    print('Matrix 2:\n', mat2.toString());
+
+    try {
+        const multiplied = mat1.multiply(mat2);
+        print('Multiplied Matrix:\n', multiplied.toString());
+    } catch (e) {
+        console.error(e.message);
+    }
+})();

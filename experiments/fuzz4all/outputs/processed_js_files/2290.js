@@ -1,0 +1,47 @@
+ 
+
+ 
+import * as MathUtils from './mathUtils.js';  
+
+ 
+(async function main() {
+   
+  const fetchData = (url) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (url) {
+          resolve({ data: 'Sample Data from ' + url });
+        } else {
+          reject('No URL provided');
+        }
+      }, 1000);
+    });
+  };
+
+  try {
+     
+    const { data } = await fetchData('https://example.com');
+    print(data);
+
+     
+    const calculateResults = ({ a, b, operation }) => {
+      switch (operation) {
+        case 'add':
+          return MathUtils.add(a, b);
+        case 'subtract':
+          return MathUtils.subtract(a, b);
+        default:
+          throw new Error('Operation not supported');
+      }
+    };
+
+     
+    const result = calculateResults({ a: 10, b: 5, operation: 'add' });
+    print('Calculation Result:', result);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+
+**Note:** This example assumes the presence of a `mathUtils.js` module that exports `add` and `subtract` functions. If you want to run this code in practice, you'll need to implement that module or adjust the import statement to fit your project.

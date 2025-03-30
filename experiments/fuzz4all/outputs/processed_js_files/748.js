@@ -1,0 +1,39 @@
+class ComplexCalculation {
+    static async performHeavyOperation() {
+         
+        const result = await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve([...Array(10)].map((_, i) => i * i));  
+            }, 1000);
+        });
+
+        return result;
+    }
+}
+
+const processResult = async () => {
+    try {
+        const result = await ComplexCalculation.performHeavyOperation();
+        
+         
+        const uniqueSquares = [...new Set(result)];
+
+         
+        function* squareGenerator(squares) {
+            for (const num of squares) {
+                yield num;
+            }
+        }
+
+        const squaresIterator = squareGenerator(uniqueSquares);
+
+         
+        for (const square of squaresIterator) {
+            print(`Square: ${square}`);
+        }
+    } catch (error) {
+        console.error('Error processing result:', error);
+    }
+};
+
+processResult();

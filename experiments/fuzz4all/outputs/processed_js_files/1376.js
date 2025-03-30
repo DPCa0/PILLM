@@ -1,0 +1,49 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+function debounce(fn, delay) {
+  let timeout;
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => fn(...args), delay);
+  };
+}
+
+const emitter = new EventEmitter();
+const debouncedLog = debounce((data) => print('Data received:', data), 300);
+
+emitter.on('data', debouncedLog);
+
+(async function() {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+    emitter.emit('data', data);
+  } catch (error) {
+    console.error('Failed to fetch data:', error);
+  }
+})();

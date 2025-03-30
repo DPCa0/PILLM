@@ -1,0 +1,66 @@
+ 
+(async () => {
+   
+  const data = new Map([
+    ['apple', 1],
+    ['banana', 2],
+    ['orange', 3],
+  ]);
+
+  const set = new Set(['apple', 'banana', 'grape']);
+
+  const commonFruits = [...set].filter(fruit => data.has(fruit));
+
+  print('Common Fruits:', commonFruits);
+
+   
+  const fetchData = async url => {
+    const response = await fetch(url);
+    return response.json();
+  };
+
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3',
+  ];
+
+  const results = await Promise.all(urls.map(url => fetchData(url)));
+  print('Fetched Data:', results);
+
+   
+  const target = {
+    message1: 'hello',
+    message2: 'everyone',
+  };
+
+  const handler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : 'default'),
+  };
+
+  const proxy = new Proxy(target, handler);
+
+  print(proxy.message1);  
+  print(proxy.message3);  
+
+   
+  function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    while (n-- > 0) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+  const sequence = [...fibonacci(10)];
+  print('Fibonacci Sequence:', sequence);
+
+   
+  function tag(strings, ...values) {
+    return strings.reduce((acc, str, i) => acc + str + (values[i] || ''), '');
+  }
+
+  const name = 'Alice';
+  const time = 'today';
+  print(tag`Hello ${name}, how are you ${time}?`);
+})();

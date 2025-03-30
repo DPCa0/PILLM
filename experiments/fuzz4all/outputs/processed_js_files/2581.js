@@ -1,0 +1,44 @@
+ 
+
+ 
+export function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { name: 'Jane Doe', age: 28 },
+        posts: [{ id: 1, title: 'Advanced JS' }, { id: 2, title: 'More about Promises' }]
+      });
+    }, 1000);
+  });
+}
+
+ 
+import { fetchData } from './module.js';
+
+async function processData() {
+  try {
+    const { user, posts } = await fetchData();  
+    
+    print(`User: ${user.name}, Age: ${user.age}`);
+    
+    posts.forEach(({ id, title }) => {
+      print(`Post ID: ${id}, Title: ${title}`);
+    });
+
+     
+    const userPromise = Promise.resolve(user);
+    const postsPromise = Promise.resolve(posts);
+
+    const [fetchedUser, fetchedPosts] = await Promise.all([userPromise, postsPromise]);
+    
+    print(`Fetched User: ${fetchedUser.name}`);
+    fetchedPosts.forEach((post) => print(`Fetched Post Title: ${post.title}`));
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+processData();
+
+Note: To run this script, you'll need to set up a module-based environment since it uses ES6 modules. You can do this by setting up a local server or using tools like `node --experimental-modules` if you're running on Node.js.

@@ -1,0 +1,49 @@
+ 
+async function fetchData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(`Could not fetch data: ${error}`);
+        throw error;
+    }
+}
+
+ 
+function* urlGenerator(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+function transformData(fetchPromises, transformer) {
+    return Promise.all(fetchPromises).then(results => results.map(transformer));
+}
+
+ 
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+const transformedData = transformData([...urlGenerator(urls)], data => data.flatMap(item => item.details));
+
+ 
+const loggerHandler = {
+    get(target, prop) {
+        print(`Accessing property: ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const apiData = { name: 'Sample Data', value: 42 };
+const proxyData = new Proxy(apiData, loggerHandler);
+
+ 
+print(proxyData.name);  
+proxyData.value = 100;         

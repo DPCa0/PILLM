@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const [userData, userPosts] = await Promise.all([
+    (async () => {
+      await delay(1000);   
+      return { id: 1, name: 'Jane Doe', email: 'jane@example.com' };
+    })(),
+    (async () => {
+      await delay(1500);   
+      return [{ id: 101, title: 'Post 1' }, { id: 102, title: 'Post 2' }];
+    })()
+  ]);
+
+   
+  const { name, email } = userData;
+  const [{ title: firstPostTitle }] = userPosts;
+
+   
+  const highlight = (strings, ...values) =>
+    strings.reduce((prev, curr, i) => `${prev}<strong>${values[i - 1]}</strong>${curr}`);
+
+  console.log(highlight`User: ${name}, Email: ${email}, First Post: ${firstPostTitle}`);
+};
+
+fetchData().catch(err => console.error('Error:', err));
+```

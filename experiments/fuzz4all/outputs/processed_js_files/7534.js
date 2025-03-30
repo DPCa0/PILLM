@@ -1,0 +1,47 @@
+ 
+
+ 
+const complexObject = {
+  data: [1, 2, 3],
+  config: { delay: 1000 }
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Set property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+ 
+async function* asyncGenerator(array, delay) {
+  for (const item of array) {
+    await new Promise(resolve => setTimeout(resolve, delay));
+    yield item * 2;
+  }
+}
+
+ 
+async function processData() {
+  const generator = asyncGenerator(proxiedObject.data, proxiedObject.config.delay);
+  const promises = [];
+
+  for await (const item of generator) {
+    promises.push(Promise.resolve(item));
+  }
+
+   
+  const results = await Promise.all(promises);
+  print('Processed results:', results);
+}
+
+ 
+processData().catch(console.error);

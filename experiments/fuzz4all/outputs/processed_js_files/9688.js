@@ -1,0 +1,60 @@
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.2 ? resolve({ data: `Data from ${url}` }) : reject('Fetch error');
+    }, 1000);
+  });
+};
+
+ 
+async function* dataFetcher(urls) {
+  for (const url of urls) {
+    try {
+      const response = await fetchData(url);
+      yield response.data;
+    } catch (error) {
+      yield `Error fetching data from ${url}: ${error}`;
+    }
+  }
+}
+
+ 
+const processUrlsConcurrently = async (urlGroups) => {
+  await Promise.all(
+    urlGroups.map(async (urls) => {
+      const results = [];
+      for await (const data of dataFetcher(urls)) {
+        results.push(data);
+      }
+      print(`Results for group: [${urls.join(', ')}] ->`, results);
+    })
+  );
+};
+
+ 
+const urlGroups = [
+  ['https://api.example.com/1', 'https://api.example.com/2'],
+  ['https://api.example.com/3', 'https://api.example.com/4'],
+];
+
+ 
+processUrlsConcurrently(urlGroups);
+
+ 
+const handler = {
+  set: (target, prop, value) => {
+    print(`Property ${prop} set to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+const targetObject = {};
+const proxy = new Proxy(targetObject, handler);
+
+ 
+proxy.test = 'Proxy works!';
+
+ 
+ 

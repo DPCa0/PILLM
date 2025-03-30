@@ -1,0 +1,58 @@
+ 
+(async () => {
+  const { readFile, writeFile } = await import('fs/promises');
+  const path = new URL('./data.json', import.meta.url);
+
+   
+  async function updateJsonFile() {
+    try {
+       
+      const data = JSON.parse(await readFile(path, 'utf8'));
+      const userCount = data?.users?.length ?? 0;
+
+      print(`Current user count: ${userCount}`);
+
+       
+      const updatedUser = {
+        name: 'New User',
+        email: 'newuser@example.com',
+        id: userCount + 1,
+        ...data.users?.[userCount - 1]
+      };
+
+      data.users = [...(data.users ?? []), updatedUser];
+
+       
+      print(`Adding: ${JSON.stringify(updatedUser, null, 2)}`);
+      
+       
+      await writeFile(path, JSON.stringify(data, null, 2), 'utf8');
+
+       
+      print(`Updated user count: ${data.users?.length ?? 'unknown'}`);
+    } catch (error) {
+      console.error('Error updating the JSON file:', error);
+    }
+  }
+
+   
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      updateJsonFile().then(resolve);
+    }, 1000);
+  });
+
+   
+  async function* asyncGenerator(arr) {
+    for (const item of arr) {
+       
+      await Promise.allSettled([Promise.resolve(item)]);
+      yield item;
+    }
+  }
+
+  const someAsyncData = [1, 2, 3, 4, 5];
+  for await (const value of asyncGenerator(someAsyncData)) {
+    print(`Processing value: ${value}`);
+  }
+})();

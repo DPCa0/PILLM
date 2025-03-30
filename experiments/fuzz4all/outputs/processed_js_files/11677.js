@@ -1,0 +1,51 @@
+(async function complexJavaScriptFeatures() {
+   
+  const loggingHandler = {
+    get(target, property) {
+      print(`Property '${property}' accessed.`);
+      return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+      print(`Property '${property}' set to '${value}'.`);
+      return Reflect.set(target, property, value);
+    }
+  };
+
+  const data = { a: 1, b: 2 };
+  const proxiedData = new Proxy(data, loggingHandler);
+
+   
+  const promise1 = Promise.resolve(3);
+  const promise2 = new Promise((resolve, reject) => setTimeout(reject, 100, 'error'));
+  const promise3 = Promise.resolve(42);
+
+  const results = await Promise.allSettled([promise1, promise2, promise3]);
+  results.forEach((result) => print(result));
+
+   
+  function* generatorExample() {
+    for (const key in proxiedData) {
+      yield `${key}: ${proxiedData[key]}`;
+    }
+  }
+
+  const generator = generatorExample();
+  for (const entry of generator) {
+    print(entry);
+  }
+
+   
+  const asyncIterable = {
+    [Symbol.asyncIterator]: async function*() {
+      const values = ['foo', 'bar', 'baz'];
+      for (const value of values) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        yield value;
+      }
+    }
+  };
+
+  for await (const value of asyncIterable) {
+    print(value);
+  }
+})();

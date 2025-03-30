@@ -1,0 +1,36 @@
+ 
+async function fetchDataAndProcess() {
+  try {
+     
+    const response = await fetch('https://api.example.com/data');
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    const data = await response.json();
+
+     
+    const { items } = data;
+    
+     
+    const processedItems = items
+      .filter(item => item.active)  
+      .map(item => ({ ...item, processed: true }))  
+      .reduce((acc, item) => {  
+        acc[item.category] = acc[item.category] || [];
+        acc[item.category].push(item);
+        return acc;
+      }, {});
+
+     
+    print(`Processed Items: ${JSON.stringify(processedItems, null, 2)}`);
+
+  } catch (error) {
+     
+    console.error(`Error fetching or processing data: ${error.message}`);
+  }
+}
+
+ 
+(async () => {
+  await fetchDataAndProcess();
+})();

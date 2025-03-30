@@ -1,0 +1,50 @@
+ 
+import fs from 'fs/promises';
+import { createServer } from 'http';
+import url from 'url';
+
+ 
+const asyncOperation = async () => {
+  const data = await fs.readFile('./data.json', 'utf-8');
+  return JSON.parse(data);
+};
+
+ 
+const requestHandler = async (req, res) => {
+  const queryObject = url.parse(req.url, true).query;
+  try {
+     
+    const message = queryObject?.message ?? 'Hello, World!';
+    
+    if (queryObject.asyncOp) {
+      const data = await asyncOperation();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message, data }));
+    } else {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(message);
+    }
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('An error occurred');
+  }
+};
+
+ 
+const server = createServer(requestHandler);
+
+ 
+server?.listen(3000, () => {
+  print('Server is listening on port 3000');
+});
+
+ 
+const init = async () => {
+   
+  const { default: lodash } = await import('lodash');
+  
+  const numbers = [4, 2, 8, 6];
+  print('Sorted numbers using lodash:', lodash.sortBy(numbers));
+};
+
+init();

@@ -1,0 +1,39 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function processFile(inputPath, outputPath) {
+    try {
+         
+        const [inputData, timestamp = new Date()] = await Promise.all([
+            fs.readFile(inputPath, 'utf-8'),
+            new Date()
+        ]);
+
+         
+        const formattedOutput = customTag`File processed on: ${timestamp}\n\n${inputData.toUpperCase()}`;
+
+         
+        const dir = outputPath.split('/').slice(0, -1).join('/');
+        (dir && await fs.mkdir(dir, { recursive: true })) ?? print('No directory structure needed.');
+
+         
+        await fs.writeFile(outputPath, formattedOutput);
+        print('File processed and saved successfully!');
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+}
+
+ 
+function customTag(strings, ...values) {
+     
+    return strings.map((str, i) => `${str}${values[i] || ''}`).join('');
+}
+
+ 
+(async () => {
+    const inputFile = './input.txt';
+    const outputFile = './output/output.txt';
+    await processFile(inputFile, outputFile);
+})();

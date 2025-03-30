@@ -1,0 +1,26 @@
+ 
+
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve({ data: 'Success!', code: 200 });
+      } else {
+        reject({ error: 'Failed to fetch data', code: 404 });
+      }
+    }, 1000);
+  });
+};
+
+const processData = async (url) => {
+  try {
+    const { data, code } = await fetchData(url);
+    print(`Response [${code}]: ${data}`);
+  } catch ({ error, code }) {
+    console.error(`Error [${code}]: ${error}`);
+  }
+};
+
+const urls = ['http://valid.url', null, 'http://another.valid.url'];
+
+urls.forEach(url => processData(url));

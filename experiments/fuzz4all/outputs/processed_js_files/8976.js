@@ -1,0 +1,34 @@
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+(async () => {
+    try {
+         
+        const data = await fsPromises.readFile('data.json', 'utf-8');
+        const jsonData = JSON.parse(data);
+
+         
+        const items = jsonData?.items ?? [];
+        
+         
+        const uniqueItems = new Set(items);
+
+         
+        const processedItems = [...uniqueItems]
+            .map(item => item.toUpperCase())
+            .filter(item => item.startsWith('A'))
+            .reduce((acc, item) => {
+                acc.push({ name: item, length: item.length });
+                return acc;
+            }, []);
+
+         
+        print(`Processed ${processedItems.length} items`);
+
+         
+        await fsPromises.writeFile('output.json', JSON.stringify(processedItems, null, 2));
+    } catch (error) {
+        console.error('Error processing the data:', error);
+    }
+})();

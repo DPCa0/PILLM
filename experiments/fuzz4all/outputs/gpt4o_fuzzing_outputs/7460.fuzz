@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class DataPipeline {
+  constructor(data) {
+    this.data = data;
+  }
+
+  filterData(predicate) {
+    this.data = this.data.filter(predicate);
+    return this;
+  }
+
+  transformData(transformFn) {
+    this.data = this.data.map(transformFn);
+    return this;
+  }
+
+  async fetchData(url) {
+    const response = await fetch(url);
+    const fetchedData = await response.json();
+    this.data = [...this.data, ...fetchedData];
+    return this;
+  }
+
+  reduceData(reduceFn, initialValue) {
+    return this.data.reduce(reduceFn, initialValue);
+  }
+
+  static createAsyncIterable(array) {
+    return {
+      [Symbol.asyncIterator]: async function* () {
+        for (const item of array) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          yield item;
+        }
+      },
+    };
+  }
+}
+
+(async () => {
+  const pipeline = new DataPipeline([{ value: 1 }, { value: 2 }, { value: 3 }]);
+
+  await pipeline.fetchData('https://api.example.com/data');
+
+  const result = pipeline
+    .filterData(item => item.value > 1)
+    .transformData(item => ({ value: item.value * 2 }))
+    .reduceData((acc, item) => acc + item.value, 0);
+
+  console.log('Reduced result:', result);
+
+  const asyncIterable = DataPipeline.createAsyncIterable([10, 20, 30]);
+  for await (const num of asyncIterable) {
+    console.log('Async num:', num);
+  }
+})();
+```

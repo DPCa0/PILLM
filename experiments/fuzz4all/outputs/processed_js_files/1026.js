@@ -1,0 +1,67 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+ 
+const transformHandler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    }
+    return `Property ${prop} not found`;
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'string') {
+      target[prop] = value.toUpperCase();
+      return true;
+    }
+    return false;
+  }
+};
+
+ 
+function logMethod(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function(...args) {
+    print(`Calling ${key} with arguments: ${JSON.stringify(args)}`);
+    return originalMethod.apply(this, args);
+  };
+  return descriptor;
+}
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  @logMethod
+  processData() {
+     
+    return this.data.map(item => ({ ...item, processed: true }));
+  }
+}
+
+ 
+(async () => {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2'
+  ];
+  
+  const dataProxy = new Proxy({}, transformHandler);
+
+   
+  for await (const data of fetchData(urls)) {
+    dataProxy.data = JSON.stringify(data);
+    print(`Fetched Data: ${dataProxy.data}`);
+  }
+  
+  const processor = new DataProcessor([{ id: 1 }, { id: 2 }]);
+  const processedData = processor.processData();
+  print('Processed Data:', processedData);
+})();

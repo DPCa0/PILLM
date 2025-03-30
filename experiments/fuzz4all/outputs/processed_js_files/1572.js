@@ -1,0 +1,38 @@
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    const response = await fetch(this.url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+  }
+}
+
+function* createGenerator(arr) {
+  for (let item of arr) {
+    yield item * 2;
+  }
+}
+
+async function processData(url) {
+  try {
+    const dataFetcher = new DataFetcher(url);
+    const data = await dataFetcher.fetchData();
+    const generator = createGenerator(data);
+
+    const results = [];
+    for (let value of generator) {
+      const processedValue = await Promise.resolve(value + Math.random());
+      results.push(processedValue);
+    }
+
+    const finalResult = results.reduce((acc, curr) => acc + curr, 0);
+    print(`Final Result: ${finalResult}`);
+  } catch (error) {
+    console.error(`Error occurred: ${error.message}`);
+  }
+}
+
+processData('https://api.example.com/data');

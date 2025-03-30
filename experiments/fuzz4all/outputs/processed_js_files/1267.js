@@ -1,0 +1,35 @@
+ 
+
+ 
+async function* fetchUserData(users) {
+    for (const user of users) {
+        const data = await fetch(`https: 
+        yield data;
+    }
+}
+
+ 
+const createLoggingProxy = (target) => {
+    return new Proxy(target, {
+        get(obj, prop) {
+            print(`Accessing property: ${prop}`);
+            return Reflect.get(obj, prop);
+        },
+        set(obj, prop, value) {
+            print(`Setting property: ${prop} to ${value}`);
+            return Reflect.set(obj, prop, value);
+        }
+    });
+};
+
+ 
+(async () => {
+    const userIds = [1, 2, 3];
+    const userIterator = fetchUserData(userIds);
+
+    for await (const userData of userIterator) {
+        const userProxy = createLoggingProxy(userData);
+        print(`User Name: ${userProxy.name}`);  
+        userProxy.username = 'NewUsername';  
+    }
+})();

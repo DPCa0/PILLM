@@ -1,0 +1,55 @@
+ 
+const crypto = require('crypto');
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile('./config.json', 'utf8');
+    const config = JSON.parse(data);
+
+     
+    const { secretKey, message } = config || {};
+    const key = secretKey ?? 'default-secret-key';
+    const msg = message ?? 'Default message';
+
+     
+    const hmac = crypto.createHmac('sha256', key).update(msg).digest('hex');
+    print(`HMAC: ${hmac}`);
+
+     
+    const { sayHello } = await import('./dynamicModule.js');
+    sayHello();
+
+     
+    const processHMAC = async (input) => {
+       
+      const [first, ...rest] = input.split('-');
+      return `Processed: ${first.toUpperCase()} with REST: ${rest.join('-')}`;
+    };
+
+     
+    const results = await Promise.allSettled([
+      processHMAC(hmac),
+      Promise.resolve('Another operation'),
+    ]);
+
+     
+    results.forEach(({ status, value = 'No Value' }) =>
+      console.log(`Status: ${status}, Value: ${value}`)
+    );
+
+     
+    const mapping = new Map();
+    mapping.set('hmac', hmac);
+    mapping.set('processed', await processHMAC(hmac));
+
+     
+    for (const [key, value] of mapping) {
+      print(`${key}: ${value}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

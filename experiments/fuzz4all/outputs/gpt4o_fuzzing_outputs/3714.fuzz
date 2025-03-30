@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+ 
+
+async function* fetchData(urls) {
+    for (const url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+const processData = async (urls) => {
+    const processedData = [];
+    for await (const data of fetchData(urls)) {
+        const { id, title, ...rest } = data;
+        processedData.push({ id, title, details: rest });
+    }
+    return processedData;
+};
+
+const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+];
+
+(async () => {
+    try {
+        const data = await processData(urls);
+        console.log('Processed Data:', data);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+```

@@ -1,0 +1,33 @@
+print('Hello, world!');
+```javascript
+class EnhancedArray extends Array {
+  constructor(...args) {
+    super(...args);
+  }
+
+  average() {
+    return this.reduce((a, b) => a + b, 0) / this.length;
+  }
+
+  async doubleValuesAsync() {
+    const promises = this.map(num => new Promise(resolve => setTimeout(() => resolve(num * 2), 100)));
+    return await Promise.all(promises);
+  }
+}
+
+(async () => {
+   
+  const numbers = new EnhancedArray(10, 20, 30, 40, 50);
+  
+   
+  function emphasize(strings, ...values) {
+    return strings.reduce((acc, str, i) => `${acc}${str}<em>${values[i] || ''}</em>`, '');
+  }
+
+  console.log(emphasize`The average is ${numbers.average()}`);
+
+   
+  const doubledNumbers = await numbers.doubleValuesAsync();
+  console.log(emphasize`Doubled numbers: ${doubledNumbers.join(', ')}`);
+})();
+```

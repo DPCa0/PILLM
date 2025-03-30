@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+    for (let i = 1; i <= 5; i++) {
+        await delay(1000);
+        yield i;
+    }
+}
+
+const calculate = new Proxy(asyncGenerator, {
+    apply: async function(target, thisArg, args) {
+        const gen = await target.apply(thisArg, args);
+        let result = 0;
+        for await (const value of gen) {
+            result += value;
+            console.log(`Yielded: ${value}, Current Sum: ${result}`);
+        }
+        return result;
+    }
+});
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('complete', total => console.log(`Calculation complete, total: ${total}`));
+    
+    const total = await calculate();
+    eventEmitter.emit('complete', total);
+})();
+```

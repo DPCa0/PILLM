@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.1 ? resolve({ data: `Data from ${url}` }) : reject('Network Error');
+        }, 1000);
+    });
+}
+
+ 
+async function fetchAllData(urls) {
+    try {
+        const data = await Promise.all(urls.map(url => fetchData(url)));
+        return data.map(response => response.data);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+function* generateUrls(base, count) {
+    for (let i = 1; i <= count; i++) {
+        yield `${base}/${i}`;
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        return property in target ? target[property] : 'Property not found';
+    },
+    set: (target, property, value) => {
+        if (typeof value === 'string') {
+            target[property] = value.toUpperCase();
+            return true;
+        } else {
+            console.log('Value must be a string');
+            return false;
+        }
+    }
+};
+
+ 
+(async () => {
+    const urlGenerator = generateUrls('http://example.com/resource', 5);
+    const urls = Array.from(urlGenerator);
+    const proxyData = new Proxy({}, handler);
+
+    console.log('Fetching data...');
+    const results = await fetchAllData(urls);
+    
+    results.forEach((result, index) => {
+        proxyData[`result${index}`] = result;
+    });
+
+    console.log('Processed Data:');
+    console.log(proxyData);
+})();
+```

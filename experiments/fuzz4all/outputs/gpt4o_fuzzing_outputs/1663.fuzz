@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+const asyncHandler = async (fn) => {
+  try {
+    return await fn();
+  } catch (err) {
+    console.error('Error:', err);
+  }
+};
+
+ 
+const fetchData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { message: 'Hello, Advanced JavaScript World!' } });
+    }, 1000);
+  });
+};
+
+ 
+const loggingProxy = new Proxy(fetchData, {
+  apply: (target, thisArg, argumentsList) => {
+    console.log('Fetching data...');
+    return Reflect.apply(target, thisArg, argumentsList);
+  },
+});
+
+ 
+const main = async () => {
+  const [response] = await Promise.all([asyncHandler(loggingProxy)]);
+  const message = response?.data?.message || 'No message received';
+  const upperCaseMessage = [...message].map((char) => char.toUpperCase()).join('');
+  
+  console.log(upperCaseMessage);
+};
+
+ 
+main();
+```

@@ -1,0 +1,46 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+(async function complexAsyncFunction() {
+  try {
+     
+    const data = await readFile('./data.json', 'utf-8');
+    const jsonData = JSON.parse(data);
+
+     
+    const value = jsonData?.nested?.value ?? 'Default Value';
+
+     
+    function* generateSequence(start, end) {
+      for (let i = start; i <= end; i++) {
+        yield i;
+      }
+    }
+
+    const sequence = [...generateSequence(1, 5)];
+
+     
+    const map = new Map(sequence.map(num => [num, num * num]));
+
+     
+    const results = await Promise.allSettled([
+      Promise.resolve(value),
+      ...sequence.map(num => Promise.resolve(num))
+    ]);
+
+     
+    const [firstResult, ...otherResults] = results.map(({ status, value }) => ({ status, value }));
+
+     
+    console.log({
+      initialValue: value,
+      squaredMap: Object.fromEntries(map),
+      firstResult,
+      otherResults
+    });
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();

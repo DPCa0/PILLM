@@ -1,0 +1,69 @@
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  get real() {
+    return this.#real;
+  }
+
+  get imaginary() {
+    return this.#imaginary;
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'string') {
+      return `${this.#real} + ${this.#imaginary}i`;
+    }
+    return this.magnitude();
+  }
+
+  magnitude() {
+    return Math.hypot(this.#real, this.#imaginary);
+  }
+
+  static from(arr) {
+    if (!Array.isArray(arr) || arr.length !== 2) {
+      throw new TypeError('Input must be an array with two elements.');
+    }
+    return new ComplexNumber(arr[0], arr[1]);
+  }
+
+  async *[Symbol.asyncIterator]() {
+    yield Promise.resolve(this.#real);
+    yield Promise.resolve(this.#imaginary);
+  }
+}
+
+ 
+const complexHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'magnitude') {
+      return function () {
+        return `Magnitude is: ${Reflect.apply(target[prop], receiver, [])}`;
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const complexProxy = new Proxy(new ComplexNumber(3, 4), complexHandler);
+
+const asyncDemo = async () => {
+  print(String(complexProxy));
+  print(complexProxy.magnitude());
+
+  for await (let value of complexProxy) {
+    print(`Awaited value: ${value}`);
+  }
+
+  const complexArray = [5, 12];
+  const complexFromArr = ComplexNumber.from(complexArray);
+  print(`Complex from array: ${complexFromArr}`);
+};
+
+asyncDemo();

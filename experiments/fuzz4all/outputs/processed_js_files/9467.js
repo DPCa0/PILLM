@@ -1,0 +1,52 @@
+ 
+const asyncIterable = {
+  [Symbol.asyncIterator]() {
+    let count = 0;
+    return {
+      next() {
+        if (count < 5) {
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve({ value: count++, done: false });
+            }, 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+};
+
+ 
+const manipulateData = (data) => {
+  return data.map((num) => ({
+    original: num,
+    squared: num ** 2,
+    cubed: num ** 3
+  }));
+};
+
+ 
+const processData = async () => {
+   
+  const fetchData = () => null;
+  const externalData = fetchData()?.() ?? Array.from({ length: 5 }, (_, i) => i);
+
+   
+  const combinedData = [...externalData, ...(await collectAsyncData(asyncIterable))];
+  const manipulatedData = manipulateData(combinedData);
+
+  console.table(manipulatedData);
+};
+
+ 
+const collectAsyncData = async (iterable) => {
+  const collected = [];
+  for await (const value of iterable) {
+    collected.push(value);
+  }
+  return collected;
+};
+
+ 
+processData();

@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const loggerProxyHandler = {
+    get(target, prop, receiver) {
+        console.log(`Property '${prop}' accessed.`);
+        return Reflect.get(target, prop, receiver);
+    },
+    apply(target, thisArg, argumentsList) {
+        console.log(`Method '${target.name}' invoked with arguments: [${argumentsList}].`);
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+};
+
+ 
+function* fibonacciGenerator(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+async function processData() {
+    const fetchData = new Proxy(function(url) {
+        return new Promise((resolve) => setTimeout(() => resolve(`Fetched data from ${url}`), 1000));
+    }, loggerProxyHandler);
+
+    const data = await fetchData('https://api.example.com/data');
+    console.log(data);
+}
+
+ 
+const fibProxy = new Proxy(fibonacciGenerator(5), loggerProxyHandler);
+for (const num of fibProxy) {
+    console.log(`Fibonacci: ${num}`);
+}
+
+ 
+processData().catch(err => console.error(err));
+```

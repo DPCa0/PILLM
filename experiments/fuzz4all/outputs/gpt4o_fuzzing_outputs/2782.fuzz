@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { readFile } = await import('fs/promises');
+  const { resolve } = await import('path');
+
+   
+  async function* readLines(filePath) {
+    const data = await readFile(filePath, 'utf8');
+    for (const line of data.split('\n')) {
+      yield line;
+    }
+  }
+
+   
+  const handler = {
+    set(target, property, value) {
+      console.log(`Property '${property}' set to '${value}'`);
+      target[property] = value;
+      return true;
+    },
+  };
+
+  const reactiveObject = new Proxy({}, handler);
+
+   
+  const greet = (user) => {
+    const name = user?.name ?? 'Guest';
+    console.log(`Hello, ${name}! Welcome to the app.`);
+  };
+
+   
+  async function main() {
+    const filePath = resolve(__dirname, 'example.txt');
+    
+     
+    for await (const line of readLines(filePath)) {
+      console.log(`Read line: ${line}`);
+    }
+
+     
+    reactiveObject.status = 'online';
+
+     
+    greet({ name: 'Alice' });
+    greet(null);  
+  }
+
+  main();
+})();
+```

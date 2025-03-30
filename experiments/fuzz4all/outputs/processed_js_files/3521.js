@@ -1,0 +1,47 @@
+ 
+
+class API {
+    constructor() {
+        this.data = [
+            { id: 1, name: 'John', age: 30 },
+            { id: 2, name: 'Jane', age: 25 },
+            { id: 3, name: 'Mike', age: 35 }
+        ];
+    }
+
+    async fetchData(id) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                const item = this.data.find(d => d.id === id);
+                if (item) {
+                    resolve(item);
+                } else {
+                    reject(`No data found for id: ${id}`);
+                }
+            }, 1000);
+        });
+    }
+}
+
+(async () => {
+    const api = new API();
+    try {
+        const { name, age } = await api.fetchData(2);  
+        print(`Name: ${name}, Age: ${age}`);
+
+        const additionalInfo = { occupation: 'Engineer', country: 'USA' };
+        const user = { id: 2, name, age, ...additionalInfo };  
+        print(user);
+    } catch (error) {
+        console.error(error);
+    }
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const processedNumbers = numbers
+        .map(x => x * 2)       
+        .filter(x => x > 5)    
+        .reduce((acc, x) => acc + x, 0);  
+
+    print(`Processed Numbers Sum: ${processedNumbers}`);
+})();

@@ -1,0 +1,50 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+};
+
+const processData = ({ data }) => {
+    return data
+        .filter(item => item.active)
+        .map(({ id, value }) => ({ id, calculatedValue: value * Math.random() }));
+};
+
+const debounced = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+};
+
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events[event]) return;
+        this.events[event].forEach(listener => listener(...args));
+    }
+}
+
+const emitter = new EventEmitter();
+emitter.on('dataProcessed', data => print('Data processed:', data));
+
+const handleButtonClick = debounced(async () => {
+    try {
+        const data = await fetchData('https://api.example.com/data');
+        const processedData = processData(data);
+        emitter.emit('dataProcessed', processedData);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}, 300);
+
+document.querySelector('button').addEventListener('click', handleButtonClick);

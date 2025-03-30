@@ -1,0 +1,50 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  async emit(event, ...args) {
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event).slice();  
+      for (const listener of listeners) {
+        await listener(...args);
+      }
+    }
+  }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) => {
+  return Promise.race([
+    fetch(url).then(response => response.json()),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+  ]);
+};
+
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (data) => {
+  print('Processing data:', data);
+   
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  print('Data processed');
+});
+
+emitter.on('error', (err) => {
+  console.error('Error event:', err);
+});
+
+(async () => {
+  try {
+    const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/todos/1', 3000);
+    await emitter.emit('data', data);
+  } catch (error) {
+    emitter.emit('error', error);
+  }
+})();

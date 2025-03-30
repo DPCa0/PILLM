@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  
+   
+  const modulePath = './mathUtils.js';  
+  const { default: square } = await import(modulePath);
+
+   
+  const handler = {
+    get(target, prop) {
+      if (prop in target) {
+        console.log(`Get property '${prop}' -> ${target[prop]}`);
+        return target[prop];
+      }
+      throw new ReferenceError(`Property '${prop}' does not exist.`);
+    },
+    set(target, prop, value) {
+      console.log(`Set property '${prop}' to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+  };
+
+  const user = new Proxy({ name: 'Alice', age: 30 }, handler);
+  console.log(user.name);   
+
+  user.age = 31;   
+
+   
+  const people = new Map();
+  people.set(user.name, user.age);
+
+   
+  function* idMaker() {
+    let index = 0;
+    while (true) yield index++;
+  }
+
+  const gen = idMaker();
+
+   
+  const createPerson = () => ({
+    id: gen.next().value,
+    ...user
+  });
+
+  console.log(createPerson());
+
+   
+  const html = (strings, ...values) => 
+    strings.reduce((result, str, i) => result + str + (values[i] || ''), '');
+  
+  console.log(html`<p>${user.name} is ${user.age} years old.</p>`);
+
+   
+  console.log('Start processing...');
+  await delay(1000);
+  console.log('Completed process after a delay.');
+
+   
+  const numbers = [1, 2, 3, 4];
+  console.log('Squared numbers:', numbers.map(square));
+})();
+```

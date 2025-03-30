@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function simulateApiCall(data, delay) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.1) {  
+                resolve(`Data processed: ${data}`);
+            } else {
+                reject('API call failed');
+            }
+        }, delay);
+    });
+}
+
+ 
+async function processData() {
+    const data = ['task1', 'task2', 'task3'];
+    const results = new Map();
+
+    for (let i = 0; i < data.length; i++) {
+        try {
+            const result = await simulateApiCall(data[i], 1000);
+            results.set(data[i], result);
+        } catch (error) {
+            console.error(`Error processing ${data[i]}: ${error}`);
+        }
+    }
+
+    return results;
+}
+
+ 
+const mapHandler = {
+    get(target, prop, receiver) {
+        if (prop === 'get') {
+            return (key) => {
+                console.log(`Accessing result for: ${key}`);
+                return Reflect.get(target, prop, receiver).call(target, key);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async () => {
+    const resultMap = await processData();
+    const proxyResultMap = new Proxy(resultMap, mapHandler);
+
+    proxyResultMap.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+    });
+
+     
+    console.log(proxyResultMap.get('task1'));
+    console.log(proxyResultMap.get('task2'));
+})();
+```

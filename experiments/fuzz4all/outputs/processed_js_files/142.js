@@ -1,0 +1,45 @@
+ 
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const idGen = idGenerator();
+
+ 
+const handler = {
+  get: (target, prop) => {
+    print(`Accessed property: ${prop}`);
+    return Reflect.get(target, prop);
+  },
+  set: (target, prop, value) => {
+    print(`Set property: ${prop} with value: ${value}`);
+    return Reflect.set(target, prop, value);
+  }
+};
+
+const targetObject = {
+  id: idGen.next().value,
+  name: 'Advanced Features'
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const todo = await fetchData(url);
+  proxy.title = todo.title;   
+  print(proxy.id, proxy.name, proxy.title);   
+})();

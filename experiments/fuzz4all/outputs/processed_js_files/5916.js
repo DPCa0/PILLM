@@ -1,0 +1,73 @@
+ 
+(async function() {
+   
+  function* dataGenerator() {
+    let id = 0;
+    while (true) {
+      yield { id: id++, value: Math.random() };
+    }
+  }
+
+   
+  const fetchData = async (dataGen) => {
+    let count = 0;
+    const fetchedData = [];
+    const promise = new Promise((resolve) => {
+      setTimeout(() => {
+        for (let data of dataGen) {
+          fetchedData.push(data);
+          if (++count > 5) break;
+        }
+        resolve(fetchedData);
+      }, 1000);
+    });
+    return await promise;
+  };
+
+   
+  const dataHandler = {
+    get: (target, prop, receiver) => {
+      print(`Accessed ${prop} property`);
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+   
+  class DataProcessor {
+    #rawData;
+    static instanceCount = 0;
+    
+    constructor(rawData) {
+      this.#rawData = rawData;
+      DataProcessor.instanceCount++;
+    }
+
+    process() {
+      return this.#rawData.map(d => ({ ...d, processedValue: d.value * 100 }));
+    }
+
+    static getInstanceCount() {
+      return DataProcessor.instanceCount;
+    }
+  }
+
+  const generator = dataGenerator();
+  const rawData = await fetchData(generator);
+  
+  const proxiedData = new Proxy(rawData, dataHandler);
+  
+   
+  const processedResults = [];
+  for (let [index, entry] of Object.entries(proxiedData)) {
+    const dataProcessor = new DataProcessor([entry]);
+    processedResults[index] = dataProcessor.process()[0];
+  }
+
+  print(processedResults);
+  print(`DataProcessor instances created: ${DataProcessor.getInstanceCount()}`);
+
+   
+  const dataMap = new Map(processedResults.map(item => [item.id, item.processedValue]));
+  const uniqueValues = new Set(processedResults.map(item => item.processedValue));
+
+  const metaData = new WeakMap();

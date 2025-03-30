@@ -1,0 +1,63 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    const listeners = this.events.get(event);
+    if (listeners) {
+      listeners.forEach(listener => listener.apply(this, args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  let response = await fetch(url);
+  if (!response.ok) throw new Error("Network response was not ok");
+  return await response.json();
+}
+
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+const fetchController = (() => {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', data => {
+    print('Data received:', data);
+  });
+
+  emitter.on('error', err => {
+    console.error('Fetch error:', err);
+  });
+
+  return {
+    fetchData: async (url) => {
+      try {
+        const data = await fetchData(url);
+        emitter.emit('data', data);
+      } catch (error) {
+        emitter.emit('error', error);
+      }
+    }
+  };
+})();
+
+const url = 'https://jsonplaceholder.typicode.com/posts/1';
+fetchController.fetchData(url);
+
+const gen = numberGenerator();
+print(gen.next().value);  
+print(gen.next().value);  
+print(gen.next().value);  

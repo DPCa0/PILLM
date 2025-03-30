@@ -1,0 +1,46 @@
+ 
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  
+  get userInfo() {
+    return `${this.name}, ${this.age} years old`;
+  }
+
+  static async fetchUserData(userId) {
+     
+    const userData = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          id: userId,
+          name: "Alice",
+          age: 30,
+          hobbies: ['Reading', 'Cycling']
+        });
+      }, 1000);
+    });
+
+    return await userData;
+  }
+}
+
+const enhanceUser = (user) => {
+   
+  const enhancedUser = { ...user, active: true };
+  const { name, age, active, hobbies } = enhancedUser;
+
+  return `${name} is ${age} years old, active: ${active}, hobbies: ${hobbies.join(', ')}`;
+};
+
+(async () => {
+  try {
+    const userData = await User.fetchUserData(1);
+    const user = new User(userData.name, userData.age);
+    print(user.userInfo);
+    print(enhanceUser(userData));
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+})();

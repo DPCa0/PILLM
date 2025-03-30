@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (id) => {
+    const data = {
+        1: { name: "Alice", age: 25 },
+        2: { name: "Bob", age: 30 },
+        3: { name: "Charlie", age: 35 },
+    };
+     
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return data[id];
+};
+
+ 
+async function* userDataGenerator(ids) {
+    for (const id of ids) {
+        yield await fetchData(id);
+    }
+}
+
+ 
+const createLoggingProxy = (target) => {
+    return new Proxy(target, {
+        get: (obj, prop) => {
+            console.log(`Accessing property '${prop}'`);
+            return obj[prop];
+        },
+    });
+};
+
+ 
+const main = async () => {
+    const userIDs = [1, 2, 3];
+    const generator = userDataGenerator(userIDs);
+
+    for await (const user of generator) {
+        const proxiedUser = createLoggingProxy(user);
+        console.log(`User: ${proxiedUser.name}, Age: ${proxiedUser.age}`);
+    }
+};
+
+ 
+main();
+```

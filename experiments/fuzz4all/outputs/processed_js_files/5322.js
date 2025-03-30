@@ -1,0 +1,45 @@
+class Fibonacci {
+    constructor() {
+        this.memo = new Map();
+    }
+
+    *generate(n) {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < n; i++) {
+            [a, b] = [b, a + b];
+            yield a;
+        }
+    }
+
+    async get(n) {
+        if (this.memo.has(n)) return this.memo.get(n);
+        const fibGen = this.generate(n);
+        let result;
+        for await (const num of fibGen) {
+            result = num;
+        }
+        this.memo.set(n, result);
+        return result;
+    }
+}
+
+const fibonacci = new Fibonacci();
+
+(async () => {
+    const results = await Promise.all([
+        fibonacci.get(10),
+        fibonacci.get(15),
+        fibonacci.get(20)
+    ]);
+
+    const output = results.map((num, index) => `Fib(${index * 5 + 10}) = ${num}`).join('\n');
+    
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(output);
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+    print(`Fibonacci Results:\n${output}\n\nSHA-256 Hash of results:\n${hashHex}`);
+})();

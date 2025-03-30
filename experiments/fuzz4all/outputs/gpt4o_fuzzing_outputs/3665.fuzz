@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+class Reactive {
+  constructor(obj) {
+    this._listeners = new Map();
+
+     
+    return new Proxy(obj, {
+      get: (target, prop) => {
+        if (typeof target[prop] === 'function') {
+          return target[prop].bind(target);
+        }
+        return target[prop];
+      },
+      set: (target, prop, value) => {
+        target[prop] = value;
+        if (this._listeners.has(prop)) {
+          this._listeners.get(prop).forEach(callback => callback(value));
+        }
+        return true;
+      }
+    });
+  }
+
+  on(prop, callback) {
+    if (!this._listeners.has(prop)) {
+      this._listeners.set(prop, []);
+    }
+    this._listeners.get(prop).push(callback);
+  }
+}
+
+ 
+
+let state = new Reactive({
+  count: 0,
+  text: "Hello"
+});
+
+state.on('count', newValue => {
+  console.log(`The count has changed to: ${newValue}`);
+});
+
+state.on('text', newValue => {
+  console.log(`The text has changed to: ${newValue}`);
+});
+
+ 
+state.count = 1;   
+state.text = "World";   
+state.count = 2;   
+```

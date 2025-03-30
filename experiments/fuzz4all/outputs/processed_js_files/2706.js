@@ -1,0 +1,55 @@
+ 
+(async () => {
+   
+  const fetchData = url =>
+    new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onload = () =>
+        xhr.status === 200 ? resolve(JSON.parse(xhr.responseText)) : reject(Error(xhr.statusText));
+      xhr.onerror = () => reject(Error("Network Error"));
+      xhr.send();
+    });
+
+  try {
+     
+    const userData = await fetchData("https://jsonplaceholder.typicode.com/users/1");
+    
+     
+    const phoneNumbers = userData.phone.split(',').map(phone => phone.trim());
+    
+     
+    const { name, email, ...rest } = userData;
+    
+     
+    const userSummary = {
+      name,
+      email,
+      phoneNumbers,
+      details: { ...rest }
+    };
+    
+     
+    const uniqueKey = Symbol("uniqueKey");
+    userSummary[uniqueKey] = "Secret Identifier";
+    
+     
+    const metaData = new WeakMap();
+    metaData.set(userSummary, { lastFetched: new Date() });
+    
+     
+    const displayInfo = ({ name = "Unknown", email = "Not provided", ...rest }) => {
+      console.log(`User Info:
+        Name: ${name}
+        Email: ${email}
+        Phone Numbers: ${rest.phoneNumbers.join(', ')}
+      `);
+      print("Additional Details:", rest.details);
+    };
+
+    displayInfo(userSummary);
+    print("User MetaData:", metaData.get(userSummary));
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();

@@ -1,0 +1,49 @@
+class EventEmitter {
+  #events = new Map();
+
+  on(event, listener) {
+    if (!this.#events.has(event)) {
+      this.#events.set(event, []);
+    }
+    this.#events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.#events.has(event)) {
+      this.#events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (this.#events.has(event)) {
+      this.#events.set(event, this.#events.get(event).filter(listener => listener !== listenerToRemove));
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('message', console.log);
+  emitter.on('message', msg => print(`Length: ${msg.length}`));
+
+  emitter.emit('message', 'Hello, world!');
+  
+  await delay(2000);
+  
+  emitter.emit('message', 'This is an advanced JavaScript example.');
+
+  const dynamicImport = async module => {
+    const { default: importedModule } = await import(`./${module}.js`);
+    return importedModule;
+  };
+
+  const useDynamicFeature = async () => {
+    const feature = await dynamicImport('feature');
+    feature();
+  };
+
+  useDynamicFeature();
+})();

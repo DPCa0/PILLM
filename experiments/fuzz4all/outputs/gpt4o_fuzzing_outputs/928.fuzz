@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  const data = await response.json();
+  return data;
+}
+
+ 
+const user = { name: 'Alice', age: 30 };
+const userProxy = new Proxy(user, {
+  get(target, prop, receiver) {
+    console.log(`Property "${prop}" accessed.`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value) {
+    console.log(`Setting "${prop}" to "${value}".`);
+    return Reflect.set(target, prop, value);
+  }
+});
+
+ 
+function* fibonacci() {
+  let a = 0, b = 1;
+  while (true) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+ 
+const numbers = [1, 2, 3, 4, 5];
+const square = x => x * x;
+const squaredNumbers = numbers.map(square);
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    console.log('Fetched data:', data);
+
+    console.log('User name:', userProxy.name);
+    userProxy.age = 31;
+
+    const fibSeq = fibonacci();
+    console.log('First 5 Fibonacci numbers:', Array.from({ length: 5 }, () => fibSeq.next().value));
+
+    console.log('Squared numbers:', squaredNumbers);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```

@@ -1,0 +1,63 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static from(array) {
+    return new Matrix(array);
+  }
+
+  get rows() {
+    return this.data.length;
+  }
+
+  get cols() {
+    return this.data[0].length;
+  }
+
+  [Symbol.iterator]() {
+    let i = 0, j = 0;
+    return {
+      next: () => {
+        if (i < this.rows) {
+          const value = this.data[i][j];
+          j++;
+          if (j >= this.cols) {
+            j = 0;
+            i++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  map(callback) {
+    return new Matrix(this.data.map((row, i) => row.map((value, j) => callback(value, i, j))));
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error('Incompatible matrices');
+    return new Matrix(Array.from({ length: a.rows }, (_, i) => Array.from({ length: b.cols }, (_, j) =>
+      a.data[i].reduce((sum, _, n) => sum + a.data[i][n] * b.data[n][j], 0)
+    )));
+  }
+}
+
+const matrixA = Matrix.from([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const matrixB = Matrix.from([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const matrixC = Matrix.multiply(matrixA, matrixB);
+print("Matrix C:");
+for (const value of matrixC) {
+  process.stdout.write(value + " ");
+}

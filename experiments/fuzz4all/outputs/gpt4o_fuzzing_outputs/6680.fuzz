@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* asyncGenerator(array) {
+    for (const item of array) {
+        await delay(500);  
+        yield item;
+    }
+}
+
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value, receiver) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+async function processItems(array) {
+    const results = [];
+    for await (const item of asyncGenerator(array)) {
+        results.push(item * proxy.a);  
+    }
+    return results;
+}
+
+(async () => {
+    console.log('Starting processing...');
+    proxy.a = 3;  
+    const items = [1, 2, 3, 4];
+    const result = await processItems(items);
+    console.log('Processed items:', result);
+})();
+```

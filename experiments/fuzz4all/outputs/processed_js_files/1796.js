@@ -1,0 +1,29 @@
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+};
+
+const processData = (data) => {
+    return data.map(item => ({
+        ...item,
+        fullName: `${item.firstName} ${item.lastName}`,
+        isAdult: item.age >= 18
+    })).filter(person => person.isAdult);
+};
+
+const displayData = (data) => {
+    data.forEach(person => {
+        print(`Name: ${person.fullName}, Age: ${person.age}`);
+    });
+};
+
+(async () => {
+    try {
+        const apiData = await fetchData('https://api.example.com/people');
+        const processedData = processData(apiData);
+        displayData(processedData);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

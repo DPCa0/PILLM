@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            listeners.forEach(listener => listener(...args));
+        }
+    }
+
+    off(event, listenerToRemove) {
+        const listeners = this.events.get(event);
+        if (listeners) {
+            this.events.set(event, listeners.filter(listener => listener !== listenerToRemove));
+        }
+    }
+}
+
+const fetchWithTimeout = async (url, options = {}, timeout = 3000) => {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+};
+
+const transformData = (data) => {
+    return data.map(item => ({
+        ...item,
+        timestamp: new Date().toISOString()
+    }));
+};
+
+const executePipeline = async (url) => {
+    try {
+        const emitter = new EventEmitter();
+        emitter.on('data', data => console.log('Data received:', data));
+        emitter.on('error', error => console.error('Error:', error));
+
+        const response = await fetchWithTimeout(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        let data = await response.json();
+        data = transformData(data);
+
+        emitter.emit('data', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+};
+
+ 
+executePipeline('https://jsonplaceholder.typicode.com/posts');
+```

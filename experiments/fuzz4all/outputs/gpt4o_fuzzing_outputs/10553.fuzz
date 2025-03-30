@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+const compose = (...fns) => (x) => fns.reduceRight((v, fn) => fn(v), x);
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const retry = (fn, retries = 3) => async (...args) => {
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      lastError = error;
+      await delay(attempt * 100);  
+    }
+  }
+  throw lastError;
+};
+
+const fetchWithRetry = retry(async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}, 5);
+
+const transformData = (data) =>
+  data.map(({ id, name }) => ({ id, uppercaseName: name.toUpperCase() }));
+
+const logResult = (result) => {
+  console.log('Transformed Data:', result);
+  return result;
+};
+
+const main = async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/users';
+    const processUsers = compose(logResult, transformData, fetchWithRetry);
+    await processUsers(url);
+  } catch (error) {
+    console.error('Error occurred:', error);
+  }
+};
+
+main();
+```

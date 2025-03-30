@@ -1,0 +1,55 @@
+class AdvancedFeatureDemo {
+  #privateProperty = "This is private";  
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  *generatorFunction() {
+    yield* [1, 2, 3];  
+  }
+
+  static async fetchData(url) {
+    try {
+      const response = await fetch(url);  
+      if (!response.ok) throw new Error("Network response was not ok");
+      const data = await response.json();
+      print("Fetched Data:", data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  }
+
+  get privateProperty() {
+    return this.#privateProperty;
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const values = [this.name, this.#privateProperty];
+    return {
+      next: () => ({
+        value: values[index++],
+        done: index > values.length
+      })
+    };
+  }
+}
+
+(async () => {
+  const demo = new AdvancedFeatureDemo("Advanced JS");
+
+  for (let value of demo.generatorFunction()) {
+    print("Generated value:", value);
+  }
+
+   
+  for (let value of demo) {
+    print("Iterated value:", value);
+  }
+
+  print("Accessing private property:", demo.privateProperty);
+
+   
+  await AdvancedFeatureDemo.fetchData('https://jsonplaceholder.typicode.com/posts/1');
+})();

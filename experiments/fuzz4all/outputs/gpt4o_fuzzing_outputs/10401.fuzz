@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    } catch (error) {
+      console.error(`Failed to fetch data: ${error}`);
+    }
+  }
+
+  async displayData() {
+    const data = await this.fetchData();
+    if (data) {
+      data.forEach(item => console.log(`ID: ${item.id}, Name: ${item.name}`));
+    }
+  }
+}
+
+const url = 'https://jsonplaceholder.typicode.com/users';
+const dataFetcher = new DataFetcher(url);
+
+ 
+(async () => {
+  await dataFetcher.displayData();
+})();
+```

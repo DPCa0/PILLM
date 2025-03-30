@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+class AsyncDataHandler {
+  constructor(dataUrl) {
+    this.dataUrl = dataUrl;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.dataUrl);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Accessing property '${prop}'`);
+    return prop in target ? target[prop] : undefined;
+  },
+  set(target, prop, value) {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+(async () => {
+  const dataHandler = new AsyncDataHandler('https://jsonplaceholder.typicode.com/posts');
+  const dataProxy = new Proxy(dataHandler, handler);
+
+  const data = await dataProxy.fetchData();
+  
+   
+  console.log(data?.[0]?.title ?? 'No title available');
+
+   
+  const logDataProperties = (...properties) => {
+    properties.forEach(prop => console.log(dataProxy[prop]));
+  };
+
+  logDataProperties('dataUrl', 'fetchData');
+
+   
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  console.log('One second later...');
+})();
+```

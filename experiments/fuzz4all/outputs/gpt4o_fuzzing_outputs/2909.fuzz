@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchUserData = async () => {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const users = await response.json();
+    displayUserData(users);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
+
+ 
+const displayUserData = (users) => {
+  const userContainer = document.getElementById('user-container');
+  userContainer.innerHTML = users.map(({ id, name, email }) => `
+    <div class="user-card" id="user-${id}">
+      <h2>${name}</h2>
+      <p>Email: <a href="mailto:${email}">${email}</a></p>
+      <button onclick="showMoreInfo(${id})">More Info</button>
+    </div>
+  `).join('');
+};
+
+ 
+const showMoreInfo = (() => {
+  const moreInfoCache = new Map();
+
+  return async (userId) => {
+    if (!moreInfoCache.has(userId)) {
+      try {
+        const response = await fetch(`https: 
+        if (!response.ok) throw new Error('Network response was not ok');
+        const userData = await response.json();
+        moreInfoCache.set(userId, userData);
+      } catch (error) {
+        console.error('Error fetching additional user info:', error);
+      }
+    }
+
+    const { address: { street, suite, city }, phone, company: { name: companyName } } = moreInfoCache.get(userId);
+    const userCard = document.getElementById(`user-${userId}`);
+    userCard.innerHTML += `
+      <div class="more-info">
+        <p>Address: ${suite}, ${street}, ${city}</p>
+        <p>Phone: ${phone}</p>
+        <p>Company: ${companyName}</p>
+      </div>
+    `;
+  };
+})();
+
+ 
+document.addEventListener('DOMContentLoaded', fetchUserData);
+```
+
+To test this code, you would need an HTML file with a `div`

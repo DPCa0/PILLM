@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataGenerator() {
+  yield fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  yield fetchData('https://jsonplaceholder.typicode.com/todos/2');
+  yield fetchData('https://jsonplaceholder.typicode.com/todos/3');
+}
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+const generatorProxyHandler = {
+  get(target, prop, receiver) {
+    const original = Reflect.get(target, prop, receiver);
+    if (typeof original === 'function') {
+      return function (...args) {
+        const result = original.apply(target, args);
+        return (result instanceof Promise) ? result : Promise.resolve(result);
+      };
+    }
+    return original;
+  }
+};
+
+ 
+async function processGenerator(generator) {
+  for (let promise of generator) {
+    const data = await promise;
+    console.log(data);
+  }
+}
+
+ 
+const generatorInstance = dataGenerator();
+const proxiedGenerator = new Proxy(generatorInstance, generatorProxyHandler);
+
+ 
+processGenerator(proxiedGenerator);
+```

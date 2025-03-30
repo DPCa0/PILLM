@@ -1,0 +1,24 @@
+ 
+
+(async () => {
+     
+    const fetchData = (resource) => new Promise((resolve) => {
+        setTimeout(() => resolve({ resource, data: Math.floor(Math.random() * 100) }), 1000);
+    });
+
+    const resources = ['users', 'posts', 'comments'];
+
+     
+    const results = await Promise.all(resources.map(fetchData));
+
+     
+    const dataMap = new Map();
+    results.forEach(({ resource, data }) => {
+        dataMap.set(resource, data);
+    });
+
+     
+    for (const [key, value] of dataMap) {
+        print(`Resource: ${key}, Data: ${value}`);
+    }
+})();

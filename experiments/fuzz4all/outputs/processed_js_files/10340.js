@@ -1,0 +1,36 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      const data = await response.json();
+      return this.processData(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
+  processData({ results = [] }) {
+    return results.map(({ name, email }) => ({ name, email }));
+  }
+}
+
+const main = async () => {
+  const url = 'https://randomuser.me/api/?results=5';
+  const fetcher = new DataFetcher(url);
+  const users = await fetcher.fetchData();
+  
+  if (users) {
+    print('Fetched Users:');
+    users.forEach(({ name, email }) => {
+      print(`Name: ${name.first} ${name.last}, Email: ${email}`);
+    });
+  }
+};
+
+main();

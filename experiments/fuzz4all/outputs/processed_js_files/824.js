@@ -1,0 +1,44 @@
+ 
+
+ 
+function* dataGenerator() {
+    yield new Promise((resolve) => setTimeout(() => resolve(42), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve(24), 1000));
+}
+
+ 
+async function fetchData() {
+    const dataGen = dataGenerator();
+    for await (let data of dataGen) {
+        print(`Fetched data: ${data}`);
+    }
+}
+
+ 
+const targetObject = { x: 10, y: 20 };
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            print(`Getting property '${prop}': ${obj[prop]}`);
+            return obj[prop];
+        } else {
+            console.error(`Property '${prop}' not found`);
+        }
+    },
+    set: (obj, prop, value) => {
+        print(`Setting property '${prop}' to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+let { x, y } = proxy;
+print(`Destructured x: ${x}, y: ${y}`);
+proxy.z = 30;
+let { z } = proxy;
+
+ 
+fetchData();

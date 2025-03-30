@@ -1,0 +1,52 @@
+ 
+
+ 
+(async () => {
+    const { readFile } = await import('fs/promises');
+
+     
+    const readConfig = async (filePath) => {
+        try {
+            const data = await readFile(filePath, 'utf-8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error("Error reading file:", error);
+            return null;
+        }
+    };
+
+     
+    const defaultConfig = { host: 'localhost', port: 8080 };
+    const configProxyHandler = {
+        get(target, property) {
+            if (property in target) {
+                return target[property];
+            } else {
+                console.warn(`Property ${property} does not exist in config. Using default value.`);
+                return `default_${property}`;
+            }
+        }
+    };
+
+    const configFilePath = './config.json';
+    const userConfig = await readConfig(configFilePath);
+    const config = new Proxy({ ...defaultConfig, ...userConfig }, configProxyHandler);
+
+     
+    console.log(`Server running at http: 
+
+     
+    async function* asyncGenerator() {
+        const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+        for (const url of urls) {
+            const response = await fetch(url);
+            yield response.json();
+        }
+    }
+
+    (async () => {
+        for await (const data of asyncGenerator()) {
+            print('Fetched data:', data);
+        }
+    })();
+})();

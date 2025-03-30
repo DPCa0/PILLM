@@ -1,0 +1,55 @@
+class Matrix {
+  #data;
+
+  constructor(rows, cols, fillValue = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fillValue));
+  }
+
+  static fromArray(arr) {
+    const rows = arr.length;
+    const cols = arr[0].length;
+    const matrix = new Matrix(rows, cols);
+    arr.forEach((row, i) => row.forEach((val, j) => matrix.#data[i][j] = val));
+    return matrix;
+  }
+
+  *[Symbol.iterator]() {
+    for (let i = 0; i < this.rows; i++) {
+      yield this.#data[i];
+    }
+  }
+
+  async mapAsync(callback) {
+    const results = await Promise.all(
+      this.#data.map(async (row, i) => {
+        return await Promise.all(row.map(async (val, j) => await callback(val, i, j)));
+      })
+    );
+    this.#data = results;
+  }
+
+  toString() {
+    return this.#data.map(row => row.join('\t')).join('\n');
+  }
+}
+
+(async () => {
+  const matrix = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ]);
+
+  print('Original Matrix:');
+  print(matrix.toString());
+
+  await matrix.mapAsync(async (val) => {
+     
+    return new Promise(resolve => setTimeout(() => resolve(val * 2), 100));
+  });
+
+  print('Modified Matrix:');
+  print(matrix.toString());
+})();

@@ -1,0 +1,58 @@
+ 
+import fs from 'fs/promises';
+
+ 
+class AsyncFileHandler {
+  constructor(filename) {
+    this.filename = filename;
+  }
+
+   
+  async writeData(data) {
+    try {
+      await fs.writeFile(this.filename, data, 'utf8');
+      print('Data written successfully!');
+    } catch (error) {
+      console.error('Error writing data:', error);
+    }
+  }
+
+   
+  async readData() {
+    try {
+      const data = await fs.readFile(this.filename, 'utf8');
+      print('Read data:', data);
+    } catch (error) {
+      console.error('Error reading data:', error);
+    }
+  }
+}
+
+ 
+async function* asyncGenerator(array) {
+  for (const item of array) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    yield item;
+  }
+}
+
+ 
+async function processEvents(events) {
+  for await (const event of asyncGenerator(events)) {
+    print(`Processing event: ${event}`);
+  }
+}
+
+ 
+(async () => {
+   
+  const fileHandler = new AsyncFileHandler('example.txt');
+
+   
+  await fileHandler.writeData('Hello, advanced JavaScript world!');
+  await fileHandler.readData();
+
+   
+  const events = ['event1', 'event2', 'event3'];
+  await processEvents(events);
+})();

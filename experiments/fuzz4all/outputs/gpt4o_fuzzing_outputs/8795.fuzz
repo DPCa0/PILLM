@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const logSym = Symbol('log');
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop === logSym) {
+      return function() { console.log(...arguments); };
+    }
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    target[logSym](`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj[logSym]('Hello, Proxy!');  
+obj.name = 'JavaScript';        
+
+ 
+async function* asyncGenerator() {
+  yield await new Promise(resolve => setTimeout(() => resolve('First'), 1000));
+  yield await new Promise(resolve => setTimeout(() => resolve('Second'), 1000));
+  yield await new Promise(resolve => setTimeout(() => resolve('Third'), 1000));
+}
+
+ 
+async function processAsyncGenerator() {
+  for await (let value of asyncGenerator()) {
+    console.log(value);
+  }
+}
+
+processAsyncGenerator();
+```

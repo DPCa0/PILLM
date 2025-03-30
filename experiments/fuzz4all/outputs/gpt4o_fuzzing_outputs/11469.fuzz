@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data
+    .filter(item => item.active)
+    .map(({ id, name, attributes: { color, size } }) => ({
+      id,
+      name: name.toUpperCase(),
+      color,
+      size
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+};
+
+const main = async () => {
+  const url = 'https://api.example.com/items';
+  const data = await fetchData(url);
+  if (!data) return;
+
+  const processedData = processData(data);
+  console.table(processedData);
+  
+  const [firstItem, secondItem, ...others] = processedData;
+  console.log('First Item:', firstItem);
+  console.log('Second Item:', secondItem);
+  console.log('Other Items:', others);
+
+  const combinedData = { ...firstItem, ...secondItem, additionalProperty: 'NewValue' };
+  console.log('Combined Data:', combinedData);
+};
+
+main();
+```

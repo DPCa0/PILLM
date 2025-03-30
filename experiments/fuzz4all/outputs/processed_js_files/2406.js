@@ -1,0 +1,35 @@
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { user: 'Alice', id: 1, age: 30 };
+            resolve(data);
+        }, 1000);
+    });
+};
+
+const processUserData = ({ user, age }) => {
+    const userMap = new Map();
+    userMap.set('user', user);
+    userMap.set('age', age);
+
+    for (let [key, value] of userMap) {
+        print(`${key}: ${value}`);
+    }
+
+    return userMap;
+};
+
+(async () => {
+    try {
+        const url = 'https://api.example.com/user';
+        const userData = await fetchData(url);
+        const processedData = processUserData(userData);
+
+         
+        const uniqueValues = new Set([...processedData.values(), 'extraValue']);
+        print(`Unique values: ${[...uniqueValues].join(', ')}`);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

@@ -1,0 +1,58 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to fetch ${url}`);
+      yield await response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+ 
+function createLoggingProxy(target) {
+  return new Proxy(target, {
+    get(obj, prop) {
+      print(`Getting ${prop}`);
+      return prop in obj ? obj[prop] : undefined;
+    },
+    set(obj, prop, value) {
+      print(`Setting ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    },
+  });
+}
+
+ 
+function createMultiplier(factor) {
+  return (number) => number * factor;
+}
+
+ 
+const urls = new Set([
+  'https://api.example1.com/data',
+  'https://api.example2.com/data',
+]);
+
+const resultsMap = new Map();
+(async () => {
+  const fetchDataGen = fetchData(urls);
+  for await (const data of fetchDataGen) {
+    const processedData = data.map((item) => createMultiplier(2)(item.value));
+    resultsMap.set(data.source, processedData);
+  }
+
+   
+  const user = createLoggingProxy({ name: 'Alice', age: 30 });
+  print(user.name);
+  user.age = 31;
+
+   
+  const [firstResult] = resultsMap.values();
+  const extendedResult = [...firstResult, ...firstResult.map((v) => v + 10)];
+
+  print(extendedResult);
+})();

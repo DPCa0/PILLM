@@ -1,0 +1,56 @@
+ 
+import { readFileSync } from 'fs';
+
+ 
+const fetchData = async (filePath) => {
+   
+  return new Promise((resolve, reject) => {
+    try {
+      const data = readFileSync(filePath, 'utf-8');
+      resolve(JSON.parse(data));
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+ 
+const transformData = (data, transformFn) => data.map(transformFn);
+
+ 
+const fibonacci = (() => {
+  const memo = {};
+  return (n) => {
+    if (n <= 1) return n;
+    if (memo[n]) return memo[n];
+    return (memo[n] = fibonacci(n - 1) + fibonacci(n - 2));
+  };
+})();
+
+ 
+const processAndLogData = ({ name, values, ...rest }) => {
+  print(`Name: ${name}`);
+  print(`Values: ${values}`);
+  print(`Fibonacci(5): ${fibonacci(5)}`);
+  print(`Additional Info:`, rest);
+};
+
+ 
+(async () => {
+  try {
+     
+    const data = await fetchData('./data.json');
+    const transformedData = transformData(data, (item) => ({
+      ...item,
+      values: item.values.map((v) => v * 2),
+    }));
+
+     
+    const uniqueData = new Map(transformedData.map((item) => [item.id, item]));
+
+     
+    uniqueData.forEach(processAndLogData);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

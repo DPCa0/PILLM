@@ -1,0 +1,48 @@
+ 
+const fs = require('fs');
+
+ 
+function* fetchDataGenerator() {
+  yield fetch('https://jsonplaceholder.typicode.com/posts')
+    .then(response => response.json());
+}
+
+async function processData() {
+  const dataGenerator = fetchDataGenerator();
+  const posts = await dataGenerator.next().value;
+
+   
+  const uniqueTitles = new Set(posts.map(post => post.title));
+  const titleArray = Array.from(uniqueTitles);
+
+   
+  function highlight(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+      return `${result}${str}<strong>${values[i] || ''}</strong>`;
+    }, '');
+  }
+
+   
+  const highlightedTitles = titleArray.map(title => highlight`Title: ${title}`);
+
+   
+  const handler = {
+    set(obj, prop, value) {
+      print(`Array mutation: Setting index ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  };
+
+  const proxiedTitles = new Proxy(highlightedTitles, handler);
+
+   
+  proxiedTitles[0] = 'Updated: <strong>New Title</strong>';
+
+   
+  fs.writeFileSync('titles.html', proxiedTitles.join('<br/>'));
+
+  print('Data processed and written to titles.html');
+}
+
+processData();

@@ -1,0 +1,53 @@
+class Matrix {
+  #matrix;
+  
+  constructor(rows, cols, fillValue = 0) {
+    this.#matrix = Array.from({ length: rows }, () =>
+      Array.from({ length: cols }, () => fillValue)
+    );
+  }
+  
+  static identity(size) {
+    return new Matrix(size, size, 0).map((_, i, j) => (i === j ? 1 : 0));
+  }
+  
+  map(callback) {
+    return new Matrix(this.rows, this.cols).fill((_, i, j) => callback(this.#matrix[i][j], i, j));
+  }
+  
+  fill(callback) {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        this.#matrix[i][j] = callback(this.#matrix[i][j], i, j);
+      }
+    }
+    return this;
+  }
+  
+  get rows() {
+    return this.#matrix.length;
+  }
+
+  get cols() {
+    return this.#matrix[0].length;
+  }
+
+  toString() {
+    return this.#matrix.map(row => row.join('\t')).join('\n');
+  }
+}
+
+ 
+(async () => {
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  
+  print('Generating Identity Matrix...');
+  const identity = Matrix.identity(5);
+  print(identity.toString());
+
+  await wait(1000);
+
+  print('\nApplying transformation...');
+  const transformed = identity.map((value, i, j) => value + i * j);
+  print(transformed.toString());
+})();

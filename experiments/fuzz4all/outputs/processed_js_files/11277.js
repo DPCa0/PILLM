@@ -1,0 +1,63 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: { id: 1, name: "John Doe", age: 30 } });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function getData() {
+  try {
+    const response = await fetchData("https://api.example.com/data");
+    print("Data fetched:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
+
+ 
+const handler = {
+  get: function (target, prop, receiver) {
+    if (prop in target) {
+      return Reflect.get(target, prop, receiver);
+    } else {
+      console.warn(`Property "${prop}" does not exist`);
+      return undefined;
+    }
+  },
+  set: function (target, prop, value) {
+    if (typeof value === 'number') {
+      Reflect.set(target, prop, value);
+    } else {
+      console.error(`Value for "${prop}" must be a number`);
+    }
+    return true;
+  }
+};
+
+ 
+const user = new Proxy({}, handler);
+
+(async () => {
+  const userData = await getData();
+
+   
+  user.id = userData.id;
+  user.name = userData.name;   
+  user.age = userData.age;
+
+  print("User ID:", user.id);
+  print("User Age:", user.age);
+
+   
+  print("User Address:", user.address);
+})();

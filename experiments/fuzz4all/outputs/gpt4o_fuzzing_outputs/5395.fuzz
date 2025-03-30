@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  const data = await response.json();
+  return data;
+}
+
+ 
+function processUserData({ name, username, email }) {
+  const hiddenEmail = email.replace(/(.{2})(.*)(?=@)/, (_, start, mid) => `${start}${'*'.repeat(mid.length)}`);
+  return `User: ${name} (${username}), Contact: ${hiddenEmail}`;
+}
+
+ 
+async function getUsers() {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/users/1',
+    'https://jsonplaceholder.typicode.com/users/2',
+    'https://jsonplaceholder.typicode.com/users/3'
+  ];
+  
+  try {
+    const results = await Promise.allSettled(urls.map(fetchData));
+    results.forEach(result => {
+      if (result.status === 'fulfilled') {
+        console.log(processUserData(result.value));
+      } else {
+        console.error('Error fetching data:', result.reason);
+      }
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+  }
+}
+
+getUsers();
+```

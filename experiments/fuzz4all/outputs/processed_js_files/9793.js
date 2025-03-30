@@ -1,0 +1,53 @@
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        const { userId, id, title } = data;
+        return { userId, id, title };
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+ 
+function* generatorSequence(urls) {
+    for (const url of urls) {
+        yield fetchData(url);
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        return property in target ? target[property] : `Property ${property} not found`;
+    },
+};
+
+const user = {
+    name: 'John Doe',
+    age: 30,
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+(async () => {
+    print(`User Info: ${proxyUser.name}, Age: ${proxyUser.age}`);
+    print(proxyUser.nonExistentProperty);  
+
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2',
+    ];
+    
+    const generator = generatorSequence(urls);
+
+    for (const promise of generator) {
+        const result = await promise;
+        print(`Fetched data:`, result);
+    }
+})();

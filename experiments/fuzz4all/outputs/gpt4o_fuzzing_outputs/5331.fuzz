@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        return null;
+    }
+};
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+
+ 
+const user = {
+    name: 'Alice',
+    age: 25
+};
+
+const handler = {
+    get: (target, property) => {
+        console.log(`Getting ${property} from user`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting ${property} to ${value} in user`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+const app = (() => {
+    const privateVar = 'I am private';
+    
+    function privateMethod() {
+        console.log(privateVar);
+    }
+    
+    return {
+        publicMethod: () => {
+            console.log('I am public');
+            privateMethod();
+        }
+    };
+})();
+
+ 
+(async () => {
+    const jsonPlaceholderURL = 'https://jsonplaceholder.typicode.com/todos/1';
+    const data = await fetchData(jsonPlaceholderURL);
+    console.log('Fetched data:', data);
+
+    console.log('Generated ID:', gen.next().value);
+    console.log('Generated ID:', gen.next().value);
+
+    console.log('User Name:', proxyUser.name);
+    proxyUser.age = 26;
+
+    app.publicMethod();
+})();
+```

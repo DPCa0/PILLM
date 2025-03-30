@@ -1,0 +1,54 @@
+ 
+const uniqueID = Symbol('id');
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+    this.cache = new Map();
+    this.proxy = new Proxy(this, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        } else {
+          throw new ReferenceError(`Property ${prop} does not exist`);
+        }
+      }
+    });
+  }
+
+  async fetchData(endpoint) {
+    if (this.cache.has(endpoint)) {
+      print('Returning cached data');
+      return this.cache.get(endpoint);
+    }
+    
+    const response = await fetch(`${this.apiUrl}/${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    this.cache.set(endpoint, data);
+    return data;
+  }
+
+  async getData(endpoint) {
+    try {
+      return await this.proxy.fetchData(endpoint);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+const api = new DataFetcher('https://jsonplaceholder.typicode.com');
+
+(async () => {
+  const data1 = await api.getData('todos/1');
+  print('Data 1:', data1);
+
+  const data2 = await api.getData('todos/1');  
+  print('Data 2:', data2);
+
+  print('Unique ID Symbol:', uniqueID);
+})();

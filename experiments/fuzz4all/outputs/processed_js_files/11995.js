@@ -1,0 +1,36 @@
+ 
+
+ 
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { id: 1, name: 'Alice', age: 28 },
+        { id: 2, name: 'Bob', age: 34 },
+        { id: 3, name: 'Charlie', age: 30 }
+      ]);
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+    const data = await fetchData();
+    
+     
+    const [{ name: firstName }, ...rest] = data;
+    const adults = rest.filter(({ age }) => age >= 30);
+
+     
+    const totalAge = adults.map(({ age }) => age).reduce((acc, age) => acc + age, 0);
+
+    print(`First person: ${firstName}`);
+    print(`Total age of adults: ${totalAge}`);
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+processData();

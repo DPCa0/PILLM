@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'John Doe', email: 'john@example.com' },
+        posts: [
+          { id: 101, title: 'Post 1', content: 'Lorem ipsum 1' },
+          { id: 102, title: 'Post 2', content: 'Lorem ipsum 2' }
+        ]
+      });
+    }, 1000);
+  });
+}
+
+ 
+function displayUserInfo({ user, posts }) {
+  const { id, name, email } = user;
+  const [firstPost, ...otherPosts] = posts;
+
+  console.log(`User Info: ID=${id}, Name=${name}, Email=${email}`);
+  console.log(`First Post: ${firstPost.title}`);
+
+  if (otherPosts.length > 0) {
+    console.log('Other Posts:');
+    otherPosts.forEach(post => console.log(`- ${post.title}`));
+  }
+}
+
+ 
+async function main() {
+  try {
+    const data = await fetchData();
+    displayUserInfo(data);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+ 
+main();
+```

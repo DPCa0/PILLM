@@ -1,0 +1,50 @@
+ 
+
+ 
+export const greetingModule = (() => {
+  const greetings = ['Hello', 'Hi', 'Greetings', 'Salutations'];
+
+  function* generateGreeting() {
+    let index = 0;
+    while (true) {
+      yield greetings[index % greetings.length];
+      index++;
+    }
+  }
+
+  return {
+    greetGenerator: generateGreeting()
+  };
+})();
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop === 'nextGreeting') {
+      return target.greetGenerator.next().value;
+    }
+    return Reflect.get(target, prop);
+  }
+};
+
+const proxiedModule = new Proxy(greetingModule, handler);
+
+ 
+async function getGreetings() {
+  let greetingPromise = new Promise((resolve) => {
+    setTimeout(() => resolve(proxiedModule.nextGreeting), 500);
+  });
+
+  for (let i = 0; i < 5; i++) {
+     
+    let greeting = await greetingPromise;
+    print(`${greeting}, world!`);
+     
+    greetingPromise = new Promise((resolve) => {
+      setTimeout(() => resolve(proxiedModule.nextGreeting), 500);
+    });
+  }
+}
+
+ 
+getGreetings();

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(['apple', 'banana', 'cherry']);
+    }, 1000);
+  });
+};
+
+ 
+const processData = async () => {
+  try {
+     
+    const fruits = await fetchData();
+
+     
+    const [firstFruit, ...otherFruits] = fruits;
+
+     
+    const uppercaseFruits = fruits
+      .map((fruit) => fruit.toUpperCase())   
+      .filter((fruit) => fruit.includes('A'))  
+      .reduce((acc, fruit) => `${acc}, ${fruit}`, 'Fruits:');
+
+    console.log(`First fruit: ${firstFruit}`);  
+    console.log(`Other fruits: ${otherFruits.join(', ')}`);  
+    console.log(uppercaseFruits);  
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+};
+
+ 
+const uniqueItems = new Set(['apple', 'banana', 'apple', 'orange']);
+console.log('Unique items:', [...uniqueItems]);  
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    return prop in obj ? obj[prop] : 'Property does not exist';
+  },
+};
+
+const target = {
+  name: 'JavaScript',
+  type: 'Programming Language',
+};
+
+const proxy = new Proxy(target, handler);
+console.log(proxy.name);  
+console.log(proxy.version);  
+
+processData();
+```

@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            for (const listener of this.events.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.events.has(event)) {
+            this.events.get(event).delete(listener);
+        }
+    }
+}
+
+class Application {
+    #state;
+    #listeners = new EventEmitter();
+
+    constructor() {
+        this.#state = new Proxy(
+            { count: 0 },
+            {
+                set: (target, prop, value) => {
+                    target[prop] = value;
+                    this.#listeners.emit('stateChange', { [prop]: value });
+                    return true;
+                }
+            }
+        );
+    }
+
+    increment() {
+        this.#state.count += 1;
+    }
+
+    decrement() {
+        this.#state.count -= 1;
+    }
+
+    onStateChange(listener) {
+        this.#listeners.on('stateChange', listener);
+    }
+}
+
+const app = new Application();
+
+app.onStateChange((newState) => {
+    console.log('State changed:', newState);
+});
+
+app.increment();  
+app.decrement();  
+app.increment();  
+```

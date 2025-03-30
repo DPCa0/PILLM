@@ -1,0 +1,44 @@
+(async () => {
+   
+  const fetchData = async (id) => {
+    return new Promise((resolve) =>
+      setTimeout(() => resolve({ id, value: Math.random() * 100 }), Math.random() * 1000)
+    );
+  };
+
+   
+  const fetchMultipleData = async (ids) => {
+    const results = await Promise.all(ids.map(async (id) => await fetchData(id)));
+    return results;
+  };
+
+   
+  const dataLogger = new Proxy({}, {
+    get: (target, property) => {
+      print(`Accessed property "${property}"`);
+      return target[property];
+    },
+    set: (target, property, value) => {
+      print(`Setting property "${property}" to "${value}"`);
+      target[property] = value;
+      return true;
+    },
+  });
+
+   
+  function* idGenerator(start, end) {
+    for (let i = start; i <= end; i++) {
+      yield i;
+    }
+  }
+
+  const ids = [...idGenerator(1, 5)];  
+  const data = await fetchMultipleData(ids);
+
+  data.forEach((item, index) => {
+     
+    dataLogger[`data_${index}`] = item;
+  });
+
+  print(dataLogger.data_1);  
+})();

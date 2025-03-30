@@ -1,0 +1,48 @@
+ 
+
+ 
+const data = [
+    { id: 1, name: 'Alice', score: 85 },
+    { id: 2, name: 'Bob', score: 92 },
+    { id: 3, name: 'Charlie', score: 78 },
+    { id: 4, name: 'David', score: 95 }
+];
+
+ 
+const processData = (data) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const processed = data.map(item => ({
+                ...item,
+                passed: item.score >= 80
+            }));
+            resolve(processed);
+        }, 1000);
+    });
+};
+
+ 
+const handleData = async () => {
+    try {
+        print('Fetching data...');
+        
+         
+        const processedData = await processData(data);
+        
+         
+        const [first, ...rest] = processedData;
+        print('First processed item:', first);
+
+         
+        const passedStudents = rest.filter(student => student.passed).map(({ name, score }) => ({ name, score }));
+        
+         
+        print(`Students who passed:\n${passedStudents.map(s => `${s.name} with score ${s.score}`).join('\n')}`);
+
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+ 
+handleData();

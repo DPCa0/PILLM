@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* generateRandomNumbers() {
+    while (true) {
+        yield Math.random();
+        await delay(500);
+    }
+}
+
+function memoize(fn) {
+    const cache = new Map();
+    return async function(...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) {
+            return cache.get(key);
+        }
+        const result = await fn(...args);
+        cache.set(key, result);
+        return result;
+    };
+}
+
+const expensiveComputation = async num => {
+    console.log(`Computing result for: ${num}`);
+    await delay(1000);
+    return num * 2;
+};
+
+const memoizedComputation = memoize(expensiveComputation);
+
+async function main() {
+    const generator = generateRandomNumbers();
+    for await (const randomNum of generator) {
+        const roundedNum = Math.round(randomNum * 10);
+        const result = await memoizedComputation(roundedNum);
+        console.log(`Rounded Number: ${roundedNum}, Computed Result: ${result}`);
+    }
+}
+
+main().catch(console.error);
+```

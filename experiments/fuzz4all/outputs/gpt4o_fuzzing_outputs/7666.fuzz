@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchData() {
+    console.log("Fetching data...");
+    await delay(1000);  
+    console.log("Data fetched!");
+    return { user: { name: "Alice", age: 30, location: "Wonderland" } };
+}
+
+const handler = {
+    get(target, property, receiver) {
+        if (property in target) {
+            return Reflect.get(target, property, receiver);
+        } else {
+            console.log(`Property "${property}" not found.`);
+        }
+    },
+    set(target, property, value) {
+        if (typeof value === "number") {
+            if (value >= 0) {
+                return Reflect.set(target, property, value);
+            } else {
+                console.log(`Invalid value "${value}" for "${property}"`);
+                return false;
+            }
+        }
+        return Reflect.set(target, property, value);
+    }
+};
+
+async function main() {
+    const data = await fetchData();
+    const proxiedUser = new Proxy(data.user, handler);
+
+    console.log(`Name: ${proxiedUser.name}`);
+    console.log(`Age: ${proxiedUser.age}`);
+
+    proxiedUser.age = 25;  
+    console.log(`Updated Age: ${proxiedUser.age}`);
+
+    proxiedUser.age = -1;  
+    console.log(`Attempt to set invalid Age`);
+
+    console.log(`Location: ${proxiedUser.location}`);
+    console.log(`Country: ${proxiedUser.country}`);  
+}
+
+main().catch((err) => console.error(err));
+```

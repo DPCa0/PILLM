@@ -1,0 +1,63 @@
+class ComplexCalculator {
+    #history = [];
+
+    constructor() {
+        this.add = this.#createOperation((a, b) => a + b);
+        this.subtract = this.#createOperation((a, b) => a - b);
+        this.multiply = this.#createOperation((a, b) => a * b);
+        this.divide = this.#createOperation((a, b) => {
+            if (b === 0) throw new Error("Cannot divide by zero");
+            return a / b;
+        });
+    }
+
+    #createOperation(operation) {
+        return (...args) => {
+            const result = args.reduce(operation);
+            this.#history.push({ operation: operation.name, args, result });
+            return result;
+        };
+    }
+
+    getHistory() {
+        return this.#history;
+    }
+
+    clearHistory() {
+        this.#history = [];
+    }
+}
+
+const asyncCalculate = async (calculator, operation, ...args) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            try {
+                const result = calculator[operation](...args);
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        }, 1000);
+    });
+};
+
+(async () => {
+    const calc = new ComplexCalculator();
+
+    try {
+        const results = await Promise.all([
+            asyncCalculate(calc, 'add', 5, 10, 15),
+            asyncCalculate(calc, 'subtract', 20, 5),
+            asyncCalculate(calc, 'multiply', 4, 3, 2),
+            asyncCalculate(calc, 'divide', 20, 2),
+        ]);
+
+        print('Results:', results);
+        print('History:', calc.getHistory());
+
+        calc.clearHistory();
+        print('Cleared History:', calc.getHistory());
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

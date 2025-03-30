@@ -1,0 +1,45 @@
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                user: {
+                    id: 1,
+                    name: 'Alice',
+                    preferences: {
+                        theme: 'dark',
+                        notifications: true
+                    }
+                },
+                messages: [
+                    { id: 1, content: 'Hello Alice!', timestamp: '2023-10-01' },
+                    { id: 2, content: 'Your appointment is tomorrow.', timestamp: '2023-10-02' }
+                ]
+            });
+        }, 1000);
+    });
+};
+
+ 
+const processUserData = async () => {
+    try {
+         
+        const { user: { name, preferences: { theme } }, messages } = await fetchData();
+
+        print(`Welcome back, ${name}!`);
+        print(`Your preferred theme is: ${theme}`);
+
+        print('You have new messages:');
+        messages.forEach(({ content, timestamp }) => {
+            print(`[${timestamp}] ${content}`);
+        });
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+};
+
+ 
+processUserData();

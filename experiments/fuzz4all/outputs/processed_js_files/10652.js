@@ -1,0 +1,60 @@
+class Emitter extends EventTarget {
+  emit(eventName, detail) {
+    this.dispatchEvent(new CustomEvent(eventName, { detail }));
+  }
+}
+
+const emitter = new Emitter();
+
+const numbers = [1, 2, 3, 4, 5];
+const complexOperation = async () => {
+   
+  const [first, ...rest] = numbers;
+
+   
+  const result = await Promise.all(
+    rest.map((number) => {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(number * number), number * 100);
+      });
+    })
+  );
+
+  return [first, ...result];
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (typeof target[prop] === 'function') {
+      return function (...args) {
+        print(`Calling method ${prop} with arguments:`, args);
+        return target[prop].apply(this, args);
+      };
+    }
+    print(`Accessing property ${prop}`);
+    return target[prop];
+  },
+};
+
+const proxyEmitter = new Proxy(emitter, handler);
+
+ 
+proxyEmitter.addEventListener('calculated', (event) => {
+  print('Calculation result:', event.detail);
+});
+
+complexOperation().then((result) => {
+  proxyEmitter.emit('calculated', result);
+});
+
+ 
+function* fibonacciGenerator(n) {
+  let [a, b] = [0, 1];
+  while (n-- > 0) {
+    [a, b] = [b, a + b];
+    yield a;
+  }
+}
+
+print([...fibonacciGenerator(5)]);  

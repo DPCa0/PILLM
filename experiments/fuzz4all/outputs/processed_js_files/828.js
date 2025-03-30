@@ -1,0 +1,50 @@
+ 
+
+ 
+async function fetchUserData(userId) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                id: userId,
+                name: 'John Doe',
+                age: 30,
+                location: {
+                    city: 'New York',
+                    country: 'USA'
+                },
+                preferences: {
+                    theme: 'dark',
+                    language: 'en'
+                }
+            });
+        }, 1000);
+    });
+}
+
+ 
+function showUserInfo({ name, age, location: { city, country }, preferences: { theme } }) {
+    console.log(`User Info:
+        Name: ${name}
+        Age: ${age}
+        Location: ${city}, ${country}
+        Preferred Theme: ${theme}`);
+}
+
+ 
+const userProxyHandler = {
+    get: (target, property) => {
+        print(`Accessing property: ${property}`);
+        return target[property];
+    }
+};
+
+(async function() {
+     
+    const userData = await fetchUserData(1);
+
+     
+    const proxiedUser = new Proxy(userData, userProxyHandler);
+
+     
+    showUserInfo(proxiedUser);
+})();

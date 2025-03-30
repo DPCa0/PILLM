@@ -1,0 +1,46 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+};
+
+class Observable {
+  constructor() {
+    this.subscribers = [];
+  }
+  
+  subscribe(fn) {
+    this.subscribers.push(fn);
+  }
+  
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+};
+
+const dataObserver = new Observable();
+
+const processData = debounce(async (url) => {
+  try {
+    const data = await fetchData(url);
+    dataObserver.notify(data);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}, 300);
+
+dataObserver.subscribe(data => print('Received Data:', data));
+
+document.querySelector('#fetchButton').addEventListener('click', () => {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  processData(url);
+});

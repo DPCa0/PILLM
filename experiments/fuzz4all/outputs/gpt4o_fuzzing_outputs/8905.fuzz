@@ -1,0 +1,34 @@
+print('Hello, world!');
+```javascript
+ 
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function fetchData() {
+    await delay(1000);
+    return { name: "Alice", age: 30 };
+}
+
+const handler = {
+    get(target, property) {
+        if (property in target) {
+            console.log(`Getting ${property}`);
+            return target[property];
+        } else {
+            console.warn(`Property ${property} doesn't exist`);
+            return undefined;
+        }
+    }
+};
+
+async function process() {
+    const data = await fetchData();
+    const proxiedData = new Proxy(data, handler);
+
+    console.log(`Name: ${proxiedData.name}`);   
+    console.log(`Age: ${proxiedData.age}`);     
+    console.log(`Nonexistent: ${proxiedData.nonexistent}`);  
+}
+
+process();
+```

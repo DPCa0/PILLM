@@ -1,0 +1,48 @@
+ 
+const fetchData = async (url) => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+};
+
+ 
+const handler = {
+    set(target, prop, value) {
+        if (prop === 'name' && typeof value !== 'string') {
+            throw new TypeError('Name must be a string');
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+class DataProcessor {
+    constructor(url) {
+        this.url = url;
+        this.data = null;
+    }
+
+    async processData() {
+        try {
+            const rawData = await fetchData(this.url);
+            this.data = new Proxy(rawData, handler);
+            print('Data fetched successfully:', this.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+    filterData(predicate) {
+        if (!this.data) {
+            throw new Error('Data has not been loaded');
+        }
+        return Object.values(this.data).filter(predicate);
+    }
+}
+
+(async () => {
+    const processor = new DataProcessor('https://jsonplaceholder.typicode.com/users');
+    await processor.processData();
+    const filteredData = processor.filterData(user => user.name.startsWith('C'));
+    print('Filtered Data:', filteredData);
+})();

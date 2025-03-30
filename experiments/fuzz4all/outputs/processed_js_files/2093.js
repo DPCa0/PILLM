@@ -1,0 +1,60 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+     
+    const response = await fetch(url);
+     
+    yield response.json();
+  }
+}
+
+ 
+const loggerHandler = {
+  get: (target, prop) => {
+    print(`Accessing property '${prop}'`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+ 
+const exampleData = {
+  id: 1,
+  name: 'Sample',
+};
+
+ 
+const proxyData = new Proxy(exampleData, loggerHandler);
+
+ 
+async function processUrls() {
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  
+   
+  for await (const data of fetchData(urls)) {
+    print('Fetched data:', data);
+  }
+}
+
+ 
+async function execute() {
+  const promises = [
+    processUrls(),
+    Promise.resolve('Immediate resolved value'),
+  ];
+
+  const results = await Promise.allSettled(promises);
+  
+  print('All promises settled:', results);
+}
+
+ 
+print('Initial id:', proxyData.id);
+proxyData.name = 'Updated Sample';
+
+ 
+execute();

@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    off(event, listenerToRemove) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+        this.events.set(event, listeners);
+    }
+
+    async emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        const listeners = this.events.get(event);
+        const promises = listeners.map(listener => listener(...args));
+        await Promise.all(promises);
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            console.log(`GET ${prop}`);
+            return target[prop];
+        } else {
+            return `Property ${prop} does not exist`;
+        }
+    }
+};
+
+const target = { a: 1, b: 2 };
+const proxy = new Proxy(target, handler);
+
+(async () => {
+    const emitter = new AsyncEventEmitter();
+
+    emitter.on('data', async (message) => {
+        await delay(1000);
+        console.log('Listener 1 received:', message);
+    });
+
+    emitter.on('data', async (message) => {
+        await delay(500);
+        console.log('Listener 2 received:', message);
+    });
+
+    console.log(proxy.a);  
+    console.log(proxy.c);  
+
+    await emitter.emit('data', 'Hello, EventEmitter!');
+})();
+```

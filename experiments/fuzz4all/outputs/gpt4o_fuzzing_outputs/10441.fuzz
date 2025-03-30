@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const uniqueKey = Symbol('uniqueKey');
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting property: ${String(prop)}`);
+    return prop in target ? target[prop] : `Property ${String(prop)} not found`;
+  },
+  set(target, prop, value) {
+    console.log(`Setting property: ${String(prop)} to ${value}`);
+    target[prop] = value;
+    return true;
+  },
+};
+
+ 
+const obj = {
+  name: 'JavaScript',
+  [uniqueKey]: 'secret',
+};
+
+ 
+const proxyObj = new Proxy(obj, handler);
+
+ 
+async function demonstrateProxy() {
+  console.log(proxyObj.name);
+  proxyObj.version = 'ES2023';
+  console.log(proxyObj.version);
+  console.log(proxyObj[uniqueKey]);
+  console.log(proxyObj.nonExistentProperty);
+}
+
+ 
+(async () => {
+  console.log('Starting demonstration:');
+  await demonstrateProxy();
+  console.log('Demonstration finished.');
+})();
+```

@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+};
+
+const processData = (data) => {
+  const grouped = data.reduce((acc, item) => {
+    const { category, value } = item;
+    acc[category] = acc[category] || [];
+    acc[category].push(value);
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).map(([category, values]) => ({
+    category,
+    average: values.reduce((a, b) => a + b, 0) / values.length,
+  }));
+};
+
+(async () => {
+  try {
+    const data = await fetchData('https://api.example.com/data');
+    const processedData = processData(data);
+    
+    const [mostCommonCategory] = processedData.sort(
+      (a, b) => b.average - a.average
+    );
+    
+    console.log(`The category with the highest average value is ${mostCommonCategory.category}`);
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();
+```

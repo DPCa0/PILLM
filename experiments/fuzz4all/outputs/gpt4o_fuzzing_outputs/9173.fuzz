@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async function() {
+   
+  const fetchData = (url) => new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Data from ${url}`);
+    }, Math.random() * 1000);
+  });
+
+   
+  const urls = [
+    'https://api.example.com/endpoint1',
+    'https://api.example.com/endpoint2',
+    'https://api.example.com/endpoint3'
+  ];
+
+   
+  const createCounter = (start = 0) => {
+    let count = start;
+    return {
+      increment: () => ++count,
+      getCount: () => count
+    };
+  };
+
+  const counter = createCounter();
+
+   
+  const fetchAllData = async (urls) => {
+    const promises = urls.map(url => fetchData(url));
+    return Promise.all(promises);
+  };
+
+  try {
+    const results = await fetchAllData(urls);
+    
+     
+    const [data1, data2, data3] = results;
+
+    console.log(`Counter: ${counter.increment()}`);
+    console.log(data1);
+    console.log(data2);
+    console.log(data3);
+    console.log(`Counter after all operations: ${counter.getCount()}`);
+    
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();
+```

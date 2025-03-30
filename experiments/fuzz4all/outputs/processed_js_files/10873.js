@@ -1,0 +1,72 @@
+ 
+import { readFile } from 'fs/promises';
+import { createServer } from 'http';
+import { EventEmitter } from 'events';
+
+ 
+async function getData() {
+  try {
+    const data = await readFile('./data.json', 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading file:', error);
+    return {};
+  }
+}
+
+ 
+function processData(data) {
+   
+  const { items } = data;
+
+   
+  return items
+    .filter(({ active }) => active)
+    .map(({ value }) => value * 2)
+    .reduce((sum, value) => sum + value, 0);
+}
+
+ 
+class DataEmitter extends EventEmitter {
+  emitDataProcessed(data) {
+    const processedData = processData(data);
+    this.emit('dataProcessed', processedData);
+  }
+}
+
+ 
+const loggerProxy = (target) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      print(`Property ${prop} was accessed.`);
+      return obj[prop];
+    }
+  });
+};
+
+ 
+async function main() {
+  const data = await getData();
+  const loggerData = loggerProxy(data);
+
+   
+  const dataEmitter = new DataEmitter();
+  dataEmitter.on('dataProcessed', (processedData) => {
+    print('Processed Data:', processedData);
+  });
+
+   
+  dataEmitter.emitDataProcessed(loggerData);
+}
+
+ 
+createServer(async (req, res) => {
+  if (req.url === '/') {
+    await main();   
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end(`Hello, world! Current time: ${new Date().toLocaleTimeString()}`);
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
+}).listen(3000

@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexFeature {
+  #privateValue;
+
+  constructor(initialValue) {
+    this.#privateValue = initialValue;
+    this.data = new Proxy(
+      { count: 0 },
+      {
+        get: (target, prop) => {
+          if (prop === 'count') {
+            console.log(`Accessing count: ${target[prop]}`);
+          }
+          return target[prop];
+        },
+        set: (target, prop, value) => {
+          if (prop === 'count') {
+            console.log(`Setting count from ${target[prop]} to ${value}`);
+            this.#privateValue += value;
+          }
+          target[prop] = value;
+          return true;
+        },
+      }
+    );
+  }
+
+  #logPrivateValue() {
+    console.log(`Private Value is now: ${this.#privateValue}`);
+  }
+
+  complexOperation() {
+    let operations = [
+      async () => {
+        console.log('Starting async operation');
+        return new Promise((resolve) => setTimeout(resolve, 1000));
+      },
+      () => {
+        console.log('Sync operation in array');
+        return 42;
+      },
+      function* () {
+        console.log('Generator yielding 100');
+        yield 100;
+      },
+    ];
+
+    return async () => {
+      for (let operation of operations) {
+        if (typeof operation === 'function') {
+          const result = await operation();
+          if (result) console.log(`Result: ${result}`);
+        } else {
+          for (let value of operation()) {
+            console.log(`Generator value: ${value}`);
+          }
+        }
+      }
+      this.#logPrivateValue();
+    };
+  }
+}
+
+ 
+const complex = new ComplexFeature(10);
+
+ 
+complex.data.count = 5;  
+console.log(complex.data.count);  
+complex.complexOperation()().then(() => console.log('Operations Completed.'));
+```

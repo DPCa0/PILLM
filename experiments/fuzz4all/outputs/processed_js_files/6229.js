@@ -1,0 +1,51 @@
+ 
+const fs = require('fs/promises');
+
+ 
+class DataProcessor {
+     
+    #data = [];
+    #transformation;
+
+     
+    #log(message) {
+        print(`[DataProcessor]: ${message}`);
+    }
+
+    constructor(transformation = (x) => x) {
+        this.#transformation = transformation;
+    }
+
+     
+    async loadDataFromFiles(filePaths) {
+        try {
+            const fileContents = await Promise.all(
+                filePaths.map(filePath => fs.readFile(filePath, 'utf8'))
+            );
+            this.#data = fileContents.map(content => JSON.parse(content));
+            this.#log('Data loaded successfully');
+        } catch (error) {
+            this.#log(`Failed to load data: ${error.message}`);
+        }
+    }
+
+     
+    *transformedData() {
+        for (let item of this.#data) {
+            yield this.#transformation(item);
+        }
+    }
+}
+
+ 
+(async () => {
+    const processor = new DataProcessor((item) => ({ ...item, processed: true }));
+
+     
+    await processor.loadDataFromFiles(['./data1.json', './data2.json']);
+
+     
+    for (let transformedItem of processor.transformedData()) {
+        print(transformedItem);
+    }
+})();

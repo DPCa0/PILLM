@@ -1,0 +1,51 @@
+ 
+function i18n(strings, ...values) {
+    const translations = {
+        "Hello, world!": "Hola, mundo!",
+    };
+    return strings.reduce((acc, str, i) => acc + (translations[str.trim()] || str) + (values[i] || ""), "");
+}
+
+ 
+const functionInterceptor = {
+    apply(target, thisArg, args) {
+        print(`Called function: ${target.name}, with args: ${JSON.stringify(args)}`);
+        return target(...args);
+    }
+};
+
+ 
+function greet(name) {
+    return i18n`Hello, ${name}!`;
+}
+
+ 
+const proxiedGreet = new Proxy(greet, functionInterceptor);
+
+ 
+async function delayedGreeting(name) {
+    await new Promise(resolve => setTimeout(resolve, 1000));  
+    return proxiedGreet(name);
+}
+
+ 
+async function* generateGreetings(names) {
+    for (const name of names) {
+        yield await delayedGreeting(name);
+    }
+}
+
+ 
+const user = {
+    name: "John Doe",
+    preferences: null
+};
+print(`User preferences: ${user.preferences?.language ?? "Not Set"}`);
+
+ 
+(async () => {
+    const names = ["Alice", "Bob", "Charlie"];
+    for await (const greeting of generateGreetings(names)) {
+        print(greeting);
+    }
+})();

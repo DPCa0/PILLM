@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+class NetworkRequest {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            let response = await fetch(this.url);
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            let data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+            throw error;
+        }
+    }
+}
+
+class DataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    *filterData(criteria) {
+        for (let item of this.data) {
+            if (criteria(item)) yield item;
+        }
+    }
+
+    static processData(data) {
+        return data.map(item => ({
+            id: item.id,
+            value: item.value * 2,
+            timestamp: new Date(item.timestamp).toLocaleString()
+        }));
+    }
+}
+
+async function executeAsyncTasks() {
+    try {
+        const networkRequest = new NetworkRequest('https://api.example.com/data');
+        const rawData = await networkRequest.fetchData();
+
+        const processedData = DataProcessor.processData(rawData);
+
+        const dataProcessor = new DataProcessor(processedData);
+
+        for (let item of dataProcessor.filterData(item => item.value > 100)) {
+            console.log(`Item ID: ${item.id}, Value: ${item.value}, Timestamp: ${item.timestamp}`);
+        }
+    } catch (error) {
+        console.error('Error executing tasks:', error);
+    }
+}
+
+executeAsyncTasks();
+```

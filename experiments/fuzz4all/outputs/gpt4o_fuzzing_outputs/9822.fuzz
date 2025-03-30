@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+
+ 
+async function processFile(filePath) {
+    try {
+         
+        const data = await fs.readFile(filePath, 'utf8');
+
+         
+        const lines = data.split('\n').map((line, index) => `Line ${index + 1}: ${line}`);
+
+         
+        const [first, second, ...rest] = lines;
+
+        console.log('First Line:', first);
+        console.log('Second Line:', second);
+
+         
+        const uniqueWords = new Set();
+        lines.forEach(line => {
+            line.split(' ').forEach(word => uniqueWords.add(word));
+        });
+
+        console.log('Unique Words:', [...uniqueWords]);
+
+        const wordMap = new Map();
+        [...uniqueWords].forEach(word => wordMap.set(word, 0));
+
+        lines.forEach(line => {
+            line.split(' ').forEach(word => wordMap.set(word, wordMap.get(word) + 1));
+        });
+
+        console.log('Word Count Map:', Object.fromEntries(wordMap));
+    } catch (error) {
+         
+        console.error('Error reading file:', error?.message ?? 'Unknown error');
+    }
+}
+
+ 
+(async () => {
+    const filePath = './example.txt';  
+    await processFile(filePath);
+})();
+```

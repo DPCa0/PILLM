@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop, receiver) {
+        console.log(`Getting property: ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver) {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const targetObject = {
+    name: 'JavaScript',
+    type: 'Programming Language'
+};
+
+const proxy = new Proxy(targetObject, handler);
+
+ 
+async function fetchData() {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve('Data fetched successfully!'), 2000);
+    });
+}
+
+async function processData() {
+    try {
+        console.log(proxy.name);  
+        proxy.version = 'ES6';    
+        const result = await fetchData();
+        console.log(result);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+ 
+(async () => {
+    console.log('Starting process...');
+    await processData();
+    console.log('Process completed.');
+})();
+
+ 
+function* generateSequence(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i;
+    }
+}
+
+ 
+const sequence = generateSequence(1, 5);
+for (const num of sequence) {
+    console.log(`Generated number: ${num}`);
+}
+
+ 
+const { name, ...rest } = proxy;
+console.log(`Destructured name: ${name}`);
+console.log('Other properties:', rest);
+```

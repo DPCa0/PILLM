@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const createLoggedObject = (obj) => {
+  return new Proxy(obj, {
+    get(target, prop) {
+      console.log(`Getting property ${prop}`);
+      return target[prop];
+    },
+    set(target, prop, value) {
+      console.log(`Setting property ${prop} to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+  });
+};
+
+ 
+const user = createLoggedObject({ name: 'Alice', age: 25 });
+
+ 
+async function* asyncGenerator(arr) {
+  for (const item of arr) {
+    await delay(1000);   
+    yield item;
+  }
+}
+
+ 
+(async () => {
+  console.log('Starting process...');
+  
+  user.name = 'Bob';   
+  console.log(user.name);   
+
+  const numArray = [10, 20, 30, 40, 50];
+  const asyncIter = asyncGenerator(numArray);
+
+  for await (const num of asyncIter) {
+    console.log(`Received number: ${num}`);
+  }
+
+  console.log('Process completed.');
+})();
+```

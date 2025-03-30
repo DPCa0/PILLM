@@ -1,0 +1,46 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile('data.json', 'utf-8');
+    const jsonData = JSON.parse(data);
+
+     
+    const { name, age, ...rest } = jsonData;
+
+     
+    function tag(strings, nameExpr, ageExpr) {
+      const ageString = ageExpr > 18 ? 'an adult' : 'a minor';
+      return `${strings[0]}${nameExpr}${strings[1]}${ageString}${strings[2]}`;
+    }
+    print(tag`Hello, ${name}. You are ${age}, therefore you are `);
+
+     
+    const handler = {
+      get(target, prop) {
+        return prop in target ? target[prop] : `Property ${prop} not found`;
+      },
+    };
+    const userProxy = new Proxy(jsonData, handler);
+    print('User city:', userProxy.city);
+
+     
+    function* fibonacci(limit) {
+      let [prev, curr] = [0, 1];
+      while (limit--) {
+        [prev, curr] = [curr, prev + curr];
+        yield prev;
+      }
+    }
+
+     
+    for (const num of fibonacci(5)) {
+      print(num);
+    }
+  } catch (err) {
+    console.error('An error occurred:', err.message);
+  }
+})();

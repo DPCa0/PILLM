@@ -1,0 +1,44 @@
+ 
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+
+  async getData() {
+     
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          name: this.name,
+          age: Math.floor(Math.random() * 30) + 20,  
+          profession: 'Developer'
+        });
+      }, 1000);
+    });
+  }
+}
+
+async function fetchData(user) {
+  try {
+    const data = await user.getData();
+    print(`User Data: Name - ${data.name}, Age - ${data.age}, Profession - ${data.profession}`);
+  } catch (error) {
+    console.error("Error fetching user data", error);
+  }
+}
+
+const user = new User('Alice');
+
+ 
+const details = {
+  ...{ location: 'Remote' },
+  skills: ['JavaScript', 'Node.js', 'React']
+};
+
+fetchData(user);
+
+(async () => {
+  print('Fetching additional data...');
+  await new Promise((resolve) => setTimeout(resolve, 500));  
+  print(`Additional Details: Location - ${details.location}, Skills - ${details.skills.join(', ')}`);
+})();

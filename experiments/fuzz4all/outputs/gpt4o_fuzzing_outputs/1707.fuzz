@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class NeuralNetwork {
+    #weights;
+    
+    constructor(layers = [2, 2, 1]) {
+        this.#weights = layers.slice(1).map((layer, i) =>
+            Array.from({ length: layer }, () =>
+                Array.from({ length: layers[i] + 1 }, () => Math.random() - 0.5)
+            )
+        );
+    }
+    
+    activate(inputs, weights) {
+        return inputs.reduce((sum, val, i) => sum + val * weights[i], weights[inputs.length]);
+    }
+    
+    sigmoid(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+    
+    forward(input) {
+        return this.#weights.reduce((inputs, layer) =>
+            layer.map(weights => this.sigmoid(this.activate([...inputs, 1], weights)))
+        , input);
+    }
+    
+    train(data, epochs = 10000, lr = 0.1) {
+        for (let epoch = 0; epoch < epochs; epoch++) {
+            data.forEach(([inputs, target]) => {
+                const activations = [inputs];
+                let outputs = inputs;
+                const layerActivations = this.#weights.map(layer => {
+                    outputs = layer.map(weights => this.sigmoid(this.activate([...outputs, 1], weights)));
+                    activations.push(outputs);
+                    return outputs;
+                });
+                
+                let deltas = layerActivations[layerActivations.length - 1].map((output, i) =>
+                    (output - target[i]) * output * (1 - output)
+                );
+                
+                for (let layer = this.#weights.length - 1; layer >= 0; layer--) {
+                    const layerWeights = this.#weights[layer];
+                    const prevActivations = activations[layer];
+                    const currentDeltas = deltas;
+                    
+                    deltas = prevActivations.map((_, i) =>
+                        currentDeltas.reduce((sum, delta, j) => 
+                            sum + delta * layerWeights[j][i]
+                        , 0) * prevActivations[i] * (1 - prevActivations[i])
+                    );
+                    
+                    for (let i = 0; i < layerWeights.length; i++) {
+                        for (let j = 0; j < layerWeights[i].length - 1; j++) {
+                            layerWeights[i][j] -= lr * currentDeltas[i] * prevActivations[j];
+                        }
+                        layerWeights[i][layerWeights

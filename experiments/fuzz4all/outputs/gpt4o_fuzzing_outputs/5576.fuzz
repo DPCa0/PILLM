@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const generateMessage = ({ greeting = 'Hello', name = 'world' } = {}) => `${greeting}, ${name}!`;
+
+ 
+const person = new Proxy(
+  {
+    firstName: 'John',
+    lastName: 'Doe',
+  },
+  {
+    get: (target, property) => {
+      console.log(`Accessed property: ${property}`);
+      return target[property];
+    },
+  }
+);
+
+ 
+class Greeter {
+  #message = '';
+
+  constructor() {
+    this.#message = generateMessage();
+  }
+
+  greet() {
+    console.log(this.#message);
+  }
+
+  static changeGreeting(obj, greeting) {
+    const newMessage = generateMessage({ greeting, name: obj.firstName });
+    console.log(newMessage);
+  }
+}
+
+ 
+const greeter = new Greeter();
+
+ 
+const emphasize = (strings, ...values) => {
+  return strings.reduce((acc, str, idx) => {
+    return acc + str + (values[idx] ? values[idx].toUpperCase() : '');
+  }, '');
+};
+
+console.log(emphasize`This is ${person.firstName} ${person.lastName}.`);
+
+ 
+const fetchUser = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve({ id, name: 'Alice' }), 1000);
+  });
+};
+
+(async () => {
+  const user = await fetchUser(1);
+  console.log(`Fetched user: ${user.name}`);
+})();
+
+ 
+Greeter.changeGreeting(person, 'Greetings');
+greeter.greet();
+```

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    console.log(`${this.name} makes a sound.`);
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    super.speak();
+    console.log(`${this.name} barks.`);
+  }
+}
+
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+const dog = new Dog('Rex');
+dog.speak();
+
+const generator = numberGenerator();
+console.log(generator.next().value);  
+console.log(generator.next().value);  
+
+(async () => {
+  const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+  console.log(data);
+})();
+
+const complexArray = [1, [2, 3, [4, 5]], [6, 7]];
+const flatArray = complexArray.flat(2);
+console.log(flatArray);  
+
+const uniqueNumbers = new Set([1, 2, 3, 3, 4, 4, 5]);
+console.log(Array.from(uniqueNumbers));  
+```

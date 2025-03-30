@@ -1,0 +1,46 @@
+class Matrix {
+    constructor(rows, cols, fillValue = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fillValue));
+    }
+
+    static from(arr) {
+        const matrix = new Matrix(arr.length, arr[0].length);
+        matrix.data = arr;
+        return matrix;
+    }
+
+    map(fn) {
+        return Matrix.from(this.data.map((row, i) => row.map((value, j) => fn(value, i, j))));
+    }
+
+    reduce(fn, initialValue) {
+        return this.data.reduce((acc, row) => row.reduce(fn, acc), initialValue);
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) throw new Error("Incompatible matrix sizes.");
+        return new Matrix(a.data.length, b.data[0].length)
+            .map((_, i, j) => a.data[i].reduce((sum, _, k) => sum + a.data[i][k] * b.data[k][j], 0));
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+const a = Matrix.from([
+    [1, 2, 3],
+    [4, 5, 6]
+]);
+
+const b = Matrix.from([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+]);
+
+const c = Matrix.multiply(a, b);
+
+print(`Matrix A:\n${a.toString()}`);
+print(`Matrix B:\n${b.toString()}`);
+print(`A * B:\n${c.toString()}`);

@@ -1,0 +1,74 @@
+class AsyncIterable {
+    constructor(max) {
+        this.max = max;
+        this.current = 0;
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            max: this.max,
+            current: this.current,
+            async next() {
+                if (this.current < this.max) {
+                    await new Promise(resolve => setTimeout(resolve, 100));  
+                    return { value: this.current++, done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
+}
+
+const processValue = (value) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(value * value);  
+        }, 100);
+    });
+};
+
+(async () => {
+    const asyncIterable = new AsyncIterable(5);
+    
+    for await (let num of asyncIterable) {
+        let processed = await processValue(num);
+        print(`Processed value: ${processed}`);
+    }
+
+    const obj = { a: 1, b: { c: 2, d: 3 } };
+    const { a, b: { c, d } } = obj;
+    print(`Destructured values: a=${a}, c=${c}, d=${d}`);
+
+    const user = {
+        name: 'Alice',
+        age: 30,
+        greet() {
+            print(`Hello, ${this.name}`);
+        }
+    };
+
+    const proxiedUser = new Proxy(user, {
+        get(target, prop, receiver) {
+            if (prop === 'name') {
+                return `**${Reflect.get(target, prop, receiver)}**`;
+            }
+            return Reflect.get(target, prop, receiver);
+        },
+        set(target, prop, value) {
+            if (prop === 'age' && typeof value !== 'number') {
+                throw new TypeError('Age must be a number');
+            }
+            return Reflect.set(target, prop, value);
+        }
+    });
+
+    proxiedUser.greet();
+    print(`User's name: ${proxiedUser.name}`);
+
+    try {
+        proxiedUser.age = 'thirty';
+    } catch (e) {
+        console.error(e.message);
+    }
+})();

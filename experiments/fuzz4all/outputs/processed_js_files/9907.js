@@ -1,0 +1,35 @@
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchJSON() {
+    const response = await fetch(this.url);
+    return response.json();
+  }
+}
+
+const processData = async (data) => {
+  const mappedData = data.map(item => ({...item, isActive: Math.random() > 0.5}));
+  return new Promise(resolve => {
+    setTimeout(() => resolve(mappedData), 1000);
+  });
+};
+
+const fetchDataAndProcess = async (url) => {
+  try {
+    const fetcher = new DataFetcher(url);
+    const data = await fetcher.fetchJSON();
+    const processedData = await processData(data);
+    
+    const activeItems = processedData.filter(item => item.isActive);
+    print('Active Items:', activeItems);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+(async () => {
+  const dataUrl = 'https://jsonplaceholder.typicode.com/todos';
+  await fetchDataAndProcess(dataUrl);
+})();

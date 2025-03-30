@@ -1,0 +1,47 @@
+ 
+
+ 
+function* createAsyncTasks() {
+  yield new Promise((resolve) => setTimeout(() => resolve('Task 1 complete'), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Task 2 complete'), 2000));
+  yield new Promise((resolve) => setTimeout(() => resolve('Task 3 complete'), 1500));
+}
+
+ 
+async function handleTasks() {
+  const generator = createAsyncTasks();
+  for (const promise of generator) {
+    print(await promise);
+  }
+}
+
+ 
+const taskHandler = {
+  get: (target, prop) => {
+    print(`Accessing property: ${prop}`);
+    return target[prop];
+  },
+  set: (target, prop, value) => {
+    print(`Setting property: ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const taskManager = {
+  currentTask: null
+};
+
+ 
+const proxy = new Proxy(taskManager, taskHandler);
+
+ 
+async function runTasksWithProxy() {
+  proxy.currentTask = 'Initializing tasks';
+  await handleTasks();
+  proxy.currentTask = 'All tasks complete';
+  print(proxy.currentTask);
+}
+
+runTasksWithProxy();

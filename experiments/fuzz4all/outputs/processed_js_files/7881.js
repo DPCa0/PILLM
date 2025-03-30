@@ -1,0 +1,24 @@
+ 
+
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => resolve({ data: [1, 2, 3, 4, 5] }), 1000);
+});
+
+const processData = async () => {
+    try {
+        const { data: numbers } = await fetchData();
+        
+        const sum = numbers.reduce((acc, num) => acc + num, 0);
+        
+        const multiply = (...nums) => nums.map(n => n * 2);
+        const multipliedNumbers = multiply(...numbers);
+
+        print(`Original numbers: ${numbers.join(', ')}`);
+        print(`Sum of numbers: ${sum}`);
+        print(`Multiplied numbers: ${multipliedNumbers.join(', ')}`);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+};
+
+processData();

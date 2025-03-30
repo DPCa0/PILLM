@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+const fetchFibonacciNumbers = async (limit) => {
+    const fibNumbers = [];
+    for (let num of fibonacci(limit)) {
+        fibNumbers.push(num);
+    }
+
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (fibNumbers.length > 0) {
+                resolve(fibNumbers);
+            } else {
+                reject('No Fibonacci numbers found.');
+            }
+        }, 1000);
+    });
+};
+
+(async () => {
+    try {
+        const fibs = await fetchFibonacciNumbers(100);
+        console.log('Fibonacci numbers up to 100:', fibs);
+    } catch (error) {
+        console.error(error);
+    }
+})();
+```

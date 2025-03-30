@@ -1,0 +1,51 @@
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    const response = await fetch(`${this.apiUrl}${endpoint}`);
+    return response.json();
+  }
+}
+
+class DataProcessor {
+  static process(data) {
+    return data.map(item => ({
+      ...item,
+      processedDate: new Date(item.timestamp * 1000).toLocaleString()
+    }));
+  }
+}
+
+class App {
+  constructor(apiUrl) {
+    this.dataFetcher = new DataFetcher(apiUrl);
+  }
+
+  async init() {
+    try {
+      const rawData = await this.dataFetcher.fetchData('/data');
+      const processedData = DataProcessor.process(rawData);
+      this.displayData(processedData);
+    } catch (error) {
+      console.error('Error fetching or processing data:', error);
+    }
+  }
+
+  displayData(data) {
+    const container = document.getElementById('data-container');
+    data.forEach(item => {
+      const dataElement = document.createElement('div');
+      dataElement.className = 'data-item';
+      dataElement.innerText = JSON.stringify(item, null, 2);
+      container.appendChild(dataElement);
+    });
+  }
+}
+
+ 
+document.addEventListener('DOMContentLoaded', () => {
+  const app = new App('https://example.com/api');
+  app.init();
+});

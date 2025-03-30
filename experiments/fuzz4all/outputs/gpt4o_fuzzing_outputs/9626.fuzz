@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+const _secret = Symbol('secret');
+
+class AdvancedGreeting {
+  constructor(name) {
+    this.name = name;
+    this[_secret] = "You've discovered the secret!";
+  }
+
+   
+  static [Symbol.for('dynamicMethod')](greeting) {
+    console.log(greeting);
+  }
+
+   
+  #privateMethod() {
+    return `Hello, ${this.name}! ${this[_secret]}`;
+  }
+
+  getGreeting() {
+    return this.#privateMethod();
+  }
+}
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'getGreeting') {
+      return () => `Intercepted: ${obj[prop]()}`;
+    }
+    return obj[prop];
+  }
+};
+
+ 
+async function execute() {
+  const greetingInstance = new AdvancedGreeting('World');
+  const proxiedGreeting = new Proxy(greetingInstance, handler);
+  
+   
+  const result = await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(proxiedGreeting.getGreeting());
+    }, 1000);
+  });
+
+  console.log(result);
+
+   
+  AdvancedGreeting[Symbol.for('dynamicMethod')]('This is a dynamic method call.');
+}
+
+execute();
+```

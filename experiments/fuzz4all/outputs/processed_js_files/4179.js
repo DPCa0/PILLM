@@ -1,0 +1,59 @@
+class Employee {
+    #id;  
+    constructor(name, age, id) {
+        this.name = name;
+        this.age = age;
+        this.#id = id;
+    }
+    
+    get employeeDetails() {
+        return `Name: ${this.name}, Age: ${this.age}, ID: ${this.#id}`;
+    }
+    
+    static *generateID(start = 1) {  
+        let id = start;
+        while (true) {
+            yield id++;
+        }
+    }
+}
+
+const departments = new Map([
+    [1, { name: 'HR', employees: [] }],
+    [2, { name: 'Engineering', employees: [] }],
+    [3, { name: 'Marketing', employees: [] }]
+]);
+
+function addEmployee(departmentId, employee) {
+    const department = departments.get(departmentId);
+    if (department) {
+        department.employees.push(employee);
+    } else {
+        print(`Department with ID ${departmentId} not found.`);
+    }
+}
+
+const idGenerator = Employee.generateID();
+const emp1 = new Employee('Alice', 30, idGenerator.next().value);
+const emp2 = new Employee('Bob', 40, idGenerator.next().value);
+
+addEmployee(2, emp1);
+addEmployee(2, emp2);
+
+ 
+async function fetchDepartmentDetails(departmentId) {
+    try {
+        if (!departments.has(departmentId)) throw new Error('Department not found');
+        
+        const { name, employees } = departments.get(departmentId);
+        
+        const { default: _ } = await import('lodash');  
+        const sortedEmployees = _.sortBy(employees, ['age']);
+        
+        return { name, sortedEmployees };
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+fetchDepartmentDetails(2).then(details => print(details));

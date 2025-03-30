@@ -1,0 +1,42 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* readLines(filePath) {
+    const data = await fs.readFile(filePath, 'utf-8');
+    const lines = data.split(/\r?\n/);
+    for (const line of lines) {
+        yield line;
+    }
+}
+
+ 
+async function processFile(filePath) {
+    const processedLines = [];
+    for await (const line of readLines(filePath)) {
+         
+        const chars = [...line];
+         
+        processedLines.push(chars.map(char => char.toUpperCase()).join(''));
+    }
+    await delay(1000);  
+    return processedLines;
+}
+
+ 
+(async () => {
+    const filePaths = ['./file1.txt', './file2.txt'];
+    
+     
+    const results = await Promise.all(filePaths.map(filePath => processFile(filePath)));
+    
+     
+    const allLines = results.flat();
+    
+     
+    print(`Processed ${allLines.length} lines:`);
+    allLines.forEach((line, index) => print(`${index + 1}: ${line}`));
+})();

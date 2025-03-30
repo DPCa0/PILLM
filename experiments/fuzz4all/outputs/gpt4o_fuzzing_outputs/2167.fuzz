@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const logProxy = (target) => new Proxy(target, {
+    get: (obj, prop) => {
+        console.log(`Getting ${prop}`);
+        return obj[prop];
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+});
+
+ 
+const fetchData = async (url) => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Data from ${url}`), 1000);
+    });
+};
+
+ 
+(async () => {
+     
+    const settings = logProxy({ theme: 'dark', notifications: true });
+
+     
+    settings.theme = 'light';
+    console.log(settings.notifications);
+
+     
+    const { theme = 'default', notifications = false } = settings;
+    console.log(`Theme: ${theme}, Notifications: ${notifications}`);
+
+     
+    const urls = ['url1', 'url2', 'url3'];
+    const promises = urls.map(url => fetchData(url));
+
+    const results = await Promise.all(promises);
+    console.log('Fetched Data:', results);
+
+     
+    const newUrls = [...urls, 'url4'];
+    console.log('New URLs:', newUrls);
+})();
+```

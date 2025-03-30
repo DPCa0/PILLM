@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueProp = Symbol('unique');
+
+ 
+class Advanced {
+  #privateField = 42;
+
+  constructor(name) {
+    this.name = name;
+    this[uniqueProp] = "SecretValue";
+  }
+
+  getPrivateField() {
+    return this.#privateField;
+  }
+
+  static createProxy(target) {
+    return new Proxy(target, {
+      get: (obj, prop) => {
+        if (prop in obj) {
+          console.log(`Accessing property: ${prop}`);
+          return obj[prop];
+        }
+        return `Property ${prop} does not exist`;
+      },
+      set: (obj, prop, value) => {
+        if (prop.startsWith('_')) {
+          console.log(`Cannot set private property: ${prop}`);
+          return false;
+        }
+        obj[prop] = value;
+        return true;
+      },
+    });
+  }
+}
+
+ 
+function tag(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? values[i].toUpperCase() : '';
+    return `${result}${string}${value}`;
+  }, '');
+}
+
+ 
+async function* asyncGenerator() {
+  let i = 0;
+  while (i < 3) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield i++;
+  }
+}
+
+(async () => {
+   
+  const instance = Advanced.createProxy(new Advanced('ComplexInstance'));
+
+  console.log(instance.name);
+  console.log(instance.getPrivateField());
+  console.log(instance[uniqueProp]);
+
+   
+  instance._privateField = 'Trying to set';
+  instance.newProp = 'NewValue';
+  console.log(instance.newProp);
+
+   
+  const processedString = tag`This is a ${'complex'} JavaScript ${'example'}!`;
+  console.log(processedString);
+
+   
+  for await (const num of asyncGenerator()) {
+    console.log(`Async number: ${num}`);
+  }
+})();
+```

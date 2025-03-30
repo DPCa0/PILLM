@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+  yield 'Fetching user data...';
+  yield new Promise((resolve) => setTimeout(() => resolve('User data fetched'), 1000));
+  yield 'Fetching order data...';
+  yield new Promise((resolve) => setTimeout(() => resolve('Order data fetched'), 1000));
+  yield 'All data fetched!';
+}
+
+ 
+async function consumeGenerator(generator) {
+  let result;
+  do {
+    result = generator.next();
+    if (result.value instanceof Promise) {
+      console.log(await result.value);
+    } else {
+      console.log(result.value);
+    }
+  } while (!result.done);
+}
+
+ 
+const targetObject = { user: 'John Doe', age: 30 };
+
+const proxyHandler = {
+  get: (target, prop) => {
+    console.log(`Getting property ${prop}`);
+    return Reflect.get(target, prop);
+  },
+  set: (target, prop, value) => {
+    console.log(`Setting property ${prop} to ${value}`);
+    return Reflect.set(target, prop, value);
+  },
+};
+
+const proxyObject = new Proxy(targetObject, proxyHandler);
+
+ 
+proxyObject.user;  
+proxyObject.age = 31;  
+
+ 
+consumeGenerator(fetchDataGenerator());
+```

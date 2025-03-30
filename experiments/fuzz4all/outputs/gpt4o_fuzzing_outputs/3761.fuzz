@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const mockApiData = {
+    user: {
+        id: 1,
+        name: "John Doe",
+        email: "john.doe@example.com"
+    }
+};
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => resolve(mockApiData), 1000);
+});
+
+ 
+async function fetchUser() {
+    try {
+        console.log("Fetching user data...");
+        const data = await fetchData();   
+        console.log("Data fetched:", data);
+
+         
+        const handler = {
+            get(target, property) {
+                if (property in target) {
+                    console.log(`Accessing property "${property}": ${target[property]}`);
+                    return target[property];
+                } else {
+                    console.warn(`Property "${property}" does not exist.`);
+                }
+            }
+        };
+
+         
+        const proxiedUser = new Proxy(data.user, handler);
+
+         
+        console.log(`User Name: ${proxiedUser.name}`);
+        console.log(`User Email: ${proxiedUser.email}`);
+        console.log(`Non-existent Property: ${proxiedUser.age}`);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+ 
+(async () => {
+    await fetchUser();
+})();
+```

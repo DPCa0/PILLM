@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+class QuantumComputer {
+  static #secretKey = Symbol('secret');
+
+  constructor(qubits) {
+    this.qubits = qubits.map(q => q | 0);
+  }
+
+  async performOperation(operation, ...args) {
+    if (typeof this[operation] !== 'function') throw new Error('Invalid operation');
+    return await this[operation](...args);
+  }
+
+  #entangle(pair) {
+    const [a, b] = pair;
+    this.qubits[a] ^= this.qubits[b];
+    this.qubits[b] ^= this.qubits[a];
+    this.qubits[a] ^= this.qubits[b];
+  }
+
+  #measure(index) {
+    return this.qubits[index] ? '1' : '0';
+  }
+
+  [QuantumComputer.#secretKey](key) {
+    return key === QuantumComputer.#secretKey ? '42' : 'Access Denied';
+  }
+  
+  static createRandomQubits(n) {
+    return new QuantumComputer([...Array(n)].map(() => Math.round(Math.random())));
+  }
+
+  static performSecureOperation(qc, operation, ...args) {
+    const key = Symbol();
+    return qc[QuantumComputer.#secretKey](key) === '42' ? qc.performOperation(operation, ...args) : 'Access Denied';
+  }
+}
+
+ 
+(async () => {
+  const qc = QuantumComputer.createRandomQubits(10);
+  await qc.performOperation('#entangle', [0, 1]);
+  console.log(await qc.performOperation('#measure', 0));
+
+   
+  console.log(QuantumComputer.performSecureOperation(qc, '#measure', 1));
+})();
+```

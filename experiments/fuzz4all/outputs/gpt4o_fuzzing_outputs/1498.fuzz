@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting property ${prop}`);
+    return target[prop];
+  },
+  set(target, prop, value) {
+    console.log(`Setting property ${prop} to ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const data = { key: 'value' };
+const proxyData = new Proxy(data, handler);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => `${result}${string}<strong>${values[i] || ''}</strong>`, '');
+}
+
+const name = 'JavaScript';
+console.log(highlight`Hello, ${name}! Welcome to advanced programming.`);
+
+ 
+const complexObject = { a: 1, b: 2, c: 3, d: 4 };
+const { a, b, ...rest } = complexObject;
+console.log('Destructured values:', a, b);
+console.log('Remaining object:', rest);
+
+ 
+const apiURL = 'https://jsonplaceholder.typicode.com/todos/1';
+fetchData(apiURL).then((result) => console.log('Fetched Data:', result));
+
+ 
+const uniqueKey = Symbol('unique');
+const myObject = {
+  [uniqueKey]: 'This is a unique value'
+};
+
+console.log('Symbol-keyed property:', myObject[uniqueKey]);
+
+ 
+class AdvancedFeatures {
+  static staticMethod() {
+    console.log('Static method called');
+  }
+
+  #privateField = 42;
+
+  getPrivateField() {
+    return this.#privateField;
+  }
+}
+
+AdvancedFeatures.staticMethod();
+const instance = new AdvancedFeatures();
+console.log('Private field value:', instance.getPrivateField());
+```

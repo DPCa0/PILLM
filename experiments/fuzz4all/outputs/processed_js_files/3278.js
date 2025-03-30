@@ -1,0 +1,37 @@
+ 
+const fetchData = async () => {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ name: "Alice", age: 30, location: "Wonderland" });
+        }, 1000);
+    });
+};
+
+(async () => {
+    try {
+        const { name, age, ...rest } = await fetchData();
+        print(`Fetched User: ${name}, Age: ${age}`);
+
+        const user = { name, age, ...rest };
+        
+         
+        const proxyUser = new Proxy(user, {
+            set(target, prop, value) {
+                print(`Property ${prop} set to ${value}`);
+                target[prop] = value;
+                return true;
+            },
+            get(target, prop) {
+                print(`Property ${prop} accessed`);
+                return target[prop];
+            }
+        });
+
+        proxyUser.age = 31;  
+        print(proxyUser.location);  
+
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+})();

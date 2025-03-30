@@ -1,0 +1,52 @@
+ 
+async function fetchUserData(userId) {
+  try {
+     
+    const response = await fetch(`https: 
+    if (!response.ok) throw new Error('User not found');
+
+     
+    const { name, email, address: { city } } = await response.json();
+
+     
+    print(`User Info:\nName: ${name}\nEmail: ${email}\nCity: ${city}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+}
+
+ 
+function createLogger(logLevel) {
+  return function(message) {
+    console[logLevel](`[${new Date().toISOString()}] ${message}`);
+  };
+}
+
+ 
+const infoLogger = createLogger('info');
+const errorLogger = createLogger('error');
+
+ 
+function* userIdGenerator() {
+  let userId = 1;
+  while (true) {
+    yield userId++;
+  }
+}
+
+ 
+const gen = userIdGenerator();
+
+ 
+(async () => {
+   
+  infoLogger('Fetching user data...');
+  
+   
+  const currentId = gen.next()?.value ?? 1;
+  
+  await fetchUserData(currentId);
+
+   
+  errorLogger('This is a simulated error message');
+})();

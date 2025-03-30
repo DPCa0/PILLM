@@ -1,0 +1,40 @@
+ 
+
+ 
+const fetchData = (endpoint) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (endpoint) {
+                resolve({
+                    data: {
+                        users: [
+                            { id: 1, name: 'Alice', age: 28 },
+                            { id: 2, name: 'Bob', age: 34 },
+                            { id: 3, name: 'Charlie', age: 25 }
+                        ]
+                    }
+                });
+            } else {
+                reject('Endpoint not provided');
+            }
+        }, 1000);
+    });
+};
+
+ 
+const processUsers = async (endpoint) => {
+    try {
+        const response = await fetchData(endpoint);
+        const { data: { users } } = response;  
+        const over30 = users.filter(({ age }) => age > 30);  
+        return over30.map(({ name, age }) => ({ name, age }));  
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+ 
+(async () => {
+    const result = await processUsers('/api/users');
+    print(result);  
+})();

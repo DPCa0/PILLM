@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+const fetch = require('node-fetch');  
+
+(async function complexExample() {
+  const urls = [
+    'https://api.github.com/repos/nodejs/node',
+    'https://api.github.com/repos/microsoft/TypeScript'
+  ];
+
+  try {
+     
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+
+     
+    const dataPromises = responses.map(async response => {
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json();
+    });
+
+     
+    const data = await Promise.all(dataPromises);
+
+     
+    const [nodeData, tsData] = data;
+    const combinedData = { ...nodeData, ...tsData };
+
+    console.log('Combined Stars:', combinedData.stargazers_count);
+
+     
+    console.log('Node.js Default Branch:', nodeData?.default_branch);
+
+     
+    console.log(`Repository URLs: 
+      Node.js: ${nodeData.html_url}, 
+      TypeScript: ${tsData.html_url}`);
+      
+     
+    const starsMap = new Map();
+    starsMap.set('Node.js', nodeData.stargazers_count);
+    starsMap.set('TypeScript', tsData.stargazers_count);
+
+     
+    for (const [repo, stars] of starsMap.entries()) {
+      console.log(`${repo} stars: ${stars}`);
+    }
+
+  } catch (error) {
+    console.error('Error fetching data:', error.message);
+  }
+})();
+```

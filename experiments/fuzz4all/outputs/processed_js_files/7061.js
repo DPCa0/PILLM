@@ -1,0 +1,34 @@
+ 
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(res => res.json());
+  }
+}
+
+ 
+const loggerHandler = {
+  get: (target, prop) => {
+    print(`Accessed property: ${prop}`);
+    return target[prop];
+  }
+};
+
+const dataProxy = new Proxy({ message: "Hello from Proxy!" }, loggerHandler);
+
+ 
+(async () => {
+  const urls = [
+    'https://jsonplaceholder.typicode.com/posts/1',
+    'https://jsonplaceholder.typicode.com/posts/2'
+  ];
+
+   
+  for await (const data of fetchData(urls)) {
+    print(data.title);
+  }
+
+   
+  print(dataProxy.message);
+})();

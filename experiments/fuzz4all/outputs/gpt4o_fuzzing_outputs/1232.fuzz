@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    on(event, listener) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(listener);
+    }
+    emit(event, ...args) {
+        if (this.events[event]) this.events[event].forEach(listener => listener(...args));
+    }
+}
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncIterator = {
+    [Symbol.asyncIterator]: function() {
+        let count = 0;
+        return {
+            next: async () => {
+                await sleep(500);
+                if (count < 5) {
+                    return { value: count++, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+};
+
+class Complex {
+    static async * generateSequence() {
+        for await (let num of asyncIterator) {
+            yield num * num;
+        }
+    }
+}
+
+(async function main() {
+    const emitter = new EventEmitter();
+    emitter.on('data', data => console.log('Received data:', data));
+    emitter.on('end', () => console.log('No more data.'));
+
+    for await (const value of Complex.generateSequence()) {
+        emitter.emit('data', value);
+    }
+    emitter.emit('end');
+})();
+```

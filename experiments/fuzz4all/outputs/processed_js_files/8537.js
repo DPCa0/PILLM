@@ -1,0 +1,44 @@
+ 
+
+ 
+const fetchUserData = (id) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (id > 0) {
+            resolve({ id, name: `User${id}`, active: id % 2 === 0 });
+        } else {
+            reject(new Error('Invalid user ID'));
+        }
+    }, 1000);
+});
+
+ 
+async function logUserStatus(id) {
+    try {
+        const user = await fetchUserData(id);
+        print(`User ${user.name} is currently ${user.active ? 'active' : 'inactive'}.`);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+ 
+const handler = {
+    set(target, key, value) {
+        print(`Property '${key}' set to '${value}'`);
+        return Reflect.set(target, key, value);
+    }
+};
+
+ 
+const userProxy = new Proxy({}, handler);
+
+ 
+(async () => {
+     
+    await logUserStatus(1);
+    await logUserStatus(-1);
+
+     
+    userProxy.name = "Alice";
+    userProxy.age = 30;
+})();

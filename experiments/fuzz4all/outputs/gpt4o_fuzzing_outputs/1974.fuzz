@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+function asyncTimeout(duration) {
+  return new Promise(resolve => setTimeout(resolve, duration));
+}
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return async (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      console.log('Fetching from cache:', key);
+      return cache.get(key);
+    } else {
+      const result = await fn(...args);
+      cache.set(key, result);
+      console.log('Computing and storing:', key);
+      return result;
+    }
+  };
+};
+
+const fetchData = memoize(async (url) => {
+  await asyncTimeout(1000);  
+  return `Data from ${url}`;
+});
+
+(async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('data', data => {
+    console.log('Received data:', data);
+  });
+
+  const data = await fetchData('https://api.example.com/resource');
+  emitter.emit('data', data);
+
+  const cachedData = await fetchData('https://api.example.com/resource');
+  emitter.emit('data', cachedData);
+})();
+```

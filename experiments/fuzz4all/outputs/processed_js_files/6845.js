@@ -1,0 +1,49 @@
+class Fibonacci {
+  #cache = new Map();
+
+  constructor(maxSize = 1000) {
+    this.maxSize = maxSize;
+  }
+
+  *[Symbol.iterator]() {
+    let [a, b] = [0, 1];
+    while (true) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  async fetchNthFib(n) {
+    if (this.#cache.has(n)) {
+      return this.#cache.get(n);
+    }
+    let fib = await this.calculateFib(n);
+    this.#cache.set(n, fib);
+    if (this.#cache.size > this.maxSize) {
+      const firstKey = this.#cache.keys().next().value;
+      this.#cache.delete(firstKey);
+    }
+    return fib;
+  }
+
+  calculateFib(n) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < n; i++) {
+          [a, b] = [b, a + b];
+        }
+        resolve(a);
+      }, 100);
+    });
+  }
+}
+
+(async () => {
+  const fibGen = new Fibonacci();
+  const fibIterator = fibGen[Symbol.iterator]();
+  print([...Array(10)].map(() => fibIterator.next().value));
+
+  const nthFib = await fibGen.fetchNthFib(15);
+  print(`15th Fibonacci number: ${nthFib}`);
+})();

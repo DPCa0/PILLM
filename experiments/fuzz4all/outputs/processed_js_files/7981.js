@@ -1,0 +1,49 @@
+ 
+class DataStore {
+    constructor() {
+        this.data = new Map();
+    }
+
+    async get(key) {
+        return this.data.get(key);
+    }
+
+    async set(key, value) {
+        this.data.set(key, value);
+        return true;
+    }
+}
+
+const storeHandler = {
+    get: (target, property, receiver) => {
+        if (property in target) {
+            return Reflect.get(target, property, receiver);
+        } else {
+            return async () => `Property ${property} not found!`;
+        }
+    }
+};
+
+const asyncOperation = async (store, key, value) => {
+    await store.set(key, value);
+    const result = await store.get(key);
+    return result;
+};
+
+(async () => {
+    const store = new Proxy(new DataStore(), storeHandler);
+
+     
+    try {
+        const value1 = await asyncOperation(store, 'name', 'Advanced JavaScript');
+        print('Stored value:', value1);
+
+        const value2 = await asyncOperation(store, 'feature', 'Proxies and Reflect');
+        print('Stored value:', value2);
+
+        const nonExistent = await store.nonExistent();
+        print(nonExistent);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();

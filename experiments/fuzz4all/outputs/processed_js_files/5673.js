@@ -1,0 +1,50 @@
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static from(array) {
+    const matrix = new Matrix(array.length, array[0].length);
+    matrix.data = array;
+    return matrix;
+  }
+
+  *[Symbol.iterator]() {
+    for (let row of this.data) {
+      yield row;
+    }
+  }
+
+  map(callback) {
+    return Matrix.from(this.data.map((row, i) =>
+      row.map((val, j) => callback(val, i, j))));
+  }
+
+  static multiply(m1, m2) {
+    if (m1.data[0].length !== m2.data.length) throw new Error("Incompatible matrices");
+    let result = new Matrix(m1.data.length, m2.data[0].length);
+    for (let i = 0; i < result.data.length; i++) {
+      for (let j = 0; j < result.data[0].length; j++) {
+        result.data[i][j] = m1.data[i].reduce((sum, val, k) => sum + val * m2.data[k][j], 0);
+      }
+    }
+    return result;
+  }
+}
+
+const m1 = Matrix.from([
+  [1, 2, 3],
+  [4, 5, 6]
+]);
+
+const m2 = Matrix.from([
+  [7, 8],
+  [9, 10],
+  [11, 12]
+]);
+
+const product = Matrix.multiply(m1, m2);
+
+for (const row of product) {
+  print(row);
+}

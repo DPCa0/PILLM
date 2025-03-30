@@ -1,0 +1,27 @@
+ 
+
+ 
+export const fetchData = async () => {
+  const data = await new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const success = Math.random() > 0.2;  
+      success ? resolve({ user: 'Alice', age: 30, country: 'Wonderland' }) : reject('Fetch error');
+    }, 1000);
+  });
+
+  return data;
+};
+
+ 
+import { fetchData } from './module.js';
+
+(async () => {
+  try {
+    const { user, age, country } = await fetchData();
+    print(`User: ${user}, Age: ${age}, Country: ${country}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+
+This program uses JavaScript ES6+ features such as modules, Promises, async/await, arrow functions, and destructuring assignment. It simulates fetching data with a promise that resolves successfully most of the time. When resolved, it destructures the data to log user details to the console; otherwise, it logs an error.

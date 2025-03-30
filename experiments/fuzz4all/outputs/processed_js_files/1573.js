@@ -1,0 +1,68 @@
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+}
+
+ 
+function mergeAndFilterObjects(filterKey, ...objects) {
+    return objects.reduce((acc, obj) => {
+        const { [filterKey]: removed, ...rest } = obj;  
+        return { ...acc, ...rest };  
+    }, {});
+}
+
+ 
+const safeHandler = {
+    get(target, prop, receiver) {
+        if (prop === Symbol.for('secret')) {
+            return 'Access Denied!';
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const dataStore = new Proxy({
+    [Symbol.for('secret')]: 'Sensitive Data',
+    publicData: 'This is public'
+}, safeHandler);
+
+ 
+function* numberSequence(start = 0) {
+    let i = start;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+const uniqueNumbers = new Set([1, 2, 3, 4, 5]);
+uniqueNumbers.add(3);  
+
+const numberMap = new Map();
+for (const num of uniqueNumbers) {
+    numberMap.set(num, num * num);
+}
+
+ 
+(async () => {
+    try {
+        const userData = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+        print('User Data:', userData);
+
+        const mergedObject = mergeAndFilterObjects('age', { name: 'Alice', age: 30 }, { hobby: 'Hiking', age: 25 });
+        print('Merged Object:', mergedObject);
+
+        print('Data Store Access:', dataStore[Symbol.for('secret')], dataStore.publicData);
+
+        const seq = numberSequence(10);
+        print('Number Sequence:', seq.next().value, seq.next().value);
+
+        print('Number Map:', numberMap);
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+})();

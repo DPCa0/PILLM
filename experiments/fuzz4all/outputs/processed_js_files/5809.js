@@ -1,0 +1,42 @@
+ 
+const fetchData = (data) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    Math.random() > 0.1 ? resolve(`Fetched data: ${data}`) : reject('Fetch error');
+  }, 500);
+});
+
+ 
+async function* dataPipeline() {
+  const dataSources = ['Data1', 'Data2', 'Data3'];
+  for (const source of dataSources) {
+    try {
+      const result = await fetchData(source);
+      yield result;
+    } catch (error) {
+      yield error;
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'next') {
+      return async function(...args) {
+        print('Calling next()');
+        const result = await target[prop](...args);
+        print('Result:', result);
+        return result;
+      };
+    }
+    return target[prop];
+  }
+};
+
+ 
+(async () => {
+  const pipeline = new Proxy(dataPipeline(), handler);
+  for await (const data of pipeline) {
+    print(data);
+  }
+})();

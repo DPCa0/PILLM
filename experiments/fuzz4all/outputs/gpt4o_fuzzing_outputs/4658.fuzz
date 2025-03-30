@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+async function* asyncNumberGenerator(max) {
+    for (let i = 1; i <= max; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(i), 100));
+    }
+}
+
+ 
+async function asyncMap(generator, transformFn) {
+    const result = [];
+    for await (const value of generator) {
+        result.push(transformFn(value));
+    }
+    return result;
+}
+
+ 
+const arrayHandler = {
+    get(target, prop) {
+        console.log(`Accessed ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        console.log(`Set ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+(async () => {
+     
+    const numberGen = asyncNumberGenerator(5);
+    
+     
+    const numbers = await asyncMap(numberGen, x => x * 2);
+    
+     
+    const proxiedNumbers = new Proxy(numbers, arrayHandler);
+    
+     
+    console.log(proxiedNumbers[0]);  
+    console.log(proxiedNumbers[1]);  
+
+     
+    proxiedNumbers[2] = 100;  
+    
+    console.log(proxiedNumbers);
+})();
+```

@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+
+class FetchData {
+  #apiUrl;
+
+  constructor(apiUrl) {
+    this.#apiUrl = apiUrl;
+  }
+
+  async getData(endpoint) {
+    try {
+      const response = await fetch(`${this.#apiUrl}/${endpoint}`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+const processData = async () => {
+  const api = new FetchData('https://jsonplaceholder.typicode.com');
+  const dataPromise = api.getData('posts');
+  
+   
+  const [posts, additionalData] = await Promise.all([dataPromise, Promise.resolve({ extra: 'info' })]);
+
+   
+  const { 0: firstPost, ...restPosts } = posts;
+
+  console.log('First Post:', firstPost);
+  console.log('Additional Data:', additionalData);
+  console.log('Remaining Posts:', { ...restPosts });
+};
+
+processData();
+```

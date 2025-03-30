@@ -1,0 +1,68 @@
+class Matrix {
+    #data;
+    
+    constructor(rows, cols) {
+        this.rows = rows;
+        this.cols = cols;
+        this.#data = Array.from({ length: rows }, () => Array(cols).fill(0));
+    }
+
+    static from(array) {
+        if (!array.length || !array[0].length) throw new Error('Invalid array');
+        const matrix = new Matrix(array.length, array[0].length);
+        matrix.#data = array.map(row => [...row]);
+        return matrix;
+    }
+
+    [Symbol.iterator]() {
+        let row = 0, col = 0;
+        const { rows, cols, #data } = this;
+        return {
+            next() {
+                if (row < rows && col < cols) {
+                    const value = { value: #data[row][col], done: false };
+                    col++;
+                    if (col >= cols) {
+                        col = 0;
+                        row++;
+                    }
+                    return value;
+                }
+                return { done: true };
+            }
+        };
+    }
+
+    map(callback) {
+        return Matrix.from(this.#data.map((row, rowIndex) => 
+            row.map((value, colIndex) => callback(value, rowIndex, colIndex))
+        ));
+    }
+
+    static async fetchMatrix(url) {
+        const response = await fetch(url);
+        const data = await response.json();
+        return Matrix.from(data);
+    }
+
+    toString() {
+        return this.#data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+ 
+(async () => {
+    const matrix = new Matrix(2, 2);
+    print('Initial matrix:\n' + matrix.toString());
+
+    const transformed = matrix.map((value, row, col) => row + col);
+    print('Transformed matrix:\n' + transformed.toString());
+
+     
+     
+     
+
+    for (const value of transformed) {
+        print(`Matrix value: ${value}`);
+    }
+})();

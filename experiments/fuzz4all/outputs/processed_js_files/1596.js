@@ -1,0 +1,52 @@
+class AsyncQueue {
+    constructor() {
+        this.queue = [];
+        this.isRunning = false;
+    }
+
+    async run() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        while (this.queue.length > 0) {
+            const task = this.queue.shift();
+            await task();
+        }
+        this.isRunning = false;
+    }
+
+    enqueue(task) {
+        this.queue.push(task);
+        this.run();
+    }
+}
+
+const delayedLog = (message, delay) => {
+    return new Promise(resolve => setTimeout(() => {
+        print(message);
+        resolve();
+    }, delay));
+};
+
+const asyncQueue = new AsyncQueue();
+
+['Hello', 'world', '!'].forEach((word, index) => {
+    asyncQueue.enqueue(() => delayedLog(word, 1000 * index));
+});
+
+(async () => {
+    const fetchData = async () => {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve('Fetched Data'), 2000);
+        });
+    };
+
+    const processData = async (data) => {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(`Processed ${data}`), 1000);
+        });
+    };
+
+    const data = await fetchData();
+    const result = await processData(data);
+    print(result);
+})();

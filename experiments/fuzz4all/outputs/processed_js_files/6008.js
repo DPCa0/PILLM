@@ -1,0 +1,40 @@
+const fetchJsonData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  filterData(predicate) {
+    return this.data.filter(predicate);
+  }
+  
+  processData(operation) {
+    return this.data.map(operation);
+  }
+}
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const rawData = await fetchJsonData(url);
+    
+    const processor = new DataProcessor(rawData);
+    
+    const filteredData = processor.filterData(item => item.value > 10);
+    const processedData = processor.processData(item => ({
+      id: item.id,
+      doubledValue: item.value * 2
+    }));
+    
+    print('Filtered Data:', filteredData);
+    print('Processed Data:', processedData);
+    
+  } catch (error) {
+    console.error('Error fetching or processing data:', error);
+  }
+})();

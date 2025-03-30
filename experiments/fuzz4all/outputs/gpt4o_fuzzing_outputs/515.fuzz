@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (url) {
+            resolve({ data: `Fetched data from ${url}` });
+        } else {
+            reject(new Error('URL not provided'));
+        }
+    }, 1000);
+});
+
+async function* dataFetcher(urls) {
+    for (const url of urls) {
+        try {
+            const response = await fetchData(url);
+            yield response.data;
+        } catch (error) {
+            yield `Error: ${error.message}`;
+        }
+    }
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', null];
+const fetchProxy = new Proxy(dataFetcher(urls), {
+    get(target, property) {
+        if (property === Symbol.asyncIterator) {
+            return target[property].bind(target);
+        }
+        return `No such property: ${property}`;
+    }
+});
+
+(async () => {
+    for await (const data of fetchProxy) {
+        console.log(data);
+    }
+})();
+```

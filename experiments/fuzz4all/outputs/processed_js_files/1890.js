@@ -1,0 +1,52 @@
+(async () => {
+   
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const handler = {
+    set: function(target, key, value) {
+      print(`Setting ${key} to ${value}`);
+      target[key] = value;
+      return true;
+    }
+  };
+
+  let obj = new Proxy({}, handler);
+
+   
+  const uniqueProperty = Symbol('unique');
+  obj[uniqueProperty] = 'I am unique!';
+
+   
+  async function* asyncGenerator() {
+    yield await delay(1000).then(() => obj.name = 'Alice');
+    yield await delay(1000).then(() => obj.age = 30);
+    yield await delay(1000).then(() => obj.country = 'Wonderland');
+  }
+
+   
+  for await (const val of asyncGenerator()) {
+    print('Property set');
+  }
+
+   
+  const metaData = new WeakMap();
+  const user = { id: 1, name: 'Alice' };
+  metaData.set(user, { lastLogin: new Date() });
+
+  print('User last login:', metaData.get(user).lastLogin);
+
+   
+  function htmlEscape(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+      let value = values[i - 1];
+      if (typeof value === 'string') {
+        value = value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+      return result + value + str;
+    });
+  }
+
+  const username = '<Alice>';
+  print(htmlEscape`<div>Hello, ${username}!</div>`);
+})();

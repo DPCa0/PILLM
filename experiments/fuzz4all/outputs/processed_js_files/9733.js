@@ -1,0 +1,50 @@
+ 
+
+ 
+function fakeApiRequest(endpoint) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (endpoint === "/data") {
+        resolve({ success: true, data: { message: "Hello, complex world!" } });
+      } else {
+        reject(new Error("Endpoint not found"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function fetchData() {
+  try {
+    const response = await fakeApiRequest("/data");
+    return response.data.message;
+  } catch (error) {
+    return error.message;
+  }
+}
+
+ 
+const loggerHandler = {
+  get(target, prop) {
+    print(`Accessing property '${prop}'`);
+    return target[prop];
+  },
+};
+
+ 
+async function main() {
+  const message = await fetchData();
+
+  const dataObject = {
+    message: message,
+    timestamp: new Date(),
+  };
+
+  const proxiedDataObject = new Proxy(dataObject, loggerHandler);
+
+   
+  print(proxiedDataObject.message);
+  print(proxiedDataObject.timestamp);
+}
+
+main();

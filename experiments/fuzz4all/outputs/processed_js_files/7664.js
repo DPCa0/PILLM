@@ -1,0 +1,39 @@
+class FibonacciSequence {
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        while (true) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+}
+
+const memoize = (fn) => {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (!cache.has(key)) {
+            cache.set(key, fn(...args));
+        }
+        return cache.get(key);
+    };
+};
+
+const asyncMultiply = async (a, b) => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(a * b), 100);
+    });
+};
+
+const multiplyNumbers = memoize(async (a, b) => {
+    return await asyncMultiply(a, b);
+});
+
+(async () => {
+    const fib = new FibonacciSequence();
+    const firstTenFibs = [...fib].slice(0, 10);
+    print("First 10 Fibonacci numbers:", firstTenFibs);
+
+    const products = await Promise.all(firstTenFibs.map((num) => multiplyNumbers(num, 2)));
+    print("Doubled Fibonacci numbers:", products);
+})();

@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+function* generateSequence() {
+  yield 'Start';
+  yield* asyncGenerator();
+  yield 'End';
+}
+
+async function* asyncGenerator() {
+  const data = await fetchData();
+  for (const item of data) {
+    yield item;
+  }
+}
+
+async function fetchData() {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(['Data 1', 'Data 2', 'Data 3']), 1000);
+  });
+}
+
+async function processSequence() {
+  const sequence = generateSequence();
+  for await (const value of sequence) {
+    console.log(value);
+  }
+}
+
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}': ${target[prop]}`);
+      return target[prop];
+    } else {
+      throw new Error(`Property '${prop}' does not exist.`);
+    }
+  }
+};
+
+const obj = new Proxy({ execute: processSequence }, handler);
+
+(async () => {
+  try {
+    await obj.execute();
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

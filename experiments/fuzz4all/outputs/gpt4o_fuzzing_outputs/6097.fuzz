@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    const data = await fs.readFile('example.json', 'utf8');
+    const jsonData = JSON.parse(data);
+
+     
+    const processedData = jsonData.map(item => ({
+      ...item,
+      computedValue: item.value * 10
+    })).filter(item => item.computedValue > 50);
+
+     
+    const uniqueValues = new Set(processedData.map(item => item.category));
+
+     
+    const uniqueCategories = [...uniqueValues];
+
+     
+    console.log(`Unique categories with computed values > 50: ${uniqueCategories.join(', ')}`);
+
+     
+    if (uniqueCategories.includes('special')) {
+      const specialModule = await import('./specialModule.js');
+      specialModule.handleSpecialCase(processedData);
+    }
+
+     
+    const handler = {
+      get(target, property) {
+        if (property in target) {
+          return target[property];
+        }
+        throw new ReferenceError(`Property "${property}" not found.`);
+      },
+      set(target, property, value) {
+        if (typeof value === 'string') {
+          target[property] = value.trim();
+        } else {
+          throw new TypeError('Value must be a string.');
+        }
+      }
+    };
+
+    const proxyData = new Proxy({}, handler);
+    proxyData.newField = ' Some Value ';
+    console.log(`Proxied newField: ${proxyData.newField}`);
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();
+```
+
+Note: To use this program, you'll need to create an `example.json` file with appropriate data and possibly a `specialModule.js` file, depending on your specific use case.

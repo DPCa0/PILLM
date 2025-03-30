@@ -1,0 +1,54 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "https://api.example.com/data") {
+                resolve({ data: "Sample data" });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+}
+
+ 
+function* dataHandler(urls) {
+    for (const url of urls) {
+        try {
+            const data = yield fetchData(url);
+            print(`Fetched data: ${data.data}`);
+        } catch (error) {
+            console.error(`Error fetching data from ${url}: ${error.message}`);
+        }
+    }
+}
+
+ 
+async function runDataHandler(urls) {
+    const handler = dataHandler(urls);
+
+    while (true) {
+        const { value, done } = handler.next();
+        if (done) break;
+
+        try {
+            const result = await value;
+            handler.next(result);
+        } catch (error) {
+            handler.throw(error);
+        }
+    }
+}
+
+ 
+const urlsProxy = new Proxy(["https://api.example.com/data", "https://api.invalid.com/data"], {
+    get(target, prop) {
+        print(`Accessing URL at index ${prop}`);
+        return target[prop];
+    }
+});
+
+ 
+runDataHandler(urlsProxy);

@@ -1,0 +1,59 @@
+class Scheduler {
+  constructor() {
+    this.tasks = new Map();
+  }
+
+  addTask(name, task, interval) {
+    const id = setInterval(async () => {
+      try {
+        await task();
+      } catch (e) {
+        console.error(`Error in task '${name}':`, e);
+        this.removeTask(name);
+      }
+    }, interval);
+    this.tasks.set(name, id);
+  }
+
+  removeTask(name) {
+    if (this.tasks.has(name)) {
+      clearInterval(this.tasks.get(name));
+      this.tasks.delete(name);
+    }
+  }
+
+  async executeAll() {
+    for (const [name, id] of this.tasks) {
+      clearInterval(id);
+      try {
+        await task();
+      } catch (e) {
+        console.error(`Error executing task '${name}':`, e);
+      }
+    }
+    this.tasks.clear();
+  }
+}
+
+ 
+function createLoggingProxy(task) {
+  return new Proxy(task, {
+    apply(target, thisArg, args) {
+      print(`Executing task with args: ${JSON.stringify(args)}`);
+      return Reflect.apply(target, thisArg, args);
+    }
+  });
+}
+
+async function exampleTask() {
+  print('Task executed');
+  if (Math.random() < 0.1) throw new Error('Random task failure');
+}
+
+const scheduler = new Scheduler();
+const taskProxy = createLoggingProxy(exampleTask);
+
+scheduler.addTask('exampleTask', taskProxy, 1000);
+
+ 
+setTimeout(() => scheduler.executeAll(), 5000);

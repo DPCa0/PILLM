@@ -1,0 +1,48 @@
+ 
+
+ 
+async function fetchData(api) {
+    const response = await new Promise((resolve) =>
+        setTimeout(() => resolve({ data: `${api} data` }), 1000)
+    );
+    return response.data;
+}
+
+ 
+function* apiGenerator() {
+    yield 'https://api.example.com/users';
+    yield 'https://api.example.com/posts';
+    yield 'https://api.example.com/comments';
+}
+
+ 
+const apiHandler = {
+    get(target, propKey) {
+        if (propKey === 'length') {
+            print(`Accessing length of APIs`);
+        }
+        return target[propKey];
+    },
+    apply(target, thisArg, args) {
+        print(`Fetching data for ${args[0]}`);
+        return target(...args);
+    },
+};
+
+ 
+const fetchDataProxy = new Proxy(fetchData, apiHandler);
+
+ 
+const dataMap = new Map();
+
+ 
+(async function () {
+    const generator = apiGenerator();
+    for (let api of generator) {
+        const data = await fetchDataProxy(api);
+        dataMap.set(api, data);
+    }
+
+     
+    print('Fetched Data:', Array.from(dataMap.entries()));
+})();

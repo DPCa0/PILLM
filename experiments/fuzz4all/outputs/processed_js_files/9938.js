@@ -1,0 +1,53 @@
+ 
+
+function* numberGenerator(limit) {
+    let n = 0;
+    while (n < limit) {
+        yield n++;
+    }
+}
+
+async function asyncNumberProcessor(generator) {
+    const results = [];
+    for (let number of generator) {
+        let result = await processNumber(number);
+        results.push(result);
+    }
+    return results;
+}
+
+function processNumber(number) {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(number * 2), 100);
+    });
+}
+
+const handler = {
+    get: function(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw `Property ${prop} does not exist on target object`;
+        }
+    },
+    set: function(target, prop, value) {
+        if (typeof value === 'number') {
+            target[prop] = value;
+            return true;
+        } else {
+            throw `Value for ${prop} must be a number`;
+        }
+    }
+};
+
+const data = new Proxy({ limit: 5 }, handler);
+
+(async () => {
+    try {
+        const gen = numberGenerator(data.limit);
+        const processedNumbers = await asyncNumberProcessor(gen);
+        print('Processed Numbers:', processedNumbers);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

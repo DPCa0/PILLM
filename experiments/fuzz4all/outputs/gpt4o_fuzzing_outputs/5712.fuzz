@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Secret Data' });
+        }, 1000);
+    });
+};
+
+ 
+async function processData() {
+     
+    let result = await fetchData();
+
+     
+    const handler = {
+        get(target, prop) {
+            if (prop in target) {
+                console.log(`Accessing property "${prop}": ${target[prop]}`);
+                return target[prop];
+            }
+            throw new Error(`Property "${prop}" does not exist on target.`);
+        },
+        set(target, prop, value) {
+            console.log(`Setting property "${prop}" to "${value}"`);
+            target[prop] = value;
+            return true;
+        }
+    };
+
+     
+    const proxiedResult = new Proxy(result, handler);
+
+     
+    console.log(proxiedResult.data);  
+    proxiedResult.data = 'Updated Secret Data';  
+    console.log(proxiedResult.data);  
+}
+
+processData().catch(err => console.error(err));
+```

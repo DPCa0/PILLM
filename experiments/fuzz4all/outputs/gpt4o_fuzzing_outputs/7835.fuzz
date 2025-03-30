@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+const personProxy = new Proxy(
+  {
+    name: 'Alice',
+    age: 30,
+    [uniqueKey]: 'secretData',
+  },
+  {
+    get(target, property, receiver) {
+      console.log(`Getting the property '${property.toString()}'`);
+      return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+      if (property === 'age' && typeof value !== 'number') {
+        throw new TypeError('Age must be a number');
+      }
+      console.log(`Setting the property '${property.toString()}' to '${value}'`);
+      return Reflect.set(target, property, value, receiver);
+    },
+  }
+);
+
+ 
+const { name, ...rest } = personProxy;
+console.log('Destructured name:', name);
+console.log('Remaining properties:', rest);
+
+ 
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i - 1] !== undefined ? `<strong>${values[i - 1]}</strong>` : '';
+    return result + value + string;
+  });
+}
+
+const ageTemplate = highlight`The name is ${personProxy.name} and the age is ${personProxy.age}.`;
+console.log(ageTemplate);
+
+ 
+async function fetchData() {
+  const dataPromise = new Promise((resolve) => setTimeout(() => resolve('fetched data'), 1000));
+  const data = await dataPromise;
+  console.log('Async function got:', data);
+}
+
+fetchData();
+
+ 
+function* numberGenerator() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+const gen = numberGenerator();
+console.log('Generated numbers:', gen.next().value, gen.next().value, gen.next().value);
+
+ 
+Reflect.set(personProxy, 'age', 31);
+console.log(`Updated age: ${personProxy.age}`);
+
+ 
+console.log('Unique key data:', personProxy[uniqueKey]);
+```

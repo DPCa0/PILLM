@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor() {
+        this.subscribers = new Map();
+    }
+
+    subscribe(event, handler) {
+        if (!this.subscribers.has(event)) {
+            this.subscribers.set(event, []);
+        }
+        this.subscribers.get(event).push(handler);
+        return () => this.unsubscribe(event, handler);
+    }
+
+    unsubscribe(event, handler) {
+        const handlers = this.subscribers.get(event);
+        if (!handlers) return;
+        this.subscribers.set(event, handlers.filter(h => h !== handler));
+    }
+
+    emit(event, data) {
+        (this.subscribers.get(event) || []).forEach(handler => handler(data));
+    }
+}
+
+const asyncIterable = {
+    [Symbol.asyncIterator]() {
+        let count = 0;
+        return {
+            next: async () => {
+                if (count < 5) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return { value: count++, done: false };
+                }
+                return { done: true };
+            }
+        };
+    }
+};
+
+(async () => {
+    const observable = new Observable();
+
+    const logHandler = data => console.log(`Received: ${data}`);
+    const unsubscribe = observable.subscribe('tick', logHandler);
+
+    for await (const value of asyncIterable) {
+        if (value === 3) {
+            unsubscribe();
+        }
+        observable.emit('tick', value);
+    }
+})();
+```

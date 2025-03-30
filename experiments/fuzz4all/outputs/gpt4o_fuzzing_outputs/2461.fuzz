@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+class AsyncDataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async *fetchInChunks(chunkSize = 1024) {
+    const response = await fetch(this.url);
+    const reader = response.body.getReader();
+
+    let totalReceived = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      totalReceived += value.length;
+      yield { chunk: value, totalReceived };
+      
+      if (totalReceived >= chunkSize) {
+        totalReceived = 0;
+        console.log('Chunk size limit reached, yielding current chunk...');
+      }
+    }
+  }
+}
+
+const processData = async (url) => {
+  const fetcher = new AsyncDataFetcher(url);
+
+  console.time('Data Processing Time');
+  for await (const { chunk, totalReceived } of fetcher.fetchInChunks()) {
+    console.log(`Received chunk of size: ${chunk.length}, Total received: ${totalReceived}`);
+     
+  }
+  console.timeEnd('Data Processing Time');
+};
+
+ 
+processData('https://jsonplaceholder.typicode.com/posts');
+```

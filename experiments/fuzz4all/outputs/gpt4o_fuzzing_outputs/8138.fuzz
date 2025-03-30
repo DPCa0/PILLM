@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fibonacciAsync(max) {
+    let [prev, curr] = [0, 1];
+    while (curr <= max) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+        await delay(500);  
+    }
+}
+
+ 
+const logAccessHandler = {
+    get: (target, prop, receiver) => {
+        console.log(`Accessing ${String(prop)}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+const config = new Proxy({
+    apiEndpoint: 'https://api.example.com',
+    timeout: 5000
+}, logAccessHandler);
+
+ 
+(async () => {
+    console.log('Fetching configuration...');
+    console.log(`API Endpoint: ${config.apiEndpoint}`);
+    
+    console.log('Starting Fibonacci sequence:');
+    const maxFib = 50;
+    for await (const num of fibonacciAsync(maxFib)) {
+        console.log(num);
+    }
+})();
+```

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+ 
+
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  *filterData(filterFn) {
+    for (let item of this.data) {
+      if (filterFn(item)) yield item;
+    }
+  }
+
+  static async fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+}
+
+const processData = async (url) => {
+  try {
+    const data = await DataProcessor.fetchData(url);
+    
+    const processor = new DataProcessor(data);
+    const filterFn = item => item.value > 10;
+    
+    const filteredItems = [...processor.filterData(filterFn)];
+    
+    console.log('Filtered Items:', filteredItems);
+  } catch ({ message }) {
+    console.error('Error fetching data:', message);
+  }
+};
+
+ 
+const sampleUrl = 'https://api.example.com/data';
+processData(sampleUrl);
+```

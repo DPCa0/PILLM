@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(subscriber) {
+    this.subscribers.add(subscriber);
+  }
+
+  unsubscribe(subscriber) {
+    this.subscribers.delete(subscriber);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(subscriber => subscriber(data));
+  }
+}
+
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  while (curr < limit) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const fibonacciObservable = new Observable();
+
+const logSubscriber = (data) => console.log(`Logged value: ${data}`);
+const doubleSubscriber = (data) => console.log(`Doubled value: ${data * 2}`);
+
+fibonacciObservable.subscribe(logSubscriber);
+fibonacciObservable.subscribe(doubleSubscriber);
+
+for (let num of fibonacciGenerator(50)) {
+  fibonacciObservable.notify(num);
+}
+
+fibonacciObservable.unsubscribe(logSubscriber);
+
+console.log('After unsubscribing logSubscriber:');
+
+for (let num of fibonacciGenerator(30)) {
+  fibonacciObservable.notify(num);
+}
+```

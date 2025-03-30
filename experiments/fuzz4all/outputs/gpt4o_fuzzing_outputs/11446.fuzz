@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve([
+                { id: 1, name: 'Alice', role: 'Developer' },
+                { id: 2, name: 'Bob', role: 'Designer' },
+                { id: 3, name: 'Charlie', role: 'Manager' }
+            ]);
+        }, 1000);
+    });
+};
+
+ 
+function* processUsers(users) {
+    for (const user of users) {
+         
+        const { id, name, role } = user;
+        yield `User ${id}: ${name}, Role: ${role}`;
+    }
+}
+
+ 
+(async () => {
+    console.log('Fetching user data...');
+    const users = await fetchData();
+    console.log('Processing user data...\n');
+
+     
+    const userProcessor = processUsers(users);
+
+     
+    for (const userInfo of userProcessor) {
+        console.log(userInfo);
+    }
+})().catch(err => console.error(err));
+```

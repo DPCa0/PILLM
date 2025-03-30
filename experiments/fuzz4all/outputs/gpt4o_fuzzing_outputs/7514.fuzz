@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    await delay(1000);  
+    return new Set(['apple', 'banana', 'cherry']);
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop === 'get') {
+            return function(key) {
+                console.log(`Getting value for key: ${key}`);
+                return Reflect.get(target, 'get', receiver).call(target, key);
+            };
+        }
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+ 
+(async function() {
+    try {
+        console.log('Fetching data...');
+        const data = await fetchData();
+        
+         
+        const fruitMap = new Map([...data].map(fruit => [fruit, fruit.length]));
+        console.log('Fruit lengths:', fruitMap);
+        
+         
+        const proxyMap = new Proxy(fruitMap, handler);
+
+         
+        console.log('Length of apple:', proxyMap.get('apple'));
+        console.log('Length of banana:', proxyMap.get('banana'));
+        
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

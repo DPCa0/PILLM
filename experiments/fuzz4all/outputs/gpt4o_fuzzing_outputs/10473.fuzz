@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fillValue = 0) {
+    this.data = Array.from({ length: rows }, () => Array(cols).fill(fillValue));
+  }
+
+  [Symbol.iterator]() {
+    let row = 0, col = 0;
+    return {
+      next: () => {
+        if (row < this.data.length) {
+          let value = this.data[row][col];
+          col++;
+          if (col >= this.data[row].length) {
+            col = 0;
+            row++;
+          }
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+
+  static async multiply(a, b) {
+    if (a.data[0].length !== b.data.length) throw new Error('Incompatible matrix sizes');
+
+    let result = new Matrix(a.data.length, b.data[0].length);
+
+    await Promise.all(result.data.map((row, i) =>
+      Promise.all(row.map((_, j) =>
+        result.data[i][j] = a.data[i].reduce((sum, _, n) => sum + a.data[i][n] * b.data[n][j], 0)
+      ))
+    ));
+    
+    return result;
+  }
+
+  display() {
+    console.log(this.data.map(row => row.join('\t')).join('\n'));
+  }
+}
+
+async function main() {
+  let a = new Matrix(2, 3, 1);
+  let b = new Matrix(3, 2, 2);
+
+  console.log('Matrix A:');
+  a.display();
+  console.log('\nMatrix B:');
+  b.display();
+
+  try {
+    let result = await Matrix.multiply(a, b);
+    console.log('\nMatrix A x B:');
+    result.display();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+main();
+```

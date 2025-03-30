@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncCounter(max) {
+    let count = 0;
+    while (count < max) {
+        await asyncTimeout(1000);
+        yield ++count;
+    }
+}
+
+class AdvancedCounter {
+    constructor(max) {
+        this.emitter = new EventEmitter();
+        this.max = max;
+    }
+
+    start() {
+        (async () => {
+            for await (const count of asyncCounter(this.max)) {
+                this.emitter.emit('count', count);
+                if (count === this.max) this.emitter.emit('end');
+            }
+        })();
+    }
+
+    on(event, listener) {
+        this.emitter.on(event, listener);
+    }
+}
+
+const counter = new AdvancedCounter(5);
+
+counter.on('count', count => console.log(`Count: ${count}`));
+counter.on('end', () => console.log('Counting finished.'));
+
+counter.start();
+```

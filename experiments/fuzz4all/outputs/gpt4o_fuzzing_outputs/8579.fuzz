@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+};
+
+const processData = async () => {
+  const urls = [
+    'https://api.example.com/data1',
+    'https://api.example.com/data2',
+    'https://api.example.com/data3',
+  ];
+  
+  const dataPromises = urls.map(url => fetchData(url));
+  
+  try {
+    const results = await Promise.allSettled(dataPromises);
+    
+    const fulfilledData = results
+      .filter(result => result.status === 'fulfilled')
+      .map(result => result.value);
+    
+    const combinedData = fulfilledData.flat();
+    
+    const mappedData = new Map(combinedData.map(item => [item.id, item]));
+
+    mappedData.forEach((value, key) => {
+      console.log(`ID: ${key}, Value:`, value);
+    });
+  } catch (error) {
+    console.error('Data Processing Error:', error);
+  }
+};
+
+processData();
+```

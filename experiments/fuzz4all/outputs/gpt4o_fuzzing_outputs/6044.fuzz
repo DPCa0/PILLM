@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+class DataProcessor {
+  #data;
+  
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  getData() {
+    return this.#data;
+  }
+  
+  *[Symbol.iterator]() {
+    for (const item of this.#data) {
+      yield item;
+    }
+  }
+  
+  static async createFromUrl(url) {
+    const data = await fetchData(url);
+    return new DataProcessor(data);
+  }
+}
+
+const transformData = (dataProcessor) => {
+  return [...dataProcessor].map(item => ({
+    ...item,
+    processed: true,
+  }));
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const dataProcessor = await DataProcessor.createFromUrl(url);
+    
+    const proxyHandler = {
+      get(target, prop) {
+        if (prop === 'info') {
+          return 'Processed data length: ' + target.getData().length;
+        }
+        return target[prop];
+      }
+    };
+    
+    const proxiedProcessor = new Proxy(dataProcessor, proxyHandler);
+    console.log(proxiedProcessor.info);
+    
+    const transformedData = transformData(proxiedProcessor);
+    console.log(transformedData);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

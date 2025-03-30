@@ -1,0 +1,68 @@
+(async () => {
+   
+  const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+       
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+
+   
+  const secretHandler = {
+    get: (target, prop, receiver) => {
+      if (prop === Symbol.for('secret')) {
+        return target[prop];
+      }
+      return Reflect.get(...arguments);
+    },
+    set: (target, prop, value) => {
+      if (prop === Symbol.for('secret')) {
+        target[prop] = value;
+        return true;
+      }
+      return false;
+    }
+  };
+
+  const secretData = new Proxy({}, secretHandler);
+  const secretKey = Symbol.for('secret');
+  secretData[secretKey] = 'Top Secret Info';
+
+   
+  const dataMap = new Map();
+  const uniqueValues = new Set();
+
+  const processData = async () => {
+    try {
+      const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+      const dataPromises = urls.map(url => fetchData(url));
+
+      for await (const { data } of dataPromises) {
+        print(data);
+        dataMap.set(url, data);
+        uniqueValues.add(data);
+      }
+
+      print('Unique Values:', [...uniqueValues]);
+
+       
+      const logResult = ({ map, secret }) => {
+        console.log(`Results:
+        Map Size: ${map.size}
+        Secret Data: ${secret}`);
+      };
+
+      logResult({ map: dataMap, secret: secretData[secretKey] });
+
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  await processData();
+
+   
+  (function runSelfInvoking() {
+    print('Self-Invoking Function Executed');
+  })();
+})();

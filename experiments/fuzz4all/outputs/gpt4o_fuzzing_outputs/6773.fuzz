@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch data: ${response.statusText}`);
+  return response.json();
+};
+
+const processData = async (data) => {
+  const { name, stats: { views, likes, shares } } = data;
+  const result = `Name: ${name}, Popularity Score: ${calculatePopularityScore(views, likes, shares)}`;
+  return Promise.resolve(result);
+};
+
+const calculatePopularityScore = (views, likes, shares) => {
+  return ((likes * 0.5) + (shares * 0.3)) / views;
+};
+
+(async () => {
+  try {
+    const url = 'https://api.example.com/data';
+    const data = await fetchData(url);
+    const result = await processData(data);
+    console.log(result);
+  } catch (error) {
+    console.error(`Error occurred: ${error.message}`);
+  }
+})();
+```

@@ -1,0 +1,55 @@
+ 
+import { createInterface } from 'readline';
+import { promises as fs } from 'fs';
+
+ 
+(async function main() {
+  const fileStream = fs.createReadStream('data.txt');
+
+  const rl = createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  const data = [];
+
+   
+  for await (const line of rl) {
+     
+    try {
+      data.push(JSON.parse(line));
+    } catch (error) {
+      console.error('Error parsing line:', line);
+    }
+  }
+
+   
+  const result = data
+    .filter(item => item.active)
+    .map(item => ({
+      ...item,
+      timestamp: new Date(item.timestamp)
+    }))
+    .reduce((acc, curr) => {
+      acc[curr.type] = (acc[curr.type] || 0) + 1;
+      return acc;
+    }, {});
+
+   
+  const handler = {
+    get: (target, prop) => (prop in target ? target[prop] : `No data for type: ${prop}`)
+  };
+
+  const proxyResult = new Proxy(result, handler);
+
+   
+  print(proxyResult);
+
+   
+  await Promise.all([
+    fs.writeFile('output.json', JSON.stringify(proxyResult, null, 2)),
+    fs.writeFile('summary.log', `Data processed on: ${new Date()}`)
+  ]);
+
+  print('Data processed and files written successfully.');
+})();

@@ -1,0 +1,89 @@
+ 
+class Playlist {
+  #songs = [];
+
+  constructor(name) {
+    this.name = name;
+  }
+
+  addSong(song) {
+    this.#songs.push(song);
+  }
+
+   
+  *songIterator() {
+    for (const song of this.#songs) {
+      yield song;
+    }
+  }
+
+   
+  static combine(playlists) {
+    const combined = new Playlist('Combined Playlist');
+    playlists.forEach(playlist => {
+      for (const song of playlist.#songs) {
+        combined.addSong(song);
+      }
+    });
+    return combined;
+  }
+
+  toString() {
+    return `${this.name}: ${this.#songs.join(', ')}`;
+  }
+}
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Fetched data from ${url}`);
+    }, 1000);
+  });
+}
+
+ 
+async function fetchAllData(urls) {
+  const promises = urls.map(url => fetchData(url));
+  const results = await Promise.all(promises);
+  print(results);
+}
+
+ 
+function logExecution(target, key, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    print(`Executing ${key} with arguments: ${JSON.stringify(args)}`);
+    return originalMethod.apply(this, args);
+  };
+  return descriptor;
+}
+
+ 
+class LoggedPlaylist extends Playlist {
+  @logExecution
+  addSong(song) {
+    super.addSong(song);
+  }
+}
+
+ 
+(async () => {
+  const myPlaylist = new LoggedPlaylist('My Favorite Songs');
+  myPlaylist.addSong('Song A');
+  myPlaylist.addSong('Song B');
+
+  const yourPlaylist = new LoggedPlaylist('Your Favorite Songs');
+  yourPlaylist.addSong('Song C');
+
+  const combinedPlaylist = Playlist.combine([myPlaylist, yourPlaylist]);
+  print(combinedPlaylist.toString());
+
+   
+  for (const song of combinedPlaylist.songIterator()) {
+    print(`Playing: ${song}`);
+  }
+
+   
+  await fetchAllData(['https://api.example.com/data1', 'https://api.example.com/data2']);
+})();

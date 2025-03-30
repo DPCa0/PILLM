@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+import { writeFile } from 'fs/promises';
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(`Data from ${url}`), 1000);
+  });
+};
+
+ 
+const handler = {
+  get: function (target, prop, receiver) {
+    console.log(`Property '${prop}' accessed`);
+    return Reflect.get(...arguments);
+  },
+};
+
+ 
+const data = { user: 'Alice', age: 30, url: 'https://api.example.com/data' };
+
+ 
+const proxiedData = new Proxy(data, handler);
+
+ 
+const processData = async () => {
+  const dataFromUrl = await fetchData(proxiedData.url);
+
+   
+  const { format } = await import('util');
+  const formattedData = format('Fetched Data: %s', dataFromUrl);
+
+   
+  await Promise.all([
+    writeFile('output.txt', formattedData),
+    new Promise((resolve) =>
+      setTimeout(() => resolve(console.log('Async operation completed!')), 500)
+    ),
+  ]);
+
+  console.log('All operations done, check output.txt for results.');
+};
+
+ 
+processData().catch((err) => console.error('Error:', err));
+```

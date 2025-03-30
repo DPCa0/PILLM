@@ -1,0 +1,51 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve(`Data from ${url}`);
+            } else {
+                reject(new Error('Fetch error'));
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function* asyncGenerator(urls) {
+    for (const url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield data;
+        } catch (error) {
+            yield `Error: ${error.message}`;
+        }
+    }
+}
+
+ 
+const loggerProxy = new Proxy({}, {
+    get(target, prop) {
+        print(`Accessing property: ${prop}`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        print(`Setting property: ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+    }
+});
+
+ 
+(async function main() {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+    const dataStore = loggerProxy;
+
+    for await (const data of asyncGenerator(urls)) {
+        dataStore[`url_${urls.indexOf(data)}`] = data;
+    }
+
+    print('DataStore:', dataStore);
+})();

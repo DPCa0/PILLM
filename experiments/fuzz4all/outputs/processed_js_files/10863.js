@@ -1,0 +1,75 @@
+ 
+
+class AsyncEventEmitter {
+    constructor() {
+        this.listeners = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event).push(listener);
+    }
+
+    async emit(event, ...args) {
+        if (!this.listeners.has(event)) return;
+        const promises = this.listeners.get(event).map(listener => listener(...args));
+        await Promise.all(promises);
+    }
+}
+
+const emitter = new AsyncEventEmitter();
+
+emitter.on('data', async (msg) => {
+    const waitTime = Math.floor(Math.random() * 1000);
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+    print(`Listener 1 processed message: ${msg} after ${waitTime}ms`);
+});
+
+emitter.on('data', async (msg) => {
+    const waitTime = Math.floor(Math.random() * 1000);
+    await new Promise(resolve => setTimeout(resolve, waitTime));
+    print(`Listener 2 processed message: ${msg} after ${waitTime}ms`);
+});
+
+(async () => {
+    await emitter.emit('data', 'Hello, world!');
+    print('All listeners have processed the message');
+})();
+
+ 
+const obj = {
+    name: 'JavaScript',
+    year: 1995
+};
+
+const handler = {
+    get(target, prop, receiver) {
+        print(`Property '${prop}' has been accessed`);
+        return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver) {
+        print(`Property '${prop}' has been set to '${value}'`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const proxy = new Proxy(obj, handler);
+
+print(proxy.name);
+proxy.year = 2023;
+
+ 
+function* fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+const fibSeq = fibonacci(5);
+for (let num of fibSeq) {
+    print(num);
+}

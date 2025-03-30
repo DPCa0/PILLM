@@ -1,0 +1,72 @@
+print('Hello, world!');
+```javascript
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const fetchData = async () => {
+  try {
+    const data = await delay(Math.random() * 1000);
+    console.log("Fetched data:", data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Accessed property: ${prop}`);
+    return obj[prop];
+  }
+};
+
+const data = { id: 1, value: "Hello, Proxy!" };
+const proxyData = new Proxy(data, handler);
+
+ 
+const { id, value, ...rest } = proxyData;
+console.log(id, value, rest);
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+(() => {
+  const privateVar = "This is private";
+  console.log(privateVar);
+})();
+
+ 
+const user = { name: "Alice", preferences: null };
+console.log(user.preferences?.theme ?? "Default Theme");
+
+ 
+class MyClass {
+  #privateField = 42;
+
+  #privateMethod() {
+    console.log("This is a private method");
+  }
+
+  publicMethod() {
+    console.log(this.#privateField);
+    this.#privateMethod();
+  }
+}
+
+const myInstance = new MyClass();
+myInstance.publicMethod();
+
+ 
+fetchData();
+```

@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+const readline = require('readline').createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
+ 
+function getUserInput(query) {
+  return new Promise(resolve => readline.question(query, resolve));
+}
+
+ 
+(async function main() {
+   
+  const [num1, num2, ...rest] = (await getUserInput('Enter at least two numbers separated by space: ')).split(' ').map(Number);
+
+  if (rest.length > 0) {
+    console.log(`You entered more than two numbers, only using the first two: ${num1}, ${num2}`);
+  }
+
+   
+  const operations = {
+    sum: (a, b) => a + b,
+    product: (a, b) => a * b,
+    difference: (a, b) => a - b,
+    quotient: (a, b) => a / b
+  };
+
+   
+  Object.entries(operations).forEach(([name, fn]) => {
+    console.log(`The ${name} of ${num1} and ${num2} is: ${fn(...[num1, num2])}`);
+  });
+
+  readline.close();
+})();
+```

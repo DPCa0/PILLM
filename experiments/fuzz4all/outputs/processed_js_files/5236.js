@@ -1,0 +1,56 @@
+const crypto = require('crypto');
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* hashGenerator(input) {
+    let hash = crypto.createHash('sha256').update(input).digest('hex');
+    while (true) {
+        yield hash;
+        hash = crypto.createHash('sha256').update(hash).digest('hex');
+    }
+}
+
+ 
+async function generateHashes(input, count) {
+    const gen = hashGenerator(input);
+    for (let i = 0; i < count; i++) {
+        print(`Hash ${i + 1}:`, gen.next().value);
+        await delay(100);  
+    }
+    print('Finished generating hashes.');
+}
+
+ 
+const target = { name: "Hash Generator", version: 1.0 };
+const handler = {
+    get: (obj, prop) => {
+        print(`Accessing property "${prop}"`);
+        return obj[prop];
+    }
+};
+const proxy = new Proxy(target, handler);
+
+ 
+class HashManager {
+    #hashes = [];
+    
+    addHash(hash) {
+        this.#hashes.push(hash);
+    }
+    
+    get hashes() {
+        return [...this.#hashes];
+    }
+}
+
+ 
+(async () => {
+    print(`Starting ${proxy.name}, version: ${proxy.version}`);
+    await generateHashes('Hello, world!', 5);
+
+    const manager = new HashManager();
+    manager.addHash('sampleHash123');
+    print('Stored hashes:', manager.hashes);
+})();

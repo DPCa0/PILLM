@@ -1,0 +1,36 @@
+ 
+ 
+
+ 
+const fetchData = (data, delay) => new Promise(resolve => {
+    setTimeout(() => resolve(data), delay);
+});
+
+ 
+async function fetchUserData(userIds) {
+    try {
+        const userPromises = userIds.map(async (id) => {
+             
+            const userData = await fetchData({ id, name: `User${id}` }, Math.random() * 1000);
+            return userData;
+        });
+
+         
+        const users = await Promise.all(userPromises);
+
+         
+        const processedUsers = users
+            .filter(user => user.id % 2 === 0)  
+            .map(user => ({ ...user, isActive: true }));  
+
+        print('Processed Users:', processedUsers);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+const uniqueUserIds = new Set([1, 2, 3, 4, 5, 2, 4, 6]);
+
+ 
+fetchUserData([...uniqueUserIds]);

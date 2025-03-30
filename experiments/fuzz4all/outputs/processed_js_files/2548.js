@@ -1,0 +1,23 @@
+ 
+
+async function* fetchData(ids) {
+  for (let id of ids) {
+    yield new Promise((resolve) => {
+      setTimeout(() => resolve(`Fetched data for ID: ${id}`), 1000);
+    });
+  }
+}
+
+const processData = async (data) => {
+  print(`Processing: ${data}`);
+};
+
+(async function execute() {
+  const ids = [1, 2, 3, 4, 5];
+  
+  for await (const dataPromise of fetchData(ids)) {
+    await processData(dataPromise);
+  }
+
+  print('All data processed.');
+})();

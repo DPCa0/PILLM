@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncIterable = {
+  data: [1, 2, 3, 4, 5],
+  async *[Symbol.asyncIterator]() {
+    for (let item of this.data) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield item;
+    }
+  }
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+  const asyncFunc = async function* (iterable) {
+    for await (let value of iterable) {
+      yield value * 2;
+    }
+  };
+
+  eventEmitter.on('data', data => console.log('Data Event:', data));
+  eventEmitter.on('error', error => console.error('Error Event:', error));
+
+  try {
+    for await (let processedValue of asyncFunc(asyncIterable)) {
+      eventEmitter.emit('data', processedValue);
+    }
+  } catch (error) {
+    eventEmitter.emit('error', error);
+  }
+})();
+```

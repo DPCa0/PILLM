@@ -1,0 +1,77 @@
+print('Hello, world!');
+```javascript
+(async () => {
+     
+    const handler = {
+        get: function(target, property) {
+            if (property in target) {
+                return target[property];
+            } else {
+                return `Property "${property}" does not exist!`;
+            }
+        },
+        set: function(target, property, value) {
+            if (typeof value === 'number') {
+                target[property] = value;
+                return true;
+            } else {
+                console.log(`Please assign a number to "${property}".`);
+                return false;
+            }
+        }
+    };
+
+    const targetObject = { a: 1, b: 2 };
+    const proxy = new Proxy(targetObject, handler);
+
+    console.log(proxy.a);  
+    console.log(proxy.c);  
+
+    proxy.a = 3;           
+    proxy.b = 'text';      
+
+     
+    const SECRET = Symbol('secret');
+    proxy[SECRET] = 'Hidden Value';
+    console.log(proxy[SECRET]);  
+
+     
+    const map = new Map();
+    map.set(proxy, 'Proxy Object');
+    map.set({ key: 2 }, 'Normal Object');
+
+    console.log(map.get(proxy));  
+
+     
+    const fetchData = async () => {
+        const response = await new Promise((resolve) => {
+            setTimeout(() => resolve('Data received!'), 1000);
+        });
+        console.log(response);
+    };
+
+    fetchData();
+
+     
+    function* numberGenerator() {
+        yield 1;
+        yield 2;
+        yield 3;
+    }
+
+    const gen = numberGenerator();
+    console.log(gen.next().value);  
+    console.log(gen.next().value);  
+
+     
+    const privateData = new WeakMap();
+    function CustomClass() {
+        privateData.set(this, { secret: 'hidden' });
+    }
+
+    CustomClass.prototype.getSecret = function() {
+        return privateData.get(this).secret;
+    };
+
+    const instance = new CustomClass();
+    console.log(instance.getSecret());  

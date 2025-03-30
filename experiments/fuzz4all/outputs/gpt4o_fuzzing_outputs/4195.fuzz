@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(subscriber) {
+        this.subscribers.add(subscriber);
+    }
+
+    unsubscribe(subscriber) {
+        this.subscribers.delete(subscriber);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber.update(data));
+    }
+}
+
+class DataObserver {
+    constructor(name) {
+        this.name = name;
+    }
+
+    update(data) {
+        console.log(`${this.name} received data:`, data);
+    }
+}
+
+function* numberGenerator(limit) {
+    for (let i = 1; i <= limit; i++) {
+        yield i;
+    }
+}
+
+const observable = new Observable();
+const observerA = new DataObserver('Observer A');
+const observerB = new DataObserver('Observer B');
+
+observable.subscribe(observerA);
+observable.subscribe(observerB);
+
+(async function streamNumbers(limit) {
+    const numbers = numberGenerator(limit);
+    for (const number of numbers) {
+        await new Promise(resolve => setTimeout(resolve, 1000));  
+        observable.notify(number);
+    }
+})(5);
+```

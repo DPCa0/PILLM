@@ -1,0 +1,29 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    try {
+         
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        if (!response.ok) throw new Error('Network response was not ok.');
+
+         
+        const posts = await response.json();
+        const processedPosts = posts.map(({ id, title, body }) => ({ id, title, body }));
+
+         
+        const userIds = new Set(posts.map(post => post.userId));
+
+         
+        const totalBodyLength = posts.reduce((total, { body }) => total + body.length, 0);
+
+         
+        console.log(`Processed ${processedPosts.length} posts.`);
+        console.log(`Unique User IDs: ${[...userIds].join(', ')}`);
+        console.log(`Total length of all posts' bodies: ${totalBodyLength} characters`);
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();
+```

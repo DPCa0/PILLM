@@ -1,0 +1,54 @@
+class AsyncTaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.queue = [];
+    this.running = 0;
+  }
+
+  addTask(task) {
+    this.queue.push(task);
+    this.runNext();
+  }
+
+  async runNext() {
+    if (this.running >= this.concurrency || this.queue.length === 0) return;
+    this.running++;
+    const task = this.queue.shift();
+    try {
+      await task();
+    } finally {
+      this.running--;
+      this.runNext();
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const queue = new AsyncTaskQueue(2);
+
+const generateRandomTask = (id) => async () => {
+  print(`Task ${id} started`);
+  const randomDelay = Math.floor(Math.random() * 3000);
+  await delay(randomDelay);
+  print(`Task ${id} finished after ${randomDelay}ms`);
+};
+
+for (let i = 1; i <= 5; i++) {
+  queue.addTask(generateRandomTask(i));
+}
+
+ 
+const trackedQueue = new Proxy(queue, {
+  get(target, prop, receiver) {
+    if (prop === 'addTask') {
+      return function(task) {
+        print(`Task added to the queue`);
+        return Reflect.get(target, prop, receiver).call(target, task);
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+});
+
+trackedQueue.addTask(generateRandomTask(6));

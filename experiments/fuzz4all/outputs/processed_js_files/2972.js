@@ -1,0 +1,54 @@
+ 
+ 
+
+ 
+const fetchData = (id) => new Promise((resolve, reject) => {
+    setTimeout(() => {
+        if (id > 0) {
+            resolve({ id, data: `Data for item ${id}` });
+        } else {
+            reject(new Error('Invalid ID'));
+        }
+    }, 1000);
+});
+
+ 
+async function processData(ids) {
+    const results = [];
+    for await (const id of ids) {
+        try {
+            const data = await fetchData(id);
+            results.push(data);
+        } catch (error) {
+            console.error(`Error fetching data for ID ${id}: ${error.message}`);
+        }
+    }
+    return results;
+}
+
+ 
+function* generateIDs(count) {
+    for (let i = 1; i <= count; i++) {
+        yield i;
+    }
+}
+
+ 
+(async () => {
+    const idGenerator = generateIDs(5);
+    const result = await processData(idGenerator);
+    print('Processed Results:', result);
+})();
+
+ 
+const resultCollection = new Set();
+resultCollection.add({ id: 1, data: 'Sample data 1' });
+resultCollection.add({ id: 2, data: 'Sample data 2' });
+
+ 
+const resultMap = new Map([...resultCollection].map(({ id, data }) => [id, data]));
+
+ 
+resultMap.forEach((data, id) => {
+    print(`ID: ${id}, Data: ${data}`);
+});

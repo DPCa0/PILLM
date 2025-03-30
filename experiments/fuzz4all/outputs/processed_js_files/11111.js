@@ -1,0 +1,35 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processAndDisplayData = async (url) => {
+  const data = await fetchData(url);
+
+  if (!data) return;
+
+  const refinedData = data
+    .filter(item => item.isActive)
+    .map(({ id, name, balance }) => ({
+      id,
+      name: name.toUpperCase(),
+      balance: parseFloat(balance.replace(/[$,]/g, ''))
+    }))
+    .sort((a, b) => b.balance - a.balance);
+
+  console.table(refinedData);
+
+  const totalBalance = refinedData
+    .reduce((sum, { balance }) => sum + balance, 0)
+    .toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+  print(`Total Active Balance: ${totalBalance}`);
+};
+
+const sampleUrl = 'https://api.example.com/data';  
+processAndDisplayData(sampleUrl);

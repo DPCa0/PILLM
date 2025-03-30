@@ -1,0 +1,31 @@
+ 
+
+ 
+const simulateApiCall = (data, delay) => 
+  new Promise((resolve) => setTimeout(() => resolve(data), delay));
+
+ 
+async function fetchData() {
+   
+  const usersData = simulateApiCall([{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }], 1000);
+  const postsData = simulateApiCall([{ userId: 1, title: 'Post 1' }, { userId: 2, title: 'Post 2' }], 1200);
+
+  try {
+     
+    const [users, posts] = await Promise.all([usersData, postsData]);
+
+     
+    const processedData = users.map(user => {
+      const { id, name } = user;
+      const userPosts = posts.filter(post => post.userId === id);
+      return { name, userPosts: [...userPosts] };  
+    });
+
+     
+    print(JSON.stringify(processedData, null, 2));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+fetchData();  

@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+class TaskQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.running = 0;
+    this.queue = [];
+  }
+
+  runTask(task) {
+    this.running++;
+    task().then(() => {
+      this.running--;
+      if (this.queue.length > 0) {
+        const nextTask = this.queue.shift();
+        this.runTask(nextTask);
+      }
+    });
+  }
+
+  enqueue(task) {
+    if (this.running < this.concurrency) {
+      this.runTask(task);
+    } else {
+      this.queue.push(task);
+    }
+  }
+}
+
+ 
+const delayTask = (ms, id) => () => 
+  new Promise(resolve => 
+    setTimeout(() => {
+      console.log(`Task ${id} completed`);
+      resolve();
+    }, ms)
+  );
+
+const taskQueue = new TaskQueue(2);
+const tasks = [
+  delayTask(1000, 1),
+  delayTask(500, 2),
+  delayTask(2000, 3),
+  delayTask(100, 4)
+];
+
+tasks.forEach(task => taskQueue.enqueue(task));
+```

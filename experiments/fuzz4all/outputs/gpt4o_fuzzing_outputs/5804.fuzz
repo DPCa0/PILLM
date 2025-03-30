@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+    #secretKey = Symbol('secret');
+    #processData(data) {
+        return [...data].map(ch => ch.charCodeAt(0) ^ this.#secretKey.toString().length).join('');
+    }
+
+    constructor(key) {
+        this.#secretKey = key;
+    }
+
+    process(data) {
+        return Promise.resolve(this.#processData(data))
+            .then(encrypted => {
+                const startTime = performance.now();
+                return new Proxy(encrypted, {
+                    get(target, prop) {
+                        if (prop === 'toString') {
+                            return () => {
+                                console.log(`Processing Time: ${performance.now() - startTime}ms`);
+                                return [...target].reverse().join('');
+                            };
+                        }
+                        return target[prop];
+                    }
+                });
+            });
+    }
+}
+
+(async () => {
+    const key = Symbol('key');
+    const processor = new DataProcessor(key);
+
+    const data = 'Hello, world!';
+    const processedData = await processor.process(data);
+    console.log(processedData.toString());
+})();
+```

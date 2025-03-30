@@ -1,0 +1,44 @@
+class AsyncEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+        return this;
+    }
+
+    async emit(event, ...args) {
+        const listeners = this.events.get(event) || [];
+        return Promise.all(listeners.map(listener => listener(...args)));
+    }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fibonacci = async function* (n) {
+    let [a, b] = [0, 1];
+    while (n-- > 0) {
+        yield a;
+        [a, b] = [b, a + b];
+        await delay(100);
+    }
+};
+
+(async () => {
+    const emitter = new AsyncEmitter();
+
+    emitter.on('data', async data => {
+        print(`Received: ${data}`);
+        await delay(50);
+    });
+
+    const fibGen = fibonacci(10);
+
+    for await (let num of fibGen) {
+        await emitter.emit('data', num);
+    }
+
+    print('Finished generating Fibonacci sequence!');
+})();

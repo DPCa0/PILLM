@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+    constructor(rows, cols, filler = 0) {
+        this.rows = rows;
+        this.cols = cols;
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(filler));
+    }
+
+    static fromArray(arr) {
+        return new Matrix(arr.length, arr[0].length, 0).map((_, i, j) => arr[i][j]);
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+        return this;
+    }
+
+    multiply(other) {
+        if (this.cols !== other.rows) throw new Error("Columns of A must match rows of B.");
+        return new Matrix(this.rows, other.cols).map((_, i, j) =>
+            this.data[i].reduce((sum, elm, k) => sum + elm * other.data[k][j], 0)
+        );
+    }
+
+    static identity(size) {
+        return new Matrix(size, size).map((_, i, j) => (i === j ? 1 : 0));
+    }
+
+    toString() {
+        return this.data.map(row => row.join('\t')).join('\n');
+    }
+}
+
+const asyncMatrixOperation = async (m1, m2, operation) => {
+    await new Promise(r => setTimeout(r, 1000));  
+    return m1[operation](m2);
+};
+
+(async () => {
+    const matrix1 = Matrix.fromArray([
+        [1, 2],
+        [3, 4]
+    ]);
+
+    const matrix2 = Matrix.identity(2);
+
+    console.log("Matrix 1:");
+    console.log(matrix1.toString());
+
+    console.log("\nIdentity Matrix:");
+    console.log(matrix2.toString());
+
+    try {
+        const result = await asyncMatrixOperation(matrix1, matrix2, 'multiply');
+        console.log("\nResult of Multiplication:");
+        console.log(result.toString());
+    } catch (error) {
+        console.error("Error:", error.message);
+    }
+})();
+```

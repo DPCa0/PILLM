@@ -1,0 +1,53 @@
+ 
+class SecretKeeper {
+  #secrets = new Map();
+
+  constructor() {
+    this.#initSecrets();
+  }
+
+  #initSecrets() {
+    this.#secrets.set(1, 'The cake is a lie');
+    this.#secrets.set(2, 'I am your father');
+    this.#secrets.set(3, 'To infinity and beyond');
+  }
+
+  getSecret(id) {
+    return this.#secrets.has(id) ? this.#secrets.get(id) : 'Unknown Secret';
+  }
+
+  static *secretGenerator() {
+    let id = 1;
+    while (true) {
+      yield `Secret #${id++}`;
+    }
+  }
+}
+
+ 
+async function fetchDynamicModule() {
+  if (Math.random() > 0.5) {
+    const { add } = await import('./math-utils.js');
+    return add;
+  } else {
+    const { subtract } = await import('./math-utils.js');
+    return subtract;
+  }
+}
+
+async function main() {
+  const secretKeeper = new SecretKeeper();
+  print(secretKeeper.getSecret(1));
+  print(secretKeeper.getSecret(4));
+
+  const secretGen = SecretKeeper.secretGenerator();
+  print(secretGen.next().value);
+  print(secretGen.next().value);
+
+  const mathOperation = await fetchDynamicModule();
+  print(`Operation result: ${mathOperation(10, 5)}`);
+}
+
+main().catch(error => console.error(error));
+
+Note: The code snippet assumes the presence of a `math-utils.js` module that exports `add` and `subtract` functions. Adjust the file paths and contents as necessary.

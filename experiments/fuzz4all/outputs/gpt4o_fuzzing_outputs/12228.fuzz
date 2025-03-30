@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+import { createInterface } from 'readline';
+import { promises as fs } from 'fs';
+
+ 
+(async () => {
+   
+  const wordCount = new Map();
+
+   
+  const text = await fs.readFile('./sample.txt', 'utf-8');
+
+   
+  const words = text.match(/\b\w+\b/g);
+
+   
+  const wordCountProxy = new Proxy(wordCount, {
+    set(target, key, value) {
+      console.log(`Word "${key}": ${value}`);
+      return Reflect.set(target, key, value);
+    }
+  });
+
+   
+  words.forEach(word => {
+    word = word.toLowerCase();
+    const currentCount = wordCountProxy.get(word) || 0;
+    wordCountProxy.set(word, currentCount + 1);
+  });
+
+   
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+   
+  const getWordFrequency = async () => {
+    rl.question('Enter a word to get its frequency: ', (word) => {
+      word = word.toLowerCase();
+      const frequency = wordCount.get(word) || 0;
+      console.log(`The word "${word}" occurs ${frequency} time(s) in the text.`);
+      rl.close();
+    });
+  };
+
+   
+  await getWordFrequency();
+
+})().catch(console.error);
+```
+
+To execute this program, ensure you have a file named `sample.txt` in the same directory with some text content. The program reads the file, counts word frequencies using a `Map`, logs each update via a `Proxy`, and allows the user to query the frequency of specific words through the command line.

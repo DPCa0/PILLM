@@ -1,0 +1,53 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static identity(size) {
+    return new Matrix([...Array(size)].map((_, i) => [...Array(size)].map((_, j) => (i === j ? 1 : 0))));
+  }
+
+  multiply(other) {
+    return new Matrix(
+      this.data.map((row, i) =>
+        row.map((_, j) => row.reduce((sum, _, k) => sum + this.data[i][k] * other.data[k][j], 0))
+      )
+    );
+  }
+
+  [Symbol.iterator]() {
+    let flatData = this.data.flat();
+    return {
+      current: 0,
+      last: flatData.length,
+      next() {
+        if (this.current < this.last) {
+          return { value: flatData[this.current++], done: false };
+        } else {
+          return { done: true };
+        }
+      },
+    };
+  }
+
+  static async fromArrayAsync(array) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(new Matrix(array)), 1000);
+    });
+  }
+}
+
+(async () => {
+  const matrixA = await Matrix.fromArrayAsync([
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+  ]);
+
+  const identityMatrix = Matrix.identity(3);
+  const resultMatrix = matrixA.multiply(identityMatrix);
+
+  for (const value of resultMatrix) {
+    print(value);
+  }
+})();

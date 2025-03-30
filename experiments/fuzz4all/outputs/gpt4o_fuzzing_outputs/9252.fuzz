@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function asyncOperation(data) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (data) {
+                resolve(`Processed data: ${data}`);
+            } else {
+                reject('No data provided');
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function processData(data) {
+    try {
+        const result = await asyncOperation(data);
+        console.log(result);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+ 
+const targetObject = {
+    name: 'JavaScript',
+    type: 'Programming Language'
+};
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting property: ${prop}`);
+        return prop in obj ? obj[prop] : `Property ${prop} not found`;
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting property: ${prop} to ${value}`);
+        return Reflect.set(obj, prop, value);
+    }
+};
+
+ 
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+console.log(proxyObject.name);  
+console.log(proxyObject.version);  
+proxyObject.version = 'ES6';  
+console.log(proxyObject.version);
+
+ 
+processData('Sample Data');
+processData(null);
+```

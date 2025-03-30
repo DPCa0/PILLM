@@ -1,0 +1,82 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.data = Array.from({ length: rows }, () => 
+      Array.from({ length: cols }, () => fill)
+    );
+  }
+
+  static from(array) {
+    const m = new Matrix(array.length, array[0].length);
+    m.data = array;
+    return m;
+  }
+
+  map(fn) {
+    this.data = this.data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) throw new Error("Columns of A must match rows of B.");
+    let result = new Matrix(a.rows, b.cols);
+    result.map((_, i, j) => {
+      let sum = 0;
+      for (let k = 0; k < a.cols; k++) {
+        sum += a.data[i][k] * b.data[k][j];
+      }
+      return sum;
+    });
+    return result;
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Network response was not ok " + response.statusText);
+  const data = await response.json();
+  return data;
+}
+
+function* fibonacci(n) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(this, args), delay);
+  };
+};
+
+ 
+
+ 
+const a = Matrix.from([
+  [1, 2],
+  [3, 4]
+]);
+
+const b = Matrix.from([
+  [2, 0],
+  [1, 2]
+]);
+
+const c = Matrix.multiply(a, b);
+console.table(c.data);  
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://api.github.com');
+    console.log(data);
+  } catch (error) {
+    console.error("Fetch error: ", error);

@@ -1,0 +1,29 @@
+ 
+
+const fetchData = (url) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        user: 'John Doe',
+        age: 30,
+        address: { city: 'New York', state: 'NY' },
+      };
+      url ? resolve(data) : reject('URL is required');
+    }, 1000);
+  });
+};
+
+const processUserData = async (url) => {
+  try {
+    const { user, ...rest } = await fetchData(url);  
+    const summary = {
+      ...rest,
+      status: 'active',
+    };
+    print(`User: ${user}, Summary:`, summary);  
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+};
+
+processUserData('https://api.example.com/user');

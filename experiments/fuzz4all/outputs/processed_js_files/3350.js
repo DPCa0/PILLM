@@ -1,0 +1,57 @@
+ 
+class ComplexStructure {
+   
+  #data = {};
+
+   
+  static #validateKey(key) {
+    if (typeof key !== 'string') {
+      throw new TypeError('Key must be a string');
+    }
+  }
+
+   
+  constructor(initialData = {}) {
+    if (typeof initialData !== 'object') {
+      throw new TypeError('Initial data must be an object');
+    }
+    this.#data = { ...initialData };
+  }
+
+   
+  setData(key, value) {
+    ComplexStructure.#validateKey(key);
+    const handler = {
+      set: (obj, prop, val) => {
+        print(`Setting ${prop} to ${val}`);
+        obj[prop] = val;
+        return true;
+      }
+    };
+    const proxiedData = new Proxy(this.#data, handler);
+    proxiedData[key] = value;
+  }
+
+   
+  getData(key) {
+    ComplexStructure.#validateKey(key);
+    return this.#data[key];
+  }
+
+   
+  getKeys() {
+    return Object.keys(this.#data);
+  }
+}
+
+ 
+const manipulateData = (...entries) => {
+  const structuredEntries = entries.map(([key, value]) => ({ [key]: value }));
+  return structuredEntries.reduce((acc, entry) => ({ ...acc, ...entry }), {});
+};
+
+ 
+const structure = new ComplexStructure(manipulateData(['name', 'John'], ['age', 30]));
+structure.setData('location', 'Earth');
+print(`Keys: ${structure.getKeys().join(', ')}`);
+print(`Name: ${structure.getData('name')}`);

@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+class Node {
+  constructor(value, next = null) {
+    this.value = value;
+    this.next = next;
+  }
+}
+
+class LinkedList {
+  constructor() {
+    this.head = null;
+  }
+
+  add(value) {
+    const node = new Node(value);
+    if (!this.head) {
+      this.head = node;
+    } else {
+      let current = this.head;
+      while (current.next) {
+        current = current.next;
+      }
+      current.next = node;
+    }
+  }
+
+  [Symbol.iterator]() {
+    let current = this.head;
+    return {
+      next: () => {
+        if (current) {
+          const value = current.value;
+          current = current.next;
+          return { value, done: false };
+        }
+        return { done: true };
+      }
+    };
+  }
+}
+
+function* fibonacci(limit) {
+  let [prev, curr] = [0, 1];
+  while (curr <= limit) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+async function processFibonacci(limit, list) {
+  for (let num of fibonacci(limit)) {
+    console.log(`Processing: ${num}`);
+    await new Promise(resolve => setTimeout(resolve, 500));  
+    list.add(num);
+  }
+}
+
+(async () => {
+  const list = new LinkedList();
+  await processFibonacci(21, list);
+
+  console.log('Fibonacci Sequence:');
+  for (let num of list) {
+    console.log(num);
+  }
+})();
+```

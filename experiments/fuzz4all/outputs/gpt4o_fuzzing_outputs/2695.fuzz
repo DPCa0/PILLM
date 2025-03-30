@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      console.log(`Property ${prop} has been accessed with value: ${obj[prop]}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      console.log(`Property ${prop} set to: ${value}`);
+      obj[prop] = value;
+      return true;
+    },
+  });
+};
+
+ 
+function* rangeGenerator(start = 0, end = 10, step = 1) {
+  for (let i = start; i < end; i += step) {
+    yield i;
+  }
+}
+
+ 
+const UNIQUE_ID = Symbol('uniqueId');
+
+ 
+class SymbolicClass {
+  constructor(name) {
+    this[UNIQUE_ID] = Symbol(name);
+  }
+  get id() {
+    return this[UNIQUE_ID];
+  }
+}
+
+ 
+const dataProxy = createLoggingProxy({ key1: 'value1', key2: 'value2' });
+dataProxy.key1;
+dataProxy.key2 = 'newValue2';
+
+const range = rangeGenerator(0, 5);
+for (const num of range) {
+  console.log(`Generated number: ${num}`);
+}
+
+const symbolicInstance = new SymbolicClass('Instance1');
+console.log(`Symbolic ID: ${symbolicInstance.id.toString()}`);
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/todos/1')
+  .then(data => console.log('Fetched Data:', data));
+```

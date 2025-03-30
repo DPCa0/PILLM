@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchDataWithDelay(url) {
+  const simulateFetch = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('No URL provided');
+      }
+    }, 2000);
+  });
+
+  try {
+    const data = await simulateFetch;
+    console.log(`Success: ${data}`);
+  } catch (error) {
+    console.error(`Error: ${error}`);
+  }
+}
+
+ 
+const target = { name: 'JavaScript', type: 'Programming Language' };
+const handler = {
+  get: (obj, prop) => {
+    console.log(`Property '${prop}' accessed`);
+    return prop in obj ? obj[prop] : `No property '${prop}'`;
+  }
+};
+const proxy = new Proxy(target, handler);
+
+ 
+function* numberGenerator() {
+  let num = 0;
+  while (true) {
+    yield num++;
+  }
+}
+
+ 
+function processNumbers([first, ...rest]) {
+  console.log(`First number: ${first}`);
+  console.log(`Rest of numbers: ${rest.join(', ')}`);
+}
+
+ 
+(async () => {
+  await fetchDataWithDelay('https://api.example.com/data');
+  
+  console.log(proxy.name);
+  console.log(proxy.description);
+
+  const gen = numberGenerator();
+  processNumbers([gen.next().value, gen.next().value, gen.next().value]);
+})();
+```

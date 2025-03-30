@@ -1,0 +1,45 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    [Symbol.toPrimitive](hint) {
+        if (hint === 'number') {
+            return this.magnitude();
+        } else if (hint === 'string') {
+            return this.toString();
+        }
+        return null;
+    }
+
+    magnitude() {
+        return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+
+    static *complexRange(start, end, step = new ComplexNumber(1, 0)) {
+        let current = start;
+        while (current.magnitude() < end.magnitude()) {
+            yield current;
+            current = new ComplexNumber(current.real + step.real, current.imaginary + step.imaginary);
+        }
+    }
+}
+
+function advancedOperation(...complexNumbers) {
+    const [sumReal, sumImaginary] = complexNumbers.reduce(([real, imag], num) => [real + num.real, imag + num.imaginary], [0, 0]);
+    const average = new ComplexNumber(sumReal / complexNumbers.length, sumImaginary / complexNumbers.length);
+    return `Average of complex numbers: ${average}`;
+}
+
+const c1 = new ComplexNumber(3, 4);
+const c2 = new ComplexNumber(1, 2);
+const c3 = new ComplexNumber(5, 6);
+
+print(`Complex Number c1: ${c1}`);
+print(`Magnitude of c1: ${+c1}`);
+print(advancedOperation(...ComplexNumber.complexRange(c1, c3, new ComplexNumber(1, 1))));

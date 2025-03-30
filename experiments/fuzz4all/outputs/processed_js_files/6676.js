@@ -1,0 +1,70 @@
+class Animal {
+  #energyLevel = 100;  
+  
+  constructor(name) {
+    this.name = name;
+  }
+
+  get energy() {
+    return this.#energyLevel;
+  }
+
+  set energy(level) {
+    if (level < 0) level = 0;
+    if (level > 100) level = 100;
+    this.#energyLevel = level;
+  }
+
+  sleep(hours) {
+    this.energy += hours * 10;
+    print(`${this.name} slept for ${hours} hours. Energy: ${this.energy}`);
+  }
+}
+
+function logWithTimestamp(target, property, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function (...args) {
+    print(`${new Date().toISOString()} - Calling ${property}`);
+    return originalMethod.apply(this, args);
+  };
+}
+
+class Cat extends Animal {
+  constructor(name, breed) {
+    super(name);
+    this.breed = breed;
+  }
+
+  @logWithTimestamp
+  play(time) {
+    this.energy -= time * 5;
+    print(`${this.name} played for ${time} hours. Energy: ${this.energy}`);
+  }
+}
+
+ 
+const simulateDay = async (cat) => {
+  try {
+    print(`Starting day with ${cat.name}...`);
+    await Promise.resolve(cat.sleep(1));
+    await Promise.resolve(cat.play(2));
+    await Promise.resolve(cat.sleep(3));
+    print(`Ending day with ${cat.name}.`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+ 
+const handler = {
+  set: (obj, prop, value) => {
+    print(`Property '${prop}' changed from ${obj[prop]} to ${value}`);
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const fluffy = new Cat('Fluffy', 'Siberian');
+const proxiedFluffy = new Proxy(fluffy, handler);
+
+simulateDay(proxiedFluffy);

@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class ComplexCalculator {
+    constructor() {
+        this.history = new WeakMap();
+    }
+
+    performOperation(operation, ...args) {
+        const result = operation(...args);
+        this.saveToHistory(operation, args, result);
+        return result;
+    }
+
+    saveToHistory(operation, args, result) {
+        const entry = { args, result };
+        if (!this.history.has(operation)) {
+            this.history.set(operation, []);
+        }
+        this.history.get(operation).push(entry);
+    }
+
+    printHistory(operation) {
+        const history = this.history.get(operation) || [];
+        console.log(`History for ${operation.name}:`);
+        history.forEach(entry => {
+            console.log(`Args: ${entry.args}, Result: ${entry.result}`);
+        });
+    }
+}
+
+ 
+const add = new Proxy((a, b) => a + b, {
+    apply(target, thisArg, argumentsList) {
+        console.log(`Adding ${argumentsList[0]} + ${argumentsList[1]}`);
+        return Reflect.apply(target, thisArg, argumentsList);
+    }
+});
+
+const power = (base, exponent) => Math.pow(base, exponent);
+
+const calculator = new ComplexCalculator();
+
+console.log(calculator.performOperation(add, 5, 10));  
+console.log(calculator.performOperation(power, 2, 8));  
+
+calculator.printHistory(add);
+calculator.printHistory(power);
+
+ 
+const operations = [
+    () => calculator.performOperation(add, 10, 20),
+    () => calculator.performOperation(power, 3, 3)
+];
+
+Promise.all(operations.map(op => op())).then(results => {
+    console.log('Parallel operation results:', results);
+});
+```

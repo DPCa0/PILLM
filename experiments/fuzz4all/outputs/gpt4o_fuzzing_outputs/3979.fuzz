@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function* fetchData() {
+    const dataChunks = [1, 2, 3, 4, 5];
+    for (const chunk of dataChunks) {
+        await delay(500);  
+        yield chunk;
+    }
+}
+
+ 
+async function processData() {
+    const results = [];
+    for await (const value of fetchData()) {
+         
+        const [transformedValue] = [value * 2];
+        results.push(transformedValue);
+    }
+    return results;
+}
+
+ 
+(async () => {
+    try {
+        const processedData = await processData();
+        console.log('Processed Data:', processedData);
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+})();
+```

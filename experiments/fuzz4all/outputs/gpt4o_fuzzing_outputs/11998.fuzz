@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+    const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash-es@4.17.21/lodash.min.js');
+
+     
+    const handler = {
+        get: function(target, prop) {
+            if (prop === 'secret') {
+                return 'Access Denied';
+            }
+            return Reflect.get(...arguments);
+        }
+    };
+
+    const user = {
+        name: "Alice",
+        age: 25,
+        secret: "My Secret"
+    };
+
+    const proxiedUser = new Proxy(user, handler);
+
+    console.log(proxiedUser.name);   
+    console.log(proxiedUser.secret);  
+
+     
+    const clonedUser = _.cloneDeep(proxiedUser);
+    console.log(clonedUser);
+
+     
+    async function* asyncGenerator() {
+        let i = 0;
+        while (i < 3) {
+            yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+        }
+    }
+
+    for await (let num of asyncGenerator()) {
+        console.log(num);
+    }
+})();
+```

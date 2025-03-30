@@ -1,0 +1,80 @@
+ 
+
+ 
+const user = {
+  name: "Jane Doe",
+  age: 30
+};
+
+const handler = {
+  get: function(target, prop, receiver) {
+    print(`Property '${prop}' accessed with value: ${Reflect.get(target, prop, receiver)}`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set: function(target, prop, value, receiver) {
+    print(`Setting property '${prop}' to '${value}'`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+const uniqueSym = Symbol("unique");
+
+proxyUser[uniqueSym] = "Secret Value";
+
+ 
+async function* asyncGenerator() {
+  let i = 0;
+  while (i < 3) {
+    yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+  }
+}
+
+(async function() {
+  for await (let num of asyncGenerator()) {
+    print(`Async Generator yielded: ${num}`);
+  }
+})();
+
+ 
+const map = new Map();
+const keyObj = { id: 1 };
+const keyFunc = function() {};
+const keyString = "keyString";
+
+map.set(keyObj, "Object Value");
+map.set(keyFunc, "Function Value");
+map.set(keyString, "String Value");
+
+print("Map with complex keys:");
+for (let [key, value] of map) {
+  print(`Key: ${typeof key === 'function' ? 'Function' : key}, Value: ${value}`);
+}
+
+ 
+class Account {
+  #balance = 0;
+
+  constructor(initialBalance) {
+    this.#balance = initialBalance;
+  }
+
+  #logTransaction(amount) {
+    print(`Transaction Amount: $${amount}`);
+  }
+
+  deposit(amount) {
+    this.#logTransaction(amount);
+    this.#balance += amount;
+  }
+
+  getBalance() {
+    return this.#balance;
+  }
+}
+
+const myAccount = new Account(100);
+myAccount.deposit(50);
+print(`Account Balance: $${myAccount.getBalance()}`);

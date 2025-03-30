@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok.');
+        let data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+}
+
+ 
+const target = {
+    name: "John Doe",
+    age: 30
+};
+
+const handler = {
+    get: function(obj, prop) {
+        return prop in obj ? obj[prop] : 'Property does not exist';
+    },
+    set: function(obj, prop, value) {
+        if (prop === 'age' && typeof value !== 'number') {
+            console.log('Age must be a number');
+            return false;
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+
+ 
+async function processMultipleData() {
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3'
+    ];
+
+    try {
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        console.log('Results:', results);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+ 
+function personDetails({name, age, ...rest}) {
+    console.log(`Name: ${name}, Age: ${age}`);
+    console.log('Additional Info:', rest);
+}
+
+const person = {
+    name: 'Jane Doe',
+    age: 28,
+    occupation: 'Software Developer',
+    location: 'New York'
+};
+
+personDetails(person);
+
+ 
+proxy.name = 'Alice';
+console.log(proxy.name);  
+proxy.age = 'thirty';  
+console.log(proxy.age);  
+console.log(proxy.height);  
+
+processMultipleData();
+```

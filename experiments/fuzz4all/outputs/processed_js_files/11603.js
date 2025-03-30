@@ -1,0 +1,57 @@
+ 
+
+ 
+function fetchData(endpoint) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Data from ${endpoint}`);
+        }, 1000);
+    });
+}
+
+ 
+async function getApiData() {
+    const data1 = await fetchData('/api/endpoint1');
+    const data2 = await fetchData('/api/endpoint2');
+    return [data1, data2];
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (const data of dataArray) {
+        yield data;
+    }
+}
+
+ 
+const dataHandler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            print(`Accessing ${prop}:`, obj[prop]);
+            return obj[prop];
+        }
+        return `Property ${prop} does not exist`;
+    }
+};
+
+ 
+(async () => {
+    try {
+        const apiData = await getApiData();
+        
+         
+        const generator = dataGenerator(apiData);
+        let result = generator.next();
+        while (!result.done) {
+            print('Processing:', result.value);
+            result = generator.next();
+        }
+
+         
+        const proxyData = new Proxy({ apiData }, dataHandler);
+        print(proxyData.apiData);  
+        print(proxyData.nonExistentProp);  
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+})();

@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function simulateAsyncOperation(data) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            Math.random() > 0.2 ? resolve(`Processed: ${data}`) : reject('Failed to process data');
+        }, 1000);
+    });
+}
+
+ 
+function* dataGenerator() {
+    yield 'Data 1';
+    yield 'Data 2';
+    yield 'Data 3';
+}
+
+ 
+async function processData() {
+    const generator = dataGenerator();
+
+    for (const data of generator) {
+        try {
+            const result = await simulateAsyncOperation(data);
+            console.log(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Property '${property}' accessed with value: ${target[property]}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Property '${property}' set to value: ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const targetObject = { a: 10, b: 20 };
+const proxy = new Proxy(targetObject, handler);
+
+processData();   
+
+ 
+proxy.a;       
+proxy.b = 30;  
+console.log(proxy.b);   
+```

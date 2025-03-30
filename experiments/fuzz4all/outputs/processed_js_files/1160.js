@@ -1,0 +1,46 @@
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === 'https://api.example.com/data') {
+        resolve({ data: 'Sample Data' });
+      } else {
+        reject(new CustomError('Invalid URL'));
+      }
+    }, 1000);
+  });
+}
+
+const processData = async (url) => {
+  try {
+    const response = await fetchData(url);
+    print('Processing:', response.data);
+    return new Proxy(response, {
+      get(target, prop) {
+        if (prop === 'data') {
+          return `${target[prop]} Processed`;
+        }
+        return Reflect.get(target, prop);
+      }
+    });
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error('Custom Error:', error.message);
+    } else {
+      console.error('Unexpected Error:', error);
+    }
+  }
+};
+
+(async () => {
+  const processedData = await processData('https://api.example.com/data');
+  if (processedData) {
+    print('Final Output:', processedData.data);
+  }
+})();

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const functionLogger = {
+  apply(target, thisArg, argumentsList) {
+    console.log(`Function ${target.name} was called with arguments: ${JSON.stringify(argumentsList)}`);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({ data: `Data from ${url}` });
+    }, 1000);
+  });
+}
+
+ 
+const proxiedFetchData = new Proxy(fetchData, functionLogger);
+
+ 
+async function* dataGenerator(urls) {
+  for (const url of urls) {
+    yield await proxiedFetchData(url);
+  }
+}
+
+ 
+const urlSet = new Set(['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3']);
+
+ 
+(async () => {
+  const results = [];
+  
+   
+  for await (const result of dataGenerator(urlSet)) {
+    console.log(result);
+    results.push(result);
+  }
+
+   
+  results.forEach(({ data }, index) => {
+    console.log(`Result ${index + 1}: ${data}`);
+  });
+})();
+```

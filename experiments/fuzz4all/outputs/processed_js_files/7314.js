@@ -1,0 +1,53 @@
+class ComplexNumber {
+    constructor(real, imaginary) {
+        this.real = real;
+        this.imaginary = imaginary;
+    }
+
+    add(other) {
+        return new ComplexNumber(
+            this.real + other.real,
+            this.imaginary + other.imaginary
+        );
+    }
+
+    multiply(other) {
+        const real = this.real * other.real - this.imaginary * other.imaginary;
+        const imaginary = this.real * other.imaginary + this.imaginary * other.real;
+        return new ComplexNumber(real, imaginary);
+    }
+
+    toString() {
+        return `${this.real} + ${this.imaginary}i`;
+    }
+}
+
+const asyncComplexCalculation = async (a, b) => {
+    const complex1 = new ComplexNumber(a, b);
+    const complex2 = new ComplexNumber(b, a);
+
+     
+    const [added, multiplied] = await Promise.all([
+        new Promise(resolve => setTimeout(() => resolve(complex1.add(complex2)), 1000)),
+        new Promise(resolve => setTimeout(() => resolve(complex1.multiply(complex2)), 1000))
+    ]);
+
+    print(`Addition Result: ${added.toString()}`);
+    print(`Multiplication Result: ${multiplied.toString()}`);
+};
+
+ 
+const handler = {
+    get: (target, prop) => {
+        print(`Accessing property "${prop}" with value ${target[prop]}`);
+        return target[prop];
+    }
+};
+
+const complexNum = new ComplexNumber(3, 4);
+const proxyComplexNum = new Proxy(complexNum, handler);
+
+print(`Complex Number: ${proxyComplexNum.toString()}`);
+(async () => {
+    await asyncComplexCalculation(1, 2);
+})();

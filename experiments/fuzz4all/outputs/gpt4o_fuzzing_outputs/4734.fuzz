@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+async function apiCall(data) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(`Received data: ${data}`), 1000);
+    });
+}
+
+ 
+async function processFibonacci() {
+    const fibGen = fibonacci();
+    for await (const num of {
+        [Symbol.asyncIterator]: () => ({
+            next: async () => {
+                const value = fibGen.next().value;
+                if (value > 100) return { done: true };
+                const response = await apiCall(value);
+                console.log(response);
+                return { done: false, value };
+            }
+        })
+    }) {
+         
+    }
+}
+
+ 
+processFibonacci();
+
+ 
+const obj = { a: 1, b: 2, c: 3 };
+const handler = {
+    get(target, property) {
+        console.log(`Property '${property}' accessed.`);
+        return target[property];
+    }
+};
+const proxyObj = new Proxy(obj, handler);
+
+ 
+console.log(proxyObj.a);  
+console.log(proxyObj.b);  
+
+ 
+const map = new Map();
+const weakMap = new WeakMap();
+
+const key1 = {};
+const key2 = {};
+
+map.set(key1, 'value1');
+weakMap.set(key2, 'value2');
+
+console.log(map.get(key1));  
+console.log(weakMap.get(key2));  
+
+ 
+const { a, ...rest } = proxyObj;
+console.log(a);  
+console.log(rest);  
+```

@@ -1,0 +1,51 @@
+ 
+
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    const response = await fetch(url);
+    const data = await response.json();
+    yield data;
+  }
+}
+
+ 
+const createLoggingProxy = (target) => {
+  return new Proxy(target, {
+    get: (obj, prop) => {
+      print(`Accessing property: ${prop}`);
+      return obj[prop];
+    },
+    set: (obj, prop, value) => {
+      print(`Setting property: ${prop} to ${value}`);
+      obj[prop] = value;
+      return true;
+    }
+  });
+};
+
+ 
+const createUserCard = ({ name, email, username }) => `
+  <div class="user-card">
+    <h2>${name}</h2>
+    <p>Email: ${email}</p>
+    <p>Username: ${username}</p>
+  </div>
+`;
+
+ 
+(async () => {
+  const userURLs = [
+    'https://jsonplaceholder.typicode.com/users/1',
+    'https://jsonplaceholder.typicode.com/users/2'
+  ];
+
+  const loggingProxy = createLoggingProxy({ fetchedUsers: [] });
+
+  for await (const userData of fetchData(userURLs)) {
+    loggingProxy.fetchedUsers.push(userData);
+    document.body.innerHTML += createUserCard(userData);
+  }
+  
+  print('All users have been fetched and displayed.');
+})();

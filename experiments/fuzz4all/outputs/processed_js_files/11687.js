@@ -1,0 +1,48 @@
+ 
+const fibonacci = (n, memo = new Map()) => {
+  if (n <= 1) return n;
+  if (memo.has(n)) return memo.get(n);
+  
+  const result = fibonacci(n - 1, memo) + fibonacci(n - 2, memo);
+  memo.set(n, result);
+  return result;
+};
+
+ 
+const logAccess = obj => new Proxy(obj, {
+  get(target, prop, receiver) {
+    print(`Accessing property '${prop}'`);
+    return Reflect.get(target, prop, receiver);
+  },
+  set(target, prop, value, receiver) {
+    print(`Setting property '${prop}' to '${value}'`);
+    return Reflect.set(target, prop, value, receiver);
+  }
+});
+
+ 
+const example = logAccess({ name: 'JavaScript', type: 'Language' });
+
+ 
+print(example.name);   
+example.level = 'Advanced';  
+
+ 
+const fetchData = async urls => {
+  try {
+    const responses = await Promise.all(urls.map(url => fetch(url)));
+    const data = await Promise.all(responses.map(res => res.json()));
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+
+ 
+fetchData(urls).then(data => print('Fetched Data:', data));
+
+ 
+print('Fibonacci(10):', fibonacci(10));

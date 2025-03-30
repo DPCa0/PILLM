@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+  #endpoint;
+  
+  constructor(endpoint) {
+    this.#endpoint = endpoint;
+  }
+  
+  async *[Symbol.asyncIterator]() {
+    let nextUrl = this.#endpoint;
+    while (nextUrl) {
+      const response = await fetch(nextUrl);
+      const data = await response.json();
+      yield data.items;
+      nextUrl = data.next || null;
+    }
+  }
+}
+
+(async () => {
+  const fetcher = new DataFetcher('https://api.example.com/data');
+
+  const aggregateData = new Proxy({}, {
+    get(target, prop) {
+      if (!target[prop]) {
+        target[prop] = [];
+      }
+      return target[prop];
+    }
+  });
+
+  for await (const items of fetcher) {
+    items.forEach(item => aggregateData[item.type].push(item));
+  }
+
+  console.log(aggregateData);
+})();
+```

@@ -1,0 +1,50 @@
+ 
+const createReactiveObject = (target, onChange) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      if (typeof obj[prop] === 'object' && obj[prop] !== null) {
+        return createReactiveObject(obj[prop], onChange);
+      }
+      return Reflect.get(...arguments);
+    },
+    set(obj, prop, value) {
+      Reflect.set(...arguments);
+      onChange();
+      return true;
+    }
+  });
+};
+
+ 
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+ 
+function html(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    let value = values[i - 1];
+    return result + (typeof value === 'string' ? value : JSON.stringify(value)) + string;
+  });
+}
+
+ 
+(async () => {
+  let state = {
+    user: {}
+  };
+
+  const render = () => {
+    document.body.innerHTML = html`
+      <h1>User Info</h1>
+      <p>Name: ${state.user.name || 'Loading...'}</p>
+      <p>Email: ${state.user.email || 'Loading...'}</p>
+    `;
+  };
+
+  state = createReactiveObject(state, render);
+
+  state.user = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+})();

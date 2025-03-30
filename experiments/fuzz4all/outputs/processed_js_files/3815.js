@@ -1,0 +1,47 @@
+ 
+
+class WeatherService {
+  constructor() {
+    this.apiKey = 'your-api-key-here';  
+    this.baseUrl = 'https://api.openweathermap.org/data/2.5/weather';
+  }
+
+   
+  async fetchWeather(city) {
+    const response = await fetch(`${this.baseUrl}?q=${city}&appid=${this.apiKey}&units=metric`);
+    if (!response.ok) throw new Error('Failed to fetch weather data');
+    return await response.json();
+  }
+}
+
+class WeatherReport {
+  constructor(weatherData) {
+     
+    const { main: { temp }, weather: [{ description }] } = weatherData;
+    this.temperature = temp;
+    this.description = description;
+  }
+
+  display() {
+    print(`The temperature is ${this.temperature}°C with ${this.description}.`);
+  }
+}
+
+(async () => {
+  const cities = ['New York', 'London', 'Tokyo'];
+  const weatherService = new WeatherService();
+
+   
+  const weatherPromises = cities.map(city => weatherService.fetchWeather(city));
+
+  try {
+    const weatherDataArray = await Promise.all(weatherPromises);
+    
+    weatherDataArray.forEach(data => {
+      const report = new WeatherReport(data);
+      report.display();
+    });
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+})();

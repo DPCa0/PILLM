@@ -1,0 +1,51 @@
+ 
+(async () => {
+    const fs = await import('fs').then(module => module.promises);
+
+     
+    const readJsonFile = async (filePath) => {
+        try {
+            const data = await fs.readFile(filePath, 'utf8');
+            return JSON.parse(data);
+        } catch (error) {
+            console.error('Error reading JSON file:', error);
+        }
+    };
+
+     
+    const createValidatedObject = (target, validator) => {
+        return new Proxy(target, {
+            set: (obj, prop, value) => {
+                if (validator[prop]) {
+                    const valid = validator[prop](value);
+                    if (!valid) {
+                        throw new TypeError(`Invalid value ${value} for property ${prop}`);
+                    }
+                }
+                obj[prop] = value;
+                return true;
+            }
+        });
+    };
+
+     
+    const personValidator = {
+        name: value => typeof value === 'string' && value.length > 0,
+        age: value => typeof value === 'number' && value > 0
+    };
+
+     
+    const personData = await readJsonFile('person.json');
+    const validatedPerson = createValidatedObject(personData, personValidator);
+
+     
+    try {
+        validatedPerson.age = 30;  
+        validatedPerson.name = '';  
+    } catch (error) {
+        console.error(error.message);
+    }
+
+     
+    print(`Name: ${validatedPerson?.name ?? 'Unknown'}, Age: ${validatedPerson?.age ?? 'Unknown'}`);
+})();

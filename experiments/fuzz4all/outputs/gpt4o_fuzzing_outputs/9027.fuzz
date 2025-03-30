@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+const asyncTask = (value, delay) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(value), delay);
+  });
+};
+
+const advancedFunction = async () => {
+  const symbolKey = Symbol('private');
+  
+  const handler = {
+    get: function(target, prop, receiver) {
+      if (prop === symbolKey) {
+        return 'Access Denied';
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  };
+
+  const proxiedObject = new Proxy({
+    [symbolKey]: 'Sensitive Information',
+    publicData: 'Public Info',
+  }, handler);
+
+  console.log(proxiedObject.publicData);  
+  console.log(proxiedObject[symbolKey]);  
+
+  try {
+    console.log('Task started');
+    const result = await asyncTask('Completed Async Task', 2000);
+    console.log(result);  
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+advancedFunction();
+```

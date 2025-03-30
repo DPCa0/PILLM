@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+function* fibonacciGenerator(limit) {
+  let [prev, curr] = [0, 1];
+  for (let i = 0; i < limit; i++) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Fetch Error:', error);
+  }
+}
+
+ 
+const promises = [
+  Promise.resolve(1),
+  Promise.reject('Error occurred'),
+  new Promise((resolve) => setTimeout(() => resolve(3), 100))
+];
+
+Promise.allSettled(promises).then(results => {
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      console.log(`Promise ${index} fulfilled with value:`, result.value);
+    } else {
+      console.log(`Promise ${index} rejected with reason:`, result.reason);
+    }
+  });
+});
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      return target[property];
+    }
+    return `Property ${property} does not exist`;
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, handler);
+
+console.log('Proxy Access:', proxyObject.a);  
+console.log('Proxy Access:', proxyObject.c);  
+
+ 
+const user = { id: 42, name: 'Alice', city: 'Wonderland' };
+const { name, city } = user;
+console.log(`User ${name} lives in ${city}.`);
+
+ 
+(async () => {
+  await fetchData('https://api.github.com');
+  const fib = [...fibonacciGenerator(5)];
+  console.log('Fibonacci Sequence:', fib);
+})();
+```

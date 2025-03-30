@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;  
+  }
+};
+
+ 
+function* fibonacciSequence(limit) {
+  let [prev, curr] = [0, 1];
+  while (curr <= limit) {
+    yield curr;
+    [prev, curr] = [curr, prev + curr];
+  }
+}
+
+ 
+const targetObject = { name: 'AdvancedJS', version: 1.0 };
+const handler = {
+  get: (target, property) => {
+    console.log(`Getting property ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Setting property ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  console.log('Starting the advanced JavaScript program...');
+
+   
+  console.log(proxiedObject.name);
+  proxiedObject.version = 2.0;
+  console.log(proxiedObject.version);
+
+   
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  try {
+    const data = await fetchData(url);
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.log('Fetching failed.');
+  }
+
+   
+  console.log('Fibonacci Sequence up to 50:');
+  for (let num of fibonacciSequence(50)) {
+    console.log(num);
+  }
+})();
+```

@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+ 
+
+const fetchUserData = async (userId) => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id: userId, name: 'John Doe', age: 25, hobbies: ['coding', 'hiking'] });
+    }, 1000);
+  });
+};
+
+const proxyHandler = {
+  get: (target, property) => {
+    if (property in target) {
+      return target[property];
+    } else {
+      console.warn(`Property "${property}" doesn't exist!`);
+      return null;
+    }
+  },
+  set: (target, property, value) => {
+    if (property === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+(async () => {
+  try {
+    const userData = await fetchUserData(1);
+    const proxyUser = new Proxy(userData, proxyHandler);
+
+    console.log(`User Details: Name - ${proxyUser.name}, Age - ${proxyUser.age}`);
+
+    // Destructuring and filtering the hobbies array
+    const { hobbies } = proxyUser;
+    const filteredHobbies = hobbies.filter(hobby => hobby.includes('ing'));
+
+    console.log(`Filtered Hobbies: ${filteredHobbies.join(', ')}`);
+
+    // Demonstrating Proxy's set trap with validation
+    proxyUser.age = 26;
+    console.log(`Updated Age: ${proxyUser.age}`);
+
+    try {
+      proxyUser.age = 'twenty-six';  
+    } catch (e) {
+      console.error(e.message);
+    }
+
+     
+    console.log(`Access non-existent property: ${proxyUser.address}`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+})();
+```

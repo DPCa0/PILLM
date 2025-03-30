@@ -1,0 +1,54 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+const handler = {
+     
+    get(target, prop, receiver) {
+        if (prop in target) {
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.log(`Property "${prop}" does not exist`);
+            return undefined;
+        }
+    }
+};
+
+const symbolKey = Symbol('unique');
+
+class ComplexStructure {
+    constructor(data) {
+         
+        this[symbolKey] = data;
+    }
+
+    printData() {
+         
+        console.log(this[symbolKey]);
+    }
+}
+
+ 
+(async () => {
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        
+         
+        const complexObject = new ComplexStructure(data);
+        const proxy = new Proxy(complexObject, handler);
+
+         
+        proxy.printData();
+        console.log(proxy.nonExistentProp);  
+
+    } catch (error) {
+        console.error('Failed to fetch data:', error);
+    }
+})();
+```

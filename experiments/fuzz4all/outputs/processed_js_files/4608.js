@@ -1,0 +1,36 @@
+ 
+
+ 
+const fetchData = () =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.1 ? resolve(['apple', 'banana', 'cherry']) : reject('Fetch error');
+    }, 1000);
+  });
+
+ 
+async function getData() {
+  try {
+    const data = await fetchData();
+    const processedData = data.map(fruit => `${fruit} 🍎`);
+
+     
+    const fruitMap = new Map(processedData.map((item, index) => [index, item]));
+    print('Processed Fruit Data:', [...fruitMap.values()]);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const handler = {
+  apply: function(target, thisArg, argumentsList) {
+    print(`Calling ${target.name} with arguments ${JSON.stringify(argumentsList)}`);
+    return target.apply(thisArg, argumentsList);
+  }
+};
+
+const proxiedGetData = new Proxy(getData, handler);
+
+ 
+proxiedGetData();

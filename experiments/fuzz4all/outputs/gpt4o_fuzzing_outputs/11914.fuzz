@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretAgent {
+  #secretCode;
+
+  constructor(name, secretCode) {
+    this.name = name;
+    this.#secretCode = secretCode;
+  }
+
+   
+  #decryptMessage(encryptedMessage) {
+    return encryptedMessage
+      .split('')
+      .map(char => String.fromCharCode(char.charCodeAt(0) ^ this.#secretCode))
+      .join('');
+  }
+
+  revealSecret(encryptedMessage) {
+    return this.#decryptMessage(encryptedMessage);
+  }
+}
+
+ 
+const handler = {
+  get(target, property) {
+    if (property === 'secret') {
+      return target.revealSecret("clv^cMzZm");  
+    }
+    return target[property];
+  }
+};
+
+ 
+(async () => {
+  const agent = new SecretAgent("Bond", 007);
+  const agentProxy = new Proxy(agent, handler);
+
+  try {
+    const secret = await new Promise((resolve, reject) => {
+      setTimeout(() => resolve(agentProxy.secret), 1000);  
+    });
+
+    console.log(`Agent ${agentProxy.name} says: ${secret}`);
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+})();
+```

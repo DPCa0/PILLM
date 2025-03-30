@@ -1,0 +1,46 @@
+class Fibonacci {
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        for (;;) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+}
+
+const asyncOperation = async (num) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() > 0.2) {
+                resolve(num);
+            } else {
+                reject("Failed to get number: " + num);
+            }
+        }, Math.random() * 1000);
+    });
+};
+
+const processFibonacci = async () => {
+    let sequence = new Fibonacci();
+    let iterator = sequence[Symbol.iterator]();
+    let fibNumbers = [];
+    for (let i = 0; i < 10; i++) {
+        let { value } = iterator.next();
+        try {
+            let result = await asyncOperation(value);
+            fibNumbers.push(result);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    return fibNumbers;
+};
+
+(async () => {
+    try {
+        let results = await processFibonacci();
+        print('Processed Fibonacci numbers:', results);
+    } catch (error) {
+        console.error('Unexpected error:', error);
+    }
+})();

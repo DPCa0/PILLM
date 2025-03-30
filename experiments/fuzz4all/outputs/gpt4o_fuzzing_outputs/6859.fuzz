@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+};
+
+ 
+const multiply = (a) => (b) => (c) => a * b * c;
+
+ 
+const handler = {
+    set(target, property, value) {
+        console.log(`Property ${property} set to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+const reactiveObject = new Proxy({}, handler);
+
+ 
+class Util {
+    static reverseString(str) {
+        return [...str].reverse().join('');
+    }
+}
+
+ 
+const promiseChain = new Promise((resolve, reject) => {
+    setTimeout(() => resolve('Hello'), 1000);
+}).then((value) => {
+    console.log(value + ', World!');
+    return 'JavaScript';
+}).then((value) => {
+    console.log('Learning', value);
+    return value;
+});
+
+ 
+const [first, ...rest] = [1, 2, 3, 4];
+const arr = [5, ...rest];
+console.log('First:', first, 'Rest:', rest, 'Array:', arr);
+
+ 
+(() => {
+    console.log('This is an IIFE');
+})();
+
+ 
+fetchData('https://jsonplaceholder.typicode.com/posts/1')
+    .then(data => console.log('Fetched Data:', data));
+
+console.log('Multiply:', multiply(2)(3)(4));  
+reactiveObject.name = 'Reactive';
+console.log('Reversed:', Util.reverseString('JavaScript'));
+```

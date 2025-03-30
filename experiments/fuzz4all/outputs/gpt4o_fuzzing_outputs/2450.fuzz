@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.resolveQueue = [];
+    }
+
+    enqueue(item) {
+        if (this.resolveQueue.length) {
+            const resolve = this.resolveQueue.shift();
+            resolve({ value: item, done: false });
+        } else {
+            this.queue.push(item);
+        }
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            queue: this,
+            async next() {
+                if (this.queue.queue.length) {
+                    return { value: this.queue.queue.shift(), done: false };
+                }
+
+                return new Promise(resolve => {
+                    this.queue.resolveQueue.push(resolve);
+                });
+            }
+        };
+    }
+}
+
+async function* numberGenerator(limit) {
+    for (let i = 0; i < limit; i++) {
+        yield await Promise.resolve(i);
+    }
+}
+
+async function processAsyncQueue() {
+    const asyncQueue = new AsyncIterableQueue();
+
+    (async () => {
+        for await (const number of numberGenerator(5)) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            asyncQueue.enqueue(`Processed: ${number}`);
+        }
+    })();
+
+    for await (const item of asyncQueue) {
+        console.log(item);
+    }
+}
+
+processAsyncQueue();
+```

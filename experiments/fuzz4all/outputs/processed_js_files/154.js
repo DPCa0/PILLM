@@ -1,0 +1,55 @@
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+ 
+class ItemCollection {
+  constructor(items) {
+    this.items = items;
+  }
+
+  *[Symbol.iterator]() {
+    for (const item of this.items) {
+      yield item;
+    }
+  }
+
+  async filterAsync(predicate) {
+    const results = await Promise.all(this.items.map(predicate));
+    return new ItemCollection(this.items.filter((_v, index) => results[index]));
+  }
+}
+
+ 
+const readonlyHandler = {
+  set(obj, prop, value) {
+    throw new Error(`Cannot set property ${prop} to ${value}, collection is read-only.`);
+  }
+};
+
+ 
+(async () => {
+  try {
+    const dataUrl = 'https://jsonplaceholder.typicode.com/posts';
+    const data = await fetchData(dataUrl);
+
+    let collection = new ItemCollection(data);
+
+     
+    collection = new Proxy(collection, readonlyHandler);
+
+     
+    const filteredCollection = await collection.filterAsync(async item => item.userId < 5);
+
+    print('Filtered Collection:');
+    for (const item of filteredCollection) {
+      print(item);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

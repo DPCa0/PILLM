@@ -1,0 +1,58 @@
+class MathOperations {
+  #value = 0;  
+
+  constructor(value) {
+    this.#value = value;
+  }
+
+   
+  #doubleValue() {
+    return this.#value * 2;
+  }
+
+   
+  *generateMultiples(limit) {
+    for (let i = 1; i <= limit; i++) {
+      yield this.#value * i;
+    }
+  }
+
+   
+  static async asyncSquare(number) {
+    return await new Promise((resolve) => {
+      setTimeout(() => resolve(number * number), 1000);
+    });
+  }
+
+   
+  get valueProxy() {
+    const handler = {
+      get: (target, prop) => {
+        if (prop === 'doubled') {
+          return this.#doubleValue();
+        }
+        return target[prop];
+      },
+    };
+
+    return new Proxy(this, handler);
+  }
+}
+
+ 
+(async () => {
+  const mathOp = new MathOperations(5);
+  
+   
+  const multiples = mathOp.generateMultiples(3);
+  for (const value of multiples) {
+    print(value);  
+  }
+  
+   
+  const squared = await MathOperations.asyncSquare(3);
+  print(squared);  
+
+   
+  print(mathOp.valueProxy.doubled);  
+})();

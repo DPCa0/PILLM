@@ -1,0 +1,41 @@
+ 
+ 
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* dataStream() {
+  for (let i = 0; i < 10; i++) {
+    await delay(1000);  
+    yield `Data ${i}`;
+  }
+}
+
+function reactiveHandler() {
+  return {
+    get(target, prop) {
+      if (prop in target) {
+        print(`Getting ${prop}: ${target[prop]}`);
+        return target[prop];
+      } else {
+        console.warn(`Property ${prop} not found.`);
+      }
+    },
+    set(target, prop, value) {
+      print(`Setting ${prop} to ${value}`);
+      target[prop] = value;
+      return true;
+    }
+  };
+}
+
+async function run() {
+  const data = {};
+  const reactiveData = new Proxy(data, reactiveHandler());
+  const dataGen = dataStream();
+
+  for await (const chunk of dataGen) {
+    reactiveData[chunk] = chunk;
+  }
+}
+
+run();

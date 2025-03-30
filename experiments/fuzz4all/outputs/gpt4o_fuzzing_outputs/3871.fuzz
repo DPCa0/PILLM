@@ -1,0 +1,44 @@
+print('Hello, world!');
+Certainly! Here is a JavaScript program that utilizes several advanced features, including Promises, async/await, and the Fetch API to demonstrate asynchronous operations. The code also uses ES6+ features like arrow functions, template literals, and destructuring:
+
+```javascript
+const fetchJson = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+    throw error;
+  }
+};
+
+const processData = ({ results }) => {
+  return results.map(({ name, height, mass }) => ({
+    name: name,
+    height: parseInt(height, 10),
+    mass: parseInt(mass, 10)
+  }));
+};
+
+const calculateTotalMass = (characters) => {
+  return characters.reduce((total, { mass }) => total + mass, 0);
+};
+
+(async () => {
+  const apiUrl = 'https://swapi.dev/api/people/';
+  
+  try {
+    const data = await fetchJson(apiUrl);
+    const characters = processData(data);
+    const totalMass = calculateTotalMass(characters);
+    
+    console.log(`Total mass of all characters: ${totalMass}`);
+  } catch (error) {
+    console.error('Error in main function:', error);
+  }
+})();
+```
+
+This program fetches data from the Star Wars API, processes the character data, and calculates the total mass of the characters, showcasing a combination of async operations, data manipulation, and modern JavaScript syntax.

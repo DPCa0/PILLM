@@ -1,0 +1,35 @@
+print('Hello, world!');
+```javascript
+ 
+
+(async () => {
+  const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = {
+        user: { id: 1, name: 'Alice' },
+        posts: [
+          { id: 101, title: 'First Post', content: 'Hello World!' },
+          { id: 102, title: 'Second Post', content: 'JavaScript is fun!' }
+        ]
+      };
+      resolve(data);
+    }, 1000);
+  });
+
+  try {
+    const { user, posts } = await fetchData();
+    
+    const processPosts = ({ id, title, content }) => {
+      console.log(`Post ID: ${id}`);
+      console.log(`Title: ${title}`);
+      console.log(`Content: ${content}`);
+      console.log('---');
+    };
+    
+    console.log(`User: ${user.name}`);
+    posts.forEach(processPosts);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();
+```

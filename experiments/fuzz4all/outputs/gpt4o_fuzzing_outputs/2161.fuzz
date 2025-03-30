@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+class DataStore {
+    constructor() {
+        this.store = new Map();
+    }
+
+    async fetchData(key) {
+         
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (this.store.has(key)) {
+                    resolve(`Data for ${key}: ${this.store.get(key)}`);
+                } else {
+                    reject(`No data found for ${key}`);
+                }
+            }, 1000);
+        });
+    }
+
+    addData(key, value) {
+        this.store.set(key, value);
+    }
+}
+
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            throw new Error(`Property ${prop} doesn't exist`);
+        }
+    }
+};
+
+const proxiedStore = new Proxy(new DataStore(), handler);
+
+const main = async () => {
+    proxiedStore.addData('user1', 'John Doe');
+    proxiedStore.addData('user2', 'Jane Smith');
+
+    try {
+        console.log(await proxiedStore.fetchData('user1'));
+        console.log(await proxiedStore.fetchData('user3'));
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+main();
+```

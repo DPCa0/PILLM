@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+ 
+class Person {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+     
+    get info() {
+        return `${this.name} is ${this.age} years old.`;
+    }
+
+     
+    static compareAge(person1, person2) {
+        return person1.age - person2.age;
+    }
+
+     
+    async getAgeInYears(years) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(this.age + years);
+            }, 1000);
+        });
+    }
+}
+
+ 
+const _privateMethod = Symbol('privateMethod');
+
+ 
+const Talkative = (superclass) => class extends superclass {
+    speak() {
+        console.log(`${this.name} says hello!`);
+    }
+};
+
+ 
+class Student extends Talkative(Person) {
+    constructor(name, age, grade) {
+        super(name, age);
+        this.grade = grade;
+    }
+
+    get gradeInfo() {
+        return `${this.name} is in grade ${this.grade}.`;
+    }
+
+    [_privateMethod]() {
+        return "This is a private method!";
+    }
+}
+
+ 
+const [john, jane] = [
+    new Student('John', 20, 'Sophomore'),
+    new Student('Jane', 22, 'Senior')
+];
+
+ 
+const displayInfo = ({ name, age, grade }) => {
+    console.log(`${name}, aged ${age}, is in grade ${grade}.`);
+};
+
+ 
+(async () => {
+    displayInfo(john);
+    john.speak();
+    console.log(await john.getAgeInYears(5));
+
+    displayInfo(jane);
+    jane.speak();
+    console.log(await jane.getAgeInYears(3));
+
+    console.log('Comparing ages:', Person.compareAge(john, jane));
+})();
+```

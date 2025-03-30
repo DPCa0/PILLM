@@ -1,0 +1,38 @@
+ 
+import { of, fromEvent, interval } from 'rxjs';
+import { map, filter, debounceTime, switchMap, takeUntil } from 'rxjs/operators';
+
+ 
+const fetchData = () => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('Data fetched!');
+    }, 1000);
+  });
+};
+
+ 
+const button = document.createElement('button');
+button.innerText = 'Fetch Data';
+document.body.appendChild(button);
+
+const buttonClicks$ = fromEvent(button, 'click');
+
+ 
+const interval$ = interval(2000);
+
+ 
+const dataStream$ = buttonClicks$.pipe(
+  debounceTime(500),
+  switchMap(() => from(fetchData())),  
+  takeUntil(interval$.pipe(filter(x => x === 1))),  
+  map(data => data.toUpperCase())
+);
+
+ 
+dataStream$.subscribe({
+  next: data => console.log(data),
+  complete: () => console.log('Stream completed!')
+});
+
+This program uses RxJS to create a stream from button click events, processes it with various operators, and eventually logs data to the console. It demonstrates the use of advanced features like async operations, observable operators, and DOM manipulation.

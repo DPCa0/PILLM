@@ -1,0 +1,54 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      let response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      let data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    }
+  }
+}
+
+const dataHandler = {
+  set(target, prop, value) {
+    if (prop === 'lastUpdated' && isNaN(Date.parse(value))) {
+      throw new TypeError('Invalid date format');
+    }
+    target[prop] = value;
+    return true;
+  },
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    }
+    console.warn(`Property "${prop}" does not exist`);
+    return undefined;
+  }
+};
+
+async function processData(url) {
+  const dataFetcher = new DataFetcher(url);
+  const proxy = new Proxy({}, dataHandler);
+
+  try {
+    let data = await dataFetcher.fetchData();
+    proxy.data = data;
+    proxy.lastUpdated = new Date().toISOString();
+    print('Fetched Data:', proxy.data);
+    print('Last Updated:', proxy.lastUpdated);
+  } catch (error) {
+    console.error('Processing error:', error);
+  }
+}
+
+ 
+processData('https://jsonplaceholder.typicode.com/posts');

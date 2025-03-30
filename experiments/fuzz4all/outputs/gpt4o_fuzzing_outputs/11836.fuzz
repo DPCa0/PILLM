@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function readFiles(files) {
+  try {
+     
+    const contents = await Promise.all(files.map(file => fs.readFile(file, 'utf8')));
+    console.log('File contents:', contents);
+  } catch (error) {
+    console.error('Error reading files:', error);
+  }
+}
+
+ 
+const data = { counter: 0 };
+const handler = {
+  get(target, property, receiver) {
+    console.log(`Getting ${property}`);
+    return Reflect.get(target, property, receiver);
+  },
+  set(target, property, value, receiver) {
+    console.log(`Setting ${property} to ${value}`);
+    return Reflect.set(target, property, value, receiver);
+  }
+};
+const proxyData = new Proxy(data, handler);
+
+ 
+proxyData.counter = 42;   
+console.log(proxyData.counter);   
+
+ 
+function* fibonacci(n) {
+  let a = 0, b = 1, current = 0;
+  for (let i = 0; i < n; i++) {
+    yield current;
+    [a, b] = [b, a + b];
+    current = a;
+  }
+}
+
+ 
+for (let num of fibonacci(10)) {
+  console.log(num);
+}
+
+ 
+const config = {
+  server: {
+    host: 'localhost',
+    port: 8000
+  }
+};
+
+const serverPort = config.server?.port ?? 3000;
+console.log(`Server will run on port: ${serverPort}`);
+
+ 
+readFiles(['./file1.txt', './file2.txt']);
+```

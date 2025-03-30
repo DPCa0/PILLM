@@ -1,0 +1,67 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get(target, property, receiver) {
+    if (property in target) {
+      return Reflect.get(target, property, receiver);
+    } else {
+      console.log(`Property '${property}' doesn't exist, creating new entry.`);
+      target[property] = Symbol(property);
+      return target[property];
+    }
+  }
+};
+
+const dynamicObject = new Proxy({}, handler);
+console.log(dynamicObject.existingProperty); // undefined
+console.log(dynamicObject.newProperty); // Symbol(newProperty)
+
+// Promise chaining and async/await with error handling
+const asyncTask = () => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    Math.random() > 0.5 ? resolve('Success!') : reject('Failure!');
+  }, 1000);
+});
+
+(async () => {
+  try {
+    const result = await asyncTask();
+    console.log(result);
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    console.log('Operation complete');
+  }
+})();
+
+// Generator function with delegation and iteration
+function* generatorFunc() {
+  yield* [1, 2, 3];
+  yield 'Hello';
+  yield* [4, 5];
+}
+
+const gen = generatorFunc();
+for (const value of gen) {
+  console.log(value);
+}
+
+// Using Map and Set data structures
+const map = new Map();
+map.set('name', 'John Doe');
+map.set('age', 30);
+
+const set = new Set([1, 2, 3, 4, 5]);
+
+map.forEach((value, key) => console.log(`Map key: ${key}, value: ${value}`));
+set.forEach(value => console.log(`Set value: ${value}`));
+
+// Destructuring with default values and rest operator
+const person = { firstName: 'Jane', lastName: 'Doe', country: 'Unknown' };
+const { firstName, lastName, age = 25, ...rest } = person;
+
+console.log(firstName, lastName, age, rest);
+```

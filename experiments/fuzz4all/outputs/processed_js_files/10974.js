@@ -1,0 +1,56 @@
+ 
+class Person {
+  #firstName;
+  #lastName;
+  #age;
+  
+  constructor(firstName, lastName, age) {
+    this.#firstName = firstName;
+    this.#lastName = lastName;
+    this.#age = age;
+  }
+  
+   
+  #getFullName() {
+    return `${this.#firstName} ${this.#lastName}`;
+  }
+  
+  greet() {
+    print(`Hello, my name is ${this.#getFullName()}. I am ${this.#age} years old.`);
+  }
+  
+  static #parsePersonInfo(info) {
+    const [firstName, lastName, age] = info.split(',');
+    return new Person(firstName.trim(), lastName.trim(), parseInt(age.trim()));
+  }
+  
+   
+  static createPerson(info) {
+    return this.#parsePersonInfo(info);
+  }
+}
+
+ 
+async function delayedGreeting(person) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(person.greet());
+    }, 1000);
+  });
+}
+
+(async () => {
+   
+  const peopleInfo = [
+    "John, Doe, 30",
+    "Jane, Doe, 25",
+    "Jim, Beam, 40"
+  ];
+  
+  const people = peopleInfo.map(info => Person.createPerson(info));
+  
+   
+  for (const person of people) {
+    await delayedGreeting(person);
+  }
+})();

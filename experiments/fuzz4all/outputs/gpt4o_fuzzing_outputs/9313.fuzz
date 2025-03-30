@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* fetchData() {
+    let id = 1;
+    while (id <= 3) {
+         
+        await delay(1000);
+        yield { id, data: `Data for ID: ${id++}` };
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Accessing property "${prop}"`);
+        return target[prop];
+    }
+};
+
+ 
+const targetObject = { message: "Proxy in Action!", value: 42 };
+const proxy = new Proxy(targetObject, handler);
+
+(async () => {
+    console.log(proxy.message);  
+    
+    const asyncIterator = fetchData();
+    for await (const item of asyncIterator) {
+        console.log(item);
+    }
+})();
+```

@@ -1,0 +1,59 @@
+ 
+import { promises as fs } from 'fs';
+import { createServer } from 'http';
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function manageJSON() {
+  try {
+     
+    const data = await fs.readFile('./data.json', 'utf8');
+    const jsonData = JSON.parse(data);
+
+     
+    jsonData.visits = (jsonData.visits ?? 0) + 1;
+
+     
+    await fs.writeFile('./data.json', JSON.stringify(jsonData, null, 2));
+
+    return jsonData;
+  } catch (error) {
+    console.error('Error managing JSON:', error);
+    return null;
+  }
+}
+
+ 
+createServer(async (req, res) => {
+  if (req.method === 'GET' && req.url === '/') {
+    const jsonData = await manageJSON();
+    if (jsonData) {
+       
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(jsonData));
+    } else {
+      res.writeHead(500, { 'Content-Type': 'text/plain' });
+      res.end('Internal Server Error');
+    }
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
+}).listen(3000, () => {
+  print('Server listening on port 3000');
+});
+
+ 
+(async () => {
+  print('Starting sequence...');
+  await delay(1000);
+  print('Sequence step 1 complete');
+  await delay(2000);
+  print('Sequence step 2 complete');
+  await delay(3000);
+  print('Sequence finished');
+})();
+
+Note: This code assumes that there is a `data.json` file present in the same directory, and that it has a JSON object structure. The server listens on port 3000, handles GET requests, and updates the

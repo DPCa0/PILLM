@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function getData() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(Math.random()), 1000);
+    });
+}
+
+ 
+async function* asyncNumberGenerator(limit) {
+    let count = 0;
+    while (count < limit) {
+        yield await getData();
+        count++;
+    }
+}
+
+ 
+const logHandler = {
+    get(target, prop) {
+        console.log(`Accessing property '${prop}'`);
+        return target[prop];
+    },
+    set(target, prop, value) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+const dataObject = {
+    name: "RandomNumberContainer",
+    numbers: []
+};
+
+ 
+const proxyData = new Proxy(dataObject, logHandler);
+
+ 
+async function processData() {
+    console.log("Starting to process data...");
+    proxyData.name = "UpdatedNumberContainer";
+
+    for await (const num of asyncNumberGenerator(5)) {
+        proxyData.numbers.push(num);
+        console.log(`Generated number: ${num}`);
+    }
+
+    console.log("All numbers generated:", proxyData.numbers);
+}
+
+ 
+processData();
+```

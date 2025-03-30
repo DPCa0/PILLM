@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+
+   
+  try {
+    const data = await fs.readFile('./example.txt', 'utf-8');
+    console.log('File content:', data);
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+})();
+
+ 
+const handler = {
+  set(target, property, value) {
+    if (typeof value === 'number' && value > 0) {
+      target[property] = value;
+    } else {
+      throw new TypeError('Value must be a positive number');
+    }
+  },
+};
+
+const item = new Proxy({}, handler);
+
+try {
+  item.price = 20;
+  console.log('Valid price set:', item.price);
+  item.price = -5;  
+} catch (e) {
+  console.error(e.message);
+}
+
+ 
+const uniqueKey = Symbol('unique');
+const myObject = {
+  [uniqueKey]: 'This is unique!',
+};
+
+console.log('Symbol property:', myObject[uniqueKey]);
+
+ 
+function* numberGenerator() {
+  let num = 1;
+  while (true) {
+    yield num++;
+  }
+}
+
+const gen = numberGenerator();
+console.log('Generated numbers:', gen.next().value, gen.next().value, gen.next().value);
+```

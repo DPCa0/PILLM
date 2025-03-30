@@ -1,0 +1,31 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const { random } = await import('lodash');
+
+   
+  const waitForRandomTime = () => {
+    return new Promise((resolve) => {
+      const timeout = random(500, 2000);
+      console.log(`Waiting for ${timeout} ms`);
+      setTimeout(resolve, timeout);
+    });
+  };
+
+   
+  const logMessages = async () => {
+    const messages = ["Hello", "This is", "An advanced", "JavaScript", "Program"];
+    for (const [index, message] of messages.entries()) {
+      await waitForRandomTime();
+      console.log(`Message ${index + 1}: ${message}`);
+    }
+  };
+
+   
+  await logMessages();
+
+  console.log("All messages have been logged.");
+})();
+```

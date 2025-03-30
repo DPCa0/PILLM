@@ -1,0 +1,74 @@
+class Fibonacci {
+    #memo = new Map([[0, 0], [1, 1]]);
+
+    *[Symbol.iterator]() {
+        let a = 0, b = 1;
+        while (true) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    value(n) {
+        if (this.#memo.has(n)) return this.#memo.get(n);
+        const result = this.value(n - 1) + this.value(n - 2);
+        this.#memo.set(n, result);
+        return result;
+    }
+
+    async sequence(n) {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve([...this].slice(0, n)), 1000);
+        });
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci();
+    const seq = await fib.sequence(10);
+    print("Fibonacci Sequence:", seq);
+    print("20th Fibonacci:", fib.value(20));
+})();
+
+const sum = (a, b) => a + b;
+
+const numbers = [1, 2, 3, 4, 5];
+const doubledAndSummed = numbers
+    .map(n => n * 2)
+    .reduce((acc, val) => acc + val, 0);
+
+print("Sum of doubled numbers:", doubledAndSummed);
+
+const uniqueWords = new Set(['apple', 'banana', 'apple', 'orange']);
+uniqueWords.add('grape');
+uniqueWords.delete('banana');
+
+for (const word of uniqueWords) {
+    print(word);
+}
+
+const proxyHandler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            print(`Property ${prop} doesn't exist`);
+            return 0;
+        }
+    }
+};
+
+const data = new Proxy({ x: 10, y: 20 }, proxyHandler);
+print("x:", data.x);
+print("z:", data.z);
+
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+const gen = idGenerator();
+print("Generated ID:", gen.next().value);
+print("Generated ID:", gen.next().value);

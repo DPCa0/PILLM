@@ -1,0 +1,79 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, new Set());
+    }
+    this.events.get(event).add(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      for (const listener of this.events.get(event)) {
+        listener(...args);
+      }
+    }
+  }
+
+  off(event, listener) {
+    if (this.events.has(event)) {
+      this.events.get(event).delete(listener);
+      if (this.events.get(event).size === 0) {
+        this.events.delete(event);
+      }
+    }
+  }
+}
+
+const debounce = (func, wait) => {
+  let timeout;
+  return function (...args) {
+    const context = this;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(context, args), wait);
+  };
+};
+
+class AdvancedComponent {
+  #privateField = "Initial Private Value";
+
+  constructor(name) {
+    this.name = name;
+    this.events = new EventEmitter();
+    this.update = debounce(this.update.bind(this), 200);
+  }
+
+  #privateMethod() {
+    console.log(`Private method accessed in ${this.name}:`, this.#privateField);
+  }
+
+  set privateField(value) {
+    this.#privateField = value;
+    this.update();
+  }
+
+  update() {
+    this.#privateMethod();
+    this.events.emit('update', this.name, this.#privateField);
+  }
+}
+
+const component = new AdvancedComponent('TestComponent');
+component.events.on('update', (name, value) => {
+  console.log(`Component Updated: ${name} with value: ${value}`);
+});
+
+component.privateField = "Updated Value";
+setTimeout(() => {
+  component.privateField = "Another Value";
+}, 100);
+
+setTimeout(() => {
+  component.privateField = "Final Value";
+}, 300);
+```

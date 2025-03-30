@@ -1,0 +1,42 @@
+class AsyncDataProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    async processData() {
+        const processedData = await this.#applyTransformation(this.data);
+        return this.#computeStatistics(processedData);
+    }
+
+    #applyTransformation(data) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const transformed = data.map(item => ({
+                    ...item,
+                    value: Math.pow(item.value, 2)
+                }));
+                resolve(transformed);
+            }, 1000);
+        });
+    }
+
+    #computeStatistics(data) {
+        const mean = data.reduce((acc, curr) => acc + curr.value, 0) / data.length;
+        const variance = data.reduce((acc, curr) => acc + Math.pow(curr.value - mean, 2), 0) / data.length;
+        const stdDev = Math.sqrt(variance);
+        return { mean, variance, stdDev };
+    }
+}
+
+const dataSet = [
+    { id: 1, value: 10 },
+    { id: 2, value: 20 },
+    { id: 3, value: 30 },
+    { id: 4, value: 40 },
+];
+
+(async () => {
+    const processor = new AsyncDataProcessor(dataSet);
+    const stats = await processor.processData();
+    print(stats);
+})();

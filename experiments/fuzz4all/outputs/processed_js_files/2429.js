@@ -1,0 +1,48 @@
+ 
+class ApiSimulator {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async fetchData(id) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(this.data[id]);
+      }, 1000);
+    });
+  }
+}
+
+const data = {
+  1: { name: "Alice", age: 25 },
+  2: { name: "Bob", age: 30 },
+  3: { name: "Charlie", age: 35 }
+};
+
+const api = new ApiSimulator(data);
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    if (prop in target) {
+      print(`Getting ${prop}:`, target[prop]);
+      return Reflect.get(target, prop, receiver);
+    } else {
+      print(`Property ${prop} not found.`);
+      return "Unknown";
+    }
+  }
+};
+
+const proxiedData = new Proxy(data, handler);
+
+(async () => {
+   
+  const ids = [1, 2, 4];  
+  for (const id of ids) {
+    const user = await api.fetchData(id) || {};
+    const { name = "Guest", age = "N/A" } = user;
+    
+    print(`User: ${proxiedData[id] ? `${name}, Age: ${age}` : "Not found"}`);
+  }
+})();

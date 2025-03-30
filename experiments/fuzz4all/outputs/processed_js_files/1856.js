@@ -1,0 +1,51 @@
+class Shape {
+  constructor(name) {
+    this.name = name;
+  }
+
+  static createRandomShape() {
+    const shapes = [Circle, Square];
+    const RandomShape = shapes[Math.floor(Math.random() * shapes.length)];
+    return new RandomShape();
+  }
+
+  area() {
+    throw new Error('Area method must be implemented by subclass');
+  }
+}
+
+class Circle extends Shape {
+  constructor(radius = Math.random() * 10) {
+    super('Circle');
+    this.radius = radius;
+  }
+
+  area() {
+    return Math.PI * this.radius ** 2;
+  }
+}
+
+class Square extends Shape {
+  constructor(sideLength = Math.random() * 10) {
+    super('Square');
+    this.sideLength = sideLength;
+  }
+
+  area() {
+    return this.sideLength ** 2;
+  }
+}
+
+const shapePromises = Array.from({ length: 5 }, () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      const shape = Shape.createRandomShape();
+      resolve(`Shape: ${shape.name}, Area: ${shape.area().toFixed(2)}`);
+    }, Math.random() * 1000);
+  })
+);
+
+(async function () {
+  const results = await Promise.all(shapePromises);
+  results.forEach((result) => print(result));
+})();

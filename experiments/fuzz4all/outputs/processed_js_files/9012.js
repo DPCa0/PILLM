@@ -1,0 +1,62 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+
+  off(event, listenerToRemove) {
+    if (this.events.has(event)) {
+      const listeners = this.events.get(event).filter(listener => listener !== listenerToRemove);
+      if (listeners.length > 0) {
+        this.events.set(event, listeners);
+      } else {
+        this.events.delete(event);
+      }
+    }
+  }
+}
+
+const asyncFunction = async (num) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (num > 0) {
+        resolve(`Resolved: ${num}`);
+      } else {
+        reject(new Error(`Rejected: ${num}`));
+      }
+    }, 1000);
+  });
+};
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('success', (message) => print(message));
+  eventEmitter.on('error', (error) => console.error(error));
+
+  try {
+    const result = await asyncFunction(1);
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    eventEmitter.emit('error', error.message);
+  }
+
+  try {
+    const result = await asyncFunction(-1);
+    eventEmitter.emit('success', result);
+  } catch (error) {
+    eventEmitter.emit('error', error.message);
+  }
+})();

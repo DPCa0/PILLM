@@ -1,0 +1,46 @@
+class Observable {
+  constructor() {
+    this.subscribers = new Set();
+  }
+
+  subscribe(fn) {
+    this.subscribers.add(fn);
+  }
+
+  unsubscribe(fn) {
+    this.subscribers.delete(fn);
+  }
+
+  notify(data) {
+    this.subscribers.forEach(fn => fn(data));
+  }
+}
+
+class ComplexCalculation {
+  constructor() {
+    this.observable = new Observable();
+  }
+
+  compute(data) {
+    return new Promise((resolve, reject) => {
+      const result = data.reduce((acc, val) => acc + val, 0);
+      if (isNaN(result)) reject('Invalid input!');
+      resolve(result);
+    });
+  }
+
+  async calculate(data) {
+    try {
+      const result = await this.compute(data);
+      this.observable.notify(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
+const calc = new ComplexCalculation();
+calc.observable.subscribe(result => print(`Calculation Result: ${result}`));
+
+const sampleData = [1, 2, 3, 4, 5];
+calc.calculate(sampleData);

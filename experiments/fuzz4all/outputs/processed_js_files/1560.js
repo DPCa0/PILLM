@@ -1,0 +1,37 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
+  }
+}
+
+async function* asyncGenerator(array) {
+  for (const item of array) {
+    yield new Promise(resolve => setTimeout(() => resolve(item), 1000));
+  }
+}
+
+const processItem = async item => {
+  await new Promise(resolve => setTimeout(resolve, 500));  
+  return item * 2;
+};
+
+(async () => {
+  const deferredQueue = [];
+  const array = [1, 2, 3, 4, 5];
+
+  for await (const item of asyncGenerator(array)) {
+    const deferred = new Deferred();
+    deferredQueue.push(deferred);
+
+    processItem(item).then(result => {
+      print(`Processed: ${result}`);
+      deferred.resolve(result);
+    });
+  }
+
+  const results = await Promise.all(deferredQueue.map(d => d.promise));
+  print('All results:', results);
+})();

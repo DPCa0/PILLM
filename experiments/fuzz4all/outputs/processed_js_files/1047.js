@@ -1,0 +1,54 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData(url) {
+     
+    await delay(1000);
+
+     
+    const data = {
+        success: true,
+        result: {
+            id: 1,
+            name: 'Sample Data',
+            details: {
+                description: 'This is a sample description',
+                date: '2023-09-01'
+            }
+        }
+    };
+    return data;
+}
+
+ 
+async function processData(url) {
+    try {
+        const { success, result } = await fetchData(url);
+
+        if (success) {
+            const {
+                id,
+                name,
+                details: { description, date }
+            } = result;
+
+            print(`ID: ${id}`);
+            print(`Name: ${name}`);
+            print(`Description: ${description}`);
+            print(`Date: ${date}`);
+        } else {
+            console.error('Failed to fetch data');
+        }
+    } catch (error) {
+        console.error('Error occurred:', error);
+    }
+}
+
+ 
+const apiEndpoint = 'https://api.example.com/data';
+
+ 
+processData(apiEndpoint);

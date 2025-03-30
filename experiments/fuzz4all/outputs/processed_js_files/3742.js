@@ -1,0 +1,45 @@
+class AsyncTaskQueue {
+    constructor() {
+        this.queue = [];
+        this.executing = false;
+    }
+
+    async run(task, ...args) {
+        return new Promise((resolve, reject) => {
+            this.queue.push(() => task(...args).then(resolve).catch(reject));
+            this.processQueue();
+        });
+    }
+
+    async processQueue() {
+        if (this.executing || !this.queue.length) return;
+        this.executing = true;
+        const task = this.queue.shift();
+        await task();
+        this.executing = false;
+        this.processQueue();
+    }
+}
+
+const simulateAsyncOperation = (message, delay) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            print(message);
+            resolve();
+        }, delay);
+    });
+};
+
+(async function main() {
+    const taskQueue = new AsyncTaskQueue();
+
+    const asyncFunctions = [
+        () => taskQueue.run(simulateAsyncOperation, "Task 1 Complete", 1000),
+        () => taskQueue.run(simulateAsyncOperation, "Task 2 Complete", 500),
+        () => taskQueue.run(simulateAsyncOperation, "Task 3 Complete", 200),
+    ];
+
+    await Promise.all(asyncFunctions.map(fn => fn()));
+
+    print("All tasks completed");
+})();

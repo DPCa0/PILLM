@@ -1,0 +1,51 @@
+ 
+class CustomError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CustomError";
+  }
+}
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+(async function main() {
+  try {
+     
+    const [result1, result2] = await Promise.all([
+      delay(1000).then(() => 'First result after delay'),
+      delay(2000).then(() => 'Second result after longer delay')
+    ]);
+
+     
+    print(`Results: ${result1}, ${result2}`);
+
+     
+    const target = { prop1: 'value1', prop2: 'value2' };
+    const handler = {
+      get: (obj, prop) => {
+        if (prop in obj) {
+          print(`Accessed property: ${prop}`);
+          return obj[prop];
+        } else {
+          throw new CustomError(`Property ${prop} does not exist`);
+        }
+      }
+    };
+    const proxy = new Proxy(target, handler);
+
+     
+    print(proxy.prop1);
+    print(proxy.prop3);  
+
+  } catch (error) {
+    if (error instanceof CustomError) {
+      console.error(`CustomError caught: ${error.message}`);
+    } else {
+      console.error(`Error caught: ${error}`);
+    }
+  }
+})();

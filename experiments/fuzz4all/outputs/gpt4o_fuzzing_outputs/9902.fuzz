@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve('Data Loaded'), 1000));
+
+ 
+const userHandler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            return `Property ${prop} doesn't exist`;
+        }
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'string') {
+            target[prop] = value;
+            return true;
+        } else {
+            console.log(`Invalid value type for ${prop}. Expected a string.`);
+            return false;
+        }
+    }
+};
+
+// Create a Proxy object for a user
+const user = new Proxy({ name: 'Alice', age: '25' }, userHandler);
+
+// Async/Await with IIFE to use top-level await features
+(async () => {
+    console.log('Fetching data...');
+    
+    // Using Promise.all with async/await to fetch data
+    const results = await Promise.all([fetchData(), fetchData()]);
+    console.log(results);
+
+    // Working with user proxy
+    console.log(user.name);        // 'Alice'
+    console.log(user.nonExistent); // "Property nonExistent doesn't exist"
+    
+    user.age = 30;                  
+    user.location = 'Wonderland';   
+    console.log(user.location);     
+    
+     
+    const uniqueKey = Symbol('unique');
+    const map = new Map();
+    map.set(uniqueKey, { info: 'Sensitive Data' });
+    
+    console.log(map.get(uniqueKey));  
+})();
+```

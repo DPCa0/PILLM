@@ -1,0 +1,39 @@
+class AsyncProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static async fetchData() {
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+        return response.json();
+    }
+
+    async processData() {
+        const processDataPromises = this.data.map(async (item) => {
+            await new Promise(resolve => setTimeout(resolve, 100));  
+            return { ...item, processed: true };
+        });
+
+        return Promise.all(processDataPromises);
+    }
+}
+
+(async () => {
+    try {
+        const fetchedData = await AsyncProcessor.fetchData();
+
+        const processor = new AsyncProcessor(fetchedData.slice(0, 5));
+        const processedData = await processor.processData();
+
+        const aggregateData = processedData.reduce((acc, item) => {
+            acc.titles.push(item.title);
+            acc.bodies.push(item.body);
+            return acc;
+        }, { titles: [], bodies: [] });
+
+        print('Aggregated Titles:', aggregateData.titles);
+        print('Aggregated Bodies:', aggregateData.bodies);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();

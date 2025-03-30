@@ -1,0 +1,50 @@
+ 
+
+ 
+function* randomNumberGenerator() {
+    while (true) {
+        yield new Promise((resolve) => setTimeout(() => resolve(Math.random()), 1000));
+    }
+}
+
+ 
+async function generateRandomNumbers(generator, count) {
+    const numbers = [];
+    for (let i = 0; i < count; i++) {
+        const number = await generator.next().value;
+        numbers.push(number);
+        print(`Generated number ${i + 1}: ${number}`);
+    }
+    return numbers;
+}
+
+ 
+const handler = {
+    get(target, prop, receiver) {
+        if (prop in target) {
+            print(`Accessing property "${String(prop)}"`);
+            return Reflect.get(target, prop, receiver);
+        } else {
+            console.warn(`Property "${String(prop)}" does not exist`);
+            return undefined;
+        }
+    },
+    set(target, prop, value, receiver) {
+        print(`Setting property "${String(prop)}" to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const targetObject = {};
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+const resultsSymbol = Symbol('randomNumbers');
+
+ 
+(async () => {
+    const generator = randomNumberGenerator();
+    proxyObject[resultsSymbol] = await generateRandomNumbers(generator, 5);
+    print('All generated numbers:', proxyObject[resultsSymbol]);
+})();

@@ -1,0 +1,56 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop) {
+        if (prop in target) {
+            console.log(`Accessing property "${prop}": ${target[prop]}`);
+            return target[prop];
+        } else {
+            console.log(`Property "${prop}" not found.`);
+            return undefined;
+        }
+    },
+    set(target, prop, value) {
+        console.log(`Setting property "${prop}" to ${value}`);
+        target[prop] = value * 2;  
+        return true;
+    }
+};
+
+const complexObject = {
+    a: 1,
+    b: 2
+};
+
+const proxy = new Proxy(complexObject, handler);
+
+ 
+async function demoAsyncFunction() {
+     
+    const { calculateSum } = await import('./math-utils.js');
+    
+     
+    proxy.a = 10;   
+    console.log(proxy.a);   
+    
+     
+    const iterableObject = {
+        values: [1, 2, 3],
+        [Symbol.iterator]: function* () {
+            for (const value of this.values) {
+                yield value;
+            }
+        }
+    };
+
+    console.log([...iterableObject]);   
+
+     
+    const sum = await Promise.resolve(calculateSum(proxy.a, proxy.b));   
+    console.log(`Calculated sum: ${sum}`);
+}
+
+demoAsyncFunction();
+```
+Note: The above code snippet assumes the existence of a `math-utils.js` module containing a `calculateSum` function. Make sure to have this file with the corresponding function for the dynamic import to work correctly.

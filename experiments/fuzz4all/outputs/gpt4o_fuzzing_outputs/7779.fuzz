@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+class Fibonacci {
+  #memo = new Map();
+
+   
+  *sequence(limit = Infinity) {
+    let [prev, curr] = [0, 1];
+    while (limit-- > 0) {
+      yield curr;
+      [prev, curr] = [curr, prev + curr];
+    }
+  }
+
+   
+  async calculateNth(n) {
+    if (this.#memo.has(n)) return this.#memo.get(n);
+
+    const result = await new Promise((resolve) => {
+      setTimeout(() => {
+        let [prev, curr] = [0, 1];
+        for (let i = 2; i <= n; i++) {
+          [prev, curr] = [curr, prev + curr];
+        }
+        resolve(curr);
+      }, 1000);
+    });
+
+    this.#memo.set(n, result);
+    return result;
+  }
+
+   
+  static validateInput(input) {
+    if (typeof input !== "number" || input < 1) {
+      throw new TypeError("Input must be a positive integer");
+    }
+  }
+}
+
+ 
+function createValidatedFibonacciInstance() {
+  const handler = {
+    get(target, prop, receiver) {
+      if (prop === "calculateNth") {
+        return async function (n) {
+          Fibonacci.validateInput(n);
+          return Reflect.get(target, prop, receiver).apply(this, [n]);
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    }
+  };
+
+  return new Proxy(new Fibonacci(), handler);
+}
+
+const fib = createValidatedFibonacciInstance();
+
+(async () => {
+  try {
+    console.log("Fibonacci Sequence:", [...fib.sequence(10)]);
+
+    console.log("10th Fibonacci number:", await fib.calculateNth(10));
+    console.log("20th Fibonacci number:", await fib.calculateNth(20));
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

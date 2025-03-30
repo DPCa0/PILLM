@@ -1,0 +1,57 @@
+class User {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+  getDetails() {
+    return `${this.name} is ${this.age} years old.`;
+  }
+}
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  const data = await fetchData(url);
+  
+  if (!data) return;
+
+  const user = new User(data[0].name, data[0].age || 'unknown');
+  print(user.getDetails());
+  
+  const names = data.map(user => user.name);
+  const uniqueNames = new Set(names);
+
+  const nameMap = new Map();
+  uniqueNames.forEach(name => nameMap.set(name, names.filter(n => n === name).length));
+
+  for (const [name, count] of nameMap.entries()) {
+    print(`${name}: ${count}`);
+  }
+};
+
+processData();
+
+ 
+const userProxyHandler = {
+  set(target, property, value) {
+    if (property === 'age' && typeof value !== 'number') {
+      throw new TypeError('Age must be a number');
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxiedUser = new Proxy(new User('Alice', 30), userProxyHandler);
+proxiedUser.age = 31;  
+ 
+print(proxiedUser.getDetails());

@@ -1,0 +1,44 @@
+ 
+
+class DataFetcher {
+    constructor(url) {
+        this.url = url;
+    }
+
+    async fetchData() {
+        try {
+            const response = await fetch(this.url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+}
+
+class Processor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    processData() {
+        return this.data.map(({ id, name, ...rest }) => ({ 
+            id, 
+            name: name.toUpperCase(), 
+            details: { ...rest } 
+        }));
+    }
+}
+
+(async function main() {
+    const fetcher = new DataFetcher('https://jsonplaceholder.typicode.com/users');
+    const rawData = await fetcher.fetchData();
+    
+    if (rawData) {
+        const processor = new Processor(rawData);
+        const processedData = processor.processData();
+        
+        print(processedData);
+    }
+})();

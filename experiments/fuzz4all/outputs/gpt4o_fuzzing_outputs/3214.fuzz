@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class LazyChain {
+  constructor(value) {
+    this.promise = Promise.resolve(value);
+  }
+  
+  chain(func) {
+    this.promise = this.promise.then(func);
+    return this;
+  }
+  
+  async value() {
+    return await this.promise;
+  }
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncNumberGenerator(limit) {
+  let num = 1;
+  while (num <= limit) {
+    await sleep(100);
+    yield num++;
+  }
+}
+
+function logAsyncIterator(iterator) {
+  (async () => {
+    for await (const value of iterator) {
+      console.log(value);
+    }
+  })();
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const transformData = (data) => data.map(item => item.title.toUpperCase());
+
+(async () => {
+  const dataUrl = 'https://jsonplaceholder.typicode.com/todos';
+
+  new LazyChain(dataUrl)
+    .chain(fetchData)
+    .chain(transformData)
+    .chain(titles => titles.slice(0, 5))
+    .chain(console.log)
+    .value();
+
+  const iterator = asyncNumberGenerator(5);
+  logAsyncIterator(iterator);
+})();
+```

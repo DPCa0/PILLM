@@ -1,0 +1,64 @@
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (!this.events.has(event)) return;
+    this.events.get(event).forEach(listener => listener(...args));
+  }
+
+  async emitAsync(event, ...args) {
+    if (!this.events.has(event)) return;
+    await Promise.all(this.events.get(event).map(listener => listener(...args)));
+  }
+}
+
+const fetchWithTimeout = async (url, timeout = 5000) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    return response.ok ? response.json() : Promise.reject(new Error('Failed to fetch'));
+  } finally {
+    clearTimeout(id);
+  }
+};
+
+(async () => {
+  const eventEmitter = new AsyncEventEmitter();
+
+  eventEmitter.on('data', async (url) => {
+    try {
+      const data = await fetchWithTimeout(url);
+      print(`Fetched data from ${url}:`, data);
+    } catch (error) {
+      console.error(`Error fetching data from ${url}:`, error.message);
+    }
+  });
+
+  eventEmitter.on('error', (message) => {
+    console.error(`Error event: ${message}`);
+  });
+
+  const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2',
+    'https://invalid-url'
+  ];
+
+  for (const url of urls) {
+    if (url.includes('invalid')) {
+      eventEmitter.emit('error', 'Invalid URL encountered!');
+    } else {
+      await eventEmitter.emitAsync('data', url);
+    }
+  }
+})();

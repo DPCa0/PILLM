@@ -1,0 +1,44 @@
+class Deferred {
+  constructor() {
+    this.promise = new Promise((resolve, reject) => {
+      this._resolve = resolve;
+      this._reject = reject;
+    });
+  }
+  resolve(value) {
+    this._resolve(value);
+  }
+  reject(reason) {
+    this._reject(reason);
+  }
+}
+
+async function* fetchDataGenerator(urls) {
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      yield response.json();
+    } catch (error) {
+      yield { error: `Failed to fetch ${url}: ${error.message}` };
+    }
+  }
+}
+
+(async function complexFeatureDemo() {
+  const deferred = new Deferred();
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+  const dataGenerator = fetchDataGenerator(urls);
+
+  deferred.promise
+    .then((message) => console.log(`Deferred resolved: ${message}`))
+    .catch((error) => console.error(`Deferred rejected: ${error}`));
+
+  try {
+    for await (const data of dataGenerator) {
+      print('Fetched data:', data);
+    }
+    deferred.resolve('All data fetched successfully!');
+  } catch (e) {
+    deferred.reject(`Error fetching data: ${e.message}`);
+  }
+})();

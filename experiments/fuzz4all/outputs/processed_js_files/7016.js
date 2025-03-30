@@ -1,0 +1,31 @@
+const fetchData = async (url) => {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+const processData = ({ items }) =>
+  items
+    .filter(({ score }) => score > 50)
+    .map(({ name, score }) => ({ name, score }))
+    .reduce((acc, { name, score }) => {
+      acc[name] = (acc[name] || 0) + score;
+      return acc;
+    }, {});
+
+(async () => {
+  const url = 'https://api.example.com/data';
+  const data = await fetchData(url);
+  const processedData = processData(data);
+
+  console.table(
+    Object.entries(processedData)
+      .sort(([, aScore], [, bScore]) => bScore - aScore)
+      .map(([name, score]) => ({ name, score }))
+  );
+})();

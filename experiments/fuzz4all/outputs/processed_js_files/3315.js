@@ -1,0 +1,36 @@
+ 
+async function* advancedFeatureExample(dataArray) {
+  const delay = (ms) => new Promise(res => setTimeout(res, ms));
+  const asyncIterator = dataArray[Symbol.asyncIterator] || dataArray[Symbol.iterator];
+
+  for await (const item of asyncIterator.call(dataArray)) {
+    await delay(500);  
+    yield `Processed: ${item}`;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Getting ${prop}`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value, receiver) {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  }
+};
+
+const targetObject = { a: 1, b: 2 };
+const proxyObject = new Proxy(targetObject, handler);
+
+proxyObject.a;  
+proxyObject.b = 3;  
+
+ 
+(async () => {
+  const data = ['apple', 'banana', 'cherry'];
+  for await (const message of advancedFeatureExample(data)) {
+    print(message);
+  }
+})();

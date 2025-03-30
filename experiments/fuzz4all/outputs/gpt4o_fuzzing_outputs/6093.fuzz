@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+   
+  const { default: _ } = await import('https://cdn.skypack.dev/lodash');
+
+   
+  const handler = {
+    get: (target, prop) => {
+      if (prop in target) {
+        return target[prop];
+      }
+      throw new Error(`Property ${prop} not found`);
+    },
+  };
+
+  const nestedObject = {
+    user: {
+      details: {
+        name: 'John Doe',
+        age: 30,
+      },
+    },
+  };
+
+  const proxyNestedObject = new Proxy(nestedObject, handler);
+
+   
+  const clone = _.cloneDeep(proxyNestedObject);
+
+   
+  function* objectKeys(obj) {
+    for (const key of Object.keys(obj)) {
+      yield key;
+    }
+  }
+
+   
+  const uniqueKeys = new Set([...objectKeys(clone.user.details)]);
+
+   
+  const uniqueSymbol = Symbol('uniqueProperty');
+  clone.user[uniqueSymbol] = 'Unique Value';
+
+   
+  const simulateAsyncOperation = () =>
+    new Promise((resolve) => setTimeout(() => resolve('Operation Complete'), 1000));
+
+  try {
+    const result = await simulateAsyncOperation();
+    console.log(result);  
+
+     
+    console.log(`User: ${clone.user?.details?.name}, Age: ${clone.user?.details?.age}`);
+
+     
+    console.log(`Unique Symbol Value: ${clone.user[uniqueSymbol]}`);
+    console.log(`Unique Keys: ${[...uniqueKeys].join(', ')}`);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+```

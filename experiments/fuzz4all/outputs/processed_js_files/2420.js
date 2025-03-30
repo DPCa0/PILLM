@@ -1,0 +1,34 @@
+Certainly! Here's a JavaScript program that demonstrates the use of advanced features like Promises, async/await, destructuring, spread/rest operators, and higher-order functions:
+
+const fetchData = (url) => new Promise((resolve, reject) => {
+  setTimeout(() => {
+    if (url) {
+      resolve({ data: `Data from ${url}` });
+    } else {
+      reject('No URL provided');
+    }
+  }, 1000);
+});
+
+async function processUrls(urls) {
+  try {
+    const fetchPromises = urls.map(url => fetchData(url));
+    const results = await Promise.all(fetchPromises);
+
+    const [first, ...rest] = results;
+    print(`First result: ${first.data}`);
+    print('Rest of the results:', ...rest.map(({ data }) => data));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+const urls = [
+  'https: 
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+processUrls(urls);
+
+This code defines a mock `fetchData` function that simulates fetching data from a URL using a Promise. The `processUrls` function uses `async/await` to process multiple URLs concurrently, making use of `Promise.all` to await all results. Destructuring is used to separate the first result from the rest, and the spread operator is employed to log the remaining results.

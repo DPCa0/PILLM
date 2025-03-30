@@ -1,0 +1,64 @@
+ 
+
+ 
+class Person {
+    #firstName;
+    #lastName;
+
+    constructor(firstName, lastName) {
+        this.#firstName = firstName;
+        this.#lastName = lastName;
+    }
+
+    getFullName() {
+        return `${this.#firstName} ${this.#lastName}`;
+    }
+}
+
+ 
+async function* fetchUsersData() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/users/1',
+        'https://jsonplaceholder.typicode.com/users/2',
+        'https://jsonplaceholder.typicode.com/users/3'
+    ];
+
+    for (const url of urls) {
+        const response = await fetch(url);
+        const data = await response.json();
+        yield data;
+    }
+}
+
+ 
+function createAccessCounter(obj) {
+    return new Proxy(obj, {
+        get(target, prop) {
+            if (prop in target) {
+                if (!target.hasOwnProperty('_accessCount')) {
+                    target._accessCount = {};
+                }
+                target._accessCount[prop] = (target._accessCount[prop] || 0) + 1;
+            }
+            return target[prop];
+        }
+    });
+}
+
+ 
+(async () => {
+    let userCounter = 0;
+
+     
+    for await (const userData of fetchUsersData()) {
+        const user = new Person(userData.name.split(' ')[0], userData.name.split(' ')[1]);
+        const countedUser = createAccessCounter(user);
+
+        print(`User ${++userCounter}:`, countedUser.getFullName());
+         
+        countedUser.getFullName();
+        countedUser.getFullName();
+
+        print(`Access counts:`, countedUser._accessCount);
+    }
+})();

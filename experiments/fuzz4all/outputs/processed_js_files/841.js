@@ -1,0 +1,39 @@
+ 
+
+const fetchData = async () => {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        user: { id: 1, name: 'Alice', email: 'alice@example.com' },
+        settings: { theme: 'dark', language: 'en' },
+      });
+    }, 1000);
+  });
+};
+
+const processUserData = async () => {
+  try {
+    const { user, settings } = await fetchData();  
+
+    const proxyHandler = {
+      get(target, property) {
+        if (property in target) {
+          print(`Accessing property: ${property}`);
+          return target[property];
+        } else {
+          throw new Error(`Property "${property}" not found`);
+        }
+      },
+    };
+
+    const userProxy = new Proxy(user, proxyHandler);
+
+    print(`User: ${userProxy.name} (${userProxy.email})`);
+    print(`Theme: ${settings.theme}`);
+  } catch (error) {
+    console.error(`Error processing user data: ${error.message}`);
+  }
+};
+
+processUserData();

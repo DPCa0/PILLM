@@ -1,0 +1,87 @@
+ 
+import fetch from 'node-fetch';
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return `Property "${prop}" not found`;
+    }
+  }
+};
+
+const person = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+const skills = new Set(['JavaScript', 'ES6', 'Node.js']);
+
+ 
+const learningMap = new Map([
+  ['JavaScript', 'Advanced'],
+  ['Node.js', 'Intermediate']
+]);
+
+ 
+const fetchGitHubUser = async (username) => {
+  try {
+    const response = await fetch(`https: 
+    const data = await response.json();
+    print(`GitHub User: ${data.login}, Bio: ${data.bio}`);
+  } catch (error) {
+    console.error('Error fetching GitHub User:', error);
+  }
+};
+
+ 
+const displayPersonInfo = ({ name, age }) => {
+  print(`Person: ${name}, Age: ${age}`);
+};
+
+ 
+const ID = Symbol('id');
+person[ID] = 123;
+
+ 
+class Car {
+  constructor(make, model) {
+    this._make = make;
+    this._model = model;
+  }
+  
+  get make() {
+    return this._make;
+  }
+
+  set make(value) {
+    this._make = value;
+  }
+
+  get model() {
+    return this._model;
+  }
+
+  set model(value) {
+    this._model = value;
+  }
+}
+
+const myCar = new Car('Toyota', 'Corolla');
+
+ 
+const user = {
+  profile: {
+    email: null
+  }
+};
+
+const email = user.profile?.email ?? 'Email not provided';
+
+ 
+displayPersonInfo(person);
+print(`Unique skills: ${[...skills].join(', ')}`);
+print(`Learning Map: ${JSON.stringify([...learningMap.entries()])}`);
+print(`Car Make: ${myCar.make}, Model: ${myCar.model}`);
+print(email);
+fetchGitHubUser

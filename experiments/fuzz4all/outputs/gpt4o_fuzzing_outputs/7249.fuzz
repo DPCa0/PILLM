@@ -1,0 +1,63 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { message: `Data from ${url}` };
+            Math.random() > 0.2 ? resolve(data) : reject(new Error('Failed to fetch data.'));
+        }, 1000);
+    });
+}
+
+ 
+async function getMultipleData(urls) {
+    try {
+        const results = await Promise.all(urls.map(url => fetchData(url)));
+        return results.map(result => result.message);
+    } catch (error) {
+        throw new Error(`Error fetching data: ${error.message}`);
+    }
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting property '${prop}'`);
+        return prop in target ? target[prop] : `Property '${prop}' doesn't exist.`;
+    },
+    set(target, prop, value) {
+        console.log(`Setting property '${prop}' to '${value}'`);
+        target[prop] = value;
+        return true;
+    }
+};
+
+// Create a target object
+const targetObj = {
+    name: "Advanced JavaScript",
+    level: "Expert"
+};
+
+// Wrap target object in Proxy
+const proxyObj = new Proxy(targetObj, handler);
+
+// Main execution block
+(async () => {
+    try {
+        console.log("Starting data fetch...");
+        const urls = ['https: 
+        const messages = await getMultipleData(urls);
+        console.log("Fetched messages:", messages);
+
+         
+        console.log(proxyObj.name);   
+        proxyObj.language = "JavaScript";   
+        console.log(proxyObj.language);
+    } catch (error) {
+        console.error(error.message);
+    }
+})();
+```

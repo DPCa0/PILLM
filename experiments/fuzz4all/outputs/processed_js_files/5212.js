@@ -1,0 +1,32 @@
+class FibonacciSequence {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  *[Symbol.iterator]() {
+    let i = 0;
+    while (true) {
+      yield this._fib(i++);
+    }
+  }
+
+  _fib(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const result = this._fib(n - 1) + this._fib(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+const fibSequence = new FibonacciSequence();
+
+ 
+const [, , ...fibNumbers] = fibSequence;
+
+ 
+(async () => {
+  for await (const num of fibNumbers) {
+    print(num);
+    if (num > 34) break;  
+  }
+})();

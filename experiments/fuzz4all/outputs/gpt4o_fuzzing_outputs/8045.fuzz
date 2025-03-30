@@ -1,0 +1,29 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async () => {
+   
+  const simulateNetworkRequest = () =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ id: 1, name: 'John Doe', data: [1, 2, 3, 4] }), 1000)
+    );
+
+  const data = await simulateNetworkRequest();
+
+   
+  const { id, name, data: numbers } = data;
+  const [first, ...rest] = numbers;
+
+   
+  const processNumbers = (nums) => nums.map((num) => num * num);
+
+  console.log(`User ID: ${id}`);
+  console.log(`Name: ${name}`);
+  console.log(`Original numbers: ${numbers}`);
+  console.log(`First number squared: ${first * first}`);
+  console.log(`Rest of numbers squared: ${processNumbers(rest)}`);
+};
+
+fetchData();
+```

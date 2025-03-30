@@ -1,0 +1,42 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+function* fibonacci(n) {
+  let a = 0, b = 1;
+  while (n-- > 0) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+const eventEmitter = new EventEmitter();
+eventEmitter.on('dataFetched', data => {
+  print('Fetched Data:', data);
+  print('First 5 Fibonacci Numbers:', [...fibonacci(5)]);
+});
+
+fetchData('https://jsonplaceholder.typicode.com/posts/1')
+  .then(data => eventEmitter.emit('dataFetched', data))
+  .catch(error => console.error('Fetch Error:', error));

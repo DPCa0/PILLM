@@ -1,0 +1,36 @@
+ 
+
+class User {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    get userInfo() {
+        return `${this.name}, ${this.age} years old`;
+    }
+
+    static async fetchUserData() {
+         
+        return new Promise(resolve => {
+            setTimeout(() => resolve({ name: "Alice", age: 30 }), 1000);
+        });
+    }
+}
+
+const processUser = async (...users) => {
+     
+    const allUsers = [...users];
+    const data = await User.fetchUserData();
+    const { name, age } = data;
+    const newUser = new User(name, age);
+    
+    allUsers.push(newUser);
+
+    allUsers.forEach(user => {
+        print(user.userInfo);
+    });
+};
+
+const user1 = new User("Bob", 25);
+processUser(user1);

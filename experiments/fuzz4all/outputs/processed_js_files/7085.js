@@ -1,0 +1,50 @@
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+    try {
+         
+        const fetchData = async (url) => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        };
+
+         
+        const processData = ({ items }) => items.map(({ id, title }) => ({ id, title }));
+
+         
+        function* itemGenerator(items) {
+            for (const item of items) {
+                yield item;
+            }
+        }
+
+         
+        const url = 'https://jsonplaceholder.typicode.com/posts';
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+
+         
+        const itemArray = [...itemGenerator(processedData)];
+
+         
+        const logger = (strings, ...values) => {
+            return strings.reduce((prev, current, i) => {
+                return prev + current + (values[i] !== undefined ? `[${values[i]}]` : '');
+            }, '');
+        };
+        print(logger`Processed ${itemArray.length} items successfully.`);
+
+         
+        const firstTitle = itemArray[0]?.title ?? 'No Title';
+        print(`First item title: ${firstTitle}`);
+
+         
+        await fs.writeFile('output.json', JSON.stringify(itemArray, null, 2));
+        print('Data has been written to output.json');
+    } catch (error) {
+        console.error('Error:', error);
+    }
+})();

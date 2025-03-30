@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url === "https://api.example.com/data") {
+        resolve({ data: [1, 2, 3, 4, 5] });
+      } else {
+        reject(new Error("Invalid URL"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+async function processData(url) {
+  try {
+    console.log("Fetching data...");
+    const response = await fetchData(url);
+    console.log("Data received:", response.data);
+
+     
+    function* processItems(items) {
+      for (let item of items) {
+        yield item * 2;
+      }
+    }
+
+     
+    const iterator = processItems(response.data);
+    let result = iterator.next();
+
+    while (!result.done) {
+      console.log("Processed item:", result.value);
+      result = iterator.next();
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+const dataHandler = {
+  get(target, prop, receiver) {
+    console.log(`Getting ${prop} value`);
+    return Reflect.get(target, prop, receiver);
+  },
+};
+
+const proxy = new Proxy({ name: "Advanced JS", version: "ES2023" }, dataHandler);
+
+ 
+console.log(proxy.name);
+console.log(proxy.version);
+
+ 
+processData("https://api.example.com/data");
+```

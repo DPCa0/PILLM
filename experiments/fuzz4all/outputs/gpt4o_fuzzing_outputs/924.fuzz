@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import { promises as fsPromises } from 'fs';
+
+ 
+async function* fetchJsonFiles(filePaths) {
+  for (const path of filePaths) {
+    try {
+      const data = await fsPromises.readFile(path, 'utf-8');
+      yield JSON.parse(data);
+    } catch (err) {
+      console.error(`Error reading file ${path}:`, err);
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    console.log(`Getting property '${prop}'`);
+    return prop in target ? target[prop] : `Property ${prop} does not exist`;
+  },
+  set(target, prop, value) {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const settings = new Proxy({}, handler);
+
+ 
+const processSettings = (...args) => {
+  args.forEach(arg => {
+    settings[arg.key] = arg.value;
+  });
+};
+
+ 
+const configMap = new Map();
+const uniqueSettings = new Set();
+
+ 
+(async () => {
+  const filePaths = ['./config1.json', './config2.json'];
+  
+   
+  for await (const jsonData of fetchJsonFiles(filePaths)) {
+    Object.entries(jsonData).forEach(([key, value]) => {
+      uniqueSettings.add(key);
+      configMap.set(key, value);
+    });
+  }
+
+   
+  processSettings(...Array.from(uniqueSettings).map(key => ({ key, value: configMap.get(key) })));
+
+   
+  console.log(settings.exampleSetting);  
+})();
+```

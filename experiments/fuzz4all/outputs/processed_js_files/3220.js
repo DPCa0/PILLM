@@ -1,0 +1,64 @@
+ 
+
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return await response.json();
+}
+
+const fetchDataWithCache = (function() {
+  const cache = new Map();
+  return async function(url) {
+    if (cache.has(url)) {
+      return cache.get(url);
+    }
+    const data = await fetchData(url);
+    cache.set(url, data);
+    return data;
+  };
+})();
+
+function* numberGenerator() {
+  let number = 0;
+  while (true) {
+    yield number++;
+  }
+}
+
+(async () => {
+  const eventEmitter = new EventEmitter();
+
+  eventEmitter.on('dataReceived', (data) => {
+    print('Data received:', data);
+  });
+
+  try {
+    const data = await fetchDataWithCache('https://jsonplaceholder.typicode.com/posts/1');
+    eventEmitter.emit('dataReceived', data);
+
+    const generator = numberGenerator();
+    print('Next number:', generator.next().value);
+    print('Next number:', generator.next().value);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

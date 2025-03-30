@@ -1,0 +1,54 @@
+ 
+
+ 
+async function fetchUserData(userId) {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const mockData = { id: userId, name: `User${userId}` };
+      resolve(mockData);
+    }, 1000);
+  });
+}
+
+ 
+function* userGenerator(userIds) {
+  for (const id of userIds) {
+    yield fetchUserData(id);
+  }
+}
+
+ 
+const loggingHandler = {
+  get: (target, property) => {
+    print(`Accessed property: ${property}`);
+    return target[property];
+  }
+};
+
+ 
+async function processUsers(userIds) {
+  const users = [];
+  const userGen = userGenerator(userIds);
+
+  for (const userPromise of userGen) {
+    try {
+      const user = await userPromise;
+       
+      const proxiedUser = new Proxy(user, loggingHandler);
+      users.push(proxiedUser);
+    } catch (error) {
+      console.error(`Error fetching user: ${error}`);
+    }
+  }
+
+  return users;
+}
+
+ 
+processUsers([1, 2, 3, 4, 5])
+  .then(users => {
+    print('Fetched Users:');
+    users.forEach(user => print(user.name));
+  })
+  .catch(error => console.error('Error processing users:', error));

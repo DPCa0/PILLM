@@ -1,0 +1,70 @@
+class TaskQueue {
+  constructor(concurrency) {
+    this.queue = [];
+    this.concurrency = concurrency;
+    this.running = 0;
+  }
+
+  runTask(task) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        this.running++;
+        const result = await task();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      } finally {
+        this.running--;
+        this.next();
+      }
+    });
+  }
+
+  next() {
+    if (this.running < this.concurrency && this.queue.length) {
+      const { task, resolve, reject } = this.queue.shift();
+      this.runTask(task).then(resolve).catch(reject);
+    }
+  }
+
+  push(task) {
+    return new Promise((resolve, reject) => {
+      this.queue.push({ task, resolve, reject });
+      this.next();
+    });
+  }
+}
+
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch');
+      return await response.json();
+    } catch (error) {
+      if (attempt < retries - 1) await new Promise(res => setTimeout(res, delay));
+    }
+  }
+  throw new Error('Max retries reached');
+}
+
+const queue = new TaskQueue(3);
+
+const urls = ['https://jsonplaceholder.typicode.com/posts/1', 
+              'https://jsonplaceholder.typicode.com/posts/2', 
+              'https://jsonplaceholder.typicode.com/posts/3'];
+
+async function run() {
+  const promises = urls.map(url => 
+    queue.push(() => fetchWithRetry(url))
+  );
+  
+  try {
+    const results = await Promise.all(promises);
+    print('Fetched data:', results);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+run();

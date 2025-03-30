@@ -1,0 +1,62 @@
+ 
+
+class FibonacciSequence {
+    constructor(maxLength) {
+        this.maxLength = maxLength;
+        this.sequence = this.generateSequence();
+    }
+
+    generateSequence() {
+        const seq = [0, 1];
+        while (seq.length < this.maxLength) {
+            const [a, b] = [seq[seq.length - 2], seq[seq.length - 1]];
+            seq.push(a + b);
+        }
+        return seq;
+    }
+
+    [Symbol.iterator]() {
+        let index = 0;
+        const { sequence } = this;
+        return {
+            next() {
+                return {
+                    value: sequence[index],
+                    done: index++ >= sequence.length
+                };
+            }
+        };
+    }
+}
+
+async function fetchFakeData(url) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: `Fetched data from ${url}` });
+        }, 1000);
+    });
+}
+
+async function processData(urls) {
+    const results = await Promise.all(urls.map(async (url) => {
+        const { data } = await fetchFakeData(url);
+        return data;
+    }));
+
+    const dataSet = new Set(results);
+    return [...dataSet];
+}
+
+(async () => {
+    const fibSeq = new FibonacciSequence(10);
+    print("Fibonacci Sequence:", [...fibSeq]);
+
+    const urls = [
+        'https://example.com/1',
+        'https://example.com/2',
+        'https://example.com/3'
+    ];
+
+    const fetchedData = await processData(urls);
+    print("Processed Data:", fetchedData);
+})();

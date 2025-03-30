@@ -1,0 +1,45 @@
+class AsyncPool {
+  constructor(maxConcurrent) {
+    this.maxConcurrent = maxConcurrent;
+    this.queue = [];
+    this.activeCount = 0;
+  }
+
+  async run(promiseFactory) {
+    if (this.activeCount >= this.maxConcurrent) {
+      await new Promise(resolve => this.queue.push(resolve));
+    }
+
+    this.activeCount++;
+
+    try {
+      return await promiseFactory();
+    } finally {
+      this.activeCount--;
+      if (this.queue.length > 0) {
+        this.queue.shift()();
+      }
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url, id) => {
+  await delay(1000);  
+  print(`Fetched data for ${id} from ${url}`);
+  return { id, data: `data for ${id}` };
+};
+
+(async () => {
+  const asyncPool = new AsyncPool(2);
+  const urls = ['https://api.example.com/data1', 'https://api.example.com/data2', 'https://api.example.com/data3'];
+  
+  const fetchPromises = urls.map((url, index) => {
+    return asyncPool.run(() => fetchData(url, index + 1));
+  });
+
+  const results = await Promise.all(fetchPromises);
+
+  print('All data fetched:', results);
+})();

@@ -1,0 +1,61 @@
+class Matrix {
+  constructor(data) {
+    this.data = data;
+    this.rows = data.length;
+    this.cols = data[0].length;
+  }
+  
+  static fromArray(arr) {
+    let data = [];
+    let size = Math.sqrt(arr.length);
+    for(let i = 0; i < size; i++) {
+      data.push(arr.slice(i * size, (i + 1) * size));
+    }
+    return new Matrix(data);
+  }
+
+  [Symbol.iterator]() {
+    let data = this.data.flat();
+    let index = 0;
+    return {
+      next: () => index < data.length ? { value: data[index++], done: false } : { done: true }
+    };
+  }
+
+  *diagonal() {
+    for (let i = 0; i < Math.min(this.rows, this.cols); i++) {
+      yield this.data[i][i];
+    }
+  }
+
+  transpose() {
+    return new Matrix(this.data[0].map((_, colIndex) => this.data.map(row => row[colIndex])));
+  }
+
+  multiplyScalar(scalar) {
+    return new Matrix(this.data.map(row => row.map(value => value * scalar)));
+  }
+}
+
+const mat = Matrix.fromArray([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+print("Matrix:");
+for (const value of mat) {
+  process.stdout.write(value + " ");
+}
+
+print("\nDiagonal Elements:");
+for (const value of mat.diagonal()) {
+  print(value);
+}
+
+const transposed = mat.transpose();
+print("Transposed Matrix:");
+for (const value of transposed) {
+  process.stdout.write(value + " ");
+}
+
+const scaledMatrix = mat.multiplyScalar(2);
+print("\nScaled Matrix:");
+for (const value of scaledMatrix) {
+  process.stdout.write(value + " ");
+}

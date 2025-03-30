@@ -1,0 +1,48 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, new Set());
+        }
+        this.events.get(event).add(listener);
+    }
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function* asyncGenerator() {
+    yield 'First yield';
+    await delay(1000);
+    yield 'Second yield after 1s';
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', console.log);
+
+    for await (const message of asyncGenerator()) {
+        emitter.emit('data', `Received: ${message}`);
+    }
+
+    const dataProxy = new Proxy({ value: 0 }, {
+        set(target, prop, value) {
+            if (prop === 'value' && typeof value === 'number') {
+                print(`Setting value to ${value}`);
+                target[prop] = value;
+                return true;
+            }
+            return false;
+        }
+    });
+
+    dataProxy.value = 42;
+    dataProxy.value = 'Should not set';
+})();

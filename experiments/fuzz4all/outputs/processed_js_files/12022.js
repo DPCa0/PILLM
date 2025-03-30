@@ -1,0 +1,51 @@
+ 
+
+ 
+async function fetchData() {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ data: 'Hello, World!' });
+        }, 1000);
+    });
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop === 'data') {
+            return target[prop].toUpperCase();  
+        }
+        return target[prop];
+    }
+};
+
+ 
+const LOG_SYMBOL = Symbol('log');
+
+class DataService {
+    constructor() {
+        this[LOG_SYMBOL] = [];
+    }
+
+    log(message) {
+        this[LOG_SYMBOL].push(message);
+    }
+
+    printLogs() {
+        this[LOG_SYMBOL].forEach(log => print(log));
+    }
+
+    async process() {
+        this.log('Starting data fetch...');
+        const data = await fetchData();
+        const proxyData = new Proxy(data, handler);
+        this.log(`Fetched Data: ${proxyData.data}`);
+        this.log('Data processing complete.');
+    }
+}
+
+ 
+const dataService = new DataService();
+dataService.process().then(() => {
+    dataService.printLogs();
+});

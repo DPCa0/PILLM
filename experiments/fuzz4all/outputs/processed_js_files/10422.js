@@ -1,0 +1,84 @@
+ 
+const symbolAsyncIterator = Symbol.asyncIterator;
+
+class AsyncIterableQueue {
+  constructor() {
+    this.queue = [];
+    this.resolvers = [];
+    this.closed = false;
+  }
+
+  push(value) {
+    if (this.closed) throw new Error('Cannot push to a closed queue');
+    if (this.resolvers.length) {
+      const resolver = this.resolvers.shift();
+      resolver({ value, done: false });
+    } else {
+      this.queue.push(value);
+    }
+  }
+
+  async close() {
+    this.closed = true;
+    while (this.resolvers.length) {
+      const resolver = this.resolvers.shift();
+      resolver({ value: undefined, done: true });
+    }
+  }
+
+  [symbolAsyncIterator]() {
+    return {
+      next: () => {
+        if (this.queue.length) {
+          const value = this.queue.shift();
+          return Promise.resolve({ value, done: false });
+        }
+        if (this.closed) {
+          return Promise.resolve({ value: undefined, done: true });
+        }
+        return new Promise(resolve => this.resolvers.push(resolve));
+      }
+    };
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* generateValues() {
+  yield 1;
+  yield 2;
+  yield* delay(500).then(() => [3, 4]);
+}
+
+const handler = {
+  get(target, prop) {
+    if (prop === 'fetch') {
+      return async () => {
+        for await (const value of target) {
+          print(`Fetched value: ${value}`);
+        }
+        print('All values fetched.');
+      };
+    }
+    return Reflect.get(...arguments);
+  }
+};
+
+const asyncQueue = new Proxy(new AsyncIterableQueue(), handler);
+
+async function main() {
+  const generator = generateValues();
+
+  (async () => {
+    for await (const value of generator) {
+      asyncQueue.push(value);
+    }
+    await asyncQueue.close();
+  })();
+
+  await asyncQueue.fetch();
+}
+
+main().catch(console.error);

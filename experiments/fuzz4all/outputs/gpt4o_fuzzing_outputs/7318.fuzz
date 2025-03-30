@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+(async function() {
+    const data = [1, 2, 3, 4, 5];
+    
+     
+    const handler = {
+        get: (target, prop) => {
+            if (prop in target) {
+                console.log(`Accessing index ${prop}: ${target[prop]}`);
+                return target[prop];
+            }
+            return undefined;
+        }
+    };
+    
+    const proxiedData = new Proxy(data, handler);
+
+     
+    const doubleMap = new Map(data.map(n => [n, n * 2]));
+    const uniqueSet = new Set(data);
+    const wm = new WeakMap();
+    const obj = {};
+    wm.set(obj, 'privateValue');
+
+     
+    async function* asyncDoubler(array) {
+        for (let num of array) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            yield num * 2;
+        }
+    }
+
+     
+    function getOptionalValue(obj, path) {
+        return path.reduce((acc, key) => acc?.[key], obj) ?? 'default';
+    }
+
+    console.log('Using Proxy:');
+    console.log(proxiedData[2]);
+
+    console.log('\nUsing Map:');
+    doubleMap.forEach((value, key) => console.log(`Double of ${key} is ${value}`));
+
+    console.log('\nUsing Set:');
+    console.log('Unique values:', uniqueSet);
+
+    console.log('\nUsing WeakMap:');
+    console.log('WeakMap value:', wm.get(obj));
+
+    console.log('\nUsing async generator:');
+    for await (const val of asyncDoubler(data)) {
+        console.log(val);
+    }
+
+    console.log('\nUsing Optional Chaining and Nullish Coalescing:');
+    const nestedObject = { a: { b: { c: 42 } } };
+    console.log(getOptionalValue(nestedObject, ['a', 'b', 'c']));  
+    console.log(getOptionalValue(nestedObject, ['a', 'x', 'y']));  
+})();
+```

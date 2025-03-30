@@ -1,0 +1,66 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+ 
+async function fetchData() {
+  console.log('Fetching data...');
+  await delay(2000);
+  console.log('Data fetched.');
+  return { data: 'Sample Data' };
+}
+
+ 
+function* dataProcessor() {
+  const data = yield fetchData();
+  console.log('Processing data:', data);
+  yield delay(1000);
+  console.log('Data processed.');
+}
+
+ 
+function run(generator) {
+  const iterator = generator();
+
+  function iterate(iteration) {
+    if (iteration.done) return iteration.value;
+    const promise = iteration.value;
+    return promise.then(x => iterate(iterator.next(x)));
+  }
+
+  return iterate(iterator.next());
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Accessed property: ${property}`);
+    return target[property];
+  },
+  set: (target, property, value) => {
+    console.log(`Set ${property} to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const targetObject = { name: 'Sample Object' };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+const uniqueFeature = Symbol('feature');
+proxyObject[uniqueFeature] = 'This is a unique feature.';
+
+ 
+console.log(proxyObject.name);
+proxyObject.name = 'New Name';
+console.log(proxyObject[uniqueFeature]);
+
+ 
+run(dataProcessor);
+```

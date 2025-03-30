@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const asyncOperation = (value, delay) => new Promise((resolve) => {
+  setTimeout(() => resolve(`Processed: ${value}`), delay);
+});
+
+ 
+async function processArray(arr) {
+  const resultMap = new Map();
+  
+  for (let item of arr) {
+    let result = await asyncOperation(item, 1000);
+    resultMap.set(item, result);
+  }
+  
+  return resultMap;
+}
+
+ 
+const mapHandler = {
+  get(target, prop) {
+    if (prop === 'get') {
+      return (key) => {
+        console.log(`Getting value for ${key}`);
+        return target.get(key);
+      };
+    }
+    return target[prop];
+  }
+};
+
+ 
+const sampleArray = [1, 2, 3, 4, 5];
+
+ 
+(async () => {
+  let resultMap = await processArray(sampleArray);
+  const proxyMap = new Proxy(resultMap, mapHandler);
+  
+   
+  console.log(proxyMap.get(1));
+  console.log(proxyMap.get(3));
+})();
+```

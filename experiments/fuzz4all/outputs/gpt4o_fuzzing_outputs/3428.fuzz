@@ -1,0 +1,53 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+ 
+function* numberGenerator(max) {
+    let num = 0;
+    while (num <= max) yield num++;
+}
+
+ 
+async function* fetchMultipleData(urls) {
+    for (const url of urls) {
+        yield fetchData(url).catch(error => ({ error: error.message }));
+    }
+}
+
+ 
+const httpHandler = method => url => data => fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+}).then(response => response.json());
+
+ 
+(async () => {
+     
+    const max = 5;
+    const numbers = numberGenerator(max);
+    console.log('Generated numbers:', [...numbers]);
+
+     
+    const urls = ['https://jsonplaceholder.typicode.com/todos/1', 'https://jsonplaceholder.typicode.com/todos/2'];
+    for await (const data of fetchMultipleData(urls)) {
+        console.log('Fetched data:', data);
+    }
+
+     
+    const post = httpHandler('POST');
+    const result = await post('https://jsonplaceholder.typicode.com/posts')({
+        title: 'foo',
+        body: 'bar',
+        userId: 1
+    });
+    console.log('HTTP POST result:', result);
+})();
+```

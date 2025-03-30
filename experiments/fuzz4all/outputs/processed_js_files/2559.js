@@ -1,0 +1,55 @@
+class Observable {
+  constructor(subscribe) {
+    this._subscribe = subscribe;
+  }
+
+  subscribe(observer) {
+    return this._subscribe(observer);
+  }
+
+  pipe(...operators) {
+    return operators.reduce((source, operator) => operator(source), this);
+  }
+
+  static fromEvent(target, eventName) {
+    return new Observable(observer => {
+      const handler = event => observer.next(event);
+      target.addEventListener(eventName, handler);
+      return {
+        unsubscribe: () => target.removeEventListener(eventName, handler)
+      };
+    });
+  }
+}
+
+const map = transformFn => observable => new Observable(observer => 
+  observable.subscribe({
+    next: value => observer.next(transformFn(value)),
+    error: err => observer.error(err),
+    complete: () => observer.complete()
+  })
+);
+
+const debounceTime = delay => observable => new Observable(observer => {
+  let timeout;
+  return observable.subscribe({
+    next: value => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => observer.next(value), delay);
+    },
+    error: err => observer.error(err),
+    complete: () => observer.complete()
+  });
+});
+
+const clicks = Observable.fromEvent(document, 'click');
+const debouncedClicks = clicks.pipe(
+  debounceTime(300),
+  map(event => ({ x: event.clientX, y: event.clientY }))
+);
+
+debouncedClicks.subscribe({
+  next: position => console.log('Clicked at:', position),
+  error: err => console.error('Error:', err),
+  complete: () => console.log('Completed')
+});

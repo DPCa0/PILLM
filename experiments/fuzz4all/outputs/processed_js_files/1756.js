@@ -1,0 +1,38 @@
+class Matrix {
+    constructor(data) {
+        this.data = data;
+    }
+
+    static async fromFetch(url) {
+        const response = await fetch(url);
+        const data = await response.json();
+        return new Matrix(data);
+    }
+
+    *[Symbol.iterator]() {
+        for (const row of this.data) {
+            yield row;
+        }
+    }
+
+    map(func) {
+        return new Matrix(this.data.map(row => row.map(func)));
+    }
+
+    reduce(func, initial) {
+        return this.data.reduce((acc, row) => func(acc, row.reduce(func, initial)), initial);
+    }
+}
+
+(async () => {
+    const m = await Matrix.fromFetch('https://api.example.com/matrix');
+    
+    for (const row of m) {
+        print(row);
+    }
+    
+    const doubled = m.map(x => x * 2);
+    const sum = doubled.reduce((a, b) => a + b, 0);
+
+    print(`Sum of all elements (doubled): ${sum}`);
+})();

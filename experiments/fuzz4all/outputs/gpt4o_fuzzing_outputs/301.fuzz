@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const fetchData = async (url) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Fetched data from ${url}`);
+    }, 2000);
+  });
+};
+
+ 
+function* fibonacciGenerator() {
+  let [prev, current] = [0, 1];
+  while (true) {
+    [prev, current] = [current, prev + current];
+    yield current;
+  }
+}
+
+ 
+const targetObject = { a: 1, b: 2 };
+const handler = {
+  get(target, property) {
+    console.log(`Property '${property}' accessed`);
+    return target[property];
+  },
+  set(target, property, value) {
+    console.log(`Property '${property}' set to ${value}`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+   
+  const { a, b } = proxyObject;
+  console.log(`Values from proxy object: a = ${a}, b = ${b}`);
+
+   
+  const data = await fetchData('https://api.example.com/data');
+  console.log(data);
+
+   
+  const fibonacci = fibonacciGenerator();
+  for (let i = 0; i < 5; i++) {
+    console.log(`Fibonacci number ${i + 1}: ${fibonacci.next().value}`);
+  }
+
+   
+  const numbers = [1, 2, 3];
+  const doubled = [...numbers].map(num => num * 2);
+  console.log(`Doubled numbers: ${doubled.join(', ')}`);
+})();
+```

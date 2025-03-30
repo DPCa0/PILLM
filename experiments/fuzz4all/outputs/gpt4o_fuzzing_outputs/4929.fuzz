@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Singleton {
+    constructor(name) {
+        if (Singleton.instance) {
+            return Singleton.instance;
+        }
+        this.name = name;
+        Singleton.instance = this;
+    }
+    
+    getName() {
+        return this.name;
+    }
+}
+
+function* fibonacci() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+const asyncOperation = async () => {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve('Async Operation Complete!'), 1000);
+    });
+}
+
+(async () => {
+    const instanceA = new Singleton("Instance A");
+    const instanceB = new Singleton("Instance B");
+
+    console.log(instanceA.getName());  
+    console.log(instanceB.getName());  
+
+    const fib = fibonacci();
+    console.log(fib.next().value);  
+    console.log(fib.next().value);  
+    console.log(fib.next().value);  
+
+    const asyncResult = await asyncOperation();
+    console.log(asyncResult);  
+})();
+```

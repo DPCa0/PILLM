@@ -1,0 +1,53 @@
+class EventEmitter {
+    #listeners = new Map();
+
+    on(event, listener) {
+        if (!this.#listeners.has(event)) {
+            this.#listeners.set(event, []);
+        }
+        this.#listeners.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.#listeners.has(event)) {
+            for (const listener of this.#listeners.get(event)) {
+                listener(...args);
+            }
+        }
+    }
+
+    off(event, listener) {
+        if (this.#listeners.has(event)) {
+            this.#listeners.set(event, this.#listeners.get(event).filter(l => l !== listener));
+        }
+    }
+}
+
+async function fetchWithTimeout(url, options = {}, timeout = 5000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    const response = await fetch(url, { ...options, signal: controller.signal }).catch(() => null);
+    clearTimeout(id);
+    return response;
+}
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('data', data => {
+        print('Data received:', data);
+    });
+
+    emitter.on('error', error => {
+        console.error('An error occurred:', error);
+    });
+
+    const response = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1');
+
+    if (response && response.ok) {
+        const data = await response.json();
+        emitter.emit('data', data);
+    } else {
+        emitter.emit('error', 'Failed to fetch data');
+    }
+})();

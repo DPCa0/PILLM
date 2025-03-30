@@ -1,0 +1,45 @@
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    }
+}
+
+const pipeline = (...fns) => input => fns.reduce((chain, fn) => chain.then(fn), Promise.resolve(input));
+
+const fetchData = url => fetch(url).then(response => response.json());
+
+const processData = data => {
+    print('Raw data:', data);
+    return data.map(item => ({ ...item, processed: true }));
+};
+
+const saveData = data => {
+    print('Processed data:', data);
+    return Promise.resolve('Data saved');
+};
+
+const emitter = new EventEmitter();
+
+emitter.on('start', async (url) => {
+    try {
+        const result = await pipeline(fetchData, processData, saveData)(url);
+        print(result);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+});
+
+emitter.emit('start', 'https://jsonplaceholder.typicode.com/posts');

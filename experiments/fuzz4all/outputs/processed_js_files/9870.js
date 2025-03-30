@@ -1,0 +1,48 @@
+ 
+const processData = async (input) => {
+  try {
+     
+    const fetchData = (val) => new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (val > 0) {
+          resolve({ data: val * 2 });
+        } else {
+          reject('Value must be greater than 0');
+        }
+      }, 1000);
+    });
+
+     
+    const response = await fetchData(input);
+    const value = response?.data ?? 0;
+
+     
+    const { result } = { result: `Processed Value: ${value}` };
+
+     
+    const updatedArray = [1, 2, 3, 4].map(num => num + value);
+
+     
+    const uniqueValues = [...new Set(updatedArray)];
+
+     
+    function* valueGenerator(arr) {
+      for (const val of arr) {
+        yield val * 3;
+      }
+    }
+
+    const generator = valueGenerator(uniqueValues);
+    let next = generator.next();
+    while (!next.done) {
+      print(next.value);  
+      next = generator.next();
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+processData(5);

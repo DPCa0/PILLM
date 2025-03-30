@@ -1,0 +1,53 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+const fetchData = async (url) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        return response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
+};
+
+const cacheDecorator = (func) => {
+    const cache = new Map();
+    return async (url) => {
+        if (!cache.has(url)) {
+            const deferred = new Deferred();
+            cache.set(url, deferred);
+            try {
+                const data = await func(url);
+                deferred.resolve(data);
+            } catch (error) {
+                deferred.reject(error);
+            }
+        }
+        return cache.get(url).promise;
+    };
+};
+
+const cachedFetchData = cacheDecorator(fetchData);
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/posts/1';
+
+    try {
+        const [data1, data2] = await Promise.all([cachedFetchData(url), cachedFetchData(url)]);
+        print('First call:', data1);
+        print('Second call:', data2);
+    } catch (error) {
+        console.error('Fetch error:', error);
+    }
+})();

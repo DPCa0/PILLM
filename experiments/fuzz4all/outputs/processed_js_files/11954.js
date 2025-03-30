@@ -1,0 +1,58 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { message: "Fetched data successfully from " + url };
+            resolve(data);
+        }, 2000);
+    });
+}
+
+ 
+async function getData(url) {
+    try {
+        const data = await fetchData(url);
+        print(data.message);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+ 
+const user = {
+    name: "Alice",
+    age: 25
+};
+
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            print(`Accessing property '${property}' with value: ${target[property]}`);
+            return target[property];
+        } else {
+            print(`Property '${property}' does not exist.`);
+        }
+    },
+    set: (target, property, value) => {
+        if (property === 'age' && typeof value !== 'number') {
+            print(`Invalid type for 'age'. Must be a number.`);
+        } else {
+            print(`Setting property '${property}' to value: ${value}`);
+            target[property] = value;
+        }
+        return true;
+    }
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+print(proxyUser.name);  
+proxyUser.age = 30;           
+proxyUser.age = 'thirty';     
+print(proxyUser.nonExistentProperty);  
+
+ 
+getData("https://example.com/api/data");

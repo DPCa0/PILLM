@@ -1,0 +1,46 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+const asyncOperation = async (x) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve(x * 2) : reject(new Error("Random Error"));
+    }, 1000);
+  });
+};
+
+const main = async () => {
+  const emitter = new EventEmitter();
+
+  emitter.on('success', (result) => {
+    print(`Success: ${result}`);
+  });
+
+  emitter.on('error', (error) => {
+    console.error(`Error: ${error.message}`);
+  });
+
+  const results = await Promise.allSettled([1, 2, 3, 4, 5].map(asyncOperation));
+  
+  results.forEach(result => {
+    result.status === 'fulfilled' ? emitter.emit('success', result.value) : emitter.emit('error', result.reason);
+  });
+};
+
+main();

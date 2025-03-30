@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function asyncOperation(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Operation completed in ${time}ms`);
+    }, time);
+  });
+}
+
+ 
+function* asyncGenerator() {
+  yield asyncOperation(1000);
+  yield asyncOperation(500);
+  yield asyncOperation(700);
+}
+
+ 
+async function runGenerator(gen) {
+  for (let promise of gen()) {
+    console.log(await promise);
+  }
+}
+
+ 
+const target = {
+  message: "Hello, world!",
+  greet() {
+    return this.message;
+  },
+};
+
+ 
+const handler = {
+  get: (obj, prop) => {
+    if (prop === 'message') {
+      return obj[prop] + ' from Proxy!';
+    }
+    if (typeof obj[prop] === 'function') {
+      return function(...args) {
+        console.log(`Calling method '${prop}' with arguments`, args);
+        return obj[prop].apply(obj, args);
+      }
+    }
+    return obj[prop];
+  }
+};
+
+ 
+const proxy = new Proxy(target, handler);
+
+ 
+runGenerator(asyncGenerator);
+
+ 
+console.log(proxy.greet());  
+```

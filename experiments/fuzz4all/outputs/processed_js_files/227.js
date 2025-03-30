@@ -1,0 +1,22 @@
+ 
+
+async function complexFeatureDemo() {
+  const apiCall = () => new Promise((resolve) => setTimeout(() => resolve({ data: { message: 'Hello, advanced JavaScript!' } }), 1000));
+
+  const processData = async () => {
+    const { data: { message } } = await apiCall();  
+    return message;
+  };
+
+  const printMessage = (closure => {
+    return async () => {
+      const message = await processData();
+      const [greeting, target] = message.split(', ');  
+      print(`${greeting}, brave new ${target}!`);
+    };
+  })();
+
+  await printMessage();
+}
+
+complexFeatureDemo();

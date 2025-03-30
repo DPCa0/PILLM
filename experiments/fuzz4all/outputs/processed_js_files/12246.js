@@ -1,0 +1,53 @@
+ 
+
+ 
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === 'https://api.example.com/data') {
+                resolve({ data: { user: { name: 'John Doe', age: 30 }, roles: ['admin', 'editor'] } });
+            } else {
+                reject(new Error('404 Not Found'));
+            }
+        }, 1000);
+    });
+}
+
+ 
+async function getUserData(url) {
+    try {
+        const response = await fetchData(url);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+}
+
+ 
+function* roleIterator(roles) {
+    for (const role of roles) {
+        yield role;
+    }
+}
+
+ 
+async function main() {
+    const url = 'https://api.example.com/data';
+    const data = await getUserData(url);
+
+    if (data) {
+        const { user: { name, age }, roles } = data;
+        
+        print(`User Name: ${name}`);
+        print(`User Age: ${age}`);
+        
+        const iterator = roleIterator(roles);
+        print('User Roles:');
+        for (let role of iterator) {
+            print(`- ${role}`);
+        }
+    }
+}
+
+ 
+main();

@@ -1,0 +1,60 @@
+(async () => {
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  class SecretGenerator {
+    #secret;
+    constructor() {
+      this.#secret = Symbol('secret');
+    }
+    getSecret() {
+      return this.#secret;
+    }
+  }
+
+  const secretGenerator = new SecretGenerator();
+  print('Generated Secret:', secretGenerator.getSecret().toString());
+
+  const doubleAsync = async num => {
+    await delay(500);
+    return num * 2;
+  };
+
+  async function* numberGenerator() {
+    let number = 1;
+    while (true) {
+      yield await doubleAsync(number);
+      number++;
+    }
+  }
+
+  const pipeline = async generator => {
+    let count = 0;
+    for await (let doubledNumber of generator()) {
+      print(`Doubled Number ${++count}: ${doubledNumber}`);
+      if (count >= 5) break;
+    }
+  };
+
+  pipeline(numberGenerator);
+
+  const withLogging = fn => (...args) => {
+    print(`Function ${fn.name} called with arguments: ${args}`);
+    return fn(...args);
+  };
+
+  const sum = (a, b) => a + b;
+  const loggedSum = withLogging(sum);
+
+  print('Sum:', loggedSum(3, 4));
+
+  const runInParallel = async functions => {
+    const results = await Promise.all(functions.map(fn => fn()));
+    print('Parallel Results:', results);
+  };
+
+  runInParallel([
+    () => doubleAsync(5),
+    () => doubleAsync(10),
+    () => doubleAsync(15)
+  ]);
+})();

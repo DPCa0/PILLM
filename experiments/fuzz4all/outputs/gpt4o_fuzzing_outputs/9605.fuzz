@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+const crypto = require('crypto');
+
+class SecretManager {
+  #key;
+  #algorithm = 'aes-256-cbc';
+
+  constructor(secret) {
+    this.#key = crypto.scryptSync(secret, 'salt', 32);
+  }
+
+  encrypt(text) {
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(this.#algorithm, this.#key, iv);
+    const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+    return iv.toString('hex') + ':' + encrypted.toString('hex');
+  }
+
+  decrypt(encText) {
+    const [iv, encryptedText] = encText.split(':').map(part => Buffer.from(part, 'hex'));
+    const decipher = crypto.createDecipheriv(this.#algorithm, this.#key, iv);
+    const decrypted = Buffer.concat([decipher.update(encryptedText), decipher.final()]);
+    return decrypted.toString('utf8');
+  }
+}
+
+const secretPhrase = 's3cr3tP@ssw0rd';
+const secretManager = new SecretManager(secretPhrase);
+
+const message = 'Hello, world!';
+const encryptedMessage = secretManager.encrypt(message);
+
+console.log('Encrypted:', encryptedMessage);
+console.log('Decrypted:', secretManager.decrypt(encryptedMessage));
+
+(async () => {
+  const dynamicImport = await import('node-fetch');
+  const fetch = dynamicImport.default;
+  fetch('https://api.github.com/zen')
+    .then(response => response.text())
+    .then(console.log)
+    .catch(console.error);
+})();
+```

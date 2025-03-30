@@ -1,0 +1,39 @@
+Certainly! Here's a JavaScript program that demonstrates the use of advanced features, including promises, async/await, destructuring, and ES6 classes.
+
+class WeatherService {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https: 
+  }
+
+  async getWeather(city) {
+    const url = `${this.baseUrl}?key=${this.apiKey}&q=${city}`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error fetching weather: ${response.statusText}`);
+    const data = await response.json();
+    return data;
+  }
+}
+
+class WeatherUI {
+  static displayWeather({ location: { name, region }, current: { temp_c, condition: { text, icon } } }) {
+    print(`Weather in ${name}, ${region}:`);
+    print(`${temp_c}°C, ${text}`);
+    print(`Icon URL: ${icon}`);
+  }
+}
+
+(async () => {
+  const apiKey = 'YOUR_API_KEY_HERE';  
+  const city = 'New York';
+
+  try {
+    const weatherService = new WeatherService(apiKey);
+    const weatherData = await weatherService.getWeather(city);
+    WeatherUI.displayWeather(weatherData);
+  } catch (error) {
+    console.error('Failed to fetch weather data:', error);
+  }
+})();
+
+Make sure to replace `'YOUR_API_KEY_HERE'` with an actual API key from a weather service provider that uses a similar API structure. This program asynchronously fetches weather data for a specified city and displays the information in the console.

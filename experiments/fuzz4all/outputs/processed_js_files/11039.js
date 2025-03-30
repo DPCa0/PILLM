@@ -1,0 +1,58 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        const matrix = new Matrix(arr.length, arr[0].length);
+        matrix.data = arr;
+        return matrix;
+    }
+
+    map(callback) {
+        return Matrix.fromArray(
+            this.data.map((row, i) => row.map((value, j) => callback(value, i, j)))
+        );
+    }
+
+    static multiply(a, b) {
+        if (a.data[0].length !== b.data.length) {
+            throw new Error('Columns of A must match rows of B.');
+        }
+        return new Matrix(a.data.length, b.data[0].length).map((_, i, j) =>
+            a.data[i].reduce((sum, elm, k) => sum + elm * b.data[k][j], 0)
+        );
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+ 
+const a = Matrix.fromArray([
+    [1, 2, 3],
+    [4, 5, 6]
+]);
+
+const b = Matrix.fromArray([
+    [7, 8],
+    [9, 10],
+    [11, 12]
+]);
+
+const result = Matrix.multiply(a, b);
+result.print();
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async function run() {
+    print('Starting async tasks...');
+    await Promise.all([
+        delay(1000).then(() => console.log('Task 1 complete')),
+        delay(2000).then(() => console.log('Task 2 complete')),
+        delay(3000).then(() => console.log('Task 3 complete'))
+    ]);
+    print('All tasks complete.');
+})();

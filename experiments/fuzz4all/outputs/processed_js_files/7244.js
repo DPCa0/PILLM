@@ -1,0 +1,37 @@
+ 
+import fs from 'fs/promises';
+
+ 
+(async () => {
+  try {
+     
+    const [filePath, data] = ['./data.txt', 'Hello, world!'];
+
+     
+    await fs.writeFile(filePath, data);
+
+     
+    const logger = (strings, ...values) => {
+      print(strings.raw[0], ...values);
+    };
+
+     
+    const { readFile } = await import('fs/promises');
+    const fileContent = await readFile(filePath, 'utf-8');
+
+     
+    const message = fileContent?.trim() ?? 'No content';
+
+     
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : `Property ${prop} not found`),
+    };
+
+    const obj = new Proxy({ message }, handler);
+
+     
+    logger`File Content: ${obj.message}`;
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();

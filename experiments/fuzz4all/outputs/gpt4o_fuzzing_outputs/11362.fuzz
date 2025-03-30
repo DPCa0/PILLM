@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Getting ${property}`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const data = new Proxy({ name: 'Alice', age: 30 }, handler);
+
+ 
+const fetchData = () => new Promise((resolve, reject) => {
+    setTimeout(() => resolve({ profession: 'Engineer' }), 1000);
+});
+
+ 
+async function* processData() {
+    const result = await fetchData();
+    yield { ...data, ...result };
+}
+
+ 
+const processedDataMap = new Map();
+
+(async () => {
+    const iterator = processData();
+    
+    for await (const value of iterator) {
+        const id = `user_${Math.floor(Math.random() * 1000)}`;
+        processedDataMap.set(id, value);
+        console.log(`Data stored with id: ${id}`);
+    }
+
+     
+    for (const [id, userData] of processedDataMap.entries()) {
+        console.log(`ID: ${id}, Data:`, userData);
+    }
+})();
+
+ 
+data.name = 'Bob';    
+console.log(data.age);  
+```

@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = async () => {
+   
+  const simulateAPICall = (data, delay) =>
+    new Promise((resolve, reject) => {
+      setTimeout(() => {
+        data ? resolve(`Data received: ${data}`) : reject('No data received');
+      }, delay);
+    });
+
+  try {
+     
+    const [data1, data2] = await Promise.all([
+      simulateAPICall('User Info', 1000),
+      simulateAPICall('Order Details', 1500),
+    ]);
+
+    console.log(data1);
+    console.log(data2);
+    
+     
+    const results = await Promise.all([data1, data2].map(async (data) => {
+      const processedData = await simulateAPICall(`Processed ${data}`, 500);
+      return processedData;
+    }));
+
+    console.log('Processed Results:', results.flatMap(res => res.split(' ')));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+function* infiniteSequence() {
+  let i = 0;
+  while (true) {
+    yield i++;
+  }
+}
+
+const sequence = infiniteSequence();
+console.log('Generator:', sequence.next().value);
+console.log('Generator:', sequence.next().value);
+
+ 
+fetchData();
+```

@@ -1,0 +1,42 @@
+ 
+
+ 
+function* numberGenerator(limit) {
+  let num = 1;
+  while (num <= limit) {
+    yield num++;
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    const value = Reflect.get(target, prop, receiver);
+    if (typeof value === 'function') {
+      return function (...args) {
+        print(`Calling ${prop} with ${args}`);
+        return value.apply(target, args);
+      };
+    }
+    print(`Accessing property '${prop}': ${value}`);
+    return value;
+  },
+};
+
+const proxiedGenerator = new Proxy(numberGenerator(5), handler);
+
+ 
+async function processNumbers(generator) {
+  for (let num of generator) {
+    const result = await new Promise((resolve) => {
+      setTimeout(() => resolve(num * 2), 100);
+    });
+    print(`Processed: ${result}`);
+  }
+}
+
+ 
+(async () => {
+  await processNumbers(proxiedGenerator);
+  print('All numbers processed!');
+})();

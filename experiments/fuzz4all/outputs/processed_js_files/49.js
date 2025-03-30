@@ -1,0 +1,45 @@
+ 
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+  add({ real, imaginary }) {
+    return new ComplexNumber(this.real + real, this.imaginary + imaginary);
+  }
+
+  multiply({ real, imaginary }) {
+    const r = this.real * real - this.imaginary * imaginary;
+    const i = this.real * imaginary + this.imaginary * real;
+    return new ComplexNumber(r, i);
+  }
+
+  toString() {
+    const sign = this.imaginary >= 0 ? '+' : '-';
+    return `${this.real} ${sign} ${Math.abs(this.imaginary)}i`;
+  }
+}
+
+const asyncOperation = (complexNum, delay) => 
+  new Promise(resolve => setTimeout(() => resolve(complexNum), delay));
+
+(async () => {
+  const num1 = new ComplexNumber(2, 3);
+  const num2 = new ComplexNumber(4, -2);
+  
+  const sum = num1.add(num2);
+  print(`Sum: ${sum.toString()}`);
+
+  const product = await asyncOperation(num1.multiply(num2), 1000);
+  print(`Product: ${product.toString()}`);
+
+  const handler = {
+    get: (obj, prop) => (prop in obj ? obj[prop] : `Property ${prop} not found`)
+  };
+
+  const proxyComplex = new Proxy(product, handler);
+  print(proxyComplex.real);         
+  print(proxyComplex.imaginary);    
+  print(proxyComplex.magnitude);    
+})();

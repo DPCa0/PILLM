@@ -1,0 +1,37 @@
+ 
+ 
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    
+    const data = await response.json();
+    
+    return data;
+  } catch (error) {
+    console.error(`Fetch error: ${error.message}`);
+  }
+};
+
+const processUserData = async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+  
+  const usersData = await fetchData(apiUrl);
+  
+  if (!usersData) return;
+  
+  usersData.forEach(({ id, name, email, address: { city } }) => {
+    console.log(`User Info:
+    ID: ${id}
+    Name: ${name}
+    Email: ${email}
+    City: ${city}`);
+  });
+  
+  const [firstUser, ...otherUsers] = usersData;
+  print(`\nFirst User:\n`, firstUser);
+  print(`\nOther Users:\n`, otherUsers);
+};
+
+processUserData();

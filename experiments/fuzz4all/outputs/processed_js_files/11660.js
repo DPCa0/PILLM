@@ -1,0 +1,31 @@
+ 
+const fs = require('fs').promises;
+
+ 
+(async () => {
+  try {
+     
+    const { length: count } = await fs.readFile('./sample.txt', 'utf8');
+
+     
+    function* range(start = 0, end) {
+      for (let i = start; i < end; i++) yield i;
+    }
+
+    const dataMap = new Map(
+      [...range(count)].map((num) => [`Character ${num}`, num * num])
+    );
+
+     
+    const entries = await Promise.all(
+      [...dataMap.entries()].map(async ([key, value]) => {
+        await fs.writeFile(`./file-${value}.txt`, `${key}: ${value}`);
+        return `Written: ${key}: ${value}`;
+      })
+    );
+
+    print(`Operations completed:\n${entries.join('\n')}`);
+  } catch (error) {
+    console.error('Error encountered:', error);
+  }
+})();

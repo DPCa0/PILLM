@@ -1,0 +1,36 @@
+print('Hello, world!');
+```javascript
+ 
+async function* asyncGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve(1), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(2), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve(3), 1000));
+}
+
+const handler = {
+  get: function(target, prop) {
+    if (prop in target) {
+      console.log(`Accessing property '${prop}'`);
+      return target[prop];
+    } else {
+      return 'Property not found';
+    }
+  },
+  set: function(target, prop, value) {
+    console.log(`Setting property '${prop}' to '${value}'`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const obj = new Proxy({}, handler);
+obj.a = 'Hello';
+console.log(obj.a);
+console.log(obj.b);
+
+(async function() {
+  for await (let num of asyncGenerator()) {
+    console.log(num);
+  }
+})();
+```

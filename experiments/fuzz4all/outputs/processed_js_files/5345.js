@@ -1,0 +1,56 @@
+ 
+const fs = require('fs').promises;
+
+ 
+class DataHandler {
+    #data = [];
+
+    static async initialize(fileName) {
+        const instance = new DataHandler();
+        const data = await fs.readFile(fileName, 'utf8');
+        instance.#data = JSON.parse(data);
+        return instance;
+    }
+
+    #filterData(predicate) {
+        return this.#data.filter(predicate);
+    }
+
+    getFilteredData(predicate) {
+        return this.#filterData(predicate);
+    }
+}
+
+ 
+const dataProxy = new Proxy({}, {
+    get(target, prop) {
+        if (!(prop in target)) {
+            target[prop] = `Value for ${prop}`;
+        }
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+});
+
+ 
+async function main() {
+     
+    dataProxy.newProp = 'Dynamic Value';
+    print(dataProxy.newProp);
+
+     
+    try {
+        const handler = await DataHandler.initialize('data.json');
+        const result = handler.getFilteredData(item => item.active);
+        print(result);
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
+}
+
+main();
+
+Note: Ensure you have a 'data.json' file with appropriate JSON structure for this program to work.

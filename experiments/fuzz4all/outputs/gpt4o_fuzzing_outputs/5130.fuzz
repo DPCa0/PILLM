@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function fetchData() {
+    console.log("Fetching data...");
+    await delay(1000);  
+    return { data: "Sample Data" };
+}
+
+ 
+function* dataGenerator(dataArray) {
+    for (const data of dataArray) {
+        yield data;
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        if (property in target) {
+            console.log(`Accessing property '${property}': ${target[property]}`);
+            return target[property];
+        }
+        console.log(`Property '${property}' not found`);
+    }
+};
+
+ 
+(async () => {
+    const data = await fetchData();
+    
+     
+    const proxiedData = new Proxy(data, handler);
+
+     
+    console.log(proxiedData.data);
+
+     
+    const dataArray = ['a', 'b', 'c'];
+    const generator = dataGenerator(dataArray);
+
+    console.log("Iterating over data:");
+    for (const value of generator) {
+        console.log(value);
+    }
+})();
+```

@@ -1,0 +1,36 @@
+const fetchData = async (url) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+};
+
+const processData = (data) => {
+    return data.map(({ id, title, completed }) => ({
+        id,
+        title: title.toUpperCase(),
+        status: completed ? '✅' : '❌',
+    }));
+};
+
+const displayData = (data) => {
+    data.forEach(({ id, title, status }) => {
+        print(`Task ${id}: ${title} ${status}`);
+    });
+};
+
+(async () => {
+    const url = 'https://jsonplaceholder.typicode.com/todos';
+    try {
+        const rawData = await fetchData(url);
+        const processedData = processData(rawData);
+        displayData(processedData);
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+})();

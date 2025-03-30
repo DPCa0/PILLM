@@ -1,0 +1,44 @@
+class ComplexSystem {
+    constructor(name) {
+        this.name = name;
+    }
+
+    async *dataGenerator(end) {
+        for (let i = 0; i < end; i++) {
+            yield new Promise(resolve => setTimeout(() => resolve(`${this.name} data ${i}`), 1000));
+        }
+    }
+
+    async processData(end) {
+        const results = [];
+        for await (const data of this.dataGenerator(end)) {
+            const processed = await this.#privateProcessor(data);
+            results.push(processed);
+        }
+        return results;
+    }
+
+    #privateProcessor(data) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(data.toUpperCase());
+            }, 500);
+        });
+    }
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        print(`Accessing property: ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const system = new Proxy(new ComplexSystem('Test'), handler);
+
+(async () => {
+    print('Starting system processing...');
+    const results = await system.processData(3);
+    print('Processed Results:', results);
+})();

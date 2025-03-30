@@ -1,0 +1,39 @@
+ 
+const fetchDataAndProcess = async () => {
+  try {
+     
+    const response = await fetch('https://jsonplaceholder.typicode.com/todos/');
+    const data = await response.json();
+
+     
+    const uniqueUserIDs = [...new Set(data.map(item => item.userId))];
+    const userTasksMap = new Map();
+
+    uniqueUserIDs.forEach(userId => {
+      const userTasks = data
+        .filter(item => item.userId === userId && !item.completed)
+        .map(task => ({ title: task.title }));
+
+      userTasksMap.set(userId, userTasks);
+    });
+
+     
+    userTasksMap.forEach((tasks, userId) => {
+      const [firstTask, ...otherTasks] = tasks;
+      print(`User ${userId} has ${tasks.length} pending tasks. First Task: ${firstTask.title}.`);
+
+      if (otherTasks.length > 0) {
+        print(`Other pending tasks for User ${userId}:`);
+        otherTasks.forEach((task, index) => {
+          print(`${index + 1}. ${task.title}`);
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+fetchDataAndProcess();

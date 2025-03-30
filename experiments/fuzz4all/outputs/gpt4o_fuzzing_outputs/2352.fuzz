@@ -1,0 +1,44 @@
+print('Hello, world!');
+```javascript
+ 
+class ComplexFeatureExample {
+  constructor(users) {
+    this.users = users;
+  }
+
+  async getUsersWithProcessedData() {
+    try {
+      const processedUsers = await this.processUserData();
+      console.log('Processed User Data:', processedUsers);
+    } catch (error) {
+      console.error('Error processing user data:', error);
+    }
+  }
+
+  async processUserData() {
+    const userPromises = this.users.map(async ({ id, name }) => {
+      const additionalData = await this.fetchAdditionalData(id);
+      return { id, name, ...additionalData };
+    });
+    return Promise.all(userPromises);
+  }
+
+  fetchAdditionalData(userId) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ age: Math.floor(Math.random() * 40) + 20, active: userId % 2 === 0 });
+      }, 1000);
+    });
+  }
+}
+
+ 
+const users = [
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' },
+  { id: 3, name: 'Charlie' },
+];
+
+const example = new ComplexFeatureExample(users);
+example.getUsersWithProcessedData();
+```

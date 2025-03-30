@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* createTaskSequence() {
+    yield delay(1000).then(() => console.log("Task 1 completed after 1 second"));
+    yield delay(2000).then(() => console.log("Task 2 completed after 2 seconds"));
+    yield delay(1000).then(() => console.log("Task 3 completed after 1 second"));
+}
+
+ 
+async function runTasks(taskGenerator) {
+    const tasks = taskGenerator();
+    for (const task of tasks) {
+        await task;
+    }
+    console.log("All tasks completed");
+}
+
+ 
+const user = {
+    name: "John Doe",
+    age: 30,
+};
+
+const userProxy = new Proxy(user, {
+    get(target, property) {
+        console.log(`Getting ${property}...`);
+        return target[property];
+    },
+    set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        if (property === "age" && typeof value !== "number") {
+            throw new TypeError("Age must be a number");
+        }
+        target[property] = value;
+        return true;
+    },
+});
+
+ 
+try {
+    console.log(userProxy.name);   
+    userProxy.age = 31;            
+    console.log(userProxy.age);
+    userProxy.age = "invalid";     
+} catch (e) {
+    console.error(e.message);
+}
+
+ 
+runTasks(createTaskSequence);
+```

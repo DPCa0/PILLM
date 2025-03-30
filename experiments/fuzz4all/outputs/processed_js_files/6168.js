@@ -1,0 +1,54 @@
+class Matrix {
+  #data;
+  
+  constructor(rows, cols, fill = 0) {
+    this.rows = rows;
+    this.cols = cols;
+    this.#data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+  }
+
+  static fromArray(arr) {
+    let mat = new Matrix(arr.length, arr[0].length);
+    mat.#data = arr;
+    return mat;
+  }
+  
+  map(fn) {
+    this.#data = this.#data.map((row, i) => row.map((val, j) => fn(val, i, j)));
+    return this;
+  }
+
+  static multiply(a, b) {
+    if (a.cols !== b.rows) {
+      throw new Error("Columns of A must match rows of B");
+    }
+    let result = new Matrix(a.rows, b.cols);
+    return result.map((_, i, j) => {
+      return a.#data[i].reduce((sum, element, k) => sum + element * b.#data[k][j], 0);
+    });
+  }
+
+  toArray() {
+    return this.#data;
+  }
+
+  [Symbol.iterator]() {
+    let flatArray = this.#data.flat();
+    let index = 0;
+    return {
+      next: () => ({
+        value: flatArray[index++],
+        done: index > flatArray.length
+      })
+    };
+  }
+}
+
+ 
+const a = Matrix.fromArray([[1, 2], [3, 4]]);
+const b = Matrix.fromArray([[2, 0], [1, 2]]);
+const product = Matrix.multiply(a, b);
+
+for (const value of product) {
+  print(value);  
+}

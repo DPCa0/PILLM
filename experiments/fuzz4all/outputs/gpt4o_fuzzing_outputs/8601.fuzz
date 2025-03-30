@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+const fetchData = (url) => new Promise((resolve, reject) => {
+  const data = {  
+    'https://api.example.com/data': { id: 1, name: 'Sample Data' }
+  };
+  setTimeout(() => {
+    data[url] ? resolve(data[url]) : reject(new Error('Data not found'));
+  }, 1000);
+});
+
+ 
+(async () => {
+  try {
+    const urls = [
+      'https://api.example.com/data',
+      'https://api.example.com/missing'
+    ];
+
+     
+    const results = await Promise.all(urls.map(async (url) => {
+      const data = await fetchData(url);
+      return data;
+    }));
+
+     
+    const dataObject = results.reduce((acc, item) => {
+      acc[item.id] = item;
+      return acc;
+    }, {});
+
+     
+    const dataProxy = new Proxy(dataObject, {
+      get(target, property) {
+        return property in target ? target[property] : 'Property not found';
+      }
+    });
+
+    console.log(dataProxy[1]);  
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

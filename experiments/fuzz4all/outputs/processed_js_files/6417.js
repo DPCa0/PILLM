@@ -1,0 +1,60 @@
+ 
+class SecureContainer {
+  #data;
+  #privateMethod() {
+    return `Data is: ${this.#data}`;
+  }
+
+  constructor(data) {
+    this.#data = data;
+  }
+
+  getData(secretKey) {
+     
+    return secretKey?.toLowerCase() === "opensesame" ? this.#privateMethod() : 'Access Denied';
+  }
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Property '${prop.toString()}' was accessed`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const secureContainer = new Proxy(new SecureContainer('Super Secret'), handler);
+
+ 
+async function fetchData() {
+  const { default: fetch } = await import('node-fetch');
+  
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+    const data = await response.json();
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+(async () => {
+  print(secureContainer.getData('opensesame'));  
+  print(secureContainer.getData('wrongkey'));    
+  await fetchData();  
+})();
+
+ 
+function safeHTML(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    let val = values[i - 1];
+    if (typeof val === "string") {
+      val = val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    return result + val + str;
+  });
+}
+
+const userInput = "<script>alert('Hacked!');</script>";
+const output = safeHTML`User input: ${userInput}`;
+print(output);

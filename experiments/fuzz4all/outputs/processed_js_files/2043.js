@@ -1,0 +1,53 @@
+class ComplexCalculator {
+  constructor() {
+    this.history = [];
+  }
+
+  async calculate(expression) {
+    try {
+      const result = new Function(`return ${expression}`)();
+      this.history.push({ expression, result });
+      return Promise.resolve(result);
+    } catch (error) {
+      return Promise.reject('Invalid Expression');
+    }
+  }
+
+  getHistory() {
+    return [...this.history];
+  }
+
+  [Symbol.iterator]() {
+    let index = 0;
+    const history = this.history;
+    return {
+      next() {
+        if (index < history.length) {
+          return { value: history[index++], done: false };
+        } else {
+          return { done: true };
+        }
+      },
+    };
+  }
+}
+
+(async () => {
+  const calculator = new ComplexCalculator();
+
+  try {
+    const results = await Promise.all([
+      calculator.calculate('5 * 4 + 3'),
+      calculator.calculate('12 / (2 + 4)'),
+      calculator.calculate('3 ** 2 + 1'),
+    ]);
+    print('Results:', results);
+  } catch (error) {
+    console.error(error);
+  }
+
+  print('Calculation History:');
+  for (const entry of calculator) {
+    print(`Expression: ${entry.expression}, Result: ${entry.result}`);
+  }
+})();

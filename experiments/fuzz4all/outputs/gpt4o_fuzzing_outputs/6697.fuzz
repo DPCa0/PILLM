@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class Matrix {
+  constructor(data) {
+    this.data = data;
+  }
+
+  static fromString(matrixString) {
+    return new Matrix(
+      matrixString.split('\n').map(row => row.split(' ').map(Number))
+    );
+  }
+
+  [Symbol.iterator]() {
+    let rowIndex = 0;
+    let colIndex = 0;
+    return {
+      next: () => {
+        if (rowIndex >= this.data.length) return { done: true };
+        const value = this.data[rowIndex][colIndex++];
+        if (colIndex >= this.data[rowIndex].length) {
+          colIndex = 0;
+          rowIndex++;
+        }
+        return { value, done: false };
+      }
+    };
+  }
+
+  transpose() {
+    this.data = this.data[0].map((_, colIndex) =>
+      this.data.map(row => row[colIndex])
+    );
+    return this;
+  }
+
+  toString() {
+    return this.data.map(row => row.join(' ')).join('\n');
+  }
+
+  async invert() {
+    if (this.data.length !== this.data[0].length)
+      throw new Error('Only square matrices can be inverted');
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const result = this.data.map((row, i) =>
+          row.map((val, j) => (i === j ? 1 / val : 0))
+        );
+        this.data = result;
+        resolve(this);
+      }, 1000);
+    });
+  }
+}
+
+(async () => {
+  const matrix = Matrix.fromString('1 2\n3 4');
+  console.log('Matrix:');
+  console.log(matrix.toString());
+
+  console.log('Iterate through matrix:');
+  for (const value of matrix) {
+    console.log(value);
+  }
+
+  console.log('Transpose matrix:');
+  console.log(matrix.transpose().toString());
+
+  console.log('Inverting matrix (this will take a while):');
+  await matrix.invert();
+  console.log(matrix.toString());
+})();
+```

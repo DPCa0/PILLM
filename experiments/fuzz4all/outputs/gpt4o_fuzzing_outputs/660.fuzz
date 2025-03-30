@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+class SecretKeeper {
+    #secret;
+
+    constructor(secret) {
+        this.#secret = secret;
+    }
+
+    #revealSecret() {
+        return `The secret is: ${this.#secret}`;
+    }
+
+    shareSecret() {
+        return this.#revealSecret();
+    }
+}
+
+ 
+const targetObj = new SecretKeeper("JavaScript is awesome!");
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            console.log(`Accessing property: ${prop}`);
+            return obj[prop];
+        } else {
+            console.log(`Property ${prop} does not exist`);
+        }
+    }
+};
+
+const proxyObj = new Proxy(targetObj, handler);
+
+ 
+const complexKey = { key: "value" };
+const map = new Map();
+map.set(complexKey, "Complex Key Value");
+
+ 
+function* promiseGenerator() {
+    yield new Promise(resolve => setTimeout(() => resolve('First Promise Resolved'), 1000));
+    yield new Promise(resolve => setTimeout(() => resolve('Second Promise Resolved'), 2000));
+}
+
+ 
+(async () => {
+    for (const promise of promiseGenerator()) {
+        console.log(await promise);
+    }
+
+    console.log(proxyObj.shareSecret());  
+    console.log(`Complex key value: ${map.get(complexKey)}`);  
+})();
+```

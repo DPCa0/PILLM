@@ -1,0 +1,37 @@
+ 
+
+ 
+import { Observable } from 'rxjs';
+
+ 
+const observable = new Observable(subscriber => {
+  let counter = 0;
+  const intervalId = setInterval(() => {
+    subscriber.next(counter++);
+    if (counter > 5) {
+      subscriber.complete();
+      clearInterval(intervalId);
+    }
+  }, 1000);
+});
+
+ 
+async function processObservable() {
+  const iterator = observable[Symbol.asyncIterator]();
+  try {
+    while (true) {
+      const { value, done } = await iterator.next();
+      if (done) break;
+      print(`Received value: ${value}`);
+    }
+  } catch (err) {
+    console.error(`Error: ${err}`);
+  } finally {
+    print('Observable stream completed.');
+  }
+}
+
+ 
+processObservable();
+
+To run this program, you need to have RxJS installed in your environment. You can do so by running `npm install rxjs` in your project directory. This script demonstrates the use of Observables from RxJS, integrated with JavaScript's async/await to handle asynchronous data streams in a modern and complex way.

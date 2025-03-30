@@ -1,0 +1,32 @@
+ 
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then(response => response.json());
+  }
+}
+
+async function processUrls(urls) {
+  const data = [];
+  
+  for await (const result of fetchData(urls)) {
+    data.push(result);
+  }
+  
+  return data;
+}
+
+const urls = ['https://api.example.com/data1', 'https://api.example.com/data2'];
+
+ 
+processUrls(urls).then(data => {
+  const [{ info: firstInfo }, ...rest] = data;
+  
+  print(`First URL Info: ${firstInfo}`);
+  print('Remaining data:', ...rest);
+});
+
+ 
+Promise.all(urls.map(url => fetch(url).then(resp => resp.json())))
+  .then(results => results.reduce((acc, { data }) => [...acc, ...data], []))
+  .then(flatData => console.log('Flat data:', flatData))
+  .catch(error => console.error('Error fetching data:', error));

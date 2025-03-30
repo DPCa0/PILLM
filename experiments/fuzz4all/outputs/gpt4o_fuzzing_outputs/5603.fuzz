@@ -1,0 +1,48 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* dataStream() {
+  const data = ['🍎', '🍌', '🍇', '🍓', '🍍'];
+  let index = 0;
+  while (true) {
+    yield new Promise((resolve) => setTimeout(() => resolve(data[index++ % data.length]), 1000));
+  }
+}
+
+ 
+async function processDataStream(generator) {
+  for await (const data of generator) {
+    console.log(`Processing data: ${data}`);
+    if (Math.random() > 0.8) {
+      console.log('Random condition met, breaking the loop.');
+      break;
+    }
+  }
+}
+
+ 
+const handler = {
+  get(target, prop) {
+    if (prop === 'log') {
+      return (...args) => {
+        const timestamp = new Date().toISOString();
+        target.log(`[${timestamp}]`, ...args);
+      };
+    }
+    return Reflect.get(target, prop);
+  },
+};
+
+ 
+const logSymbol = Symbol('log');
+globalThis[logSymbol] = new Proxy(console, handler);
+
+ 
+(async () => {
+  const generator = dataStream();
+  await processDataStream(generator);
+  globalThis[logSymbol].log('Data stream processing completed.');
+})();
+```

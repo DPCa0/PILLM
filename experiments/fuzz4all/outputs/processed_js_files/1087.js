@@ -1,0 +1,50 @@
+class DataProcessor {
+  #data;  
+
+  constructor(initialData = []) {
+    this.#data = initialData;
+  }
+
+  addData(newData) {
+    this.#data.push(...newData);
+  }
+
+  *[Symbol.iterator]() {  
+    for (const item of this.#data) {
+      if (item % 2 === 0) {  
+        yield item;
+      }
+    }
+  }
+
+  async processData(callback) {  
+    const processedData = this.#data.map(item => callback(item));
+    return await Promise.all(processedData);
+  }
+
+  static async fetchData(url) {  
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  }
+}
+
+(async () => {
+  const processor = new DataProcessor([1, 2, 3, 4, 5]);
+
+  processor.addData([6, 7, 8, 9, 10]);
+
+  print('Filtered data:');
+  for (const value of processor) {
+    print(value);
+  }
+
+  const doubledData = await processor.processData(async (item) => {
+    return item * 2;
+  });
+
+  print('Doubled data:', doubledData);
+
+  const externalData = await DataProcessor.fetchData('https://jsonplaceholder.typicode.com/posts');
+  print('Fetched external data:', externalData.slice(0, 2));  
+})();

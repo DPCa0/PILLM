@@ -1,0 +1,83 @@
+print('Hello, world!');
+```javascript
+ 
+const uniqueKey = Symbol('unique');
+
+ 
+class User {
+    #password;
+
+    constructor(name, password) {
+        this.name = name;
+        this.#password = password;
+    }
+
+     
+    static #validatePassword(password) {
+        return password.length >= 8;
+    }
+
+     
+    getPassword(authorized) {
+        return authorized ? this.#password : 'Unauthorized';
+    }
+
+     
+    setPassword(newPassword) {
+        if (User.#validatePassword(newPassword)) {
+            this.#password = newPassword;
+            console.log('Password updated successfully.');
+        } else {
+            console.log('Password must be at least 8 characters long.');
+        }
+    }
+}
+
+ 
+const logger = {
+    get(target, property) {
+        console.log(`Accessing property: ${property}`);
+        return Reflect.get(target, property);
+    },
+    set(target, property, value) {
+        console.log(`Setting property: ${property} to ${value}`);
+        return Reflect.set(target, property, value);
+    }
+};
+
+ 
+let user = new User('Alice', 's3cur3Pass');
+let userProxy = new Proxy(user, logger);
+
+ 
+let { name: userName, ...rest } = userProxy;
+console.log(`User: ${userName}`, rest);
+
+ 
+const email = userProxy?.email ?? 'Email not provided';
+console.log(email);
+
+ 
+const userMap = new Map([
+    [uniqueKey, userProxy],
+    ['role', 'admin']
+]);
+
+for (const [key, value] of userMap) {
+    console.log(`${String(key)}: ${value}`);
+}
+
+ 
+async function fetchUserData() {
+     
+    return new Promise((resolve) => {
+        setTimeout(() => resolve({ status: 'success', data: userProxy }), 2000);
+    });
+}
+
+(async function main() {
+    try {
+        const result = await fetchUserData();
+        console.log('User data fetched:', result);
+    } catch (error) {
+        console.error('Failed to fetch user

@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+class AsyncRange {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = this.start; i <= this.end; i++) {
+      await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+      yield i;
+    }
+  }
+}
+
+const processNumbers = async () => {
+  const range = new AsyncRange(1, 10);
+  
+  const doubleValues = async numbers => {
+    const results = [];
+    for await (let number of numbers) {
+      results.push(number * 2);
+    }
+    return results;
+  };
+
+  const calculateSum = async numbers => {
+    let sum = 0;
+    for await (let number of numbers) {
+      sum += number;
+    }
+    return sum;
+  };
+
+  const doubles = doubleValues(range);
+  const sum = calculateSum(doubles);
+
+  sum.then(value => console.log(`Sum of double values: ${value}`));
+};
+
+processNumbers();
+```

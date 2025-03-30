@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class ComplexProcessor {
+    constructor(data) {
+        this.data = data;
+    }
+
+    #privateMethod(input) {
+        return input * Math.random();  
+    }
+
+    processAsync() {
+        return new Promise((resolve, reject) => {
+            try {
+                const processedData = this.data.map(item => this.#privateMethod(item));
+                setTimeout(() => resolve(processedData), 1000);  
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static *dataGenerator(limit) {
+        let count = 0;
+        while (count < limit) {
+            yield Math.floor(Math.random() * 100);
+            count++;
+        }
+    }
+}
+
+(async () => {
+     
+    const data = [...ComplexProcessor.dataGenerator(5)];
+
+     
+    const processor = new ComplexProcessor(data);
+
+    try {
+        const results = await processor.processAsync();
+        results.forEach((result, index) => console.log(`Result ${index + 1}:`, result));
+    } catch (error) {
+        console.error('Processing error:', error);
+    }
+})();
+```

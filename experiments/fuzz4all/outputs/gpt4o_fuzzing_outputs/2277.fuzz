@@ -1,0 +1,69 @@
+print('Hello, world!');
+```javascript
+class FibonacciSequence {
+    *[Symbol.iterator]() {
+        let [prev, curr] = [0, 1];
+        while (true) {
+            yield curr;
+            [prev, curr] = [curr, prev + curr];
+        }
+    }
+}
+
+const asyncFibonacci = async function* (limit) {
+    const seq = new FibonacciSequence()[Symbol.iterator]();
+    for (let i = 0; i < limit; i++) {
+        yield new Promise(resolve => 
+            setTimeout(() => resolve(seq.next().value), 100)
+        );
+    }
+};
+
+(async () => {
+    const fibGen = asyncFibonacci(10);
+    for await (const num of fibGen) {
+        console.log(num);
+    }
+})();
+
+const compose = (...fns) => x => 
+    fns.reduceRight((v, f) => f(v), x);
+
+const add3 = x => x + 3;
+const double = x => x * 2;
+const square = x => x ** 2;
+
+const transform = compose(add3, double, square);
+
+console.log(transform(5));  
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const fetchData = async (url) => {
+    await delay(2000);  
+    if (Math.random() < 0.5) throw new Error("Network error");
+    return { data: `Fetched data from ${url}` };
+};
+
+const retry = (fn, retries) => async (...args) => {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const result = await fn(...args);
+            return result;
+        } catch (error) {
+            if (i === retries - 1) throw error;
+            console.log(`Retrying... (${i + 1})`);
+        }
+    }
+};
+
+(async () => {
+    const fetchWithRetry = retry(fetchData, 3);
+    try {
+        const result = await fetchWithRetry('https://api.example.com');
+        console.log(result);
+    } catch (error) {
+        console.error('Failed to fetch data:', error.message);
+    }
+})();
+```

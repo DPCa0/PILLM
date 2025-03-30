@@ -1,0 +1,52 @@
+ 
+(async () => {
+  const { promises: fs } = await import('fs');
+  const { Transform, pipeline } = await import('stream');
+  const { createGzip } = await import('zlib');
+
+   
+  class UppercaseTransform extends Transform {
+    _transform(chunk, encoding, callback) {
+       
+      this.push(chunk.toString().toUpperCase());
+      callback();
+    }
+  }
+
+   
+  async function* fileDataGenerator(filePath) {
+    const fileStream = fs.createReadStream(filePath, 'utf8');
+    for await (const chunk of fileStream) {
+      yield chunk;
+    }
+  }
+
+  try {
+     
+    const tempFilePath = './tempfile.txt';
+    await fs.writeFile(tempFilePath, 'JavaScript advanced features demo using Node.js Streams.\n');
+
+     
+    const transformedStream = pipeline(
+      fileDataGenerator(tempFilePath),
+      new UppercaseTransform(),
+      createGzip(),
+      async (err) => {
+        if (err) {
+          console.error('Pipeline encountered an error:', err);
+        } else {
+          print('Pipeline processed successfully.');
+        }
+         
+        await fs.unlink(tempFilePath);
+      }
+    );
+
+     
+    for await (const chunk of transformedStream) {
+      print('Compressed chunk:', chunk);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

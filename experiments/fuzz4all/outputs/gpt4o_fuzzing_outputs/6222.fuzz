@@ -1,0 +1,65 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get(target, prop) {
+        console.log(`Getting ${prop}`);
+        return Reflect.get(target, prop);
+    },
+    set(target, prop, value) {
+        console.log(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value);
+    }
+};
+
+const person = new Proxy({ name: 'Alice', age: 25 }, handler);
+
+ 
+async function* asyncNumberGenerator(limit) {
+    let num = 0;
+    while (num < limit) {
+        yield new Promise(resolve => setTimeout(() => resolve(num++), 100));
+    }
+}
+
+(async () => {
+     
+    console.log(person.name);  
+    person.age = 26;  
+    console.log(person.age);  
+
+     
+    for await (const num of asyncNumberGenerator(5)) {
+        console.log(`Generated number: ${num}`);
+    }
+
+     
+    const entries = [['a', 1], ['b', 2], ['c', 3]];
+    const myMap = new Map(entries);
+
+    for (const [key, value] of myMap) {
+        console.log(`Key: ${key}, Value: ${value}`);
+    }
+
+     
+    const privateField = Symbol('private');
+    const obj = {
+        [privateField]: 'hidden value',
+        show() {
+            console.log(this[privateField]);
+        }
+    };
+
+    obj.show();  
+
+     
+    const promise1 = Promise.resolve('First resolved');
+    const promise2 = Promise.reject('Second rejected');
+    const promise3 = Promise.resolve('Third resolved');
+
+    const results = await Promise.allSettled([promise1, promise2, promise3]);
+    results.forEach((result, index) => {
+        console.log(`Promise ${index + 1}:`, result.status === 'fulfilled' ? result.value : result.reason);
+    });
+})();
+```

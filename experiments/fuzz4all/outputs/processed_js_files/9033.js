@@ -1,0 +1,54 @@
+ 
+const createMultiplier = (factor) => (...numbers) => numbers.map(num => num * factor);
+
+ 
+const person = {
+    name: "Alice",
+    age: 30
+};
+
+const handler = {
+    get(target, property) {
+        print(`Getting ${property}`);
+        return property in target ? target[property] : `Property "${property}" not found`;
+    },
+    set(target, property, value) {
+        if (property === 'age' && typeof value !== 'number') {
+            print("Age must be a number");
+            return false;
+        }
+        print(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+    }
+};
+
+const proxyPerson = new Proxy(person, handler);
+
+ 
+function* fibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < limit; i++) {
+        [prev, curr] = [curr, prev + curr];
+        yield curr;
+    }
+}
+
+ 
+function tag(strings, ...values) {
+    return strings.raw[0] + values.map((value, index) => `[${value}]${strings.raw[index + 1]}`).join('');
+}
+
+ 
+print(createMultiplier(2)(1, 2, 3, 4));  
+
+proxyPerson.name;  
+proxyPerson.age = 'old';  
+proxyPerson.age = 31;  
+
+for (let num of fibonacci(5)) {
+    print(num);  
+}
+
+const name = "Alice", place = "Wonderland";
+print(tag`Hello ${name}, welcome to ${place}`);  

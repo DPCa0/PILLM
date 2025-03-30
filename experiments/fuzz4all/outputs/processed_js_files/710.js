@@ -1,0 +1,44 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+    
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+    
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+    
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+function debounce(fn, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+    };
+}
+
+const observable = new Observable();
+
+const logger = debounce((data) => print(`Data received: ${data}`), 200);
+
+observable.subscribe(logger);
+
+async function* asyncGenerator() {
+    let i = 0;
+    while (i < 3) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 500));
+    }
+}
+
+(async () => {
+    for await (let value of asyncGenerator()) {
+        observable.notify(value);
+    }
+})();

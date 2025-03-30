@@ -1,0 +1,37 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  constructor() {
+    this.queue = [];
+    this.processing = false;
+  }
+  
+  async enqueue(task) {
+    this.queue.push(task);
+    if (!this.processing) {
+      this.processing = true;
+      while (this.queue.length) {
+        const currentTask = this.queue.shift();
+        await currentTask();
+      }
+      this.processing = false;
+    }
+  }
+}
+
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+const complexTask = async (taskNum) => {
+  console.log(`Starting task ${taskNum}`);
+  await delay(Math.random() * 1000);
+  console.log(`Ending task ${taskNum}`);
+};
+
+const queue = new AsyncQueue();
+
+[1, 2, 3, 4, 5].forEach(num => {
+  queue.enqueue(() => complexTask(num));
+});
+
+ 
+```

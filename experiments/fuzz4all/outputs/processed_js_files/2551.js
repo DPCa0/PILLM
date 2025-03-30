@@ -1,0 +1,51 @@
+class NeuralNetwork {
+    constructor(layers) {
+        this.layers = layers;
+        this.weights = [];
+        this.biases = [];
+        this.initNetwork();
+    }
+
+    initNetwork() {
+        for (let i = 0; i < this.layers.length - 1; i++) {
+            this.weights.push(math.random([this.layers[i], this.layers[i + 1]], -1, 1));
+            this.biases.push(math.random([this.layers[i + 1]], -1, 1));
+        }
+    }
+
+    static activation(x) {
+        return x.map(e => 1 / (1 + Math.exp(-e)));
+    }
+
+    forward(input) {
+        return this.weights.reduce((acc, weight, i) => {
+            const z = math.add(math.multiply(acc, weight), this.biases[i]);
+            return NeuralNetwork.activation(z);
+        }, input);
+    }
+
+    static async train(network, inputs, targets, iterations) {
+        for (let i = 0; i < iterations; i++) {
+            for (const [input, target] of zip(inputs, targets)) {
+                 
+                 
+            }
+            await new Promise(resolve => setTimeout(resolve, 0));  
+        }
+    }
+}
+
+ 
+function zip(...arrays) {
+    return arrays[0].map((_, i) => arrays.map(array => array[i]));
+}
+
+ 
+const nn = new NeuralNetwork([2, 3, 1]);
+const trainingData = { inputs: [[0, 0], [0, 1], [1, 0], [1, 1]], targets: [[0], [1], [1], [0]] };
+
+ 
+NeuralNetwork.train(nn, trainingData.inputs, trainingData.targets, 10000).then(() => {
+    print('Training complete!');
+    print('Prediction for [1, 0]:', nn.forward([1, 0]));
+});

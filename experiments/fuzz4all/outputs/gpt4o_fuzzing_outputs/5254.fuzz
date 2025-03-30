@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+class AsyncQueue {
+  #queue = [];
+  #resolvers = [];
+  #closed = false;
+
+  enqueue(item) {
+    if (this.#closed) throw new Error('Queue closed');
+    return new Promise(resolve => {
+      this.#queue.push(item);
+      this.#resolvers.push(resolve);
+      this.#processQueue();
+    });
+  }
+
+  dequeue() {
+    if (this.#queue.length === 0 && this.#closed) return null;
+    return new Promise(resolve => {
+      if (this.#queue.length > 0) {
+        resolve(this.#queue.shift());
+      } else {
+        this.#resolvers.push(resolve);
+      }
+    });
+  }
+
+  close() {
+    this.#closed = true;
+    this.#resolvers.forEach(res => res(null));
+  }
+
+  #processQueue() {
+    while (this.#resolvers.length > 0 && this.#queue.length > 0) {
+      const resolve = this.#resolvers.shift();
+      const item = this.#queue.shift();
+      resolve(item);
+    }
+  }
+}
+
+(async function () {
+  const queue = new AsyncQueue();
+
+  async function producer() {
+    for (let i = 0; i < 5; i++) {
+      await new Promise(res => setTimeout(res, Math.random() * 1000));
+      console.log(`Producing: ${i}`);
+      await queue.enqueue(i);
+    }
+    queue.close();
+  }
+
+  async function consumer() {
+    let item;
+    while ((item = await queue.dequeue()) !== null) {
+      console.log(`Consuming: ${item}`);
+      await new Promise(res => setTimeout(res, Math.random() * 1500));
+    }
+  }
+
+  await Promise.all([producer(), consumer()]);
+})();
+```

@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('No URL provided');
+      }
+    }, 1000);
+  });
+}
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    console.log(`Property '${property}' accessed.`);
+    return target[property];
+  }
+};
+
+const targetObject = { name: "Sample", type: "Proxy" };
+const proxyObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  try {
+     
+    const ids = [...Array.from({ length: 5 }, () => idGenerator().next().value)];
+    console.log("Generated IDs:", ids);
+
+     
+    const optionalAccess = targetObject?.description ?? "No description available";
+    console.log("Optional Access Result:", optionalAccess);
+
+     
+    console.log(proxyObject.name);
+    console.log(proxyObject.type);
+
+     
+    const result = await fetchData("https://api.example.com/data");
+    console.log(result);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+})();
+```

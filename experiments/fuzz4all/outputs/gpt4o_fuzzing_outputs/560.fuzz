@@ -1,0 +1,76 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+import { promises as fs } from 'fs';
+import { promisify } from 'util';
+import { pipeline } from 'stream';
+import http from 'http';
+
+ 
+const task1 = Symbol('task1');
+const task2 = Symbol('task2');
+
+ 
+async function readJSON(filePath) {
+  const data = await fs.readFile(filePath, 'utf-8');
+  return JSON.parse(data);
+}
+
+ 
+const logger = new Proxy(console, {
+  get(target, property) {
+    if (property === 'log') {
+      return (...args) => target.log('LOG:', ...args);
+    }
+    return target[property];
+  }
+});
+
+ 
+const taskMap = new Map();
+taskMap.set(task1, { name: 'Read file', status: 'pending' });
+taskMap.set(task2, { name: 'Write file', status: 'pending' });
+
+const uniqueNames = new Set(['Alice', 'Bob', 'Alice']);
+
+ 
+function* idGenerator() {
+  let id = 1;
+  while (true) {
+    yield id++;
+  }
+}
+
+const gen = idGenerator();
+
+ 
+const pipelinePromise = promisify(pipeline);
+async function streamToFile(url, filePath) {
+  const response = await http.get(url);
+  await pipelinePromise(response, fs.createWriteStream(filePath));
+}
+
+ 
+(async function main() {
+   
+  try {
+    const data = await readJSON('./data.json');
+    logger.log('Data read:', data);
+  } catch (error) {
+    logger.error('Error reading JSON:', error);
+  }
+
+   
+  logger.log('Task IDs:', [...taskMap.keys()]);
+  logger.log('Unique Names:', uniqueNames);
+
+   
+  logger.log('Generated IDs:', gen.next().value, gen.next().value, gen.next().value);
+
+   
+  try {
+    await streamToFile('http://example.com', './output.txt');
+    logger.log('Data streamed to file successfully.');
+  } catch (error) {

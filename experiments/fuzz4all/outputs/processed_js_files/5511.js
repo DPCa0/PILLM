@@ -1,0 +1,47 @@
+ 
+
+ 
+function* numberGenerator() {
+    let i = 1;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function asyncDouble(num) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(num * 2), 1000);
+    });
+}
+
+ 
+const handler = {
+    get(target, prop) {
+        if (prop === 'next') {
+            const origMethod = target[prop];
+            return function (...args) {
+                print("Intercepted 'next' call");
+                return origMethod.apply(this, args);
+            };
+        }
+        return target[prop];
+    }
+};
+
+const proxiedGenerator = new Proxy(numberGenerator(), handler);
+
+ 
+async function processNumbers(generator, count) {
+    const promises = [];
+    for (let i = 0; i < count; i++) {
+        const { value } = generator.next();
+        print(`Generated number: ${value}`);
+        promises.push(asyncDouble(value));
+    }
+
+    const results = await Promise.all(promises);
+    print('Doubled numbers:', results);
+}
+
+processNumbers(proxiedGenerator, 5);

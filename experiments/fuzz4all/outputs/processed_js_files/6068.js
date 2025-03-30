@@ -1,0 +1,65 @@
+ 
+const uniqueID = Symbol('id');
+
+ 
+const user = {
+  name: 'Alice',
+  age: 30,
+  [uniqueID]: 12345,
+};
+
+const handler = {
+  get: function(target, property) {
+    if (property === 'age') {
+      return `Age is confidential`;
+    }
+    return property in target ? target[property] : `Property not found`;
+  },
+  set: function(target, property, value) {
+    if (property === 'age' && typeof value === 'number' && value > 0) {
+      target[property] = value;
+      return true;
+    } else {
+      console.error(`Invalid age value`);
+      return false;
+    }
+  },
+};
+
+const proxyUser = new Proxy(user, handler);
+
+ 
+function* numberGenerator() {
+  let number = 1;
+  while (true) {
+    yield number++;
+  }
+}
+
+ 
+async function asyncOperation() {
+  const gen = numberGenerator();
+  
+  for (let i = 0; i < 5; i++) {
+    const num = await new Promise(resolve => setTimeout(() => resolve(gen.next().value), 500));
+    print(`Generated number: ${num}`);
+  }
+}
+
+ 
+Reflect.set(proxyUser, 'age', 35);  
+print(Reflect.get(proxyUser, 'age'));  
+
+Reflect.set(proxyUser, 'age', 'Invalid Age');  
+
+ 
+asyncOperation();
+
+ 
+function tag(strings, ...values) {
+  const [name, age] = values;
+  const ageMessage = age === 'confidential' ? age : `is ${age} years old`;
+  return `${strings[0]}${name}${strings[1]}${ageMessage}`;
+}
+
+print(tag`User ${proxyUser.name} ${proxyUser.age}.`);

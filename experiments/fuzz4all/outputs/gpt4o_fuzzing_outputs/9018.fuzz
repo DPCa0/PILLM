@@ -1,0 +1,58 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+function fetchData(url) {
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        });
+}
+
+async function* fetchGenerator(urls) {
+    for (const url of urls) {
+        try {
+            const data = await fetchData(url);
+            yield data;
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    }
+}
+
+(async () => {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/todos/1',
+        'https://jsonplaceholder.typicode.com/todos/2',
+        'https://jsonplaceholder.typicode.com/todos/3'
+    ];
+
+    const def = new Deferred();
+    const fetchIterator = fetchGenerator(urls);
+
+    const consumer = async () => {
+        for await (const data of fetchIterator) {
+            console.log('Data received:', data);
+            if (data.id === 2) {
+                def.resolve('Reached id 2, stopping early.');
+                break;
+            }
+        }
+    };
+
+    const producer = async () => {
+        console.log(await def.promise);
+        console.log('Producer done.');
+    };
+
+    await Promise.all([consumer(), producer()]);
+})();
+```

@@ -1,0 +1,54 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+function* generateSequence(start, end) {
+    for (let i = start; i <= end; i++) {
+        yield i;
+    }
+}
+
+(async function() {
+    const emitter = new EventEmitter();
+
+    emitter.on('dataReceived', data => print('Data:', data));
+    emitter.on('error', error => console.error('Error:', error));
+
+    try {
+        const data = await fetchData('https://jsonplaceholder.typicode.com/posts/1');
+        emitter.emit('dataReceived', data);
+    } catch (error) {
+        emitter.emit('error', error);
+    }
+
+    const generator = generateSequence(1, 5);
+    for (let value of generator) {
+        print('Generated Value:', value);
+    }
+
+    const multiply = (x, y) => x * y;
+    const curriedMultiply = x => y => multiply(x, y);
+    
+    print('Curried Multiply:', curriedMultiply(2)(3));
+})();

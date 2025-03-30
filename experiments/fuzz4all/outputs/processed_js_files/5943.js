@@ -1,0 +1,67 @@
+class ComplexNumber {
+  #real;
+  #imaginary;
+
+  constructor(real, imaginary) {
+    this.#real = real;
+    this.#imaginary = imaginary;
+  }
+
+  static fromString(str) {
+    const [real, imaginary] = str.match(/-?\d+/g).map(Number);
+    return new ComplexNumber(real, imaginary);
+  }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === "number") return NaN;
+    if (hint === "string") return `${this.#real} + ${this.#imaginary}i`;
+    return this.toString();
+  }
+
+  toString() {
+    return `${this.#real} + ${this.#imaginary}i`;
+  }
+
+  #operation(other, op) {
+    if (!(other instanceof ComplexNumber)) throw new TypeError("Operand must be a ComplexNumber");
+    switch (op) {
+      case '+':
+        return new ComplexNumber(this.#real + other.#real, this.#imaginary + other.#imaginary);
+      case '*':
+        return new ComplexNumber(
+          this.#real * other.#real - this.#imaginary * other.#imaginary,
+          this.#real * other.#imaginary + this.#imaginary * other.#real
+        );
+      default:
+        throw new Error("Unsupported operation");
+    }
+  }
+
+  add(other) {
+    return this.#operation(other, '+');
+  }
+
+  multiply(other) {
+    return this.#operation(other, '*');
+  }
+
+  async *asynchronousGenerator() {
+    yield new Promise((resolve) => setTimeout(() => resolve(this.#real), 1000));
+    yield new Promise((resolve) => setTimeout(() => resolve(this.#imaginary), 1000));
+  }
+}
+
+(async () => {
+  const c1 = ComplexNumber.fromString("3 + 4i");
+  const c2 = ComplexNumber.fromString("1 + 2i");
+
+  print(`c1: ${c1}`);  
+  print(`c2: ${c2}`);  
+
+  const c3 = c1.add(c2);
+  print(`c1 + c2: ${c3}`);  
+
+  const c4 = c1.multiply(c2);
+  print(`c1 * c2: ${c4}`);  
+
+  for await

@@ -1,0 +1,36 @@
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+async function* asyncGenerator(data) {
+    for (const item of data) {
+        yield new Promise(resolve => setTimeout(() => resolve(item), 1000));
+    }
+}
+
+const processData = async (gen) => {
+    for await (const value of gen) {
+        print(`Processed: ${value}`);
+    }
+}
+
+(async () => {
+    const deferred = new Deferred();
+
+    const data = [1, 2, 3, 4, 5];
+    const gen = asyncGenerator(data);
+
+    processData(gen).then(() => {
+        print('All data processed.');
+        deferred.resolve();
+    });
+
+    print('Starting processing...');
+    await deferred.promise;
+    print('Done.');
+})();

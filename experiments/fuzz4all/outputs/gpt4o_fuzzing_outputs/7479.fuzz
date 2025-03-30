@@ -1,0 +1,52 @@
+print('Hello, world!');
+```javascript
+class AsyncEventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  async emit(event, ...args) {
+    if (this.events.has(event)) {
+      const handlers = this.events.get(event);
+      for (const handler of handlers) {
+        await handler(...args);
+      }
+    }
+  }
+
+  on(event, handler) {
+    if (!this.events.has(event)) {
+      this.events.set(event, []);
+    }
+    this.events.get(event).push(handler);
+  }
+}
+
+const dataFetch = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ message: 'Data loaded!' });
+    }, 1000);
+  });
+};
+
+const processData = async (data) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(`Processed: ${data.message}`);
+    }, 500);
+  });
+};
+
+(async function main() {
+  const emitter = new AsyncEventEmitter();
+
+  emitter.on('fetchData', async () => {
+    const data = await dataFetch();
+    const processed = await processData(data);
+    console.log(processed);
+  });
+
+  await emitter.emit('fetchData');
+})();
+```

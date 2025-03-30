@@ -1,0 +1,68 @@
+print('Hello, world!');
+```javascript
+ 
+const complexFunction = async () => {
+   
+  const fetchData = url => new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (url) {
+        resolve(`Data from ${url}`);
+      } else {
+        reject('URL not provided');
+      }
+    }, 1000);
+  });
+
+  try {
+    const data = await fetchData('https://api.example.com');
+    console.log(data);
+
+     
+    const [protocol, , domain] = 'https://api.example.com'.split('/');
+    console.log(`Protocol: ${protocol}, Domain: ${domain}`);
+
+     
+    const numbers = [1, 2, 3, 4, 5];
+    const squaredNumbers = numbers.map(num => num ** 2);
+    console.log('Squared Numbers:', squaredNumbers);
+
+     
+    const uniqueNumbers = new Set([1, 2, 2, 3, 4, 4, 5]);
+    console.log('Unique Numbers:', Array.from(uniqueNumbers));
+
+     
+    const moreNumbers = [6, 7, 8];
+    const allNumbers = [...numbers, ...moreNumbers];
+    console.log('All Numbers:', allNumbers);
+
+    const person = { name: 'Alice', age: 30 };
+    const updatedPerson = { ...person, age: 31 };
+    console.log('Updated Person:', updatedPerson);
+
+     
+    class Animal {
+      constructor(name) {
+        this.name = name;
+      }
+      speak() {
+        console.log(`${this.name} makes a noise.`);
+      }
+    }
+  
+    class Dog extends Animal {
+      speak() {
+        console.log(`${this.name} barks.`);
+      }
+    }
+  
+    const dog = new Dog('Rex');
+    dog.speak();
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+ 
+complexFunction();
+```

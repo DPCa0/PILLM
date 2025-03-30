@@ -1,0 +1,66 @@
+ 
+
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+const _balance = Symbol('balance');
+
+ 
+class BankAccount {
+  constructor(owner, initialBalance) {
+    this.owner = owner;
+    this[_balance] = initialBalance;
+  }
+  
+   
+  async getBalance() {
+    await delay(500);  
+    return this[_balance];
+  }
+
+   
+  deposit(amount) {
+    if (amount > 0) this[_balance] += amount;
+  }
+  
+   
+  withdraw(amount) {
+    if (amount > 0 && this[_balance] >= amount) this[_balance] -= amount;
+  }
+}
+
+ 
+const accountHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      print(`Accessed ${prop} property`);
+      return target[prop];
+    }
+    return undefined;
+  },
+  set(target, prop, value) {
+    if (prop === _balance) {
+      print(`Balance updated to ${value}`);
+    }
+    target[prop] = value;
+    return true;
+  }
+};
+
+ 
+const account = new Proxy(new BankAccount('Alice', 1000), accountHandler);
+
+ 
+async function main() {
+  print('Initial Balance:', await account.getBalance());
+  
+  account.deposit(500);
+  print('Balance after deposit:', await account.getBalance());
+
+  account.withdraw(200);
+  print('Balance after withdrawal:', await account.getBalance());
+}
+
+ 
+main();

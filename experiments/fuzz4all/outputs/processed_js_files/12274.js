@@ -1,0 +1,48 @@
+class ApiError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+  }
+}
+
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new ApiError('Failed to fetch data', response.status);
+  }
+  return response.json();
+};
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const retryAsync = async (fn, retries = 3, delayTime = 1000) => {
+  let attempts = 0;
+  while (attempts < retries) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (attempts === retries - 1 || !(error instanceof ApiError)) {
+        throw error;
+      }
+      console.warn(`Attempt ${attempts + 1} failed: ${error.message}. Retrying...`);
+      await delay(delayTime);
+    }
+    attempts++;
+  }
+};
+
+const urls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3',
+];
+
+(async () => {
+  try {
+    const results = await Promise.all(urls.map((url) => retryAsync(() => fetchData(url))));
+    print('Fetched data:', results);
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+})();

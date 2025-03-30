@@ -1,0 +1,25 @@
+ 
+
+ 
+function* fetchSimulator() {
+  yield new Promise((resolve) => setTimeout(() => resolve("Data chunk 1"), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve("Data chunk 2"), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve("Data chunk 3"), 1000));
+}
+
+ 
+async function processData() {
+   
+  const [result1, result2, result3] = await Promise.all([...fetchSimulator()].map(p => p));
+
+   
+  const combinedData = [result1, result2, result3].map((data, index) => `Chunk ${index + 1}: ${data}`).join('\n');
+  
+  print(`Processed Data:\n${combinedData}`);
+}
+
+ 
+(async function main() {
+  await processData();
+  print("All data processed.");
+})();

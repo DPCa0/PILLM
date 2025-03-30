@@ -1,0 +1,37 @@
+ 
+
+ 
+function fetchData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ data: { user: { name: "Alice", age: 30 } } });
+    }, 1000);
+  });
+}
+
+ 
+async function getUserInfo() {
+  try {
+    const result = await fetchData();
+    const { user } = result.data;
+
+     
+    const userProxy = new Proxy(user, {
+      get(target, property) {
+        if (property in target) {
+          return target[property];
+        } else {
+          throw `Property '${property}' does not exist on user object.`;
+        }
+      },
+    });
+
+     
+    return `User Info:\nName: ${userProxy.name}\nAge: ${userProxy.age}`;
+  } catch (error) {
+    return `Error fetching user info: ${error}`;
+  }
+}
+
+ 
+getUserInfo().then(console.log);

@@ -1,0 +1,60 @@
+ 
+import { from } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+
+ 
+class Secret {
+  #secretCode;
+
+  constructor(code) {
+    this.#secretCode = code;
+  }
+
+  revealSecret() {
+    return `The secret code is: ${this.#secretCode}`;
+  }
+}
+
+ 
+const secretHandler = {
+  get(target, prop, receiver) {
+    print(`Accessing property "${prop}"`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const secret = new Secret('12345');
+const proxiedSecret = new Proxy(secret, secretHandler);
+
+ 
+function upper(strings, ...values) {
+  return strings.reduce((prev, curr, i) => prev + curr + (values[i] ? values[i].toUpperCase() : ''), '');
+}
+
+const resultString = upper`This is a ${'secret'}! It cannot be revealed.`;
+
+ 
+const numbers = from([1, 2, 3, 4, 5]);
+
+const processedNumbers = numbers.pipe(
+  filter(n => n % 2 === 0),
+  map(n => n * 10)
+);
+
+processedNumbers.subscribe({
+  next: x => console.log(`Processed number: ${x}`)
+});
+
+ 
+const promise1 = Promise.resolve(10);
+const promise2 = Promise.reject('Failure');
+const promise3 = Promise.resolve(30);
+
+Promise.allSettled([promise1, promise2, promise3]).then(results =>
+  results.forEach(result =>
+    console.log(result.status === 'fulfilled' ? `Fulfilled: ${result.value}` : `Rejected: ${result.reason}`)
+  )
+);
+
+print(proxiedSecret.revealSecret());
+print(resultString);

@@ -1,0 +1,43 @@
+ 
+
+class DataFetcher {
+  constructor(url) {
+    this.url = url;
+  }
+
+  async fetchData() {
+    try {
+      const response = await fetch(this.url);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Fetching error:', error);
+      throw error;
+    }
+  }
+}
+
+const urlProxyHandler = {
+  set(target, property, value) {
+    if (property === 'url') {
+      if (!/^https?:\/\/.+\..+/.test(value)) {
+        throw new Error('Invalid URL format');
+      }
+    }
+    target[property] = value;
+    return true;
+  }
+};
+
+const fetcher = new Proxy(new DataFetcher('https://jsonplaceholder.typicode.com/todos/1'), urlProxyHandler);
+
+(async () => {
+  try {
+    const data = await fetcher.fetchData();
+    const { title } = data;
+    print(`Fetched Data: ${title}`);
+  } catch (err) {
+    console.error('Failed to fetch data:', err);
+  }
+})();

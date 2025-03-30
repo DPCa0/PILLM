@@ -1,0 +1,35 @@
+ 
+async function fetchDataAndProcess(url) {
+    try {
+         
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+         
+        const data = await response.json();
+        
+         
+        const result = data?.results ?? [];
+        
+         
+        const processedData = result.map(item => ({
+             
+            name: item.name ?? 'Unknown',
+            status: item.status ?? 'Undefined',
+            species: item.species ?? 'Unclassified'
+        }));
+        
+         
+        print(processedData);
+    } catch (error) {
+         
+        console.error(`There was a problem fetching data: ${error.message}`);
+    }
+}
+
+ 
+(async () => {
+     
+    const apiUrl = `https: 
+    await fetchDataAndProcess(apiUrl);
+})();

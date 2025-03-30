@@ -1,0 +1,34 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function complexOperation({ value, delayTime }) {
+    await delay(delayTime);
+
+    const operation = num => num * num;
+    const multiply = async (num, factor) => num * factor;
+
+    let result = await multiply(operation(value), 2);
+    print(`Result after operation: ${result}`);
+
+    return new Promise(resolve => resolve(result));
+}
+
+ 
+(async () => {
+    try {
+        const items = [1, 2, 3, 4, 5];
+        const results = await Promise.all(items.map(item => 
+            complexOperation({ value: item, delayTime: item * 100 })
+        ));
+
+        const finalResult = results.reduce((acc, val) => acc + val, 0);
+        print(`Final aggregated result: ${finalResult}`);
+
+         
+        const config = null;
+        print(config?.server?.port ?? 'Default Port: 8080');
+    } catch (error) {
+        console.error('Error encountered:', error);
+    }
+})();

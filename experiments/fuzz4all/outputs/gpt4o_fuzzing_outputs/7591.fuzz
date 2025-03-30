@@ -1,0 +1,64 @@
+print('Hello, world!');
+```javascript
+ 
+(async () => {
+  if (typeof window === 'undefined') {
+    const { readFile } = await import('fs/promises');
+    console.log('Running in Node.js');
+    const data = await readFile(new URL(import.meta.url));
+    console.log('Script contents:', data.toString());
+  } else {
+    console.log('Running in the browser');
+  }
+})();
+
+ 
+class Reactive {
+  constructor(obj) {
+    return new Proxy(obj, {
+      get(target, prop) {
+        console.log(`Getting ${String(prop)}: ${target[prop]}`);
+        return target[prop];
+      },
+      set(target, prop, value) {
+        console.log(`Setting ${String(prop)} to ${value}`);
+        target[prop] = value;
+        return true;
+      }
+    });
+  }
+}
+
+const state = new Reactive({ count: 0 });
+state.count += 1;
+
+ 
+async function* fibonacci(n) {
+  let [prev, current] = [0, 1];
+  while (n--) {
+    yield current;
+    [prev, current] = [current, prev + current];
+  }
+}
+
+(async () => {
+  console.log('Fibonacci sequence:');
+  for await (const num of fibonacci(10)) {
+    console.log(num);
+  }
+})();
+
+ 
+function sqlTemplate(strings, ...values) {
+  const query = strings.reduce(
+    (prev, curr, i) => `${prev}${curr}${values[i] || ''}`,
+    ''
+  );
+  console.log(`Generated SQL query: ${query}`);
+  return query;
+}
+
+const id = 123;
+const name = 'John Doe';
+sqlTemplate`SELECT * FROM users WHERE id = ${id} AND name = ${name}`;
+```

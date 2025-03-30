@@ -1,0 +1,42 @@
+ 
+async function* fibonacciAsync(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+        yield new Promise(resolve => setTimeout(() => resolve(curr), 100));
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+const person = { name: 'Alice', age: 30, city: 'Wonderland' };
+const { name, ...rest } = person;
+const updatedPerson = { ...rest, age: 31 };
+
+ 
+const handler = {
+    get: (obj, prop) => {
+        if (prop in obj) {
+            return obj[prop];
+        } else {
+            print(`Property ${prop} does not exist`);
+            return null;
+        }
+    }
+};
+
+const proxyPerson = new Proxy(updatedPerson, handler);
+
+ 
+async function processFibonacci() {
+    print(`Name: ${proxyPerson.name}`);
+    
+    const fibonacciNumbers = [];
+    for await (let num of fibonacciAsync(10)) {
+        fibonacciNumbers.push(num);
+    }
+
+    print(`Fibonacci: ${fibonacciNumbers.join(', ')}`);
+    return 'Fibonacci sequence processed';
+}
+
+processFibonacci().then(console.log).catch(console.error);

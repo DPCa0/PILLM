@@ -1,0 +1,60 @@
+ 
+
+ 
+function* infiniteSequence() {
+    let i = 0;
+    while (true) {
+        yield i++;
+    }
+}
+
+ 
+async function consumeSequence(sequence, count) {
+    let results = [];
+    for await (let number of sequence) {
+        results.push(number);
+        if (results.length === count) break;
+    }
+    return results;
+}
+
+ 
+const handler = {
+    get: function(target, prop) {
+        if (prop === 'length') {
+            return target.size;
+        } else {
+            return target[prop];
+        }
+    },
+    set: function(target, prop, value) {
+        if (!isNaN(prop)) {
+            target.size = Math.max(target.size, Number(prop) + 1);
+        }
+        target[prop] = value;
+        return true;
+    }
+};
+
+ 
+let arrayLike = { size: 0 };
+let proxiedArray = new Proxy(arrayLike, handler);
+
+ 
+(async () => {
+    const sequence = infiniteSequence();
+    const sequenceToConsume = { 
+        [Symbol.asyncIterator]: () => ({ 
+            next: () => Promise.resolve(sequence.next()) 
+        }) 
+    };
+
+    const numbers = await consumeSequence(sequenceToConsume, 5);
+    print('Generated numbers:', numbers);
+
+     
+    numbers.forEach((num, index) => proxiedArray[index] = num);
+
+    print('Proxied Array Length:', proxiedArray.length);
+    print('Proxied Array:', Array.from({length: proxiedArray.length}, (_, i) => proxiedArray[i]));
+})();

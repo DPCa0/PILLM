@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+
+ 
+async function advancedFeaturesDemo() {
+  try {
+     
+    const data = await fs.readFile('./data.json', 'utf-8');
+    const json = JSON.parse(data);
+
+     
+    const { name, ...otherProps } = json;
+    const updatedJson = { name: `Updated ${name}`, ...otherProps };
+
+     
+    const uniqueItems = new Set(updatedJson.items);
+    const itemsMap = new Map([...uniqueItems].map((item, index) => [index, item]));
+
+     
+    const handler = {
+      set: function (target, prop, value) {
+        console.log(`Property '${prop}' set to '${value}'`);
+        target[prop] = value;
+        return true;
+      },
+    };
+    const proxy = new Proxy(updatedJson, handler);
+
+     
+    proxy.newProperty = 'New Value';
+
+     
+    const logger = (strings, ...values) => {
+      return strings.reduce((acc, str, idx) => `${acc}${str}${values[idx] || ''}`, '');
+    };
+
+    console.log(logger`Name: ${proxy.name} | New Property: ${proxy.newProperty}`);
+
+     
+    console.log('Map:', itemsMap);
+    console.log('Set:', uniqueItems);
+  } catch (err) {
+    console.error('Error:', err);
+  }
+}
+
+ 
+advancedFeaturesDemo();
+```

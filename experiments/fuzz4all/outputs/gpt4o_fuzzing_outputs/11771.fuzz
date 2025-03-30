@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const handler = {
+  get(target, property) {
+    console.log(`Property '${property}' accessed`);
+    if (property in target) {
+      return target[property];
+    } else {
+      throw new ReferenceError(`Property '${property}' not found.`);
+    }
+  },
+  set(target, property, value) {
+    console.log(`Property '${property}' set to '${value}'`);
+    target[property] = value;
+    return true;
+  }
+};
+
+const user = new Proxy({ name: 'Alice', age: 25 }, handler);
+
+ 
+async function getUserData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ hobbies: ['reading', 'coding'], profession: 'developer' });
+    }, 2000);
+  });
+}
+
+(async function() {
+  try {
+    user.name;  
+
+    const userData = await getUserData();  
+    Object.assign(user, userData);  
+
+     
+    const userMap = new Map(Object.entries(user));
+    const uniqueHobbies = new Set(user.hobbies);
+
+     
+    console.log(`User Details:
+    Name: ${userMap.get('name')}
+    Age: ${userMap.get('age')}
+    Hobbies: ${[...uniqueHobbies].join(', ')}
+    Profession: ${userMap.get('profession')}`);
+    
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+```

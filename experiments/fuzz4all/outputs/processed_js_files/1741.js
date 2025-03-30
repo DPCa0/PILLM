@@ -1,0 +1,42 @@
+ 
+
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+}
+
+class DataProcessor {
+  static async processUsers(apiUrl) {
+    const fetcher = new DataFetcher(apiUrl);
+    const { users } = await fetcher.fetchData('/users');
+
+    return users.map(({ id, name, email }) => ({
+      id,
+      name,
+      email,
+      emailDomain: email.split('@')[1]
+    }));
+  }
+}
+
+(async () => {
+  const apiUrl = 'https://jsonplaceholder.typicode.com';
+  const users = await DataProcessor.processUsers(apiUrl);
+
+  const [, secondUser, ...remainingUsers] = users;
+  print('Second User:', secondUser);
+
+  const domains = new Set(users.map(({ emailDomain }) => emailDomain));
+  print('Unique email domains:', domains);
+})();

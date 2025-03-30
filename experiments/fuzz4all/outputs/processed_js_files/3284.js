@@ -1,0 +1,34 @@
+ 
+const complexObject = {
+  data: [1, 2, 3, 4, 5],
+  getDataAsync: async function() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.1 ? resolve(this.data) : reject('Error: Data retrieval failed.');
+      }, 1000);
+    });
+  }
+};
+
+const handler = {
+  get: (target, prop, receiver) => {
+    if (prop === 'getData') {
+      return async () => {
+        try {
+          const data = await Reflect.get(target, 'getDataAsync').call(receiver);
+          print('Data:', data);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const proxiedObject = new Proxy(complexObject, handler);
+
+(async () => {
+  print('Fetching data...');
+  await proxiedObject.getData();
+})();

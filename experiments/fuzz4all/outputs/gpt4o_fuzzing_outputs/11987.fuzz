@@ -1,0 +1,59 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData() {
+   
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ user: 'Alice', age: 30, location: 'Wonderland' });
+    }, 1000);
+  });
+}
+
+ 
+function* numberGenerator() {
+  let number = 1;
+  while (true) {
+    yield number++;
+  }
+}
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      return target[prop];
+    }
+    return `Property ${prop} does not exist.`;
+  },
+  set: (target, prop, value) => {
+    if (typeof value === 'string') {
+      target[prop] = value.toUpperCase();
+      return true;
+    }
+    throw new TypeError('Value must be a string');
+  },
+};
+
+const userProxy = new Proxy({ name: '', location: '' }, handler);
+
+(async () => {
+   
+  const { user, location } = await fetchData();  
+  console.log(`Fetched Data: User - ${user}, Location - ${location}`);
+
+   
+  userProxy.name = user;
+  userProxy.location = location;
+  console.log(`Proxy User: Name - ${userProxy.name}, Location - ${userProxy.location}`);
+  
+   
+  const gen = numberGenerator();
+  console.log('Generated Numbers:');
+  console.log(gen.next().value);
+  console.log(gen.next().value);
+  console.log(gen.next().value);
+})();
+```

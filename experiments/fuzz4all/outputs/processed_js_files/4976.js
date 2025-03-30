@@ -1,0 +1,64 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(fn => fn(data));
+    }
+}
+
+function debounce(fn, delay) {
+    let timeoutID;
+    return function(...args) {
+        clearTimeout(timeoutID);
+        timeoutID = setTimeout(() => fn(...args), delay);
+    }
+}
+
+const fetchData = async url => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network error');
+    return response.json();
+};
+
+async function* dataGenerator() {
+    let index = 0;
+    const urls = [
+        'https://api.exapmle.com/data1',
+        'https://api.exapmle.com/data2',
+        'https://api.exapmle.com/data3'
+    ];
+    while (index < urls.length) {
+        yield await fetchData(urls[index]);
+        index++;
+    }
+}
+
+(async () => {
+    const observable = new Observable();
+
+    observable.subscribe(data => print(`Subscriber 1 received: ${JSON.stringify(data)}`));
+    observable.subscribe(data => print(`Subscriber 2 received: ${JSON.stringify(data)}`));
+
+    const processData = debounce(data => {
+        print('Processing data:', data);
+        observable.notify(data);
+    }, 500);
+
+    try {
+        for await (const data of dataGenerator()) {
+            processData(data);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+    }
+})();

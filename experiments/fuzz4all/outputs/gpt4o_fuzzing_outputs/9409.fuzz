@@ -1,0 +1,73 @@
+print('Hello, world!');
+```javascript
+class DataFetcher {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+
+  async fetchData(endpoint) {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      return await response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+    }
+  }
+}
+
+function memoize(fn) {
+  const cache = new Map();
+  return async function (...args) {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = await fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+const apiFetcher = new DataFetcher('https://api.example.com');
+
+const memoizedFetch = memoize(apiFetcher.fetchData.bind(apiFetcher));
+
+ 
+const user = {
+  id: 1,
+  name: 'Alice',
+  email: 'alice@example.com'
+};
+
+const userValidator = {
+  set: (obj, prop, value) => {
+    if (prop === 'email' && !/^\S+@\S+\.\S+$/.test(value)) {
+      throw new TypeError('Invalid email format');
+    }
+    obj[prop] = value;
+    return true;
+  }
+};
+
+const validatedUser = new Proxy(user, userValidator);
+
+(async () => {
+  try {
+    const data1 = await memoizedFetch('/data');
+    console.log('Fetched Data:', data1);
+
+    const data2 = await memoizedFetch('/data');  
+    console.log('Fetched Cached Data:', data2);
+
+    validatedUser.email = 'newemail@example.com';  
+    console.log('Updated User Email:', validatedUser.email);
+
+     
+     
+
+  } catch (error) {
+    console.error('Error in async execution:', error);
+  }
+})();
+```

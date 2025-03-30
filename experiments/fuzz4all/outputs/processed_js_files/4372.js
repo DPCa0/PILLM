@@ -1,0 +1,40 @@
+class Task {
+  #id;
+  #description;
+  constructor(description) {
+    this.#id = Task.generateId();
+    this.#description = description;
+  }
+
+  static generateId() {
+    return Math.random().toString(36).substr(2, 9);
+  }
+
+  getDescription() {
+    return this.#description;
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* taskManager(tasks) {
+  for (let task of tasks) {
+    print(`Processing task: ${task.getDescription()}`);
+    await delay(1000);
+    yield `Task ${task.getDescription()} completed.`;
+  }
+}
+
+const tasks = [
+  new Task('Task 1'),
+  new Task('Task 2'),
+  new Task('Task 3')
+];
+
+(async () => {
+  for await (let result of taskManager(tasks)) {
+    print(result);
+  }
+})();

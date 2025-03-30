@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+function htmlEscape(strings, ...values) {
+  return strings.reduce((result, str, i) => {
+    const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                           .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return `${result}${str}${values[i] ? escape(values[i]) : ''}`;
+  }, '');
+}
+
+// Use a Proxy to validate and manipulate data dynamically
+const createValidatorProxy = (obj, validations) => new Proxy(obj, {
+  set(target, key, value) {
+    if (validations[key] && !validations[key](value)) {
+      throw new Error(`Invalid value ${value} for ${key}`);
+    }
+    target[key] = value;
+    return true;
+  }
+});
+
+// Define a generator function for asynchronous iteration
+async function* asyncNumbers() {
+  let i = 0;
+  while (i < 5) {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    yield i++;
+  }
+}
+
+// Combining above features
+(async function() {
+  const data = createValidatorProxy({}, {
+    name: val => typeof val === 'string' && val.length > 0,
+    age: val => typeof val === 'number' && val > 0
+  });
+
+  try {
+    data.name = "John Doe";
+    data.age = 30;
+    data.invalidProp = "Should fail";  
+  } catch (error) {
+    console.error(error.message);
+  }
+
+  for await (let num of asyncNumbers()) {
+    console.log(htmlEscape`Current count: ${num}`);
+  }
+})();
+```

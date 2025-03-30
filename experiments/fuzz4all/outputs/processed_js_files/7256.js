@@ -1,0 +1,71 @@
+ 
+const user = {
+  name: 'Alice',
+  age: 30,
+  hobbies: ['reading', 'hiking'],
+  address: {
+    city: 'Wonderland',
+    zipCode: '12345'
+  }
+};
+
+const handler = {
+  get(target, property) {
+    print(`Getting ${property}`);
+    return Reflect.get(target, property);
+  },
+  set(target, property, value) {
+    if (property === 'age' && (typeof value !== 'number' || value < 0)) {
+      throw new TypeError('Age must be a positive number');
+    }
+    print(`Setting ${property} to ${value}`);
+    return Reflect.set(target, property, value);
+  }
+};
+
+const proxiedUser = new Proxy(user, handler);
+
+ 
+async function fetchData(url) {
+  try {
+    let response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    throw error;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched data:', data);
+  } catch (error) {
+    console.error('Error in IIFE:', error);
+  }
+})();
+
+ 
+const uniqueHobbies = new Set(proxiedUser.hobbies);
+uniqueHobbies.add('coding');
+
+const userMap = new Map();
+userMap.set(proxiedUser.name, { ...proxiedUser });
+
+for (const [name, info] of userMap) {
+  print(`Name: ${name}, Age: ${info.age}, City: ${info.address.city}`);
+}
+
+ 
+(async () => {
+  try {
+    const { default: _ } = await import('https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js');
+    const capitalizedHobbies = _.map([...uniqueHobbies], _.capitalize);
+    print('Capitalized Hobbies:', capitalizedHobbies);
+  } catch (error) {
+    console.error('Dynamic import error:', error);
+  }
+})();

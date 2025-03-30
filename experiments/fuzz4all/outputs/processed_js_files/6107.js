@@ -1,0 +1,61 @@
+class AsyncIterableRange {
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  async *[Symbol.asyncIterator]() {
+    for (let i = this.start; i <= this.end; i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));  
+      yield i;
+    }
+  }
+}
+
+const asyncRange = new AsyncIterableRange(1, 5);
+
+(async () => {
+  for await (const num of asyncRange) {
+    print(`Number: ${num}`);
+  }
+
+  const dataFetcher = async url => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    } catch (error) {
+      console.error('Fetch error:', error);
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  const proxyHandler = {
+    get(target, prop, receiver) {
+      if (prop in target) {
+        print(`Getting property '${prop}'`);
+        return Reflect.get(target, prop, receiver);
+      } else {
+        return `Property '${prop}' does not exist`;
+      }
+    },
+  };
+
+  const data = new Proxy({ name: 'Alice', age: 30 }, proxyHandler);
+
+  print(data.name);
+  print(data.address);
+
+   
+   
+   
+   
+   
+   
+   
+})();

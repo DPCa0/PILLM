@@ -1,0 +1,40 @@
+const delayedPromise = () => new Promise(resolve => setTimeout(resolve, 1000));
+
+async function* generateAsyncSequence() {
+    const items = [1, 2, 3, 4, 5];
+    for (const item of items) {
+        await delayedPromise();  
+        yield item;
+    }
+}
+
+function fetchDataAndTransform(url) {
+    return fetch(url)
+        .then(response => response.json())
+        .then(data => data.map(item => ({ ...item, processed: true })))
+        .catch(error => console.error('Error fetching data:', error));
+}
+
+async function processData(url) {
+    try {
+        const transformedData = await fetchDataAndTransform(url);
+        const sequence = generateAsyncSequence();
+        for await (const num of sequence) {
+            transformedData.forEach(item => {
+                item.value = (item.value || 0) + num;
+                print(item);
+            });
+        }
+    } catch (error) {
+        console.error('Error processing data:', error);
+    }
+}
+
+ 
+const apiUrl = 'https://jsonplaceholder.typicode.com/posts';  
+processData(apiUrl);
+
+ 
+const user = { name: "John", preferences: { theme: null } };
+const theme = user.preferences?.theme ?? 'default';
+print(`Theme: ${theme}`);

@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* numberGenerator() {
+  let number = 0;
+  while (true) {
+    yield number++;
+  }
+}
+
+ 
+const uniqueProp = Symbol("unique");
+
+ 
+const handler = {
+  get: (target, property, receiver) => {
+    console.log(`Accessed property: ${String(property)}`);
+    return Reflect.get(target, property, receiver);
+  },
+};
+
+ 
+class AsyncComplex {
+  constructor() {
+    this[uniqueProp] = "Unique Value";
+    this.proxy = new Proxy(this, handler);
+  }
+
+  async fetchNumber() {
+    const response = await new Promise((resolve) =>
+      setTimeout(() => resolve("42"), 1000)
+    );
+    return response;
+  }
+
+  async *asyncGenerator() {
+    yield "Start";
+    yield* numberGenerator();
+  }
+
+  async demonstrate() {
+    console.log(`Symbol Property: ${this.proxy[uniqueProp]}`);
+    console.log(`Fetched Number: ${await this.fetchNumber()}`);
+    const asyncGen = this.asyncGenerator();
+    console.log(`Generator Value: ${await asyncGen.next().value}`);
+    console.log(`Generator Value: ${await asyncGen.next().value}`);
+  }
+}
+
+ 
+const complexInstance = new AsyncComplex();
+complexInstance.demonstrate();
+```

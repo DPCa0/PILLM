@@ -1,0 +1,41 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    console.log(`Property '${prop}' was accessed`);
+    return Reflect.get(...arguments);
+  }
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+async function processData(url) {
+  let data = await fetchData(url);
+  dataProxy.items = data.items;
+
+   
+  const results = dataProxy.items
+    .map(({ value }) => value * 2)
+    .filter(value => value > 10)
+    .reduce((sum, value) => sum + value, 0);
+
+  console.log(`Final Result: ${results}`);
+}
+
+ 
+const sampleUrl = 'https://jsonplaceholder.typicode.com/todos';
+
+ 
+processData(sampleUrl).catch(console.error);
+```

@@ -1,0 +1,44 @@
+ 
+
+ 
+function* asyncNumbers() {
+    let i = 1;
+    while (true) {
+        yield new Promise(resolve => setTimeout(() => resolve(i++), 1000));
+    }
+}
+
+ 
+async function consumeGenerator(gen) {
+    for (let promise of gen) {
+        print('Number:', await promise);
+        if (await promise >= 5) break;   
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        print(`Property '${property}' accessed`);
+        return target[property];
+    },
+    set: (target, property, value) => {
+        print(`Property '${property}' set to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+let targetObject = { name: 'JavaScript', level: 'Advanced' };
+
+ 
+let proxyObject = new Proxy(targetObject, handler);
+
+ 
+print(proxyObject.name);   
+proxyObject.level = 'Expert';   
+
+ 
+let numberGenerator = asyncNumbers();
+consumeGenerator(numberGenerator);

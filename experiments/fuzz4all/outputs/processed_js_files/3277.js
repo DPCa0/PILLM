@@ -1,0 +1,51 @@
+ 
+const dynamicModule = await import('./mathOperations.js');
+
+ 
+const { add, multiply } = dynamicModule;
+
+ 
+async function performComplexOperations(values) {
+  const results = await Promise.all([
+     
+    Promise.resolve(values.map((val) => add(val, 2))),
+     
+    Promise.resolve(values.reduce((acc, val) => multiply(acc, val), 1)),
+  ]);
+
+   
+  const [addedValues, ...multipliedResult] = results;
+
+   
+  const formatResult = (strings, ...values) =>
+    strings.reduce((finalStr, str, i) => `${finalStr}${str}${values[i] || ''}`, '');
+
+  console.log(
+    formatResult`Added values: ${addedValues}, Multiplied result: ${multipliedResult}`
+  );
+}
+
+ 
+const inputValues = [1, 2, 3, 4, 5];
+performComplexOperations(inputValues);
+
+ 
+const generateFunction = (greeting) => (name) => print(`${greeting}, ${name}!`);
+
+const greeter = generateFunction('Hello');
+greeter('World');
+
+ 
+async function* asyncNumberGenerator(limit) {
+  for (let i = 0; i < limit; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 100));  
+    yield i;
+  }
+}
+
+ 
+(async () => {
+  for await (const num of asyncNumberGenerator(5)) {
+    print(`Generated number: ${num}`);
+  }
+})();

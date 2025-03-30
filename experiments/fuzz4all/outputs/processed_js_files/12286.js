@@ -1,0 +1,34 @@
+ 
+
+const asyncIterable = {
+  [Symbol.asyncIterator]: async function* () {
+    for (let i = 1; i <= 5; i++) {
+      await new Promise(resolve => setTimeout(resolve, 500));  
+      yield i;
+    }
+  }
+};
+
+const handler = {
+  get: (target, prop) => (prop in target ? target[prop] : `Property ${prop} is not defined`)
+};
+
+const proxy = new Proxy(asyncIterable, handler);
+
+(async () => {
+  for await (const num of proxy) {
+    print(`Fetched number: ${num}`);
+  }
+})();
+
+ 
+function tag(strings, ...values) {
+  const interpolated = strings.reduce((result, string, i) => {
+    return `${result}${string}${values[i] ? `<b>${values[i]}</b>` : ''}`;
+  }, '');
+  return `<div>${interpolated}</div>`;
+}
+
+const name = "John Doe";
+const age = 30;
+print(tag`Name: ${name}, Age: ${age}`);

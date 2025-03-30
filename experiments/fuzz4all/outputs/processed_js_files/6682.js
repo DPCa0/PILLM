@@ -1,0 +1,64 @@
+ 
+class ResourceLoader {
+  constructor() {
+    this.cache = new Map();
+    this.handlers = {
+      get: (obj, prop) => {
+        if (prop in obj) {
+          return obj[prop];
+        } else {
+          throw new Error(`Property ${prop} does not exist`);
+        }
+      },
+      set: (obj, prop, value) => {
+        if (typeof value === 'string') {
+          obj[prop] = value;
+          return true;
+        } else {
+          throw new Error('Property value must be a string');
+        }
+      }
+    };
+  }
+
+  async fetchResource(resource) {
+    if (this.cache.has(resource)) {
+      print(`Fetching ${resource} from cache`);
+      return this.cache.get(resource);
+    }
+
+    print(`Fetching ${resource} from server`);
+    const data = await new Promise((resolve) => {
+      setTimeout(() => resolve(`Data for ${resource}`), 1000);
+    });
+
+    this.cache.set(resource, data);
+    return data;
+  }
+
+  get proxiedCache() {
+    return new Proxy(this.cache, this.handlers);
+  }
+}
+
+(async () => {
+  const loader = new ResourceLoader();
+  const resourceName = 'resource1';
+
+   
+  const data = await loader.fetchResource(resourceName);
+  print(data);
+
+   
+  const cachedData = await loader.fetchResource(resourceName);
+  print(cachedData);
+
+   
+  try {
+    print(loader.proxiedCache.get(resourceName));
+    loader.proxiedCache.set('resource2', 'New Data');
+    print(loader.proxiedCache.get('resource2'));
+  } catch (error) {
+    console.error(error.message);
+  }
+})();

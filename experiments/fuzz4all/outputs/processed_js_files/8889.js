@@ -1,0 +1,48 @@
+const fetchData = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+  return response.json();
+};
+
+const memoize = (fn) => {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) return cache.get(key);
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+};
+
+const computeComplexOperation = (num) => {
+  const primes = [];
+  let i = 2;
+  while (primes.length < num) {
+    if (primes.every((p) => i % p !== 0)) primes.push(i);
+    i++;
+  }
+  return primes.reduce((acc, val) => acc * val, 1);
+};
+
+const memoizedComplexOperation = memoize(computeComplexOperation);
+
+const main = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/users';
+  try {
+    const data = await fetchData(url);
+    print('User Names: ', data.map((user) => user.name));
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+
+  console.time('Complex Operation');
+  print('Result:', memoizedComplexOperation(10));
+  console.timeEnd('Complex Operation');
+
+  console.time('Memoized Operation');
+  print('Result:', memoizedComplexOperation(10));
+  console.timeEnd('Memoized Operation');
+};
+
+main();

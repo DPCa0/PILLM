@@ -1,0 +1,48 @@
+ 
+const fetchData = () => new Promise(resolve => setTimeout(() => resolve(Math.random()), 1000));
+
+ 
+class DataProcessor {
+  static #instances = 0;
+
+  constructor(data) {
+    this.data = data;
+    DataProcessor.#instances++;
+  }
+
+  static get instances() {
+    return DataProcessor.#instances;
+  }
+
+   
+  *chunkedProcess(chunkSize) {
+    for (let i = 0; i < this.data.length; i += chunkSize) {
+      yield this.data.slice(i, i + chunkSize).map(x => x * 2);
+    }
+  }
+}
+
+ 
+const processorProxyHandler = {
+  get(target, prop, receiver) {
+    print(`Accessing property: ${prop}`);
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+ 
+const main = async () => {
+  const [data1, data2, data3] = await Promise.all([fetchData(), fetchData(), fetchData()]);
+  const dataArray = [data1, data2, data3].map(x => Math.round(x * 100));
+  
+  const dataProcessor = new DataProcessor(dataArray);
+  const proxiedProcessor = new Proxy(dataProcessor, processorProxyHandler);
+  
+  print(`Total instances: ${DataProcessor.instances}`);
+
+  for (const chunk of proxiedProcessor.chunkedProcess(2)) {
+    print(`Processed chunk: ${chunk}`);
+  }
+};
+
+main();

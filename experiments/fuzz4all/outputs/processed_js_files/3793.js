@@ -1,0 +1,38 @@
+class CurrencyConverter {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.apiUrl = `https: 
+    }
+
+    async getExchangeRate(fromCurrency, toCurrency) {
+        const response = await fetch(`${this.apiUrl}${fromCurrency}?apikey=${this.apiKey}`);
+        const data = await response.json();
+        return data.rates[toCurrency];
+    }
+
+    convert(amount, fromCurrency, toCurrency) {
+        return this.getExchangeRate(fromCurrency, toCurrency).then(rate => (amount * rate).toFixed(2));
+    }
+}
+
+(async () => {
+    const apiKey = 'your_api_key_here';   
+    const converter = new CurrencyConverter(apiKey);
+
+    try {
+        const amount = 100;
+        const fromCurrency = 'USD';
+        const toCurrency = 'EUR';
+        const convertedAmount = await converter.convert(amount, fromCurrency, toCurrency);
+
+        print(`${amount} ${fromCurrency} is equal to ${convertedAmount} ${toCurrency}`);
+    } catch (error) {
+        console.error('Error converting currency:', error);
+    }
+})();
+
+ 
+ 
+ 
+ 
+ 

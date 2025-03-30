@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+};
+
+const processData = (data) => {
+  return data.map(({ id, name, values }) => ({
+    id,
+    name,
+    averageValue: values.reduce((acc, val) => acc + val, 0) / values.length,
+  }));
+};
+
+const logDataWithDelay = async (data) => {
+  for (const item of data) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    console.log(`ID: ${item.id}, Name: ${item.name}, Average: ${item.averageValue.toFixed(2)}`);
+  }
+};
+
+const main = async () => {
+  const url = 'https://api.example.com/data';
+  const rawData = await fetchData(url);
+  if (!rawData) return;
+  
+  const processedData = processData(rawData);
+  await logDataWithDelay(processedData);
+};
+
+main();
+```

@@ -1,0 +1,31 @@
+ 
+class WeatherStation {
+  constructor(location) {
+    this.location = location;
+  }
+
+  async getWeatherData() {
+    const response = await fetch(`https: 
+    const data = await response.json();
+    return data.current;
+  }
+}
+
+class WeatherReporter {
+  constructor(station) {
+    this.station = station;
+  }
+
+  async generateReport() {
+    try {
+      const { temp_c, condition: { text } } = await this.station.getWeatherData();
+      print(`The current temperature in ${this.station.location} is ${temp_c}°C and the weather is ${text}.`);
+    } catch (error) {
+      console.error("Failed to fetch weather data", error);
+    }
+  }
+}
+
+const weatherStation = new WeatherStation('New York');
+const reporter = new WeatherReporter(weatherStation);
+reporter.generateReport();

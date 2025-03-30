@@ -1,0 +1,51 @@
+ 
+
+ 
+function randomDelay() {
+  return new Promise((resolve) => {
+    const delay = Math.floor(Math.random() * 1000) + 500;  
+    setTimeout(() => resolve(`Resolved after ${delay}ms`), delay);
+  });
+}
+
+ 
+function* taskGenerator() {
+  yield randomDelay();
+  yield randomDelay();
+  yield randomDelay();
+}
+
+ 
+async function runTasks(generator) {
+  const tasks = generator();
+
+  for (const task of tasks) {
+    const result = await task;
+    print(result);
+  }
+}
+
+ 
+const logger = {
+  apply(target, thisArg, argumentsList) {
+    print(`Called function ${target.name} with arguments: ${argumentsList}`);
+    return target.apply(thisArg, argumentsList);
+  },
+};
+
+ 
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+
+ 
+const proxiedGreet = new Proxy(greet, logger);
+
+ 
+(async () => {
+   
+  await runTasks(taskGenerator);
+
+   
+  print(proxiedGreet('World'));
+})();

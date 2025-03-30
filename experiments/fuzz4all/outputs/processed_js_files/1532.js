@@ -1,0 +1,44 @@
+class ComplexNumber {
+  constructor(real, imaginary) {
+    this.real = real;
+    this.imaginary = imaginary;
+  }
+
+   
+  get magnitude() {
+    return Math.sqrt(this.real ** 2 + this.imaginary ** 2);
+  }
+
+   
+  static createProxy(obj) {
+    return new Proxy(obj, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop];
+        } else if (prop === 'conjugate') {
+          return new ComplexNumber(target.real, -target.imaginary);
+        }
+        throw new ReferenceError(`Property "${prop}" does not exist.`);
+      }
+    });
+  }
+
+   
+  *[Symbol.iterator]() {
+    yield this.real;
+    yield this.imaginary;
+  }
+
+  static add(c1, c2) {
+    return new ComplexNumber(c1.real + c2.real, c1.imaginary + c2.imaginary);
+  }
+}
+
+const complex1 = ComplexNumber.createProxy(new ComplexNumber(2, 3));
+const complex2 = ComplexNumber.createProxy(new ComplexNumber(4, -1));
+
+const sumComplex = ComplexNumber.add(complex1, complex2);
+
+print(`Magnitude of complex1: ${complex1.magnitude}`);
+print(`Sum: ${[...sumComplex]}`);
+print(`Conjugate of sum: ${sumComplex.conjugate}`);

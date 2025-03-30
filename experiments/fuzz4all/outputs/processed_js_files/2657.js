@@ -1,0 +1,42 @@
+class EventEmitter {
+  constructor() {
+    this.events = new Map();
+  }
+
+  on(event, listener) {
+    if (!this.events.has(event)) this.events.set(event, []);
+    this.events.get(event).push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events.has(event)) {
+      this.events.get(event).forEach(listener => listener(...args));
+    }
+  }
+}
+
+class ComplexCalculator extends EventEmitter {
+  async performComplexCalculation(a, b) {
+    const result = await this.#doAsyncComputation(a, b);
+    this.emit('calculationComplete', result);
+  }
+
+  async #doAsyncComputation(a, b) {
+    return new Promise(resolve => setTimeout(() => resolve(a ** b), 1000));
+  }
+}
+
+const proxyHandler = {
+  get(target, prop, receiver) {
+    if (prop === 'calculate') {
+      print('Intercepted calculation request');
+    }
+    return Reflect.get(target, prop, receiver);
+  }
+};
+
+const calculator = new Proxy(new ComplexCalculator(), proxyHandler);
+
+calculator.on('calculationComplete', result => print(`Calculation complete: ${result}`));
+
+calculator.performComplexCalculation(2, 10).then(() => print('Calculation requested.'));

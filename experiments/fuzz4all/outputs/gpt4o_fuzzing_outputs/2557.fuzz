@@ -1,0 +1,45 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    return response.json();
+}
+
+ 
+function* idGenerator() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const handler = {
+    set(target, property, value) {
+        console.log(`Property '${property}' set to '${value}'`);
+        target[property] = value;
+        return true;
+    }
+};
+
+ 
+const user = new Proxy({}, handler);
+const idGen = idGenerator();
+
+ 
+async function addUser(name) {
+    const id = idGen.next().value;
+    user.id = id;
+    user.name = name;
+    user.data = await fetchData(`https: 
+    console.log(`User added: `, user);
+}
+
+ 
+(async () => {
+    await addUser('John Doe');
+})();
+```

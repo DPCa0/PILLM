@@ -1,0 +1,61 @@
+print('Hello, world!');
+```javascript
+class AsyncIterableQueue {
+    constructor() {
+        this.queue = [];
+        this.resolvers = [];
+    }
+
+    enqueue(item) {
+        if (this.resolvers.length) {
+            const resolve = this.resolvers.shift();
+            resolve(item);
+        } else {
+            this.queue.push(item);
+        }
+    }
+
+    dequeue() {
+        return new Promise((resolve) => {
+            if (this.queue.length) {
+                resolve(this.queue.shift());
+            } else {
+                this.resolvers.push(resolve);
+            }
+        });
+    }
+
+    [Symbol.asyncIterator]() {
+        return {
+            next: () => this.dequeue().then(value => ({ done: false, value }))
+        };
+    }
+}
+
+async function* fibonacciSequence() {
+    let [prev, curr] = [0, 1];
+    while (true) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+(async () => {
+    const queue = new AsyncIterableQueue();
+    const fibSequence = fibonacciSequence();
+
+     
+    (async () => {
+        for await (const num of fibSequence) {
+            queue.enqueue(num);
+            if (num > 1000) break;  
+        }
+    })();
+
+     
+    for await (const num of queue) {
+        console.log(num);
+        if (num > 1000) break;
+    }
+})();
+```

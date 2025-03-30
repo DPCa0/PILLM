@@ -1,0 +1,47 @@
+class AsyncQueue {
+    constructor() {
+        this.tasks = [];
+        this.running = false;
+    }
+
+    enqueue(task) {
+        this.tasks.push(task);
+        this.run();
+    }
+
+    async run() {
+        if (this.running) return;
+        this.running = true;
+        while (this.tasks.length) {
+            const task = this.tasks.shift();
+            await task();
+        }
+        this.running = false;
+    }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const asyncTasks = new AsyncQueue();
+
+function* idGenerator() {
+    let id = 0;
+    while (true) {
+        yield id++;
+    }
+}
+
+const generateID = idGenerator();
+const randomRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+function complexTask(id) {
+    return async () => {
+        print(`Task ${id} started.`);
+        await delay(randomRange(500, 1500));
+        print(`Task ${id} completed.`);
+    }
+}
+
+for (let i = 0; i < 5; i++) {
+    asyncTasks.enqueue(complexTask(generateID.next().value));
+}

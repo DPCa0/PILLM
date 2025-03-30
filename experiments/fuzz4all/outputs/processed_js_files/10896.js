@@ -1,0 +1,49 @@
+class TaskManager {
+  #tasks = new Map();
+
+  constructor() {
+    this.proxy = new Proxy(this.#tasks, {
+      get: (target, prop) => {
+        if (prop === 'completed') {
+          return [...target.values()].filter(task => task.completed);
+        }
+        return target[prop];
+      }
+    });
+  }
+
+  addTask(name, description) {
+    const id = crypto.randomUUID();
+    this.#tasks.set(id, { name, description, completed: false });
+    return id;
+  }
+
+  completeTask(id) {
+    const task = this.#tasks.get(id);
+    if (task) {
+      task.completed = true;
+    } else {
+      throw new Error('Task not found');
+    }
+  }
+
+  get summary() {
+    const totalTasks = this.#tasks.size;
+    const completedTasks = this.proxy.completed.length;
+    return `You have completed ${completedTasks} out of ${totalTasks} tasks.`;
+  }
+}
+
+(async () => {
+  const manager = new TaskManager();
+  
+  const task1 = manager.addTask('Learn JavaScript', 'Complete the JavaScript tutorial.');
+  const task2 = manager.addTask('Build a project', 'Apply your skills in a real-world project.');
+
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  manager.completeTask(task1);
+
+  print(manager.summary);
+  print(manager.proxy.completed);
+})();

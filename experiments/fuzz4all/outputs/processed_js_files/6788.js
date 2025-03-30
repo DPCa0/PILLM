@@ -1,0 +1,42 @@
+const fetchData = async (url) => {
+   
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+};
+
+const processData = (data) => {
+   
+  const processed = data.map(({ id, ...rest }) => ({
+    ...rest,
+    uniqueId: Symbol(id),  
+  }));
+  return processed;
+};
+
+(async () => {
+  try {
+    const url = 'https://jsonplaceholder.typicode.com/posts';
+    const data = await fetchData(url);
+
+     
+    const [firstPost, ...otherPosts] = processData(data);
+
+     
+    print(`First Post: ${firstPost.title}`);
+    print(`Total Posts Processed: ${otherPosts.length + 1}`);
+
+     
+    const uniqueIds = new Set(otherPosts.map(({ uniqueId }) => uniqueId));
+    const titleRequests = otherPosts.map(({ title }) => 
+      fetch(`https: 
+    );
+
+     
+    const processedTitles = await Promise.all(titleRequests);
+    print(`Titles processed: ${processedTitles.length}`);
+    print(`Unique IDs Count: ${uniqueIds.size}`);
+  } catch (error) {
+    console.error(`Error fetching or processing data: ${error.message}`);
+  }
+})();

@@ -1,0 +1,40 @@
+print('Hello, world!');
+```javascript
+const fetchUserData = async (id) => {
+    try {
+        const response = await fetch(`https: 
+        if (!response.ok) throw new Error('Network response was not ok');
+        return await response.json();
+    } catch (error) {
+        console.error('Fetching error:', error);
+    }
+};
+
+const calculateAverageAge = users => {
+    if (users.length === 0) return 0;
+    const totalAge = users.reduce((acc, user) => acc + user.age, 0);
+    return totalAge / users.length;
+};
+
+const processData = async () => {
+    try {
+        const ids = [1, 2, 3, 4, 5];
+        const userPromises = ids.map(id => fetchUserData(id));
+        const userData = await Promise.all(userPromises);
+
+        const validUsers = userData
+            .filter(user => user && user.age)
+            .map(({ name, age }) => ({ name, age }));
+
+        console.log('Valid Users:', validUsers);
+
+        const averageAge = calculateAverageAge(validUsers);
+        console.log(`Average Age: ${averageAge.toFixed(2)}`);
+
+    } catch (error) {
+        console.error('Processing error:', error);
+    }
+};
+
+processData();
+```

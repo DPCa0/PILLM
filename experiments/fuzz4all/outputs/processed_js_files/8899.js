@@ -1,0 +1,33 @@
+ 
+
+ 
+const fetchData = () => new Promise((resolve) => {
+    setTimeout(() => {
+        resolve([
+            { id: 1, name: 'John', age: 28 },
+            { id: 2, name: 'Jane', age: 34 },
+            { id: 3, name: 'Doe', age: 45 },
+        ]);
+    }, 1000);
+});
+
+ 
+const processUserData = async () => {
+    try {
+         
+        const users = await fetchData();
+
+         
+        const [john, ...rest] = users;
+        
+         
+        const otherUserNames = rest.map(({ name }) => name);
+
+        print(`Main User: ${john.name}, Other Users: ${otherUserNames.join(', ')}`);
+        
+    } catch (error) {
+        console.error('Error processing user data:', error);
+    }
+};
+
+processUserData();

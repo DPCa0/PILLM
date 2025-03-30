@@ -1,0 +1,43 @@
+ 
+
+ 
+async function fetchData(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  const data = await response.json();
+  return data;
+}
+
+ 
+function complexCalculation(value) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      value > 10 ? resolve(value * 2) : reject('Value is too low');
+    }, 1000);
+  });
+}
+
+ 
+function processData({ name, age = 18, scores = [] }) {
+  const average = scores.reduce((a, b) => a + b, 0) / scores.length || 0;
+  return `${name}, aged ${age}, has an average score of ${average}`;
+}
+
+ 
+(async () => {
+  try {
+    const user = await fetchData('https://jsonplaceholder.typicode.com/users/1');
+    const { name } = user;
+    const scores = [78, 92, 88, 95, 85];
+    
+     
+    const result = processData({ name, scores });
+    print(result);
+    
+     
+    const calculatedValue = await complexCalculation(15);
+    print(`Calculated Value: ${calculatedValue}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

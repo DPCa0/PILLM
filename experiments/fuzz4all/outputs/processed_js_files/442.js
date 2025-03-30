@@ -1,0 +1,55 @@
+ 
+import { promises as fs } from 'fs';
+
+ 
+async function readFileContent(filePath) {
+  try {
+    const data = await fs.readFile(filePath, 'utf8');
+    return data;
+  } catch (error) {
+    throw new Error('Error reading file:', error);
+  }
+}
+
+ 
+function* lineGenerator(text) {
+  const lines = text.split('\n');
+  for (const line of lines) {
+    yield line;
+  }
+}
+
+ 
+(async () => {
+  try {
+    const content = await readFileContent('example.txt');
+    
+     
+    const words = new Set([...content.match(/\b\w+\b/g)]);
+    
+     
+    const [firstLine] = content.split('\n');
+    
+     
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : 'Property not found')
+    };
+    
+    const dataProxy = new Proxy({ firstLine, wordCount: words.size }, handler);
+    
+    print(`First Line: ${dataProxy.firstLine}`);
+    print(`Unique Word Count: ${dataProxy.wordCount}`);
+    
+     
+    for (const line of lineGenerator(content)) {
+      if (line.includes('JavaScript')) {
+        print('Line containing "JavaScript":', line);
+      }
+    }
+    
+  } catch (error) {
+    console.error(error.message);
+  }
+})();
+
+**Note**: Make sure you have an `example.txt` file in the same directory where you are running the script. The file should contain some text content for the program to process.

@@ -1,0 +1,65 @@
+ 
+
+const asyncModule = (function() {
+    const modules = {};
+
+    function define(name, dependencies, moduleFactory) {
+        modules[name] = { dependencies, moduleFactory };
+    }
+
+    async function require(name) {
+        if (!modules[name]) throw new Error(`Module ${name} not found`);
+
+        const { dependencies, moduleFactory } = modules[name];
+        const resolvedDeps = await Promise.all(dependencies.map(dep => require(dep)));
+        return moduleFactory(...resolvedDeps);
+    }
+
+    return { define, require };
+})();
+
+ 
+asyncModule.define('config', [], () => {
+    return { apiUrl: 'https://api.example.com', timeout: 5000 };
+});
+
+asyncModule.define('fetchData', ['config'], async (config) => {
+    const response = await fetch(config.apiUrl, { timeout: config.timeout });
+    return response.json();
+});
+
+asyncModule.define('proxyHandler', [], () => {
+    return {
+        get: (target, prop) => {
+            if (prop in target) {
+                print(`Accessing property ${prop}:`, target[prop]);
+                return target[prop];
+            } else {
+                throw new ReferenceError(`Property ${prop} does not exist`);
+            }
+        },
+        set: (target, prop, value) => {
+            print(`Setting property ${prop} to ${value}`);
+            target[prop] = value;
+            return true;
+        }
+    };
+});
+
+asyncModule.define('main', ['fetchData', 'proxyHandler'], async (fetchData, proxyHandler) => {
+    const data = await fetchData();
+    const proxiedData = new Proxy(data, proxyHandler);
+
+     
+    print(proxiedData.someProperty);
+    proxiedData.newProperty = 'newValue';
+});
+
+ 
+(async () => {
+    try {
+        await asyncModule.require('main');
+    } catch (error) {
+        console.error(error);
+    }
+})();

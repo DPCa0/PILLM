@@ -1,0 +1,53 @@
+ 
+
+class CurrencyConverter {
+    constructor() {
+        this.apiURL = 'https://api.exchangerate-api.com/v4/latest/';
+    }
+
+    async fetchRates(baseCurrency) {
+        const response = await fetch(`${this.apiURL}${baseCurrency}`);
+        const data = await response.json();
+        return data.rates;
+    }
+}
+
+const converterHandler = {
+    get: function(target, prop) {
+        if (prop in target) {
+            return target[prop];
+        } else {
+            print(`Property "${prop}" does not exist.`);
+            return 0;  
+        }
+    }
+};
+
+async function convertCurrency(amount, baseCurrency, targetCurrency) {
+    const converter = new CurrencyConverter();
+    const rates = await converter.fetchRates(baseCurrency);
+    const proxyRates = new Proxy(rates, converterHandler);
+    
+    const conversionRate = proxyRates[targetCurrency];
+    return (amount * conversionRate).toFixed(2);
+}
+
+const dynamicCurrencies = async () => {
+    const currencies = ['USD', 'EUR', 'JPY'];
+    const amounts = [100, 200, 300];
+
+    try {
+        const conversionPromises = currencies.map((currency, index) => 
+            convertCurrency(amounts[index], 'USD', currency)
+        );
+        const conversions = await Promise.all(conversionPromises);
+
+        conversions.forEach((convertedAmount, index) => {
+            print(`$${amounts[index]} USD is ${convertedAmount} ${currencies[index]}`);
+        });
+    } catch (error) {
+        console.error('Error during currency conversion:', error);
+    }
+};
+
+dynamicCurrencies();

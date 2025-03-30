@@ -1,0 +1,31 @@
+ 
+
+ 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+function* numberGenerator() {
+    let i = 0;
+    while (true) {
+        yield delay(1000).then(() => i++);
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop, receiver) => {
+        print(`Accessing property '${prop}'`);
+        return Reflect.get(target, prop, receiver);
+    }
+};
+
+const proxiedGenerator = new Proxy(numberGenerator(), handler);
+
+ 
+(async function iterateNumbers() {
+    for await (let numPromise of proxiedGenerator) {
+        const num = await numPromise;
+        print(`Generated number: ${num}`);
+        if (num >= 4) break;   
+    }
+})();

@@ -1,0 +1,36 @@
+ 
+async function fetchDataAndProcess(url) {
+  try {
+     
+    let response = await fetch(url);
+
+     
+    if (!response.ok) throw new Error('Network response was not ok');
+
+     
+    let data = await response.json();
+
+     
+    const { results: [firstResult = {}] = [] } = data;
+
+     
+    const { name = 'Unknown', attributes: { age = 0, location = 'N/A' } = {} } = firstResult;
+
+     
+    print(`Fetched Data:\nName: ${name}\nAge: ${age}\nLocation: ${location}`);
+
+     
+    let processedData = data.results
+      .filter(({ active }) => active)
+      .map(({ value }) => value * 2)
+      .reduce((acc, curr) => acc + curr, 0);
+
+    print(`Processed Data Sum: ${processedData}`);
+  } catch (error) {
+     
+    console.error('Error fetching data:', error);
+  }
+}
+
+ 
+fetchDataAndProcess('https://api.example.com/data');

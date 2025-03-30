@@ -1,0 +1,41 @@
+class MathUtils {
+    static #factorialMemo = new Map();
+
+    static factorial(n) {
+        if (n < 0) throw new Error("Negative number not allowed");
+        if (n <= 1) return 1;
+        if (this.#factorialMemo.has(n)) return this.#factorialMemo.get(n);
+        let result = n * this.factorial(n - 1);
+        this.#factorialMemo.set(n, result);
+        return result;
+    }
+
+    static* fibonacci(n) {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < n; i++) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+}
+
+const asyncCalculation = async (n) => {
+    const promises = Array.from({ length: n }, async (_, index) => {
+        const fact = MathUtils.factorial(index);
+        const fib = Array.from(MathUtils.fibonacci(index));
+        return { index, fact, fib };
+    });
+
+    const results = await Promise.all(promises);
+    results.forEach(({ index, fact, fib }) => {
+        print(`Index: ${index}, Factorial: ${fact}, Fibonacci: [${fib.join(', ')}]`);
+    });
+};
+
+(async () => {
+    try {
+        await asyncCalculation(10);
+    } catch (error) {
+        console.error("Error in calculations:", error);
+    }
+})();

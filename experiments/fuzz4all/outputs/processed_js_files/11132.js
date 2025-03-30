@@ -1,0 +1,38 @@
+ 
+
+const urls = [
+  'https://jsonplaceholder.typicode.com/posts/1',
+  'https://jsonplaceholder.typicode.com/users/1',
+  'https://jsonplaceholder.typicode.com/todos/1'
+];
+
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to fetch data from ${url}`);
+    return await response.json();
+  } catch (error) {
+    return { error: error.message };
+  }
+};
+
+const processResults = (results) => {
+  for (let { status, value, reason } of results) {
+    if (status === 'fulfilled') {
+      print('Fetched data:', value);
+    } else {
+      console.error('Error fetching data:', reason);
+    }
+  }
+};
+
+const main = async () => {
+  const results = await Promise.allSettled(urls.map(fetchData));
+  processResults(results);
+
+   
+  const transformData = ({ id, ...rest }) => ({ ...rest, uniqueId: id + 1000 });
+  print(transformData({ id: 1, name: 'Sample', completed: false }));
+};
+
+main();

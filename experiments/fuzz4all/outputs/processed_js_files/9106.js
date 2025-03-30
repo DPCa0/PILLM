@@ -1,0 +1,46 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+const asyncOperation = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+(async () => {
+    const emitter = new EventEmitter();
+
+    emitter.on('start', async () => {
+        print('Operation started');
+        await asyncOperation(1000);
+        emitter.emit('progress', 50);
+    });
+
+    emitter.on('progress', async (percentage) => {
+        print(`Progress: ${percentage}%`);
+        await asyncOperation(1000);
+        if (percentage < 100) {
+            emitter.emit('progress', percentage + 50);
+        } else {
+            emitter.emit('complete');
+        }
+    });
+
+    emitter.on('complete', () => {
+        print('Operation complete');
+    });
+
+    emitter.emit('start');
+})();

@@ -1,0 +1,54 @@
+ 
+ 
+
+ 
+const id = Symbol('id');
+
+class DataStore {
+    constructor() {
+        this[id] = 1;
+        this.data = [];
+    }
+
+    async fetchData(...urls) {
+        const fetchPromises = urls.map(url => fetch(url).then(res => res.json()));
+        const results = await Promise.all(fetchPromises);
+        this.data = results.flat();
+    }
+
+    addData(...newData) {
+        this.data = [...this.data, ...newData];
+    }
+
+    getData(index) {
+        const dataProxy = new Proxy(this.data, {
+            get: (target, property) => {
+                return property in target ? target[property] : `No data at index ${property}`;
+            }
+        });
+        return dataProxy[index];
+    }
+
+    getDataCount() {
+        return `Data count: ${this.data.length}`;
+    }
+}
+
+(async () => {
+     
+    const store = new DataStore();
+
+     
+    await store.fetchData('https://jsonplaceholder.typicode.com/posts', 'https://jsonplaceholder.typicode.com/users');
+
+     
+    store.addData({ title: 'New Post', body: 'Content of the new post.' });
+
+     
+    const [firstPost] = store.data;
+
+     
+    print(`First post: ${firstPost.title}`);
+    print(store.getDataCount());
+    print(`Data at index 100: ${store.getData(100)}`);
+})();

@@ -1,0 +1,47 @@
+print('Hello, world!');
+```javascript
+class Deferred {
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+}
+
+function asyncOperation(id) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log(`Async operation ${id} complete`);
+            resolve(id);
+        }, Math.random() * 1000);
+    });
+}
+
+async function* asyncGenerator() {
+    for (let i = 1; i <= 5; i++) {
+        yield await asyncOperation(i);
+    }
+}
+
+async function processAsync() {
+    const results = [];
+    const deferreds = Array.from({ length: 5 }, () => new Deferred());
+
+     
+    for (let i = 0; i < 5; i++) {
+        deferreds[i].promise.then(result => {
+            results.push(result);
+            if (results.length === 5) {
+                console.log('All operations complete:', results);
+            }
+        });
+    }
+
+    for await (const result of asyncGenerator()) {
+        deferreds[result - 1].resolve(result);
+    }
+}
+
+processAsync();
+```

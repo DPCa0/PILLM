@@ -1,0 +1,47 @@
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) {
+            this.events.set(event, []);
+        }
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (this.events.has(event)) {
+            this.events.get(event).forEach(listener => listener(...args));
+        }
+    }
+}
+
+function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = { data: `Data from ${url}` };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+async function processUrls(urls) {
+    const results = [];
+    for await (let data of urls.map(url => fetchData(url))) {
+        results.push(data);
+    }
+    return results;
+}
+
+const emitter = new EventEmitter();
+
+emitter.on('dataProcessed', data => print('Data processed:', data));
+
+async function main() {
+    const urls = ['https://api.example.com/1', 'https://api.example.com/2', 'https://api.example.com/3'];
+    const results = await processUrls(urls);
+    emitter.emit('dataProcessed', results);
+}
+
+main();

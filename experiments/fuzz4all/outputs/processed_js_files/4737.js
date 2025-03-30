@@ -1,0 +1,69 @@
+ 
+"use strict";
+
+ 
+class AdvancedCalculator {
+    constructor() {
+        this.history = [];
+    }
+
+     
+    operate(operation, ...args) {
+        const operations = {
+            add: (a, b) => a + b,
+            multiply: (a, b) => a * b,
+            power: (a, b) => Math.pow(a, b)
+        };
+
+         
+        const proxy = new Proxy(operations, {
+            get: (target, prop) => {
+                if (prop in target) {
+                    const result = target[prop](...args);
+                    this.history.push(`${prop}(${args.join(", ")}) = ${result}`);
+                    return result;
+                }
+                throw new Error(`Operation "${prop}" not supported.`);
+            }
+        });
+
+        return proxy[operation];
+    }
+
+     
+    *getHistory() {
+        for (const entry of this.history) {
+            yield entry;
+        }
+    }
+}
+
+ 
+const calculator = new AdvancedCalculator();
+const operationsToPerform = [
+    { method: 'add', values: [2, 3] },
+    { method: 'multiply', values: [4, 5] },
+    { method: 'power', values: [2, 3] }
+];
+
+ 
+async function performOperations(calculator, operations) {
+    const results = await Promise.all(operations.map(async ({ method, values }) => {
+        try {
+            const result = await Promise.resolve(calculator.operate(method, ...values));
+            print(`Result of ${method}:`, result);
+            return result;
+        } catch (error) {
+            console.error(error);
+        }
+    }));
+
+    return results;
+}
+
+performOperations(calculator, operationsToPerform).then(() => {
+    print("Operation history:");
+    for (const entry of calculator.getHistory()) {
+        print(entry);
+    }
+});

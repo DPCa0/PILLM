@@ -1,0 +1,79 @@
+class Observable {
+    constructor() {
+        this.subscribers = new Set();
+    }
+
+    subscribe(fn) {
+        this.subscribers.add(fn);
+    }
+
+    unsubscribe(fn) {
+        this.subscribers.delete(fn);
+    }
+
+    notify(data) {
+        this.subscribers.forEach(subscriber => subscriber(data));
+    }
+}
+
+class Store {
+    constructor(reducer, initialState) {
+        this.reducer = reducer;
+        this.state = initialState;
+        this.observable = new Observable();
+    }
+
+    dispatch(action) {
+        this.state = this.reducer(this.state, action);
+        this.observable.notify(this.state);
+    }
+
+    subscribe(fn) {
+        this.observable.subscribe(fn);
+        return () => this.observable.unsubscribe(fn);
+    }
+
+    getState() {
+        return this.state;
+    }
+}
+
+const initialState = { count: 0 };
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        case 'INCREMENT':
+            return { ...state, count: state.count + 1 };
+        case 'DECREMENT':
+            return { ...state, count: state.count - 1 };
+        default:
+            return state;
+    }
+};
+
+const store = new Store(reducer, initialState);
+
+store.subscribe(state => print('State changed:', state));
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+(async () => {
+    store.dispatch({ type: 'INCREMENT' });
+    await delay(1000);
+    store.dispatch({ type: 'INCREMENT' });
+    await delay(1000);
+    store.dispatch({ type: 'DECREMENT' });
+})();
+
+const proxyStore = new Proxy(store, {
+    get(target, property) {
+        if (property === 'count') {
+            return target.getState().count;
+        }
+        return Reflect.get(target, property);
+    }
+});
+
+print('Count:', proxyStore.count);

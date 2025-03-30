@@ -1,0 +1,47 @@
+ 
+
+ 
+import { createServer } from 'http';
+
+ 
+const randomDelay = () => new Promise(resolve => {
+    const delay = Math.floor(Math.random() * 3000) + 1000;  
+    setTimeout(resolve, delay);
+});
+
+ 
+async function fetchData(url) {
+    print(`Fetching data from ${url}...`);
+    await randomDelay();
+    return { data: `Data from ${url}` };
+}
+
+ 
+const requestHandler = async (req, res) => {
+    const { url } = req;
+
+    try {
+        const { data } = await fetchData(url);  
+        const responseText = `Request received at ${url}. Response: ${data}`;  
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end(responseText);
+    } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end(`Error: ${error.message}`);
+    }
+};
+
+ 
+const server = createServer(requestHandler);
+
+ 
+server.listen(3000, () => {
+    print('Server is listening on port 3000');
+});
+
+ 
+(async () => {
+    print('Starting a background task...');
+    const backgroundTask = await fetchData('/background');
+    print(`Background task completed: ${backgroundTask.data}`);
+})();

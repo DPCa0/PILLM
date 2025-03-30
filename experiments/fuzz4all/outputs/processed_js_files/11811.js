@@ -1,0 +1,62 @@
+ 
+const instanceRegistry = Symbol('instanceRegistry');
+
+class AdvancedSystem {
+    constructor(name) {
+        this.name = name;
+        if (!AdvancedSystem[instanceRegistry]) {
+            AdvancedSystem[instanceRegistry] = new Map();
+        }
+        AdvancedSystem[instanceRegistry].set(name, this);
+    }
+
+    static listInstances() {
+        return [...AdvancedSystem[instanceRegistry].keys()];
+    }
+
+    #privateMethod() {
+        return `Private data for ${this.name}`;
+    }
+
+    async performAsyncOperation() {
+        const result = await new Promise((resolve) => {
+            setTimeout(() => resolve(`Async operation completed for ${this.name}`), 1000);
+        });
+        return result;
+    }
+
+    get privateInfo() {
+        return this.#privateMethod();
+    }
+
+    static *generateNumbers(limit) {
+        for (let i = 0; i < limit; i++) {
+            yield i * 2;  
+        }
+    }
+}
+
+ 
+const systemProxy = new Proxy(AdvancedSystem, {
+    construct(target, args) {
+        print(`Creating instance: ${args[0]}`);
+        return Reflect.construct(target, args);
+    }
+});
+
+const systemA = new systemProxy('System A');
+const systemB = new systemProxy('System B');
+
+print(AdvancedSystem.listInstances());
+print(systemA.privateInfo);
+
+(async () => {
+    print(await systemB.performAsyncOperation());
+})();
+
+for (let num of AdvancedSystem.generateNumbers(5)) {
+    print(num);
+}
+
+ 
+print(Reflect.has(systemA, 'name'));

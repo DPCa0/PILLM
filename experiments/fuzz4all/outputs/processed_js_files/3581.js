@@ -1,0 +1,38 @@
+ 
+(async () => {
+   
+  const fetchData = async () => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve([1, 2, 3, 4, 5]), 1000);
+    });
+  };
+
+   
+  const handler = {
+    get: (target, property) => {
+      print(`Property '${property}' has been accessed.`);
+      return target[property];
+    },
+  };
+
+  const dataProxy = new Proxy({ data: await fetchData() }, handler);
+
+   
+  const [a, b, ...rest] = dataProxy.data;
+  const uniqueValues = [...new Set([a, b, ...rest])];
+
+   
+  const dataMap = new Map(uniqueValues.map((value) => [value, value * 2]));
+
+   
+  function* mapGenerator(map) {
+    for (let [key, value] of map) {
+      yield `${key} doubled is ${value}`;
+    }
+  }
+
+   
+  for await (const message of mapGenerator(dataMap)) {
+    print(message);
+  }
+})();

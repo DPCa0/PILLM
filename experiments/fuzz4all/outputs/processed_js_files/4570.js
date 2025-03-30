@@ -1,0 +1,67 @@
+ 
+
+class NetworkError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "NetworkError";
+  }
+}
+
+async function fetchData(url) {
+   
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        resolve({ data: "Here's your data!" });
+      } else {
+        reject(new NetworkError("Failed to fetch data"));
+      }
+    }, 1000);
+  });
+}
+
+ 
+const handler = {
+  get: (target, property) => {
+    if (property in target) {
+      print(`Accessing property '${property}'`);
+      return target[property];
+    } else {
+      console.warn(`Property '${property}' does not exist`);
+      return undefined;
+    }
+  }
+};
+
+ 
+const user = {
+  name: "John Doe",
+  age: 28,
+};
+
+const proxiedUser = new Proxy(user, handler);
+
+(async () => {
+   
+  print(proxiedUser.name);
+  print(proxiedUser.age);
+  print(proxiedUser.email);  
+
+   
+  try {
+    const response = await fetchData("https://api.example.com/data");
+    print(response.data);
+  } catch (error) {
+    if (error instanceof NetworkError) {
+      console.error(`Custom error: ${error.message}`);
+    } else {
+      console.error(`Unexpected error: ${error}`);
+    }
+  }
+
+   
+  const additionalInfo = { country: "USA" };
+  const mergedUser = { ...proxiedUser, ...additionalInfo };
+  const { name, country } = mergedUser;
+  print(`Name: ${name}, Country: ${country}`);
+})();

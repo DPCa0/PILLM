@@ -1,0 +1,72 @@
+ 
+async function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      fetch(url)
+        .then(response => response.json())
+        .then(data => resolve(data))
+        .catch(error => reject(error));
+    }, 1000);
+  });
+}
+
+ 
+const key1 = Symbol('uniqueKey1');
+const key2 = Symbol('uniqueKey2');
+
+ 
+function* dataGenerator(dataArray) {
+  for (const item of dataArray) {
+    yield item;
+  }
+}
+
+ 
+const targetObject = {
+  [key1]: 'Value for key1',
+  [key2]: 'Value for key2',
+};
+
+const handler = {
+  get: (obj, prop) => {
+    print(`Property '${String(prop)}' accessed`);
+    return obj[prop];
+  }
+};
+
+const proxiedObject = new Proxy(targetObject, handler);
+
+ 
+(async () => {
+  try {
+    const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+    print('Fetched Data:', data);
+
+    const gen = dataGenerator([1, 2, 3, 4, 5]);
+    print('Generator Output:', [...gen]);
+
+    print('Accessing via Proxy:', proxiedObject[key1]);
+
+     
+    const myMap = new Map();
+    myMap.set('name', 'JavaScript');
+    myMap.set('type', 'language');
+
+    const mySet = new Set([1, 2, 3, 2, 1]);
+    print('Map:', Array.from(myMap.entries()));
+    print('Set:', Array.from(mySet));
+
+     
+    const { title, completed } = data;
+    print('Destructured Data:', title, completed);
+
+     
+    function multiply(multiplier, ...nums) {
+      return nums.map(num => num * multiplier);
+    }
+    print('Multiply:', multiply(2, 1, 2, 3));
+
+  } catch (error) {
+    console.error('Error:', error);
+  }
+})();

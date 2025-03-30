@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  constructor(data) {
+    this.data = data;
+  }
+
+  async #fetchAdditionalData(id) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ id, value: Math.random() * 100 });
+      }, 1000);
+    });
+  }
+
+  #calculateAverage(values) {
+    const sum = values.reduce((acc, val) => acc + val, 0);
+    return sum / values.length;
+  }
+
+  async processData() {
+    const additionalDataPromises = this.data.map(item => this.#fetchAdditionalData(item.id));
+    const additionalData = await Promise.all(additionalDataPromises);
+    
+    const combinedData = this.data.map((item, index) => ({
+      ...item,
+      additionalValue: additionalData[index].value,
+    }));
+
+    const averageValue = this.#calculateAverage(combinedData.map(item => item.additionalValue));
+    
+    return combinedData.filter(item => item.additionalValue > averageValue);
+  }
+}
+
+(async () => {
+  const inputData = [{ id: 1 }, { id: 2 }, { id: 3 }];
+  const processor = new DataProcessor(inputData);
+  const result = await processor.processData();
+  console.log(result);
+})();
+```

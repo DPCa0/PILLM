@@ -1,0 +1,37 @@
+ 
+const processData = (...data) => {
+     
+    const [first, ...rest] = data;
+
+     
+    const squared = rest.map(num => num ** 2);
+
+     
+    const uniqueSquares = [...new Set(squared)];
+
+     
+    const sum = uniqueSquares.reduce((acc, num) => acc + num, 0);
+
+     
+    return `First value: ${first}, Sum of unique squares: ${sum}`;
+};
+
+ 
+(async () => {
+    try {
+         
+        const fetchData = new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve([2, 3, 2, 5, 7, 3, 5]);
+            }, 1000);
+        });
+
+         
+        const data = await fetchData;
+
+         
+        print(processData(...data));
+    } catch (error) {
+        console.error(`Error: ${error}`);
+    }
+})();

@@ -1,0 +1,30 @@
+ 
+ 
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    
+     
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    
+    const data = await response.json();
+    
+     
+    const { results: [{ name: { first, last }, location: { city, country } }] } = data;
+    
+     
+    const message = `Fetched user: ${first} ${last} from ${city}, ${country}`;
+    
+    print(message);
+    return message;
+  } catch (error) {
+    console.error(`Failed to fetch data: ${error.message}`);
+  }
+}
+
+ 
+(async () => {
+  const apiUrl = 'https://randomuser.me/api/';
+  await fetchData(apiUrl);
+})();

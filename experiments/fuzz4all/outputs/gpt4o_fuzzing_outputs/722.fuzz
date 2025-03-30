@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map();
+  }
+
+  *generate(n) {
+    let [a, b] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      yield a;
+      [a, b] = [b, a + b];
+    }
+  }
+
+  memoized(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    if (n <= 1) return n;
+    const result = this.memoized(n - 1) + this.memoized(n - 2);
+    this.memo.set(n, result);
+    return result;
+  }
+}
+
+async function asyncFibonacci(n) {
+  const fib = new Fibonacci();
+  const sequence = fib.generate(n);
+  const result = [];
+  for (const num of sequence) {
+    result.push(num);
+    await new Promise(resolve => setTimeout(resolve, 50));  
+  }
+  return result;
+}
+
+const proxyHandler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      throw new Error(`Property ${prop} does not exist.`);
+    }
+  }
+};
+
+const fibonacciProxy = new Proxy(new Fibonacci(), proxyHandler);
+
+(async () => {
+  try {
+    console.log('First 10 Fibonacci numbers:', await asyncFibonacci(10));
+    console.log('Memoized 10th Fibonacci number:', fibonacciProxy.memoized(10));
+    console.log(fibonacciProxy.nonExistentProperty);  
+  } catch (error) {
+    console.error('Error caught:', error.message);
+  }
+})();
+```

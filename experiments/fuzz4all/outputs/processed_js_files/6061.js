@@ -1,0 +1,68 @@
+ 
+import { readFile } from 'fs/promises';
+
+ 
+const handler = {
+    set(obj, prop, value) {
+        if (prop === 'age' && (typeof value !== 'number' || value < 0)) {
+            throw new Error('Age must be a non-negative number');
+        }
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const person = new Proxy({}, handler);
+
+ 
+async function readAndProcessFile(filename) {
+    try {
+        const data = await readFile(filename, 'utf-8');
+        return data.split('\n').filter(Boolean);
+    } catch (err) {
+        console.error('Error reading file:', err);
+    }
+}
+
+ 
+function* generateFibonacci(limit) {
+    let [prev, curr] = [0, 1];
+    while (curr <= limit) {
+        yield curr;
+        [prev, curr] = [curr, prev + curr];
+    }
+}
+
+ 
+async function* asyncGeneratorExample() {
+    const numbers = [1, 2, 3, 4, 5];
+    for (const number of numbers) {
+        yield new Promise((resolve) => setTimeout(() => resolve(number), 1000));
+    }
+}
+
+(async function main() {
+     
+    try {
+        person.age = 25;
+        print('Person age:', person.age);
+        person.age = -5;  
+    } catch (e) {
+        console.error(e.message);
+    }
+
+     
+    const lines = await readAndProcessFile('example.txt');
+    if (lines) {
+        print('File lines:', lines);
+    }
+
+     
+    const fib = generateFibonacci(20);
+    print('Fibonacci sequence up to 20:', [...fib]);
+
+     
+    for await (const num of asyncGeneratorExample()) {
+        print('Async number:', num);
+    }
+})();

@@ -1,0 +1,43 @@
+ 
+const calculateArea = length => width => length * width;
+
+ 
+const geometryModule = (function() {
+    let shapes = new Map();
+
+     
+    const _logShape = Symbol('logShape');
+
+     
+    function [_logShape](name, area) {
+        print(`Shape: ${name}, Area: ${area}`);
+    }
+
+    return {
+        addShape(name, length, width) {
+            const area = calculateArea(length)(width);
+            shapes.set(name, area);
+            this[_logShape](name, area);
+        },
+        totalArea() {
+            return [...shapes.values()].reduce((acc, val) => acc + val, 0);
+        },
+        *shapeIterator() {
+            for (const [name, area] of shapes.entries()) {
+                yield { name, area };
+            }
+        }
+    };
+})();
+
+ 
+geometryModule.addShape('Rectangle1', 5, 10);
+geometryModule.addShape('Rectangle2', 2, 8);
+geometryModule.addShape('Rectangle3', 6, 3);
+
+print(`Total Area: ${geometryModule.totalArea()}`);
+
+ 
+for (const shape of geometryModule.shapeIterator()) {
+    print(`Iterated Shape: ${shape.name}, Area: ${shape.area}`);
+}

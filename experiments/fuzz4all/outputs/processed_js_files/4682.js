@@ -1,0 +1,41 @@
+const getUserData = async () => {
+  try {
+    const userResponse = await fetch('https://jsonplaceholder.typicode.com/users');
+    const userData = await userResponse.json();
+
+    const fetchPosts = userData.map(async user => {
+      const postsResponse = await fetch(`https: 
+      const postsData = await postsResponse.json();
+      return {
+        ...user,
+        posts: postsData,
+      };
+    });
+
+    const usersWithPosts = await Promise.all(fetchPosts);
+    return usersWithPosts;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+const processUserData = userData => {
+  return userData.reduce((acc, user) => {
+    const userSummary = {
+      name: user.name,
+      email: user.email,
+      postCount: user.posts.length,
+      recentPost: user.posts[0]?.title || 'No posts',
+    };
+    acc.push(userSummary);
+    return acc;
+  }, []);
+};
+
+(async () => {
+  const userData = await getUserData();
+  if (userData) {
+    const processedData = processUserData(userData);
+    console.table(processedData);
+  }
+})();

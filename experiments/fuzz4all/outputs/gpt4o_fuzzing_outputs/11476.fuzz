@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        if (prop in target) {
+            console.log(`Property "${prop}" accessed.`);
+            return Reflect.get(...arguments);
+        } else {
+            throw new ReferenceError(`Property "${prop}" does not exist.`);
+        }
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting value of "${prop}" to ${value}.`);
+        return Reflect.set(...arguments);
+    }
+};
+
+ 
+const user = new Proxy({}, handler);
+
+ 
+const permissions = new Map([
+    ['admin', 'full'],
+    ['user', 'limited']
+]);
+
+ 
+async function getPermission(role) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (permissions.has(role)) {
+                resolve(permissions.get(role));
+            } else {
+                reject(`Role ${role} does not exist.`);
+            }
+        }, 1000);
+    });
+}
+
+ 
+(async () => {
+    try {
+         
+        user.name = 'John Doe';
+        user.role = 'admin';
+
+         
+        user.permission = await getPermission(user.role);
+
+         
+        console.log(`User: ${user.name}, Role: ${user.role}, Permission: ${user.permission}`);
+    } catch (error) {
+        console.error(error);
+    }
+})();
+```

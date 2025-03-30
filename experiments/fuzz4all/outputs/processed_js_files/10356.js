@@ -1,0 +1,50 @@
+class Task {
+  constructor(name, duration) {
+    this.name = name;
+    this.duration = duration;
+  }
+
+  async perform() {
+    print(`Starting task: ${this.name}`);
+    return new Promise(resolve => setTimeout(() => {
+      print(`Completed task: ${this.name}`);
+      resolve(this.name);
+    }, this.duration));
+  }
+}
+
+const pipeline = async (...tasks) => {
+  const results = await Promise.all(tasks.map(task => task.perform()));
+  print(`All tasks completed: ${results.join(', ')}`);
+};
+
+const logExecution = (target, property, descriptor) => {
+  const original = descriptor.value;
+  descriptor.value = function (...args) {
+    console.time(`Execution time for ${property}`);
+    const result = original.apply(this, args);
+    console.timeEnd(`Execution time for ${property}`);
+    return result;
+  };
+  return descriptor;
+};
+
+class TaskRunner {
+  constructor(tasks) {
+    this.tasks = tasks;
+  }
+
+  @logExecution
+  runAll() {
+    pipeline(...this.tasks);
+  }
+}
+
+const tasks = [
+  new Task('Task 1', 1000),
+  new Task('Task 2', 1500),
+  new Task('Task 3', 500)
+];
+
+const runner = new TaskRunner(tasks);
+runner.runAll();

@@ -1,0 +1,47 @@
+ 
+
+class AsyncDataFetcher {
+  constructor(data) {
+    this.data = data;
+  }
+  
+  async fetchData() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.2 ? resolve(this.data) : reject('Failed to fetch data');
+      }, 1000);
+    });
+  }
+}
+
+async function processData() {
+  try {
+    const fetcher = new AsyncDataFetcher({ user: 'Alice', age: 25 });
+    const data = await fetcher.fetchData();
+    
+     
+    const { user, age } = data;
+    
+     
+    const handler = {
+      get(target, property) {
+        print(`Accessing property: ${property}`);
+        return target[property];
+      }
+    };
+    
+    const proxiedData = new Proxy(data, handler);
+    
+    print(`User: ${proxiedData.user}, Age: ${proxiedData.age}`);
+    
+     
+    const uniqueNames = new Set(['Alice', 'Bob', 'Charlie']);
+    uniqueNames.add(proxiedData.user);
+    
+    print(`Unique Names: ${[...uniqueNames].join(', ')}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+processData();

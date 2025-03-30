@@ -1,0 +1,49 @@
+print('Hello, world!');
+```javascript
+ 
+(async function main() {
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+   
+  const dataHandler = {
+    get: (target, property) => {
+      console.log(`Property "${property}" has been accessed.`);
+      return target[property];
+    }
+  };
+
+  const mockApiCall = async () => {
+    await delay(1000);  
+    return { name: "John Doe", age: 30, email: "john.doe@example.com" };
+  };
+
+  try {
+    const data = await mockApiCall();
+    const proxiedData = new Proxy(data, dataHandler);
+
+     
+    const { name, email } = proxiedData;
+
+     
+    const taggedTemplate = (strings, ...values) => {
+      return strings.reduce((result, str, i) => {
+        return `${result}${str}<strong>${values[i] || ''}</strong>`;
+      }, '');
+    };
+
+     
+    const modifyAndLog = ({ name, ...rest }) => {
+      console.log(`Original Name: ${name}`);
+      return { name: name.toUpperCase(), ...rest };
+    };
+
+    const modifiedData = modifyAndLog(proxiedData);
+
+     
+    console.log(taggedTemplate`Hello, ${modifiedData.name}! Your email is ${email}.`);
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+})();
+```

@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+class Observable {
+  constructor() {
+    this.subscribers = new Map();
+  }
+
+  subscribe(eventName, callback) {
+    if (!this.subscribers.has(eventName)) {
+      this.subscribers.set(eventName, new Set());
+    }
+    this.subscribers.get(eventName).add(callback);
+  }
+
+  unsubscribe(eventName, callback) {
+    if (this.subscribers.has(eventName)) {
+      this.subscribers.get(eventName).delete(callback);
+    }
+  }
+
+  emit(eventName, ...args) {
+    if (this.subscribers.has(eventName)) {
+      for (const callback of this.subscribers.get(eventName)) {
+        callback(...args);
+      }
+    }
+  }
+}
+
+function asyncOperation(data) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      Math.random() > 0.5 ? resolve(`Success: ${data}`) : reject(`Error: ${data}`);
+    }, 1000);
+  });
+}
+
+(async () => {
+  const eventSystem = new Observable();
+
+  eventSystem.subscribe('success', data => {
+    console.log(`Operation Succeeded with: ${data}`);
+  });
+
+  eventSystem.subscribe('error', error => {
+    console.error(`Operation Failed with: ${error}`);
+  });
+
+  const promises = [1, 2, 3, 4, 5].map(num =>
+    asyncOperation(`Data${num}`).then(
+      result => eventSystem.emit('success', result),
+      error => eventSystem.emit('error', error)
+    )
+  );
+
+  try {
+    await Promise.all(promises);
+  } catch (e) {
+    console.error("An unexpected error occurred:", e);
+  }
+})();
+```

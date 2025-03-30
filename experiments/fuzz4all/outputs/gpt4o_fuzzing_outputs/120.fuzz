@@ -1,0 +1,71 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+async function fetchData(url) {
+   
+  let response = await fetch(url);
+  if (!response.ok) throw new Error('Network response was not ok');
+  return response.json();
+}
+
+ 
+function memoize(fn) {
+  const cache = new Map();
+  return (...args) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      console.log('Fetching from cache:', key);
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+ 
+function* fibonacci(n) {
+  let [a, b] = [0, 1];
+  for (let i = 0; i < n; i++) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+ 
+const user = { name: 'Alice', age: 25 };
+const handler = {
+  get(target, prop) {
+    if (prop in target) {
+      return target[prop];
+    } else {
+      return `Property ${prop} not found`;
+    }
+  }
+};
+const proxyUser = new Proxy(user, handler);
+
+ 
+(() => {
+  const { name, age } = proxyUser;
+  console.log(`User: ${name}, Age: ${age}`);
+})();
+
+ 
+const memoizedFetch = memoize(fetchData);
+
+ 
+(async () => {
+  try {
+    const fib = [...fibonacci(10)];
+    console.log('Fibonacci Sequence:', fib);
+
+    const data = await memoizedFetch('https://jsonplaceholder.typicode.com/todos/1');
+    console.log('Fetched Data:', data);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+})();
+```

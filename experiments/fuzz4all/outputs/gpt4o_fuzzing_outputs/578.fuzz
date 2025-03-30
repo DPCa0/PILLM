@@ -1,0 +1,38 @@
+print('Hello, world!');
+```javascript
+class DataProcessor {
+  #data;
+  constructor(data) {
+    this.#data = data;
+  }
+  
+  *processData() {
+    for (let { id, value } of this.#data) {
+      yield { id, processedValue: Math.sqrt(value) };
+    }
+  }
+}
+
+async function fetchData(url) {
+  let response = await fetch(url);
+  return await response.json();
+}
+
+(async () => {
+  try {
+    let data = await fetchData('https://api.example.com/data');
+    let processor = new DataProcessor(data);
+
+    let results = [];
+    for (let item of processor.processData()) {
+      results.push(item);
+    }
+    
+    results
+      .filter(({ processedValue }) => processedValue > 5)
+      .forEach(({ id, processedValue }) => console.log(`ID: ${id}, Value: ${processedValue}`));
+  } catch (error) {
+    console.error('Error processing data:', error);
+  }
+})();
+```

@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+  constructor() {
+    this.memo = new Map([[0, 0], [1, 1]]);
+  }
+
+  calculate(n) {
+    if (this.memo.has(n)) return this.memo.get(n);
+    const value = this.calculate(n - 1) + this.calculate(n - 2);
+    this.memo.set(n, value);
+    return value;
+  }
+
+  *infiniteSequence() {
+    let i = 0;
+    while (true) {
+      yield this.calculate(i++);
+    }
+  }
+}
+
+async function fetchData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Fetch error:', error);
+  }
+}
+
+const main = async () => {
+  const fib = new Fibonacci();
+  const sequence = fib.infiniteSequence();
+
+  for (let i = 0; i < 10; i++) {
+    console.log(sequence.next().value);
+  }
+
+  const data = await fetchData('https://jsonplaceholder.typicode.com/todos/1');
+  console.log('Fetched data:', data);
+};
+
+main();
+```

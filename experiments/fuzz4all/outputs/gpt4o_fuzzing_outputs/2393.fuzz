@@ -1,0 +1,42 @@
+print('Hello, world!');
+```javascript
+ 
+async function* complexAsyncGenerator(arr) {
+    for (let item of arr) {
+        yield new Promise(resolve => setTimeout(() => resolve(item * 2), 1000));
+    }
+}
+
+async function processArray(arr) {
+    const results = [];
+    for await (const value of complexAsyncGenerator(arr)) {
+        results.push(value);
+    }
+    return results;
+}
+
+const main = async () => {
+    const nums = [1, 2, 3, 4, 5];
+    console.log('Original Array:', nums);
+
+    const doubledNums = await processArray(nums);
+    console.log('Processed Array:', doubledNums);
+
+    const [first, second, ...rest] = doubledNums;
+    console.log('Destructured Values:', { first, second, rest });
+
+    const promiseChain = doubledNums.reduce((chain, num) => {
+        return chain.then(() => new Promise(resolve => {
+            setTimeout(() => {
+                console.log('Processed:', num);
+                resolve();
+            }, 500);
+        }));
+    }, Promise.resolve());
+
+    await promiseChain;
+    console.log('All numbers processed.');
+};
+
+main().catch(console.error);
+```

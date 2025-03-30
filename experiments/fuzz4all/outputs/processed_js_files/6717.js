@@ -1,0 +1,43 @@
+class DataFetcher {
+    #apiKey;
+    
+    constructor(apiKey) {
+        this.#apiKey = apiKey;
+    }
+
+    async fetchData(url) {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${this.#apiKey}`
+            }
+        });
+        if (!response.ok) throw new Error('Network response was not ok.');
+        return response.json();
+    }
+}
+
+const processData = async () => {
+    const fetcher = new DataFetcher('your_api_key_here');
+    const urls = [
+        'https://api.example.com/data1',
+        'https://api.example.com/data2',
+        'https://api.example.com/data3'
+    ];
+
+    try {
+        const results = await Promise.all(urls.map(url => fetcher.fetchData(url)));
+        
+        const [data1, data2, data3] = results;
+        
+        const processedData = results.flatMap(Object.values).reduce((acc, item) => {
+            acc[item.category] = (acc[item.category] || 0) + item.value;
+            return acc;
+        }, {});
+
+        print('Processed Data:', processedData);
+    } catch (error) {
+        console.error('Data fetching error:', error);
+    }
+};
+
+processData();

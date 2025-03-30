@@ -1,0 +1,60 @@
+print('Hello, world!');
+```javascript
+class Fibonacci {
+    *[Symbol.iterator]() {
+        let a = 0, b = 1;
+        while (true) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+}
+
+const fib = new Fibonacci();
+const limit = 10;
+console.log([...fib].slice(0, limit));
+
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    return data;
+}
+
+(async () => {
+    try {
+        const url = 'https://jsonplaceholder.typicode.com/todos/1';
+        const data = await fetchJson(url);
+        console.log('Fetched JSON:', data);
+    } catch (error) {
+        console.error('Fetching failed:', error);
+    }
+})();
+
+const myMap = new Map();
+const arr = Array.from({ length: limit }, (_, i) => i + 1);
+
+myMap.set('evens', arr.filter(x => x % 2 === 0));
+myMap.set('odds', arr.filter(x => x % 2 !== 0));
+
+console.log('Evens:', myMap.get('evens'));
+console.log('Odds:', myMap.get('odds'));
+
+const combined = new Set([...myMap.get('evens'), ...myMap.get('odds')]);
+console.log('Combined Set:', combined);
+
+const [first, second, ...rest] = arr;
+console.log(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+const calculate = new Proxy(
+    (x, y) => x + y, 
+    {
+        apply(target, thisArg, args) {
+            console.log(`Adding ${args[0]} and ${args[1]}`);
+            return Reflect.apply(target, thisArg, args);
+        }
+    }
+);
+
+console.log('Calculate 5 + 3:', calculate(5, 3));
+```

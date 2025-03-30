@@ -1,0 +1,45 @@
+ 
+
+class DataFetcher {
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl;
+        this.cache = new Map();
+
+        return new Proxy(this, {
+            get(target, prop, receiver) {
+                if (prop in target) return Reflect.get(target, prop, receiver);
+                if (target.cache.has(prop)) return target.cache.get(prop);
+                return async function(...args) {
+                    let response = await fetch(`${target.apiUrl}/${prop}?${new URLSearchParams(args[0])}`);
+                    let data = await response.json();
+                    target.cache.set(prop, data);
+                    return data;
+                };
+            }
+        });
+    }
+}
+
+async function processData() {
+    const api = new DataFetcher('https://api.example.com');
+    
+    const { users, posts } = await Promise.all([
+        api.getUsers({ limit: 5 }),
+        api.getPosts({ limit: 5 })
+    ]);
+
+    const enrichedUsers = users.map(user => {
+        const userPosts = posts.filter(post => post.userId === user.id);
+        return { ...user, posts: userPosts };
+    });
+
+    for (const user of enrichedUsers) {
+        const { id, name, posts } = user;
+        print(`User ${id}: ${name}`);
+        for (const { title } of posts) {
+            print(`- Post: ${title}`);
+        }
+    }
+}
+
+processData().catch(console.error);

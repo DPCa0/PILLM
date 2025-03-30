@@ -1,0 +1,55 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+const _secretKey = Symbol('secret');
+
+ 
+class ComplexStructure {
+  #privateValue;
+
+  constructor(initialValue) {
+    this.#privateValue = initialValue;
+    this[_secretKey] = 'top-secret';
+  }
+
+   
+  *fibonacci(n) {
+    let [prev, curr] = [0, 1];
+    for (let i = 0; i < n; i++) {
+      [prev, curr] = [curr, prev + curr];
+      yield curr;
+    }
+  }
+
+   
+  async asyncOperation() {
+    const result = await new Promise((resolve) => setTimeout(() => resolve(this.#privateValue * 2), 1000));
+    return result;
+  }
+
+   
+  static getNestedProperty(obj, path) {
+    return path.split('.').reduce((acc, part) => acc?.[part], obj) ?? 'Default Value';
+  }
+}
+
+ 
+const complexInstance = new ComplexStructure(42);
+
+ 
+console.log('Fibonacci Sequence:');
+for (let num of complexInstance.fibonacci(5)) {
+  console.log(num);
+}
+
+ 
+complexInstance.asyncOperation().then(result => console.log(`Async Operation Result: ${result}`));
+
+ 
+const nestedObject = { a: { b: { c: 'value' } } };
+console.log('Nested Property:', ComplexStructure.getNestedProperty(nestedObject, 'a.b.c'));
+console.log('Non-Existent Property:', ComplexStructure.getNestedProperty(nestedObject, 'a.x.y'));
+
+```

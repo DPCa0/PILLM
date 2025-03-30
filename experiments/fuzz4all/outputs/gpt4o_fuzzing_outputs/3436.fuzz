@@ -1,0 +1,70 @@
+print('Hello, world!');
+```javascript
+ 
+async function fetchData(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    return response.json();
+}
+
+ 
+const handler = {
+    get: function(target, prop, receiver) {
+        console.log(`Getting property ${prop}`);
+        return Reflect.get(...arguments);
+    },
+    set: function(target, prop, value) {
+        console.log(`Setting property ${prop} to ${value}`);
+        return Reflect.set(...arguments);
+    }
+};
+
+const person = new Proxy({ name: 'Alice', age: 25 }, handler);
+console.log(person.name);  
+person.age = 26;  
+
+ 
+function* numberGenerator() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+const numbers = [...numberGenerator()];
+const [first, ...rest] = numbers;
+console.log(first, rest);  
+
+ 
+const uniqueValues = new Set([1, 2, 3, 2, 1]);
+console.log(Array.from(uniqueValues));  
+
+ 
+class Counter {
+    static count = 0;
+    #privateField = 'I am private';
+
+    increment() {
+        Counter.count++;
+        console.log(this.#privateField);
+    }
+
+    static getCount() {
+        return Counter.count;
+    }
+}
+
+const counter = new Counter();
+counter.increment();  
+console.log(Counter.getCount());  
+
+ 
+function tag(strings, ...values) {
+    console.log(strings);
+    console.log(values);
+    return strings.reduce((result, str, i) => `${result}${str}${values[i] || ''}`, '');
+}
+
+const name = "Bob";
+const message = tag`Hello, ${name}! Welcome to ${'JavaScript'}.`;
+console.log(message);
+```

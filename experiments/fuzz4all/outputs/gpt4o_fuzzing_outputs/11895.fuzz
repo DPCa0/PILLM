@@ -1,0 +1,57 @@
+print('Hello, world!');
+```javascript
+class EventEmitter {
+    constructor() {
+        this.events = new Map();
+    }
+
+    on(event, listener) {
+        if (!this.events.has(event)) this.events.set(event, []);
+        this.events.get(event).push(listener);
+    }
+
+    emit(event, ...args) {
+        if (!this.events.has(event)) return;
+        this.events.get(event).forEach(listener => listener(...args));
+    }
+}
+
+const fetchWithTimeout = (url, timeout = 5000) => {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Timeout')), timeout);
+        fetch(url)
+            .then(response => {
+                clearTimeout(timer);
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+    });
+};
+
+(async () => {
+    const eventEmitter = new EventEmitter();
+    eventEmitter.on('dataReceived', data => console.log('Data:', data));
+    eventEmitter.on('error', err => console.error('Error:', err));
+
+    try {
+        const data = await fetchWithTimeout('https://jsonplaceholder.typicode.com/posts/1');
+        eventEmitter.emit('dataReceived', data);
+    } catch (error) {
+        eventEmitter.emit('error', error);
+    }
+
+    const dynamicPropsObject = new Proxy({}, {
+        get(target, prop) {
+            if (!(prop in target)) {
+                target[prop] = `Value of ${prop}`;
+            }
+            return target[prop];
+        }
+    });
+
+    console.log(dynamicPropsObject.hello);   
+    console.log(dynamicPropsObject.world);   
+})();
+```

@@ -1,0 +1,50 @@
+print('Hello, world!');
+```javascript
+const asyncIterable = {
+    [Symbol.asyncIterator]: async function* () {
+        const items = ['Hello', 'from', 'an', 'async', 'generator!'];
+        for (const item of items) {
+            await new Promise(resolve => setTimeout(resolve, 500));  
+            yield item;
+        }
+    }
+};
+
+(async () => {
+    const fetchedData = fetch('https://jsonplaceholder.typicode.com/posts/1').then(response => response.json());
+
+     
+    const [asyncItems, apiData] = await Promise.all([
+        (async () => {
+            let result = '';
+            for await (const item of asyncIterable) {
+                result += `${item} `;
+            }
+            return result.trim();
+        })(),
+        fetchedData
+    ]);
+
+    console.log(asyncItems);
+    console.log('Fetched API data:', apiData);
+})();
+
+ 
+const target = { language: 'JavaScript', level: 'Advanced' };
+const handler = {
+    get: (obj, prop) => {
+        console.log(`Getting ${prop}`);
+        return prop in obj ? obj[prop] : 'Property not found';
+    },
+    set: (obj, prop, value) => {
+        console.log(`Setting ${prop} to ${value}`);
+        obj[prop] = value;
+        return true;
+    }
+};
+
+const proxy = new Proxy(target, handler);
+console.log(proxy.language);
+proxy.framework = 'React';
+console.log(proxy.framework);
+```

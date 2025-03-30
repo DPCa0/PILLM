@@ -1,0 +1,46 @@
+Certainly! Here's a JavaScript program that showcases several advanced features, including Promises, async/await, destructuring, template literals, and the use of Map and Set data structures.
+
+// Function to simulate a delay using Promises
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Asynchronous function to fetch user data
+async function fetchUserData(userId) {
+    // Simulated asynchronous operation
+    await delay(1000);
+    const users = new Map([
+        [1, { name: 'Alice', age: 25 }],
+        [2, { name: 'Bob', age: 30 }],
+        [3, { name: 'Charlie', age: 35 }]
+    ]);
+    if (!users.has(userId)) throw new Error('User not found');
+    return users.get(userId);
+}
+
+// Function to process user data and output their information
+async function getUserInfo(userId) {
+    try {
+        const user = await fetchUserData(userId);
+        const { name, age } = user;
+        console.log(`User Info:
+        Name: ${name}
+        Age: ${age}`);
+        
+        const ageGroup = age >= 30 ? '30+' : '<30';
+        print(`Age Group: ${ageGroup}`);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+ 
+(async () => {
+     
+    const userIds = new Set([1, 2, 3, 4]);
+
+     
+    for (const userId of userIds) {
+        await getUserInfo(userId);
+    }
+})();
+
+This program demonstrates asynchronous operations, error handling, use of modern JavaScript structures like Map and Set, and template literals for clean output formatting.

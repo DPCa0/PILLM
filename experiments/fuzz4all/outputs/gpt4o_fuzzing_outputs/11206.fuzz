@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+import fs from 'fs/promises';
+import os from 'os';
+
+ 
+async function logSystemInfo() {
+  try {
+     
+    const { username, homedir } = os.userInfo();
+    
+     
+    const taggedTemplate = (strings, ...values) => {
+      return strings.raw.reduce((acc, str, i) => {
+        return acc + str + (values[i] ? encodeURI(values[i]) : '');
+      }, '');
+    };
+
+    const userInfo = taggedTemplate`User Information:
+      Username: ${username}
+      Home Directory: ${homedir}
+    `;
+
+     
+    const { default: fetch } = await import('node-fetch');
+    
+     
+    const response = await fetch('https://api.weatherapi.com/v1/current.json?key=YOUR_API_KEY&q=auto:ip');
+    const weatherData = await response.json();
+    
+     
+    const { location: { name, country }, current: { temp_c, condition: { text } } } = weatherData;
+    const weatherInfo = {
+      location: name,
+      country,
+      temperature: temp_c,
+      condition: text
+    };
+
+     
+    const dataToWrite = JSON.stringify({ userInfo, weatherInfo }, (key, value) => {
+      return typeof value === 'string' ? value.toUpperCase() : value;
+    }, 2);
+
+     
+    await fs.writeFile('./system-info.json', dataToWrite);
+
+    console.log('System and weather information logged successfully.');
+
+  } catch (error) {
+    console.error('Error fetching system information:', error);
+  }
+}
+
+ 
+(async () => {
+  await logSystemInfo();
+})();
+```
+
+Note: To run this code, you need Node.js with ECMAScript modules enabled, and you must replace `'YOUR_API_KEY'` with a valid API key from a weather service. Also, ensure you have the `node-fetch` package installed

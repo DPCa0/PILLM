@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+class AsyncIterable {
+  constructor(limit) {
+    this.limit = limit;
+  }
+  
+  [Symbol.asyncIterator]() {
+    let count = 0;
+    const limit = this.limit;
+    return {
+      async next() {
+        if (count < limit) {
+          await new Promise(resolve => setTimeout(resolve, 100));  
+          return { value: count++, done: false };
+        } else {
+          return { done: true };
+        }
+      }
+    };
+  }
+}
+
+const mergeArrays = async (iterables) => {
+  const results = [];
+  
+  const mergePromises = iterables.map(async (iterable) => {
+    for await (const item of iterable) {
+      results.push(item);
+    }
+  });
+  
+  await Promise.all(mergePromises);
+  
+  return results.sort((a, b) => a - b);
+};
+
+(async () => {
+  const asyncIterable1 = new AsyncIterable(5);
+  const asyncIterable2 = new AsyncIterable(5);
+
+  const mergedResult = await mergeArrays([asyncIterable1, asyncIterable2]);
+  
+  console.log("Merged and Sorted Results:", mergedResult);
+})();
+```

@@ -1,0 +1,62 @@
+print('Hello, world!');
+Certainly! Here is a JavaScript program demonstrating advanced features like asynchronous programming, generators, and Proxy:
+
+```javascript
+ 
+async function fetchData() {
+    const data = await new Promise((resolve, reject) => {
+        setTimeout(() => resolve({ message: "Hello from async world!" }), 1000);
+    });
+    console.log(data.message);
+}
+
+ 
+function* numberGenerator() {
+    let num = 0;
+    while (true) {
+        yield num++;
+    }
+}
+
+ 
+const handler = {
+    get: (target, prop) => {
+        if (prop in target) {
+            return `Property ${prop} is ${target[prop]}`;
+        } else {
+            return `Property ${prop} does not exist`;
+        }
+    },
+    set: (target, prop, value) => {
+        if (typeof value === 'number') {
+            target[prop] = value;
+            return true;
+        } else {
+            throw new TypeError('Values must be numbers');
+        }
+    }
+};
+
+const targetObject = {};
+const proxy = new Proxy(targetObject, handler);
+
+try {
+    proxy.a = 10;
+    console.log(proxy.a);
+    console.log(proxy.b);
+     
+     
+} catch (e) {
+    console.error(e.message);
+}
+
+ 
+const gen = numberGenerator();
+console.log(gen.next().value);  
+console.log(gen.next().value);  
+
+ 
+fetchData();
+```
+
+This program covers different complex JavaScript features: asynchronous functions with Promises, generator functions, and using Proxy to intercept and handle object property interactions.

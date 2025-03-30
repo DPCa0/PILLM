@@ -1,0 +1,37 @@
+class Fibonacci {
+    #memo = new Map([[0, 0], [1, 1]]);
+
+    calculate(n) {
+        if (this.#memo.has(n)) return this.#memo.get(n);
+        const result = this.calculate(n - 1) + this.calculate(n - 2);
+        this.#memo.set(n, result);
+        return result;
+    }
+}
+
+const asyncFib = async (num) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const fib = new Fibonacci();
+            const result = fib.calculate(num);
+            resolve(result);
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+const printFibonacci = async (num) => {
+    try {
+        const result = await asyncFib(num);
+        print(`Fibonacci of ${num} is ${result}`);
+    } catch (error) {
+        console.error('Error calculating Fibonacci:', error);
+    }
+};
+
+(async () => {
+    for await (const num of [5, 10, 15]) {
+        await printFibonacci(num);
+    }
+})();

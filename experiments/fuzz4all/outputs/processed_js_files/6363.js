@@ -1,0 +1,45 @@
+class Fibonacci {
+    constructor(max) {
+        this.max = max;
+        this.memo = new Map();
+    }
+
+    *[Symbol.iterator]() {
+        let [a, b] = [0, 1];
+        for (let i = 0; i < this.max; i++) {
+            yield a;
+            [a, b] = [b, a + b];
+        }
+    }
+
+    memoized(n) {
+        if (n < 2) return n;
+        if (this.memo.has(n)) return this.memo.get(n);
+        const result = this.memoized(n - 1) + this.memoized(n - 2);
+        this.memo.set(n, result);
+        return result;
+    }
+
+    static async parallelProcess(fn, ...args) {
+        const promises = args.map(arg => fn(arg));
+        return await Promise.all(promises);
+    }
+}
+
+(async () => {
+    const fib = new Fibonacci(10);
+
+     
+    print('Fibonacci Sequence:');
+    for (const num of fib) {
+        print(num);
+    }
+
+     
+    print('\nMemoized Fibonacci (5):', fib.memoized(5));
+    print('Memoized Fibonacci (10):', fib.memoized(10));
+
+     
+    const results = await Fibonacci.parallelProcess(fib.memoized.bind(fib), 15, 20, 25);
+    print('\nParallel Processed Memoized Results:', results);
+})();

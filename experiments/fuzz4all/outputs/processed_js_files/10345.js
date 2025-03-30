@@ -1,0 +1,54 @@
+ 
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+ 
+async function* numberGenerator(max) {
+    for (let i = 0; i < max; i++) {
+        await delay(100);
+        yield i;
+    }
+}
+
+ 
+const transform = async (num, func) => {
+    await delay(50);
+    return func(num);
+};
+
+ 
+async function processNumbers({max, transformFunc}) {
+    const results = [];
+    for await (const num of numberGenerator(max)) {
+        const transformed = await transform(num, transformFunc);
+        print(`Transformed ${num} to ${transformed}`);
+        results.push(transformed);
+    }
+    return results;
+}
+
+ 
+const logHandler = {
+    get: (target, prop, receiver) => {
+        print(`Getting ${prop}`);
+        return Reflect.get(target, prop, receiver);
+    },
+    set: (target, prop, value, receiver) => {
+        print(`Setting ${prop} to ${value}`);
+        return Reflect.set(target, prop, value, receiver);
+    }
+};
+
+ 
+const sampleObject = {
+    max: 5,
+    transformFunc: x => x * x
+};
+
+ 
+const proxyObject = new Proxy(sampleObject, logHandler);
+
+ 
+(async () => {
+    const squaredNumbers = await processNumbers(proxyObject);
+    print(`Final results: ${JSON.stringify(squaredNumbers)}`);
+})();

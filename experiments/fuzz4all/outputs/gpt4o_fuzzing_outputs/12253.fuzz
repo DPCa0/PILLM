@@ -1,0 +1,46 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator(urls) {
+    for (let url of urls) {
+        yield fetch(url).then(response => response.json());
+    }
+}
+
+ 
+const handler = {
+    get: (target, property) => {
+        console.log(`Property '${property}' has been accessed.`);
+        return target[property];
+    }
+};
+
+const dataProxy = new Proxy({}, handler);
+
+ 
+async function fetchAndStoreData(urls) {
+    const generator = fetchDataGenerator(urls);
+
+    for (let result of generator) {
+        let data = await result;   
+        dataProxy[data.id] = data;   
+    }
+    console.log("Data fetching and storing completed.");
+}
+
+ 
+const urls = [
+    'https://jsonplaceholder.typicode.com/todos/1',
+    'https://jsonplaceholder.typicode.com/todos/2'
+];
+
+fetchAndStoreData(urls)
+    .then(() => {
+         
+        console.log(dataProxy[1]);
+        console.log(dataProxy[2]);
+    })
+    .catch(error => console.error("Error fetching data:", error));
+```

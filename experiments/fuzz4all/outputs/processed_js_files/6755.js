@@ -1,0 +1,71 @@
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+class Observer {
+  constructor() {
+    this.listeners = new Set();
+  }
+
+  subscribe(listener) {
+    this.listeners.add(listener);
+  }
+
+  unsubscribe(listener) {
+    this.listeners.delete(listener);
+  }
+
+  notify(data) {
+    this.listeners.forEach(listener => listener(data));
+  }
+}
+
+class Store {
+  constructor(initialState) {
+    this.state = initialState;
+    this.observer = new Observer();
+  }
+
+  getState() {
+    return this.state;
+  }
+
+  setState(newState) {
+    this.state = { ...this.state, ...newState };
+    this.observer.notify(this.state);
+  }
+
+  subscribe(listener) {
+    this.observer.subscribe(listener);
+  }
+
+  unsubscribe(listener) {
+    this.observer.unsubscribe(listener);
+  }
+}
+
+const exampleFunction = async () => {
+  const url = 'https://jsonplaceholder.typicode.com/todos/1';
+  const data = await fetchData(url);
+
+  const initialState = { data: null, loading: true, error: null };
+  const store = new Store(initialState);
+
+  store.subscribe((state) => {
+    print('State updated:', state);
+  });
+
+  if (data) {
+    store.setState({ data, loading: false });
+  } else {
+    store.setState({ error: 'Failed to fetch data', loading: false });
+  }
+};
+
+exampleFunction();

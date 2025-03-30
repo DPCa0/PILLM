@@ -1,0 +1,69 @@
+ 
+
+ 
+const fibonacci = (() => {
+  const memo = new Map();
+  
+  const fib = (n) => {
+    if (memo.has(n)) return memo.get(n);
+    if (n < 2) return n;
+    const result = fib(n - 1) + fib(n - 2);
+    memo.set(n, result);
+    return result;
+  };
+
+  return fib;
+})();
+
+ 
+function* fibonacciGenerator(limit) {
+  let [a, b] = [0, 1];
+  while (limit--) {
+    yield a;
+    [a, b] = [b, a + b];
+  }
+}
+
+ 
+const fetchData = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    print('Data fetched:', data);
+  } catch (error) {
+    console.error('Fetching error:', error);
+  }
+};
+
+ 
+const createLoggedObject = (obj) => {
+  return new Proxy(obj, {
+    get(target, prop, receiver) {
+      print(`Getting property "${prop}"`);
+      return Reflect.get(target, prop, receiver);
+    },
+    set(target, prop, value, receiver) {
+      print(`Setting property "${prop}" to "${value}"`);
+      return Reflect.set(target, prop, value, receiver);
+    }
+  });
+};
+
+ 
+
+ 
+print(fibonacci(10));  
+
+ 
+for (const num of fibonacciGenerator(10)) {
+  print(num);
+}
+
+ 
+fetchData('https://api.github.com/');
+
+ 
+const obj = createLoggedObject({ a: 1, b: 2 });
+obj.a;  
+obj.b = 3;  

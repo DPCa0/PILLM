@@ -1,0 +1,67 @@
+class Matrix {
+    constructor(rows, cols, fill = 0) {
+        this.data = Array.from({ length: rows }, () => Array(cols).fill(fill));
+    }
+
+    static fromArray(arr) {
+        const mat = new Matrix(arr.length, arr[0].length);
+        mat.map((_, i, j) => arr[i][j]);
+        return mat;
+    }
+
+    map(fn) {
+        this.data = this.data.map((row, i) =>
+            row.map((val, j) => fn(val, i, j))
+        );
+        return this;
+    }
+
+    multiply(other) {
+        if (other instanceof Matrix) {
+             
+            if (this.data[0].length !== other.data.length) {
+                throw new Error("Columns of A must match rows of B");
+            }
+            return new Matrix(this.data.length, other.data[0].length)
+                .map((_, i, j) =>
+                    this.data[i].reduce(
+                        (sum, el, k) => sum + el * other.data[k][j],
+                        0
+                    )
+                );
+        } else {
+             
+            return this.map(val => val * other);
+        }
+    }
+
+    print() {
+        console.table(this.data);
+    }
+}
+
+ 
+(async () => {
+    const { default: fetch } = await import('node-fetch');
+
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+    const posts = await response.json();
+
+    const exampleData = posts.slice(0, 3).map(post => [
+        post.userId,
+        post.id,
+        post.title.length
+    ]);
+
+    const matrixA = Matrix.fromArray(exampleData);
+    print("Matrix A:");
+    matrixA.print();
+
+    const matrixB = new Matrix(3, 3, 1);
+    print("Matrix B:");
+    matrixB.print();
+
+    const result = matrixA.multiply(matrixB);
+    print("Result of A * B:");
+    result.print();
+})();

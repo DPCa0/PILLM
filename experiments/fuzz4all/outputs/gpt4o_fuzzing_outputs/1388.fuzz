@@ -1,0 +1,51 @@
+print('Hello, world!');
+```javascript
+ 
+
+ 
+function* fetchDataGenerator() {
+  yield new Promise((resolve) => setTimeout(() => resolve({ user: 'Alice', id: 1 }), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve({ user: 'Bob', id: 2 }), 1000));
+  yield new Promise((resolve) => setTimeout(() => resolve({ user: 'Charlie', id: 3 }), 1000));
+}
+
+ 
+async function fetchAllData() {
+  const generator = fetchDataGenerator();
+  const results = [];
+
+  for await (const dataPromise of generator) {
+    const data = await dataPromise;
+    results.push(data);
+  }
+
+  return results;
+}
+
+ 
+async function transformData() {
+  const data = await fetchAllData();
+  const userMap = new Map();
+
+  data.forEach(({ user, id }) => {
+    userMap.set(id, user);
+  });
+
+  return userMap;
+}
+
+ 
+function formatOutput(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? `[${values[i]}]` : '';
+    return `${result}${string}${value}`;
+  }, '');
+}
+
+ 
+transformData().then(userMap => {
+  userMap.forEach((user, id) => {
+    console.log(formatOutput`User with ID ${id} is ${user}`);
+  });
+});
+```

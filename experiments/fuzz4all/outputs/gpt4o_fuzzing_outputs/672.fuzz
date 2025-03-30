@@ -1,0 +1,43 @@
+print('Hello, world!');
+```javascript
+class AsyncProcessor {
+    static async *fetchData(urls) {
+        for (let url of urls) {
+            const response = await fetch(url);
+            yield response.json();
+        }
+    }
+}
+
+function memoize(fn) {
+    const cache = new Map();
+    return (...args) => {
+        const key = JSON.stringify(args);
+        if (!cache.has(key)) {
+            cache.set(key, fn(...args));
+        }
+        return cache.get(key);
+    };
+}
+
+const computeExpensiveOperation = memoize((num) => {
+    console.log(`Computing expensive operation for ${num}`);
+    return num * num;
+});
+
+(async function() {
+    const urls = [
+        'https://jsonplaceholder.typicode.com/posts/1',
+        'https://jsonplaceholder.typicode.com/posts/2'
+    ];
+    const processor = AsyncProcessor.fetchData(urls);
+
+    for await (let data of processor) {
+        console.log('Fetched data:', data);
+    }
+
+    console.log('Memoization Test:');
+    console.log(computeExpensiveOperation(2));
+    console.log(computeExpensiveOperation(2));  
+})();
+```

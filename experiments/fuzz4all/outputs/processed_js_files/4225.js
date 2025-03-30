@@ -1,0 +1,38 @@
+ 
+async function fetchAndProcessData(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+
+     
+    const transformedData = data.map(({ id, name }) => ({ id, name: name.toUpperCase() }));
+
+     
+    const uniqueNames = [...new Set(transformedData.map(item => item.name))];
+
+     
+    const handler = {
+      get: (target, prop) => (prop in target ? target[prop] : `No property ${prop}`),
+      set: (target, prop, value) => {
+        print(`Setting ${prop} to ${value}`);
+        target[prop] = value;
+        return true;
+      }
+    };
+    const proxyData = new Proxy(transformedData, handler);
+
+     
+    print(formatOutput`Data:\n${proxyData}\n\nUnique Names:\n${uniqueNames.join(', ')}`);
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+}
+
+ 
+function formatOutput(strings, ...values) {
+  return strings.reduce((prev, current, i) => prev + current + (values[i] ? JSON.stringify(values[i], null, 2) : ''), '');
+}
+
+ 
+fetchAndProcessData('https://jsonplaceholder.typicode.com/users');

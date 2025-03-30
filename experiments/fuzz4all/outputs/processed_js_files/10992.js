@@ -1,0 +1,59 @@
+ 
+
+ 
+function fetchData(url) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const data = { url, content: "Sample Data" };
+      resolve(data);
+    }, 1000);
+  });
+}
+
+ 
+function* dataGenerator(urls) {
+  for (const url of urls) {
+    const data = yield fetchData(url);
+    print(`Data fetched for ${url}:`, data);
+  }
+}
+
+ 
+async function executeGenerator(gen) {
+  const iterator = gen();
+
+  async function step(nextFn, value) {
+    let result;
+    try {
+      result = nextFn(value);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+
+    if (result.done) return result.value;
+
+    const nextValue = await result.value;
+    return step(iterator.next.bind(iterator), nextValue);
+  }
+
+  return step(iterator.next.bind(iterator));
+}
+
+ 
+const handler = {
+  get(target, prop, receiver) {
+    print(`Getting ${prop} property`);
+    return Reflect.get(...arguments);
+  },
+  set(target, prop, value) {
+    print(`Setting ${prop} to ${value}`);
+    return Reflect.set(...arguments);
+  },
+};
+
+const urls = new Proxy(['https://api.example.com/data1', 'https://api.example.com/data2'], handler);
+
+ 
+executeGenerator(dataGenerator.bind(null, urls)).then(() => {
+  print('All data fetched.');
+});

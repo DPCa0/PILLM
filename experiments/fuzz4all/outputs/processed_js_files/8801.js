@@ -1,0 +1,52 @@
+ 
+import fs from 'fs/promises';
+import crypto from 'crypto';
+
+async function complexOperation() {
+  try {
+     
+    const buffer = crypto.randomBytes(64);
+    
+     
+    const hexString = buffer.toString('hex');
+
+     
+    await fs.writeFile('randomHex.txt', hexString);
+
+    print('Hex string written to file.');
+
+     
+    const data = await fs.readFile('randomHex.txt', 'utf8');
+    
+    print('Read from file:', data);
+
+     
+    const user = {
+      name: 'Jane Doe',
+      details: {
+        age: 30,
+        location: 'Unknown',
+      },
+    };
+
+    const {
+      name,
+      details: { age, location },
+    } = user;
+    
+    print(`User Info: Name - ${name}, Age - ${age}, Location - ${location}`);
+
+     
+    function* numberGenerator() {
+      yield* [1, 2, 3, 4, 5];
+    }
+
+    const [first, second, ...rest] = numberGenerator();
+    print(`First: ${first}, Second: ${second}, Rest: ${rest}`);
+
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+}
+
+complexOperation();

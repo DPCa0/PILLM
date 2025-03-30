@@ -1,0 +1,37 @@
+ 
+
+const asyncOperation = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(Math.random()), 1000);
+  });
+};
+
+const runAsyncTasks = async () => {
+  const results = await Promise.all([asyncOperation(), asyncOperation(), asyncOperation()]);
+
+  const symbolKey = Symbol('uniqueKey');
+  
+  const dataMap = new Map();
+  dataMap.set('task1', results[0]);
+  dataMap.set('task2', results[1]);
+  dataMap.set(symbolKey, results[2]);
+
+  const handler = {
+    get: (target, prop) => {
+      if (prop === 'average') {
+        const sum = Array.from(target.values()).reduce((acc, val) => acc + val, 0);
+        return sum / target.size;
+      }
+      return target[prop] || 'Property does not exist';
+    }
+  };
+
+  const proxyDataMap = new Proxy(dataMap, handler);
+
+  print(`Task 1 Result: ${proxyDataMap.get('task1')}`);
+  print(`Task 2 Result: ${proxyDataMap.get('task2')}`);
+  print(`Unique Task Result: ${proxyDataMap.get(symbolKey)}`);
+  print(`Average Result: ${proxyDataMap.average}`);
+};
+
+runAsyncTasks();

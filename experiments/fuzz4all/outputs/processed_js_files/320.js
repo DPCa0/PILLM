@@ -1,0 +1,39 @@
+ 
+
+const fetchData = async () => {
+  try {
+     
+    const fetchDataPromise = new Promise((resolve, reject) => {
+      setTimeout(() => {
+         
+        const data = {
+          users: [
+            { id: 1, name: 'Alice', role: 'admin' },
+            { id: 2, name: 'Bob', role: 'user' },
+            { id: 3, name: 'Charlie', role: 'user' }
+          ]
+        };
+        resolve(data);
+      }, 2000);
+    });
+
+     
+    const { users } = await fetchDataPromise;
+
+     
+    const [firstUser, ...otherUsers] = users;
+    print('First User:', firstUser);
+
+     
+    const userNames = otherUsers.map(({ name }) => `User: ${name}`);
+    print('Other User Names:', userNames.join(', '));
+
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+};
+
+ 
+(async () => {
+  await fetchData();
+})();

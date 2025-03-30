@@ -1,0 +1,57 @@
+Certainly! Here's a JavaScript program using advanced features like Promises, async/await, arrow functions, template literals, and destructuring.
+
+// Simulate fetching user data from an API
+const fetchUserData = () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        name: "John Doe",
+        age: 30,
+        address: {
+          street: "123 Maple St",
+          city: "Anytown",
+          country: "Wonderland"
+        }
+      });
+    }, 1000);
+  });
+
+// Simulate fetching user's posts from an API
+const fetchUserPosts = () =>
+  new Promise((resolve) => {
+    setTimeout(() => {
+      resolve([
+        { title: "My first post", content: "Hello, this is my first post!" },
+        { title: "A day in life", content: "Today was a great day!" }
+      ]);
+    }, 1000);
+  });
+
+ 
+const displayUserDetails = async () => {
+  try {
+    const userPromise = fetchUserData();
+    const postsPromise = fetchUserPosts();
+
+    const [{ name, age, address }, posts] = await Promise.all([
+      userPromise,
+      postsPromise
+    ]);
+
+    const { street, city, country } = address;
+
+    console.log(`User Details:
+      Name: ${name}
+      Age: ${age}
+      Address: ${street}, ${city}, ${country}`);
+
+    print(`Posts:`);
+    posts.forEach(({ title, content }) =>
+      console.log(`- ${title}: ${content}`)
+    );
+  } catch (error) {
+    console.error("An error occurred:", error);
+  }
+};
+
+displayUserDetails();

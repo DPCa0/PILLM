@@ -1,0 +1,39 @@
+print('Hello, world!');
+```javascript
+ 
+
+const fetchData = async (url) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const fakeData = { data: `Data from ${url}` };
+            resolve(fakeData);
+        }, 1000);
+    });
+};
+
+const cachedFetch = (() => {
+    const cache = new Map();
+    
+    return new Proxy(fetchData, {
+        apply: async (target, thisArg, args) => {
+            const url = args[0];
+            if (cache.has(url)) {
+                console.log('Fetching from cache:', url);
+                return cache.get(url);
+            } else {
+                console.log('Fetching from network:', url);
+                const result = await Reflect.apply(target, thisArg, args);
+                cache.set(url, result);
+                return result;
+            }
+        }
+    });
+})();
+
+(async () => {
+    console.log(await cachedFetch('https://api.example.com/data1'));
+    console.log(await cachedFetch('https://api.example.com/data2'));
+    console.log(await cachedFetch('https://api.example.com/data1'));  
+    console.log(await cachedFetch('https://api.example.com/data3'));
+})();
+```

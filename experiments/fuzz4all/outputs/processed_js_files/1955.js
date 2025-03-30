@@ -1,0 +1,50 @@
+ 
+
+async function fetchUserData() {
+  const simulateNetworkRequest = () =>
+    new Promise((resolve) =>
+      setTimeout(
+        () =>
+          resolve([
+            { id: 1, name: 'Alice', age: 28 },
+            { id: 2, name: 'Bob', age: 34 },
+            { id: 3, name: 'Charlie', age: 22 },
+          ]),
+        1000
+      )
+    );
+
+  const userData = await simulateNetworkRequest();
+  return userData;
+}
+
+const processUserData = async () => {
+  try {
+    const users = await fetchUserData();
+    
+     
+    const processedUsers = users.map(({ name, age }) => ({
+      welcomeMessage: `Hello, ${name}!`,
+      ageCategory: age > 30 ? 'Senior' : 'Junior',
+    }));
+
+     
+    const summary = {
+      count: processedUsers.length,
+      ...processedUsers.reduce(
+        (acc, { ageCategory }) => ({
+          ...acc,
+          [ageCategory]: acc[ageCategory] ? acc[ageCategory] + 1 : 1,
+        }),
+        {}
+      ),
+    };
+
+    print('Processed User Data:', processedUsers);
+    print('Summary:', summary);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
+processUserData();

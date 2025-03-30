@@ -1,0 +1,50 @@
+class AsyncIterator {
+  constructor(max) {
+    this.max = max;
+    this.current = 0;
+  }
+  
+  [Symbol.asyncIterator]() {
+    return {
+      max: this.max,
+      current: this.current,
+      next() {
+        if (this.current < this.max) {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve({ value: this.current++, done: false });
+            }, 1000);
+          });
+        }
+        return Promise.resolve({ done: true });
+      }
+    };
+  }
+}
+
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function* createAsyncGenerator(max) {
+  for (let i = 0; i < max; i++) {
+    await delay(500);
+    yield i;
+  }
+}
+
+(async function() {
+  const asyncIterator = new AsyncIterator(5);
+  print('Using Async Iterator:');
+  for await (let num of asyncIterator) {
+    print(num);
+  }
+
+  print('Using Async Generator:');
+  const asyncGen = createAsyncGenerator(5);
+  for await (let num of asyncGen) {
+    print(num);
+  }
+
+  print('Finished!');
+})();

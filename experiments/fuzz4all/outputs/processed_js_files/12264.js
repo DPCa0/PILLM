@@ -1,0 +1,61 @@
+class AsyncIterableQueue {
+  constructor() {
+    this._queue = [];
+    this._resolvers = [];
+  }
+
+  enqueue(item) {
+    if (this._resolvers.length > 0) {
+      const resolve = this._resolvers.shift();
+      resolve({ value: item, done: false });
+    } else {
+      this._queue.push(item);
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return this;
+  }
+
+  next() {
+    if (this._queue.length > 0) {
+      const value = this._queue.shift();
+      return Promise.resolve({ value, done: false });
+    } else {
+      return new Promise((resolve) => this._resolvers.push(resolve));
+    }
+  }
+
+  return() {
+    this._resolvers.forEach((resolve) => resolve({ done: true }));
+    this._resolvers = [];
+    this._queue = [];
+    return Promise.resolve({ done: true });
+  }
+}
+
+async function* fetchData(urls) {
+  for (const url of urls) {
+    yield fetch(url).then((response) => response.json());
+  }
+}
+
+async function process() {
+  const urls = ['https://jsonplaceholder.typicode.com/posts/1', 'https://jsonplaceholder.typicode.com/posts/2'];
+  const dataQueue = new AsyncIterableQueue();
+
+  const fetcher = fetchData(urls);
+  const processor = (async function () {
+    for await (const item of dataQueue) {
+      print('Processed:', item.title);
+    }
+  })();
+
+  for await (const data of fetcher) {
+    dataQueue.enqueue(data);
+  }
+  dataQueue.return();
+  await processor;
+}
+
+process();

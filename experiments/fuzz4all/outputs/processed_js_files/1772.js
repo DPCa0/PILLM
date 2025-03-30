@@ -1,0 +1,50 @@
+ 
+
+ 
+async function fetchData(url) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (url === "valid_url") {
+                resolve({ data: "Important data from " + url });
+            } else {
+                reject(new Error("Invalid URL"));
+            }
+        }, 1000);
+    });
+}
+
+ 
+const _data = Symbol("data");
+
+ 
+const dataHandler = {
+    get(target, property, receiver) {
+        if (property === _data) {
+            print("Accessing private data");
+        }
+        return Reflect.get(target, property, receiver);
+    },
+    set(target, property, value, receiver) {
+        print(`Setting value ${value} to ${property}`);
+        return Reflect.set(target, property, value, receiver);
+    }
+};
+
+ 
+async function main() {
+    const targetObject = { [_data]: null, status: "Pending" };
+    const proxiedObject = new Proxy(targetObject, dataHandler);
+
+    try {
+        proxiedObject.status = "Fetching";
+        const result = await fetchData("valid_url");
+        proxiedObject[_data] = result.data;
+        proxiedObject.status = "Complete";
+        print(proxiedObject[_data]);
+    } catch (error) {
+        proxiedObject.status = "Error";
+        console.error(error.message);
+    }
+}
+
+main();

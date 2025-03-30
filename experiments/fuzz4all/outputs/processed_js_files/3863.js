@@ -1,0 +1,59 @@
+class ComplexFeatureExample {
+  #privateData = new WeakMap();
+
+  constructor() {
+    this.asyncGenerator = this.#generateAsyncValues();
+    this.proxyHandler = {
+      get: (obj, prop) => {
+        if (prop === 'secret') {
+          return 'Access Denied';
+        }
+        return Reflect.get(obj, prop);
+      },
+    };
+    this.proxyObject = new Proxy({ secret: 'Top Secret', public: 'Available' }, this.proxyHandler);
+  }
+
+  async *#generateAsyncValues() {
+    let value = 1;
+    while (value <= 3) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      yield value++;
+    }
+  }
+
+  async showAsyncValues() {
+    for await (let val of this.asyncGenerator) {
+      print(`Async Value: ${val}`);
+    }
+  }
+
+  setPrivateData(key, value) {
+    this.#privateData.set(key, value);
+  }
+
+  getPrivateData(key) {
+    return this.#privateData.get(key) || 'No Data Found';
+  }
+
+  demonstrateProxy() {
+    print(`Proxy access (public): ${this.proxyObject.public}`);
+    print(`Proxy access (secret): ${this.proxyObject.secret}`);
+  }
+}
+
+ 
+(async function runComplexFeatureExample() {
+  const example = new ComplexFeatureExample();
+  
+   
+  await example.showAsyncValues();
+  
+   
+  const privateKey = {};
+  example.setPrivateData(privateKey, 'Sensitive Information');
+  print(`Retrieved Private Data: ${example.getPrivateData(privateKey)}`);
+  
+   
+  example.demonstrateProxy();
+})();

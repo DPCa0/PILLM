@@ -1,0 +1,53 @@
+ 
+const complexAsyncTask = async (param) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (param > 5) {
+        resolve(`Success: ${param}`);
+      } else {
+        reject(`Error: ${param}`);
+      }
+    }, 1000);
+  });
+};
+
+ 
+const handler = {
+  get: (target, prop) => {
+    if (prop in target) {
+      print(`Property '${prop}' accessed with value: ${target[prop]}`);
+      return target[prop];
+    } else {
+      console.error(`Property '${prop}' not found`);
+    }
+  },
+  set: (target, prop, value) => {
+    print(`Property '${prop}' set to value: ${value}`);
+    target[prop] = value;
+    return true;
+  }
+};
+
+const data = { name: 'Advanced JavaScript', type: 'Example' };
+const proxyData = new Proxy(data, handler);
+
+(async () => {
+  proxyData.name;  
+
+  try {
+    const result = await complexAsyncTask(7);
+    print(result);
+  } catch (error) {
+    console.error(error);
+  }
+
+   
+  const showDetails = ({ name, ...rest }) => {
+    print(`Name: ${name}, Details:`, rest);
+  };
+
+  proxyData.name = 'JS Proxy Example';
+  proxyData.version = '1.0';
+
+  showDetails(proxyData);
+})();

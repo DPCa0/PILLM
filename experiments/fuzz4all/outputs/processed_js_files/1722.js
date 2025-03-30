@@ -1,0 +1,45 @@
+ 
+
+ 
+async function getUserData(userId) {
+    const proxyHandler = {
+        get: (target, prop) => {
+            return prop in target ? target[prop] : `Property ${prop} is not available`;
+        }
+    };
+
+    const simulateApiCall = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            const data = {
+                [Symbol('id')]: userId,
+                name: 'John Doe',
+                email: 'john.doe@example.com'
+            };
+            const proxy = new Proxy(data, proxyHandler);
+            resolve(proxy);
+        }, 1000);
+    });
+
+    try {
+        const userData = await simulateApiCall;
+        print(`User ID: ${userData[Symbol('id')]}`);  
+        print(`User Name: ${userData.name}`);
+        print(`User Email: ${userData.email}`);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+    }
+}
+
+ 
+function* generateUserIds() {
+    let id = 1;
+    while (true) {
+        yield id++;
+    }
+}
+
+ 
+const userIdGenerator = generateUserIds();
+
+ 
+getUserData(userIdGenerator.next().value);

@@ -1,0 +1,43 @@
+ 
+
+ 
+const fetchData = async (id) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ id, data: `Data for item ${id}` });
+    }, Math.random() * 1000);
+  });
+};
+
+ 
+function* dataGenerator(count) {
+  for (let i = 1; i <= count; i++) {
+    yield fetchData(i);
+  }
+}
+
+ 
+const dataLogger = (target) => {
+  return new Proxy(target, {
+    get(obj, prop) {
+      print(`Accessing property ${prop}`);
+      return Reflect.get(obj, prop);
+    },
+  });
+};
+
+ 
+(async () => {
+  const dataTasks = [...dataGenerator(5)];
+  
+  const results = await Promise.all(dataTasks);
+  
+  const processedData = results.map(result => dataLogger({
+    id: result.id,
+    processedData: result.data.toUpperCase(),
+  }));
+
+  for (let data of processedData) {
+    print(`Processed Data for ID ${data.id}: ${data.processedData}`);
+  }
+})();

@@ -1,0 +1,62 @@
+print('Hello, world!');
+```javascript
+ 
+
+class API {
+  constructor() {
+    this.data = [1, 2, 3, 4, 5];
+  }
+
+  fetchData() {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        Math.random() > 0.1 ? resolve(this.data) : reject('Error: Failed to fetch data.');
+      }, 1000);
+    });
+  }
+}
+
+async function processData() {
+  try {
+    const api = new API();
+    let data = await api.fetchData();
+
+    const proxyHandler = {
+      get(target, property) {
+        if (property in target) {
+          console.log(`Accessing ${property}: ${target[property]}`);
+          return target[property];
+        } else {
+          console.log(`Property ${property} doesn't exist`);
+          return undefined;
+        }
+      },
+      set(target, property, value) {
+        console.log(`Setting ${property} to ${value}`);
+        target[property] = value;
+        return true;
+      }
+    };
+
+    const proxiedData = new Proxy(data, proxyHandler);
+
+     
+    let [first, second, ...rest] = proxiedData;
+
+    console.log(`First element: ${first}`);
+    console.log(`Second element: ${second}`);
+    console.log(`Rest of the elements: ${rest}`);
+
+     
+    let extendedData = [...proxiedData, 6, 7, 8];
+    console.log(`Extended data: ${extendedData}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+ 
+(async () => {
+  await processData();
+})();
+```

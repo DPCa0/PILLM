@@ -1,0 +1,32 @@
+ 
+const fs = require('fs').promises;
+const { pipeline } = require('stream/promises');
+const fetch = require('node-fetch');
+
+ 
+async function fetchDataAndWriteToFile(url, filePath) {
+  try {
+     
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch data');
+
+     
+    await pipeline(
+      response.body,
+      fs.createWriteStream(filePath)
+    );
+
+    print(`Data has been written to ${filePath}`);
+  } catch (error) {
+    console.error(`An error occurred: ${error.message}`);
+  }
+}
+
+ 
+(async () => {
+   
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const filePath = './posts.json';
+
+  await fetchDataAndWriteToFile(url, filePath);
+})();
